@@ -23,6 +23,8 @@
 #import "SceneRendererES1.h"
 #import "GlobeMath.h"
 
+using namespace WhirlyGlobe;
+
 @implementation WhirlyGlobeTapDelegate
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView

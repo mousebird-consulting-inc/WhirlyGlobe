@@ -81,15 +81,15 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
 - (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 /// Add a rectangle (in 3-space) always available for selection
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(Point3f *)pts;
+- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(WhirlyGlobe::Point3f *)pts;
 
 /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
+- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(WhirlyGlobe::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
 /// Remove the given selectable from consideration
 - (void)removeSelectable:(WhirlyGlobe::SimpleIdentity)selectId;
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-- (WhirlyGlobe::SimpleIdentity)pickObject:(Point2f)touchPt maxDist:(float)maxDist;
+- (WhirlyGlobe::SimpleIdentity)pickObject:(WhirlyGlobe::Point2f)touchPt maxDist:(float)maxDist;
 
 @end

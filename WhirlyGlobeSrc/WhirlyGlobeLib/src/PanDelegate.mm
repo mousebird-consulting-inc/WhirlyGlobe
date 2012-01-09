@@ -23,6 +23,8 @@
 #import "SceneRendererES1.h"
 #import "PanDelegate.h"
 
+using namespace WhirlyGlobe;
+
 @implementation WhirlyGlobePanDelegate
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView

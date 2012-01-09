@@ -25,11 +25,12 @@
 #import <Eigen/Eigen>
 #import <vector>
 
-typedef Eigen::Vector3f Point3f;
-typedef Eigen::Vector2f Point2f;
-
 namespace WhirlyGlobe
 {
+
+typedef Eigen::Vector3f Point3f;
+typedef Eigen::Vector2f Point2f;
+    
 	
 /// Convenience wrapper for texture coordinate
 class TexCoord : public Eigen::Vector2f

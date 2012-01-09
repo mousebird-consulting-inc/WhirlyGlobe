@@ -296,7 +296,6 @@
 			isa = PBXGroup;
 			children = (
 				2B38909F12DF8786006FC3A1 /* ESRenderer.h */,
-				2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */,
 				2BC53FDB12DE23BA00778431 /* EAGLView.h */,
 			);
 			name = rendering;
@@ -373,7 +372,6 @@
 			children = (
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
 				2BCAB9A912F897E20049D73C /* DataLayer.h */,
-				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
 				2B951C7D12EFA262005003AE /* GridLines.h */,
 				2B951D9812F09F31005003AE /* VectorLayer.h */,
 				2BB1F06813007031001F33CD /* LabelLayer.h */,
@@ -409,15 +407,9 @@
 			isa = PBXGroup;
 			children = (
 				2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */,
-				2BCABA5912F8D6DD0049D73C /* geometry utils */,
-				2B35A84F1337CC0F0047C705 /* OpenGL Utils */,
-				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
-				2B3890A612DF8C8B006FC3A1 /* rendering */,
-				2BE6EE5212E4F3BE00415490 /* WhirlyGlobe interaction */,
-				2BD0E68513254D4D00CD95A8 /* data */,
-				2BCABA5A12F8D7070049D73C /* scene & view */,
-				2BCF39DE14BB814F006B0FC0 /* WhirlyGlobe view */,
-				2B951D9612F09EE1005003AE /* layers & generators */,
+				2BCF39DF14BB8E3F006B0FC0 /* WhirlyKit */,
+				2BCF39E014BB8EA2006B0FC0 /* WhirlyGlobe */,
+				2BCF39E414BB8FD6006B0FC0 /* WhirlyMap */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -442,14 +434,13 @@
 			children = (
 				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
 				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
-				2BCABB9812FA14300049D73C /* GlobeMath.h */,
 				2BEFDE95149966D400C63326 /* GridClipper.h */,
 				2BEFDE96149966D400C63326 /* Tesselator.h */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";
 		};
-		2BCABA5A12F8D7070049D73C /* scene & view */ = {
+		2BCABA5A12F8D7070049D73C /* scene */ = {
 			isa = PBXGroup;
 			children = (
 				2BB1F07E130098E6001F33CD /* Identifiable.h */,
@@ -463,7 +454,7 @@
 				2BFC34D513CBF9F500403799 /* DrawCost.h */,
 				2B3009BD1427959000B1C69E /* RenderCache.h */,
 			);
-			name = "scene & view";
+			name = scene;
 			sourceTree = "<group>";
 		};
 		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
@@ -499,14 +490,71 @@
 			name = "scene & view";
 			sourceTree = "<group>";
 		};
-		2BCF39DE14BB814F006B0FC0 /* WhirlyGlobe view */ = {
+		2BCF39DE14BB814F006B0FC0 /* view */ = {
 			isa = PBXGroup;
 			children = (
 				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
 				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
 				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
 			);
-			name = "WhirlyGlobe view";
+			name = view;
+			sourceTree = "<group>";
+		};
+		2BCF39DF14BB8E3F006B0FC0 /* WhirlyKit */ = {
+			isa = PBXGroup;
+			children = (
+				2BCABA5912F8D6DD0049D73C /* geometry utils */,
+				2B35A84F1337CC0F0047C705 /* OpenGL Utils */,
+				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
+				2B3890A612DF8C8B006FC3A1 /* rendering */,
+				2BD0E68513254D4D00CD95A8 /* data */,
+				2BCABA5A12F8D7070049D73C /* scene */,
+				2B951D9612F09EE1005003AE /* layers & generators */,
+			);
+			name = WhirlyKit;
+			sourceTree = "<group>";
+		};
+		2BCF39E014BB8EA2006B0FC0 /* WhirlyGlobe */ = {
+			isa = PBXGroup;
+			children = (
+				2BCF39E114BB8EC2006B0FC0 /* geometry utils */,
+				2BE6EE5212E4F3BE00415490 /* interaction */,
+				2BCF39DE14BB814F006B0FC0 /* view */,
+				2BCF39E214BB8EF9006B0FC0 /* rendering */,
+				2BCF39E314BB8F16006B0FC0 /* layers */,
+			);
+			name = WhirlyGlobe;
+			sourceTree = "<group>";
+		};
+		2BCF39E114BB8EC2006B0FC0 /* geometry utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BCABB9812FA14300049D73C /* GlobeMath.h */,
+			);
+			name = "geometry utils";
+			sourceTree = "<group>";
+		};
+		2BCF39E214BB8EF9006B0FC0 /* rendering */ = {
+			isa = PBXGroup;
+			children = (
+				2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */,
+			);
+			name = rendering;
+			sourceTree = "<group>";
+		};
+		2BCF39E314BB8F16006B0FC0 /* layers */ = {
+			isa = PBXGroup;
+			children = (
+				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
+			);
+			name = layers;
+			sourceTree = "<group>";
+		};
+		2BCF39E414BB8FD6006B0FC0 /* WhirlyMap */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = WhirlyMap;
 			sourceTree = "<group>";
 		};
 		2BD0E68513254D4D00CD95A8 /* data */ = {
@@ -579,7 +627,7 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		2BE6EE5212E4F3BE00415490 /* WhirlyGlobe interaction */ = {
+		2BE6EE5212E4F3BE00415490 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
 				2BE6EE5412E4F44900415490 /* PinchDelegate.h */,
@@ -590,7 +638,7 @@
 				2B076B31133951DE009D931D /* LongPressDelegate.h */,
 				2B44187713A2D9BA00514EDE /* RotateDelegate.h */,
 			);
-			name = "WhirlyGlobe interaction";
+			name = interaction;
 			sourceTree = "<group>";
 		};
 		2BE6EE5312E4F3D100415490 /* interaction */ = {

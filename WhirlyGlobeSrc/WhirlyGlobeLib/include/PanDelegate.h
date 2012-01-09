@@ -32,7 +32,7 @@
 	/// The view transform when we started
 	Eigen::Affine3f startTransform;
 	/// Where we first touched the sphere
-	Point3f startOnSphere;
+	WhirlyGlobe::Point3f startOnSphere;
 	/// Rotation when we started
 	Eigen::Quaternionf startQuat;
 }
