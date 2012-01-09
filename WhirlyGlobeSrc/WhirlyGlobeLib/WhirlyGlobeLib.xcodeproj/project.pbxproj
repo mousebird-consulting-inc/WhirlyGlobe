@@ -1,0 +1,884 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B076B32133951DE009D931D /* LongPressDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B076B31133951DE009D931D /* LongPressDelegate.h */; };
+		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
+		2B194425138B0BC100E8FA42 /* AnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B194424138B0BC100E8FA42 /* AnimateRotation.h */; };
+		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
+		2B194430138C717500E8FA42 /* AnimateViewMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */; };
+		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
+		2B2C1DB91458A3D500B5D61D /* SelectionLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */; };
+		2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */; };
+		2B3009BE1427959000B1C69E /* RenderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3009BD1427959000B1C69E /* RenderCache.h */; };
+		2B3009C91427C19900B1C69E /* RenderCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3009C71427C19900B1C69E /* RenderCache.mm */; };
+		2B35A8511337CC2F0047C705 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35A8501337CC2F0047C705 /* GLUtils.h */; };
+		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
+		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
+		2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */; };
+		2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FE112DE23BA00778431 /* WhirlyVector.h */; };
+		2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */; };
+		2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABB9812FA14300049D73C /* GlobeMath.h */; };
+		2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */; };
+		2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */; };
+		2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */; };
+		2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B38909F12DF8786006FC3A1 /* ESRenderer.h */; };
+		2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */; };
+		2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDB12DE23BA00778431 /* EAGLView.h */; };
+		2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE5412E4F44900415490 /* PinchDelegate.h */; };
+		2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */; };
+		2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A341E12E605C800698DA1 /* PanDelegate.h */; };
+		2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC33112FB754D0049D73C /* TapMessage.h */; };
+		2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC2F512FB6E570049D73C /* TapDelegate.h */; };
+		2B3A0D51133405780085EF43 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD0E68613254D7300CD95A8 /* VectorData.h */; };
+		2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9E712F8CD440049D73C /* ShapeReader.h */; };
+		2B3A0D53133405780085EF43 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F07E130098E6001F33CD /* Identifiable.h */; };
+		2B3A0D54133405780085EF43 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F08613009AC3001F33CD /* Texture.h */; };
+		2B3A0D55133405780085EF43 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAA912F8E0850049D73C /* Drawable.h */; };
+		2B3A0D56133405780085EF43 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAAB12F8E0920049D73C /* Cullable.h */; };
+		2B3A0D57133405780085EF43 /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDC12DE23BA00778431 /* GlobeScene.h */; };
+		2B3A0D58133405780085EF43 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B389AA112E112D9006FC3A1 /* GlobeView.h */; };
+		2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDE12DE23BA00778431 /* TextureGroup.h */; };
+		2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9BF12F8A3860049D73C /* LayerThread.h */; };
+		2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9A912F897E20049D73C /* DataLayer.h */; };
+		2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */; };
+		2B3A0D5D133405780085EF43 /* GridLines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951C7D12EFA262005003AE /* GridLines.h */; };
+		2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D9812F09F31005003AE /* VectorLayer.h */; };
+		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
+		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
+		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
+		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
+		2B58C6851443C03F00EEF3C3 /* ParticleSystemLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */; };
+		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
+		2B58C695144543DB00EEF3C3 /* Generator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C694144543DB00EEF3C3 /* Generator.h */; };
+		2B58C6B91445FDAB00EEF3C3 /* ParticleGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */; };
+		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
+		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
+		2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B65F90B137DBEE4004326A9 /* sqlhelpers.h */; };
+		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
+		2B66298113417DF700A78F16 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B66298013417DF700A78F16 /* TextureAtlas.h */; };
+		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
+		2B6B3396147B5DE900771FEF /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6B3395147B5DE900771FEF /* MarkerGenerator.h */; };
+		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
+		2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8D92C8137C958000015833 /* VectorDatabase.h */; };
+		2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B93C81514522DE600D768BA /* MarkerLayer.h */; };
+		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
+		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
+		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
+		2BDC4AC5133404CA00E25283 /* safileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951DF012F0AC50005003AE /* safileio.c */; };
+		2BDC4AC6133404D400E25283 /* UIImage+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */; };
+		2BDC4AC7133404D400E25283 /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */; };
+		2BDC4AC8133404D400E25283 /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */; };
+		2BDC4AC9133404D400E25283 /* WhirlyGeometry.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */; };
+		2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95192E12EF4417005003AE /* WhirlyVector.mm */; };
+		2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABB9A12FA14660049D73C /* GlobeMath.mm */; };
+		2BDC4ACC133404D400E25283 /* SceneRendererES1.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */; };
+		2BDC4ACD133404D400E25283 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FE912DE23D400778431 /* EAGLView.m */; };
+		2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE5612E4F48800415490 /* PinchDelegate.mm */; };
+		2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */; };
+		2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3A341F12E605C800698DA1 /* PanDelegate.mm */; };
+		2BDC4AD1133404D400E25283 /* TapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */; };
+		2BDC4AD2133404D400E25283 /* TapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAC33312FB77FB0049D73C /* TapMessage.mm */; };
+		2BDC4AD3133404D400E25283 /* Identifiable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F08013009935001F33CD /* Identifiable.mm */; };
+		2BDC4AD4133404D400E25283 /* Texture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F08813009B17001F33CD /* Texture.mm */; };
+		2BDC4AD5133404D400E25283 /* Drawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABA9912F8DEF40049D73C /* Drawable.mm */; };
+		2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABA9C12F8DEFF0049D73C /* Cullable.mm */; };
+		2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEA12DE23D400778431 /* GlobeScene.mm */; };
+		2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B389AA212E112D9006FC3A1 /* GlobeView.mm */; };
+		2BDC4AD9133404D400E25283 /* TextureGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEC12DE23D400778431 /* TextureGroup.mm */; };
+		2BDC4ADA133404D400E25283 /* VectorData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD0E69213254DF700CD95A8 /* VectorData.mm */; };
+		2BDC4ADB133404D400E25283 /* ShapeReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABC1012FA1F480049D73C /* ShapeReader.mm */; };
+		2BDC4ADC133404D400E25283 /* LayerThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABCEB12FA2C210049D73C /* LayerThread.mm */; };
+		2BDC4ADD133404D400E25283 /* SphericalEarthLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */; };
+		2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951C8D12EFA567005003AE /* GridLines.mm */; };
+		2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9A12F0A087005003AE /* VectorLayer.mm */; };
+		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
+		2BEFDE91149963A800C63326 /* LoftLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE90149963A800C63326 /* LoftLayer.h */; };
+		2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE921499643000C63326 /* LoftLayer.mm */; };
+		2BEFDE97149966D400C63326 /* GridClipper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE95149966D400C63326 /* GridClipper.h */; };
+		2BEFDE98149966D400C63326 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE96149966D400C63326 /* Tesselator.h */; };
+		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
+		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
+		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
+		2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFC34D513CBF9F500403799 /* DrawCost.h */; };
+		2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC34DA13CBFA9A00403799 /* DrawCost.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2B076B31133951DE009D931D /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
+		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateRotation.h; sourceTree = "<group>"; };
+		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateRotation.mm; sourceTree = "<group>"; };
+		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateViewMomentum.h; sourceTree = "<group>"; };
+		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateViewMomentum.mm; sourceTree = "<group>"; };
+		2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
+		2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionLayer.mm; sourceTree = "<group>"; };
+		2B3009BD1427959000B1C69E /* RenderCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderCache.h; sourceTree = "<group>"; };
+		2B3009C71427C19900B1C69E /* RenderCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderCache.mm; sourceTree = "<group>"; };
+		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B35A8531337CC5F0047C705 /* GLUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GLUtils.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B38909F12DF8786006FC3A1 /* ESRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESRenderer.h; sourceTree = "<group>"; };
+		2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES1.h; sourceTree = "<group>"; };
+		2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SceneRendererES1.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B389AA112E112D9006FC3A1 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeView.h; sourceTree = "<group>"; };
+		2B389AA212E112D9006FC3A1 /* GlobeView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GlobeView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3A341E12E605C800698DA1 /* PanDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PanDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3A341F12E605C800698DA1 /* PanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGeometry.h; sourceTree = "<group>"; };
+		2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyGeometry.mm; sourceTree = "<group>"; };
+		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
+		2B3AF66E13EEDE95004A781D /* buildlib.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = buildlib.sh; sourceTree = "<group>"; };
+		2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSDictionary+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NSDictionary+Stuff.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
+		2B44187713A2D9BA00514EDE /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
+		2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RotateDelegate.mm; sourceTree = "<group>"; };
+		2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemLayer.mm; path = src/ParticleSystemLayer.mm; sourceTree = SOURCE_ROOT; };
+		2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
+		2B58C6921445439700EEF3C3 /* Generator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Generator.mm; sourceTree = "<group>"; };
+		2B58C694144543DB00EEF3C3 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
+		2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleGenerator.h; sourceTree = "<group>"; };
+		2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleGenerator.mm; sourceTree = "<group>"; };
+		2B65F8F9137DA864004326A9 /* VectorDatabase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorDatabase.mm; sourceTree = "<group>"; };
+		2B65F90B137DBEE4004326A9 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
+		2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
+		2B66298013417DF700A78F16 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
+		2B66298213418D9A00A78F16 /* TextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureAtlas.mm; sourceTree = "<group>"; };
+		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
+		2B80455714990A1A003FFABE /* MarkerGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerGenerator.mm; sourceTree = "<group>"; };
+		2B8D92C8137C958000015833 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
+		2B93C81514522DE600D768BA /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
+		2B93C817145232C800D768BA /* MarkerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerLayer.mm; sourceTree = "<group>"; };
+		2B95192E12EF4417005003AE /* WhirlyVector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyVector.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B951C7D12EFA262005003AE /* GridLines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridLines.h; sourceTree = "<group>"; };
+		2B951C8D12EFA567005003AE /* GridLines.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridLines.mm; sourceTree = "<group>"; };
+		2B951D8E12F09E7A005003AE /* shapefil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shapefil.h; sourceTree = "<group>"; };
+		2B951D9012F09E91005003AE /* shpopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shpopen.c; sourceTree = "<group>"; };
+		2B951D9212F09EA0005003AE /* dbfopen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dbfopen.c; sourceTree = "<group>"; };
+		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
+		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
+		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
+		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
+		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
+		2BB1F08013009935001F33CD /* Identifiable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Identifiable.mm; sourceTree = "<group>"; };
+		2BB1F08613009AC3001F33CD /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		2BB1F08813009B17001F33CD /* Texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture.mm; sourceTree = "<group>"; };
+		2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
+		2BC53FDB12DE23BA00778431 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = EAGLView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BC53FDC12DE23BA00778431 /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
+		2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthLayer.h; sourceTree = "<group>"; };
+		2BC53FDE12DE23BA00778431 /* TextureGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGroup.h; sourceTree = "<group>"; };
+		2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIImage+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BC53FE112DE23BA00778431 /* WhirlyVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyVector.h; sourceTree = "<group>"; };
+		2BC53FE912DE23D400778431 /* EAGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EAGLView.m; sourceTree = "<group>"; };
+		2BC53FEA12DE23D400778431 /* GlobeScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeScene.mm; sourceTree = "<group>"; };
+		2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthLayer.mm; sourceTree = "<group>"; };
+		2BC53FEC12DE23D400778431 /* TextureGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureGroup.mm; sourceTree = "<group>"; };
+		2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIImage+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BCAB9A912F897E20049D73C /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataLayer.h; sourceTree = "<group>"; };
+		2BCAB9BF12F8A3860049D73C /* LayerThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerThread.h; sourceTree = "<group>"; };
+		2BCAB9E712F8CD440049D73C /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeReader.h; sourceTree = "<group>"; };
+		2BCABA9912F8DEF40049D73C /* Drawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Drawable.mm; sourceTree = "<group>"; };
+		2BCABA9C12F8DEFF0049D73C /* Cullable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Cullable.mm; sourceTree = "<group>"; };
+		2BCABAA912F8E0850049D73C /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Drawable.h; sourceTree = "<group>"; };
+		2BCABAAB12F8E0920049D73C /* Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cullable.h; sourceTree = "<group>"; };
+		2BCABB9812FA14300049D73C /* GlobeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeMath.h; sourceTree = "<group>"; };
+		2BCABB9A12FA14660049D73C /* GlobeMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GlobeMath.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BCABC1012FA1F480049D73C /* ShapeReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeReader.mm; sourceTree = "<group>"; };
+		2BCABCEB12FA2C210049D73C /* LayerThread.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerThread.mm; sourceTree = "<group>"; };
+		2BCAC2F512FB6E570049D73C /* TapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDelegate.h; sourceTree = "<group>"; };
+		2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TapDelegate.mm; sourceTree = "<group>"; };
+		2BCAC33112FB754D0049D73C /* TapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapMessage.h; sourceTree = "<group>"; };
+		2BCAC33312FB77FB0049D73C /* TapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TapMessage.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BD0E68613254D7300CD95A8 /* VectorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = VectorData.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BD0E69213254DF700CD95A8 /* VectorData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = VectorData.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
+		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
+		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
+		2BE6EE5412E4F44900415490 /* PinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchDelegate.h; sourceTree = "<group>"; };
+		2BE6EE5612E4F48800415490 /* PinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PinchDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SwipeDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SwipeDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BEFDE90149963A800C63326 /* LoftLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftLayer.h; sourceTree = "<group>"; };
+		2BEFDE921499643000C63326 /* LoftLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftLayer.mm; sourceTree = "<group>"; };
+		2BEFDE95149966D400C63326 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridClipper.h; sourceTree = "<group>"; };
+		2BEFDE96149966D400C63326 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tesselator.h; sourceTree = "<group>"; };
+		2BEFDE99149966F300C63326 /* GridClipper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridClipper.mm; sourceTree = "<group>"; };
+		2BEFDE9A149966F300C63326 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tesselator.mm; sourceTree = "<group>"; };
+		2BEFDEA114997C0400C63326 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = ../../../../utilities/clipper_ver4.3.0/cpp/clipper.cpp; sourceTree = "<group>"; };
+		2BFC34D513CBF9F500403799 /* DrawCost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawCost.h; sourceTree = "<group>"; };
+		2BFC34DA13CBFA9A00403799 /* DrawCost.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawCost.mm; sourceTree = "<group>"; };
+		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2BDC4AB8133404BB00E25283 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* WhirlyGlobeLib */ = {
+			isa = PBXGroup;
+			children = (
+				2B3AF66C13EEDD7E004A781D /* Resources */,
+				08FB77AEFE84172EC02AAC07 /* Classes */,
+				32C88DFF0371C24200C91783 /* Other Sources */,
+				2B3C82771333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator */,
+				2BDC4A151333EFE000E25283 /* WhirlyGlobeLib-iphonesim */,
+				2BDC4A601333F0E900E25283 /* WhirlyGlobeLib-iphoneos */,
+				2BDC4ABD133404BB00E25283 /* WhirlyGlobeLib */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = WhirlyGlobeLib;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		08FB77AEFE84172EC02AAC07 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */,
+				2BC53FA412DE217E00778431 /* include */,
+				2BC53FA512DE218300778431 /* src */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		2B35A84F1337CC0F0047C705 /* OpenGL Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2B35A8501337CC2F0047C705 /* GLUtils.h */,
+			);
+			name = "OpenGL Utils";
+			sourceTree = "<group>";
+		};
+		2B35A8521337CC3B0047C705 /* OpenGL Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2B35A8531337CC5F0047C705 /* GLUtils.mm */,
+			);
+			name = "OpenGL Utils";
+			sourceTree = "<group>";
+		};
+		2B3890A612DF8C8B006FC3A1 /* rendering */ = {
+			isa = PBXGroup;
+			children = (
+				2B38909F12DF8786006FC3A1 /* ESRenderer.h */,
+				2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */,
+				2BC53FDB12DE23BA00778431 /* EAGLView.h */,
+			);
+			name = rendering;
+			sourceTree = "<group>";
+		};
+		2B3890A712DF8C90006FC3A1 /* rendering */ = {
+			isa = PBXGroup;
+			children = (
+				2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */,
+				2BC53FE912DE23D400778431 /* EAGLView.m */,
+			);
+			name = rendering;
+			sourceTree = "<group>";
+		};
+		2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */,
+				2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */,
+				2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */,
+			);
+			name = "Cocoa Utils";
+			sourceTree = "<group>";
+		};
+		2B3890BF12DF8F87006FC3A1 /* Cocoa Utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */,
+				2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */,
+				2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */,
+			);
+			name = "Cocoa Utils";
+			sourceTree = "<group>";
+		};
+		2B3AF66C13EEDD7E004A781D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2B3AF66E13EEDE95004A781D /* buildlib.sh */,
+				2B3AF66D13EEDDA8004A781D /* framework_info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		2B3C82771333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator */ = {
+			isa = PBXGroup;
+			children = (
+				2B3C82781333ED300029DEF2 /* Supporting Files */,
+			);
+			path = "WhirlyGlobeLib-iphonesimulator";
+			sourceTree = "<group>";
+		};
+		2B3C82781333ED300029DEF2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */ = {
+			isa = PBXGroup;
+			children = (
+				2B951DF012F0AC50005003AE /* safileio.c */,
+				2B951D8E12F09E7A005003AE /* shapefil.h */,
+				2B951D9212F09EA0005003AE /* dbfopen.c */,
+				2B951D9012F09E91005003AE /* shpopen.c */,
+			);
+			name = "shapelib-1.3.0b2";
+			path = "../../../utilities/shapelib-1.3.0b2";
+			sourceTree = "<group>";
+		};
+		2B951D9612F09EE1005003AE /* layers & loaders */ = {
+			isa = PBXGroup;
+			children = (
+				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
+				2BCAB9A912F897E20049D73C /* DataLayer.h */,
+				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
+				2B951C7D12EFA262005003AE /* GridLines.h */,
+				2B951D9812F09F31005003AE /* VectorLayer.h */,
+				2BB1F06813007031001F33CD /* LabelLayer.h */,
+				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
+				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
+				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
+				2B93C81514522DE600D768BA /* MarkerLayer.h */,
+				2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */,
+				2BEFDE90149963A800C63326 /* LoftLayer.h */,
+			);
+			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2B951D9712F09EEC005003AE /* layers & loaders */ = {
+			isa = PBXGroup;
+			children = (
+				2BEFDE921499643000C63326 /* LoftLayer.mm */,
+				2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */,
+				2B80455714990A1A003FFABE /* MarkerGenerator.mm */,
+				2BCABCEB12FA2C210049D73C /* LayerThread.mm */,
+				2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */,
+				2B951C8D12EFA567005003AE /* GridLines.mm */,
+				2B951D9A12F0A087005003AE /* VectorLayer.mm */,
+				2BB1F06A130076C5001F33CD /* LabelLayer.mm */,
+				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
+				2B93C817145232C800D768BA /* MarkerLayer.mm */,
+				2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */,
+			);
+			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2BC53FA412DE217E00778431 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */,
+				2BCABA5912F8D6DD0049D73C /* geometry utils */,
+				2B35A84F1337CC0F0047C705 /* OpenGL Utils */,
+				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
+				2B3890A612DF8C8B006FC3A1 /* rendering */,
+				2BE6EE5212E4F3BE00415490 /* interaction */,
+				2BD0E68513254D4D00CD95A8 /* data */,
+				2BCABA5A12F8D7070049D73C /* scene & view */,
+				2B951D9612F09EE1005003AE /* layers & loaders */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		2BC53FA512DE218300778431 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				2B35A8521337CC3B0047C705 /* OpenGL Utils */,
+				2B3890BF12DF8F87006FC3A1 /* Cocoa Utils */,
+				2BCABA6612F8D9FC0049D73C /* geometry utils */,
+				2B3890A712DF8C90006FC3A1 /* rendering */,
+				2BE6EE5312E4F3D100415490 /* interaction */,
+				2BCABA6712F8DA280049D73C /* scene & view */,
+				2BD0E69013254DCA00CD95A8 /* data */,
+				2B951D9712F09EEC005003AE /* layers & loaders */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		2BCABA5912F8D6DD0049D73C /* geometry utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
+				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
+				2BCABB9812FA14300049D73C /* GlobeMath.h */,
+				2BEFDE95149966D400C63326 /* GridClipper.h */,
+				2BEFDE96149966D400C63326 /* Tesselator.h */,
+			);
+			name = "geometry utils";
+			sourceTree = "<group>";
+		};
+		2BCABA5A12F8D7070049D73C /* scene & view */ = {
+			isa = PBXGroup;
+			children = (
+				2BB1F07E130098E6001F33CD /* Identifiable.h */,
+				2BB1F08613009AC3001F33CD /* Texture.h */,
+				2BCABAA912F8E0850049D73C /* Drawable.h */,
+				2B58C694144543DB00EEF3C3 /* Generator.h */,
+				2BCABAAB12F8E0920049D73C /* Cullable.h */,
+				2BC53FDC12DE23BA00778431 /* GlobeScene.h */,
+				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
+				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
+				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
+				2BC53FDE12DE23BA00778431 /* TextureGroup.h */,
+				2B66298013417DF700A78F16 /* TextureAtlas.h */,
+				2BFC34D513CBF9F500403799 /* DrawCost.h */,
+				2B3009BD1427959000B1C69E /* RenderCache.h */,
+			);
+			name = "scene & view";
+			sourceTree = "<group>";
+		};
+		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
+			isa = PBXGroup;
+			children = (
+				2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */,
+				2B95192E12EF4417005003AE /* WhirlyVector.mm */,
+				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
+				2BEFDE99149966F300C63326 /* GridClipper.mm */,
+				2BEFDE9A149966F300C63326 /* Tesselator.mm */,
+				2BEFDEA114997C0400C63326 /* clipper.cpp */,
+			);
+			name = "geometry utils";
+			sourceTree = "<group>";
+		};
+		2BCABA6712F8DA280049D73C /* scene & view */ = {
+			isa = PBXGroup;
+			children = (
+				2BB1F08013009935001F33CD /* Identifiable.mm */,
+				2BB1F08813009B17001F33CD /* Texture.mm */,
+				2BCABA9912F8DEF40049D73C /* Drawable.mm */,
+				2B58C6921445439700EEF3C3 /* Generator.mm */,
+				2BCABA9C12F8DEFF0049D73C /* Cullable.mm */,
+				2BC53FEA12DE23D400778431 /* GlobeScene.mm */,
+				2B389AA212E112D9006FC3A1 /* GlobeView.mm */,
+				2B194426138B0CD000E8FA42 /* AnimateRotation.mm */,
+				2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */,
+				2BC53FEC12DE23D400778431 /* TextureGroup.mm */,
+				2B66298213418D9A00A78F16 /* TextureAtlas.mm */,
+				2BFC34DA13CBFA9A00403799 /* DrawCost.mm */,
+				2B3009C71427C19900B1C69E /* RenderCache.mm */,
+			);
+			name = "scene & view";
+			sourceTree = "<group>";
+		};
+		2BD0E68513254D4D00CD95A8 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				2B65F90B137DBEE4004326A9 /* sqlhelpers.h */,
+				2BD0E68613254D7300CD95A8 /* VectorData.h */,
+				2B8D92C8137C958000015833 /* VectorDatabase.h */,
+				2BCAB9E712F8CD440049D73C /* ShapeReader.h */,
+			);
+			name = data;
+			sourceTree = "<group>";
+		};
+		2BD0E69013254DCA00CD95A8 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */,
+				2BD0E69213254DF700CD95A8 /* VectorData.mm */,
+				2BCABC1012FA1F480049D73C /* ShapeReader.mm */,
+				2B65F8F9137DA864004326A9 /* VectorDatabase.mm */,
+			);
+			name = data;
+			sourceTree = "<group>";
+		};
+		2BDC4A151333EFE000E25283 /* WhirlyGlobeLib-iphonesim */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4A161333EFE000E25283 /* Supporting Files */,
+			);
+			path = "WhirlyGlobeLib-iphonesim";
+			sourceTree = "<group>";
+		};
+		2BDC4A161333EFE000E25283 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2BDC4A601333F0E900E25283 /* WhirlyGlobeLib-iphoneos */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4A611333F0E900E25283 /* Supporting Files */,
+			);
+			path = "WhirlyGlobeLib-iphoneos";
+			sourceTree = "<group>";
+		};
+		2BDC4A611333F0E900E25283 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2BDC4ABD133404BB00E25283 /* WhirlyGlobeLib */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4ABE133404BB00E25283 /* Supporting Files */,
+			);
+			path = WhirlyGlobeLib;
+			sourceTree = "<group>";
+		};
+		2BDC4ABE133404BB00E25283 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2BE6EE5212E4F3BE00415490 /* interaction */ = {
+			isa = PBXGroup;
+			children = (
+				2BE6EE5412E4F44900415490 /* PinchDelegate.h */,
+				2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */,
+				2B3A341E12E605C800698DA1 /* PanDelegate.h */,
+				2BCAC33112FB754D0049D73C /* TapMessage.h */,
+				2BCAC2F512FB6E570049D73C /* TapDelegate.h */,
+				2B076B31133951DE009D931D /* LongPressDelegate.h */,
+				2B44187713A2D9BA00514EDE /* RotateDelegate.h */,
+			);
+			name = interaction;
+			sourceTree = "<group>";
+		};
+		2BE6EE5312E4F3D100415490 /* interaction */ = {
+			isa = PBXGroup;
+			children = (
+				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
+				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
+				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
+				2BCAC2F712FB6EF70049D73C /* TapDelegate.mm */,
+				2BCAC33312FB77FB0049D73C /* TapMessage.mm */,
+				2B076B33133952C5009D931D /* LongPressDelegate.mm */,
+				2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */,
+			);
+			name = interaction;
+			sourceTree = "<group>";
+		};
+		32C88DFF0371C24200C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		2BDC4AB9133404BB00E25283 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */,
+				2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */,
+				2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */,
+				2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */,
+				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
+				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
+				2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */,
+				2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */,
+				2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */,
+				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
+				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
+				2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */,
+				2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */,
+				2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */,
+				2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */,
+				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
+				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
+				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
+				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
+				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
+				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
+				2B3A0D57133405780085EF43 /* GlobeScene.h in Headers */,
+				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
+				2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */,
+				2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */,
+				2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */,
+				2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */,
+				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
+				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
+				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
+				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
+				2B35A8511337CC2F0047C705 /* GLUtils.h in Headers */,
+				2B076B32133951DE009D931D /* LongPressDelegate.h in Headers */,
+				2B66298113417DF700A78F16 /* TextureAtlas.h in Headers */,
+				2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */,
+				2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */,
+				2B194425138B0BC100E8FA42 /* AnimateRotation.h in Headers */,
+				2B194430138C717500E8FA42 /* AnimateViewMomentum.h in Headers */,
+				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
+				2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */,
+				2B3009BE1427959000B1C69E /* RenderCache.h in Headers */,
+				2B58C6851443C03F00EEF3C3 /* ParticleSystemLayer.h in Headers */,
+				2B58C695144543DB00EEF3C3 /* Generator.h in Headers */,
+				2B58C6B91445FDAB00EEF3C3 /* ParticleGenerator.h in Headers */,
+				2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */,
+				2B2C1DB91458A3D500B5D61D /* SelectionLayer.h in Headers */,
+				2B6B3396147B5DE900771FEF /* MarkerGenerator.h in Headers */,
+				2BEFDE91149963A800C63326 /* LoftLayer.h in Headers */,
+				2BEFDE97149966D400C63326 /* GridClipper.h in Headers */,
+				2BEFDE98149966D400C63326 /* Tesselator.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2BDC4ABA133404BB00E25283 /* WhirlyGlobeLib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2BDC4AC0133404BB00E25283 /* Build configuration list for PBXNativeTarget "WhirlyGlobeLib" */;
+			buildPhases = (
+				2BDC4AB7133404BB00E25283 /* Sources */,
+				2BDC4AB8133404BB00E25283 /* Frameworks */,
+				2BDC4AB9133404BB00E25283 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WhirlyGlobeLib;
+			productName = WhirlyGlobeLib;
+			productReference = 2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* WhirlyGlobeLib */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2BDC4ABA133404BB00E25283 /* WhirlyGlobeLib */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2BDC4AB7133404BB00E25283 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BDC4AC6133404D400E25283 /* UIImage+Stuff.mm in Sources */,
+				2BDC4AC7133404D400E25283 /* NSDictionary+Stuff.m in Sources */,
+				2BDC4AC8133404D400E25283 /* UIColor+Stuff.mm in Sources */,
+				2BDC4AC9133404D400E25283 /* WhirlyGeometry.mm in Sources */,
+				2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */,
+				2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */,
+				2BDC4ACC133404D400E25283 /* SceneRendererES1.mm in Sources */,
+				2BDC4ACD133404D400E25283 /* EAGLView.m in Sources */,
+				2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */,
+				2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */,
+				2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */,
+				2BDC4AD1133404D400E25283 /* TapDelegate.mm in Sources */,
+				2BDC4AD2133404D400E25283 /* TapMessage.mm in Sources */,
+				2BDC4AD3133404D400E25283 /* Identifiable.mm in Sources */,
+				2BDC4AD4133404D400E25283 /* Texture.mm in Sources */,
+				2BDC4AD5133404D400E25283 /* Drawable.mm in Sources */,
+				2BDC4AD6133404D400E25283 /* Cullable.mm in Sources */,
+				2BDC4AD7133404D400E25283 /* GlobeScene.mm in Sources */,
+				2BDC4AD8133404D400E25283 /* GlobeView.mm in Sources */,
+				2BDC4AD9133404D400E25283 /* TextureGroup.mm in Sources */,
+				2BDC4ADA133404D400E25283 /* VectorData.mm in Sources */,
+				2BDC4ADB133404D400E25283 /* ShapeReader.mm in Sources */,
+				2BDC4ADC133404D400E25283 /* LayerThread.mm in Sources */,
+				2BDC4ADD133404D400E25283 /* SphericalEarthLayer.mm in Sources */,
+				2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */,
+				2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */,
+				2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */,
+				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
+				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
+				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
+				2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */,
+				2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */,
+				2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */,
+				2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */,
+				2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */,
+				2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */,
+				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
+				2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */,
+				2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */,
+				2B3009C91427C19900B1C69E /* RenderCache.mm in Sources */,
+				2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */,
+				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
+				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
+				2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */,
+				2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */,
+				2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */,
+				2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */,
+				2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */,
+				2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */,
+				2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_THUMB_SUPPORT = YES;
+				"GCC_THUMB_SUPPORT[arch=armv6]" = NO;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../utilities/boost_1_45_0,
+					"../../../utilities/eigen-eigen-3.0.1",
+					../../../utilities/clipper_ver4.3.0/,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_THUMB_SUPPORT = YES;
+				"GCC_THUMB_SUPPORT[arch=armv6]" = NO;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					../../../utilities/boost_1_45_0,
+					"../../../utilities/eigen-eigen-3.0.1",
+					../../../utilities/clipper_ver4.3.0/,
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2BDC4AC1133404BB00E25283 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DSTROOT = /tmp/WhirlyGlobeLib.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2BDC4AC2133404BB00E25283 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DSTROOT = /tmp/WhirlyGlobeLib.dst;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
+				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2BDC4AC0133404BB00E25283 /* Build configuration list for PBXNativeTarget "WhirlyGlobeLib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2BDC4AC1133404BB00E25283 /* Debug */,
+				2BDC4AC2133404BB00E25283 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}
