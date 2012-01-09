@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>baseName</key>
+	<string>big_wtb</string>
+	<key>borderSize</key>
+	<integer>16</integer>
+	<key>format</key>
+	<string>pvrtc</string>
+	<key>pixelsSquare</key>
+	<integer>1024</integer>
+	<key>tilesInX</key>
+	<integer>10</integer>
+	<key>tilesInY</key>
+	<integer>4</integer>
+</dict>
+</plist>

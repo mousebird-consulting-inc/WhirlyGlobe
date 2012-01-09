@@ -1,0 +1,3 @@
+The WhirlyGlobe starter pack contains the library, all the other libraries we use and three examples programs.
+Directory organization is a little excessive, but it lets us use the same projects as are checked in.
+

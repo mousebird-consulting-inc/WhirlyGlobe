@@ -1,0 +1,242 @@
+Variable: Protected Areas (Terrestrial and Marine Combined, IUCN Categories I-VI and not Classified) - Total
+Units: Square kilometers
+Data Source: UNEP-WCMC
+Provider: UNEP GEO Data Portal (http://geodata.grid.unep.ch/)
+Country Name,Sovereign,GEO Region,GEO Subregion,ISO 2 Code,ISO 3 Code,UN Code,Developed,GEO ID,2010
+Afghanistan,Afghanistan,Asia + Pacific,South Asia,AF,AFG,4,0,0,4,2358.68
+Albania,Albania,Europe,Central Europe,AL,ALB,8,0,0,8,2928.65
+Algeria,Algeria,Africa,Northern Africa,DZ,DZA,12,0,0,12,146715
+American Samoa,United States of America,Asia + Pacific,South Pacific,AS,ASM,16,0,0,16,1673.07
+Andorra,Andorra,Europe,Western Europe,AD,AND,20,0,0,20,28.8741
+Angola,Angola,Africa,Southern Africa,AO,AGO,24,0,0,24,155669
+Anguilla,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,AI,AIA,660,0,0,28,64.4962
+Antarctic,Antarctic,Polar,Antarctic,ATA,AQ,0,0,0,32,NULL
+Antigua and Barbuda,Antigua and Barbuda,Latin America + Caribbean,Caribbean,AG,ATG,28,0,0,36,100.365
+Argentina,Argentina,Latin America + Caribbean,South America,AR,ARG,32,0,0,40,153830
+Armenia,Armenia,Europe,Eastern Europe,AM,ARM,51,0,0,44,2372.34
+Aruba,Netherlands,Latin America + Caribbean,Caribbean,AW,ABW,533,0,0,48,0.199895
+Australia,Australia,Asia + Pacific,Australia + New Zealand,AU,AUS,36,1,1,52,1079030
+Austria,Austria,Europe,Western Europe,AT,AUT,40,1,1,56,19242.2
+Azerbaijan,Azerbaijan,Europe,Eastern Europe,AZ,AZE,31,0,0,60,6176.3
+Bahamas,Bahamas,Latin America + Caribbean,Caribbean,BS,BHS,44,0,0,64,2986.3
+Bahrain,Bahrain,West Asia,Arabian Peninsula,BH,BHR,48,0,0,68,38.167
+Bangladesh,Bangladesh,Asia + Pacific,South Asia,BD,BGD,50,0,0,76,2859.06
+Barbados,Barbados,Latin America + Caribbean,Caribbean,BB,BRB,52,0,0,80,2.87433
+Belarus,Belarus,Europe,Eastern Europe,BY,BLR,112,0,0,84,14964.5
+Belgium,Belgium,Europe,Western Europe,BE,BEL,56,1,1,88,4225.92
+Belize,Belize,Latin America + Caribbean,Meso America,BZ,BLZ,84,0,0,92,8456.86
+Benin,Benin,Africa,Western Africa,BJ,BEN,204,0,0,96,27646.8
+Bermuda,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,BM,BMU,60,0,0,100,152.244
+Bhutan,Bhutan,Asia + Pacific,South Asia,BT,BTN,64,0,0,104,11320.1
+Bolivia,Bolivia,Latin America + Caribbean,South America,BO,BOL,68,0,0,108,201711
+Bosnia and Herzegovina,Bosnia and Herzegovina,Europe,Central Europe,BA,BIH,70,0,0,112,297.177
+Botswana,Botswana,Africa,Southern Africa,BW,BWA,72,0,0,116,179775
+Brazil,Brazil,Latin America + Caribbean,South America,BR,BRA,76,0,0,124,2284230
+British Virgin Islands,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,VG,VGB,92,0,0,132,37.6661
+Brunei Darussalam,Brunei Darussalam,Asia + Pacific,South East Asia,BN,BRN,96,0,0,136,2666.59
+Bulgaria,Bulgaria,Europe,Central Europe,BG,BGR,100,0,0,140,10396.7
+Burkina Faso,Burkina Faso,Africa,Western Africa,BF,BFA,854,0,0,144,39369.5
+Burundi,Burundi,Africa,Eastern Africa,BI,BDI,108,0,0,148,1319.56
+Cambodia,Cambodia,Asia + Pacific,South East Asia,KH,KHM,116,0,0,152,47117.8
+Cameroon,Cameroon,Africa,Central Africa,CM,CMR,120,0,0,156,43004.6
+Canada,Canada,North America,North America,CA,CAN,124,1,1,160,773807
+Cape Verde,Cape Verde,Africa,Western Africa,CV,CPV,132,0,0,164,102.42
+Cayman Islands,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,KY,CYM,136,0,0,168,114.276
+Central African Republic,Central African Republic,Africa,Central Africa,CF,CAF,140,0,0,172,110825
+Chad,Chad,Africa,Central Africa,TD,TCD,148,0,0,176,119818
+Chile,Chile,Latin America + Caribbean,South America,CL,CHL,152,0,1,180,135333
+China,China,Asia + Pacific,North East Asia,CN,CHN,156,0,0,184,1562260
+Christmas Island,Australia,Asia + Pacific,South East Asia,CX,CXR,0,0,0,188,87.7925
+Cocos (Keeling) Islands,Australia,Asia + Pacific,South Pacific,CC,CCK,0,0,0,192,NULL
+Colombia,Colombia,Latin America + Caribbean,South America,CO,COL,170,0,0,196,252257
+Comoros,Comoros,Africa,Western Indian Ocean,KM,COM,174,0,0,200,NULL
+Congo,Congo,Africa,Central Africa,CG,COG,178,0,0,204,33617.9
+Cook Islands,New Zealand,Asia + Pacific,South Pacific,CK,COK,184,0,0,208,14.9682
+Costa Rica,Costa Rica,Latin America + Caribbean,Meso America,CR,CRI,188,0,0,212,14642.5
+Côte d'Ivoire,Côte d'Ivoire,Africa,Western Africa,CI,CIV,384,0,0,216,73224.3
+Croatia,Croatia,Europe,Central Europe,HR,HRV,191,0,0,220,8414.29
+Cuba,Cuba,Latin America + Caribbean,Caribbean,CU,CUB,192,0,0,224,12504.7
+Cyprus,Cyprus,Europe,Central Europe,CY,CYP,196,1,0,228,1029.98
+Czech Republic,Czech Republic,Europe,Central Europe,CZ,CZE,203,1,1,232,11729.8
+Democratic People's Republic of Korea,Democratic People's Republic of Korea,Asia + Pacific,North East Asia,KP,PRK,408,0,0,236,5939.03
+Democratic Republic of the Congo,Democratic Republic of the Congo,Africa,Central Africa,CD,COD,180,0,0,240,234166
+Denmark,Denmark,Europe,Western Europe,DK,DNK,208,1,1,244,3545.99
+Djibouti,Djibouti,Africa,Eastern Africa,DJ,DJI,262,0,0,248,12.3709
+Dominica,Dominica,Latin America + Caribbean,Caribbean,DM,DMA,212,0,0,252,170.975
+Dominican Republic,Dominican Republic,Latin America + Caribbean,Caribbean,DO,DOM,214,0,0,256,15109.2
+Ecuador,Ecuador,Latin America + Caribbean,South America,EC,ECU,218,0,0,260,131842
+Egypt,Egypt,Africa,Northern Africa,EG,EGY,818,0,0,264,63600.2
+El Salvador,El Salvador,Latin America + Caribbean,Meso America,SV,SLV,222,0,0,268,374.387
+Equatorial Guinea,Equatorial Guinea,Africa,Central Africa,GQ,GNQ,226,0,0,272,5514.09
+Eritrea,Eritrea,Africa,Eastern Africa,ER,ERI,232,0,0,276,6043.79
+Estonia,Estonia,Europe,Central Europe,EE,EST,233,0,1,280,15810.8
+Ethiopia,Ethiopia,Africa,Eastern Africa,ET,ETH,231,0,0,284,208901
+Falkland Islands (Malvinas),United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,South America,FK,FLK,238,0,0,288,111.841
+Faroe Islands,Denmark,Europe,Western Europe,FO,FRO,234,0,0,292,NULL
+Fiji,Fiji,Asia + Pacific,South Pacific,FJ,FJI,242,0,0,296,373.473
+Finland,Finland,Europe,Western Europe,FI,FIN,246,1,1,300,33051.6
+France,France,Europe,Western Europe,FR,FRA,250,1,1,304,106375
+French Guiana,France,Latin America + Caribbean,South America,GF,GUF,254,0,0,308,40195.5
+French Polynesia,France,Asia + Pacific,South Pacific,PF,PYF,258,0,0,312,160.894
+Gabon,Gabon,Africa,Central Africa,GA,GAB,266,0,0,320,41754.9
+Gambia,Gambia,Africa,Western Africa,GM,GMB,270,0,0,324,166.297
+Georgia,Georgia,Europe,Eastern Europe,GE,GEO,268,0,0,328,2584
+Germany,Germany,Europe,Western Europe,DE,DEU,276,1,1,332,161073
+Ghana,Ghana,Africa,Western Africa,GH,GHA,288,0,0,336,35260.6
+Gibraltar,United Kingdom of Great Britain and Northern Ireland,Europe,Western Europe,GI,GIB,292,0,0,340,0.349861
+Greece,Greece,Europe,Western Europe,GR,GRC,300,1,1,348,24595.8
+Greenland,Denmark,Polar,Arctic,GL,GRL,0,0,0,352,972501
+Grenada,Grenada,Latin America + Caribbean,Caribbean,GD,GRD,308,0,0,356,7.27915
+Guadeloupe,France,Latin America + Caribbean,Caribbean,GP,GLP,312,0,0,360,429.445
+Guam,United States of America,Asia + Pacific,South Pacific,GU,GUM,316,0,0,364,183.342
+Guatemala,Guatemala,Latin America + Caribbean,Meso America,GT,GTM,320,0,0,368,34574.8
+Guernsey,United Kingdom of Great Britain and Northern Ireland,Europe,Western Europe,GG,GGY,831,0,0,372,NULL
+Guinea,Guinea,Africa,Western Africa,GN,GIN,324,0,0,376,16695.9
+Guinea-Bissau,Guinea-Bissau,Africa,Western Africa,GW,GNB,624,0,0,380,14433.1
+Guyana,Guyana,Latin America + Caribbean,South America,GY,GUY,328,0,0,384,10569.9
+Haiti,Haiti,Latin America + Caribbean,Caribbean,HT,HTI,332,0,0,388,73.4358
+Holy See,Holy See,Europe,Western Europe,VA,VAT,336,0,0,396,NULL
+Honduras,Honduras,Latin America + Caribbean,Meso America,HN,HND,340,0,0,400,21360.5
+Hungary,Hungary,Europe,Central Europe,HU,HUN,348,0,1,408,4789.8
+Iceland,Iceland,Europe,Western Europe,IS,ISL,352,1,1,412,22949.2
+India,India,Asia + Pacific,South Asia,IN,IND,356,0,0,416,157127
+Indonesia,Indonesia,Asia + Pacific,South East Asia,ID,IDN,360,0,0,420,335749
+Iran (Islamic Republic of),Iran (Islamic Republic of),Asia + Pacific,South Asia,IR,IRN,364,0,0,424,116334
+Iraq,Iraq,West Asia,Mashriq,IQ,IRQ,368,0,0,428,232.045
+Ireland,Ireland,Europe,Western Europe,IE,IRL,372,1,1,432,1318.59
+Isle of Man,United Kingdom of Great Britain and Northern Ireland,Europe,Western Europe,,IMY,833,0,0,436,NULL
+Israel,Israel,Europe,Western Europe,IL,ISR,376,1,1,440,3755.33
+Italy,Italy,Europe,Western Europe,IT,ITA,380,1,1,444,72407.5
+Jamaica,Jamaica,Latin America + Caribbean,Caribbean,JM,JAM,388,0,0,448,3758.5
+Japan,Japan,Asia + Pacific,North East Asia,JP,JPN,392,1,1,452,83175.4
+Jersey,United Kingdom of Great Britain and Northern Ireland,Europe,Western Europe,JE,JEY,832,0,0,460,NULL
+Johnston Atoll,United States of America,Asia + Pacific,South Pacific,,,0,0,0,464,NULL
+Jordan,Jordan,West Asia,Mashriq,JO,JOR,400,0,0,468,1740.59
+Kazakhstan,Kazakhstan,Asia + Pacific,Central Asia,KZ,KAZ,398,0,0,476,67956.8
+Kenya,Kenya,Africa,Eastern Africa,KE,KEN,404,0,0,480,70380.2
+Kiribati,Kiribati,Asia + Pacific,South Pacific,KI,KIR,296,0,0,484,17742.8
+Kuwait,Kuwait,West Asia,Arabian Peninsula,KW,KWT,414,0,0,488,276.994
+Kyrgyzstan,Kyrgyzstan,Asia + Pacific,Central Asia,KG,KGZ,417,0,0,492,13880.4
+Lao People's Democratic Republic,Lao People's Democratic Republic,Asia + Pacific,South East Asia,LA,LAO,418,0,0,496,38433.4
+Latvia,Latvia,Europe,Central Europe,LV,LVA,428,0,0,500,12283
+Lebanon,Lebanon,West Asia,Mashriq,LB,LBN,422,0,0,504,54.3159
+Lesotho,Lesotho,Africa,Southern Africa,LS,LSO,426,0,0,508,148.01
+Liberia,Liberia,Africa,Western Africa,LR,LBR,430,0,0,512,1713.65
+Libyan Arab Jamahiriya,Libyan Arab Jamahiriya,Africa,Northern Africa,LY,LBY,434,0,0,516,1824.09
+Liechtenstein,Liechtenstein,Europe,Western Europe,LI,LIE,438,0,0,520,70.9187
+Lithuania,Lithuania,Europe,Central Europe,LT,LTU,440,0,0,524,9635.33
+Luxembourg,Luxembourg,Europe,Western Europe,LU,LUX,442,1,1,528,521.826
+Madagascar,Madagascar,Africa,Western Indian Ocean,MG,MDG,450,0,0,536,18340.9
+Malawi,Malawi,Africa,Southern Africa,MW,MWI,454,0,0,540,17849.8
+Malaysia,Malaysia,Asia + Pacific,South East Asia,MY,MYS,458,0,0,544,62599.5
+Maldives,Maldives,Asia + Pacific,South Asia,MV,MDV,462,0,0,548,NULL
+Mali,Mali,Africa,Western Africa,ML,MLI,466,0,0,552,30586.7
+Malta,Malta,Europe,Western Europe,MT,MLT,470,1,0,556,71.976
+Marshall Islands,Marshall Islands,Asia + Pacific,South Pacific,MH,MHL,584,0,0,560,700.992
+Martinique,France,Latin America + Caribbean,Caribbean,MQ,MTQ,474,0,0,564,666.302
+Mauritania,Mauritania,Africa,Western Africa,MR,MRT,478,0,0,568,12072.8
+Mauritius,Mauritius,Africa,Western Indian Ocean,MU,MUS,480,0,0,572,140.458
+Mayotte,France,Africa,Western Indian Ocean,YT,MYT,0,0,0,576,48.4735
+Mexico,Mexico,Latin America + Caribbean,Meso America,MX,MEX,484,0,1,580,267949
+Micronesia (Federated States of),Micronesia (Federated States of),Asia + Pacific,South Pacific,FM,FSM,583,0,0,584,88.742
+Midway Islands,United States of America,Asia + Pacific,South Pacific,,,0,0,0,588,NULL
+Moldova,Moldova,Europe,Eastern Europe,MD,MDA,498,0,0,592,467.233
+Monaco,Monaco,Europe,Western Europe,MC,MCO,492,0,0,596,74.243
+Mongolia,Mongolia,Asia + Pacific,North East Asia,MN,MNG,496,0,0,600,209610
+Montenegro,Montenegro,Europe,Central Europe,ME,MNE,499,0,0,602,1854.86
+Montserrat,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,MS,MSR,500,0,0,604,10.5885
+Morocco,Morocco,Africa,Northern Africa,MA,MAR,504,0,0,608,6810.68
+Mozambique,Mozambique,Africa,Southern Africa,MZ,MOZ,508,0,0,612,127482
+Myanmar,Myanmar,Asia + Pacific,South East Asia,MM,MMR,104,0,0,616,43114.7
+Namibia,Namibia,Africa,Southern Africa,NA,NAM,516,0,0,620,126347
+Nauru,Nauru,Asia + Pacific,South Pacific,NR,NRU,520,0,0,624,NULL
+Nepal,Nepal,Asia + Pacific,South Asia,NP,NPL,524,0,0,628,25107.6
+Netherlands,Netherlands,Europe,Western Europe,NL,NLD,528,1,1,632,7433.92
+Netherlands Antilles,Netherlands,Latin America + Caribbean,Caribbean,AN,ANT,530,0,0,636,179.123
+New Caledonia,France,Asia + Pacific,South Pacific,NC,NCL,540,0,0,640,31167.6
+New Zealand,New Zealand,Asia + Pacific,Australia + New Zealand,NZ,NZL,554,1,1,644,90111.3
+Nicaragua,Nicaragua,Latin America + Caribbean,Meso America,NI,NIC,558,0,0,648,62418.9
+Niger,Niger,Africa,Western Africa,NE,NER,562,0,0,652,84131.9
+Nigeria,Nigeria,Africa,Western Africa,NG,NGA,566,0,0,656,117472
+Niue,New Zealand,Asia + Pacific,South Pacific,NU,NIU,570,0,0,660,60.338
+Norfolk Island,Australia,Asia + Pacific,South Pacific,NF,NFK,574,0,0,664,10.1295
+Northern Mariana Islands,United States of America,Asia + Pacific,South Pacific,MP,MNP,580,0,0,668,7400.39
+Norway,Norway,Europe,Western Europe,NO,NOR,578,1,1,672,50753.9
+Occupied Palestinian Territory,Occupied Palestinian Territory,West Asia,Mashriq,PS,PSE,0,0,0,676,39.5495
+Oman,Oman,West Asia,Arabian Peninsula,OM,OMN,512,0,0,680,33822.8
+Pakistan,Pakistan,Asia + Pacific,South Asia,PK,PAK,586,0,0,684,81392.2
+Palau,Palau,Asia + Pacific,South Pacific,PW,PLW,585,0,0,688,165.707
+Panama,Panama,Latin America + Caribbean,Meso America,PA,PAN,591,0,0,692,17119.2
+Papua New Guinea,Papua New Guinea,Asia + Pacific,South Pacific,PG,PNG,598,0,0,696,16769
+Paraguay,Paraguay,Latin America + Caribbean,South America,PY,PRY,600,0,0,704,21861
+Peru,Peru,Latin America + Caribbean,South America,PE,PER,604,0,0,708,178842
+Philippines,Philippines,Asia + Pacific,South East Asia,PH,PHL,608,0,0,712,49208
+Pitcairn Island,United Kingdom of Great Britain and Northern Ireland,Asia + Pacific,South Pacific,PN,PCN,612,0,0,716,NULL
+Poland,Poland,Europe,Central Europe,PL,POL,616,1,1,720,70366
+Portugal,Portugal,Europe,Western Europe,PT,PRT,620,1,1,724,9644.16
+Puerto Rico,United States of America,Latin America + Caribbean,Caribbean,PR,PRI,630,0,0,728,1195.39
+Qatar,Qatar,West Asia,Arabian Peninsula,QA,QAT,634,0,0,732,312.19
+Republic of Korea,Republic of Korea,Asia + Pacific,North East Asia,KR,KOR,410,1,1,736,5896.62
+Réunion,France,Africa,Western Indian Ocean,RE,REU,638,0,0,740,1986.29
+Romania,Romania,Europe,Central Europe,RO,ROU,642,0,0,744,18865
+Russian Federation,Russian Federation,Europe,Eastern Europe,RU,RUS,643,0,0,748,1671900
+Rwanda,Rwanda,Africa,Eastern Africa,RW,RWA,646,0,0,752,2541.77
+Saint Helena,United Kingdom of Great Britain and Northern Ireland,Africa,Southern Africa,SH,SHN,654,0,0,756,53.8716
+Saint Kitts and Nevis,Saint Kitts and Nevis,Latin America + Caribbean,Caribbean,KN,KNA,659,0,0,760,26.2486
+Saint Lucia,Saint Lucia,Latin America + Caribbean,Caribbean,LC,LCA,662,0,0,764,90.9092
+Saint Pierre and Miquelon,France,North America,North America,PM,SPM,666,0,0,768,126.662
+Saint Vincent and the Grenadines,Saint Vincent and the Grenadines,Latin America + Caribbean,Caribbean,VC,VCT,670,0,0,772,82.8368
+Samoa,Samoa,Asia + Pacific,South Pacific,WS,WSM,882,0,0,776,153.999
+San Marino,San Marino,Europe,Western Europe,SM,SMR,674,0,0,780,NULL
+Sao Tome and Principe,Sao Tome and Principe,Africa,Central Africa,ST,STP,678,0,0,784,NULL
+Saudi Arabia,Saudi Arabia,West Asia,Arabian Peninsula,SA,SAU,682,0,0,788,607879
+Senegal,Senegal,Africa,Western Africa,SN,SEN,686,0,0,792,49070.8
+Serbia,Serbia,Europe,Central Europe,RS,SRB,688,0,0,794,5281.04
+Seychelles,Seychelles,Africa,Western Indian Ocean,SC,SYC,690,0,0,796,452.12
+Sierra Leone,Sierra Leone,Africa,Western Africa,SL,SLE,694,0,0,800,3598.72
+Singapore,Singapore,Asia + Pacific,South East Asia,SG,SGP,702,1,0,804,41.3391
+Slovakia,Slovakia,Europe,Central Europe,SK,SVK,703,1,1,808,11346.9
+Slovenia,Slovenia,Europe,Central Europe,SI,SVN,705,1,0,812,2675.1
+Solomon Islands,Solomon Islands,Asia + Pacific,South Pacific,SB,SLB,90,0,0,816,291.593
+Somalia,Somalia,Africa,Eastern Africa,SO,SOM,706,0,0,820,3725.9
+South Africa,South Africa,Africa,Southern Africa,ZA,ZAF,710,0,0,824,89183
+Spain,Spain,Europe,Western Europe,ES,ESP,724,1,1,832,47660.7
+Sri Lanka,Sri Lanka,Asia + Pacific,South Asia,LK,LKA,144,0,0,840,14633.7
+Sudan,Sudan,Africa,Northern Africa,SD,SDN,736,0,0,844,105428
+Suriname,Suriname,Latin America + Caribbean,South America,SR,SUR,740,0,0,848,19045.5
+Svalbard and Jan Mayen Islands,Norway,Europe,Western Europe,SJ,SJM,744,0,0,852,77563.8
+Swaziland,Swaziland,Africa,Southern Africa,SZ,SWZ,748,0,0,856,523.286
+Sweden,Sweden,Europe,Western Europe,SE,SWE,752,1,1,860,53217.9
+Switzerland,Switzerland,Europe,Western Europe,CH,CHE,756,1,1,864,10276.9
+Syrian Arab Republic,Syrian Arab Republic,West Asia,Mashriq,SY,SYR,760,0,0,868,1228
+Tajikistan,Tajikistan,Asia + Pacific,Central Asia,TJ,TJK,762,0,0,876,5884.4
+Thailand,Thailand,Asia + Pacific,South East Asia,TH,THA,764,0,0,880,108828
+The former Yugoslav Republic of Macedonia,The former Yugoslav Republic of Macedonia,Europe,Central Europe,MK,MKD,807,0,0,884,1239.83
+Timor-Leste,Timor-Leste,Asia + Pacific,South East Asia,TL,TLS,626,0,0,886,1914.79
+Togo,Togo,Africa,Western Africa,TG,TGO,768,0,0,888,6467.07
+Tokelau,New Zealand,Asia + Pacific,South Pacific,TK,TKL,772,0,0,892,9.99923
+Tonga,Tonga,Asia + Pacific,South Pacific,TO,TON,776,0,0,896,8546.6
+Trinidad and Tobago,Trinidad and Tobago,Latin America + Caribbean,Caribbean,TT,TTO,780,0,0,900,2094.68
+Tunisia,Tunisia,Africa,Northern Africa,TN,TUN,788,0,0,904,2446.12
+Turkey,Turkey,Europe,Central Europe,TR,TUR,792,0,1,908,16732
+Turkmenistan,Turkmenistan,Asia + Pacific,Central Asia,TM,TKM,795,0,0,912,14613
+Turks and Caicos Islands,United Kingdom of Great Britain and Northern Ireland,Latin America + Caribbean,Caribbean,TC,TCA,796,0,0,916,586.55
+Tuvalu,Tuvalu,Asia + Pacific,South Pacific,TV,TUV,798,0,0,920,35.9485
+Uganda,Uganda,Africa,Eastern Africa,UG,UGA,800,0,0,924,24948.4
+Ukraine,Ukraine,Europe,Eastern Europe,UA,UKR,804,0,0,928,23111.4
+United Arab Emirates,United Arab Emirates,West Asia,Arabian Peninsula,AE,ARE,784,0,0,932,4756.58
+United Kingdom of Great Britain and Northern Ireland,United Kingdom of Great Britain and Northern Ireland,Europe,Western Europe,GB,GBR,826,1,1,936,74259
+United Republic of Tanzania,United Republic of Tanzania,Africa,Southern Africa,TZ,TZA,834,0,0,940,264497
+United States of America,United States of America,North America,North America,US,USA,840,1,1,944,1385160
+United States Virgin Islands,United States of America,Latin America + Caribbean,Caribbean,VI,VIR,850,0,0,948,95.6381
+Uruguay,Uruguay,Latin America + Caribbean,South America,UY,URY,858,0,0,952,540.518
+Uzbekistan,Uzbekistan,Asia + Pacific,Central Asia,UZ,UZB,860,0,0,956,9549.01
+Vanuatu,Vanuatu,Asia + Pacific,South Pacific,VU,VUT,548,0,0,960,594.328
+Venezuela Bolivarian Republic of,Venezuela Bolivarian Republic of,Latin America + Caribbean,South America,VE,VEN,862,0,0,964,507506
+Viet Nam,Viet Nam,Asia + Pacific,South East Asia,VN,VNM,704,0,0,968,23849.8
+Wake Island,United States of America,Asia + Pacific,South Pacific,,,0,0,0,972,NULL
+Wallis and Futuna,France,Asia + Pacific,South Pacific,WF,WLF,876,0,0,976,0.299871
+Western Sahara,Western Sahara,Africa,Northern Africa,EH,ESH,732,0,0,980,18847.1
+Yemen,Yemen,West Asia,Arabian Peninsula,YE,YEM,887,0,0,984,3625.24
+Zambia,Zambia,Africa,Southern Africa,ZM,ZMB,894,0,0,992,272367
+Zimbabwe,Zimbabwe,Africa,Southern Africa,ZW,ZWE,716,0,0,996,109955

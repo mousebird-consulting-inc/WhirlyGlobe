@@ -1,0 +1,154 @@
+require 'une'
+require 'rubygems'
+require 'faster_csv'
+require 'pp'
+
+class String
+   def underscore
+       self.gsub(/::/, '/').
+       gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+       gsub(/([a-z\d])([A-Z])/,'\1_\2').
+       tr("-", "_").
+       downcase
+   end
+   
+   def une_field
+     self.strip.gsub(/ /, '_').underscore
+   end
+end
+
+def extract_metadata(file)
+  # read a 1024 byte chunk from the top of the file
+  chunk = File.open(file, 'r') { |f| f.read(1024) }
+  
+  # process lines from chunk, looking for the pattern:
+  # <field>: <data>
+  
+  lines = chunk.split("\n")
+  
+  header_key_map = {
+    :variable => :variable_name,
+    :units => :units,
+    :data_source => :data_source,
+    :provider => :provider,
+    :une_field_name => :une_field_name
+  }
+  
+  metadata = 
+    lines.map do |line|
+      # p line
+      
+      line.strip!
+      next unless line
+      
+      m = /^([A-Za-z0-9\ \-\(\)]+): (.+)$/.match(line)
+      
+      if ( m )
+        field = m[1].une_field.to_sym
+        [ header_key_map[field], m[2].strip ]
+      else
+        nil
+      end
+    end
+    
+  # create dataset info hash
+  metadata.compact!  
+  dataset_info = Hash[*metadata.flatten]
+    
+  # extract the last field from the header line
+  # is typically has a numeric value, such as '2010'
+  header_line = lines[metadata.size]
+  dataset_info[:une_field_name] = header_line.split(",").last
+  
+  dataset_info
+end
+
+def import_csv(file)
+  puts "Importing CSV file: #{file}"
+  
+  metadata = extract_metadata(file)
+  skip_lines = metadata.size
+  
+  # create dataset  
+  dataset = UNE::DataSet[:variable_name => metadata[:variable_name]]
+  p metadata
+  dataset ||= UNE::DataSet.create(metadata)
+  
+  puts "Processing DataSet: #{dataset.variable_name}"
+    
+  FasterCSV::HeaderConverters[:une] = lambda { |h| h.underscore }
+  une_headers = [
+    :country_name,
+    :sovereign,
+    :geo_region,
+    :geo_subregion,
+    :iso2,
+    :iso3,
+    :un,
+    :is_developed,
+    :geo_id,
+    :une_field_value,
+    :measurement
+  ]
+  csv_options = { :headers => une_headers, :converters => :all }
+
+  count = 0
+  FasterCSV.foreach(file, csv_options) do |row|
+    if ( count < skip_lines )
+      count += 1
+      next
+    end
+
+    # attempt to lookup nation/country data
+    nation = UNE::Nation[:iso3 => row[:iso3]]
+    
+    unless nation      
+      # create nation if it does not exist
+      row_hash = row.to_hash
+      row_hash.delete(:measurement)
+      
+      # skip nations without a valid iso3 code
+      iso3 = row[:iso3]
+      next unless ( iso3 || iso3 == "NULL" )
+  
+      nation = UNE::Nation.create(row_hash)
+    
+      puts "  -- Added Nation: #{nation.iso3} : #{nation.country_name}"
+      pp nation
+    end
+    
+    value = row[:measurement]
+    variable_value = UNE::Measurement[:measurement => value, :nation_id => nation.id, :data_set_id => dataset.id]
+    unless variable_value
+      variable_value = UNE::Measurement.create(:measurement => value, :nation_id => nation.id, :data_set_id => dataset.id)
+      puts "  - #{nation.country_name} (#{nation.iso3}): #{value}"
+    end
+  end
+end
+
+namespace :db do
+  desc "migrate database schema"
+  task :migrate do
+    %x{sequel -m data data/database.yml}
+  end
+  
+  desc "drop all tables"
+  task :drop do
+    %x{rm -f db/une.sqlite3}
+  end
+    
+end
+
+namespace :import do
+
+  desc "import all UNE CSV data files in 'import' folder"
+  task :une => ["db:migrate"] do
+    
+    csv_files = FileList['import/**/*.csv']
+    csv_files.each do |file|
+      import_csv(file)
+    end
+    
+  end
+end
+

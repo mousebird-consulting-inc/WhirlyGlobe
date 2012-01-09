@@ -1,0 +1,233 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B93F867135C6D8000678282 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B93F866135C6D8000678282 /* Foundation.framework */; };
+		2B93F86A135C6D8000678282 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93F869135C6D8000678282 /* main.mm */; };
+		2BAE49DF136219A500EB55AF /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BAE49DE136219A500EB55AF /* ApplicationServices.framework */; };
+		2BAE49E2136219D200EB55AF /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BAE49E1136219D200EB55AF /* AppKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2B93F860135C6D8000678282 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2B93F862135C6D8000678282 /* ImageChopper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ImageChopper; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B93F866135C6D8000678282 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2B93F869135C6D8000678282 /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		2B93F86C135C6D8000678282 /* ImageChopper-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ImageChopper-Prefix.pch"; sourceTree = "<group>"; };
+		2B93F86D135C6D8000678282 /* ImageChopper.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ImageChopper.1; sourceTree = "<group>"; };
+		2BAE49DE136219A500EB55AF /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		2BAE49E1136219D200EB55AF /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2B93F85F135C6D8000678282 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BAE49E2136219D200EB55AF /* AppKit.framework in Frameworks */,
+				2BAE49DF136219A500EB55AF /* ApplicationServices.framework in Frameworks */,
+				2B93F867135C6D8000678282 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2B93F857135C6D7F00678282 = {
+			isa = PBXGroup;
+			children = (
+				2BAE49E1136219D200EB55AF /* AppKit.framework */,
+				2BAE49DE136219A500EB55AF /* ApplicationServices.framework */,
+				2B93F868135C6D8000678282 /* ImageChopper */,
+				2B93F865135C6D8000678282 /* Frameworks */,
+				2B93F863135C6D8000678282 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2B93F863135C6D8000678282 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B93F862135C6D8000678282 /* ImageChopper */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B93F865135C6D8000678282 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B93F866135C6D8000678282 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2B93F868135C6D8000678282 /* ImageChopper */ = {
+			isa = PBXGroup;
+			children = (
+				2B93F869135C6D8000678282 /* main.mm */,
+				2B93F86D135C6D8000678282 /* ImageChopper.1 */,
+				2B93F86B135C6D8000678282 /* Supporting Files */,
+			);
+			path = ImageChopper;
+			sourceTree = "<group>";
+		};
+		2B93F86B135C6D8000678282 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2B93F86C135C6D8000678282 /* ImageChopper-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2B93F861135C6D8000678282 /* ImageChopper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B93F870135C6D8000678282 /* Build configuration list for PBXNativeTarget "ImageChopper" */;
+			buildPhases = (
+				2B93F85E135C6D8000678282 /* Sources */,
+				2B93F85F135C6D8000678282 /* Frameworks */,
+				2B93F860135C6D8000678282 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ImageChopper;
+			productName = ImageChopper;
+			productReference = 2B93F862135C6D8000678282 /* ImageChopper */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2B93F859135C6D7F00678282 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 2B93F85C135C6D7F00678282 /* Build configuration list for PBXProject "ImageChopper" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2B93F857135C6D7F00678282;
+			productRefGroup = 2B93F863135C6D8000678282 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2B93F861135C6D8000678282 /* ImageChopper */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B93F85E135C6D8000678282 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B93F86A135C6D8000678282 /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2B93F86E135C6D8000678282 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2B93F86F135C6D8000678282 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2B93F871135C6D8000678282 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ImageChopper/ImageChopper-Prefix.pch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2B93F872135C6D8000678282 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "ImageChopper/ImageChopper-Prefix.pch";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2B93F85C135C6D7F00678282 /* Build configuration list for PBXProject "ImageChopper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B93F86E135C6D8000678282 /* Debug */,
+				2B93F86F135C6D8000678282 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B93F870135C6D8000678282 /* Build configuration list for PBXNativeTarget "ImageChopper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B93F871135C6D8000678282 /* Debug */,
+				2B93F872135C6D8000678282 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2B93F859135C6D7F00678282 /* Project object */;
+}

@@ -1,0 +1,2 @@
+adapter: sqlite
+database: db/une.sqlite3
