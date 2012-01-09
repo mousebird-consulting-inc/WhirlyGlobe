@@ -36,7 +36,7 @@ MarkerSceneRep::MarkerSceneRep()
 
 using namespace WhirlyGlobe;
 
-@implementation WGMarker
+@implementation WhirlyGlobeMarker
 
 @synthesize isSelectable;
 @synthesize selectID;
@@ -105,7 +105,7 @@ protected:
 };
 #endif
 
-@interface WGMarkerLayer()
+@interface WhirlyGlobeMarkerLayer()
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 @end
 
@@ -187,7 +187,7 @@ protected:
 @end
 
 
-@implementation WGMarkerLayer
+@implementation WhirlyGlobeMarkerLayer
 
 @synthesize layerThread;
 @synthesize selectLayer;
@@ -229,7 +229,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     DrawableMap drawables;
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
-    for (WGMarker *marker in markerInfo.markers)
+    for (WhirlyGlobeMarker *marker in markerInfo.markers)
     {
         // Build the rectangle for this one
         Point3f pts[4];
@@ -529,7 +529,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
 
 // Add a single marker 
-- (WhirlyGlobe::SimpleIdentity) addMarker:(WGMarker *)marker desc:(NSDictionary *)desc
+- (WhirlyGlobe::SimpleIdentity) addMarker:(WhirlyGlobeMarker *)marker desc:(NSDictionary *)desc
 {
     MarkerInfo *markerInfo = [[[MarkerInfo alloc] initWithMarkers:[NSArray arrayWithObject:marker] desc:desc] autorelease];
     

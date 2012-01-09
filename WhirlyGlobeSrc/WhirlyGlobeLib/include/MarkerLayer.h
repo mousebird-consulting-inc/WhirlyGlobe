@@ -29,11 +29,14 @@
 #import "DrawCost.h"
 #import "SelectionLayer.h"
 
+namespace WhirlyGlobe
+{
 /// Default priority for markers
 static const int MarkerDrawPriority=1005;
 
 /// Maximum number of triangles we'll stick in a drawable
 static const int MaxMarkerDrawableTris=1<<15/3;
+}
 
 namespace WhirlyGlobe
 {
@@ -59,7 +62,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     A single marker object to be placed on the globe.  It will show
     up with the given width and height and be selectable if so desired.
  */
-@interface WGMarker : NSObject
+@interface WhirlyGlobeMarker : NSObject
 {
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
@@ -112,7 +115,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
      <item>fade          [NSNumber float]
      </list>
  */
-@interface WGMarkerLayer : NSObject<WhirlyGlobeLayer> 
+@interface WhirlyGlobeMarkerLayer : NSObject<WhirlyGlobeLayer> 
 {
     /// Layer thread this belongs to
     WhirlyGlobeLayerThread *layerThread;
@@ -121,7 +124,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     /// Scene the marker layer is modifying
     WhirlyGlobe::GlobeScene *scene;
     /// If set, we'll pass markers on for selection
-    WGSelectionLayer *selectLayer;
+    WhirlyGlobeSelectionLayer *selectLayer;
     /// Used to track what scene components correspond to which markers
     WhirlyGlobe::MarkerSceneRepSet markerReps;
 }
@@ -130,13 +133,13 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 ///  and markers are designated selectable, then the outline
 ///  of each marker will be passed to the selection layer
 ///  and will show up in search results.
-@property (nonatomic,assign) WGSelectionLayer *selectLayer;
+@property (nonatomic,assign) WhirlyGlobeSelectionLayer *selectLayer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 /// Add a single marker.  The returned ID can be used to delete or modify it.
-- (WhirlyGlobe::SimpleIdentity) addMarker:(WGMarker *)marker desc:(NSDictionary *)desc;
+- (WhirlyGlobe::SimpleIdentity) addMarker:(WhirlyGlobeMarker *)marker desc:(NSDictionary *)desc;
 
 /// Add a whole array of SingleMarker objects.  These will all be identified by the returned ID.
 /// To remove them, pass in that ID.  Selection will be based on individual IDs in

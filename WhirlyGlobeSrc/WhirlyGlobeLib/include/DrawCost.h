@@ -24,7 +24,7 @@
     objects might cost to draw.
     The values might be fractions, meaning we're sharing resources.
  */
-@interface DrawCost : NSObject 
+@interface WhirlyGlobeDrawCost : NSObject 
 {
     /// How many drawables we created for the thing
     float numDrawables;

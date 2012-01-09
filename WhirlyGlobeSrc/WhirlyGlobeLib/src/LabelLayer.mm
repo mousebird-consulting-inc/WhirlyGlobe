@@ -24,6 +24,8 @@
 #import "NSDictionary+Stuff.h"
 #import "RenderCache.h"
 
+using namespace WhirlyGlobe;
+
 namespace WhirlyGlobe
 {
 LabelSceneRep::LabelSceneRep() 
@@ -69,9 +71,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 
 @end
 
-using namespace WhirlyGlobe;
-
-@implementation SingleLabel
+@implementation WhirlyGlobeSingleLabel
 @synthesize text;
 @synthesize loc;
 @synthesize desc;
@@ -277,7 +277,7 @@ using namespace WhirlyGlobe;
 // Draw into an image of the appropriate size (but no bigger)
 // Also returns the text size, for calculating texture coordinates
 // Note: We don't need a full RGBA image here
-- (UIImage *)renderToImage:(SingleLabel *)label powOfTwo:(BOOL)usePowOfTwo retSize:(CGSize *)textSize texOrg:(TexCoord &)texOrg texDest:(TexCoord &)texDest
+- (UIImage *)renderToImage:(WhirlyGlobeSingleLabel *)label powOfTwo:(BOOL)usePowOfTwo retSize:(CGSize *)textSize texOrg:(TexCoord &)texOrg texDest:(TexCoord &)texDest
 {
     // A single label can override a few of the label attributes
     UIColor *theTextColor = self.textColor;
@@ -333,11 +333,11 @@ using namespace WhirlyGlobe;
 
 @end
 
-@interface LabelLayer()
+@interface WhirlyGlobeLabelLayer()
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 @end
 
-@implementation LabelLayer
+@implementation WhirlyGlobeLabelLayer
 
 @synthesize layerThread;
 @synthesize selectLayer;
@@ -409,7 +409,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     bool texAtlasOn = [labelInfo.strs count] > 1;
 
     // Work through the labels
-    for (SingleLabel *label in labelInfo.strs)
+    for (WhirlyGlobeSingleLabel *label in labelInfo.strs)
     {    
         TexCoord texOrg,texDest;
         CGSize textSize;
@@ -735,7 +735,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 // Pass off label creation to a routine in our own thread
 - (SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyGlobe::GeoCoord)loc desc:(NSDictionary *)desc
 {
-    SingleLabel *theLabel = [[[SingleLabel alloc] init] autorelease];
+    WhirlyGlobeSingleLabel *theLabel = [[[WhirlyGlobeSingleLabel alloc] init] autorelease];
     theLabel.text = str;
     [theLabel setLoc:loc];
     LabelInfo *labelInfo = [[[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:theLabel] desc:desc] autorelease];
@@ -754,7 +754,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     return [self addLabels:labels desc:desc cacheName:nil];
 }
 
-- (SimpleIdentity) addLabel:(SingleLabel *)label
+- (SimpleIdentity) addLabel:(WhirlyGlobeSingleLabel *)label
 {
     return [self addLabels:[NSMutableArray arrayWithObject:label] desc:label.desc];
 }
@@ -829,9 +829,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
 // Return the cost of the given label group
 // Can only do this if the label(s) have been created, so only from the layer thread
-- (DrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)labelId
+- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)labelId
 {
-    DrawCost *cost = [[[DrawCost alloc] init] autorelease];
+    WhirlyGlobeDrawCost *cost = [[[WhirlyGlobeDrawCost alloc] init] autorelease];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
     {

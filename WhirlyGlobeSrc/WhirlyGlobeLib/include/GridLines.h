@@ -22,13 +22,16 @@
 #import "DataLayer.h"
 #import "GlobeScene.h"
 
+namespace WhirlyGlobe
+{
 static const float GlobeLineOffset = 0.01;
 static const float GridCellSize = 3*(float)M_PI/180.0;
+}
 
 /** Grid Layer will create some overlaid grid lines on the
     globe.
  */
-@interface GridLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeGridLayer : NSObject<WhirlyGlobeLayer>
 {
 	unsigned int numX,numY;
 	unsigned int chunkX,chunkY;

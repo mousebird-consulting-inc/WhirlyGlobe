@@ -60,7 +60,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
     create a large number of labels at once.  We use an array of
     these single labels to do that.
   */
-@interface SingleLabel : NSObject
+@interface WhirlyGlobeSingleLabel : NSObject
 {
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
@@ -100,9 +100,14 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 
 @end
 
+namespace WhirlyGlobe
+{
+
 /// Size of one side of the texture atlases built for labels
 /// You can also specify this at startup
 static const unsigned int LabelTextureAtlasSizeDefault = 512;
+    
+}
 
 /** The Label Layer will represent and manage groups of labels.  You
     can hand it a list of labels to display and it will group those
@@ -134,13 +139,13 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>fade            [NSSTring float]
     </list>
   */
-@interface LabelLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeLabelLayer : NSObject<WhirlyGlobeLayer>
 {
 	WhirlyGlobeLayerThread *layerThread;
 	WhirlyGlobe::GlobeScene *scene;
     
     /// If set, we register labels as selectable here
-    WGSelectionLayer *selectLayer;
+    WhirlyGlobeSelectionLayer *selectLayer;
 
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyGlobe::LabelSceneRepMap labelReps;
@@ -149,7 +154,7 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 }
 
 /// Set this to enable selection for labels
-@property (nonatomic,retain) WGSelectionLayer *selectLayer;
+@property (nonatomic,retain) WhirlyGlobeSelectionLayer *selectLayer;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2
@@ -165,7 +170,7 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 
 /// Add a single label with the SingleLabel object.  The desc dictionary in that
 ///  object will specify the look
-- (WhirlyGlobe::SimpleIdentity) addLabel:(SingleLabel *)label;
+- (WhirlyGlobe::SimpleIdentity) addLabel:(WhirlyGlobeSingleLabel *)label;
 
 /// Add a whole list of labels (represented by SingleLabel objects) with the given
 ///  look and feel.
@@ -184,7 +189,7 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 
 /// Return the cost of a given label group (number of drawables and textures).
 /// Only call this in the layer thread
-- (DrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)labelID;
+- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)labelID;
 
 /// Remove the given label group by ID
 - (void) removeLabel:(WhirlyGlobe::SimpleIdentity)labelId;

@@ -34,7 +34,7 @@
     We give it a geographic location and a normal (in 3-space).
     The rest of the info is in the dictionary.
  */
-@interface ParticleSystem : NSObject
+@interface WhirlyGlobeParticleSystem : NSObject
 {
     WhirlyGlobe::GeoCoord loc;
     Vector3f norm;
@@ -98,7 +98,7 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
     <item>colors is an optional array of colors from which we'll randomly pick one per particle
     </list>
   */
-@interface ParticleSystemLayer : NSObject<WhirlyGlobeLayer> 
+@interface WhirlyGlobeParticleSystemLayer : NSObject<WhirlyGlobeLayer> 
 {
     /// The layer thread we live in
     WhirlyGlobeLayerThread *layerThread;
@@ -117,7 +117,7 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
 - (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 /// Add a single particle system to the layer
-- (WhirlyGlobe::SimpleIdentity) addParticleSystem:(ParticleSystem *)partSystem desc:(NSDictionary *)desc;
+- (WhirlyGlobe::SimpleIdentity) addParticleSystem:(WhirlyGlobeParticleSystem *)partSystem desc:(NSDictionary *)desc;
 
 /// Add a group of particle systems
 - (WhirlyGlobe::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc;

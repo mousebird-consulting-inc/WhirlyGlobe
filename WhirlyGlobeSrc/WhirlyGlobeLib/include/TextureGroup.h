@@ -29,7 +29,7 @@
     and get around the 1k x 1k (or 2k x 2k) limit in OpenGL.
 	File name: base_XxY.ext
  */
-@interface TextureGroup : NSObject 
+@interface WhirlyGlobeTextureGroup : NSObject 
 {
     /// If set, the path to the texture group.
     /// Might be somewhere other than the default bundle

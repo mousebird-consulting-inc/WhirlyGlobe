@@ -8,7 +8,7 @@
 
 #import "DrawCost.h"
 
-@implementation DrawCost
+@implementation WhirlyGlobeDrawCost
 
 @synthesize numDrawables;
 @synthesize numTextures;

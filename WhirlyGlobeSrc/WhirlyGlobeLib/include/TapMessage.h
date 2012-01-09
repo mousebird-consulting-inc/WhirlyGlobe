@@ -33,7 +33,7 @@
 	indication that the user tapped on the globe.
 	It's passed as the object in a notification.
  */
-@interface TapMessage : NSObject
+@interface WhirlyGlobeTapMessage : NSObject
 {
     /// View that was touched
     UIView *view;      

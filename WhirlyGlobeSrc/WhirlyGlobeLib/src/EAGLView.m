@@ -1,5 +1,5 @@
 /*
- *  EAGLView.mm
+ *  WhirlyGlobeEAGLView .mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
@@ -21,11 +21,11 @@
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface EAGLView ()
+@interface WhirlyGlobeEAGLView  ()
 @property (nonatomic,retain) CADisplayLink *displayLink;
 @end
 
-@implementation EAGLView
+@implementation WhirlyGlobeEAGLView 
 
 @synthesize renderer;
 @synthesize displayLink;

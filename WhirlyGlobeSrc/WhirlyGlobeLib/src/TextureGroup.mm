@@ -22,7 +22,7 @@
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
 
-@implementation TextureGroup
+@implementation WhirlyGlobeTextureGroup
 
 @synthesize baseName,basePath,ext;
 @synthesize numX,numY;

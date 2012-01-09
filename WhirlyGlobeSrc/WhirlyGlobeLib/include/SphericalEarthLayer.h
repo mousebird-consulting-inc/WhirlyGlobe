@@ -25,9 +25,12 @@
 #import "DataLayer.h"
 #import "RenderCache.h"
 
+namespace WhirlyGlobe
+{
 // Each chunk of the globe is broken into this many units
 static const unsigned int SphereTessX = 10,SphereTessY = 25;
 //static const unsigned int SphereTessX = 20,SphereTessY = 50;
+}
 
 /** This is the earth modelled as a sphere.  Yes, this
     probably needs to be an ellipse some day, but not yet.
@@ -35,9 +38,9 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     by creating the earth model itself.  Once that's done,
     it doesn't do anything else. 
  */
-@interface SphericalEarthLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyGlobeLayer>
 {
-	TextureGroup *texGroup;
+	WhirlyGlobeTextureGroup *texGroup;
 	WhirlyGlobe::GlobeScene *scene;
 	unsigned int xDim,yDim;
 	unsigned int chunkX,chunkY;
@@ -53,12 +56,12 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.
-- (id)initWithTexGroup:(TextureGroup *)texGroup;
+- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)texGroup;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.
 /// If you provide a cache name, we'll try to load from there first
-- (id)initWithTexGroup:(TextureGroup *)texGroup cacheName:(NSString *)cacheName;
+- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)texGroup cacheName:(NSString *)cacheName;
 
 /// Call this right after init if you want to save the geometry out
 - (void)saveToCacheName:(NSString *)cacheName;

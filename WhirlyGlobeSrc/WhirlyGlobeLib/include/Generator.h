@@ -26,7 +26,7 @@
 #import "GlobeView.h"
 
 /// @cond
-@class RendererFrameInfo;
+@class WhirlyGlobeRendererFrameInfo;
 /// @endcond
 
 namespace WhirlyGlobe 
@@ -44,7 +44,7 @@ public:
     
     /// Generate a list of drawables to draw.
     /// The renderer will delete these at the end of the frame.
-    virtual void generateDrawables(RendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables) { };
+    virtual void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables) { };
 };
 
 /** The Generator Change Request is the base class for communication

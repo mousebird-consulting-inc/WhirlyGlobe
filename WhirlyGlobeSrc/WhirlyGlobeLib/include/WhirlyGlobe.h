@@ -31,7 +31,7 @@
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
 #import "SceneRendererES1.h"
-#import "EAGLView.h"
+#import "WhirlyGlobeEAGLView .h"
 #import "PinchDelegate.h"
 #import "SwipeDelegate.h"
 #import "PanDelegate.h"

@@ -21,12 +21,12 @@
 #import "GridLines.h"
 #import "GlobeMath.h"
 
-@interface GridLayer()
+@interface WhirlyGlobeGridLayer()
 @end
 
 using namespace WhirlyGlobe;
 
-@implementation GridLayer
+@implementation WhirlyGlobeGridLayer
 
 - (id)initWithX:(unsigned int)inNumX Y:(unsigned int)inNumY
 {

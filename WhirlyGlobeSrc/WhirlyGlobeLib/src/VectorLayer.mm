@@ -224,11 +224,11 @@ protected:
 
 }
 
-@interface VectorLayer()
+@interface WhirlyGlobeVectorLayer()
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 @end
 
-@implementation VectorLayer
+@implementation WhirlyGlobeVectorLayer
 
 @synthesize layerThread;
 
@@ -450,9 +450,9 @@ protected:
 
 // Return the cost of the given vector represenation
 // Can only do this if the vectors(s) have been created, so only from the layer thread
-- (DrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecId
+- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecId
 {
-    DrawCost *cost = [[[DrawCost alloc] init] autorelease];
+    WhirlyGlobeDrawCost *cost = [[[WhirlyGlobeDrawCost alloc] init] autorelease];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
     {

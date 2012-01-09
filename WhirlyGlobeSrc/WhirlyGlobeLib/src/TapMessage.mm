@@ -20,7 +20,7 @@
 
 #import "TapMessage.h"
 
-@implementation TapMessage
+@implementation WhirlyGlobeTapMessage
 
 @synthesize view;
 @synthesize touchLoc;

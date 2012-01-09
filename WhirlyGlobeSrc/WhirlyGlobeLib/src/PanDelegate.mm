@@ -52,8 +52,8 @@
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	EAGLView *glView = (EAGLView *)pan.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)pan.view;
+	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
 	
 	if (pan.numberOfTouches > 1)
 	{

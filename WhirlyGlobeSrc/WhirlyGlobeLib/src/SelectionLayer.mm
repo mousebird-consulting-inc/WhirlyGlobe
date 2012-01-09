@@ -31,21 +31,21 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 
-@interface WGSelectionLayer()
+@interface WhirlyGlobeSelectionLayer()
 
 @property (nonatomic,retain) WhirlyGlobeView *globeView;
-@property (nonatomic,retain) SceneRendererES1 *renderer;
+@property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *renderer;
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 
 @end
 
-@implementation WGSelectionLayer
+@implementation WhirlyGlobeSelectionLayer
 
 @synthesize globeView;
 @synthesize renderer;
 @synthesize layerThread;
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(SceneRendererES1 *)inRenderer
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer
 {
     self = [super init];
     

@@ -25,23 +25,23 @@
 
 using namespace WhirlyGlobe;
 
-@interface SphericalEarthLayer()
-@property (nonatomic,retain) TextureGroup *texGroup;
+@interface WhirlyGlobeSphericalEarthLayer()
+@property (nonatomic,retain) WhirlyGlobeTextureGroup *texGroup;
 @property (nonatomic,retain) NSString *cacheName;
 @end
 
-@implementation SphericalEarthLayer
+@implementation WhirlyGlobeSphericalEarthLayer
 
 @synthesize texGroup;
 @synthesize cacheName;
 @synthesize fade;
 
-- (id)initWithTexGroup:(TextureGroup *)inTexGroup
+- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)inTexGroup
 {
     return [self initWithTexGroup:inTexGroup cacheName:nil];
 }
 
-- (id)initWithTexGroup:(TextureGroup *)inTexGroup cacheName:(NSString *)inCacheName;
+- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)inTexGroup cacheName:(NSString *)inCacheName;
 {
 	if ((self = [super init]))
 	{

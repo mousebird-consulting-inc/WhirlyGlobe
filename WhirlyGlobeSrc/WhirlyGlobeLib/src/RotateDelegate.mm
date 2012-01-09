@@ -58,7 +58,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the current state as the initial rotation state
-- (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(SceneRendererES1 *)sceneRender glView:(EAGLView *)glView
+- (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(WhirlyGlobeSceneRendererES1 *)sceneRender glView:(WhirlyGlobeEAGLView  *)glView
 {
     startQuat = globeView.rotQuat;
     axis = [globeView currentUp];
@@ -69,8 +69,8 @@ using namespace WhirlyGlobe;
 - (void)rotateGesture:(id)sender
 {
 	UIRotationGestureRecognizer *rotate = sender;
-	EAGLView *glView = (EAGLView *)rotate.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)rotate.view;
+	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
     
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)

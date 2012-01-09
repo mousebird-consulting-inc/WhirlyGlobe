@@ -89,7 +89,7 @@ BasicDrawable::~BasicDrawable()
 {
 }
     
-bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
+bool BasicDrawable::isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const
 {
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
@@ -100,7 +100,7 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
              (maxVisible <= visVal && visVal <= minVisible));
 }
     
-bool BasicDrawable::hasAlpha(RendererFrameInfo *frameInfo) const
+bool BasicDrawable::hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
@@ -276,7 +276,7 @@ void BasicDrawable::teardownGL()
     }
 }
 	
-void BasicDrawable::draw(RendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
 {
     if (usingBuffers)
         drawVBO(frameInfo,scene);
@@ -498,7 +498,7 @@ bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool do
 }
 
 // VBO based drawing
-void BasicDrawable::drawVBO(RendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::drawVBO(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
 {
 	GLuint textureId = scene->getGLTexture(texId);
 	
@@ -636,7 +636,7 @@ void BasicDrawable::drawVBO(RendererFrameInfo *frameInfo,GlobeScene *scene) cons
 }
 
 // Non-VBO based drawing
-void BasicDrawable::drawReg(RendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::drawReg(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
 {
 	GLuint textureId = scene->getGLTexture(texId);
 	

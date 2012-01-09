@@ -21,9 +21,14 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
 
+namespace WhirlyGlobe
+{
+
 /// The state of our rotation
 ///  which is not currently in use.
 typedef enum {RotNone,RotFree} RotationType;
+    
+}
 
 /** Rotation delegate 
     is for two fingered rotation around the axis at the middle of the screen
@@ -31,7 +36,7 @@ typedef enum {RotNone,RotFree} RotationType;
 @interface WhirlyGlobeRotateDelegate : NSObject <UIGestureRecognizerDelegate> 
 {
     /// What sort of rotation state we're in.  Not used
-    RotationType rotType;   
+    WhirlyGlobe::RotationType rotType;   
     WhirlyGlobeView *globeView;
     /// Starting point for rotation
     Eigen::Quaternionf startQuat;

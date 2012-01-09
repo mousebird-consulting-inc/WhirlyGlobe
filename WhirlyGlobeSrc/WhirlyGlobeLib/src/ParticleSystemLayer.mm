@@ -16,7 +16,7 @@ using namespace WhirlyGlobe;
 
 #pragma mark - Particle System
 
-@implementation ParticleSystem
+@implementation WhirlyGlobeParticleSystem
 
 @synthesize loc;
 @synthesize norm;
@@ -73,13 +73,13 @@ using namespace WhirlyGlobe;
 
 #pragma mark - Particle System Layer
 
-@interface ParticleSystemLayer()
+@interface WhirlyGlobeParticleSystemLayer()
 
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 
 @end
 
-@implementation ParticleSystemLayer
+@implementation WhirlyGlobeParticleSystemLayer
 
 @synthesize layerThread;
 
@@ -136,7 +136,7 @@ using namespace WhirlyGlobe;
     ParticleGenerator::ParticleSystem baseParams = [self parseParams:systemInfo.desc defaultSystem:&defaultSystem];
 
     // Now run through the particle systems and kick them off
-    for (ParticleSystem *partSys in systemInfo.systems)
+    for (WhirlyGlobeParticleSystem *partSys in systemInfo.systems)
     {
         // Set up the specifics of this one
         ParticleGenerator::ParticleSystem *newPartSys = new ParticleGenerator::ParticleSystem(baseParams);
@@ -175,7 +175,7 @@ using namespace WhirlyGlobe;
 }
 
 // Add a single particle system
-- (SimpleIdentity) addParticleSystem:(ParticleSystem *)partSystem desc:(NSDictionary *)desc
+- (SimpleIdentity) addParticleSystem:(WhirlyGlobeParticleSystem *)partSystem desc:(NSDictionary *)desc
 {
     ParticleSystemInfo *systemInfo = [[[ParticleSystemInfo alloc] initWithSystems:[NSArray arrayWithObject:partSystem] desc:desc] autorelease];
     systemInfo.destId = Identifiable::genId();

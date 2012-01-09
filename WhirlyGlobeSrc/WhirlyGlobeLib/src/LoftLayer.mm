@@ -420,13 +420,13 @@ protected:
 
 }
 
-@interface WGLoftLayer()
+@interface WhirlyGlobeLoftLayer()
 
 @property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
 
 @end
 
-@implementation WGLoftLayer
+@implementation WhirlyGlobeLoftLayer
 
 @synthesize layerThread;
 @synthesize gridSize;

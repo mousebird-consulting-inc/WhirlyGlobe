@@ -105,7 +105,7 @@ void ParticleGenerator::removeParticleSystem(SimpleIdentity theId)
 }
     
 // Generate the drawables for this frame
-void ParticleGenerator::generateDrawables(RendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables)
+void ParticleGenerator::generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables)
 {
     CFTimeInterval currentTime = CFAbsoluteTimeGetCurrent();
 

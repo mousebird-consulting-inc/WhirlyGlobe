@@ -72,7 +72,7 @@ typedef std::map<SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
      <item>fade        [NSNumber float]
      </list>
  */
-@interface WGLoftLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeLoftLayer : NSObject<WhirlyGlobeLayer>
 {
     WhirlyGlobeLayerThread *layerThread;
     WhirlyGlobe::GlobeScene *scene;

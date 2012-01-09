@@ -1,5 +1,5 @@
 /*
- *  EAGLView.h
+ *  WhirlyGlobeEAGLView .h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
@@ -27,10 +27,10 @@
 	This is modeled off of the example.  We subclass this for
     our own purposes.
  */
-@interface EAGLView : UIView 
+@interface WhirlyGlobeEAGLView  : UIView 
 {
     // We're only expecting this to be set once
-	id <ESRenderer> renderer;
+	id <WhirlyGlobeESRenderer> renderer;
 
     // This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 	NSInteger frameInterval;
@@ -38,7 +38,7 @@
     CADisplayLink *displayLink;
 }
 
-@property (nonatomic, retain) id<ESRenderer> renderer;
+@property (nonatomic, retain) id<WhirlyGlobeESRenderer> renderer;
 @property (nonatomic) NSInteger frameInterval;
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
 

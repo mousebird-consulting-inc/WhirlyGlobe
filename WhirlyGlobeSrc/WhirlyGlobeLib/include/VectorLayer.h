@@ -79,7 +79,7 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
     <item>fade        [NSNumber float]
     </list>
   */
-@interface VectorLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeVectorLayer : NSObject<WhirlyGlobeLayer>
 {
 @private
     WhirlyGlobe::GlobeScene *scene;
@@ -121,6 +121,6 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 
 /// Returns a cost estimate for the given vectors referred to by
 ///  ID.  This must be called in the layer thread
-- (DrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecID;
+- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecID;
 
 @end

@@ -27,16 +27,16 @@
 #import "GlobeScene.h"
 
 /// @cond
-@class SceneRendererES1;
+@class WhirlyGlobeSceneRendererES1;
 /// @endcond
 
 /** Renderer Frame Info
     Data about the current frame, passed around by the renderer.
  */
-@interface RendererFrameInfo : NSObject
+@interface WhirlyGlobeRendererFrameInfo : NSObject
 {
     /// Renderer itself
-    SceneRendererES1 *sceneRenderer;
+    WhirlyGlobeSceneRendererES1 *sceneRenderer;
     
     /// Globe View
     WhirlyGlobeView *globeView;
@@ -54,7 +54,7 @@
     NSTimeInterval currentTime;
 }
 
-@property (nonatomic,assign) SceneRendererES1 *sceneRenderer;
+@property (nonatomic,assign) WhirlyGlobeSceneRendererES1 *sceneRenderer;
 @property (nonatomic,assign) WhirlyGlobeView *globeView;
 @property (nonatomic,assign) WhirlyGlobe::GlobeScene *scene;
 @property (nonatomic,assign) float frameLen;
@@ -67,18 +67,18 @@
     These are all optional, but if set will be called
      at various points within the rendering process.
  */
-@protocol SceneRendererDelegate
+@protocol WhirlyGlobeSceneRendererDelegate
 
 @optional
 /// This overrides the setup view, including lights and modes
 /// Be sure to do *all* the setup if you do this
-- (void)lightingSetup:(SceneRendererES1 *)sceneRenderer;
+- (void)lightingSetup:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
 
 /// Called right before a frame is rendered
-- (void)preFrame:(SceneRendererES1 *)sceneRenderer;
+- (void)preFrame:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
 
 /// Called right after a frame is rendered
-- (void)postFrame:(SceneRendererES1 *)sceneRenderer;
+- (void)postFrame:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
 @end
 
 /// Number of frames to use for counting frames/sec
@@ -89,7 +89,7 @@ static const unsigned int RenderFrameCount = 25;
     somewhat composable, but in reality not all that much.
     Just set this up as in the examples and let it run.
  */
-@interface SceneRendererES1 : NSObject <ESRenderer>
+@interface WhirlyGlobeSceneRendererES1 : NSObject <WhirlyGlobeESRenderer>
 {
     /// Rendering context
 	EAGLContext *context;
@@ -120,7 +120,7 @@ static const unsigned int RenderFrameCount = 25;
 	unsigned int numDrawables;
     
     /// Delegate called at specific points in the rendering process
-    id<SceneRendererDelegate> delegate;
+    id<WhirlyGlobeSceneRendererDelegate> delegate;
 
     /// This is the color used to clear the screen.  Defaults to black
     WhirlyGlobe::RGBAColor clearColor;
@@ -134,7 +134,7 @@ static const unsigned int RenderFrameCount = 25;
 @property (nonatomic,readonly) float framesPerSec;
 @property (nonatomic,readonly) unsigned int numDrawables;
 
-@property (nonatomic,assign) id<SceneRendererDelegate> delegate;
+@property (nonatomic,assign) id<WhirlyGlobeSceneRendererDelegate> delegate;
 
 /// Attempt to render the frame in the time given.
 /// Ignoring the time at the moment.

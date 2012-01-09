@@ -25,7 +25,7 @@ namespace WhirlyGlobe
 {
 
 // Add this marker to the appropriate drawable
-void MarkerGenerator::Marker::addToDrawables(RendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
+void MarkerGenerator::Marker::addToDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
 {
     float visVal = frameInfo.globeView.heightAboveGlobe;
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
@@ -170,7 +170,7 @@ MarkerGenerator::Marker *MarkerGenerator::getMarker(SimpleIdentity markerId)
     return NULL;
 }
     
-void MarkerGenerator::generateDrawables(RendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables)
+void MarkerGenerator::generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables)
 {
     if (markers.empty())
         return;

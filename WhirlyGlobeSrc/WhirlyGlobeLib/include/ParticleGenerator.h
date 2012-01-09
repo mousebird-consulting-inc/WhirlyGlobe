@@ -42,7 +42,7 @@ public:
     virtual ~ParticleGenerator();
     
     /// Generate the list of drawables per frame.  Called by the renderer.
-    void generateDrawables(RendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
+    void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
 
     /// This class represents a single particle.
     class Particle

@@ -62,12 +62,12 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
     All objects are currently being projected to the 2D screen and
     evaluated for distance there.
  */
-@interface WGSelectionLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeSelectionLayer : NSObject<WhirlyGlobeLayer>
 {
     /// The globe view controls how the globe is displayed
     WhirlyGlobeView *globeView;
     /// The renderer has screen size information
-    SceneRendererES1 *renderer;
+    WhirlyGlobeSceneRendererES1 *renderer;
     /// Layer thread we're associated with
     WhirlyGlobeLayerThread *layerThread;
     /// The selectable objects themselves
@@ -75,7 +75,7 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(SceneRendererES1 *)inRenderer;
+- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;

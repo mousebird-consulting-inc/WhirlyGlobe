@@ -38,7 +38,7 @@ public:
     virtual ~MarkerGenerator();
 
     /// Generate the drawables for the given frame
-    void generateDrawables(RendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
+    void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
@@ -50,7 +50,7 @@ public:
     {
     public:
         /// Called by the marker generator build the geometry
-        void addToDrawables(RendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
+        void addToDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         
         RGBAColor color;
         GeoCoord loc;

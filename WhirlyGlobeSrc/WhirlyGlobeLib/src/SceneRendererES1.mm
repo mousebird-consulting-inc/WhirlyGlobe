@@ -23,7 +23,7 @@
 
 using namespace WhirlyGlobe;
 
-@implementation RendererFrameInfo
+@implementation WhirlyGlobeRendererFrameInfo
 
 @synthesize sceneRenderer;
 @synthesize globeView;
@@ -46,15 +46,15 @@ struct drawListSortStruct
         return !a->hasAlpha(frameInfo);
     }
     
-    RendererFrameInfo *frameInfo;
+    WhirlyGlobeRendererFrameInfo *frameInfo;
 };
 
-@interface SceneRendererES1()
+@interface WhirlyGlobeSceneRendererES1()
 - (void)setupView;
 @property (nonatomic,retain) NSDate *frameCountStart;
 @end
 
-@implementation SceneRendererES1
+@implementation WhirlyGlobeSceneRendererES1
 
 @synthesize scene,view;
 @synthesize framebufferWidth,framebufferHeight;
@@ -63,7 +63,7 @@ struct drawListSortStruct
 @synthesize numDrawables;
 @synthesize delegate;
 
-- (id <ESRenderer>) init
+- (id <WhirlyGlobeESRenderer>) init
 {
 	if ((self = [super init]))
 	{
@@ -241,7 +241,7 @@ struct drawListSortStruct
 	{
 		numDrawables = 0;
         
-        RendererFrameInfo *frameInfo = [[[RendererFrameInfo alloc] init] autorelease];
+        WhirlyGlobeRendererFrameInfo *frameInfo = [[[WhirlyGlobeRendererFrameInfo alloc] init] autorelease];
         frameInfo.sceneRenderer = self;
         frameInfo.globeView = view;
         frameInfo.scene = scene;

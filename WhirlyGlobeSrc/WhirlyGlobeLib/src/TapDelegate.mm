@@ -52,8 +52,8 @@
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
-	EAGLView *glView = (EAGLView *)tap.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)tap.view;
+	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
@@ -62,7 +62,7 @@
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
 	if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
 	{
-		TapMessage *msg = [[[TapMessage alloc] init] autorelease];
+		WhirlyGlobeTapMessage *msg = [[[WhirlyGlobeTapMessage alloc] init] autorelease];
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
 		[msg setWorldLoc:hit];

@@ -54,8 +54,8 @@
 - (void)pressAction:(id)sender
 {
 	UILongPressGestureRecognizer *press = sender;
-	EAGLView *glView = (EAGLView *)press.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)press.view;
+	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
     
     if (press.state == UIGestureRecognizerStateBegan)
     {
@@ -66,7 +66,7 @@
         CGPoint touchLoc = [press locationOfTouch:0 inView:glView];
         if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
         {
-            TapMessage *msg = [[[TapMessage alloc] init] autorelease];
+            WhirlyGlobeTapMessage *msg = [[[WhirlyGlobeTapMessage alloc] init] autorelease];
             msg.view = glView;
             msg.touchLoc = touchLoc;
             [msg setWorldLoc:hit];

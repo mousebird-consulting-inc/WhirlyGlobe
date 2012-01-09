@@ -32,7 +32,7 @@
 
 using namespace Eigen;
 
-@class RendererFrameInfo;
+@class WhirlyGlobeRendererFrameInfo;
 
 namespace WhirlyGlobe
 {
@@ -76,7 +76,7 @@ public:
 	virtual unsigned int getDrawPriority() const = 0;
 	
 	/// We're allowed to turn drawables off completely
-	virtual bool isOn(RendererFrameInfo *frameInfo) const = 0;
+	virtual bool isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const = 0;
 	
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
@@ -87,10 +87,10 @@ public:
 	virtual void teardownGL() { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(RendererFrameInfo *frameInfo,GlobeScene *scene) const = 0;	
+	virtual void draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const = 0;	
     
     /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
+    virtual bool hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const = 0;
     
     /// Can this drawable respond to a caching request?
     virtual bool canCache() const = 0;
@@ -152,18 +152,18 @@ public:
 	virtual void teardownGL();	
 	
 	/// Fill this in to draw the basic drawable
-	virtual void draw(RendererFrameInfo *frameInfo,GlobeScene *scene) const;
+	virtual void draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
 	
 	/// Draw priority
 	virtual unsigned int getDrawPriority() const { return drawPriority; }
 	
 	/// We use the on/off flag as well as a visibility check
-	virtual bool isOn(RendererFrameInfo *frameInfo) const;
+	virtual bool isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const;
 	/// True to turn it on, false to turn it off
 	void setOnOff(bool onOff) { on = onOff; }
     
     /// Used for alpha sorting
-    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff) { isAlpha = onOff; }
 	
@@ -257,8 +257,8 @@ public:
     virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
 
 protected:
-	void drawReg(RendererFrameInfo *frameInfo,GlobeScene *scene) const;
-	void drawVBO(RendererFrameInfo *frameInfo,GlobeScene *scene) const;
+	void drawReg(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
+	void drawVBO(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
 	
 	bool on;  // If set, draw.  If not, not
     bool usingBuffers;  // If set, we've downloaded the buffers already
