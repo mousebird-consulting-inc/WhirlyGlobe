@@ -26,7 +26,7 @@
 @synthesize touchLoc;
 @synthesize whereGeo;
 @synthesize worldLoc;
-@synthesize heightAboveGlobe;
+@synthesize heightAboveSurface;
 
 - (void)dealloc
 {

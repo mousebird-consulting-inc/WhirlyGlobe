@@ -42,16 +42,16 @@
 
     /// Lon/Lat
 	WhirlyGlobe::GeoCoord whereGeo; 
-    /// 3D coordinates on a globe with radius 1.0
+    /// 3D coordinates in the view
 	WhirlyGlobe::Point3f worldLoc;
-    /// Where the eye was.  0 is sea level.  Globe has a radius of 1.0
-    float heightAboveGlobe;   
+    /// Where the eye was.  0 is sea level.
+    float heightAboveSurface;   
 }
 
 @property (nonatomic,retain) UIView *view;
 @property (nonatomic,assign) CGPoint touchLoc;
 @property (nonatomic,assign) WhirlyGlobe::GeoCoord whereGeo;
 @property (nonatomic,assign) WhirlyGlobe::Point3f worldLoc;
-@property (nonatomic,assign) float heightAboveGlobe;
+@property (nonatomic,assign) float heightAboveSurface;
 
 @end

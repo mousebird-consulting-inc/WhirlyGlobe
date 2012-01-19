@@ -56,7 +56,7 @@ public:
 	virtual ~ChangeRequest() { }
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(GlobeScene *scene,WhirlyGlobeView *view) = 0;
+	virtual void execute(GlobeScene *scene,WhirlyKitView *view) = 0;
 };	
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
@@ -115,7 +115,7 @@ public:
 	~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
-	void execute(GlobeScene *scene,WhirlyGlobeView *view);
+	void execute(GlobeScene *scene,WhirlyKitView *view);
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.

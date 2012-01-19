@@ -26,8 +26,8 @@
 namespace WhirlyGlobe 
 {
 
-GlobeScene::GlobeScene(unsigned int numX, unsigned int numY)
-	: numX(numX), numY(numY)
+GlobeScene::GlobeScene(unsigned int numX, unsigned int numY,WhirlyKit::CoordSystem *coordSystem)
+	: numX(numX), numY(numY), coordSystem(coordSystem)
 {
 	cullables = new Cullable [numX*numY];
 
@@ -41,7 +41,7 @@ GlobeScene::GlobeScene(unsigned int numX, unsigned int numY)
 			GeoCoord geoLL(-M_PI + ix*geoIncr.x(),-M_PI/2.0 + iy*geoIncr.y());
 			GeoCoord geoUR(geoLL.x() + geoIncr.x(),geoLL.y() + geoIncr.y());
 			Cullable &cullable = cullables[iy*numX+ix];
-			cullable.setGeoMbr(GeoMbr(geoLL,geoUR));
+			cullable.setGeoMbr(GeoMbr(geoLL,geoUR),coordSystem);
 		}
 	}
 	
@@ -157,7 +157,7 @@ Texture *GlobeScene::getTexture(SimpleIdentity texId)
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void GlobeScene::processChanges(WhirlyGlobeView *view)
+void GlobeScene::processChanges(WhirlyKitView *view)
 {
 	std::vector<Cullable *> foundCullables;
 	
@@ -205,14 +205,14 @@ SubTexture GlobeScene::getSubTexture(SimpleIdentity subTexId)
     return *it;
 }
 	
-void AddTextureReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void AddTextureReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
 	tex->createInGL(true);
 	scene->textures.insert(tex);
 	tex = NULL;
 }
 	
-void RemTextureReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void RemTextureReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
 	Texture dumbTex;
 	dumbTex.setId(texture);
@@ -226,7 +226,7 @@ void RemTextureReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
 	}
 }
 
-void AddDrawableReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void AddDrawableReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
 	// Add the drawable
 	scene->drawables.insert(drawable);
@@ -245,7 +245,7 @@ void AddDrawableReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
 	drawable = NULL;
 }
 	
-void RemDrawableReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void RemDrawableReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
 	BasicDrawable dumbDraw;
 	dumbDraw.setId(drawable);
@@ -263,7 +263,7 @@ void RemDrawableReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
 	}
 }
     
-void AddGeneratorReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void AddGeneratorReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
     // Add the generator
     scene->generators.insert(generator);
@@ -271,7 +271,7 @@ void AddGeneratorReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
     generator = NULL;
 }
     
-void RemGeneratorReq::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void RemGeneratorReq::execute(GlobeScene *scene,WhirlyKitView *view)
 {
     Generator dumbGen;
     dumbGen.setId(genId);

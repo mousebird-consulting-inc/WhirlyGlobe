@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
+#import "WhirlyKitView.h"
 
 /// @cond
 @class WhirlyGlobeView;
@@ -32,37 +33,25 @@
 - (void)updateView:(WhirlyGlobeView *)globeView;
 @end
 
-/** Globe View
-	Parameters associated with viewing the globe.
+/** Parameters associated with viewing the globe.
+    Modify the rotation quaternion to change the current
+    view location.  Set the delegate to smoothly change
+    location over time.
  */
-@interface WhirlyGlobeView : NSObject
+@interface WhirlyGlobeView : WhirlyKitView
 {
-	float fieldOfView;
-	float imagePlaneSize;
-	float nearPlane;
-	float farPlane;
-	
 	/// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 	float heightAboveGlobe;
 	
 	/// Quaternion used for rotation from origin state
 	Eigen::Quaternion<float> rotQuat;
-    
-    /// The last time the rotation was changed
-    NSDate *lastChangedTime;
-    
+        
     /// Used to update position based on time (or whatever other factor you like)
     NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 }
 
-@property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane,heightAboveGlobe;
 @property (nonatomic,assign) Eigen::Quaternion<float> rotQuat;
-@property (nonatomic,retain) NSDate *lastChangedTime;
 @property (nonatomic,retain) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
-
-/// Calculate the viewing frustum (which is also the image plane)
-/// Need the framebuffer size in pixels as input
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyGlobe::Point2f &)ll ur:(WhirlyGlobe::Point2f &)ur near:(float &)near far:(float &)far;
 
 /// Return min/max valid heights above globe
 - (float)minHeightAboveGlobe;
@@ -71,30 +60,14 @@
 /// Set the height above globe, taking constraints into account
 - (void)setHeightAboveGlobe:(float)newH;
 
-/// Cancel any outstanding animation
-- (void)cancelAnimation;
-
-/// Renderer calls this every update
-- (void)animate;
-
-/// Calculate the Z buffer resolution
-- (float)calcZbufferRes;
-
 /// Calculate the z offset to make the earth appear where we want it
 - (float)calcEarthZOffset;
-
-/// Generate the model view matrix for use by OpenGL
-///  Or calculation of our own
-- (Eigen::Affine3f)calcModelMatrix;
 
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3f)currentUp;
 
 /// Given a rotation, where would (0,0,1) wind up
 + (Eigen::Vector3f)prospectiveUp:(Eigen::Quaternion<float> &)prospectiveRot;
-
-/// From a screen point calculate the corresponding point in 3-space
-- (WhirlyGlobe::Point3f)pointUnproject:(WhirlyGlobe::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
 /** Given a location on the screen and the screen size, figure out where we touched the sphere
     Returns true if we hit and where
@@ -111,6 +84,18 @@
     and return it.  Doesn't actually do anything yet.
  */
 - (Eigen::Quaternionf) makeRotationToGeoCoord:(const WhirlyGlobe::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
+
+/// Cancel any outstanding animation
+- (void)cancelAnimation;
+
+/// Renderer calls this every update
+- (void)animate;
+
+/// Calculate the Z buffer resolution
+- (float)calcZbufferRes;
+
+/// Height above the globe
+- (float)heightAboveSurface;
 
 @end
 

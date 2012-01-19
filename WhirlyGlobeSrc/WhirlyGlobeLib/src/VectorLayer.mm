@@ -24,6 +24,7 @@
 #import "UIColor+Stuff.h"
 #import "RenderCache.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 // Used to describe the drawable we'll construct for a given vector
@@ -124,7 +125,9 @@ public:
     }
         
     void addPoints(VectorRing &pts,bool closed)
-    {            
+    {          
+        CoordSystem *coordSys = scene->getCoordSystem();
+        
         // Decide if we'll appending to an existing drawable or
         //  create a new one
         int ptCount = 2*(pts.size()+1);
@@ -152,7 +155,7 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = PointFromGeo(geoCoord);
+            Point3f norm = coordSys->pointFromGeo(geoCoord);
             Point3f pt = norm;
             
             // Add to drawable

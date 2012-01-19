@@ -33,7 +33,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 
 @interface WhirlyGlobeSelectionLayer()
 
-@property (nonatomic,retain) WhirlyGlobeView *globeView;
+@property (nonatomic,retain) WhirlyKitView *theView;
 @property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *renderer;
 @property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 
@@ -41,17 +41,17 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 
 @implementation WhirlyGlobeSelectionLayer
 
-@synthesize globeView;
+@synthesize theView;
 @synthesize renderer;
 @synthesize layerThread;
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer
 {
     self = [super init];
     
     if (self)
     {
-        self.globeView = inGlobeView;
+        self.theView = inView;
         self.renderer = inRenderer;
     }
     
@@ -61,7 +61,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 - (void)dealloc
 {
     self.layerThread = nil;
-    self.globeView = nil;
+    self.theView = nil;
     self.renderer = nil;
     
     selectables.clear();
@@ -128,10 +128,17 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
-    Eigen::Affine3f modelTrans = [globeView calcModelMatrix];
+    Eigen::Affine3f modelTrans = [theView calcModelMatrix];
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
+    
+    WhirlyGlobeView *globeView = nil;
+    if ([theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = (WhirlyGlobeView *)theView;
+    
+    if (!globeView)
+        return EmptyIdentity;
     
     // Work through the available features
     for (RectSelectableSet::iterator it = selectables.begin();
@@ -141,7 +148,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
         if (sel.selectID != EmptyIdentity)
         {
             if (sel.minVis == DrawVisibleInvalid ||
-                (sel.minVis < globeView.heightAboveGlobe && globeView.heightAboveGlobe < sel.maxVis))
+                (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
             {
                 std::vector<Point2f> screenPts;
                 

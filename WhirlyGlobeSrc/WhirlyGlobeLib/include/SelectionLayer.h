@@ -64,8 +64,8 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
  */
 @interface WhirlyGlobeSelectionLayer : NSObject<WhirlyGlobeLayer>
 {
-    /// The globe view controls how the globe is displayed
-    WhirlyGlobeView *globeView;
+    /// The view controls how the globe/map is displayed
+    WhirlyKitView *theView;
     /// The renderer has screen size information
     WhirlyGlobeSceneRendererES1 *renderer;
     /// Layer thread we're associated with
@@ -75,7 +75,7 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer;
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;

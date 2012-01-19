@@ -58,6 +58,7 @@ using namespace WhirlyGlobe;
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)press.view;
 	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
+    WhirlyGlobe::GlobeScene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
     {
@@ -72,8 +73,8 @@ using namespace WhirlyGlobe;
             msg.view = glView;
             msg.touchLoc = touchLoc;
             [msg setWorldLoc:hit];
-            [msg setWhereGeo:WhirlyGlobe::GeoFromPoint(hit)];
-            msg.heightAboveGlobe = globeView.heightAboveGlobe;
+            [msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];
+            msg.heightAboveSurface = globeView.heightAboveGlobe;
             
             [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeLongPressMsg object:msg]];
         }

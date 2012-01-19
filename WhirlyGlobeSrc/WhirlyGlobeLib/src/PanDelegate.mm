@@ -18,7 +18,6 @@
  *
  */
 
-#import "PanDelegate.h"
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
 #import "PanDelegate.h"

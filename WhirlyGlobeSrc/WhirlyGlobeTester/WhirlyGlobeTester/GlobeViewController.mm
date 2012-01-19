@@ -29,18 +29,18 @@ using namespace WhirlyGlobe;
 @property (nonatomic,retain) UILabel *fpsLabel;
 @property (nonatomic,retain) UILabel *drawLabel;
 @property (nonatomic,retain) UILabel *selectLabel;
-@property (nonatomic,retain) EAGLView *glView;
-@property (nonatomic,retain) SceneRendererES1 *sceneRenderer;
+@property (nonatomic,retain) WhirlyGlobeEAGLView *glView;
+@property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *sceneRenderer;
 @property (nonatomic,retain) WhirlyGlobeView *theView;
-@property (nonatomic,retain) TextureGroup *texGroup;
+@property (nonatomic,retain) WhirlyGlobeTextureGroup *texGroup;
 @property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) SphericalEarthLayer *earthLayer;
-@property (nonatomic,retain) VectorLayer *vectorLayer;
-@property (nonatomic,retain) LabelLayer *labelLayer;
-@property (nonatomic,retain) ParticleSystemLayer *particleSystemLayer;
-@property (nonatomic,retain) WGMarkerLayer *markerLayer;
-@property (nonatomic,retain) WGSelectionLayer *selectionLayer;
-@property (nonatomic,retain) WGLoftLayer *loftLayer;
+@property (nonatomic,retain) WhirlyGlobeSphericalEarthLayer *earthLayer;
+@property (nonatomic,retain) WhirlyGlobeVectorLayer *vectorLayer;
+@property (nonatomic,retain) WhirlyGlobeLabelLayer *labelLayer;
+@property (nonatomic,retain) WhirlyGlobeParticleSystemLayer *particleSystemLayer;
+@property (nonatomic,retain) WhirlyGlobeMarkerLayer *markerLayer;
+@property (nonatomic,retain) WhirlyGlobeSelectionLayer *selectionLayer;
+@property (nonatomic,retain) WhirlyGlobeLoftLayer *loftLayer;
 @property (nonatomic,retain) InteractionLayer *interactLayer;
 @property (nonatomic,retain) WhirlyGlobePinchDelegate *pinchDelegate;
 @property (nonatomic,retain) PanDelegateFixed *panDelegate;
@@ -161,8 +161,8 @@ using namespace WhirlyGlobe;
     self.title = @"Globe";
     
 	// Set up an OpenGL ES view and renderer
-	self.glView = [[[EAGLView alloc] init] autorelease];
-	self.sceneRenderer = [[[SceneRendererES1 alloc] init] autorelease];
+	self.glView = [[[WhirlyGlobeEAGLView alloc] init] autorelease];
+	self.sceneRenderer = [[[WhirlyGlobeSceneRendererES1 alloc] init] autorelease];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
@@ -176,44 +176,45 @@ using namespace WhirlyGlobe;
 	[sceneRenderer useContext];
 	
 	// Set up a texture group for the world texture
-	self.texGroup = [[[TextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]] autorelease];
+	self.texGroup = [[[WhirlyGlobeTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]] autorelease];
     
-	// Need an empty scene and view
-	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY);
+	// Need an empty scene and view    
 	self.theView = [[[WhirlyGlobeView alloc] init] autorelease];
+	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY,theView.coordSystem);
+    sceneRenderer.theView = theView;
 	
 	// Need a layer thread to manage the layers
 	self.layerThread = [[[WhirlyGlobeLayerThread alloc] initWithScene:theScene] autorelease];
 	
 	// Earth layer on the bottom
-	self.earthLayer = [[[SphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil] autorelease];
+	self.earthLayer = [[[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil] autorelease];
     self.earthLayer.fade = 1.0;
 	[self.layerThread addLayer:earthLayer];
     
     // Selection feedback
-    self.selectionLayer = [[[WGSelectionLayer alloc] initWithGlobeView:self.theView renderer:self.sceneRenderer] autorelease];
+    self.selectionLayer = [[[WhirlyGlobeSelectionLayer alloc] initWithView:self.theView renderer:self.sceneRenderer] autorelease];
     [self.layerThread addLayer:selectionLayer];
 
 	// Set up the vector layer where all our outlines will go
-	self.vectorLayer = [[[VectorLayer alloc] init] autorelease];
+	self.vectorLayer = [[[WhirlyGlobeVectorLayer alloc] init] autorelease];
 	[self.layerThread addLayer:vectorLayer];
     
 	// General purpose label layer.
-	self.labelLayer = [[[LabelLayer alloc] init] autorelease];
+	self.labelLayer = [[[WhirlyGlobeLabelLayer alloc] init] autorelease];
     self.labelLayer.selectLayer = self.selectionLayer;
 	[self.layerThread addLayer:labelLayer];
     
     // Particle System layer
-    self.particleSystemLayer = [[[ParticleSystemLayer alloc] init] autorelease];
+    self.particleSystemLayer = [[[WhirlyGlobeParticleSystemLayer alloc] init] autorelease];
     [self.layerThread addLayer:particleSystemLayer];
     
     // Marker layer
-    self.markerLayer = [[[WGMarkerLayer alloc] init] autorelease];
+    self.markerLayer = [[[WhirlyGlobeMarkerLayer alloc] init] autorelease];
     self.markerLayer.selectLayer = self.selectionLayer;
     [self.layerThread addLayer:markerLayer];
     
     // Lofted poly layer
-    self.loftLayer = [[[WGLoftLayer alloc] init] autorelease];
+    self.loftLayer = [[[WhirlyGlobeLoftLayer alloc] init] autorelease];
     [self.layerThread addLayer:loftLayer];
     
     // Lastly, an interaction layer of our own
@@ -228,7 +229,7 @@ using namespace WhirlyGlobe;
         
 	// Give the renderer what it needs
 	sceneRenderer.scene = theScene;
-	sceneRenderer.view = theView;
+	sceneRenderer.theView = theView;
 	
 	// Wire up the gesture recognizers
 	self.pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
@@ -308,7 +309,7 @@ using namespace WhirlyGlobe;
 // Called when the user taps on the globe.  We'll rotate to that position
 - (void) tapOnGlobe:(NSNotification *)note
 {
-    TapMessage *msg = note.object;
+    WhirlyGlobeTapMessage *msg = note.object;
     
     // If we were rotating from one point to another, stop
     [theView cancelAnimation];

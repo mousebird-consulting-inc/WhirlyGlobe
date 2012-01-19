@@ -52,12 +52,12 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
 	WhirlyGlobe::GlobeScene *scene;
 	WhirlyGlobeView *globeView;
 
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
-    ParticleSystemLayer *particleSystemLayer;
-    WGMarkerLayer *markerLayer;
-    WGLoftLayer *loftLayer;
-    WGSelectionLayer *selectionLayer;
+	WhirlyGlobeVectorLayer *vectorLayer;
+	WhirlyGlobeLabelLayer *labelLayer;
+    WhirlyGlobeParticleSystemLayer *particleSystemLayer;
+    WhirlyGlobeMarkerLayer *markerLayer;
+    WhirlyGlobeLoftLayer *loftLayer;
+    WhirlyGlobeSelectionLayer *selectionLayer;
     
     WhirlyGlobe::VectorDatabase *countryDb;  // Country outlines
     WhirlyGlobe::VectorDatabase *cityDb;  // City points
@@ -84,11 +84,11 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
 // Called in the layer thread
 - (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
-@property (nonatomic,assign) VectorLayer *vectorLayer;
-@property (nonatomic,assign) LabelLayer *labelLayer;
-@property (nonatomic,assign) ParticleSystemLayer *particleSystemLayer;
-@property (nonatomic,assign) WGMarkerLayer *markerLayer;
-@property (nonatomic,assign) WGLoftLayer *loftLayer;
-@property (nonatomic,assign) WGSelectionLayer *selectionLayer;
+@property (nonatomic,assign) WhirlyGlobeVectorLayer *vectorLayer;
+@property (nonatomic,assign) WhirlyGlobeLabelLayer *labelLayer;
+@property (nonatomic,assign) WhirlyGlobeParticleSystemLayer *particleSystemLayer;
+@property (nonatomic,assign) WhirlyGlobeMarkerLayer *markerLayer;
+@property (nonatomic,assign) WhirlyGlobeLoftLayer *loftLayer;
+@property (nonatomic,assign) WhirlyGlobeSelectionLayer *selectionLayer;
 
 @end

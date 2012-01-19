@@ -59,7 +59,7 @@ public:
     GeneratorChangeRequest() { }
 
     /// Run the generator request.  Don't override this one
-    void execute(GlobeScene *scene,WhirlyGlobeView *view);
+    void execute(GlobeScene *scene,WhirlyKitView *view);
 
     /// Override this method to do whatever you want to do to the generator
     virtual void execute2(GlobeScene *scene,Generator *drawGen) = 0;

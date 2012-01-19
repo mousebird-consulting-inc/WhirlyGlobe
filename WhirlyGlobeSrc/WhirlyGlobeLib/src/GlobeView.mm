@@ -31,22 +31,16 @@ using namespace Eigen;
 
 @implementation WhirlyGlobeView
 
-@synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane,heightAboveGlobe;
 @synthesize rotQuat;
-@synthesize lastChangedTime;
 @synthesize delegate;
 
 - (id)init
 {
 	if ((self = [super init]))
 	{
-		fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		nearPlane = 0.001;
-		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-		farPlane = 2.6;
 		heightAboveGlobe = 1.1;
 		rotQuat = Eigen::AngleAxisf(0.0f,Vector3f(0.0f,0.0f,1.0f));
-        self.lastChangedTime = [NSDate date];
+        coordSystem = new WhirlyGlobe::GlobeCoordSystem();
 	}
 	
 	return self;
@@ -54,8 +48,12 @@ using namespace Eigen;
 
 - (void)dealloc
 {
+    if (coordSystem)
+        delete coordSystem;
+    coordSystem = NULL;
+    
     self.delegate = nil;
-    self.lastChangedTime = nil;
+
 	[super dealloc];
 }
 
@@ -65,21 +63,15 @@ using namespace Eigen;
     self.lastChangedTime = [NSDate date];
     rotQuat = newRotQuat;
 }
-
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
-{
-	ll.x() = -imagePlaneSize;
-	ur.x() = imagePlaneSize;
-	float ratio =  ((float)frameHeight / (float)frameWidth);
-	ll.y() = -imagePlaneSize * ratio;
-	ur.y() = imagePlaneSize * ratio ;
-	near = nearPlane;
-	far = farPlane;
-}
 	
 - (float)minHeightAboveGlobe
 {
 	return 1.3*nearPlane;
+}
+
+- (float)heightAboveSurface
+{
+    return self.heightAboveGlobe;
 }
 	
 - (float)maxHeightAboveGlobe
@@ -135,30 +127,6 @@ using namespace Eigen;
     Eigen::Matrix4f modelMat = rot.inverse().matrix();
     Vector4f newUp = modelMat *Vector4f(0,0,1,0);
     return Vector3f(newUp.x(),newUp.y(),newUp.z());
-}
-
-- (Point3f)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
-{
-	Point2f ll,ur;
-	float near,far;
-	[self calcFrustumWidth:frameWidth height:frameHeight ll:ll ur:ur near:near far:far];
-	
-	// Calculate a parameteric value and flip the y/v
-	float u = screenPt.x() / frameWidth;
-    if (clip)
-    {
-        u = std::max(0.0f,u);	u = std::min(1.0f,u);
-    }
-	float v = screenPt.y() / frameHeight;
-    if (clip)
-    {
-        v = std::max(0.0f,v);	v = std::min(1.0f,v);
-    }
-	v = 1.0 - v;
-	
-	// Now come up with a point in 3 space between ll and ur
-	Point2f mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-	return Point3f(mid.x(),mid.y(),-near);
 }
 	
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
@@ -249,7 +217,7 @@ using namespace Eigen;
 //  and return it.  Doesn't actually do anything yet.
 - (Eigen::Quaternionf) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3f worldLoc = PointFromGeo(worldCoord);
+    Point3f worldLoc = coordSystem->pointFromGeo(worldCoord);
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3f curUp = [self currentUp];

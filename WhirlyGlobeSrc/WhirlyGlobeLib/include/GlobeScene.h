@@ -32,6 +32,7 @@
 #import "Drawable.h"
 #import "Generator.h"
 #import "GlobeView.h"
+#import "CoordSystem.h"
 
 namespace WhirlyGlobe 
 {
@@ -50,7 +51,7 @@ public:
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
 
 	/// Add to the renderer.  Never call this.
-	void execute(GlobeScene *scene,WhirlyGlobeView *view);
+	void execute(GlobeScene *scene,WhirlyKitView *view);
 	
 protected:
 	Texture *tex;
@@ -64,7 +65,7 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
-	void execute(GlobeScene *scene,WhirlyGlobeView *view);
+	void execute(GlobeScene *scene,WhirlyKitView *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -80,7 +81,7 @@ public:
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
 
 	/// Add to the renderer.  Never call this
-	void execute(GlobeScene *scene,WhirlyGlobeView *view);	
+	void execute(GlobeScene *scene,WhirlyKitView *view);	
 	
 protected:
 	Drawable *drawable;
@@ -94,7 +95,7 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
-	void execute(GlobeScene *scene,WhirlyGlobeView *view);
+	void execute(GlobeScene *scene,WhirlyKitView *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -108,7 +109,7 @@ public:
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
-    void execute(GlobeScene *scene,WhirlyGlobeView *view);
+    void execute(GlobeScene *scene,WhirlyKitView *view);
     
 protected:
     Generator *generator;
@@ -122,7 +123,7 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(GlobeScene *scene,WhirlyGlobeView *view);
+    void execute(GlobeScene *scene,WhirlyKitView *view);
     
 protected:
     SimpleIdentity genId;
@@ -135,8 +136,6 @@ typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     It keeps track of the drawables by sorting them into
      cullables and it handles the change requests, which
      consist of pretty much everything that can happen.
- 
-    The developer never interacts with this.
  */
 class GlobeScene
 {
@@ -144,8 +143,11 @@ class GlobeScene
 public:
 	/// Construct with the grid size of the cullables
     /// The earth will be divided up into these pieces
-	GlobeScene(unsigned int numX,unsigned int numY);
+	GlobeScene(unsigned int numX,unsigned int numY,WhirlyKit::CoordSystem *coordSystem);
 	~GlobeScene();
+    
+    /// Return the coordinate system we're working in
+    WhirlyKit::CoordSystem *getCoordSystem() { return coordSystem; }
 
 	/// Get the cullable grid size
 	void getCullableSize(unsigned int &numX,unsigned int &numY) { numX = this->numX;  numY = this->numY; }
@@ -173,7 +175,7 @@ public:
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
 	// Note: Should give this a time limit
-	void processChanges(WhirlyGlobeView *view);
+	void processChanges(WhirlyKitView *view);
     
     /// Add sub texture mappings.
     /// These are mappings from images to parts of texture atlases.
@@ -193,6 +195,9 @@ public:
 	/// Remove the given drawable from the cullables
 	// Note: This could be optimized
 	void removeFromCullables(Drawable *drawable);
+    
+    /// Coordinate system 
+    WhirlyKit::CoordSystem *coordSystem;
     
     /// Look for a Draw Generator by ID
     Generator *getGenerator(SimpleIdentity genId);

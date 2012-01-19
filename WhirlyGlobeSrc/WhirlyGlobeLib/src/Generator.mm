@@ -24,7 +24,7 @@
 namespace WhirlyGlobe
 {
     
-void GeneratorChangeRequest::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void GeneratorChangeRequest::execute(GlobeScene *scene,WhirlyKitView *view)
 {
     Generator *theGenerator = scene->getGenerator(genId);
 	if (theGenerator)

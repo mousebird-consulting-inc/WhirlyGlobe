@@ -24,7 +24,7 @@
 namespace WhirlyGlobe
 {
 
-Point3f PointFromGeo(GeoCoord geo) 
+Point3f GlobeCoordSystem::pointFromGeo(GeoCoord geo) 
 { 
 	float z = sinf(geo.lat());
 	float rad = sqrtf(1.0-z*z);
@@ -32,7 +32,7 @@ Point3f PointFromGeo(GeoCoord geo)
 	return pt;
 }
 
-GeoCoord GeoFromPoint(Point3f pt)
+GeoCoord GlobeCoordSystem::geoFromPoint(Point3f pt)
 {
 	GeoCoord geoCoord;
 	geoCoord.lat() = asinf(pt.z());

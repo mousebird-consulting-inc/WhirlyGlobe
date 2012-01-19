@@ -35,7 +35,7 @@ Drawable::~Drawable()
 {
 }
 	
-void DrawableChangeRequest::execute(GlobeScene *scene,WhirlyGlobeView *view)
+void DrawableChangeRequest::execute(GlobeScene *scene,WhirlyKitView *view)
 {
 	Drawable *theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
@@ -94,7 +94,7 @@ bool BasicDrawable::isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
 
-    float visVal = frameInfo.globeView.heightAboveGlobe;
+    float visVal = [frameInfo.theView heightAboveSurface];
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
              (maxVisible <= visVal && visVal <= minVisible));

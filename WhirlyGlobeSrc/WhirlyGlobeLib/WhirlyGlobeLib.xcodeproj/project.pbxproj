@@ -52,6 +52,15 @@
 		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
 		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
 		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
+		2B4504AD14BBAC0100C99306 /* WhirlyMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */; };
+		2B4504B014BBAD0B00C99306 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */; };
+		2B4504B214BBB40D00C99306 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504B114BBB40D00C99306 /* CoordSystem.h */; };
+		2B4504B414BBBC6600C99306 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504B314BBBC6600C99306 /* FlatMath.h */; };
+		2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */; };
+		2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B814BCC29D00C99306 /* FlatMath.mm */; };
+		2B4504BB14BCC60F00C99306 /* WhirlyMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504BA14BCC60F00C99306 /* WhirlyMapView.mm */; };
+		2B4504DF14BD119300C99306 /* PinchDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504DE14BD119300C99306 /* PinchDelegateMap.h */; };
+		2B4504E114BD126400C99306 /* PinchDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504E014BD126400C99306 /* PinchDelegateMap.mm */; };
 		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
 		2B58C6851443C03F00EEF3C3 /* ParticleSystemLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */; };
 		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
@@ -66,6 +75,7 @@
 		2B6B3396147B5DE900771FEF /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6B3395147B5DE900771FEF /* MarkerGenerator.h */; };
 		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
 		2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8D92C8137C958000015833 /* VectorDatabase.h */; };
+		2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92105314BD1A8100653536 /* PanDelegateMap.h */; };
 		2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B93C81514522DE600D768BA /* MarkerLayer.h */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -106,6 +116,7 @@
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
+		2BFBF15D14BF64100020FE6B /* PanDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */; };
 		2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFC34D513CBF9F500403799 /* DrawCost.h */; };
 		2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC34DA13CBFA9A00403799 /* DrawCost.mm */; };
 /* End PBXBuildFile section */
@@ -141,6 +152,15 @@
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B44187713A2D9BA00514EDE /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
 		2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = RotateDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyMapView.h; sourceTree = "<group>"; };
+		2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyKitView.h; sourceTree = "<group>"; };
+		2B4504B114BBB40D00C99306 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordSystem.h; sourceTree = "<group>"; };
+		2B4504B314BBBC6600C99306 /* FlatMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatMath.h; sourceTree = "<group>"; };
+		2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitView.mm; sourceTree = "<group>"; };
+		2B4504B814BCC29D00C99306 /* FlatMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FlatMath.mm; sourceTree = "<group>"; };
+		2B4504BA14BCC60F00C99306 /* WhirlyMapView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyMapView.mm; sourceTree = "<group>"; };
+		2B4504DE14BD119300C99306 /* PinchDelegateMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchDelegateMap.h; sourceTree = "<group>"; };
+		2B4504E014BD126400C99306 /* PinchDelegateMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PinchDelegateMap.mm; sourceTree = "<group>"; };
 		2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemLayer.mm; path = src/ParticleSystemLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
 		2B58C6921445439700EEF3C3 /* Generator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Generator.mm; sourceTree = "<group>"; };
@@ -155,6 +175,7 @@
 		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
 		2B80455714990A1A003FFABE /* MarkerGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerGenerator.mm; sourceTree = "<group>"; };
 		2B8D92C8137C958000015833 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
+		2B92105314BD1A8100653536 /* PanDelegateMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanDelegateMap.h; sourceTree = "<group>"; };
 		2B93C81514522DE600D768BA /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
 		2B93C817145232C800D768BA /* MarkerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerLayer.mm; sourceTree = "<group>"; };
 		2B95192E12EF4417005003AE /* WhirlyVector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyVector.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -216,6 +237,7 @@
 		2BEFDE99149966F300C63326 /* GridClipper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridClipper.mm; sourceTree = "<group>"; };
 		2BEFDE9A149966F300C63326 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tesselator.mm; sourceTree = "<group>"; };
 		2BEFDEA114997C0400C63326 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = ../../../../utilities/clipper_ver4.3.0/cpp/clipper.cpp; sourceTree = "<group>"; };
+		2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PanDelegateMap.mm; sourceTree = "<group>"; };
 		2BFC34D513CBF9F500403799 /* DrawCost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawCost.h; sourceTree = "<group>"; };
 		2BFC34DA13CBFA9A00403799 /* DrawCost.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawCost.mm; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
@@ -355,6 +377,24 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		2B4504AE14BBACF900C99306 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				2B4504B114BBB40D00C99306 /* CoordSystem.h */,
+				2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */,
+			);
+			name = view;
+			sourceTree = "<group>";
+		};
+		2B4504B514BCB6AF00C99306 /* interaction */ = {
+			isa = PBXGroup;
+			children = (
+				2BCAC33112FB754D0049D73C /* TapMessage.h */,
+				2BCAC2F512FB6E570049D73C /* TapDelegate.h */,
+			);
+			name = interaction;
+			sourceTree = "<group>";
+		};
 		2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -460,6 +500,7 @@
 		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B4504B814BCC29D00C99306 /* FlatMath.mm */,
 				2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */,
 				2B95192E12EF4417005003AE /* WhirlyVector.mm */,
 				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
@@ -473,6 +514,8 @@
 		2BCABA6712F8DA280049D73C /* scene & view */ = {
 			isa = PBXGroup;
 			children = (
+				2B4504BA14BCC60F00C99306 /* WhirlyMapView.mm */,
+				2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */,
 				2BB1F08013009935001F33CD /* Identifiable.mm */,
 				2BB1F08813009B17001F33CD /* Texture.mm */,
 				2BCABA9912F8DEF40049D73C /* Drawable.mm */,
@@ -508,7 +551,9 @@
 				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
 				2B3890A612DF8C8B006FC3A1 /* rendering */,
 				2BD0E68513254D4D00CD95A8 /* data */,
+				2B4504AE14BBACF900C99306 /* view */,
 				2BCABA5A12F8D7070049D73C /* scene */,
+				2B4504B514BCB6AF00C99306 /* interaction */,
 				2B951D9612F09EE1005003AE /* layers & generators */,
 			);
 			name = WhirlyKit;
@@ -553,6 +598,10 @@
 		2BCF39E414BB8FD6006B0FC0 /* WhirlyMap */ = {
 			isa = PBXGroup;
 			children = (
+				2B92105314BD1A8100653536 /* PanDelegateMap.h */,
+				2B4504DE14BD119300C99306 /* PinchDelegateMap.h */,
+				2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */,
+				2B4504B314BBBC6600C99306 /* FlatMath.h */,
 			);
 			name = WhirlyMap;
 			sourceTree = "<group>";
@@ -633,8 +682,6 @@
 				2BE6EE5412E4F44900415490 /* PinchDelegate.h */,
 				2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */,
 				2B3A341E12E605C800698DA1 /* PanDelegate.h */,
-				2BCAC33112FB754D0049D73C /* TapMessage.h */,
-				2BCAC2F512FB6E570049D73C /* TapDelegate.h */,
 				2B076B31133951DE009D931D /* LongPressDelegate.h */,
 				2B44187713A2D9BA00514EDE /* RotateDelegate.h */,
 			);
@@ -644,6 +691,8 @@
 		2BE6EE5312E4F3D100415490 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
+				2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */,
+				2B4504E014BD126400C99306 /* PinchDelegateMap.mm */,
 				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
 				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
 				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
@@ -720,6 +769,12 @@
 				2BEFDE91149963A800C63326 /* LoftLayer.h in Headers */,
 				2BEFDE97149966D400C63326 /* GridClipper.h in Headers */,
 				2BEFDE98149966D400C63326 /* Tesselator.h in Headers */,
+				2B4504AD14BBAC0100C99306 /* WhirlyMapView.h in Headers */,
+				2B4504B014BBAD0B00C99306 /* WhirlyKitView.h in Headers */,
+				2B4504B214BBB40D00C99306 /* CoordSystem.h in Headers */,
+				2B4504B414BBBC6600C99306 /* FlatMath.h in Headers */,
+				2B4504DF14BD119300C99306 /* PinchDelegateMap.h in Headers */,
+				2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -826,6 +881,11 @@
 				2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */,
 				2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */,
 				2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */,
+				2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */,
+				2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */,
+				2B4504BB14BCC60F00C99306 /* WhirlyMapView.mm in Sources */,
+				2B4504E114BD126400C99306 /* PinchDelegateMap.mm in Sources */,
+				2BFBF15D14BF64100020FE6B /* PanDelegateMap.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

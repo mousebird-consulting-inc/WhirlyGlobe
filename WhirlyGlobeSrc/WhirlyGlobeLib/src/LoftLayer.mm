@@ -24,6 +24,7 @@
 #import "UIColor+Stuff.h"
 #import "NSDictionary+Stuff.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 // Used to describe the drawables we want to construct for a given vector
@@ -107,7 +108,7 @@ namespace WhirlyGlobe
 bool LoftedPolySceneRep::readFromCache(NSString *key)
 {
     // Look for cache files in the doc and bundle dirs
-    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
     NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
 
     NSString *cache0 = [NSString stringWithFormat:@"%@/%@.loftcache",bundleDir,key];
@@ -271,6 +272,7 @@ public:
     // Add a triangle, keeping track of limits
     void addLoftTriangle(Point2f verts[3])
     {
+        CoordSystem *coordSys = scene->getCoordSystem();
         setupDrawable(3);
         
         int startVert = drawable->getNumPoints();
@@ -279,10 +281,12 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = verts[ii];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = PointFromGeo(geoCoord);
+            Point3f norm = coordSys->pointFromGeo(geoCoord);
             Point3f pt1 = norm * (1.0 + polyInfo->height);
             
             drawable->addPoint(pt1);
+            if (coordSys->isFlat())
+                norm = Point3f(0,0,1);
             drawable->addNormal(norm);
         }
         
@@ -311,6 +315,8 @@ public:
     
     void addSkirtPoints(VectorRing &pts)
     {            
+        CoordSystem *coordSys = scene->getCoordSystem();
+        
         // Decide if we'll appending to an existing drawable or
         //  create a new one
         int ptCount = 4*(pts.size()+1);
@@ -322,7 +328,7 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = PointFromGeo(geoCoord);
+            Point3f norm = coordSys->pointFromGeo(geoCoord);
             Point3f pt0 = norm;
             Point3f pt1 = pt0 + norm * polyInfo->height;
                         
@@ -469,16 +475,19 @@ protected:
     DrawableBuilder2 drawBuild(scene,sceneRep,polyInfo,drawMbr);
     
     // Toss in the polygons for the sides
-    for (ShapeSet::iterator it = sceneRep->shapes.begin();
-         it != sceneRep->shapes.end(); ++it)
+    if (polyInfo->height != 0.0)
     {
-        VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
-        if (theAreal.get())
+        for (ShapeSet::iterator it = sceneRep->shapes.begin();
+             it != sceneRep->shapes.end(); ++it)
         {
-            for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+            VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            if (theAreal.get())
             {
-                drawBuild.addSkirtPoints(theAreal->loops[ri]);
-                numShapes++;
+                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+                {
+                    drawBuild.addSkirtPoints(theAreal->loops[ri]);
+                    numShapes++;
+                }
             }
         }
     }
@@ -492,6 +501,7 @@ protected:
 // Generate drawables for a lofted poly
 - (void)runAddPoly:(LoftedPolyInfo *)polyInfo
 {
+    CoordSystem *coordSys = scene->getCoordSystem();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
     sceneRep->setId(polyInfo->sceneRepId);
     sceneRep->fade = polyInfo.fade;
@@ -515,16 +525,22 @@ protected:
                     VectorRing &ring = theAreal->loops[ri];					
                     
                     sceneRep->shapeMbr.addGeoCoords(ring);
-                                                    
-                    // Clip the polys for the top
-                    std::vector<VectorRing> clippedMesh;
-                    ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
-
-                    for (unsigned int ii=0;ii<clippedMesh.size();ii++)
+                    
+                    if (coordSys->isFlat())
                     {
-                        VectorRing &ring = clippedMesh[ii];
-                        // Tesselate the ring, even if it's concave (it's concave a lot)
-                        TesselateRing(ring,sceneRep->triMesh);
+                        // No grid to worry about, just tesselate
+                        TesselateRing(ring, sceneRep->triMesh);
+                    } else {                                                    
+                        // Clip the polys for the top
+                        std::vector<VectorRing> clippedMesh;
+                        ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
+
+                        for (unsigned int ii=0;ii<clippedMesh.size();ii++)
+                        {
+                            VectorRing &ring = clippedMesh[ii];
+                            // Tesselate the ring, even if it's concave (it's concave a lot)
+                            TesselateRing(ring,sceneRep->triMesh);
+                        }
                     }
                 }
             }

@@ -21,12 +21,13 @@
 #import "SceneRendererES1.h"
 #import "UIColor+Stuff.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeRendererFrameInfo
 
 @synthesize sceneRenderer;
-@synthesize globeView;
+@synthesize theView;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
@@ -56,7 +57,7 @@ struct drawListSortStruct
 
 @implementation WhirlyGlobeSceneRendererES1
 
-@synthesize scene,view;
+@synthesize scene,theView;
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize frameCountStart;
 @synthesize framesPerSec;
@@ -204,10 +205,12 @@ struct drawListSortStruct
 
 - (void) render:(CFTimeInterval)duration
 {  
+    CoordSystem *coordSys = scene->getCoordSystem();
+    
 	if (!self.frameCountStart)
 		self.frameCountStart = [NSDate date];
 	
-	[view animate];
+	[theView animate];
 	
     [EAGLContext setCurrentContext:context];
     
@@ -218,12 +221,12 @@ struct drawListSortStruct
     glLoadIdentity();
 	Point2f frustLL,frustUR;
 	GLfloat near=0,far=0;
-	[view calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
+	[theView calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
 	glFrustumf(frustLL.x(),frustUR.x(),frustLL.y(),frustUR.y(),near,far);
 	
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-	Eigen::Affine3f modelTrans = [view calcModelMatrix];
+	Eigen::Affine3f modelTrans = [theView calcModelMatrix];
 	glLoadMatrixf(modelTrans.data());
 
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
@@ -243,7 +246,7 @@ struct drawListSortStruct
         
         WhirlyGlobeRendererFrameInfo *frameInfo = [[[WhirlyGlobeRendererFrameInfo alloc] init] autorelease];
         frameInfo.sceneRenderer = self;
-        frameInfo.globeView = view;
+        frameInfo.theView = theView;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
         frameInfo.currentTime = [NSDate timeIntervalSinceReferenceDate];
@@ -251,7 +254,7 @@ struct drawListSortStruct
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
 		// Note: Time this and move it elsewhere
-		scene->processChanges(view);
+		scene->processChanges(theView);
 		
 		// We need a reverse of the eye vector in model space
 		// We'll use this to determine what's pointed away
@@ -281,17 +284,23 @@ struct drawListSortStruct
 		for (unsigned int ci=0;ci<numX*numY;ci++)
 		{
 			// Check the four corners of the cullable to see if they're pointed away
+            // But just for the globe case
 			const WhirlyGlobe::Cullable *theCullable = &cullables[ci];
 			bool inView = false;
-			for (unsigned int ii=0;ii<4;ii++)
-			{
-				Vector3f norm = theCullable->cornerNorms[ii];
-				if (norm.dot(eyeVec3) > 0)
-				{
-					inView = true;
-					break;
-				}
-			}
+            if (coordSys->isFlat())
+            {
+                inView = true;
+            } else {
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    Vector3f norm = theCullable->cornerNorms[ii];
+                    if (norm.dot(eyeVec3) > 0)
+                    {
+                        inView = true;
+                        break;
+                    }
+                }
+            }
 			
 			// Now project the corners onto the viewing plane and see if we overlap
 			// This lets us catch things around the edges

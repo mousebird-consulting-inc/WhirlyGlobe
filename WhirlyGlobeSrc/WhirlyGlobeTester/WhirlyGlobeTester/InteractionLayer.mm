@@ -21,10 +21,11 @@
 #import "InteractionLayer.h"
 #import "OptionsViewController.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface InteractionLayer()
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
+@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
 @property (nonatomic,retain) WhirlyGlobeView *globeView;
 @property (nonatomic,retain) NSDictionary *options;
 @property (nonatomic,retain) NSObject *autoSpinner;
@@ -151,7 +152,7 @@ using namespace WhirlyGlobe;
 {
     self.lastTouched = [NSDate date];
 
-    TapMessage *msg = note.object;
+    WhirlyGlobeTapMessage *msg = note.object;
 	[self performSelector:@selector(tapSelectorLayerThread:) onThread:layerThread withObject:msg waitUntilDone:NO];
 }
 
@@ -164,7 +165,7 @@ using namespace WhirlyGlobe;
 
 // Process the tap
 // We're in the layer thread here
-- (void)tapSelectorLayerThread:(TapMessage *)msg
+- (void)tapSelectorLayerThread:(WhirlyGlobeTapMessage *)msg
 {
     // Tap within 10 pixels (or points?)
     Point2f touchPt;  touchPt.x() = msg.touchLoc.x;  touchPt.y() = msg.touchLoc.y;
@@ -344,7 +345,7 @@ using namespace WhirlyGlobe;
                     shapes.insert(shape);
                     
                     // And build a label.  We'll add these as a group below
-                    SingleLabel *label = [[[SingleLabel alloc] init] autorelease];
+                    WhirlyGlobeSingleLabel *label = [[[WhirlyGlobeSingleLabel alloc] init] autorelease];
                     label.isSelectable = YES;
                     label.selectID = Identifiable::genId();
                     label.text = name;
@@ -432,7 +433,7 @@ const int NumMarkers=250;
             VectorPointsRef pt = boost::dynamic_pointer_cast<VectorPoints>(shape);
         
             // Set up the marker
-            WGMarker *marker = [[[WGMarker alloc] init] autorelease];
+            WhirlyGlobeMarker *marker = [[[WhirlyGlobeMarker alloc] init] autorelease];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [marker setLoc:coord];
             
@@ -465,6 +466,8 @@ const int NumParticleSystems = 150;
 
 - (void)displayParticles:(bool)how
 {
+    CoordSystem *coordSys = scene->getCoordSystem();
+    
     // Add some new particle systems
     if (how)
     {
@@ -497,10 +500,10 @@ const int NumParticleSystems = 150;
             VectorShapeRef shape = cityDb->getVector(ii,true);
             VectorPointsRef pt = boost::dynamic_pointer_cast<VectorPoints>(shape);
 
-            ParticleSystem *particleSystem = [[[ParticleSystem alloc] init] autorelease];
+            WhirlyGlobeParticleSystem *particleSystem = [[[WhirlyGlobeParticleSystem alloc] init] autorelease];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [particleSystem setLoc:coord];
-            [particleSystem setNorm:PointFromGeo(coord)];   
+            [particleSystem setNorm:coordSys->pointFromGeo(coord)];   
             [partSystems addObject:particleSystem];
         }
         

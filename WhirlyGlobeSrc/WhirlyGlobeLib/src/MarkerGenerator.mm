@@ -27,7 +27,7 @@ namespace WhirlyGlobe
 // Add this marker to the appropriate drawable
 void MarkerGenerator::Marker::addToDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
 {
-    float visVal = frameInfo.globeView.heightAboveGlobe;
+    float visVal = [frameInfo.theView heightAboveSurface];
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
          ((minVis <= visVal && visVal <= maxVis) ||
           (maxVis <= visVal && visVal <= minVis))))
@@ -175,7 +175,7 @@ void MarkerGenerator::generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,
     if (markers.empty())
         return;
 
-    float minZres = [frameInfo.globeView calcZbufferRes];
+    float minZres = [frameInfo.theView calcZbufferRes];
     
     // Keep drawables sorted by destination teture ID
     DrawableMap drawables;

@@ -19,6 +19,7 @@
  */
 
 #import "Drawable.h"
+#import "CoordSystem.h"
 
 namespace WhirlyGlobe
 {	
@@ -49,7 +50,7 @@ public:
 	GeoMbr getGeoMbr() const { return geoMbr; }
     
     /// Set the bounding box
-	void setGeoMbr(const GeoMbr &inMbr);
+	void setGeoMbr(const GeoMbr &inMbr,WhirlyKit::CoordSystem *coordSystem);
 	
 public:	
 	/// 3D locations (in model space) of the corners

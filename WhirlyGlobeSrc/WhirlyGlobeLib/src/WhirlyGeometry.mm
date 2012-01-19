@@ -44,7 +44,7 @@ bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)
 	hit = org + dir * t;
 	return true;
 }
-	
+    	
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 

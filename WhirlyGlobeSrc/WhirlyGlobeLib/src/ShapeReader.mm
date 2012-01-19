@@ -20,6 +20,7 @@
 
 #import "ShapeReader.h"
 #import "shapefil.h"
+#import "GlobeMath.h"
 
 namespace WhirlyGlobe
 {
@@ -83,7 +84,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         {
             VectorPointsRef points = VectorPoints::createPoints();
             theShape = points;
-            Point2f pt(DegToRad<float>(thisShape->padfX[0]),DegToRad<float>(thisShape->padfY[0]));
+            Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[0]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[0]));
             points->pts.push_back(pt);
         }
             break;
@@ -94,7 +95,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = points;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
-                Point2f pt(DegToRad<float>(thisShape->padfX[ii]),DegToRad<float>(thisShape->padfY[ii]));
+                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[ii]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[ii]));
                 points->pts.push_back(pt);
             }
         }
@@ -106,7 +107,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = linear;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
-                Point2f pt(DegToRad<float>(thisShape->padfX[ii]),DegToRad<float>(thisShape->padfY[ii]));
+                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[ii]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[ii]));
                 linear->pts.push_back(pt);
             }            
         }
@@ -135,7 +136,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
                     startOne = false;
                 }
                 
-                Point2f pt(DegToRad<float>(thisShape->padfX[jj]),DegToRad<float>(thisShape->padfY[jj]));
+                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[jj]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[jj]));
                 ring->push_back(pt);
             }
             areal->initGeoMbr();

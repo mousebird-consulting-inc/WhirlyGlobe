@@ -38,8 +38,8 @@
     /// Renderer itself
     WhirlyGlobeSceneRendererES1 *sceneRenderer;
     
-    /// Globe View
-    WhirlyGlobeView *globeView;
+    /// View
+    WhirlyKitView *theView;
     
     /// Scene itself.  Don't mess with this
     WhirlyGlobe::GlobeScene *scene;
@@ -55,7 +55,7 @@
 }
 
 @property (nonatomic,assign) WhirlyGlobeSceneRendererES1 *sceneRenderer;
-@property (nonatomic,assign) WhirlyGlobeView *globeView;
+@property (nonatomic,assign) WhirlyKitView *theView;
 @property (nonatomic,assign) WhirlyGlobe::GlobeScene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
@@ -96,8 +96,8 @@ static const unsigned int RenderFrameCount = 25;
 
     /// Scene we're drawing.  This is assigned from outside
 	WhirlyGlobe::GlobeScene *scene;
-    /// The globe view controls how we're looking at the scene
-	WhirlyGlobeView *view;
+    /// The view controls how we're looking at the scene
+	WhirlyKitView *theView;
 
     /// The pixel width of the CAEAGLLayer.
     GLint framebufferWidth;
@@ -127,7 +127,7 @@ static const unsigned int RenderFrameCount = 25;
 }
 
 @property (nonatomic,assign) WhirlyGlobe::GlobeScene *scene;
-@property (nonatomic,assign) WhirlyGlobeView *view;
+@property (nonatomic,assign) WhirlyKitView *theView;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
 

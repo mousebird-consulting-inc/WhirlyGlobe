@@ -24,6 +24,7 @@
 #import "NSDictionary+Stuff.h"
 #import "RenderCache.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 namespace WhirlyGlobe
@@ -102,14 +103,23 @@ typedef enum {Middle,Left,Right} LabelJustify;
 }
 
 // Calculate the corners in this order:  (ll,lr,ur,ul)
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts
+- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordSystem:(CoordSystem *)coordSys
 {
-    *norm = PointFromGeo(loc);
+    *norm = coordSys->pointFromGeo(loc);
     Point3f center = *norm;
     Point3f up(0,0,1);
-    Point3f horiz = up.cross(*norm).normalized();
-    Point3f vert = norm->cross(horiz).normalized();;
+    Point3f horiz,vert;
+    if (coordSys->isFlat())
+    {
+        *norm = up;
+        horiz = Point3f(1,0,0);
+        vert = Point3f(0,1,0);
+    } else {
+        horiz = up.cross(*norm).normalized();
+        vert = norm->cross(horiz).normalized();;
+    }
     Point3f ll;
+    
     
     switch (justify)
     {
@@ -147,7 +157,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     iconPts[3] = ll + iconSize*vert;
 }
 
-- (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm
+- (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordSystem:(CoordSystem *)coordSys
 {
     LabelInfo *labelInfo = [[[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:self.text] desc:topDesc] autorelease];
     
@@ -176,7 +186,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     float iconSize = (iconTexture==EmptyIdentity ? 0.f : 2*height2);
 
     Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners];
+    [self calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordSystem:coordSys];
     
     // If we have an icon, we need slightly different corners
     if (iconTexture)
@@ -493,7 +503,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         {
             Point3f ll;
             
-            [label calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts norm:&norm iconCorners:iconPts];
+            [label calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts norm:&norm iconCorners:iconPts coordSystem:scene->getCoordSystem()];
                         
             // Texture coordinates are a little odd because text might not take up the whole texture
             TexCoord texCoord[4];
