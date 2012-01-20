@@ -34,5 +34,35 @@ GeoCoord FlatCoordSystem::geoFromPoint(Point3f pt)
 {
     return GeoCoord(pt.x(),pt.y());
 }
+
+MercatorCoordSystem::MercatorCoordSystem(float originLon)
+    : originLon(originLon)
+{
+}
+
+// Keep things right below the poles
+const float PoleLimit = DegToRad(85.05113);
     
+Point3f MercatorCoordSystem::pointFromGeo(GeoCoord geo)
+{
+    Point3f coord;
+    coord.x() = geo.lon() - originLon;
+    float lat = geo.lat();
+    if (lat < -PoleLimit) lat = -PoleLimit;
+    if (lat > PoleLimit) lat = PoleLimit;
+    coord.y() = logf((1.0f+sinf(lat))/cosf(lat));
+    coord.z() = 0.0;
+    
+    return coord;
+}
+
+GeoCoord MercatorCoordSystem::geoFromPoint(Point3f pt)
+{
+    GeoCoord coord;
+    coord.lon() = pt.x() + originLon;
+    coord.lat() = atanf(sinhf(pt.y()));
+    
+    return coord;
+}
+
 }

@@ -116,7 +116,8 @@
 	[sceneRenderer useContext];
     
     // Need a coordinate system to describe the space we're working in
-    coordSys = new WhirlyMap::FlatCoordSystem();
+//    coordSys = new WhirlyMap::FlatCoordSystem();
+    coordSys = new WhirlyMap::MercatorCoordSystem();
 
 	// Need an empty scene and view
 	theScene = new WhirlyGlobe::GlobeScene(6,3,coordSys);

@@ -12,7 +12,7 @@
 
 @interface MapViewController : UIViewController
 {
-    WhirlyMap::FlatCoordSystem *coordSys;
+    WhirlyKit::CoordSystem *coordSys;
     
     WhirlyGlobeEAGLView *glView;
 	WhirlyGlobeSceneRendererES1 *sceneRenderer;

@@ -74,6 +74,12 @@ using namespace WhirlyGlobe;
     [self performSelector:@selector(addCountries:) withObject:nil afterDelay:0.0];
 }
 
+const int NumMapColors = 5;
+//static int MapColors[NumMapColors] = {0xFFC900,0xBFA130,0xA68200,0xFFD640,0xFFE173};
+static int MapColors[NumMapColors] = {0xB26A14,0x865D2C,0x754207,0xD99748,0xD9A86F};
+//static int MapColors[NumMapColors] = {0xAD924A,0xAD8E3A,0xAB8212,0xAD892A,0xBC911D};
+
+
 // Load the data
 - (void)addCountries:(id)sender
 {
@@ -129,7 +135,9 @@ using namespace WhirlyGlobe;
             if (loftLayer)
             {
                 NSMutableDictionary *thisLoftDesc = [NSMutableDictionary dictionaryWithDictionary:loftDesc];
-                float red = drand48(), green = drand48(), blue = drand48();
+                int whichColor = ii % NumMapColors;
+                int colorInt = MapColors[whichColor];
+                float red = (colorInt >> 16) / 256.0, green = ((colorInt >> 8) & 0xff) / 256.0, blue = (colorInt & 0xff) / 256.0;
                 [thisLoftDesc setObject:[UIColor colorWithRed:red green:green blue:blue alpha:1.0] forKey:@"color"];
                 NSString *polyCache = [NSString stringWithFormat:@"%@_%@",countrySetName,name];
                 [self.loftLayer addLoftedPoly:ar desc:thisLoftDesc cacheName:polyCache];
