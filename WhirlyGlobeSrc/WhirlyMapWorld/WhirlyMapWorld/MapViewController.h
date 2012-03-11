@@ -33,6 +33,7 @@
     // Gesture recognizer delegates
     WhirlyMapPinchDelegate *pinchDelegate;
     WhirlyMapPanDelegate *panDelegate;
+    WhirlyMapTapDelegate *tapDelegate;
 }
 
 + (MapViewController *)loadFromNib;

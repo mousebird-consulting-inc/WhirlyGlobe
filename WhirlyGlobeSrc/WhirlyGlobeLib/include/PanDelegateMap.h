@@ -32,6 +32,7 @@
     WhirlyGlobe::Point3f startOnPlane;
     /// Viewer location when we started panning
     WhirlyGlobe::Point3f startLoc;
+    CGPoint lastTouch;
 }
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView

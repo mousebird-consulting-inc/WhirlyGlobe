@@ -283,6 +283,7 @@
 		2B45049814BB969C00C99306 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../WhirlyGlobe2/WhirlyGlobeSrc/WhirlyGlobeLib\"",
@@ -299,6 +300,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "CBF42218-23F4-4893-8A2E-E08B83AAD8C7";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;

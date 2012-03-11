@@ -72,6 +72,9 @@ using namespace WhirlyGlobe;
     countryDb = new VectorDatabase(bundleDir,docDir,countrySetName,new ShapeReader(countryShape),NULL,true);
     
     [self performSelector:@selector(addCountries:) withObject:nil afterDelay:0.0];
+    
+    // Wire up the single tap
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapSelector:) name:WhirlyGlobeTapMsg object:nil];    
 }
 
 const int NumMapColors = 5;
@@ -152,5 +155,23 @@ static int MapColors[NumMapColors] = {0xB26A14,0x865D2C,0x754207,0xD99748,0xD9A8
     [self.labelLayer addLabels:labels desc:labelDesc cacheName:nil];
 }
 
+// User tapped somewhere
+// We're in the main thread here
+- (void)tapSelector:(NSNotification *)note
+{
+    WhirlyGlobeTapMessage *msg = note.object;
+	[self performSelector:@selector(tapSelectorLayerThread:) onThread:layerThread withObject:msg waitUntilDone:NO];
+}
+
+// Process the tap on the layer thread
+// We're in the layer thread here
+- (void)tapSelectorLayerThread:(WhirlyGlobeTapMessage *)msg
+{
+    // Animate to a new location
+    Point3f newLoc = msg.worldLoc;
+    newLoc.z() = [theView loc].z();
+    AnimateViewTranslation *trans = [[[AnimateViewTranslation alloc] initWithView:theView translate:newLoc howLong:1.0] autorelease];
+    theView.delegate = trans;
+}
 
 @end

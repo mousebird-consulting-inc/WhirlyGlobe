@@ -27,6 +27,7 @@ using namespace WhirlyGlobe;
 @implementation WhirlyMapView
 
 @synthesize loc;
+@synthesize delegate;
 
 - (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)inCoordSys
 {
@@ -42,17 +43,20 @@ using namespace WhirlyGlobe;
 
 - (void)dealloc
 {
+    self.delegate = nil;
+    
     [super dealloc];
 }
 
 - (void)cancelAnimation
 {
-    
+    self.delegate = nil;
 }
 
 - (void)animate
 {
-    
+    if (delegate)
+        [delegate updateView:self];
 }
 
 - (float)calcZbufferRes
@@ -95,7 +99,8 @@ using namespace WhirlyGlobe;
     
     if (dir.z() == 0.0)
         return false;
-    float t = modelEye.z() / dir.z();
+    dir.normalize();
+    float t = - modelEye.z() / dir.z();
     *hit = Vector3f(modelEye.x(),modelEye.y(),modelEye.z()) + dir * t;
     
     return true;

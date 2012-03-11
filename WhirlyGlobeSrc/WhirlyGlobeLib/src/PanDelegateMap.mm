@@ -21,6 +21,7 @@
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
 #import "PanDelegateMap.h"
+#import "AnimateTranslateMomentum.h"
 
 using namespace WhirlyGlobe;
 
@@ -85,18 +86,45 @@ using namespace WhirlyGlobe;
                 
                 // Figure out where we are now
                 Point3f hit;
-                [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                lastTouch = touchPt;
+                [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
                                        frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
                                              hit:&hit];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
-                Point3f newLoc = hit - startOnPlane + startLoc;
+                Point3f newLoc = startOnPlane - hit + startLoc;
                 [mapView setLoc:newLoc];
             }
         }
             break;
         case UIGestureRecognizerStateEnded:
-            panning = NO;
+            if (panning)
+            {
+                // We'll use this to get two points in model space
+                CGPoint vel = [pan velocityInView:glView];
+                CGPoint touch0 = lastTouch;
+                CGPoint touch1 = touch0;  touch1.x += vel.x; touch1.y += vel.y;
+                Point3f model_p0,model_p1;
+
+                Eigen::Affine3f modelMat = [mapView calcModelMatrix];
+                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0];
+                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1];
+                
+                // This will give us a direction
+                Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
+                dir *= -1.0;
+                float modelVel = dir.norm();
+                dir.normalize();
+                
+                // The acceleration (to slow it down)
+                float drag = -1.5;
+
+                // Kick off a little movement at the end                
+                mapView.delegate = [[[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)] autorelease];
+                
+                panning = NO;
+            }
             break;
         default:
             break;

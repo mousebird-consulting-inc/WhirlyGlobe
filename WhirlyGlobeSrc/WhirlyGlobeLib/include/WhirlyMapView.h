@@ -22,14 +22,30 @@
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-// 3D map view
+/// @cond
+@class WhirlyMapView;
+/// @endcond
+
+/// Animation callback
+@protocol WhirlyMapAnimationDelegate
+- (void)updateView:(WhirlyMapView *)mapView;
+@end
+
+/** Parameters associated with viewing the map.
+    Modify the location to change the current view location.
+    Set the delegate to smoothly change location over time.
+ */
 @interface WhirlyMapView : WhirlyKitView
 {
-    // Viewer location
+    /// Viewer location
     WhirlyGlobe::Point3f loc;
+    
+    /// Used to update position based on time (or whatever)
+    NSObject<WhirlyMapAnimationDelegate> *delegate;
 }
 
 @property(nonatomic,assign) WhirlyGlobe::Point3f loc;
+@property(nonatomic,retain) NSObject<WhirlyMapAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
 - (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)coordSys;

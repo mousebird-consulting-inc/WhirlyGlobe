@@ -19,6 +19,7 @@
 @property (nonatomic,retain) InteractionLayer *interactLayer;
 @property (nonatomic,retain) WhirlyMapPinchDelegate *pinchDelegate;
 @property (nonatomic,retain) WhirlyMapPanDelegate *panDelegate;
+@property (nonatomic,retain) WhirlyMapTapDelegate *tapDelegate;
 @end
 
 @implementation MapViewController
@@ -33,6 +34,7 @@
 @synthesize interactLayer;
 @synthesize pinchDelegate;
 @synthesize panDelegate;
+@synthesize tapDelegate;
 
 + (MapViewController *)loadFromNib
 {
@@ -75,6 +77,7 @@
     
     self.pinchDelegate = nil;
     self.panDelegate = nil;
+    self.tapDelegate = nil;
 }
 
 - (void)dealloc
@@ -153,6 +156,7 @@
     // Set up the gesture delegates
     self.pinchDelegate = [WhirlyMapPinchDelegate pinchDelegateForView:glView mapView:theView];
     self.panDelegate = [WhirlyMapPanDelegate panDelegateForView:glView mapView:theView];
+    self.tapDelegate = [WhirlyMapTapDelegate tapDelegateForView:glView mapView:theView];
 
 	// Kick off the layer thread
 	// This will start loading things

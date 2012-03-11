@@ -59,3 +59,5 @@
 #import "WhirlyMapView.h"
 #import "PinchDelegateMap.h"
 #import "PanDelegateMap.h"
+#import "AnimateTranslation.h"
+#import "MapTapDelegate.h"
