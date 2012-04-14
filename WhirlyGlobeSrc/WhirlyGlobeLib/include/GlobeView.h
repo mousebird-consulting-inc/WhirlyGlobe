@@ -50,6 +50,7 @@
     NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 }
 
+@property (nonatomic,assign) float heightAboveGlobe;
 @property (nonatomic,assign) Eigen::Quaternion<float> rotQuat;
 @property (nonatomic,strong) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 

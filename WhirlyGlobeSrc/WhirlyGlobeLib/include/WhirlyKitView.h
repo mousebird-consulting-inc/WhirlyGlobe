@@ -41,7 +41,7 @@
     WhirlyKit::CoordSystem *coordSystem;
 }
 
-@property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane,heightAboveGlobe;
+@property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic) NSDate *lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
 

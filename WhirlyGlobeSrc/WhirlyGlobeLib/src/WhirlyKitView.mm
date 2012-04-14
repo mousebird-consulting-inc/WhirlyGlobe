@@ -27,7 +27,7 @@ using namespace Eigen;
 
 @implementation WhirlyKitView
 
-@synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane,heightAboveGlobe;
+@synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @synthesize lastChangedTime;
 @synthesize coordSystem;
 

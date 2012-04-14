@@ -32,6 +32,7 @@ using namespace Eigen;
 
 @implementation WhirlyGlobeView
 
+@synthesize heightAboveGlobe;
 @synthesize rotQuat;
 @synthesize delegate;
 
