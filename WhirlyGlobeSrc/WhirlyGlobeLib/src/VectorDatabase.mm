@@ -22,7 +22,7 @@
 #import "VectorDatabase.h"
 #import "sqlhelpers.h"
 
-namespace WhirlyGlobe 
+namespace WhirlyKit
 {
 
 VectorDatabase::VectorDatabase(NSString *bundleDir,NSString *cacheDir,NSString *baseName,VectorReader *reader,const std::set<std::string> *indices,bool memCache,bool autoload)

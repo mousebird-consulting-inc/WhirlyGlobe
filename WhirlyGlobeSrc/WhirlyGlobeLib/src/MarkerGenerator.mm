@@ -21,11 +21,11 @@
 #import "MarkerGenerator.h"
 #import "SceneRendererES1.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 // Add this marker to the appropriate drawable
-void MarkerGenerator::Marker::addToDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
+void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
@@ -170,7 +170,7 @@ MarkerGenerator::Marker *MarkerGenerator::getMarker(SimpleIdentity markerId)
     return NULL;
 }
     
-void MarkerGenerator::generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables)
+void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables)
 {
     if (markers.empty())
         return;
@@ -212,7 +212,7 @@ MarkerGeneratorAddRequest::~MarkerGeneratorAddRequest()
     markers.clear();
 }
     
-void MarkerGeneratorAddRequest::execute2(GlobeScene *scene,Generator *gen)
+void MarkerGeneratorAddRequest::execute2(Scene *scene,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->addMarkers(markers);
@@ -235,7 +235,7 @@ MarkerGeneratorRemRequest::~MarkerGeneratorRemRequest()
 {    
 }
     
-void MarkerGeneratorRemRequest::execute2(GlobeScene *scene,Generator *gen)
+void MarkerGeneratorRemRequest::execute2(Scene *scene,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->removeMarkers(markerIDs);
@@ -252,7 +252,7 @@ MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,cons
 {    
 }
     
-void MarkerGeneratorFadeRequest::execute2(GlobeScene *scene,Generator *gen)
+void MarkerGeneratorFadeRequest::execute2(Scene *scene,Generator *gen)
 {    
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     

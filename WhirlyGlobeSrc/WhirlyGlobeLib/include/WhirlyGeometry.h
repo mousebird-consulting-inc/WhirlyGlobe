@@ -20,7 +20,7 @@
 
 #import "WhirlyVector.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Intersect a unit sphere with the given origin/vector

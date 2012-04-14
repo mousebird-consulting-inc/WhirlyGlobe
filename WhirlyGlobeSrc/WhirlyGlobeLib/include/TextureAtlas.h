@@ -30,7 +30,7 @@
 #import "Texture.h"
 #import "GlobeScene.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Sub Texture
@@ -74,7 +74,7 @@ public:
 @interface TextureAtlas : NSObject
 {
     /// The ID for the texture we're going to create
-    WhirlyGlobe::SimpleIdentity texId;
+    WhirlyKit::SimpleIdentity texId;
     /// Texture size
     unsigned int texSizeX,texSizeY;
     /// Grid sizes (for sorting)
@@ -89,23 +89,23 @@ public:
 }
 
 /// This is the texture ID that will be assigned when the texture is created
-@property (nonatomic,readonly) WhirlyGlobe::SimpleIdentity texId;
+@property (nonatomic,readonly) WhirlyKit::SimpleIdentity texId;
 
 /// Construct with texture size (needs to be a power of 2).
 /// We sort images into buckets (sizeX/gridX,sizeY/gridY)
-- (id)inithWithTexSizeX:(unsigned int)texSizeX texSizeY:(unsigned int)texSizeY cellSizeX:(unsigned int)cellSizeX cellSizeY:(unsigned int)cellSizeY;
+- (id)initWithTexSizeX:(unsigned int)texSizeX texSizeY:(unsigned int)texSizeY cellSizeX:(unsigned int)cellSizeX cellSizeY:(unsigned int)cellSizeY;
     
 /// Add the image to this atlas and return texture coordinates
 ///  to map into.
 /// Returns false if there wasn't room
-- (BOOL)addImage:(UIImage *)image texOrg:(WhirlyGlobe::TexCoord &)org texDest:(WhirlyGlobe::TexCoord &)dest;
+- (BOOL)addImage:(UIImage *)image texOrg:(WhirlyKit::TexCoord &)org texDest:(WhirlyKit::TexCoord &)dest;
 
 /// We cache the images and their coordinates.  Query the cache
-- (BOOL)getImageLayout:(UIImage *)image texOrg:(WhirlyGlobe::TexCoord &)org texDest:(WhirlyGlobe::TexCoord &)dest;
+- (BOOL)getImageLayout:(UIImage *)image texOrg:(WhirlyKit::TexCoord &)org texDest:(WhirlyKit::TexCoord &)dest;
 
 /// Generate a texture from the images
 /// If the retImage pointer is set, you get that back.  It's autreleased.
-- (WhirlyGlobe::Texture *)createTexture:(UIImage **)retImage;
+- (WhirlyKit::Texture *)createTexture:(UIImage **)retImage;
 
 @end
 
@@ -129,7 +129,7 @@ public:
     NSMutableArray *atlases;
     
     /// Mappings from the various images to the texture atlases
-    std::vector<WhirlyGlobe::SubTexture> mappings;
+    std::vector<WhirlyKit::SubTexture> mappings;
 }
 
 /// Construct with the size of the texture atlases to be produced.
@@ -138,10 +138,10 @@ public:
 
 /// Add the given image to a texture atlas.  You'll get a sub texture mapping back.
 /// Check the ID of SubTexture.  It will be EmptyIdentity on failure.
-- (WhirlyGlobe::SimpleIdentity)addImage:(UIImage *)image;
+- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image;
 
 /// Runs through the altases created and adds the resulting textures to the scene.
 /// Also puts the sub texture mappings in to the scene for use on the layer side.
-- (void)processIntoScene:(WhirlyGlobe::GlobeScene *)scene texIDs:(std::set<WhirlyGlobe::SimpleIdentity> *)texIDs;
+- (void)processIntoScene:(WhirlyKit::Scene *)scene texIDs:(std::set<WhirlyKit::SimpleIdentity> *)texIDs;
 
 @end

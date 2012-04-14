@@ -25,7 +25,7 @@
 #import "RenderCache.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
+//using namespace WhirlyGlobe;
 
 // Used to describe the drawable we'll construct for a given vector
 @interface VectorInfo : NSObject
@@ -44,8 +44,8 @@ using namespace WhirlyGlobe;
     NSString                    *cacheName;
 }
 
-@property (nonatomic,retain) UIColor *color;
-@property (nonatomic,retain) NSString *cacheName;
+@property (nonatomic) UIColor *color;
+@property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
 
 - (void)parseDict:(NSDictionary *)dict;
@@ -81,13 +81,6 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    self.color = nil;
-    self.cacheName = nil;
-    
-    [super dealloc];
-}
 
 - (void)parseDict:(NSDictionary *)dict
 {
@@ -102,7 +95,7 @@ using namespace WhirlyGlobe;
 
 @end
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 /* Drawable Builder
@@ -112,7 +105,7 @@ namespace WhirlyGlobe
 class DrawableBuilder
 {
 public:
-    DrawableBuilder(GlobeScene *scene,VectorSceneRep *sceneRep,
+    DrawableBuilder(Scene *scene,VectorSceneRep *sceneRep,
                     VectorInfo *vecInfo,bool linesOrPoints,RenderCacheWriter *cacheWriter)
     : scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
     {
@@ -216,7 +209,7 @@ public:
     }
     
 protected:   
-    GlobeScene *scene;
+    Scene *scene;
     VectorSceneRep *sceneRep;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
@@ -227,11 +220,11 @@ protected:
 
 }
 
-@interface WhirlyGlobeVectorLayer()
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
+@interface WhirlyKitVectorLayer()
+@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 @end
 
-@implementation WhirlyGlobeVectorLayer
+@implementation WhirlyKitVectorLayer
 
 @synthesize layerThread;
 
@@ -242,10 +235,9 @@ protected:
          it != vectorReps.end(); ++it)
         delete it->second;
     vectorReps.clear();
-	[super dealloc];
 }
 
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
 	scene = inScene;
     self.layerThread = inLayerThread;
@@ -388,7 +380,7 @@ protected:
 
 // Add a vector
 // We make up an ID for it before it's actually created
-- (SimpleIdentity)addVector:(WhirlyGlobe::VectorShapeRef)shape desc:(NSDictionary *)dict
+- (SimpleIdentity)addVector:(VectorShapeRef)shape desc:(NSDictionary *)dict
 {
     ShapeSet shapes;
     shapes.insert(shape);
@@ -396,9 +388,9 @@ protected:
 }
 
 // Add a group of vectors and cache it to the given file, which might be on disk
-- (WhirlyGlobe::SimpleIdentity)addVectors:(WhirlyGlobe::ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
-    VectorInfo *vecInfo = [[[VectorInfo alloc] initWithShapes:shapes desc:desc] autorelease];
+    VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
     vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();
     
@@ -417,9 +409,9 @@ protected:
 }
 
 // Load the drawables in from a cache
-- (WhirlyGlobe::SimpleIdentity)addVectorsFromCache:(NSString *)cacheName
+- (SimpleIdentity)addVectorsFromCache:(NSString *)cacheName
 {
-    VectorInfo *vecInfo = [[[VectorInfo alloc] init] autorelease];
+    VectorInfo *vecInfo = [[VectorInfo alloc] init];
     vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();
     
@@ -432,9 +424,9 @@ protected:
 }
 
 // Change how the vector is represented
-- (void)changeVector:(WhirlyGlobe::SimpleIdentity)vecID desc:(NSDictionary *)dict
+- (void)changeVector:(SimpleIdentity)vecID desc:(NSDictionary *)dict
 {
-    VectorInfo *vecInfo = [[[VectorInfo alloc] initWithSceneRepId:vecID desc:dict] autorelease];
+    VectorInfo *vecInfo = [[VectorInfo alloc] initWithSceneRepId:vecID desc:dict];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runChangeVector:vecInfo];
@@ -443,7 +435,7 @@ protected:
 }
 
 // Remove the vector
-- (void)removeVector:(WhirlyGlobe::SimpleIdentity)vecID
+- (void)removeVector:(SimpleIdentity)vecID
 {
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemoveVector:[NSNumber numberWithInt:vecID]];
@@ -453,9 +445,9 @@ protected:
 
 // Return the cost of the given vector represenation
 // Can only do this if the vectors(s) have been created, so only from the layer thread
-- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecId
+- (WhirlyKitDrawCost *)getCost:(SimpleIdentity)vecId
 {
-    WhirlyGlobeDrawCost *cost = [[[WhirlyGlobeDrawCost alloc] init] autorelease];
+    WhirlyKitDrawCost *cost = [[WhirlyKitDrawCost alloc] init];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
     {

@@ -39,24 +39,24 @@ static const float FPSUpdateInterval = 4.0;
     IBOutlet UILabel *drawLabel;
     IBOutlet UILabel *selectLabel;
     
-	WhirlyGlobeEAGLView *glView;
-	WhirlyGlobeSceneRendererES1 *sceneRenderer;
+	WhirlyKitEAGLView *glView;
+	WhirlyKitSceneRendererES1 *sceneRenderer;
     
    	// Scene, view, and associated data created when controller is up
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
-	WhirlyGlobeTextureGroup *texGroup;
+	WhirlyKitTextureGroup *texGroup;
     
 	// Thread used to control Whirly Globe layers
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	
 	// Data layers, readers, and loaders
 	WhirlyGlobeSphericalEarthLayer *earthLayer;
-	WhirlyGlobeVectorLayer *vectorLayer;
-	WhirlyGlobeLabelLayer *labelLayer;
-    WhirlyGlobeParticleSystemLayer *particleSystemLayer;
-    WhirlyGlobeMarkerLayer *markerLayer;
-    WhirlyGlobeSelectionLayer *selectionLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
+    WhirlyKitParticleSystemLayer *particleSystemLayer;
+    WhirlyKitMarkerLayer *markerLayer;
+    WhirlyKitSelectionLayer *selectionLayer;
     WhirlyGlobeLoftLayer *loftLayer;
     InteractionLayer *interactLayer;
     

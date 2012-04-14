@@ -32,7 +32,7 @@
     Eigen::Vector3f dir;
     float maxTime;
     NSDate *startDate;
-    WhirlyGlobe::Point3f org;
+    WhirlyKit::Point3f org;
 }
 
 /// Initialize with a velocity and negative acceleration (to slow down)

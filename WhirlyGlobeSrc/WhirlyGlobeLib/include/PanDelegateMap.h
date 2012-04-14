@@ -29,9 +29,9 @@
     /// View transform when we started
     Eigen::Affine3f startTransform;
     /// Where we first touched the plane
-    WhirlyGlobe::Point3f startOnPlane;
+    WhirlyKit::Point3f startOnPlane;
     /// Viewer location when we started panning
-    WhirlyGlobe::Point3f startLoc;
+    WhirlyKit::Point3f startLoc;
     CGPoint lastTouch;
 }
 

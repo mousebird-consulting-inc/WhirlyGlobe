@@ -24,7 +24,9 @@
 #import "UIImage+Stuff.h"
 #import "SceneRendererES1.h"
 
-namespace WhirlyGlobe
+using namespace WhirlyGlobe;
+
+namespace WhirlyKit
 {
 		
 Drawable::Drawable()
@@ -35,7 +37,7 @@ Drawable::~Drawable()
 {
 }
 	
-void DrawableChangeRequest::execute(GlobeScene *scene,WhirlyKitView *view)
+void DrawableChangeRequest::execute(Scene *scene,WhirlyKitView *view)
 {
 	Drawable *theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
@@ -89,7 +91,7 @@ BasicDrawable::~BasicDrawable()
 {
 }
     
-bool BasicDrawable::isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const
+bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
@@ -100,7 +102,7 @@ bool BasicDrawable::isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const
              (maxVisible <= visVal && visVal <= minVisible));
 }
     
-bool BasicDrawable::hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const
+bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
@@ -276,7 +278,7 @@ void BasicDrawable::teardownGL()
     }
 }
 	
-void BasicDrawable::draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
     if (usingBuffers)
         drawVBO(frameInfo,scene);
@@ -498,7 +500,7 @@ bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool do
 }
 
 // VBO based drawing
-void BasicDrawable::drawVBO(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
 	GLuint textureId = scene->getGLTexture(texId);
 	
@@ -636,7 +638,7 @@ void BasicDrawable::drawVBO(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *
 }
 
 // Non-VBO based drawing
-void BasicDrawable::drawReg(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const
+void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
 	GLuint textureId = scene->getGLTexture(texId);
 	
@@ -703,7 +705,7 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	color[3] = inColor.a;
 }
 	
-void ColorChangeRequest::execute2(GlobeScene *scene,Drawable *draw)
+void ColorChangeRequest::execute2(Scene *scene,Drawable *draw)
 {
 	BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
 	basicDrawable->setColor(color);
@@ -715,7 +717,7 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 	
 }
 	
-void OnOffChangeRequest::execute2(GlobeScene *scene,Drawable *draw)
+void OnOffChangeRequest::execute2(Scene *scene,Drawable *draw)
 {
 	BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
 	basicDrawable->setOnOff(newOnOff);
@@ -726,7 +728,7 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 {
 }
     
-void VisibilityChangeRequest::execute2(GlobeScene *scene,Drawable *draw)
+void VisibilityChangeRequest::execute2(Scene *scene,Drawable *draw)
 {
     BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
     basicDrawable->setVisibleRange(minVis,maxVis);
@@ -738,7 +740,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp
     
 }
     
-void FadeChangeRequest::execute2(GlobeScene *scene,Drawable *draw)
+void FadeChangeRequest::execute2(Scene *scene,Drawable *draw)
 {
     // Fade it out, then remove it
     BasicDrawable *basicDraw = (BasicDrawable *)draw;

@@ -20,35 +20,30 @@
 
 #import "LayerThread.h"
 
-@interface WhirlyGlobeLayerThread()
-@property(nonatomic,retain) NSMutableArray<NSObject> *layers;
+using namespace WhirlyKit;
+
+@interface WhirlyKitLayerThread()
+@property(nonatomic) NSMutableArray<NSObject> *layers;
 @end
 
-@implementation WhirlyGlobeLayerThread
+@implementation WhirlyKitLayerThread
 
 @synthesize layers;
 @synthesize runLoop;
 
-- (id)initWithScene:(WhirlyGlobe::GlobeScene *)inScene
+- (id)initWithScene:(WhirlyKit::Scene *)inScene
 {
 	if ((self = [super init]))
 	{
 		scene = inScene;
-		self.layers = [[[NSMutableArray alloc] init] autorelease];
+		self.layers = [NSMutableArray array];
 	}
 	
 	return self;
 }
 
-- (void)dealloc
-{
-	// This should release the layers
-	self.layers = nil;
-	
-	[super dealloc];
-}
 
-- (void)addLayer:(NSObject<WhirlyGlobeLayer> *)layer
+- (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
 {
 	[layers addObject:layer];
 }
@@ -57,14 +52,12 @@
 // We'll just spend our time in here
 - (void)main
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
 	self.runLoop = [NSRunLoop currentRunLoop];
 	
 	// Wake up our layers.  It's up to them to do the rest
 	for (unsigned int ii=0;ii<[layers count];ii++)
 	{
-		NSObject<WhirlyGlobeLayer> *layer = [layers objectAtIndex:ii];
+		NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
 		[layer startWithThread:self scene:scene];
 	}
 
@@ -73,13 +66,10 @@
 	while (![self isCancelled])
 	{
 		[runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-		[pool release];
-		pool = [[NSAutoreleasePool alloc] init];
 	}
 	
 	self.runLoop = nil;
     self.layers = nil;
-	[pool release];
 }
 
 @end

@@ -33,7 +33,7 @@
  */
 @interface OptionsViewController : UIViewController
 {
-    NSObject<OptionsControllerDelegate> *delegate;
+    NSObject<OptionsControllerDelegate> *__unsafe_unretained delegate;
     NSMutableDictionary *values;  // Used to store switch values
     IBOutlet UISegmentedControl *countryControl;
     IBOutlet UISegmentedControl *markersControl;
@@ -42,7 +42,7 @@
     IBOutlet UISwitch *statsSwitch;
 }
 
-@property (nonatomic,assign) NSObject<OptionsControllerDelegate> *delegate;
+@property (nonatomic,unsafe_unretained) NSObject<OptionsControllerDelegate> *delegate;
 
 // Use this to create one
 + (OptionsViewController *)loadFromNib;

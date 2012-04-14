@@ -32,12 +32,12 @@
 
 using namespace Eigen;
 
-@class WhirlyGlobeRendererFrameInfo;
+@class WhirlyKitRendererFrameInfo;
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 	
-class GlobeScene;
+class Scene;
 
 /// Mapping from Simple ID to an int.  This is used by the render cache
 ///  reader and writer.
@@ -56,7 +56,7 @@ public:
 	virtual ~ChangeRequest() { }
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(GlobeScene *scene,WhirlyKitView *view) = 0;
+	virtual void execute(Scene *scene,WhirlyKitView *view) = 0;
 };	
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
@@ -71,12 +71,15 @@ public:
 	
 	/// Return a geo MBR for sorting into cullables
 	virtual GeoMbr getGeoMbr() const = 0;
+    
+    /// Return the local MBR, if we're working in a non-geo coordinate system
+    virtual Mbr getLocalMbr() const = 0;
 	
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
 	
 	/// We're allowed to turn drawables off completely
-	virtual bool isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const = 0;
+	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
 	
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
@@ -87,10 +90,10 @@ public:
 	virtual void teardownGL() { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const = 0;	
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;	
     
     /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const = 0;
+    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
     /// Can this drawable respond to a caching request?
     virtual bool canCache() const = 0;
@@ -115,11 +118,11 @@ public:
 	~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
-	void execute(GlobeScene *scene,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitView *view);
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-	virtual void execute2(GlobeScene *scene,Drawable *draw) = 0;
+	virtual void execute2(Scene *scene,Drawable *draw) = 0;
 	
 protected:
 	SimpleIdentity drawId;
@@ -152,26 +155,32 @@ public:
 	virtual void teardownGL();	
 	
 	/// Fill this in to draw the basic drawable
-	virtual void draw(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
 	
 	/// Draw priority
 	virtual unsigned int getDrawPriority() const { return drawPriority; }
 	
 	/// We use the on/off flag as well as a visibility check
-	virtual bool isOn(WhirlyGlobeRendererFrameInfo *frameInfo) const;
+	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
 	/// True to turn it on, false to turn it off
 	void setOnOff(bool onOff) { on = onOff; }
     
     /// Used for alpha sorting
-    virtual bool hasAlpha(WhirlyGlobeRendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff) { isAlpha = onOff; }
 	
-	/// Extents used for display culling
+	/// Extents used for display culling, lat/lon version
 	virtual GeoMbr getGeoMbr() const { return geoMbr; }
+    
+    /// Extents used for display culling in local coordinates, if we're using them
+    virtual Mbr getLocalMbr() const  { return localMbr; }
 	
-	/// Set extents (don't forget this)
+	/// Set geo extents (don't forget this)
 	void setGeoMbr(GeoMbr mbr) { geoMbr = mbr; }
+    
+    /// Set local extents
+    void setLocalMbr(Mbr mbr) { localMbr = mbr; }
 	
 	/// Simple triangle.  Can obviously only have 2^16 vertices
 	class Triangle
@@ -257,8 +266,8 @@ public:
     virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
 
 protected:
-	void drawReg(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
-	void drawVBO(WhirlyGlobeRendererFrameInfo *frameInfo,GlobeScene *scene) const;
+	void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+	void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
 	
 	bool on;  // If set, draw.  If not, not
     bool usingBuffers;  // If set, we've downloaded the buffers already
@@ -267,6 +276,7 @@ protected:
 	unsigned int drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
 	GeoMbr geoMbr;  // Extents on the globe
+    Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type
 	SimpleIdentity texId;  // ID for Texture (in scene)
 	RGBAColor color;
@@ -288,7 +298,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
 	ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
 	
-	void execute2(GlobeScene *scene,Drawable *draw);
+	void execute2(Scene *scene,Drawable *draw);
 	
 protected:
 	unsigned char color[4];
@@ -300,7 +310,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
 	OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
 	
-	void execute2(GlobeScene *scene,Drawable *draw);
+	void execute2(Scene *scene,Drawable *draw);
 	
 protected:
 	bool newOnOff;
@@ -312,7 +322,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(GlobeScene *scene,Drawable *draw);
+    void execute2(Scene *scene,Drawable *draw);
     
 protected:
     float minVis,maxVis;
@@ -324,7 +334,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    void execute2(GlobeScene *scene,Drawable *draw);
+    void execute2(Scene *scene,Drawable *draw);
     
 protected:
     NSTimeInterval fadeUp,fadeDown;

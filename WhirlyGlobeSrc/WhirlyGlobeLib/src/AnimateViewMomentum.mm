@@ -24,7 +24,7 @@
 using namespace Eigen;
 
 @interface AnimateViewMomentum()
-@property (nonatomic,retain) NSDate *startDate;
+@property (nonatomic) NSDate *startDate;
 @end
 
 @implementation AnimateViewMomentum
@@ -59,12 +59,6 @@ using namespace Eigen;
     return self;
 }
 
-- (void)dealloc
-{
-    self.startDate = nil;
-    
-    [super dealloc];
-}
 
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyGlobeView *)globeView

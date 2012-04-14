@@ -27,7 +27,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Your basic Texture representation.
@@ -67,7 +67,7 @@ public:
 	
 protected:
 	/// Raw texture data
-	NSData *texData;
+	__strong NSData *texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
 	

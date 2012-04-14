@@ -21,7 +21,7 @@
 #import "GridClipper.h"
 #import "cpp/clipper.hpp"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 using namespace clipper;
@@ -29,7 +29,7 @@ using namespace clipper;
 float PolyScale = 1e14;
 
 // Clip the given loop to the given MBR
-bool ClipLoopToMbr(const WhirlyGlobe::VectorRing &ring,const Mbr &mbr,std::vector<VectorRing> &rets)
+bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr,std::vector<VectorRing> &rets)
 {
     Polygon subject(ring.size());
     for (unsigned int ii=0;ii<ring.size();ii++)
@@ -71,7 +71,7 @@ bool ClipLoopToMbr(const WhirlyGlobe::VectorRing &ring,const Mbr &mbr,std::vecto
 // Clip the given loop to the given grid (org and spacing)
 // Return true on success and the new polygons in the rets
 // Note: Not deeply efficient
-bool ClipLoopToGrid(const WhirlyGlobe::VectorRing &ring,Point2f org,Point2f spacing,std::vector<WhirlyGlobe::VectorRing> &rets)
+bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vector<VectorRing> &rets)
 {
     Mbr mbr(ring);
     int startRet = rets.size();

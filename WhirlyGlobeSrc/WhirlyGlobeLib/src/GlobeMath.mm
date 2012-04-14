@@ -21,6 +21,8 @@
 
 #import "GlobeMath.h"
 
+using namespace WhirlyKit;
+
 namespace WhirlyGlobe
 {
 

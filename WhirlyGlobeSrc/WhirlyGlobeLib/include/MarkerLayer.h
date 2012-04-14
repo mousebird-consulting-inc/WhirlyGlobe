@@ -29,7 +29,7 @@
 #import "DrawCost.h"
 #import "SelectionLayer.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 /// Default priority for markers
 static const int MarkerDrawPriority=1005;
@@ -38,7 +38,7 @@ static const int MarkerDrawPriority=1005;
 static const int MaxMarkerDrawableTris=1<<15/3;
 }
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /// Marker representation.
@@ -62,20 +62,20 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     A single marker object to be placed on the globe.  It will show
     up with the given width and height and be selectable if so desired.
  */
-@interface WhirlyGlobeMarker : NSObject
+@interface WhirlyKitMarker : NSObject
 {
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
     bool isSelectable;
     /// If the marker is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
-    WhirlyGlobe::SimpleIdentity selectID;
+    WhirlyKit::SimpleIdentity selectID;
     /// The location for the center of the marker.
-    WhirlyGlobe::GeoCoord loc;
+    WhirlyKit::GeoCoord loc;
     /// The list of textures to use.  If there's just one
     ///  we show that.  If there's more than one, we switch
     ///  between them over the period.
-    std::vector<WhirlyGlobe::SimpleIdentity> texIDs;
+    std::vector<WhirlyKit::SimpleIdentity> texIDs;
     /// The width in 3-space (remember the globe has radius = 1.0)
     float width;
     /// The height in 3-space (remember the globe has radius = 1.0)
@@ -88,15 +88,15 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 }
 
 @property (nonatomic,assign) bool isSelectable;
-@property (nonatomic,assign) WhirlyGlobe::SimpleIdentity selectID;
-@property (nonatomic,assign) WhirlyGlobe::GeoCoord loc;
-@property (nonatomic,readonly) std::vector<WhirlyGlobe::SimpleIdentity> texIDs;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+@property (nonatomic,readonly) std::vector<WhirlyKit::SimpleIdentity> texIDs;
 @property (nonatomic,assign) float width,height;
 @property (nonatomic,assign) NSTimeInterval period;
 @property (nonatomic,assign) NSTimeInterval timeOffset;
 
 /// Add a texture ID to be displayed
-- (void)addTexID:(WhirlyGlobe::SimpleIdentity)texID;
+- (void)addTexID:(WhirlyKit::SimpleIdentity)texID;
 
 @end
 
@@ -115,38 +115,38 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
      <item>fade          [NSNumber float]
      </list>
  */
-@interface WhirlyGlobeMarkerLayer : NSObject<WhirlyGlobeLayer> 
+@interface WhirlyKitMarkerLayer : NSObject<WhirlyKitLayer> 
 {
     /// Layer thread this belongs to
-    WhirlyGlobeLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     /// ID for the marker generator
-    WhirlyGlobe::SimpleIdentity generatorId;    
+    WhirlyKit::SimpleIdentity generatorId;    
     /// Scene the marker layer is modifying
-    WhirlyGlobe::GlobeScene *scene;
+    WhirlyKit::Scene *scene;
     /// If set, we'll pass markers on for selection
-    WhirlyGlobeSelectionLayer *selectLayer;
+    WhirlyKitSelectionLayer * __weak selectLayer;
     /// Used to track what scene components correspond to which markers
-    WhirlyGlobe::MarkerSceneRepSet markerReps;
+    WhirlyKit::MarkerSceneRepSet markerReps;
 }
 
 /// Set this for selection layer support.  If this is set
 ///  and markers are designated selectable, then the outline
 ///  of each marker will be passed to the selection layer
 ///  and will show up in search results.
-@property (nonatomic,assign) WhirlyGlobeSelectionLayer *selectLayer;
+@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Add a single marker.  The returned ID can be used to delete or modify it.
-- (WhirlyGlobe::SimpleIdentity) addMarker:(WhirlyGlobeMarker *)marker desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addMarker:(WhirlyKitMarker *)marker desc:(NSDictionary *)desc;
 
 /// Add a whole array of SingleMarker objects.  These will all be identified by the returned ID.
 /// To remove them, pass in that ID.  Selection will be based on individual IDs in
 //   the SingleMarkers, if set.
-- (WhirlyGlobe::SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
 /// Remove one or more markers, designated by their ID
-- (void) removeMarkers:(WhirlyGlobe::SimpleIdentity)markerID;
+- (void) removeMarkers:(WhirlyKit::SimpleIdentity)markerID;
 
 @end

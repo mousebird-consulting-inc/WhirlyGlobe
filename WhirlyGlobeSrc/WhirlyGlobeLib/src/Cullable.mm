@@ -21,7 +21,7 @@
 #import "GlobeScene.h"
 #import "GlobeMath.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 	
 void Cullable::setGeoMbr(const GeoMbr &inMbr,WhirlyKit::CoordSystem *coordSystem)

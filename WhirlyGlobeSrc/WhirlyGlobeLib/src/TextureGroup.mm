@@ -22,7 +22,7 @@
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
 
-@implementation WhirlyGlobeTextureGroup
+@implementation WhirlyKitTextureGroup
 
 @synthesize baseName,basePath,ext;
 @synthesize numX,numY;
@@ -53,13 +53,6 @@
 	return self;
 }
                     
-- (void)dealloc
-{
-    self.ext = nil;
-    self.baseName = nil;
-    
-    [super dealloc];
-}
 
 // Generate a file name for loading a given piece
 - (NSString *) generateFileNameX:(unsigned int)x y:(unsigned int)y
@@ -75,7 +68,7 @@
 	return result;
 }
 
-- (void)calcTexMappingOrg:(WhirlyGlobe::TexCoord *)org dest:(WhirlyGlobe::TexCoord *)dest
+- (void)calcTexMappingOrg:(WhirlyKit::TexCoord *)org dest:(WhirlyKit::TexCoord *)dest
 {
     org->u() = org->v() = (float)borderPixels/(float)pixelsSquare;
     dest->u() = dest->v() = 1.f - org->u();

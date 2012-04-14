@@ -28,11 +28,5 @@
 @synthesize worldLoc;
 @synthesize heightAboveSurface;
 
-- (void)dealloc
-{
-    self.view = nil;
-    
-    [super dealloc];
-}
 
 @end

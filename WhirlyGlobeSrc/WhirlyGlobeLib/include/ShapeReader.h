@@ -22,7 +22,7 @@
 #import "VectorData.h"
 #import "GlobeMath.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Shape File Reader.

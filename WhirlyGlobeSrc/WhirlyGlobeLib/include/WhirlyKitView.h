@@ -42,12 +42,12 @@
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane,heightAboveGlobe;
-@property (nonatomic,retain) NSDate *lastChangedTime;
+@property (nonatomic) NSDate *lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyGlobe::Point2f &)ll ur:(WhirlyGlobe::Point2f &)ur near:(float &)near far:(float &)far;
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
 
 /// Cancel any outstanding animation.  Filled in by subclass.
 - (void)cancelAnimation;
@@ -65,7 +65,7 @@
 - (float)heightAboveSurface;
 
 /// From a screen point calculate the corresponding point in 3-space
-- (WhirlyGlobe::Point3f)pointUnproject:(WhirlyGlobe::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+- (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
 @end
 

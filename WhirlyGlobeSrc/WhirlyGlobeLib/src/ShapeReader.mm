@@ -22,7 +22,7 @@
 #import "shapefil.h"
 #import "GlobeMath.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 ShapeReader::ShapeReader(NSString *fileName)
@@ -84,7 +84,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         {
             VectorPointsRef points = VectorPoints::createPoints();
             theShape = points;
-            Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[0]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[0]));
+            Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[0]),WhirlyKit::DegToRad<float>(thisShape->padfY[0]));
             points->pts.push_back(pt);
         }
             break;
@@ -95,7 +95,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = points;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
-                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[ii]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[ii]));
+                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[ii]),WhirlyKit::DegToRad<float>(thisShape->padfY[ii]));
                 points->pts.push_back(pt);
             }
         }
@@ -107,7 +107,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = linear;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
-                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[ii]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[ii]));
+                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[ii]),WhirlyKit::DegToRad<float>(thisShape->padfY[ii]));
                 linear->pts.push_back(pt);
             }            
         }
@@ -136,7 +136,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
                     startOne = false;
                 }
                 
-                Point2f pt(WhirlyGlobe::DegToRad<float>(thisShape->padfX[jj]),WhirlyGlobe::DegToRad<float>(thisShape->padfY[jj]));
+                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[jj]),WhirlyKit::DegToRad<float>(thisShape->padfY[jj]));
                 ring->push_back(pt);
             }
             areal->initGeoMbr();
@@ -150,7 +150,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
     // Note: Probably not complete
 	char attrTitle[12];
 	int attrWidth, numDecimals;
-	NSMutableDictionary *attrDict = [[[NSMutableDictionary alloc] init] autorelease];
+	NSMutableDictionary *attrDict = [[NSMutableDictionary alloc] init];
 	theShape->setAttrDict(attrDict);
 	DBFHandle dbfHandle = (DBFHandle)dbf;
 	int numDbfRecord = DBFGetRecordCount(dbfHandle);

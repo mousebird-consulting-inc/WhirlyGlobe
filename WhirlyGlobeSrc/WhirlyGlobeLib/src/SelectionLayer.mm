@@ -23,7 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 bool RectSelectable::operator < (const RectSelectable &that) const
 {
@@ -31,21 +31,21 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 
-@interface WhirlyGlobeSelectionLayer()
+@interface WhirlyKitSelectionLayer()
 
-@property (nonatomic,retain) WhirlyKitView *theView;
-@property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *renderer;
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
+@property (nonatomic) WhirlyKitView *theView;
+@property (nonatomic) WhirlyKitSceneRendererES1 *renderer;
+@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 
 @end
 
-@implementation WhirlyGlobeSelectionLayer
+@implementation WhirlyKitSelectionLayer
 
 @synthesize theView;
 @synthesize renderer;
 @synthesize layerThread;
 
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer
 {
     self = [super init];
     
@@ -61,22 +61,19 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 - (void)dealloc
 {
     self.layerThread = nil;
-    self.theView = nil;
-    self.renderer = nil;
     
     selectables.clear();
     
-    [super dealloc];
 }
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)scene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     self.layerThread = inLayerThread;
 }
 
 // Add a rectangle (in 3-space) available for selection
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(Point3f *)pts
+- (void)addSelectableRect:(SimpleIdentity)selectId rect:(Point3f *)pts
 {
     if (selectId == EmptyIdentity)
         return;
@@ -92,7 +89,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
+- (void)addSelectableRect:(SimpleIdentity)selectId rect:(Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
 {
     if (selectId == EmptyIdentity)
         return;
@@ -108,7 +105,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 // Remove the given selectable from consideration
-- (void)removeSelectable:(WhirlyGlobe::SimpleIdentity)selectID
+- (void)removeSelectable:(SimpleIdentity)selectID
 {
     RectSelectable dumbRect;
     dumbRect.selectID = selectID;

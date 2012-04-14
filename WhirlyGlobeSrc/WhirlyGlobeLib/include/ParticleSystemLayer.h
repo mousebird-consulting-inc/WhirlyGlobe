@@ -34,18 +34,18 @@
     We give it a geographic location and a normal (in 3-space).
     The rest of the info is in the dictionary.
  */
-@interface WhirlyGlobeParticleSystem : NSObject
+@interface WhirlyKitParticleSystem : NSObject
 {
-    WhirlyGlobe::GeoCoord loc;
+    WhirlyKit::GeoCoord loc;
     Vector3f norm;
 }
 
-@property (nonatomic,assign) WhirlyGlobe::GeoCoord loc;
+@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 @property (nonatomic,assign) Vector3f norm;
 
 @end
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 /// The scene representation used internally by the layer to track what belongs
@@ -98,31 +98,31 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
     <item>colors is an optional array of colors from which we'll randomly pick one per particle
     </list>
   */
-@interface WhirlyGlobeParticleSystemLayer : NSObject<WhirlyGlobeLayer> 
+@interface WhirlyKitParticleSystemLayer : NSObject<WhirlyKitLayer> 
 {
     /// The layer thread we live in
-    WhirlyGlobeLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     
     /// Scene we're making changes to
-    WhirlyGlobe::GlobeScene *scene;
+    WhirlyKit::Scene *scene;
 
     /// ID of the Particle Generator we're using to implement particles
-    WhirlyGlobe::SimpleIdentity generatorId;
+    WhirlyKit::SimpleIdentity generatorId;
 
     /// Used to track resources related to particle systems for deletion and modification
-    WhirlyGlobe::ParticleSysSceneRepSet sceneReps;
+    WhirlyKit::ParticleSysSceneRepSet sceneReps;
 }
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Add a single particle system to the layer
-- (WhirlyGlobe::SimpleIdentity) addParticleSystem:(WhirlyGlobeParticleSystem *)partSystem desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addParticleSystem:(WhirlyKitParticleSystem *)partSystem desc:(NSDictionary *)desc;
 
 /// Add a group of particle systems
-- (WhirlyGlobe::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc;
 
 /// Remove one or more particle systems
-- (void) removeParticleSystems:(WhirlyGlobe::SimpleIdentity)partSysId;
+- (void) removeParticleSystems:(WhirlyKit::SimpleIdentity)partSysId;
 
 @end

@@ -20,7 +20,7 @@
 
 #import "Identifiable.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 	
 static unsigned long curId = 0;

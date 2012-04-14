@@ -28,20 +28,20 @@
 @interface AnimateViewTranslation : NSObject<WhirlyMapAnimationDelegate>
 {
     NSDate *startDate,*endDate;
-    WhirlyGlobe::Point3f startLoc,endLoc;
+    WhirlyKit::Point3f startLoc,endLoc;
 }
 
 /// When to start the animation.  Can be in the past
-@property (nonatomic,retain) NSDate *startDate;
+@property (nonatomic) NSDate *startDate;
 /// When to finish the animation.
-@property (nonatomic,retain) NSDate *endDate;
+@property (nonatomic) NSDate *endDate;
 /// Where to start the translation.  This is probably where you are when you starting.
-@property (nonatomic,assign) WhirlyGlobe::Point3f startLoc;
+@property (nonatomic,assign) WhirlyKit::Point3f startLoc;
 /// Where to end the translation.  We'll interpolate from the start to here.
-@property (nonatomic,assign) WhirlyGlobe::Point3f endLoc;
+@property (nonatomic,assign) WhirlyKit::Point3f endLoc;
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(WhirlyMapView *)globeView translate:(WhirlyGlobe::Point3f &)newLoc howLong:(float)howLong;
+- (id)initWithView:(WhirlyMapView *)globeView translate:(WhirlyKit::Point3f &)newLoc howLong:(float)howLong;
 
 @end

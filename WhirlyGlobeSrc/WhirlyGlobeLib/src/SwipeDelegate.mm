@@ -35,8 +35,8 @@
 
 + (WhirlyGlobeSwipeDelegate *)swipeDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
-	WhirlyGlobeSwipeDelegate *swipeDelegate = [[[WhirlyGlobeSwipeDelegate alloc] initWithGlobeView:globeView] autorelease];
-	[view addGestureRecognizer:[[[UISwipeGestureRecognizer alloc] initWithTarget:swipeDelegate action:@selector(swipeGesture:)] autorelease]];
+	WhirlyGlobeSwipeDelegate *swipeDelegate = [[WhirlyGlobeSwipeDelegate alloc] initWithGlobeView:globeView];
+	[view addGestureRecognizer:[[UISwipeGestureRecognizer alloc] initWithTarget:swipeDelegate action:@selector(swipeGesture:)]];
 	return swipeDelegate;
 }
 

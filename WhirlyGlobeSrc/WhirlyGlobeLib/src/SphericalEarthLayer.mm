@@ -27,8 +27,8 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface WhirlyGlobeSphericalEarthLayer()
-@property (nonatomic,retain) WhirlyGlobeTextureGroup *texGroup;
-@property (nonatomic,retain) NSString *cacheName;
+@property (nonatomic) WhirlyKitTextureGroup *texGroup;
+@property (nonatomic) NSString *cacheName;
 @end
 
 @implementation WhirlyGlobeSphericalEarthLayer
@@ -37,12 +37,12 @@ using namespace WhirlyGlobe;
 @synthesize cacheName;
 @synthesize fade;
 
-- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)inTexGroup
+- (id)initWithTexGroup:(WhirlyKitTextureGroup *)inTexGroup
 {
     return [self initWithTexGroup:inTexGroup cacheName:nil];
 }
 
-- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)inTexGroup cacheName:(NSString *)inCacheName;
+- (id)initWithTexGroup:(WhirlyKitTextureGroup *)inTexGroup cacheName:(NSString *)inCacheName;
 {
 	if ((self = [super init]))
 	{
@@ -60,12 +60,10 @@ using namespace WhirlyGlobe;
 
 - (void)dealloc
 {
-	self.texGroup = nil;
     if (cacheWriter)
         delete cacheWriter;
     cacheWriter = NULL;
 	
-	[super dealloc];
 }
 
 - (void)saveToCacheName:(NSString *)inCacheName
@@ -75,9 +73,9 @@ using namespace WhirlyGlobe;
 }
 
 // Set up the next chunk to build and schedule it
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)inScene
 {
-	scene = inScene;
+	scene = (WhirlyGlobe::GlobeScene *)inScene;
 	chunkX = chunkY = 0;
 	[self performSelector:@selector(startProcess:) withObject:nil];
 }

@@ -26,10 +26,10 @@
 #import "GlobeView.h"
 
 /// @cond
-@class WhirlyGlobeRendererFrameInfo;
+@class WhirlyKitRendererFrameInfo;
 /// @endcond
 
-namespace WhirlyGlobe 
+namespace WhirlyKit
 {
     
 /** The Generator is a base class for objects that want to produce
@@ -44,7 +44,7 @@ public:
     
     /// Generate a list of drawables to draw.
     /// The renderer will delete these at the end of the frame.
-    virtual void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables) { };
+    virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables) { };
 };
 
 /** The Generator Change Request is the base class for communication
@@ -59,10 +59,10 @@ public:
     GeneratorChangeRequest() { }
 
     /// Run the generator request.  Don't override this one
-    void execute(GlobeScene *scene,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitView *view);
 
     /// Override this method to do whatever you want to do to the generator
-    virtual void execute2(GlobeScene *scene,Generator *drawGen) = 0;
+    virtual void execute2(Scene *scene,Generator *drawGen) = 0;
     
 protected:
     /// Generator that we're going to modify

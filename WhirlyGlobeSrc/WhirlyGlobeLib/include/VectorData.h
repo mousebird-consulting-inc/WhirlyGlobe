@@ -27,7 +27,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 	
 /// The base class for vector shapes.  All shapes
@@ -47,7 +47,7 @@ protected:
 	VectorShape();
 	virtual ~VectorShape();
 
-	NSMutableDictionary *attrDict;
+	__strong NSMutableDictionary *attrDict;
 };
 
 class VectorAreal;

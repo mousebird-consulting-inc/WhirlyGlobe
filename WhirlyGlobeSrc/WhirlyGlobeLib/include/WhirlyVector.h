@@ -25,7 +25,7 @@
 #import <Eigen/Eigen>
 #import <vector>
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 typedef Eigen::Vector3f Point3f;

@@ -38,14 +38,14 @@
 @interface WhirlyMapView : WhirlyKitView
 {
     /// Viewer location
-    WhirlyGlobe::Point3f loc;
+    WhirlyKit::Point3f loc;
     
     /// Used to update position based on time (or whatever)
-    NSObject<WhirlyMapAnimationDelegate> *delegate;
+    NSObject<WhirlyMapAnimationDelegate> * __strong delegate;
 }
 
-@property(nonatomic,assign) WhirlyGlobe::Point3f loc;
-@property(nonatomic,retain) NSObject<WhirlyMapAnimationDelegate> *delegate;
+@property(nonatomic,assign) WhirlyKit::Point3f loc;
+@property(nonatomic,strong) NSObject<WhirlyMapAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
 - (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)coordSys;
@@ -69,11 +69,11 @@
     the plane.  Returns true if we hit and where.
     Returns false if we didn't, which can only happened if we're turned away.
  */
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize hit:(WhirlyGlobe::Point3f *)hit;
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
 
 /** From a world location in 3D, figure the projection to the screen.
     Returns a point within the frame.
   */
-- (CGPoint)pointOnScreenFromPlane:(const WhirlyGlobe::Point2f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point2f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 @end

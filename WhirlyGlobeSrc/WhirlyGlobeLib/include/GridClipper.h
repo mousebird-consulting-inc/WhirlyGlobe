@@ -22,12 +22,12 @@
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Clip Loop to Grid will clip the given areal loop to a grid specified by the origin and spacing
     and return the results as individual loops.  This is used by the loft layer.
   */
-bool ClipLoopToGrid(const WhirlyGlobe::VectorRing &ring,Point2f org,Point2f spacing,std::vector<WhirlyGlobe::VectorRing> &rets);
+bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vector<VectorRing> &rets);
 
 }

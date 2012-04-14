@@ -30,7 +30,7 @@
 #import "LayerThread.h"
 #import "DrawCost.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /*  This is the representation of a group of vectors
@@ -79,48 +79,48 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
     <item>fade        [NSNumber float]
     </list>
   */
-@interface WhirlyGlobeVectorLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyKitVectorLayer : NSObject<WhirlyKitLayer>
 {
 @private
-    WhirlyGlobe::GlobeScene *scene;
-    WhirlyGlobeLayerThread *layerThread;
+    WhirlyKit::Scene *scene;
+    WhirlyKitLayerThread * __weak layerThread;
     
     // Visual representations of vectors
-    WhirlyGlobe::VectorSceneRepMap vectorReps;    
+    WhirlyKit::VectorSceneRepMap vectorReps;    
 }
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Create geometry from the given vector.
 /// The dictionary controls how the vector will appear.
 /// We refer to that vector by the returned ID.
 /// Call the other version if you have more than one.
-- (WhirlyGlobe::SimpleIdentity)addVector:(WhirlyGlobe::VectorShapeRef)shape desc:(NSDictionary *)dict;
+- (WhirlyKit::SimpleIdentity)addVector:(WhirlyKit::VectorShapeRef)shape desc:(NSDictionary *)dict;
 
 /// Create geometry for the given group of vectors
 /// The dictionary controls how the vectors will appear
 ///  and you can refer to the vectors in later calls
 ///  with the returned ID.
-- (WhirlyGlobe::SimpleIdentity)addVectors:(WhirlyGlobe::ShapeSet *)shapes desc:(NSDictionary *)dict;
+- (WhirlyKit::SimpleIdentity)addVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict;
 
 /// This version will cache the drawables in to the given cache file
-- (WhirlyGlobe::SimpleIdentity)addVectors:(WhirlyGlobe::ShapeSet *)shapes desc:(NSDictionary *)dict cacheName:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity)addVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict cacheName:(NSString *)cacheName;
 
 /// Read vectors from the given cache.
 /// Returns EmptyIdentity on failure
-- (WhirlyGlobe::SimpleIdentity)addVectorsFromCache:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity)addVectorsFromCache:(NSString *)cacheName;
 
 /// This lets you change how a set of vectors is represented visually.
 /// You specify a dictionary to change particular attributues
 /// Only enable, color, and visibility range are supported
-- (void)changeVector:(WhirlyGlobe::SimpleIdentity)vecID desc:(NSDictionary *)dict;
+- (void)changeVector:(WhirlyKit::SimpleIdentity)vecID desc:(NSDictionary *)dict;
 
 /// Removes a group of vectors from the display
-- (void)removeVector:(WhirlyGlobe::SimpleIdentity)vecID;
+- (void)removeVector:(WhirlyKit::SimpleIdentity)vecID;
 
 /// Returns a cost estimate for the given vectors referred to by
 ///  ID.  This must be called in the layer thread
-- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)vecID;
+- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)vecID;
 
 @end

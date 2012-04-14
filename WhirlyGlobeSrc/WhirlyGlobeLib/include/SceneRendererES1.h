@@ -22,27 +22,26 @@
 
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
-
-#import "GlobeView.h"
-#import "GlobeScene.h"
+#import "WhirlyKitView.h"
+#import "Scene.h"
 
 /// @cond
-@class WhirlyGlobeSceneRendererES1;
+@class WhirlyKitSceneRendererES1;
 /// @endcond
 
 /** Renderer Frame Info
     Data about the current frame, passed around by the renderer.
  */
-@interface WhirlyGlobeRendererFrameInfo : NSObject
+@interface WhirlyKitRendererFrameInfo : NSObject
 {
     /// Renderer itself
-    WhirlyGlobeSceneRendererES1 *sceneRenderer;
+    WhirlyKitSceneRendererES1 * __weak sceneRenderer;
     
     /// View
-    WhirlyKitView *theView;
+    WhirlyKitView * __weak theView;
     
     /// Scene itself.  Don't mess with this
-    WhirlyGlobe::GlobeScene *scene;
+    WhirlyKit::Scene *scene;
     
     /// Vector pointing up from the globe describing where the view point is
     Vector3f eyeVec;
@@ -54,9 +53,9 @@
     NSTimeInterval currentTime;
 }
 
-@property (nonatomic,assign) WhirlyGlobeSceneRendererES1 *sceneRenderer;
-@property (nonatomic,assign) WhirlyKitView *theView;
-@property (nonatomic,assign) WhirlyGlobe::GlobeScene *scene;
+@property (nonatomic,weak) WhirlyKitSceneRendererES1 *sceneRenderer;
+@property (nonatomic,weak) WhirlyKitView *theView;
+@property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Vector3f eyeVec;
@@ -67,18 +66,18 @@
     These are all optional, but if set will be called
      at various points within the rendering process.
  */
-@protocol WhirlyGlobeSceneRendererDelegate
+@protocol WhirlyKitSceneRendererDelegate
 
 @optional
 /// This overrides the setup view, including lights and modes
 /// Be sure to do *all* the setup if you do this
-- (void)lightingSetup:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
+- (void)lightingSetup:(WhirlyKitSceneRendererES1 *)sceneRenderer;
 
 /// Called right before a frame is rendered
-- (void)preFrame:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
+- (void)preFrame:(WhirlyKitSceneRendererES1 *)sceneRenderer;
 
 /// Called right after a frame is rendered
-- (void)postFrame:(WhirlyGlobeSceneRendererES1 *)sceneRenderer;
+- (void)postFrame:(WhirlyKitSceneRendererES1 *)sceneRenderer;
 @end
 
 /// Number of frames to use for counting frames/sec
@@ -89,15 +88,15 @@ static const unsigned int RenderFrameCount = 25;
     somewhat composable, but in reality not all that much.
     Just set this up as in the examples and let it run.
  */
-@interface WhirlyGlobeSceneRendererES1 : NSObject <WhirlyGlobeESRenderer>
+@interface WhirlyKitSceneRendererES1 : NSObject <WhirlyKitESRenderer>
 {
     /// Rendering context
 	EAGLContext *context;
 
     /// Scene we're drawing.  This is assigned from outside
-	WhirlyGlobe::GlobeScene *scene;
+	WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
-	WhirlyKitView *theView;
+	WhirlyKitView * __weak theView;
 
     /// The pixel width of the CAEAGLLayer.
     GLint framebufferWidth;
@@ -120,21 +119,21 @@ static const unsigned int RenderFrameCount = 25;
 	unsigned int numDrawables;
     
     /// Delegate called at specific points in the rendering process
-    id<WhirlyGlobeSceneRendererDelegate> delegate;
+    NSObject<WhirlyKitSceneRendererDelegate> * __weak delegate;
 
     /// This is the color used to clear the screen.  Defaults to black
-    WhirlyGlobe::RGBAColor clearColor;
+    WhirlyKit::RGBAColor clearColor;
 }
 
-@property (nonatomic,assign) WhirlyGlobe::GlobeScene *scene;
-@property (nonatomic,assign) WhirlyKitView *theView;
+@property (nonatomic,assign) WhirlyKit::Scene *scene;
+@property (nonatomic,weak) WhirlyKitView *theView;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
 
 @property (nonatomic,readonly) float framesPerSec;
 @property (nonatomic,readonly) unsigned int numDrawables;
 
-@property (nonatomic,assign) id<WhirlyGlobeSceneRendererDelegate> delegate;
+@property (nonatomic,weak) NSObject<WhirlyKitSceneRendererDelegate> *delegate;
 
 /// Attempt to render the frame in the time given.
 /// Ignoring the time at the moment.

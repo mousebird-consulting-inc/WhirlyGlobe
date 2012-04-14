@@ -25,7 +25,7 @@
 // Borrowed from the GLES2 Example
 
 /// Base protocol for a renderer
-@protocol WhirlyGlobeESRenderer <NSObject>
+@protocol WhirlyKitESRenderer <NSObject>
 
 /// Render to the screen, ideally within the given duration
 - (void)render:(CFTimeInterval)duration;

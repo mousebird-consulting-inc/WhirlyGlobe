@@ -22,7 +22,7 @@
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 // Set up the texture mapping matrix from the destination texture coords
 void SubTexture::setFromTex(const TexCoord &texOrg,const TexCoord &texDest)
@@ -62,7 +62,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 @property(nonatomic,assign) unsigned int gridCellsX,gridCellsY;
 @property(nonatomic,assign) unsigned int gridCellX,gridCellY;
-@property(nonatomic,retain) UIImage *image;
+@property(nonatomic) UIImage *image;
 @end
 
 @implementation ImageInstance
@@ -71,11 +71,6 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 @synthesize gridCellX,gridCellY;
 @synthesize image;
 
-- (void)dealloc
-{
-    self.image = nil;
-    [super dealloc];
-}
 
 @end
 
@@ -86,9 +81,10 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 @synthesize texId;
 
-- (id)inithWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY cellSizeX:(unsigned int)inCellSizeX cellSizeY:(unsigned int)inCellSizeY
+- (id)initWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY cellSizeX:(unsigned int)inCellSizeX cellSizeY:(unsigned int)inCellSizeY
 {
-    if ((self = [super init]))
+    self = [super init];
+    if (self)
     {
         texId = Identifiable::genId();
         texSizeX = inTexSizeX;
@@ -109,11 +105,9 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 - (void)dealloc
 {
     delete [] layoutGrid;
-    [images release];
-    [super dealloc];
 }
 
-- (BOOL)addImage:(UIImage *)image texOrg:(WhirlyGlobe::TexCoord &)org texDest:(WhirlyGlobe::TexCoord &)dest
+- (BOOL)addImage:(UIImage *)image texOrg:(TexCoord &)org texDest:(TexCoord &)dest
 {
     // Number of grid cells we'll need
     unsigned int gridCellsX = std::ceil(image.size.width / cellSizeX);
@@ -148,7 +142,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         for (int gridY=0;gridY<gridCellsY;gridY++)
             layoutGrid[(gridY+foundY)*gridSizeX+(gridX+foundX)] = false;
     
-    ImageInstance *imageInst = [[[ImageInstance alloc] init] autorelease];
+    ImageInstance *imageInst = [[ImageInstance alloc] init];
     imageInst.image = image;
     imageInst.gridCellsX = gridCellsX;
     imageInst.gridCellsY = gridCellsY;
@@ -166,7 +160,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return true;
 }
 
-- (BOOL)getImageLayout:(UIImage *)image texOrg:(WhirlyGlobe::TexCoord &)org texDest:(WhirlyGlobe::TexCoord &)dest
+- (BOOL)getImageLayout:(UIImage *)image texOrg:(TexCoord &)org texDest:(TexCoord &)dest
 {
     for (ImageInstance *imageInst in images)
     {
@@ -182,7 +176,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return false;
 }
 
-- (WhirlyGlobe::Texture *)createTexture:(UIImage **)retImage
+- (Texture *)createTexture:(UIImage **)retImage
 {
     UIGraphicsBeginImageContext(CGSizeMake(texSizeX,texSizeY));
     
@@ -203,7 +197,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         *retImage = resultImage;
     UIGraphicsEndImageContext();
     
-    Texture *texture = new WhirlyGlobe::Texture(resultImage);
+    Texture *texture = new Texture(resultImage);
     texture->setId(texId);
     texture->setUsesMipmaps(true);
     return texture;
@@ -214,7 +208,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 
 @interface TextureAtlasBuilder()
-@property (nonatomic,retain) NSMutableArray *atlases;
+@property (nonatomic) NSMutableArray *atlases;
 @end
 
 @implementation TextureAtlasBuilder
@@ -235,12 +229,6 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return self;
 }
 
-- (void)dealloc
-{
-    self.atlases = nil;
-    
-    [super dealloc];
-}
 
 - (SimpleIdentity) addImage:(UIImage *)image
 {
@@ -269,7 +257,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     if (!found)
     {
         // Didn't find one, so make one
-        TextureAtlas *atlas = [[[TextureAtlas alloc] inithWithTexSizeX:texSizeX texSizeY:texSizeY cellSizeX:cellSizeX cellSizeY:cellSizeY] autorelease];
+        TextureAtlas *atlas = [[TextureAtlas alloc] initWithTexSizeX:texSizeX texSizeY:texSizeY cellSizeX:cellSizeX cellSizeY:cellSizeY];
         [atlas addImage:image texOrg:org texDest:dest];
         [atlases addObject:atlas];
         found = atlas;
@@ -283,7 +271,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return subTex.getId();
 }
 
-- (void)processIntoScene:(WhirlyGlobe::GlobeScene *)scene texIDs:(std::set<WhirlyGlobe::SimpleIdentity> *)texIDs
+- (void)processIntoScene:(Scene *)scene texIDs:(std::set<SimpleIdentity> *)texIDs
 {
     // Create the textures, add them to the scene
     for (TextureAtlas *atlas in atlases)

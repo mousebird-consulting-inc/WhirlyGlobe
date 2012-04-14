@@ -61,3 +61,4 @@
 #import "PanDelegateMap.h"
 #import "AnimateTranslation.h"
 #import "MapTapDelegate.h"
+

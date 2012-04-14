@@ -34,9 +34,9 @@
 }
 
 /// When to start the animation.  Can be in the past
-@property (nonatomic,retain) NSDate *startDate;
+@property (nonatomic) NSDate *startDate;
 /// When to finish the animation.
-@property (nonatomic,retain) NSDate *endDate;
+@property (nonatomic) NSDate *endDate;
 /// Where to start rotating.  This is probably where you are when you start
 @property (nonatomic,assign) Eigen::Quaternion<float> startRot;
 /// Where to end the rotation.  We'll interpolate from the start to here

@@ -20,7 +20,7 @@
 
 #import "UIColor+Stuff.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @implementation UIColor(Stuff)
 

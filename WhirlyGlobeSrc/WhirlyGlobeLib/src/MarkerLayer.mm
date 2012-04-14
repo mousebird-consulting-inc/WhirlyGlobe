@@ -25,9 +25,8 @@
 #import "MarkerGenerator.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 MarkerSceneRep::MarkerSceneRep()
@@ -37,7 +36,7 @@ MarkerSceneRep::MarkerSceneRep()
 
 }
 
-@implementation WhirlyGlobeMarker
+@implementation WhirlyKitMarker
 
 @synthesize isSelectable;
 @synthesize selectID;
@@ -60,12 +59,8 @@ MarkerSceneRep::MarkerSceneRep()
     return self;
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
 
-- (void)addTexID:(WhirlyGlobe::SimpleIdentity)texID
+- (void)addTexID:(SimpleIdentity)texID
 {
     texIDs.push_back(texID);
 }
@@ -106,8 +101,8 @@ protected:
 };
 #endif
 
-@interface WhirlyGlobeMarkerLayer()
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
+@interface WhirlyKitMarkerLayer()
+@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 @end
 
 // Used to pass marker information between threads
@@ -123,8 +118,8 @@ protected:
     SimpleIdentity  markerId;
 }
 
-@property (nonatomic,retain) NSArray *markers;
-@property (nonatomic,retain) UIColor *color;
+@property (nonatomic) NSArray *markers;
+@property (nonatomic) UIColor *color;
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) float width,height;
@@ -165,13 +160,6 @@ protected:
     return self;
 }
 
-- (void)dealloc
-{
-    self.markers = nil;
-    self.color = nil;
-    
-    [super dealloc];
-}
 
 - (void)parseDesc:(NSDictionary *)desc
 {
@@ -188,7 +176,7 @@ protected:
 @end
 
 
-@implementation WhirlyGlobeMarkerLayer
+@implementation WhirlyKitMarkerLayer
 
 @synthesize layerThread;
 @synthesize selectLayer;
@@ -200,11 +188,10 @@ protected:
         delete *it;
     markerReps.clear();
     
-    [super dealloc];
 }
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     self.layerThread = inLayerThread;
     scene = inScene;    
@@ -231,7 +218,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     DrawableMap drawables;
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
-    for (WhirlyGlobeMarker *marker in markerInfo.markers)
+    for (WhirlyKitMarker *marker in markerInfo.markers)
     {
         // Build the rectangle for this one
         Point3f pts[4];
@@ -266,7 +253,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         if (marker.texIDs.size() <= 1)
         {        
             // Look for a texture sub mapping
-            SimpleIdentity texID = (marker.texIDs.empty() ? EmptyIdentity : marker.texIDs[0]);
+            SimpleIdentity texID = (marker.texIDs.empty() ? EmptyIdentity : marker.texIDs.at(0));
             SubTexture subTex = scene->getSubTexture(texID);
             
             // We're sorting the static drawables by texture, so look for that
@@ -341,7 +328,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
             for (unsigned int ii=0;ii<marker.texIDs.size();ii++)
             {
-                SubTexture subTex = scene->getSubTexture(marker.texIDs[ii]);
+                SubTexture subTex = scene->getSubTexture(marker.texIDs.at(ii));
                 std::vector<TexCoord> theseTexCoord = texCoord;
                 subTex.processTexCoords(theseTexCoord);
                 newMarker->texCoords.push_back(theseTexCoord);
@@ -531,9 +518,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
 
 // Add a single marker 
-- (WhirlyGlobe::SimpleIdentity) addMarker:(WhirlyGlobeMarker *)marker desc:(NSDictionary *)desc
+- (SimpleIdentity) addMarker:(WhirlyKitMarker *)marker desc:(NSDictionary *)desc
 {
-    MarkerInfo *markerInfo = [[[MarkerInfo alloc] initWithMarkers:[NSArray arrayWithObject:marker] desc:desc] autorelease];
+    MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:[NSArray arrayWithObject:marker] desc:desc];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddMarkers:markerInfo];
@@ -544,9 +531,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 }
 
 // Add a group of markers
-- (WhirlyGlobe::SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+- (SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
 {
-    MarkerInfo *markerInfo = [[[MarkerInfo alloc] initWithMarkers:markers desc:desc] autorelease];
+    MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:markers desc:desc];
 
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddMarkers:markerInfo];
@@ -557,7 +544,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 }
 
 // Remove a group of markers
-- (void) removeMarkers:(WhirlyGlobe::SimpleIdentity)markerID
+- (void) removeMarkers:(SimpleIdentity)markerID
 {
     NSNumber *num = [NSNumber numberWithUnsignedInt:markerID];
     if (!layerThread | ([NSThread currentThread] == layerThread))

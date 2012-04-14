@@ -20,7 +20,7 @@
 
 #import <set>
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Simple Identities are just numbers we use to refer to objects within the

@@ -22,12 +22,12 @@
 #import "InteractionLayer.h"
 
 @interface OptionsViewController()
-@property (nonatomic,retain) UISegmentedControl *countryControl;
-@property (nonatomic,retain) UISegmentedControl *markersControl;
-@property (nonatomic,retain) UISwitch *particlesSwitch;
-@property (nonatomic,retain) UISegmentedControl *loftedControl;    
-@property (nonatomic,retain) UISwitch *statsSwitch;
-@property (nonatomic,retain) NSMutableDictionary *values;
+@property (nonatomic) UISegmentedControl *countryControl;
+@property (nonatomic) UISegmentedControl *markersControl;
+@property (nonatomic) UISwitch *particlesSwitch;
+@property (nonatomic) UISegmentedControl *loftedControl;    
+@property (nonatomic) UISwitch *statsSwitch;
+@property (nonatomic) NSMutableDictionary *values;
 @end
 
 @implementation OptionsViewController
@@ -42,7 +42,7 @@
 
 + (OptionsViewController *)loadFromNib
 {
-    OptionsViewController *viewC = [[[OptionsViewController alloc] initWithNibName:@"OptionsView" bundle:nil] autorelease];
+    OptionsViewController *viewC = [[OptionsViewController alloc] initWithNibName:@"OptionsView" bundle:nil];
     
     return viewC;
 }
@@ -55,7 +55,7 @@ NSMutableDictionary *valueDict = nil;
     // Only one shared value dictionary
     if (!valueDict)
     {
-        valueDict = [[NSMutableDictionary dictionary] retain];
+        valueDict = [NSMutableDictionary dictionary];
         // Start with all the features off
         [valueDict setObject:[NSNumber numberWithInt:0] forKey:kWGCountryControl];
         [valueDict setObject:[NSNumber numberWithInt:0] forKey:kWGMarkerControl];
@@ -90,9 +90,7 @@ NSMutableDictionary *valueDict = nil;
 - (void)dealloc
 {
     [self clear];
-    self.values = nil;
     
-    [super dealloc];
 }
 
 - (void)didReceiveMemoryWarning

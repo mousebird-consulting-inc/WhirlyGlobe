@@ -21,11 +21,11 @@
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface WhirlyGlobeEAGLView  ()
-@property (nonatomic,retain) CADisplayLink *displayLink;
+@interface WhirlyKitEAGLView  ()
+@property (nonatomic) CADisplayLink *displayLink;
 @end
 
-@implementation WhirlyGlobeEAGLView 
+@implementation WhirlyKitEAGLView 
 
 @synthesize renderer;
 @synthesize displayLink;
@@ -58,13 +58,6 @@
     return self;
 }
 
-- (void)dealloc
-{    
-	self.renderer = nil;
-	self.displayLink = nil;
-	
-    [super dealloc];
-}
 
 - (NSInteger)frameInterval
 {

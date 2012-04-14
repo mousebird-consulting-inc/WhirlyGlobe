@@ -25,7 +25,7 @@
 #import "Drawable.h"
 #import "Generator.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 /** The Particle Generator handles creation and update for particle systems.
@@ -42,7 +42,7 @@ public:
     virtual ~ParticleGenerator();
     
     /// Generate the list of drawables per frame.  Called by the renderer.
-    void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
+    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
 
     /// This class represents a single particle.
     class Particle
@@ -118,7 +118,7 @@ public:
     ParticleGeneratorAddSystemRequest(SimpleIdentity generatorID,ParticleGenerator::ParticleSystem *partSystem);
     ~ParticleGeneratorAddSystemRequest();
 
-    virtual void execute2(GlobeScene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,Generator *gen);
     
 protected:
     ParticleGenerator::ParticleSystem *system;
@@ -131,7 +131,7 @@ public:
     ParticleGeneratorRemSystemRequest(SimpleIdentity generatorID,SimpleIdentity systemId);
     ~ParticleGeneratorRemSystemRequest() { }
     
-    virtual void execute2(GlobeScene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,Generator *gen);
     
 protected:
     SimpleIdentity systemId;

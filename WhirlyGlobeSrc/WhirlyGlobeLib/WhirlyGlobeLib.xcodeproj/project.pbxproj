@@ -47,7 +47,7 @@
 		2B3A0D54133405780085EF43 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F08613009AC3001F33CD /* Texture.h */; };
 		2B3A0D55133405780085EF43 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAA912F8E0850049D73C /* Drawable.h */; };
 		2B3A0D56133405780085EF43 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAAB12F8E0920049D73C /* Cullable.h */; };
-		2B3A0D57133405780085EF43 /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDC12DE23BA00778431 /* GlobeScene.h */; };
+		2B3A0D57133405780085EF43 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDC12DE23BA00778431 /* Scene.h */; };
 		2B3A0D58133405780085EF43 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B389AA112E112D9006FC3A1 /* GlobeView.h */; };
 		2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDE12DE23BA00778431 /* TextureGroup.h */; };
 		2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9BF12F8A3860049D73C /* LayerThread.h */; };
@@ -73,6 +73,8 @@
 		2B58C695144543DB00EEF3C3 /* Generator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C694144543DB00EEF3C3 /* Generator.h */; };
 		2B58C6B91445FDAB00EEF3C3 /* ParticleGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */; };
 		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
+		2B5E6365151C072F0007904C /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5E6364151C072F0007904C /* GlobeScene.h */; };
+		2B5E63D9152283B20007904C /* Scene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5E63D8152283B20007904C /* Scene.mm */; };
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
 		2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B65F90B137DBEE4004326A9 /* sqlhelpers.h */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
@@ -179,6 +181,8 @@
 		2B58C694144543DB00EEF3C3 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
 		2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleGenerator.h; sourceTree = "<group>"; };
 		2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleGenerator.mm; sourceTree = "<group>"; };
+		2B5E6364151C072F0007904C /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
+		2B5E63D8152283B20007904C /* Scene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Scene.mm; sourceTree = "<group>"; };
 		2B65F8F9137DA864004326A9 /* VectorDatabase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorDatabase.mm; sourceTree = "<group>"; };
 		2B65F90B137DBEE4004326A9 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
 		2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
@@ -207,7 +211,7 @@
 		2BB1F08813009B17001F33CD /* Texture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture.mm; sourceTree = "<group>"; };
 		2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = WhirlyGlobe.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BC53FDB12DE23BA00778431 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = EAGLView.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BC53FDC12DE23BA00778431 /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
+		2BC53FDC12DE23BA00778431 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
 		2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthLayer.h; sourceTree = "<group>"; };
 		2BC53FDE12DE23BA00778431 /* TextureGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGroup.h; sourceTree = "<group>"; };
 		2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIImage+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -406,6 +410,14 @@
 			name = interaction;
 			sourceTree = "<group>";
 		};
+		2B5E6363151C059F0007904C /* scene */ = {
+			isa = PBXGroup;
+			children = (
+				2B5E6364151C072F0007904C /* GlobeScene.h */,
+			);
+			name = scene;
+			sourceTree = "<group>";
+		};
 		2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -499,7 +511,7 @@
 				2BCABAA912F8E0850049D73C /* Drawable.h */,
 				2B58C694144543DB00EEF3C3 /* Generator.h */,
 				2BCABAAB12F8E0920049D73C /* Cullable.h */,
-				2BC53FDC12DE23BA00778431 /* GlobeScene.h */,
+				2BC53FDC12DE23BA00778431 /* Scene.h */,
 				2BC53FDE12DE23BA00778431 /* TextureGroup.h */,
 				2B66298013417DF700A78F16 /* TextureAtlas.h */,
 				2BFC34D513CBF9F500403799 /* DrawCost.h */,
@@ -534,6 +546,7 @@
 				2BCABA9912F8DEF40049D73C /* Drawable.mm */,
 				2B58C6921445439700EEF3C3 /* Generator.mm */,
 				2BCABA9C12F8DEFF0049D73C /* Cullable.mm */,
+				2B5E63D8152283B20007904C /* Scene.mm */,
 				2BC53FEA12DE23D400778431 /* GlobeScene.mm */,
 				2B389AA212E112D9006FC3A1 /* GlobeView.mm */,
 				2B194426138B0CD000E8FA42 /* AnimateRotation.mm */,
@@ -578,6 +591,7 @@
 				2BCF39E114BB8EC2006B0FC0 /* geometry utils */,
 				2BE6EE5212E4F3BE00415490 /* interaction */,
 				2BCF39DE14BB814F006B0FC0 /* view */,
+				2B5E6363151C059F0007904C /* scene */,
 				2BCF39E214BB8EF9006B0FC0 /* rendering */,
 				2BCF39E314BB8F16006B0FC0 /* layers */,
 			);
@@ -758,7 +772,7 @@
 				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
 				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
 				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
-				2B3A0D57133405780085EF43 /* GlobeScene.h in Headers */,
+				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
 				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
 				2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */,
 				2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */,
@@ -796,6 +810,7 @@
 				2B03701414C9FA9000A51AC4 /* AnimateTranslateMomentum.h in Headers */,
 				2B03701514C9FA9000A51AC4 /* AnimateTranslation.h in Headers */,
 				2B03702214CA02A900A51AC4 /* MapTapDelegate.h in Headers */,
+				2B5E6365151C072F0007904C /* GlobeScene.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -825,7 +840,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -910,6 +925,7 @@
 				2B03701914C9FDDE00A51AC4 /* AnimateTranslateMomentum.mm in Sources */,
 				2B03701A14C9FDDE00A51AC4 /* AnimateTranslation.mm in Sources */,
 				2B03702014CA01C600A51AC4 /* MapTapDelegate.mm in Sources */,
+				2B5E63D9152283B20007904C /* Scene.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -933,7 +949,7 @@
 					"../../../utilities/eigen-eigen-3.0.1",
 					../../../utilities/clipper_ver4.3.0/,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -956,7 +972,7 @@
 					"../../../utilities/eigen-eigen-3.0.1",
 					../../../utilities/clipper_ver4.3.0/,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -967,6 +983,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/WhirlyGlobeLib.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -975,7 +992,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -985,13 +1002,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/WhirlyGlobeLib.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

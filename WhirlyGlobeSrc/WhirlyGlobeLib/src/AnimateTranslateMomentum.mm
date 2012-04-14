@@ -21,10 +21,10 @@
 #import "AnimateTranslateMomentum.h"
 
 using namespace Eigen;
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @interface AnimateTranslateMomentum()
-@property (nonatomic,retain) NSDate *startDate;
+@property (nonatomic) NSDate *startDate;
 @end
 
 @implementation AnimateTranslateMomentum
@@ -58,12 +58,6 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    self.startDate = nil;
-    
-    [super dealloc];
-}
 
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyMapView *)mapView

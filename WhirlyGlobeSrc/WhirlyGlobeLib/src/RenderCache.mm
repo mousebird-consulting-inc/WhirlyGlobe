@@ -22,7 +22,7 @@
 
 #import "RenderCache.h"
 
-namespace WhirlyGlobe 
+namespace WhirlyKit 
 {
 
 // Version of the render cache supported
@@ -193,7 +193,7 @@ bool RenderCacheReader::getDrawablesAndTextures(std::vector<Texture *> &textures
 }
     
 // This version calls back so you can use them as we go
-bool RenderCacheReader::getDrawablesAndTexturesAddToScene(GlobeScene *scene,SimpleIDSet &texIDs,SimpleIDSet &drawIDs,float fade)
+bool RenderCacheReader::getDrawablesAndTexturesAddToScene(Scene *scene,SimpleIDSet &texIDs,SimpleIDSet &drawIDs,float fade)
 {
     if (!fp)
         return false;

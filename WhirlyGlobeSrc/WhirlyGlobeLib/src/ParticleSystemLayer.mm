@@ -12,11 +12,10 @@
 #import "UIColor+Stuff.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 #pragma mark - Particle System
 
-@implementation WhirlyGlobeParticleSystem
+@implementation WhirlyKitParticleSystem
 
 @synthesize loc;
 @synthesize norm;
@@ -35,8 +34,8 @@ using namespace WhirlyGlobe;
 }
 
 @property (nonatomic,assign) SimpleIdentity destId;
-@property (nonatomic,retain) NSArray *systems;
-@property (nonatomic,retain) NSDictionary *desc;
+@property (nonatomic) NSArray *systems;
+@property (nonatomic) NSDictionary *desc;
 
 - (id)initWithSystems:(NSArray *)inSystems desc:(NSDictionary *)inDesc;
 
@@ -60,30 +59,23 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    self.systems = nil;
-    self.desc = nil;
-    
-    [super dealloc];
-}
 
 @end
 
 
 #pragma mark - Particle System Layer
 
-@interface WhirlyGlobeParticleSystemLayer()
+@interface WhirlyKitParticleSystemLayer()
 
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
+@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 
 @end
 
-@implementation WhirlyGlobeParticleSystemLayer
+@implementation WhirlyKitParticleSystemLayer
 
 @synthesize layerThread;
 
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     self.layerThread = inLayerThread;
     scene = inScene;
@@ -137,7 +129,7 @@ using namespace WhirlyGlobe;
     ParticleGenerator::ParticleSystem baseParams = [self parseParams:systemInfo.desc defaultSystem:&defaultSystem];
 
     // Now run through the particle systems and kick them off
-    for (WhirlyGlobeParticleSystem *partSys in systemInfo.systems)
+    for (WhirlyKitParticleSystem *partSys in systemInfo.systems)
     {
         // Set up the specifics of this one
         ParticleGenerator::ParticleSystem *newPartSys = new ParticleGenerator::ParticleSystem(baseParams);
@@ -176,9 +168,9 @@ using namespace WhirlyGlobe;
 }
 
 // Add a single particle system
-- (SimpleIdentity) addParticleSystem:(WhirlyGlobeParticleSystem *)partSystem desc:(NSDictionary *)desc
+- (SimpleIdentity) addParticleSystem:(WhirlyKitParticleSystem *)partSystem desc:(NSDictionary *)desc
 {
-    ParticleSystemInfo *systemInfo = [[[ParticleSystemInfo alloc] initWithSystems:[NSArray arrayWithObject:partSystem] desc:desc] autorelease];
+    ParticleSystemInfo *systemInfo = [[ParticleSystemInfo alloc] initWithSystems:[NSArray arrayWithObject:partSystem] desc:desc];
     systemInfo.destId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -190,9 +182,9 @@ using namespace WhirlyGlobe;
 }
 
 /// Add a group of particle systems
-- (WhirlyGlobe::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc
+- (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc
 {
-    ParticleSystemInfo *systemInfo = [[[ParticleSystemInfo alloc] initWithSystems:partSystems desc:desc] autorelease];
+    ParticleSystemInfo *systemInfo = [[ParticleSystemInfo alloc] initWithSystems:partSystems desc:desc];
     systemInfo.destId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -204,7 +196,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Remove one or more particle systems
-- (void) removeParticleSystems:(WhirlyGlobe::SimpleIdentity)partSysId
+- (void) removeParticleSystems:(WhirlyKit::SimpleIdentity)partSysId
 {
     NSNumber *num = [NSNumber numberWithInt:partSysId];
     

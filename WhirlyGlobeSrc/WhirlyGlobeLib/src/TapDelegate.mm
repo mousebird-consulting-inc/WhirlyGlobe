@@ -23,7 +23,7 @@
 #import "SceneRendererES1.h"
 #import "GlobeMath.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @implementation WhirlyGlobeTapDelegate
 
@@ -39,8 +39,8 @@ using namespace WhirlyGlobe;
 
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
-	WhirlyGlobeTapDelegate *tapDelegate = [[[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView] autorelease];
-	[view addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)] autorelease]];
+	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
+	[view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
 	return tapDelegate;
 }
 
@@ -54,9 +54,9 @@ using namespace WhirlyGlobe;
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
-	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)tap.view;
-	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyGlobe::GlobeScene *scene = sceneRender.scene;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
@@ -65,7 +65,7 @@ using namespace WhirlyGlobe;
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
 	if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
 	{
-		WhirlyGlobeTapMessage *msg = [[[WhirlyGlobeTapMessage alloc] init] autorelease];
+		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
 		[msg setWorldLoc:hit];

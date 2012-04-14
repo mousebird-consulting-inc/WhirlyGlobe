@@ -24,6 +24,6 @@
 @interface UIColor(Stuff)
 
 /// Convert a UIColor to the RBGA color we use internally
-- (WhirlyGlobe::RGBAColor) asRGBAColor;
+- (WhirlyKit::RGBAColor) asRGBAColor;
 
 @end

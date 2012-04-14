@@ -22,7 +22,7 @@
 
 using namespace Eigen;
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 GeoCoord GeoCoord::CoordFromDegrees(float lon,float lat)

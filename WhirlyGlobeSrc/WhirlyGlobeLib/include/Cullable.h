@@ -21,7 +21,7 @@
 #import "Drawable.h"
 #import "CoordSystem.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {	
 
 /** This is a representation of cullable geometry.  It has
@@ -59,6 +59,8 @@ public:
 	Vector3f cornerNorms[4];
 	/// Geographic coordinates of our bounding box
 	GeoMbr geoMbr;
+    /// Local coordinates for bounding box, if applicable
+    Mbr localMbr;
 	
 	std::set<Drawable *> drawables;
 };

@@ -21,7 +21,7 @@
 #import "VectorData.h"
 #import "ShapeReader.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 // Calculate area of a single loop
@@ -74,15 +74,11 @@ VectorShape::VectorShape()
    
 VectorShape::~VectorShape()
 {
-    if (attrDict) 
-        [attrDict release];
 }
     
 void VectorShape::setAttrDict(NSMutableDictionary *newDict)
 { 
-    [attrDict release];  
     attrDict = newDict;  
-    [attrDict retain]; 
 }
     
 NSMutableDictionary *VectorShape::getAttrDict()    

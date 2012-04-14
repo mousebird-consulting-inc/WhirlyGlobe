@@ -25,11 +25,11 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface InteractionLayer()
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) WhirlyGlobeView *globeView;
-@property (nonatomic,retain) NSDictionary *options;
-@property (nonatomic,retain) NSObject *autoSpinner;
-@property (nonatomic,retain) NSDate *lastTouched;
+@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
+@property (nonatomic) WhirlyGlobeView *globeView;
+@property (nonatomic) NSDictionary *options;
+@property (nonatomic) NSObject *autoSpinner;
+@property (nonatomic) NSDate *lastTouched;
 
 - (void)displayCountries:(int)how;
 - (void)displayMarkers:(int)how;
@@ -72,14 +72,12 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     self.layerThread = nil;
-    self.globeView = nil;
     self.vectorLayer = nil;
     self.labelLayer = nil;
     self.particleSystemLayer = nil;
     self.markerLayer = nil;
     self.loftLayer = nil;
     self.selectionLayer = nil;
-    self.options = nil;
     
     if (countryDb)
         delete countryDb;
@@ -88,14 +86,11 @@ using namespace WhirlyGlobe;
         delete cityDb;
     cityDb = NULL;
     
-    self.autoSpinner = nil;
-    self.lastTouched = nil;
     
-    [super dealloc];
 }
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
     self.layerThread = inThread;
     scene = inScene;
@@ -136,7 +131,7 @@ using namespace WhirlyGlobe;
             
             // Keep going in that direction forever
             Vector3f upVector(0,0,1);
-            self.globeView.delegate = [[[AnimateViewMomentum alloc] initWithView:self.globeView velocity:anglePerSec accel:0.0 axis:upVector] autorelease];
+            self.globeView.delegate = [[AnimateViewMomentum alloc] initWithView:self.globeView velocity:anglePerSec accel:0.0 axis:upVector];
             self.autoSpinner = self.globeView.delegate;
         }
     }
@@ -345,7 +340,7 @@ using namespace WhirlyGlobe;
                     shapes.insert(shape);
                     
                     // And build a label.  We'll add these as a group below
-                    WhirlyGlobeSingleLabel *label = [[[WhirlyGlobeSingleLabel alloc] init] autorelease];
+                    WhirlyKitSingleLabel *label = [[WhirlyKitSingleLabel alloc] init];
                     label.isSelectable = YES;
                     label.selectID = Identifiable::genId();
                     label.text = name;
@@ -403,7 +398,7 @@ const int NumMarkers=250;
         if (how > 1)
         {
             // Set up a texture atlas builder and toss in images
-            TextureAtlasBuilder *atlasBuilder = [[[TextureAtlasBuilder alloc] initWithTexSizeX:1024 texSizeY:1024] autorelease];
+            TextureAtlasBuilder *atlasBuilder = [[TextureAtlasBuilder alloc] initWithTexSizeX:1024 texSizeY:1024];
 
             // We'll use numbers for the animations
             for (unsigned int ii=0;ii<10;ii++)
@@ -433,7 +428,7 @@ const int NumMarkers=250;
             VectorPointsRef pt = boost::dynamic_pointer_cast<VectorPoints>(shape);
         
             // Set up the marker
-            WhirlyGlobeMarker *marker = [[[WhirlyGlobeMarker alloc] init] autorelease];
+            WhirlyKitMarker *marker = [[WhirlyKitMarker alloc] init];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [marker setLoc:coord];
             
@@ -500,7 +495,7 @@ const int NumParticleSystems = 150;
             VectorShapeRef shape = cityDb->getVector(ii,true);
             VectorPointsRef pt = boost::dynamic_pointer_cast<VectorPoints>(shape);
 
-            WhirlyGlobeParticleSystem *particleSystem = [[[WhirlyGlobeParticleSystem alloc] init] autorelease];
+            WhirlyKitParticleSystem *particleSystem = [[WhirlyKitParticleSystem alloc] init];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [particleSystem setLoc:coord];
             [particleSystem setNorm:coordSys->pointFromGeo(coord)];   

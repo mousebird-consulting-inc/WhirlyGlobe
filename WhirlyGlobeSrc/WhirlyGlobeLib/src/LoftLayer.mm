@@ -42,8 +42,8 @@ using namespace WhirlyGlobe;
     int         priority;
 }
 
-@property (nonatomic,retain) UIColor *color;
-@property (nonatomic,retain) NSString *key;
+@property (nonatomic) UIColor *color;
+@property (nonatomic) NSString *key;
 @property (nonatomic,assign) float fade;
 
 - (void)parseDesc:(NSDictionary *)desc key:(NSString *)key;
@@ -79,13 +79,6 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    self.color = nil;
-    self.key = nil;
-    
-    [super dealloc];
-}
 
 - (void)parseDesc:(NSDictionary *)dict key:(NSString *)inKey
 {
@@ -428,7 +421,7 @@ protected:
 
 @interface WhirlyGlobeLoftLayer()
 
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
+@property (nonatomic) WhirlyKitLayerThread *layerThread;
 
 @end
 
@@ -451,15 +444,13 @@ protected:
 
 - (void)dealloc
 {
-    self.layerThread = nil;
     for (LoftedPolySceneRepMap::iterator it = polyReps.begin();
          it != polyReps.end(); ++it)
         delete it->second;
     polyReps.clear();
-    [super dealloc];
 }
 
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
 	scene = inScene;
     self.layerThread = inLayerThread;
@@ -607,7 +598,7 @@ protected:
 // Add a lofted poly
 - (SimpleIdentity)addLoftedPolys:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
-    LoftedPolyInfo *polyInfo = [[[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:cacheName] autorelease];
+    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:cacheName];
     polyInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -618,7 +609,7 @@ protected:
     return polyInfo->sceneRepId;
 }
 
-- (WhirlyGlobe::SimpleIdentity) addLoftedPoly:(WhirlyGlobe::VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (SimpleIdentity) addLoftedPoly:(VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
     ShapeSet shapes;
     shapes.insert(shape);
@@ -627,9 +618,9 @@ protected:
 }
 
 // Change how the lofted poly is represented
-- (void)changeLoftedPoly:(WhirlyGlobe::SimpleIdentity)polyID desc:(NSDictionary *)desc
+- (void)changeLoftedPoly:(SimpleIdentity)polyID desc:(NSDictionary *)desc
 {
-    LoftedPolyInfo *polyInfo = [[[LoftedPolyInfo alloc] initWithSceneRepId:polyID desc:desc] autorelease];
+    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithSceneRepId:polyID desc:desc];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runChangePoly:polyInfo];
@@ -638,7 +629,7 @@ protected:
 }
 
 // Remove the lofted poly
-- (void)removeLoftedPoly:(WhirlyGlobe::SimpleIdentity)polyID
+- (void)removeLoftedPoly:(SimpleIdentity)polyID
 {
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemovePoly:[NSNumber numberWithInt:polyID]];

@@ -51,7 +51,7 @@
 }
 
 @property (nonatomic,assign) Eigen::Quaternion<float> rotQuat;
-@property (nonatomic,retain) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+@property (nonatomic,strong) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 
 /// Return min/max valid heights above globe
 - (float)minHeightAboveGlobe;
@@ -73,17 +73,17 @@
     Returns true if we hit and where
     Returns false if not and the closest point on the sphere
  */
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize hit:(WhirlyGlobe::Point3f *)hit;
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
 
 /** From a world location (3D), figure out the projection to the screen
     Returns a point within the frame
   */
-- (CGPoint)pointOnScreenFromSphere:(const WhirlyGlobe::Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /** Construct a rotation to the given location
     and return it.  Doesn't actually do anything yet.
  */
-- (Eigen::Quaternionf) makeRotationToGeoCoord:(const WhirlyGlobe::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
+- (Eigen::Quaternionf) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
 
 /// Cancel any outstanding animation
 - (void)cancelAnimation;

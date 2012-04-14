@@ -27,7 +27,7 @@
 #import "LayerThread.h"
 #import "SceneRendererES1.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Rectangle Selectable.
@@ -49,7 +49,7 @@ public:
     float minVis,maxVis;  // Range over which this is visible
 };
 
-typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
+typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
  
 }
 
@@ -62,34 +62,34 @@ typedef std::set<WhirlyGlobe::RectSelectable> RectSelectableSet;
     All objects are currently being projected to the 2D screen and
     evaluated for distance there.
  */
-@interface WhirlyGlobeSelectionLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyKitSelectionLayer : NSObject<WhirlyKitLayer>
 {
     /// The view controls how the globe/map is displayed
     WhirlyKitView *theView;
     /// The renderer has screen size information
-    WhirlyGlobeSceneRendererES1 *renderer;
+    WhirlyKitSceneRendererES1 *renderer;
     /// Layer thread we're associated with
-    WhirlyGlobeLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     /// The selectable objects themselves
-    WhirlyGlobe::RectSelectableSet selectables;
+    WhirlyKit::RectSelectableSet selectables;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyGlobeSceneRendererES1 *)inRenderer;
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Add a rectangle (in 3-space) always available for selection
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(WhirlyGlobe::Point3f *)pts;
+- (void)addSelectableRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts;
 
 /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
-- (void)addSelectableRect:(WhirlyGlobe::SimpleIdentity)selectId rect:(WhirlyGlobe::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
+- (void)addSelectableRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
 /// Remove the given selectable from consideration
-- (void)removeSelectable:(WhirlyGlobe::SimpleIdentity)selectId;
+- (void)removeSelectable:(WhirlyKit::SimpleIdentity)selectId;
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-- (WhirlyGlobe::SimpleIdentity)pickObject:(WhirlyGlobe::Point2f)touchPt maxDist:(float)maxDist;
+- (WhirlyKit::SimpleIdentity)pickObject:(WhirlyKit::Point2f)touchPt maxDist:(float)maxDist;
 
 @end

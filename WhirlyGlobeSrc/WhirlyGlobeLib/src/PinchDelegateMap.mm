@@ -35,8 +35,8 @@
 
 + (WhirlyMapPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
 {
-    WhirlyMapPinchDelegate *pinchDelegate = [[[WhirlyMapPinchDelegate alloc] initWithMapView:mapView] autorelease];
-    UIPinchGestureRecognizer *pinchRecog = [[[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)] autorelease];
+    WhirlyMapPinchDelegate *pinchDelegate = [[WhirlyMapPinchDelegate alloc] initWithMapView:mapView];
+    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
     pinchRecog.delegate = pinchDelegate;
 	[view addGestureRecognizer:pinchRecog];
 	return pinchDelegate;

@@ -21,13 +21,13 @@
 #import "GridLines.h"
 #import "GlobeMath.h"
 
-@interface WhirlyGlobeGridLayer()
+@interface WhirlyKitGridLayer()
 @end
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@implementation WhirlyGlobeGridLayer
+@implementation WhirlyKitGridLayer
 
 - (id)initWithX:(unsigned int)inNumX Y:(unsigned int)inNumY
 {
@@ -40,7 +40,7 @@ using namespace WhirlyGlobe;
 	return self;
 }
 
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(Scene *)inScene
 {
 	chunkX = 0;  chunkY = 0;
 	scene = inScene;

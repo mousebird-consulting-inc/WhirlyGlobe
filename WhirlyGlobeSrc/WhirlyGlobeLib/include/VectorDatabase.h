@@ -24,7 +24,7 @@
 #import "VectorData.h"
 #import "sqlite3.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 typedef std::set<unsigned int> UIntSet;

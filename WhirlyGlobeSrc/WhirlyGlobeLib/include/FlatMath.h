@@ -32,10 +32,10 @@ class FlatCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
     /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
-    WhirlyGlobe::Point3f pointFromGeo(WhirlyGlobe::GeoCoord geo);
+    WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
     
     /// From a 3D point on a plane at z = 0.0, convert to geographic
-    WhirlyGlobe::GeoCoord geoFromPoint(WhirlyGlobe::Point3f pt);     
+    WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt);     
     
     /// Working in a flat space
     bool isFlat() { return true; }
@@ -53,10 +53,10 @@ public:
     MercatorCoordSystem(float originLon=0.0);
     
     /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
-    WhirlyGlobe::Point3f pointFromGeo(WhirlyGlobe::GeoCoord geo);
+    WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
     
     /// From a 3D point on a plane at z = 0.0, convert to geographic
-    WhirlyGlobe::GeoCoord geoFromPoint(WhirlyGlobe::Point3f pt);     
+    WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt);     
 
     bool isFlat() { return true; }
     

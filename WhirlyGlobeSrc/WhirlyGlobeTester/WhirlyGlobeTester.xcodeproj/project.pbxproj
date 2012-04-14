@@ -684,6 +684,7 @@
 		2B2C1DE51458B73D00B5D61D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../WhirlyGlobeLib\"",
@@ -695,7 +696,7 @@
 					../../../utilities/boost_1_45_0,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeTester/WhirlyGlobeTester-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -708,6 +709,7 @@
 		2B2C1DE61458B73D00B5D61D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../WhirlyGlobeLib\"",
@@ -719,7 +721,7 @@
 					../../../utilities/boost_1_45_0,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeTester/WhirlyGlobeTester-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",

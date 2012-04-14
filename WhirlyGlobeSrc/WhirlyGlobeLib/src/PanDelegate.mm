@@ -22,7 +22,7 @@
 #import "SceneRendererES1.h"
 #import "PanDelegate.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @implementation WhirlyGlobePanDelegate
 
@@ -38,8 +38,8 @@ using namespace WhirlyGlobe;
 
 + (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
-	WhirlyGlobePanDelegate *panDelegate = [[[WhirlyGlobePanDelegate alloc] initWithGlobeView:globeView] autorelease];
-	[view addGestureRecognizer:[[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)] autorelease]];
+	WhirlyGlobePanDelegate *panDelegate = [[WhirlyGlobePanDelegate alloc] initWithGlobeView:globeView];
+	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
 	return panDelegate;
 }
 
@@ -53,8 +53,8 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)pan.view;
-	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
 	
 	if (pan.numberOfTouches > 1)
 	{

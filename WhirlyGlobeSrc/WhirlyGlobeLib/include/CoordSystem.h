@@ -21,7 +21,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
     /// Degree to radians conversion
@@ -47,10 +47,10 @@ public:
     
     /// Implement this to convert from lat/lon (radians) to the location in
     ///  3D.
-    virtual WhirlyGlobe::Point3f pointFromGeo(WhirlyGlobe::GeoCoord geo) = 0;
+    virtual WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo) = 0;
   
     /// Implement this to convert from a 3D point to a lat/lon value in radians
-    virtual WhirlyGlobe::GeoCoord geoFromPoint(WhirlyGlobe::Point3f pt) = 0;
+    virtual WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt) = 0;
     
     /// Return true if this is a relatively flat coordinate system.
     /// False for a globe.

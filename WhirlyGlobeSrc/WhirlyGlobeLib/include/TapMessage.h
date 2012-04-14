@@ -32,6 +32,7 @@
 /** Tap Message is an
 	indication that the user tapped on the globe.
 	It's passed as the object in a notification.
+    Note: Split this up a bit for globe vs. map
  */
 @interface WhirlyGlobeTapMessage : NSObject
 {
@@ -41,17 +42,17 @@
     CGPoint touchLoc;  
 
     /// Lon/Lat
-	WhirlyGlobe::GeoCoord whereGeo; 
+	WhirlyKit::GeoCoord whereGeo; 
     /// 3D coordinates in the view
-	WhirlyGlobe::Point3f worldLoc;
+	WhirlyKit::Point3f worldLoc;
     /// Where the eye was.  0 is sea level.
     float heightAboveSurface;   
 }
 
-@property (nonatomic,retain) UIView *view;
+@property (nonatomic) UIView *view;
 @property (nonatomic,assign) CGPoint touchLoc;
-@property (nonatomic,assign) WhirlyGlobe::GeoCoord whereGeo;
-@property (nonatomic,assign) WhirlyGlobe::Point3f worldLoc;
+@property (nonatomic,assign) WhirlyKit::GeoCoord whereGeo;
+@property (nonatomic,assign) WhirlyKit::Point3f worldLoc;
 @property (nonatomic,assign) float heightAboveSurface;
 
 @end

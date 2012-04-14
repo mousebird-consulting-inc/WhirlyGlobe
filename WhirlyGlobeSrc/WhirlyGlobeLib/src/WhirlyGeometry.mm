@@ -22,7 +22,7 @@
 
 using namespace Eigen;
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)

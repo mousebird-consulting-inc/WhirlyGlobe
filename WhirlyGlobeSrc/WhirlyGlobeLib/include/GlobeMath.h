@@ -27,10 +27,10 @@ namespace WhirlyGlobe
 class GlobeCoordSystem : public WhirlyKit::CoordSystem
 {
     /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
-    Point3f pointFromGeo(GeoCoord geo);
+    WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
 	
     /// From a 3D point on a sphere of radius 1.0, generate the corresponding geo coordinate
-    GeoCoord geoFromPoint(Point3f pt);
+    WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt);
     
     /// Not flat
     bool isFlat() { return false; }

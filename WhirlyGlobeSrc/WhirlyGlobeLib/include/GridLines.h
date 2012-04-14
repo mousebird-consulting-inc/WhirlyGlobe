@@ -22,7 +22,7 @@
 #import "DataLayer.h"
 #import "GlobeScene.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 static const float GlobeLineOffset = 0.01;
 static const float GridCellSize = 3*(float)M_PI/180.0;
@@ -31,17 +31,17 @@ static const float GridCellSize = 3*(float)M_PI/180.0;
 /** Grid Layer will create some overlaid grid lines on the
     globe.
  */
-@interface WhirlyGlobeGridLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyKitGridLayer : NSObject<WhirlyKitLayer>
 {
 	unsigned int numX,numY;
 	unsigned int chunkX,chunkY;
-	WhirlyGlobe::GlobeScene *scene;
+	WhirlyKit::Scene *scene;
 }
 
 /// Initialize with the number of chunks of lines we want
 - (id)initWithX:(unsigned int)numX Y:(unsigned int)numY;
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 @end

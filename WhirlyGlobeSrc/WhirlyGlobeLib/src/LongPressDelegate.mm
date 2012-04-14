@@ -23,6 +23,7 @@
 #import "SceneRendererES1.h"
 #import "GlobeMath.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeLongPressDelegate
@@ -39,10 +40,9 @@ using namespace WhirlyGlobe;
 
 + (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
-    WhirlyGlobeLongPressDelegate *pressDelegate = [[[WhirlyGlobeLongPressDelegate alloc] initWithGlobeView:globeView] autorelease];
-    [view addGestureRecognizer:[[[UILongPressGestureRecognizer alloc]
-                                 initWithTarget:pressDelegate action:@selector(pressAction:)]
-                                autorelease]];
+    WhirlyGlobeLongPressDelegate *pressDelegate = [[WhirlyGlobeLongPressDelegate alloc] initWithGlobeView:globeView];
+    [view addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
+                                 initWithTarget:pressDelegate action:@selector(pressAction:)]];
     return pressDelegate;
 }
 
@@ -56,9 +56,9 @@ using namespace WhirlyGlobe;
 - (void)pressAction:(id)sender
 {
 	UILongPressGestureRecognizer *press = sender;
-	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)press.view;
-	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyGlobe::GlobeScene *scene = sceneRender.scene;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
     {
@@ -66,11 +66,11 @@ using namespace WhirlyGlobe;
         // If we hit, then we'll generate a message
         Point3f hit;
         Eigen::Affine3f theTransform = [globeView calcModelMatrix];
-        CGPoint touchLoc = [press locationOfTouch:0 inView:glView];
+        CGPoint touchLoc = [press locationOfTouch:0 inView:press.view];
         if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
         {
-            WhirlyGlobeTapMessage *msg = [[[WhirlyGlobeTapMessage alloc] init] autorelease];
-            msg.view = glView;
+            WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
+            msg.view = press.view;
             msg.touchLoc = touchLoc;
             [msg setWorldLoc:hit];
             [msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];

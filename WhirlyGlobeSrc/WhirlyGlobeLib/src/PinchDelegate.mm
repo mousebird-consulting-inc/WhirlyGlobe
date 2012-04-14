@@ -35,8 +35,8 @@
 
 + (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
-	WhirlyGlobePinchDelegate *pinchDelegate = [[[WhirlyGlobePinchDelegate alloc] initWithGlobeView:globeView] autorelease];
-    UIPinchGestureRecognizer *pinchRecog = [[[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)] autorelease];
+	WhirlyGlobePinchDelegate *pinchDelegate = [[WhirlyGlobePinchDelegate alloc] initWithGlobeView:globeView];
+    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
     pinchRecog.delegate = pinchDelegate;
 	[view addGestureRecognizer:pinchRecog];
 	return pinchDelegate;

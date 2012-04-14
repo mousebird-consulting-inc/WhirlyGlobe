@@ -9,7 +9,7 @@
 #import <list>
 #import "Tesselator.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)

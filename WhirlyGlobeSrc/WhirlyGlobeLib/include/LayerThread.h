@@ -28,10 +28,10 @@
     with the user, if there is significant calculation or lookup involved.
     It starts its own thread, obviously, and does all the work there.
  */
-@interface WhirlyGlobeLayerThread : NSThread
+@interface WhirlyKitLayerThread : NSThread
 {
 	/// Scene we're messing with
-	WhirlyGlobe::GlobeScene *scene;
+	WhirlyKit::Scene *scene;
 	
 	/// The various data layers we'll display
 	NSMutableArray<NSObject> *layers;
@@ -40,13 +40,13 @@
 	NSRunLoop *runLoop;
 }
 
-@property (nonatomic,retain) NSRunLoop *runLoop;
+@property (nonatomic) NSRunLoop *runLoop;
 
 /// Set it up with a renderer (for context) and a scene
-- (id)initWithScene:(WhirlyGlobe::GlobeScene *)scene;
+- (id)initWithScene:(WhirlyKit::Scene *)scene;
 
 /// Add these before you kick off the thread
-- (void)addLayer:(NSObject<WhirlyGlobeLayer> *)layer;
+- (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;
 
 // We're overriding the main entry point
 - (void)main;

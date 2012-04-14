@@ -134,7 +134,7 @@ NSString *StatementRead::getString()
 	if (str == nil)
 		return nil;
 	else
-		return [[[NSString stringWithFormat:@"%s",str] retain] autorelease];
+		return [NSString stringWithFormat:@"%s",str];
 }
 	
 // Return a bool from the current row

@@ -38,12 +38,6 @@
     return self;
 }
 
-- (void)dealloc
-{
-	self.startDate = nil;
-	self.endDate = nil;
-	[super dealloc];
-}
 
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyGlobeView *)globeView

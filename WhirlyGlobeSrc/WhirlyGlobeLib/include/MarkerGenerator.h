@@ -25,7 +25,7 @@
 #import "Drawable.h"
 #import "Generator.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 /** The Marker Generator produces geometry for individual markers on the
@@ -38,7 +38,7 @@ public:
     virtual ~MarkerGenerator();
 
     /// Generate the drawables for the given frame
-    void generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
+    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
@@ -50,7 +50,7 @@ public:
     {
     public:
         /// Called by the marker generator build the geometry
-        void addToDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
+        void addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         
         RGBAColor color;
         GeoCoord loc;
@@ -97,7 +97,7 @@ public:
     MarkerGeneratorAddRequest(SimpleIdentity genID,const std::vector<MarkerGenerator::Marker *> &markers);
     ~MarkerGeneratorAddRequest();
     
-    virtual void execute2(GlobeScene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,Generator *gen);
     
 protected:
     std::vector<MarkerGenerator::Marker *> markers;
@@ -115,7 +115,7 @@ public:
     MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs);
     ~MarkerGeneratorRemRequest();
     
-    virtual void execute2(GlobeScene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,Generator *gen);
     
 protected:
     std::vector<SimpleIdentity> markerIDs;
@@ -130,7 +130,7 @@ public:
     MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    virtual void execute2(GlobeScene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,Generator *gen);
 
 protected:
     NSTimeInterval fadeUp,fadeDown;

@@ -22,7 +22,7 @@
 #import "Texture.h"
 #import "UIImage+Stuff.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 	
 Texture::Texture()
@@ -34,7 +34,6 @@ Texture::Texture()
 Texture::Texture(NSData *texData,bool isPVRTC) 
 	: glId(0), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false)
 { 
-	[texData retain]; 
 }
 
 // Set up the texture from a filename
@@ -62,11 +61,11 @@ Texture::Texture(NSString *baseName,NSString *ext)
 		UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.%@",baseName,ext]];
 		if (!image)
         {
-            image = [[[UIImage alloc] initWithContentsOfFile:[NSString stringWithFormat:@"%@.%@",baseName,ext]] autorelease];
+            image = [[UIImage alloc] initWithContentsOfFile:[NSString stringWithFormat:@"%@.%@",baseName,ext]];
             if (!image)
                 return;
         }
-		texData = [[image rawDataRetWidth:&width height:&height] retain];
+		texData = [image rawDataRetWidth:&width height:&height];
 	}
 }
 
@@ -74,13 +73,11 @@ Texture::Texture(NSString *baseName,NSString *ext)
 Texture::Texture(UIImage *inImage)
     : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false)
 {
-	texData = [[inImage rawDataRetWidth:&width height:&height] retain];
+	texData = [inImage rawDataRetWidth:&width height:&height];
 }
 
 Texture::~Texture()
 {
-	if (texData)
-		[texData release];
 	texData = nil;
 }
 
@@ -134,10 +131,7 @@ bool Texture::createInGL(bool releaseData)
         glGenerateMipmap(GL_TEXTURE_2D);
 	
 	if (releaseData)
-	{
-		[texData release];
 		texData = nil;
-	}
 	
 	return true;
 }

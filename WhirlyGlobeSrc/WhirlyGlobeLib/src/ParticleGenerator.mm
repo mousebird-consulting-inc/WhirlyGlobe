@@ -21,7 +21,7 @@
 #import "ParticleGenerator.h"
 #import "SceneRendererES1.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 // Construct a particle system with the default values
@@ -105,7 +105,7 @@ void ParticleGenerator::removeParticleSystem(SimpleIdentity theId)
 }
     
 // Generate the drawables for this frame
-void ParticleGenerator::generateDrawables(WhirlyGlobeRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables)
+void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables)
 {
     CFTimeInterval currentTime = CFAbsoluteTimeGetCurrent();
 
@@ -201,7 +201,7 @@ ParticleGeneratorAddSystemRequest::~ParticleGeneratorAddSystemRequest()
         delete system;
 }
     
-void ParticleGeneratorAddSystemRequest::execute2(GlobeScene *scene,Generator *gen)
+void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->addParticleSystem(system);
@@ -214,7 +214,7 @@ ParticleGeneratorRemSystemRequest::ParticleGeneratorRemSystemRequest(SimpleIdent
     genId = generatorID;
 }
     
-void ParticleGeneratorRemSystemRequest::execute2(GlobeScene *scene,Generator *gen)
+void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->removeParticleSystem(systemId);

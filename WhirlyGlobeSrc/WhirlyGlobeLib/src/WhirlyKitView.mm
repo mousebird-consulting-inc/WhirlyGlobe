@@ -22,7 +22,7 @@
 #import "WhirlyKitView.h"
 #import "WhirlyGeometry.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation WhirlyKitView
@@ -45,11 +45,6 @@ using namespace Eigen;
     return self;
 }
 
-- (void)dealloc
-{
-    self.lastChangedTime = nil;
-    [super dealloc];
-}
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
 {

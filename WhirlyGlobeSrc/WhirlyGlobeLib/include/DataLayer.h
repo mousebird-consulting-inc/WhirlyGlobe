@@ -23,7 +23,7 @@
 #import "GlobeScene.h"
 
 /// @cond
-@class WhirlyGlobeLayerThread;
+@class WhirlyKitLayerThread;
 /// @endcond
 
 /** A WhirlyGlobe Layer is just an objective C object that
@@ -36,11 +36,11 @@
     Layers do not have to be particularly fast.  At least not
     as fast as they'd have to be in the main run loop.
  */
-@protocol WhirlyGlobeLayer
+@protocol WhirlyKitLayer
 
 /// This is called after the layer thread kicks off
 /// Open your files and such here and then insert yourself in the run loop
 ///  for further processing
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 @end

@@ -22,10 +22,10 @@
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /** Tesselate the given ring, returning a list of triangles.
     This is a fairly simple tesselator. */
-void TesselateRing(const WhirlyGlobe::VectorRing &ring,std::vector<WhirlyGlobe::VectorRing> &rets);
+void TesselateRing(const WhirlyKit::VectorRing &ring,std::vector<WhirlyKit::VectorRing> &rets);
 }

@@ -24,7 +24,6 @@
 #import "WhirlyMapView.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @implementation WhirlyMapTapDelegate
 
@@ -41,8 +40,8 @@ using namespace WhirlyGlobe;
 
 + (WhirlyMapTapDelegate *)tapDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
 {
-	WhirlyMapTapDelegate *tapDelegate = [[[WhirlyMapTapDelegate alloc] initWithMapView:mapView] autorelease];
-	[view addGestureRecognizer:[[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)] autorelease]];
+	WhirlyMapTapDelegate *tapDelegate = [[WhirlyMapTapDelegate alloc] initWithMapView:mapView];
+	[view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
 	return tapDelegate;
 }
 
@@ -56,19 +55,19 @@ using namespace WhirlyGlobe;
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
-	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)tap.view;
-	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyGlobe::GlobeScene *scene = sceneRender.scene;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+    WhirlyKit::Scene *scene = sceneRender.scene;
     
     // Just figure out where we tapped
 	Point3f hit;
     Eigen::Affine3f theTransform = [mapView calcModelMatrix];
-    CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];    
+    CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
     {
-		WhirlyGlobeTapMessage *msg = [[[WhirlyGlobeTapMessage alloc] init] autorelease];
+		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
-        [msg setView:glView];
+        [msg setView:tap.view];
 		[msg setWorldLoc:hit];
 		[msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];
         msg.heightAboveSurface = hit.z();

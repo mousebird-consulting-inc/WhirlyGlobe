@@ -22,9 +22,8 @@
 #import "UIColor+Stuff.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-@implementation WhirlyGlobeRendererFrameInfo
+@implementation WhirlyKitRendererFrameInfo
 
 @synthesize sceneRenderer;
 @synthesize theView;
@@ -47,15 +46,15 @@ struct drawListSortStruct
         return !a->hasAlpha(frameInfo);
     }
     
-    WhirlyGlobeRendererFrameInfo *frameInfo;
+    WhirlyKitRendererFrameInfo *frameInfo;
 };
 
-@interface WhirlyGlobeSceneRendererES1()
+@interface WhirlyKitSceneRendererES1()
 - (void)setupView;
-@property (nonatomic,retain) NSDate *frameCountStart;
+@property (nonatomic) NSDate *frameCountStart;
 @end
 
-@implementation WhirlyGlobeSceneRendererES1
+@implementation WhirlyKitSceneRendererES1
 
 @synthesize scene,theView;
 @synthesize framebufferWidth,framebufferHeight;
@@ -64,7 +63,7 @@ struct drawListSortStruct
 @synthesize numDrawables;
 @synthesize delegate;
 
-- (id <WhirlyGlobeESRenderer>) init
+- (id <WhirlyKitESRenderer>) init
 {
 	if ((self = [super init]))
 	{
@@ -78,7 +77,6 @@ struct drawListSortStruct
         
         if (!context || ![EAGLContext setCurrentContext:context])
 		{
-            [self release];
             return nil;
         }
 
@@ -101,7 +99,6 @@ struct drawListSortStruct
 
 - (void) dealloc
 {
-	self.frameCountStart = nil;
 	[EAGLContext setCurrentContext:context];
 	
 	if (defaultFramebuffer)
@@ -122,10 +119,8 @@ struct drawListSortStruct
 		depthRenderbuffer = 0;
 	}
 	
-	[context release];
 	context = nil;
 	
-	[super dealloc];
 }
 
 - (void)useContext
@@ -244,7 +239,7 @@ struct drawListSortStruct
 	{
 		numDrawables = 0;
         
-        WhirlyGlobeRendererFrameInfo *frameInfo = [[[WhirlyGlobeRendererFrameInfo alloc] init] autorelease];
+        WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         frameInfo.sceneRenderer = self;
         frameInfo.theView = theView;
         frameInfo.scene = scene;
@@ -266,7 +261,7 @@ struct drawListSortStruct
 		// Snag the projection matrix so we can use it later
 		Eigen::Matrix4f projMat;
 		glGetFloatv(GL_PROJECTION_MATRIX,projMat.data());
-		WhirlyGlobe::Mbr viewMbr(Point2f(-1,-1),Point2f(1,1));
+		Mbr viewMbr(Point2f(-1,-1),Point2f(1,1));
 		
 		Vector4f test1(frustLL.x(),frustLL.y(),near,1.0);
 		Vector4f test2(frustUR.x(),frustUR.y(),near,1.0);
@@ -277,15 +272,15 @@ struct drawListSortStruct
 		
 		// Look through the cullables to assemble the set of drawables
 		// We may encounter the same drawable multiple times, hence the std::set
-		std::set<const WhirlyGlobe::Drawable *> toDraw;
+		std::set<const Drawable *> toDraw;
 		unsigned int numX,numY;
 		scene->getCullableSize(numX,numY);
-		const WhirlyGlobe::Cullable *cullables = scene->getCullables();
+		const Cullable *cullables = scene->getCullables();
 		for (unsigned int ci=0;ci<numX*numY;ci++)
 		{
 			// Check the four corners of the cullable to see if they're pointed away
             // But just for the globe case
-			const WhirlyGlobe::Cullable *theCullable = &cullables[ci];
+			const Cullable *theCullable = &cullables[ci];
 			bool inView = false;
             if (coordSys->isFlat())
             {
@@ -306,7 +301,7 @@ struct drawListSortStruct
 			// This lets us catch things around the edges
 			if (inView)
 			{
-				WhirlyGlobe::Mbr cullMbr;
+				Mbr cullMbr;
 				
 				for (unsigned int ii=0;ii<4;ii++)
 				{
@@ -325,22 +320,22 @@ struct drawListSortStruct
 			
 			if (inView)
 			{
-				const std::set<WhirlyGlobe::Drawable *> &theseDrawables = theCullable->getDrawables();
+				const std::set<Drawable *> &theseDrawables = theCullable->getDrawables();
 				toDraw.insert(theseDrawables.begin(),theseDrawables.end());
 			}
 		}
 
         // Turn these drawables in to a vector
-		std::vector<const WhirlyGlobe::Drawable *> drawList;
+		std::vector<const Drawable *> drawList;
 		drawList.reserve(toDraw.size());
-		for (std::set<const WhirlyGlobe::Drawable *>::iterator it = toDraw.begin();
+		for (std::set<const Drawable *>::iterator it = toDraw.begin();
 			 it != toDraw.end(); ++it)
 			drawList.push_back(*it);
         
         // Now ask our generators to make their drawables
         // Note: Not doing any culling here
         //       And we should reuse these Drawables
-        std::vector<WhirlyGlobe::Drawable *> generatedDrawables;
+        std::vector<Drawable *> generatedDrawables;
         const GeneratorSet *generators = scene->getGenerators();
         for (GeneratorSet::iterator it = generators->begin();
              it != generators->end(); ++it)
@@ -355,7 +350,7 @@ struct drawListSortStruct
         bool depthMaskOn = true;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
-			const WhirlyGlobe::Drawable *drawable = drawList[ii];
+			const Drawable *drawable = drawList[ii];
 			if (drawable->isOn(frameInfo))
 			{
                 // The first time we hit an explicitly alpha drawable

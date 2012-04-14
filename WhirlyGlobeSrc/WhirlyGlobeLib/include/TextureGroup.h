@@ -29,7 +29,7 @@
     and get around the 1k x 1k (or 2k x 2k) limit in OpenGL.
 	File name: base_XxY.ext
  */
-@interface WhirlyGlobeTextureGroup : NSObject 
+@interface WhirlyKitTextureGroup : NSObject 
 {
     /// If set, the path to the texture group.
     /// Might be somewhere other than the default bundle
@@ -48,7 +48,7 @@
     unsigned int borderPixels;  
 }
 
-@property (nonatomic,retain) NSString *basePath,*baseName,*ext;
+@property (nonatomic) NSString *basePath,*baseName,*ext;
 @property (nonatomic,readonly) unsigned int numX,numY;
 @property (nonatomic,readonly) unsigned int pixelsSquare,borderPixels;
 
@@ -61,6 +61,6 @@
 
 /// Calculate the mapping that represents "full" coverage
 /// This takes border pixels into account
-- (void)calcTexMappingOrg:(WhirlyGlobe::TexCoord *)org dest:(WhirlyGlobe::TexCoord *)dest;
+- (void)calcTexMappingOrg:(WhirlyKit::TexCoord *)org dest:(WhirlyKit::TexCoord *)dest;
 
 @end

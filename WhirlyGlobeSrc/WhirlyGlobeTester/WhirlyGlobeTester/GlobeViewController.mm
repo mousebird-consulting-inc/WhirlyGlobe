@@ -25,31 +25,6 @@
 using namespace WhirlyGlobe;
 
 @interface GlobeViewController()
-@property (nonatomic,retain) UIView *statsView;
-@property (nonatomic,retain) UILabel *fpsLabel;
-@property (nonatomic,retain) UILabel *drawLabel;
-@property (nonatomic,retain) UILabel *selectLabel;
-@property (nonatomic,retain) WhirlyGlobeEAGLView *glView;
-@property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *sceneRenderer;
-@property (nonatomic,retain) WhirlyGlobeView *theView;
-@property (nonatomic,retain) WhirlyGlobeTextureGroup *texGroup;
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) WhirlyGlobeSphericalEarthLayer *earthLayer;
-@property (nonatomic,retain) WhirlyGlobeVectorLayer *vectorLayer;
-@property (nonatomic,retain) WhirlyGlobeLabelLayer *labelLayer;
-@property (nonatomic,retain) WhirlyGlobeParticleSystemLayer *particleSystemLayer;
-@property (nonatomic,retain) WhirlyGlobeMarkerLayer *markerLayer;
-@property (nonatomic,retain) WhirlyGlobeSelectionLayer *selectionLayer;
-@property (nonatomic,retain) WhirlyGlobeLoftLayer *loftLayer;
-@property (nonatomic,retain) InteractionLayer *interactLayer;
-@property (nonatomic,retain) WhirlyGlobePinchDelegate *pinchDelegate;
-@property (nonatomic,retain) PanDelegateFixed *panDelegate;
-@property (nonatomic,retain) WhirlyGlobeTapDelegate *tapDelegate;
-@property (nonatomic,retain) WhirlyGlobeLongPressDelegate *longPressDelegate;
-@property (nonatomic,retain) WhirlyGlobeRotateDelegate *rotateDelegate;
-@property (nonatomic,retain) UIPopoverController *popoverController;
-@property (nonatomic,retain) OptionsViewController *optionsViewC;
-
 - (void)updateLabels:(id)sender;
 - (void)registerForTaps;
 @end
@@ -57,34 +32,9 @@ using namespace WhirlyGlobe;
 
 @implementation GlobeViewController
 
-@synthesize statsView;
-@synthesize fpsLabel;
-@synthesize drawLabel;
-@synthesize selectLabel;
-@synthesize glView;
-@synthesize sceneRenderer;
-@synthesize theView;
-@synthesize texGroup;
-@synthesize layerThread;
-@synthesize earthLayer;
-@synthesize vectorLayer;
-@synthesize labelLayer;
-@synthesize particleSystemLayer;
-@synthesize markerLayer;
-@synthesize loftLayer;
-@synthesize selectionLayer;
-@synthesize interactLayer;
-@synthesize pinchDelegate;
-@synthesize panDelegate;
-@synthesize tapDelegate;
-@synthesize longPressDelegate;
-@synthesize rotateDelegate;
-@synthesize popoverController;
-@synthesize optionsViewC;
-
 + (GlobeViewController *)loadFromNib
 {
-    GlobeViewController *viewC = [[[GlobeViewController alloc] initWithNibName:@"GlobeViewController" bundle:nil] autorelease];
+    GlobeViewController *viewC = [[GlobeViewController alloc] initWithNibName:@"GlobeViewController" bundle:nil];
     
     return viewC;
 }
@@ -93,54 +43,54 @@ using namespace WhirlyGlobe;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    if (self.layerThread)
+    if (layerThread)
     {
-        [self.layerThread cancel];
-        while (!self.layerThread.isFinished)
+        [layerThread cancel];
+        while (!layerThread.isFinished)
             [NSThread sleepForTimeInterval:0.001];
     }
-    self.layerThread = nil;
- 
-    self.statsView = nil;
-    self.fpsLabel = nil;
-    self.drawLabel = nil;
-    self.selectLabel = nil;
-    self.glView = nil;
-    self.sceneRenderer = nil;
+    
+    statsView = nil;
+    fpsLabel = nil;
+    drawLabel = nil;
+    selectLabel = nil;
+    
+    glView = nil;
+    sceneRenderer = nil;
     
     if (theScene)
     {
         delete theScene;
         theScene = NULL;
     }
-    self.theView = nil;
-    self.texGroup = nil;
     
-    self.layerThread = nil;
-    self.earthLayer = nil;
-    self.vectorLayer = nil;
-    self.labelLayer = nil;
-    self.particleSystemLayer = nil;
-    self.markerLayer = nil;
-    self.loftLayer = nil;
-    self.selectionLayer = nil;
-    self.interactLayer = nil;
+    theView = nil;
+    texGroup = nil;
+    layerThread = nil;
     
-    self.pinchDelegate = nil;
-    self.panDelegate = nil;
-    self.tapDelegate = nil;
-    self.longPressDelegate = nil;
-    self.rotateDelegate = nil;
+    earthLayer = nil;
+    vectorLayer = nil;
+    labelLayer = nil;
+    particleSystemLayer = nil;
+    markerLayer = nil;
+    selectionLayer = nil;
+    loftLayer = nil;
+    interactLayer = nil;
     
-    self.popoverController = nil;
-    self.optionsViewC = nil;
+    pinchDelegate = nil;
+    panDelegate = nil;
+    tapDelegate = nil;
+    longPressDelegate = nil;
+    rotateDelegate = nil;
+    
+    popoverController = nil;
+    optionsViewC = nil;
 }
 
 - (void)dealloc
 {
     [self clear];
     
-    [super dealloc];
 }
 
 - (void)didReceiveMemoryWarning
@@ -161,8 +111,8 @@ using namespace WhirlyGlobe;
     self.title = @"Globe";
     
 	// Set up an OpenGL ES view and renderer
-	self.glView = [[[WhirlyGlobeEAGLView alloc] init] autorelease];
-	self.sceneRenderer = [[[WhirlyGlobeSceneRendererES1 alloc] init] autorelease];
+	glView = [[WhirlyKitEAGLView alloc] init];
+	sceneRenderer = [[WhirlyKitSceneRendererES1 alloc] init];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
@@ -176,76 +126,76 @@ using namespace WhirlyGlobe;
 	[sceneRenderer useContext];
 	
 	// Set up a texture group for the world texture
-	self.texGroup = [[[WhirlyGlobeTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]] autorelease];
+	texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]];
     
 	// Need an empty scene and view    
-	self.theView = [[[WhirlyGlobeView alloc] init] autorelease];
+	theView = [[WhirlyGlobeView alloc] init];
 	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY,theView.coordSystem);
     sceneRenderer.theView = theView;
 	
 	// Need a layer thread to manage the layers
-	self.layerThread = [[[WhirlyGlobeLayerThread alloc] initWithScene:theScene] autorelease];
+	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:theScene];
 	
 	// Earth layer on the bottom
-	self.earthLayer = [[[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil] autorelease];
-    self.earthLayer.fade = 1.0;
-	[self.layerThread addLayer:earthLayer];
+	earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil];
+    earthLayer.fade = 1.0;
+	[layerThread addLayer:earthLayer];
     
     // Selection feedback
-    self.selectionLayer = [[[WhirlyGlobeSelectionLayer alloc] initWithView:self.theView renderer:self.sceneRenderer] autorelease];
-    [self.layerThread addLayer:selectionLayer];
+    selectionLayer = [[WhirlyKitSelectionLayer alloc] initWithView:theView renderer:sceneRenderer];
+    [layerThread addLayer:selectionLayer];
 
 	// Set up the vector layer where all our outlines will go
-	self.vectorLayer = [[[WhirlyGlobeVectorLayer alloc] init] autorelease];
-	[self.layerThread addLayer:vectorLayer];
+	vectorLayer = [[WhirlyKitVectorLayer alloc] init];
+	[layerThread addLayer:vectorLayer];
     
 	// General purpose label layer.
-	self.labelLayer = [[[WhirlyGlobeLabelLayer alloc] init] autorelease];
-    self.labelLayer.selectLayer = self.selectionLayer;
-	[self.layerThread addLayer:labelLayer];
+	labelLayer = [[WhirlyKitLabelLayer alloc] init];
+    labelLayer.selectLayer = selectionLayer;
+	[layerThread addLayer:labelLayer];
     
     // Particle System layer
-    self.particleSystemLayer = [[[WhirlyGlobeParticleSystemLayer alloc] init] autorelease];
-    [self.layerThread addLayer:particleSystemLayer];
+    particleSystemLayer = [[WhirlyKitParticleSystemLayer alloc] init];
+    [layerThread addLayer:particleSystemLayer];
     
     // Marker layer
-    self.markerLayer = [[[WhirlyGlobeMarkerLayer alloc] init] autorelease];
-    self.markerLayer.selectLayer = self.selectionLayer;
-    [self.layerThread addLayer:markerLayer];
+    markerLayer = [[WhirlyKitMarkerLayer alloc] init];
+    markerLayer.selectLayer = selectionLayer;
+    [layerThread addLayer:markerLayer];
     
     // Lofted poly layer
-    self.loftLayer = [[[WhirlyGlobeLoftLayer alloc] init] autorelease];
-    [self.layerThread addLayer:loftLayer];
+    loftLayer = [[WhirlyGlobeLoftLayer alloc] init];
+    [layerThread addLayer:loftLayer];
     
     // Lastly, an interaction layer of our own
-    self.interactLayer = [[[InteractionLayer alloc] initWithGlobeView:theView] autorelease];
+    interactLayer = [[InteractionLayer alloc] initWithGlobeView:theView];
     interactLayer.vectorLayer = vectorLayer;
     interactLayer.labelLayer = labelLayer;
     interactLayer.particleSystemLayer = particleSystemLayer;
     interactLayer.markerLayer = markerLayer;
     interactLayer.loftLayer = loftLayer;
     interactLayer.selectionLayer = selectionLayer;
-    [self.layerThread addLayer:interactLayer];
+    [layerThread addLayer:interactLayer];
         
 	// Give the renderer what it needs
 	sceneRenderer.scene = theScene;
 	sceneRenderer.theView = theView;
 	
 	// Wire up the gesture recognizers
-	self.pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
-	self.panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:theView];
-	self.tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:theView];
-    self.longPressDelegate = [WhirlyGlobeLongPressDelegate longPressDelegateForView:glView globeView:theView];
-    self.rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:theView];
+	pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
+	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:theView];
+	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:theView];
+    longPressDelegate = [WhirlyGlobeLongPressDelegate longPressDelegateForView:glView globeView:theView];
+    rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:theView];
 	
 	// Kick off the layer thread
 	// This will start loading things
-	[self.layerThread start];
+	[layerThread start];
         
     statsView.hidden = YES;
     
     // Bring up an overlay if the user taps
-    self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithTitle:@"Overlay" style:UIBarButtonItemStylePlain target:self action:@selector(pushOverlay:)] autorelease];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Overlay" style:UIBarButtonItemStylePlain target:self action:@selector(pushOverlay:)];
 }
 
 - (void)viewDidUnload
@@ -257,7 +207,7 @@ using namespace WhirlyGlobe;
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	[self.glView startAnimation];
+	[glView startAnimation];
 	
     [self registerForTaps];
 
@@ -268,7 +218,7 @@ using namespace WhirlyGlobe;
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-	[self.glView stopAnimation];
+	[glView stopAnimation];
 	
     // Turn off responses to taps
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -302,7 +252,7 @@ using namespace WhirlyGlobe;
 // Called when the user taps the overlay button
 - (void) pushOverlay:(id)sender
 {
-    OverlayViewController *viewC = [[[OverlayViewController alloc] init] autorelease];
+    OverlayViewController *viewC = [[OverlayViewController alloc] init];
     [self.navigationController pushViewController:viewC animated:YES];
 }
 
@@ -319,15 +269,15 @@ using namespace WhirlyGlobe;
     Eigen::Quaternionf newRotQuat = [theView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
     
     // Rotate to the given position over 1s
-    theView.delegate = [[[AnimateViewRotation alloc] initWithView:theView rot:newRotQuat howLong:1.0] autorelease];    
+    theView.delegate = [[AnimateViewRotation alloc] initWithView:theView rot:newRotQuat howLong:1.0];    
 }
 
 // Called when the user taps outside the globe
 - (void) tapOutsideSelector:(NSNotification *)note
 {
-    self.optionsViewC = [OptionsViewController loadFromNib];
+    optionsViewC = [OptionsViewController loadFromNib];
     optionsViewC.delegate = self;
-    self.popoverController = [[[UIPopoverController alloc] initWithContentViewController:optionsViewC] autorelease];
+    popoverController = [[UIPopoverController alloc] initWithContentViewController:optionsViewC];
     popoverController.popoverContentSize = CGSizeMake(400, 600);
     popoverController.delegate = self;
     [popoverController presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections: UIPopoverArrowDirectionAny animated:YES];
@@ -351,24 +301,24 @@ using namespace WhirlyGlobe;
 - (void)selectionChange:(NSNotification *)note
 {
     NSString *what = note.object;
-    self.selectLabel.text = what;
+    selectLabel.text = what;
 }
 
 // Called every so often to update the labels
 - (void)updateLabels:(id)sender
 {
-	self.fpsLabel.text = [NSString stringWithFormat:@"%.2f fps",sceneRenderer.framesPerSec];
-	self.drawLabel.text = [NSString stringWithFormat:@"%d draws",sceneRenderer.numDrawables];
+	fpsLabel.text = [NSString stringWithFormat:@"%.2f fps",sceneRenderer.framesPerSec];
+	drawLabel.text = [NSString stringWithFormat:@"%d draws",sceneRenderer.numDrawables];
 	[self performSelector:@selector(updateLabels:) withObject:nil afterDelay:FPSUpdateInterval];    
 }
 
 #pragma mark -
 #pragma mark Popover Delegate
 
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)inPopoverController
 {
-    self.popoverController = nil;
-    self.optionsViewC = nil;
+    popoverController = nil;
+    optionsViewC = nil;
 }
 
 @end

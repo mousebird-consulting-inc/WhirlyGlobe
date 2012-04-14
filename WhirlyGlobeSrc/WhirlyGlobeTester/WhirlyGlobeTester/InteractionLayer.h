@@ -46,31 +46,31 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
 /** Interaction Layer
     Controls data display and interaction for the globe.
  */
-@interface InteractionLayer : NSObject <WhirlyGlobeLayer>
+@interface InteractionLayer : NSObject <WhirlyKitLayer>
 {
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *__weak layerThread;
 	WhirlyGlobe::GlobeScene *scene;
 	WhirlyGlobeView *globeView;
 
-	WhirlyGlobeVectorLayer *vectorLayer;
-	WhirlyGlobeLabelLayer *labelLayer;
-    WhirlyGlobeParticleSystemLayer *particleSystemLayer;
-    WhirlyGlobeMarkerLayer *markerLayer;
-    WhirlyGlobeLoftLayer *loftLayer;
-    WhirlyGlobeSelectionLayer *selectionLayer;
+	WhirlyKitVectorLayer *__weak vectorLayer;
+	WhirlyKitLabelLayer *__weak labelLayer;
+    WhirlyKitParticleSystemLayer *__weak particleSystemLayer;
+    WhirlyKitMarkerLayer *__weak markerLayer;
+    WhirlyGlobeLoftLayer *__weak loftLayer;
+    WhirlyKitSelectionLayer *__weak selectionLayer;
     
-    WhirlyGlobe::VectorDatabase *countryDb;  // Country outlines
-    WhirlyGlobe::VectorDatabase *cityDb;  // City points
+    WhirlyKit::VectorDatabase *countryDb;  // Country outlines
+    WhirlyKit::VectorDatabase *cityDb;  // City points
 
-    WhirlyGlobe::SimpleIDSet partSysIDs;  // Particle systems added to globe
-    WhirlyGlobe::SimpleIDSet vectorIDs;   // Vectors added to globe
-    WhirlyGlobe::SimpleIDSet labelIDs;   // Labels added to the globe
-    WhirlyGlobe::SimpleIDSet markerTexIDs;  // Textures added to the globe for markers
-    WhirlyGlobe::SimpleIDSet markerIDs;  // Markers added to the globe    
-    WhirlyGlobe::SimpleIDSet loftedPolyIDs;  // Lofted polygons added to the globe
+    WhirlyKit::SimpleIDSet partSysIDs;  // Particle systems added to globe
+    WhirlyKit::SimpleIDSet vectorIDs;   // Vectors added to globe
+    WhirlyKit::SimpleIDSet labelIDs;   // Labels added to the globe
+    WhirlyKit::SimpleIDSet markerTexIDs;  // Textures added to the globe for markers
+    WhirlyKit::SimpleIDSet markerIDs;  // Markers added to the globe    
+    WhirlyKit::SimpleIDSet loftedPolyIDs;  // Lofted polygons added to the globe
     
-    WhirlyGlobe::SimpleIDSet labelSelectIDs;  // Selection IDs used for labels
-    WhirlyGlobe::SimpleIDSet markerSelectIDs;  // Selection IDs used for markers
+    WhirlyKit::SimpleIDSet labelSelectIDs;  // Selection IDs used for labels
+    WhirlyKit::SimpleIDSet markerSelectIDs;  // Selection IDs used for markers
     
     NSDictionary *options;  // Options for what to display and how
     bool loftedPolys;       // If set, we'll loft any country that gets tapped
@@ -82,13 +82,13 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
 - (id)initWithGlobeView:(WhirlyGlobeView *)globeView;
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
-@property (nonatomic,assign) WhirlyGlobeVectorLayer *vectorLayer;
-@property (nonatomic,assign) WhirlyGlobeLabelLayer *labelLayer;
-@property (nonatomic,assign) WhirlyGlobeParticleSystemLayer *particleSystemLayer;
-@property (nonatomic,assign) WhirlyGlobeMarkerLayer *markerLayer;
-@property (nonatomic,assign) WhirlyGlobeLoftLayer *loftLayer;
-@property (nonatomic,assign) WhirlyGlobeSelectionLayer *selectionLayer;
+@property (nonatomic,weak) WhirlyKitVectorLayer *vectorLayer;
+@property (nonatomic,weak) WhirlyKitLabelLayer *labelLayer;
+@property (nonatomic,weak) WhirlyKitParticleSystemLayer *particleSystemLayer;
+@property (nonatomic,weak) WhirlyKitMarkerLayer *markerLayer;
+@property (nonatomic,weak) WhirlyGlobeLoftLayer *loftLayer;
+@property (nonatomic,weak) WhirlyKitSelectionLayer *selectionLayer;
 
 @end

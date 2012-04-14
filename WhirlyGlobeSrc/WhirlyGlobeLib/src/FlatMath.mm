@@ -20,7 +20,7 @@
 
 #import "FlatMath.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 namespace WhirlyMap
 {

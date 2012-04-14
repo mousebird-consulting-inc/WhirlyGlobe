@@ -21,10 +21,10 @@
 #import "Generator.h"
 #import "GlobeScene.h"
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
-void GeneratorChangeRequest::execute(GlobeScene *scene,WhirlyKitView *view)
+void GeneratorChangeRequest::execute(Scene *scene,WhirlyKitView *view)
 {
     Generator *theGenerator = scene->getGenerator(genId);
 	if (theGenerator)

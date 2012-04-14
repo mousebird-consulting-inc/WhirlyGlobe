@@ -38,15 +38,15 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     by creating the earth model itself.  Once that's done,
     it doesn't do anything else. 
  */
-@interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyKitLayer>
 {
-	WhirlyGlobeTextureGroup *texGroup;
+	WhirlyKitTextureGroup *texGroup;
 	WhirlyGlobe::GlobeScene *scene;
 	unsigned int xDim,yDim;
 	unsigned int chunkX,chunkY;
     bool savingToCache;
     NSString *cacheName;
-    WhirlyGlobe::RenderCacheWriter *cacheWriter;
+    WhirlyKit::RenderCacheWriter *cacheWriter;
     /// If set, the time to fade in the globe
     float fade;
 //	float radius;  // 1.0 by default
@@ -56,18 +56,18 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.
-- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)texGroup;
+- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.
 /// If you provide a cache name, we'll try to load from there first
-- (id)initWithTexGroup:(WhirlyGlobeTextureGroup *)texGroup cacheName:(NSString *)cacheName;
+- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup cacheName:(NSString *)cacheName;
 
 /// Call this right after init if you want to save the geometry out
 - (void)saveToCacheName:(NSString *)cacheName;
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Ask the earth layer what the smallest tesselation size for
 ///  overlaid geometry should be.  This is intended to avoid Z fighting

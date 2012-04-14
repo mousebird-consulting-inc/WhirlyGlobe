@@ -37,7 +37,7 @@ namespace WhirlyGlobe
 /** Representation of one or more lofted polygons.
     Used to keep track of the assets we create.
   */
-class LoftedPolySceneRep : public Identifiable
+class LoftedPolySceneRep : public WhirlyKit::Identifiable
 {
 public:
     LoftedPolySceneRep() { }
@@ -47,13 +47,13 @@ public:
     bool readFromCache(NSString *key);
     bool writeToCache(NSString *key);
         
-    SimpleIDSet drawIDs;  // Drawables created for this
-    ShapeSet shapes;    // The shapes for the outlines
-    GeoMbr shapeMbr;       // Overall bounding box
+    WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
+    WhirlyKit::ShapeSet shapes;    // The shapes for the outlines
+    WhirlyKit::GeoMbr shapeMbr;       // Overall bounding box
     float fade;            // Fade out, used for delete
-    std::vector<VectorRing> triMesh;  // The post-clip triangle mesh, pre-loft
+    std::vector<WhirlyKit::VectorRing> triMesh;  // The post-clip triangle mesh, pre-loft
 };
-typedef std::map<SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
+typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
     
 }
 
@@ -72,9 +72,9 @@ typedef std::map<SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
      <item>fade        [NSNumber float]
      </list>
  */
-@interface WhirlyGlobeLoftLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyGlobeLoftLayer : NSObject<WhirlyKitLayer>
 {
-    WhirlyGlobeLayerThread *layerThread;
+    WhirlyKitLayerThread *layerThread;
     WhirlyGlobe::GlobeScene *scene;
     
     /// Used to keep track of the lofted polygons
@@ -89,7 +89,7 @@ typedef std::map<SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
 @property (nonatomic,assign) BOOL useCache;
 
 /// Called in layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 /** Create one or more lofted polygons from the set of shapes given.
     The given dictionary defines how the will look.
@@ -97,19 +97,19 @@ typedef std::map<SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
     or create it.
     Returns the ID used to identify the group.
  */
-- (WhirlyGlobe::SimpleIdentity) addLoftedPolys:(WhirlyGlobe::ShapeSet *)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity) addLoftedPolys:(WhirlyKit::ShapeSet *)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
 
 /** Create a single lofted polygon from the given shape.
     Visual characteristics are defined by the dictionary.
     If the cache name is specified, we'll look for the given cache file
     or create it.
   */
-- (WhirlyGlobe::SimpleIdentity) addLoftedPoly:(WhirlyGlobe::VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity) addLoftedPoly:(WhirlyKit::VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
 
 /// Remove a group of lofted polygons as specified by the ID.
-- (void) removeLoftedPoly:(WhirlyGlobe::SimpleIdentity)polyID;
+- (void) removeLoftedPoly:(WhirlyKit::SimpleIdentity)polyID;
 
 /// Change a lofted poly group as defined by the dictionary.
-- (void) changeLoftedPoly:(WhirlyGlobe::SimpleIdentity)polyID desc:(NSDictionary *)desc;
+- (void) changeLoftedPoly:(WhirlyKit::SimpleIdentity)polyID desc:(NSDictionary *)desc;
 
 @end

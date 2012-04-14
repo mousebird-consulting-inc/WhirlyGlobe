@@ -29,7 +29,7 @@
 #import "DrawCost.h"
 #import "SelectionLayer.h"
 
-namespace WhirlyGlobe 
+namespace WhirlyKit 
 {
 
 /// Default for label draw priority
@@ -60,32 +60,32 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
     create a large number of labels at once.  We use an array of
     these single labels to do that.
   */
-@interface WhirlyGlobeSingleLabel : NSObject
+@interface WhirlyKitSingleLabel : NSObject
 {
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
     bool isSelectable;
     /// If the marker is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
-    WhirlyGlobe::SimpleIdentity selectID;
+    WhirlyKit::SimpleIdentity selectID;
     /// The text we want to see
     NSString *text;
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
-    WhirlyGlobe::GeoCoord loc;
+    WhirlyKit::GeoCoord loc;
     /// This dictionary contains overrides for certain attributes
     ///  for just this label.  Only width, height, and icon supported
     NSDictionary *desc;
     /// If non-zero, this is the texture to use as an icon
-    WhirlyGlobe::SimpleIdentity iconTexture;  
+    WhirlyKit::SimpleIdentity iconTexture;  
 }
 
 @property (nonatomic,assign) bool isSelectable;
-@property (nonatomic,assign) WhirlyGlobe::SimpleIdentity selectID;
-@property (nonatomic,retain) NSString *text;
-@property (nonatomic,assign) WhirlyGlobe::GeoCoord loc;
-@property (nonatomic,retain) NSDictionary *desc;
-@property (nonatomic,assign) WhirlyGlobe::SimpleIdentity iconTexture;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+@property (nonatomic) NSString *text;
+@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+@property (nonatomic) NSDictionary *desc;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
 
 /// This is used to sort out width and height from the defaults.  Pass
 ///  in the value of one and zero for the other and it will fill in the
@@ -96,11 +96,11 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 /// Pass in an array of 3 point3f structures for the points and
 ///  normals.  The corners are returned in counter-clockwise order.
 /// This is used for label selection
-- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyGlobe::Point3f *)pts norm:(WhirlyGlobe::Point3f *)norm coordSystem:(WhirlyKit::CoordSystem *)coordSys;
+- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordSystem:(WhirlyKit::CoordSystem *)coordSys;
 
 @end
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 
 /// Size of one side of the texture atlases built for labels
@@ -139,59 +139,59 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>fade            [NSSTring float]
     </list>
   */
-@interface WhirlyGlobeLabelLayer : NSObject<WhirlyGlobeLayer>
+@interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
 {
-	WhirlyGlobeLayerThread *layerThread;
-	WhirlyGlobe::GlobeScene *scene;
+	WhirlyKitLayerThread *__weak layerThread;
+	WhirlyKit::Scene *scene;
     
     /// If set, we register labels as selectable here
-    WhirlyGlobeSelectionLayer *selectLayer;
+    WhirlyKitSelectionLayer *selectLayer;
 
     /// Keep track of labels (or groups of labels) by ID for deletion
-    WhirlyGlobe::LabelSceneRepMap labelReps;
+    WhirlyKit::LabelSceneRepMap labelReps;
     
     unsigned int textureAtlasSize;
 }
 
 /// Set this to enable selection for labels
-@property (nonatomic,retain) WhirlyGlobeSelectionLayer *selectLayer;
+@property (nonatomic) WhirlyKitSelectionLayer *selectLayer;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2
 - (id)initWithTexAtlasSize:(unsigned int)textureAtlasSize;
 
 /// Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Create a label at the given coordinates, with the given look and feel.
 /// You get an ID for the label back so you can delete or modify it later.
 /// If you have more than one label, call addLabels instead.
-- (WhirlyGlobe::SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyGlobe::GeoCoord)loc desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyKit::GeoCoord)loc desc:(NSDictionary *)desc;
 
 /// Add a single label with the SingleLabel object.  The desc dictionary in that
 ///  object will specify the look
-- (WhirlyGlobe::SimpleIdentity) addLabel:(WhirlyGlobeSingleLabel *)label;
+- (WhirlyKit::SimpleIdentity) addLabel:(WhirlyKitSingleLabel *)label;
 
 /// Add a whole list of labels (represented by SingleLabel objects) with the given
 ///  look and feel.
 /// You get the ID identifying the whole group for modification or deletion
-- (WhirlyGlobe::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+- (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
 /// Add a group of labels and save them to a render cache
-- (WhirlyGlobe::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
 
 /// Add a previously cached group of labels all at once
-- (WhirlyGlobe::SimpleIdentity) addLabelsFromCache:(NSString *)cacheName;
+- (WhirlyKit::SimpleIdentity) addLabelsFromCache:(NSString *)cacheName;
 
 /// Change the display of a given label accordingly to the desc dictionary.
 /// Only minVis and maxVis are supported
-- (void)changeLabel:(WhirlyGlobe::SimpleIdentity)labelID desc:(NSDictionary *)dict;
+- (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict;
 
 /// Return the cost of a given label group (number of drawables and textures).
 /// Only call this in the layer thread
-- (WhirlyGlobeDrawCost *)getCost:(WhirlyGlobe::SimpleIdentity)labelID;
+- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)labelID;
 
 /// Remove the given label group by ID
-- (void) removeLabel:(WhirlyGlobe::SimpleIdentity)labelId;
+- (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId;
 
 @end

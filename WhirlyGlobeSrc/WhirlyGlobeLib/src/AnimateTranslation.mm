@@ -21,7 +21,6 @@
 #import "AnimateTranslation.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 using namespace Eigen;
 
 @implementation AnimateViewTranslation
@@ -46,13 +45,6 @@ using namespace Eigen;
     return self;
 }
 
-- (void)dealloc
-{
-    self.startDate = nil;
-    self.endDate = nil;
-    
-    [super dealloc];
-}
 
 - (void)updateView:(WhirlyMapView *)mapView
 {

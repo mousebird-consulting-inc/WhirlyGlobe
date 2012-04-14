@@ -22,7 +22,6 @@
 
 using namespace Eigen;
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @implementation WhirlyMapView
 
@@ -41,12 +40,6 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    self.delegate = nil;
-    
-    [super dealloc];
-}
 
 - (void)cancelAnimation
 {
@@ -79,7 +72,7 @@ using namespace WhirlyGlobe;
     return loc.z();
 }
 
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize hit:(WhirlyGlobe::Point3f *)hit
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
 {
     // Back Project the screen point into model space
     Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
@@ -106,7 +99,7 @@ using namespace WhirlyGlobe;
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const WhirlyGlobe::Point2f &)worldLoc2d transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyGlobe::Point2f &)frameSize
+- (CGPoint)pointOnScreenFromPlane:(const Point2f &)worldLoc2d transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize
 {
     Point3f worldLoc(worldLoc2d.x(),worldLoc2d.y(),0.0);
     

@@ -23,7 +23,7 @@
 #import "PanDelegateMap.h"
 #import "AnimateTranslateMomentum.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @implementation WhirlyMapPanDelegate
 
@@ -39,8 +39,8 @@ using namespace WhirlyGlobe;
 
 + (WhirlyMapPanDelegate *)panDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
 {
-	WhirlyMapPanDelegate *panDelegate = [[[WhirlyMapPanDelegate alloc] initWithMapView:mapView] autorelease];
-	[view addGestureRecognizer:[[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)] autorelease]];
+	WhirlyMapPanDelegate *panDelegate = [[WhirlyMapPanDelegate alloc] initWithMapView:mapView];
+	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
 	return panDelegate;
 }
 
@@ -54,8 +54,8 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
     UIPanGestureRecognizer *pan = sender;
-	WhirlyGlobeEAGLView  *glView = (WhirlyGlobeEAGLView  *)pan.view;
-	WhirlyGlobeSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
 
     if (pan.numberOfTouches > 1)
     {
@@ -71,7 +71,7 @@ using namespace WhirlyGlobe;
             
             // Save where we touched
             startTransform = [mapView calcModelMatrix];
-            [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+            [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:pan.view] transform:&startTransform
                                   frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
                                         hit:&startOnPlane];
             startLoc = [mapView loc];
@@ -121,7 +121,7 @@ using namespace WhirlyGlobe;
                 float drag = -1.5;
 
                 // Kick off a little movement at the end                
-                mapView.delegate = [[[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)] autorelease];
+                mapView.delegate = [[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
                 
                 panning = NO;
             }

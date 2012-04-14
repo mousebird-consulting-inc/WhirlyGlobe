@@ -26,7 +26,7 @@
 
 + (BigButtonViewController *)loadFromNib
 {
-    BigButtonViewController *viewC = [[[BigButtonViewController alloc] initWithNibName:@"BigButtonView" bundle:nil] autorelease];
+    BigButtonViewController *viewC = [[BigButtonViewController alloc] initWithNibName:@"BigButtonView" bundle:nil];
     
     return viewC;
 }

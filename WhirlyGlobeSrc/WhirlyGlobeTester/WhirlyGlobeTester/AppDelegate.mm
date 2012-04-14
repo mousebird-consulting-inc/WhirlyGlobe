@@ -21,33 +21,21 @@
 #import "AppDelegate.h"
 #import "GlobeViewController.h"
 
-@interface AppDelegate()
-@property (nonatomic,retain) UINavigationController *navC;
-@end
-
 @implementation AppDelegate
 
 @synthesize window = _window;
-@synthesize navC;
-
-- (void)dealloc
-{
-    self.navC = nil;
-    [_window release];
-    [super dealloc];
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
 
     // Toss up the big button
     BigButtonViewController *buttViewC = [BigButtonViewController loadFromNib];
     buttViewC.delegate = self;    
-    self.navC = [[[UINavigationController alloc] initWithRootViewController:buttViewC] autorelease];
-    self.navC.navigationBar.barStyle = UIBarStyleBlack;
+    navC = [[UINavigationController alloc] initWithRootViewController:buttViewC];
+    navC.navigationBar.barStyle = UIBarStyleBlack;
     self.window.rootViewController = navC;
     
     [self.window makeKeyAndVisible];
@@ -100,7 +88,7 @@
 - (void)bigButtonPushed:(BigButtonViewController *)viewC
 {
     GlobeViewController *globeViewC = [GlobeViewController loadFromNib];
-    [self.navC pushViewController:globeViewC animated:YES];
+    [navC pushViewController:globeViewC animated:YES];
 }
 
 @end
