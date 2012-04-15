@@ -198,7 +198,7 @@ public:
 
                 if (vecInfo.fade > 0.0)
                 {
-                    NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+vecInfo.fade);
                 }
                 scene->addChangeRequest(new AddDrawableReq(drawable));
@@ -220,17 +220,10 @@ protected:
 
 }
 
-@interface WhirlyKitVectorLayer()
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-@end
-
 @implementation WhirlyKitVectorLayer
-
-@synthesize layerThread;
 
 - (void)dealloc
 {
-    self.layerThread = nil;
     for (VectorSceneRepMap::iterator it = vectorReps.begin();
          it != vectorReps.end(); ++it)
         delete it->second;
@@ -240,7 +233,7 @@ protected:
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
 	scene = inScene;
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
 }
 
 // Generate drawables.  We'll stack areas into as few drawables
@@ -359,7 +352,7 @@ protected:
     
         if (sceneRep->fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                

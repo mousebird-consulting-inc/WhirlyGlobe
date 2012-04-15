@@ -23,15 +23,7 @@
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@interface PanDelegateFixed()
-@property (nonatomic) NSDate *spinDate;
-@property (nonatomic) UITouch *startTouch;
-@end
-
 @implementation PanDelegateFixed
-
-@synthesize spinDate;
-@synthesize startTouch;
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -68,7 +60,7 @@ using namespace WhirlyGlobe;
     startQuat = view.rotQuat;
     spinQuat = view.rotQuat;
     startPoint = [pan locationOfTouch:0 inView:glView];
-    self.spinDate = [NSDate date];
+    spinDate = CFAbsoluteTimeGetCurrent();
     lastTouch = [pan locationOfTouch:0 inView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
                             frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&startOnSphere])
@@ -155,7 +147,7 @@ using namespace WhirlyGlobe;
                 [view setRotQuat:(newRotQuat)];
 
                 // If our spin sample is too old, grab a new one
-                self.spinDate = [NSDate date];
+                spinDate = CFAbsoluteTimeGetCurrent();
                 spinQuat = view.rotQuat;
 			}
 		}

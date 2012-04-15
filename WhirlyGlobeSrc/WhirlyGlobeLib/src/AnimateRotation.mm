@@ -29,8 +29,8 @@
 {
     if ((self = [super init]))
     {
-        self.startDate = [NSDate date];
-        self.endDate = [self.startDate dateByAddingTimeInterval:howLong];
+        startDate = CFAbsoluteTimeGetCurrent();
+        endDate = CFAbsoluteTimeGetCurrent() + howLong;
         startRot = [globeView rotQuat];
         endRot = newRot;
     }
@@ -45,16 +45,16 @@
 	if (!self.startDate)
 		return;
 	
-	NSDate *now = [NSDate date];
-	float span = (float)[endDate timeIntervalSinceDate:startDate];
-	float remain = (float)[endDate timeIntervalSinceDate:now];
+	CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+    float span = endDate-startDate;
+    float remain = endDate - now;
     
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
 		[globeView setRotQuat:endRot];
-		self.startDate = nil;
-		self.endDate = nil;
+        startDate = 0;
+        endDate = 0;
 	} else {
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;

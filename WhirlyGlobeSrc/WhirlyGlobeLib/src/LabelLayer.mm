@@ -325,13 +325,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
 
 @end
 
-@interface WhirlyKitLabelLayer()
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-@end
-
 @implementation WhirlyKitLabelLayer
 
-@synthesize layerThread;
 @synthesize selectLayer;
 
 - (id)init
@@ -356,7 +351,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 
 - (void)dealloc
 {
-    self.layerThread = nil;
+    layerThread = nil;
     for (LabelSceneRepMap::iterator it=labelReps.begin();
          it!=labelReps.end(); ++it)
         delete it->second;
@@ -367,7 +362,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 // We only do things when called on, so nothing much to do here
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene;
 {
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
     scene = inScene;
 }
 
@@ -524,7 +519,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
                 if (labelInfo.fade > 0.0)
                 {
-                    NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+labelInfo.fade);
                 }
 
@@ -630,7 +625,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
         if (labelInfo.fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             drawable->setFade(curTime,curTime+labelInfo.fade);
         }
 
@@ -651,7 +646,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
         if (labelInfo.fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             iconDrawable->setFade(curTime,curTime+labelInfo.fade);
         }
         scene->addChangeRequest(new AddDrawableReq(iconDrawable));
@@ -698,7 +693,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         // We need to fade them out, then delete
         if (labelRep->fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
                 scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));                

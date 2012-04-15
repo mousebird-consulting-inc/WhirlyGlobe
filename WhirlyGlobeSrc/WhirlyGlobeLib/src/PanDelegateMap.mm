@@ -25,6 +25,12 @@
 
 using namespace WhirlyKit;
 
+@interface WhirlyMapPanDelegate()
+{
+    AnimateTranslateMomentum *translateDelegate;
+}
+@end
+
 @implementation WhirlyMapPanDelegate
 
 - (id)initWithMapView:(WhirlyMapView *)inView
@@ -120,8 +126,9 @@ using namespace WhirlyKit;
                 // The acceleration (to slow it down)
                 float drag = -1.5;
 
-                // Kick off a little movement at the end                
-                mapView.delegate = [[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
+                // Kick off a little movement at the end   
+                translateDelegate = [[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
+                mapView.delegate = translateDelegate;
                 
                 panning = NO;
             }

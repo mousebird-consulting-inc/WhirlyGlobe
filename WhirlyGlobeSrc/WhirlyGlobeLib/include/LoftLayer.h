@@ -74,7 +74,7 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
  */
 @interface WhirlyGlobeLoftLayer : NSObject<WhirlyKitLayer>
 {
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     WhirlyGlobe::GlobeScene *scene;
     
     /// Used to keep track of the lofted polygons

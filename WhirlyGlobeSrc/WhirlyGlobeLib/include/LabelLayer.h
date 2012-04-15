@@ -141,11 +141,11 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
 {
-	WhirlyKitLayerThread *__weak layerThread;
+	WhirlyKitLayerThread * __weak layerThread;
 	WhirlyKit::Scene *scene;
     
     /// If set, we register labels as selectable here
-    WhirlyKitSelectionLayer *selectLayer;
+    WhirlyKitSelectionLayer * __weak selectLayer;
 
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepMap labelReps;
@@ -154,7 +154,7 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 }
 
 /// Set this to enable selection for labels
-@property (nonatomic) WhirlyKitSelectionLayer *selectLayer;
+@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2

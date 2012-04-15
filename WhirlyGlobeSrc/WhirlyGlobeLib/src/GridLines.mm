@@ -21,9 +21,6 @@
 #import "GridLines.h"
 #import "GlobeMath.h"
 
-@interface WhirlyKitGridLayer()
-@end
-
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 

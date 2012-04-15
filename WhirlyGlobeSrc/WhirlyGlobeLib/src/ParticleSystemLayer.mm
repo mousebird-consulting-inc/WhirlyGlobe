@@ -65,19 +65,11 @@ using namespace WhirlyKit;
 
 #pragma mark - Particle System Layer
 
-@interface WhirlyKitParticleSystemLayer()
-
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-
-@end
-
 @implementation WhirlyKitParticleSystemLayer
-
-@synthesize layerThread;
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
     scene = inScene;
     
     // Add the Particle Generator to the scene

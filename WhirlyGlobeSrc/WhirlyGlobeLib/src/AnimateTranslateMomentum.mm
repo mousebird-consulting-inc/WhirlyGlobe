@@ -23,13 +23,7 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@interface AnimateTranslateMomentum()
-@property (nonatomic) NSDate *startDate;
-@end
-
 @implementation AnimateTranslateMomentum
-
-@synthesize startDate;
 
 - (id)initWithView:(WhirlyMapView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir
 {
@@ -38,7 +32,7 @@ using namespace WhirlyKit;
         velocity = inVel;
         acceleration = inAcc;
         dir = inDir.normalized();        
-        self.startDate = [NSDate date];
+        startDate = CFAbsoluteTimeGetCurrent();
         org = mapView.loc;
         
         // Let's calculate the maximum time, so we know when to stop
@@ -50,7 +44,7 @@ using namespace WhirlyKit;
             maxTime = std::max(0.f,maxTime);
             
             if (maxTime == 0.0)
-                self.startDate = nil;
+                startDate = 0;
         } else
             maxTime = MAXFLOAT;
     }
@@ -62,16 +56,16 @@ using namespace WhirlyKit;
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyMapView *)mapView
 {
-    if (!self.startDate)
+    if (startDate == 0.0)
         return;
     
-	float sinceStart = -(float)[startDate timeIntervalSinceDate:[NSDate date]];
+	float sinceStart = CFAbsoluteTime() - startDate;
     
     if (sinceStart > maxTime)
     {
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
-        self.startDate = nil;
+        startDate = 0;
     }
     
     // Calculate the distance

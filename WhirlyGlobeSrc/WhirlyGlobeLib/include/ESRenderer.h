@@ -28,7 +28,7 @@
 @protocol WhirlyKitESRenderer <NSObject>
 
 /// Render to the screen, ideally within the given duration
-- (void)render:(CFTimeInterval)duration;
+- (void)render:(NSTimeInterval)duration;
 
 /// Called when the layer gets resized.  Need to resize ourselves
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer;

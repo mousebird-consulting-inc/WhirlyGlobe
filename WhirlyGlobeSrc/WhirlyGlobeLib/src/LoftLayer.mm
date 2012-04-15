@@ -398,7 +398,7 @@ public:
                 sceneRep->drawIDs.insert(drawable->getId());
                 if (polyInfo.fade > 0)
                 {
-                    NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
                 scene->addChangeRequest(new AddDrawableReq(drawable));
@@ -419,15 +419,8 @@ protected:
 
 }
 
-@interface WhirlyGlobeLoftLayer()
-
-@property (nonatomic) WhirlyKitLayerThread *layerThread;
-
-@end
-
 @implementation WhirlyGlobeLoftLayer
 
-@synthesize layerThread;
 @synthesize gridSize;
 @synthesize useCache;
 
@@ -453,7 +446,7 @@ protected:
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
 	scene = inScene;
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
 }
 
 // From a scene rep and a description, add the given polygons to the drawable builder
@@ -576,7 +569,7 @@ protected:
 
         if (sceneRep->fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                

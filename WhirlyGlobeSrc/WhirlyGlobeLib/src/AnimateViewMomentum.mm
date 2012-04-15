@@ -23,13 +23,7 @@
 
 using namespace Eigen;
 
-@interface AnimateViewMomentum()
-@property (nonatomic) NSDate *startDate;
-@end
-
 @implementation AnimateViewMomentum
-
-@synthesize startDate;
 
 - (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
 {
@@ -40,7 +34,7 @@ using namespace Eigen;
         axis = inAxis;
         startQuat = [globeView rotQuat];
         
-        self.startDate = [NSDate date];
+        startDate = CFAbsoluteTimeGetCurrent();
         
         // Let's calculate the maximum time, so we know when to stop
         if (acceleration != 0.0)
@@ -51,7 +45,7 @@ using namespace Eigen;
             maxTime = std::max(0.f,maxTime);
             
             if (maxTime == 0.0)
-                self.startDate = nil;
+                startDate = 0;
         } else
             maxTime = MAXFLOAT;
     }
@@ -63,16 +57,16 @@ using namespace Eigen;
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyGlobeView *)globeView
 {
-    if (!self.startDate)
+    if (startDate == 0.0)
         return;
     
-	float sinceStart = -(float)[startDate timeIntervalSinceDate:[NSDate date]];
+	float sinceStart = CFAbsoluteTimeGetCurrent()-startDate;
     
     if (sinceStart > maxTime)
     {
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
-        self.startDate = nil;
+        startDate = 0;
     }
     
     // Calculate the offset based on angle

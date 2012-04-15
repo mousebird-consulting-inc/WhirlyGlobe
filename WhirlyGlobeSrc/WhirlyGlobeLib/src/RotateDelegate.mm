@@ -23,9 +23,6 @@
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
 
-@interface WhirlyGlobeRotateDelegate()
-@end
-
 @implementation WhirlyGlobeRotateDelegate
 
 using namespace WhirlyGlobe;

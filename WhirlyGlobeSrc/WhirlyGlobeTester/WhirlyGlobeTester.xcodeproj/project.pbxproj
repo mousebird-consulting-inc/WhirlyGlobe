@@ -493,7 +493,7 @@
 		2B2C1DC31458B73D00B5D61D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0430;
 			};
 			buildConfigurationList = 2B2C1DC61458B73D00B5D61D /* Build configuration list for PBXProject "WhirlyGlobeTester" */;
 			compatibilityVersion = "Xcode 3.2";

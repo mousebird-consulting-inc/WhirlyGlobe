@@ -31,19 +31,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 
-@interface WhirlyKitSelectionLayer()
-
-@property (nonatomic) WhirlyKitView *theView;
-@property (nonatomic) WhirlyKitSceneRendererES1 *renderer;
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-
-@end
-
 @implementation WhirlyKitSelectionLayer
-
-@synthesize theView;
-@synthesize renderer;
-@synthesize layerThread;
 
 - (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer
 {
@@ -51,25 +39,17 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     
     if (self)
     {
-        self.theView = inView;
-        self.renderer = inRenderer;
+        theView = inView;
+        renderer = inRenderer;
     }
     
     return self;
 }
 
-- (void)dealloc
-{
-    self.layerThread = nil;
-    
-    selectables.clear();
-    
-}
-
 // Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
 }
 
 // Add a rectangle (in 3-space) available for selection

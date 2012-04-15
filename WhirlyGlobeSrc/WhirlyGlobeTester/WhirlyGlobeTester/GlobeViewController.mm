@@ -25,6 +25,9 @@
 using namespace WhirlyGlobe;
 
 @interface GlobeViewController()
+{
+    AnimateViewRotation *animateRotation;
+}
 - (void)updateLabels:(id)sender;
 - (void)registerForTaps;
 @end
@@ -269,7 +272,8 @@ using namespace WhirlyGlobe;
     Eigen::Quaternionf newRotQuat = [theView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
     
     // Rotate to the given position over 1s
-    theView.delegate = [[AnimateViewRotation alloc] initWithView:theView rot:newRotQuat howLong:1.0];    
+    animateRotation = [[AnimateViewRotation alloc] initWithView:theView rot:newRotQuat howLong:1.0];
+    theView.delegate = animateRotation;    
 }
 
 // Called when the user taps outside the globe
@@ -281,7 +285,6 @@ using namespace WhirlyGlobe;
     popoverController.popoverContentSize = CGSizeMake(400, 600);
     popoverController.delegate = self;
     [popoverController presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections: UIPopoverArrowDirectionAny animated:YES];
-    
 }
 
 // Called when the options change

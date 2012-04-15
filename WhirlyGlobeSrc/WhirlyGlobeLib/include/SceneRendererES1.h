@@ -113,7 +113,7 @@ static const unsigned int RenderFrameCount = 25;
 	/// Statistic: Frames per second
 	float framesPerSec;
 	unsigned int frameCount;
-	NSDate *frameCountStart;
+	NSTimeInterval frameCountStart;
 	
 	/// Statistic: Number of drawables drawn in last frame
 	unsigned int numDrawables;
@@ -137,7 +137,7 @@ static const unsigned int RenderFrameCount = 25;
 
 /// Attempt to render the frame in the time given.
 /// Ignoring the time at the moment.
-- (void) render:(CFTimeInterval)duration;
+- (void) render:(NSTimeInterval)duration;
 
 /// Called when the underlying layer resizes and we need to adjust
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer;

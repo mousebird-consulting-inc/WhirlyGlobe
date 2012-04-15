@@ -65,9 +65,9 @@ typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
 @interface WhirlyKitSelectionLayer : NSObject<WhirlyKitLayer>
 {
     /// The view controls how the globe/map is displayed
-    WhirlyKitView *theView;
+    WhirlyKitView * __weak theView;
     /// The renderer has screen size information
-    WhirlyKitSceneRendererES1 *renderer;
+    WhirlyKitSceneRendererES1 * __weak renderer;
     /// Layer thread we're associated with
     WhirlyKitLayerThread * __weak layerThread;
     /// The selectable objects themselves

@@ -36,13 +36,13 @@
 	float farPlane;
 	
     /// The last time the position was changed
-    NSDate *lastChangedTime;
+    CFTimeInterval lastChangedTime;
     
     WhirlyKit::CoordSystem *coordSystem;
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@property (nonatomic) NSDate *lastChangedTime;
+@property (nonatomic,readonly) CFTimeInterval lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
 
 /// Calculate the viewing frustum (which is also the image plane)

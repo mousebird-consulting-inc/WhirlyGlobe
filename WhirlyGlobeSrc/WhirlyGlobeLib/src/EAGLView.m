@@ -21,14 +21,9 @@
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@interface WhirlyKitEAGLView  ()
-@property (nonatomic) CADisplayLink *displayLink;
-@end
-
 @implementation WhirlyKitEAGLView 
 
 @synthesize renderer;
-@synthesize displayLink;
 @synthesize animating;
 
 // You must implement this method
@@ -82,10 +77,9 @@
 {
     if (!animating)
     {
-        CADisplayLink *aDisplayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
-        [aDisplayLink setFrameInterval:frameInterval];
-        [aDisplayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-        self.displayLink = aDisplayLink;
+        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+        [displayLink setFrameInterval:frameInterval];
+        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
         
         animating = TRUE;
     }
@@ -95,15 +89,15 @@
 {
     if (animating)
     {
-        [self.displayLink invalidate];
-        self.displayLink = nil;
+        [displayLink invalidate];
+        displayLink = nil;
         animating = FALSE;
     }
 }
 
 - (void) drawView:(id)sender
 {
-    [renderer render:self.displayLink.duration*self.displayLink.frameInterval];
+    [renderer render:displayLink.duration*displayLink.frameInterval];
 }
 
 - (void) setFrame:(CGRect)newFrame

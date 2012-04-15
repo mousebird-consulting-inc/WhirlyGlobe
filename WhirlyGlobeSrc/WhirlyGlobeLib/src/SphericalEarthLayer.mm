@@ -26,15 +26,8 @@
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@interface WhirlyGlobeSphericalEarthLayer()
-@property (nonatomic) WhirlyKitTextureGroup *texGroup;
-@property (nonatomic) NSString *cacheName;
-@end
-
 @implementation WhirlyGlobeSphericalEarthLayer
 
-@synthesize texGroup;
-@synthesize cacheName;
 @synthesize fade;
 
 - (id)initWithTexGroup:(WhirlyKitTextureGroup *)inTexGroup
@@ -46,11 +39,11 @@ using namespace WhirlyGlobe;
 {
 	if ((self = [super init]))
 	{
-		self.texGroup = inTexGroup;
+		texGroup = inTexGroup;
 		xDim = texGroup.numX;
 		yDim = texGroup.numY;
         savingToCache = false;
-        self.cacheName = inCacheName;
+        cacheName = inCacheName;
         cacheWriter = NULL;
         fade = 0.0;
 	}
@@ -69,7 +62,7 @@ using namespace WhirlyGlobe;
 - (void)saveToCacheName:(NSString *)inCacheName
 {
     savingToCache = true;
-    self.cacheName = inCacheName;
+    cacheName = inCacheName;
 }
 
 // Set up the next chunk to build and schedule it
@@ -237,7 +230,7 @@ using namespace WhirlyGlobe;
 	chunk->setTexId(tex->getId());
     if (fade > 0)
     {
-        NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
         chunk->setFade(curTime,curTime+fade);
     }
 	changeRequests.push_back(new AddDrawableReq(chunk));

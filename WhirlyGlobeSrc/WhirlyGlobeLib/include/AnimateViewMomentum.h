@@ -32,7 +32,7 @@
     Eigen::Quaternionf startQuat;
     Eigen::Vector3f axis;
     float maxTime;
-    NSDate *startDate;
+    CFTimeInterval startDate;
 }
 
 /// Initialize with an angular velocity and a negative acceleration (to slow down)

@@ -57,7 +57,7 @@ public:
         /// Particle velocity
         float velocity;
         /// When this particle is done
-        CFTimeInterval expiration;
+        NSTimeInterval expiration;
     };
 
     /// Representation of a particle system.  This will be used
@@ -100,9 +100,9 @@ public:
     
 protected:
     // All times are offset from here
-    CFTimeInterval startTime;
+    NSTimeInterval startTime;
     // When we last updated
-    CFTimeInterval lastUpdateTime;
+    NSTimeInterval lastUpdateTime;
 
     int maxNumParticles;  // All the particles we can have at once.  Ever.
     std::vector<Particle> particles;

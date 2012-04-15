@@ -28,8 +28,8 @@ using namespace Eigen;
 @implementation WhirlyKitView
 
 @synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@synthesize lastChangedTime;
 @synthesize coordSystem;
+@synthesize lastChangedTime;
 
 - (id)init
 {
@@ -39,7 +39,7 @@ using namespace Eigen;
 		nearPlane = 0.001;
 		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
 		farPlane = 2.6;
-        self.lastChangedTime = [NSDate date];
+        lastChangedTime = CFAbsoluteTimeGetCurrent();
     }
     
     return self;

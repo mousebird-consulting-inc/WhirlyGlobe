@@ -47,12 +47,12 @@
 	Eigen::Quaternion<float> rotQuat;
         
     /// Used to update position based on time (or whatever other factor you like)
-    NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+    NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;
 }
 
 @property (nonatomic,assign) float heightAboveGlobe;
 @property (nonatomic,assign) Eigen::Quaternion<float> rotQuat;
-@property (nonatomic,strong) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+@property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 
 /// Return min/max valid heights above globe
 - (float)minHeightAboveGlobe;

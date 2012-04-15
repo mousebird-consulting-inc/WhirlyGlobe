@@ -51,14 +51,12 @@ struct drawListSortStruct
 
 @interface WhirlyKitSceneRendererES1()
 - (void)setupView;
-@property (nonatomic) NSDate *frameCountStart;
 @end
 
 @implementation WhirlyKitSceneRendererES1
 
 @synthesize scene,theView;
 @synthesize framebufferWidth,framebufferHeight;
-@synthesize frameCountStart;
 @synthesize framesPerSec;
 @synthesize numDrawables;
 @synthesize delegate;
@@ -202,8 +200,8 @@ struct drawListSortStruct
 {  
     CoordSystem *coordSys = scene->getCoordSystem();
     
-	if (!self.frameCountStart)
-		self.frameCountStart = [NSDate date];
+	if (frameCountStart)
+		frameCountStart = CFAbsoluteTimeGetCurrent();
 	
 	[theView animate];
 	
@@ -244,7 +242,7 @@ struct drawListSortStruct
         frameInfo.theView = theView;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
-        frameInfo.currentTime = [NSDate timeIntervalSinceReferenceDate];
+        frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
 		
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
@@ -381,9 +379,10 @@ struct drawListSortStruct
 	// Update the frames per sec
 	if (frameCount++ > RenderFrameCount)
 	{
-		NSTimeInterval howLong = [self.frameCountStart timeIntervalSinceNow];
-		framesPerSec = frameCount / (-howLong);
-		self.frameCountStart = [NSDate date];
+        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+		NSTimeInterval howLong =  now - frameCountStart;;
+		framesPerSec = frameCount / howLong;
+		frameCountStart = now;
 		frameCount = 0;
 	}
     

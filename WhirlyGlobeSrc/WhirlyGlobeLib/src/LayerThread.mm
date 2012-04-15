@@ -52,24 +52,28 @@ using namespace WhirlyKit;
 // We'll just spend our time in here
 - (void)main
 {
-	self.runLoop = [NSRunLoop currentRunLoop];
-	
-	// Wake up our layers.  It's up to them to do the rest
-	for (unsigned int ii=0;ii<[layers count];ii++)
-	{
-		NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
-		[layer startWithThread:self scene:scene];
-	}
+    @autoreleasepool {
+        self.runLoop = [NSRunLoop currentRunLoop];
+        
+        // Wake up our layers.  It's up to them to do the rest
+        for (unsigned int ii=0;ii<[layers count];ii++)
+        {
+            NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
+            [layer startWithThread:self scene:scene];
+        }
 
-	// Process the run loop until we're cancelled
-	// We'll check every 10th of a second
-	while (![self isCancelled])
-	{
-		[runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
-	}
-	
-	self.runLoop = nil;
-    self.layers = nil;
+        // Process the run loop until we're cancelled
+        // We'll check every 10th of a second
+        while (![self isCancelled])
+        {
+            @autoreleasepool {
+                [runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+            }
+        }
+        
+        self.runLoop = nil;
+        self.layers = nil;
+    }
 }
 
 @end

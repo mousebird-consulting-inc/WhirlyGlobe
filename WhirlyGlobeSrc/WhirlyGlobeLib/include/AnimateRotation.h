@@ -29,14 +29,14 @@
  */
 @interface AnimateViewRotation : NSObject<WhirlyGlobeAnimationDelegate>
 {
-    NSDate *startDate,*endDate;
+    CFTimeInterval startDate,endDate;
     Eigen::Quaternion<float> startRot,endRot;
 }
 
 /// When to start the animation.  Can be in the past
-@property (nonatomic) NSDate *startDate;
+@property (nonatomic,assign) NSTimeInterval startDate;
 /// When to finish the animation.
-@property (nonatomic) NSDate *endDate;
+@property (nonatomic,assign) NSTimeInterval endDate;
 /// Where to start rotating.  This is probably where you are when you start
 @property (nonatomic,assign) Eigen::Quaternion<float> startRot;
 /// Where to end the rotation.  We'll interpolate from the start to here

@@ -36,8 +36,8 @@ using namespace Eigen;
     
     if (self)
     {
-        self.startDate = [NSDate date];
-        self.endDate = [startDate dateByAddingTimeInterval:howLong];
+        startDate = CFAbsoluteTimeGetCurrent();
+        endDate = startDate + howLong;
         startLoc = globeView.loc;
         endLoc = newLoc;
     }
@@ -48,19 +48,19 @@ using namespace Eigen;
 
 - (void)updateView:(WhirlyMapView *)mapView
 {
-    if (!self.startDate)
+    if (startDate == 0.0)
         return;
-    
-    NSDate *now = [NSDate date];
-    float span = (float)[endDate timeIntervalSinceDate:startDate];
-    float remain = (float)[endDate timeIntervalSinceDate:now];
+
+    CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+    float span = endDate - startDate;
+    float remain = endDate - now;
     
     // All done, snap to end
     if (remain < 0)
     {
         [mapView setLoc:endLoc];
-        self.startDate = nil;
-        self.endDate = nil;
+        startDate = 0;
+        endDate = 0;
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;

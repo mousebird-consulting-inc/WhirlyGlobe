@@ -67,44 +67,6 @@ MarkerSceneRep::MarkerSceneRep()
 
 @end
 
-#if 0
-// Drawable that turns it self on and off at appropriate times
-class TimedDrawable : public BasicDrawable
-{
-public:
-    TimedDrawable() : startTime(0), period(0), onDuration(0) { }
-    virtual ~TimedDrawable() { };
-    
-    // Set the period and on duration.  Start controls the offset.
-    void setTimedVisibility(NSTimeInterval start,NSTimeInterval period,NSTimeInterval onDuration)
-    {
-        this->startTime = start;
-        this->period = period;
-        this->onDuration = onDuration;
-    }
-    
-    // Decide when this on based on the time intervals
-    virtual bool isOn(RendererFrameInfo *frameInfo) const
-    {
-        if (!BasicDrawable::isOn(frameInfo))
-            return false;
-        
-        float since = frameInfo.currentTime - startTime;
-        float where = fmod(since,period);
-        
-        return (where < onDuration);
-    }
-    
-protected:
-    NSTimeInterval startTime;
-    NSTimeInterval period,onDuration;
-};
-#endif
-
-@interface WhirlyKitMarkerLayer()
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-@end
-
 // Used to pass marker information between threads
 @interface MarkerInfo : NSObject
 {
@@ -178,7 +140,6 @@ protected:
 
 @implementation WhirlyKitMarkerLayer
 
-@synthesize layerThread;
 @synthesize selectLayer;
 
 - (void)dealloc
@@ -193,7 +154,7 @@ protected:
 // Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
-    self.layerThread = inLayerThread;
+    layerThread = inLayerThread;
     scene = inScene;    
 
     // Set up the generator we'll pass markers to
@@ -312,7 +273,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             newMarker->maxVis = markerInfo.maxVis;
             if (markerInfo.fade > 0.0)
             {
-                NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 newMarker->fadeDown = curTime;
                 newMarker->fadeUp = curTime+markerInfo.fade;
             } else {
@@ -351,115 +312,12 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     {
         if (markerInfo.fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             it->second->setFade(curTime,curTime+markerInfo.fade);
         }
         scene->addChangeRequest(new AddDrawableReq(it->second));        
     }
     drawables.clear();
-    
-#if 0
-    // Work through the markers
-    TimedDrawable *draw = NULL;
-    for (WGMarker *marker in markerInfo.markers)
-    {
-        // Do one per textures
-        // Note: This is kind of horrible
-        const std::vector<SimpleIdentity> &texIDs = marker.texIDs;
-        int numInstances = texIDs.size();
-        if (marker.period == 0.0)
-            numInstances = 0;
-        numInstances = std::max(1,numInstances);
-
-        float duration = marker.period / numInstances;
-        
-        for (unsigned int ti=0;ti<numInstances;ti++)
-        {
-            SimpleIdentity texId = (texIDs.empty() ? EmptyIdentity : texIDs[ti]);
-
-            // Look for a texture sub mapping
-            SubTexture subTex = scene->getSubTexture(texId);
-            
-            // Note: One drawable per marker bad.  BAD!
-            if (!draw || true)
-            {
-                if (draw)
-                {
-                    // Flush it out
-                    scene->addChangeRequest(new AddDrawableReq(draw));
-                }
-                draw = new TimedDrawable();
-                draw->setType(GL_TRIANGLES);
-                draw->setDrawOffset(markerInfo.drawOffset);
-                draw->setColor([markerInfo.color asRGBAColor]);
-                draw->setDrawPriority(markerInfo.drawPriority);
-                draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
-                draw->setTexId(subTex.texId);
-                markerRep->drawIDs.insert(draw->getId());
-                
-                // Note: Testing
-                draw->setTimedVisibility(currentTime + ti*duration, marker.period, duration);
-            }
-            
-            // Build the rectangle for this one
-            float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
-            float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
-            
-            Vector3f norm = PointFromGeo(marker.loc);
-            Point3f center = norm;
-            Vector3f up(0,0,1);
-            Point3f horiz = up.cross(norm).normalized();
-            Point3f vert = norm.cross(horiz).normalized();;        
-            
-            Point3f ll = center - width2*horiz - height2*vert;
-            
-            Point3f pts[4];
-            pts[0] = ll;
-            pts[1] = ll + 2 * width2 * horiz;
-            pts[2] = ll + 2 * width2 * horiz + 2 * height2 * vert;
-            pts[3] = ll + 2 * height2 * vert;
-            
-            std::vector<TexCoord> texCoord;
-            texCoord.resize(4);
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
-            subTex.processTexCoords(texCoord);
-            
-            // Toss the geometry into the drawable
-            int vOff = draw->getNumPoints();
-            for (unsigned int ii=0;ii<4;ii++)
-            {
-                Point3f &pt = pts[ii];
-                draw->addPoint(pt);
-                draw->addNormal(norm);
-                draw->addTexCoord(texCoord[ii]);
-                GeoMbr geoMbr = draw->getGeoMbr();
-                geoMbr.addGeoCoord(marker.loc);
-                draw->setGeoMbr(geoMbr);
-            }
-            
-            draw->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
-            draw->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
-            
-            // While we're at it, let's add this to the selection layer
-            if (selectLayer && marker.isSelectable)
-            {
-                // If the marker doesn't already have an ID, it needs one
-                if (!marker.selectID)
-                    marker.selectID = Identifiable::genId();
-                
-                [selectLayer addSelectableRect:marker.selectID rect:pts];
-            }
-        }
-    }
-    
-    // Flush out the last drawable
-    if (draw)
-        scene->addChangeRequest(new AddDrawableReq(draw));
-    
-#endif
 }
 
 // Remove the given marker(s)
@@ -476,7 +334,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         
         if (markerRep->fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
                  idIt != markerRep->drawIDs.end(); ++idIt)
                 scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));

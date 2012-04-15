@@ -231,7 +231,7 @@ bool RenderCacheReader::getDrawablesAndTexturesAddToScene(Scene *scene,SimpleIDS
         // If there's a fade in, do that
         if (fade > 0.0)
         {
-            NSTimeInterval curTime = [NSDate timeIntervalSinceReferenceDate];
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             drawable->setFade(curTime,curTime+fade);
         }
         drawIDs.insert(drawable->getId());

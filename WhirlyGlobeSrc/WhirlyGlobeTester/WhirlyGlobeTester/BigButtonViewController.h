@@ -32,10 +32,10 @@
  */
 @interface BigButtonViewController : UIViewController
 {
-    NSObject<BigButtonDelegate> *__unsafe_unretained delegate;
+    NSObject<BigButtonDelegate> * __weak delegate;
 }
 
-@property(nonatomic,unsafe_unretained) NSObject<BigButtonDelegate> *delegate;
+@property(nonatomic,weak) NSObject<BigButtonDelegate> *delegate;
 
 // Use this to create one
 + (BigButtonViewController *)loadFromNib;

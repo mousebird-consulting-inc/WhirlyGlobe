@@ -25,12 +25,6 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface InteractionLayer()
-@property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
-@property (nonatomic) WhirlyGlobeView *globeView;
-@property (nonatomic) NSDictionary *options;
-@property (nonatomic) NSObject *autoSpinner;
-@property (nonatomic) NSDate *lastTouched;
-
 - (void)displayCountries:(int)how;
 - (void)displayMarkers:(int)how;
 - (void)displayParticles:(bool)how;
@@ -40,17 +34,12 @@ using namespace WhirlyGlobe;
 
 @implementation InteractionLayer
 
-@synthesize layerThread;
-@synthesize globeView;
 @synthesize vectorLayer;
 @synthesize labelLayer;
 @synthesize particleSystemLayer;
 @synthesize markerLayer;
 @synthesize loftLayer;
 @synthesize selectionLayer;
-@synthesize options;
-@synthesize autoSpinner;
-@synthesize lastTouched;
 
 // Initialize with a globe view.  All the rest is optional.
 - (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
@@ -58,8 +47,8 @@ using namespace WhirlyGlobe;
     self = [super init];
     if (self)
     {
-        self.globeView = inGlobeView;
-        self.options = [OptionsViewController fetchValuesDict];
+        globeView = inGlobeView;
+        options = [OptionsViewController fetchValuesDict];
         countryDb = NULL;
         loftedPolys = false;
     }
@@ -70,29 +59,19 @@ using namespace WhirlyGlobe;
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    self.layerThread = nil;
-    self.vectorLayer = nil;
-    self.labelLayer = nil;
-    self.particleSystemLayer = nil;
-    self.markerLayer = nil;
-    self.loftLayer = nil;
-    self.selectionLayer = nil;
-    
+        
     if (countryDb)
         delete countryDb;
     countryDb = NULL;
     if (cityDb)
         delete cityDb;
     cityDb = NULL;
-    
-    
 }
 
 // Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
-    self.layerThread = inThread;
+    layerThread = inThread;
     scene = inScene;
 
     // Set up the country DB
@@ -112,7 +91,7 @@ using namespace WhirlyGlobe;
     
     // Kick off the autospin check
     [self performSelector:@selector(processAutoSpin:) withObject:nil afterDelay:kAutoSpinInterval];    
-    self.lastTouched = [NSDate date];
+    lastTouched = CFAbsoluteTimeGetCurrent();
 }
 
 // We'll see if the globe view has been modified lately.  If not, we'll start the spinning
@@ -120,19 +99,20 @@ using namespace WhirlyGlobe;
 {
     // We may spin if:
     //  we're not currently autospinning
-    if ((!self.autoSpinner || self.autoSpinner != self.globeView.delegate))
+    if ((!autoSpinner || autoSpinner != globeView.delegate))
     {
+        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
         // See how long since the globe moved or the user tapped something
-        if (-[globeView.lastChangedTime timeIntervalSinceNow] > kAutoSpinInterval &&
-            -[self.lastTouched timeIntervalSinceNow] > kAutoSpinInterval)
+        if ((now - globeView.lastChangedTime) > kAutoSpinInterval &&
+            (now - lastTouched) > kAutoSpinInterval)
         {
             // Rotate until we're interrupted
             float anglePerSec = kAutoSpinDegrees / 180.0 * M_PI;
             
             // Keep going in that direction forever
             Vector3f upVector(0,0,1);
-            self.globeView.delegate = [[AnimateViewMomentum alloc] initWithView:self.globeView velocity:anglePerSec accel:0.0 axis:upVector];
-            self.autoSpinner = self.globeView.delegate;
+            autoSpinner = [[AnimateViewMomentum alloc] initWithView:globeView velocity:anglePerSec accel:0.0 axis:upVector];
+            globeView.delegate = (AnimateViewMomentum *)autoSpinner;
         }
     }
     
@@ -145,7 +125,7 @@ using namespace WhirlyGlobe;
 // In the main thread here
 - (void)tapSelector:(NSNotification *)note
 {
-    self.lastTouched = [NSDate date];
+    lastTouched = CFAbsoluteTimeGetCurrent();
 
     WhirlyGlobeTapMessage *msg = note.object;
 	[self performSelector:@selector(tapSelectorLayerThread:) onThread:layerThread withObject:msg waitUntilDone:NO];
@@ -225,9 +205,9 @@ using namespace WhirlyGlobe;
 
 - (void)optionsChange:(NSNotification *)note
 {
-    self.lastTouched = [NSDate date];
+    lastTouched = CFAbsoluteTimeGetCurrent();
 
-    [self performSelector:@selector(optionsChangeLayer:) onThread:self.layerThread withObject:note.object waitUntilDone:NO];
+    [self performSelector:@selector(optionsChangeLayer:) onThread:layerThread withObject:note.object waitUntilDone:NO];
 }
 
 // This versions is called in the layer thread, so they can do work
@@ -271,7 +251,7 @@ using namespace WhirlyGlobe;
         }
     }
     
-    self.options = [NSDictionary dictionaryWithDictionary:newOptions];
+    options = [NSDictionary dictionaryWithDictionary:newOptions];
 }
 
 - (void)displayCountries:(int)how

@@ -48,16 +48,16 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
  */
 @interface InteractionLayer : NSObject <WhirlyKitLayer>
 {
-	WhirlyKitLayerThread *__weak layerThread;
+	WhirlyKitLayerThread * __weak layerThread;
 	WhirlyGlobe::GlobeScene *scene;
-	WhirlyGlobeView *globeView;
+	WhirlyGlobeView * __weak globeView;
 
-	WhirlyKitVectorLayer *__weak vectorLayer;
-	WhirlyKitLabelLayer *__weak labelLayer;
-    WhirlyKitParticleSystemLayer *__weak particleSystemLayer;
-    WhirlyKitMarkerLayer *__weak markerLayer;
-    WhirlyGlobeLoftLayer *__weak loftLayer;
-    WhirlyKitSelectionLayer *__weak selectionLayer;
+	WhirlyKitVectorLayer * __weak vectorLayer;
+	WhirlyKitLabelLayer * __weak labelLayer;
+    WhirlyKitParticleSystemLayer * __weak particleSystemLayer;
+    WhirlyKitMarkerLayer * __weak markerLayer;
+    WhirlyGlobeLoftLayer * __weak loftLayer;
+    WhirlyKitSelectionLayer * __weak selectionLayer;
     
     WhirlyKit::VectorDatabase *countryDb;  // Country outlines
     WhirlyKit::VectorDatabase *cityDb;  // City points
@@ -75,7 +75,7 @@ typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
     NSDictionary *options;  // Options for what to display and how
     bool loftedPolys;       // If set, we'll loft any country that gets tapped
     NSObject *autoSpinner;  // If we're autospinning, the object doing the work
-    NSDate *lastTouched;    // When the user last interacted with the globe
+    CFTimeInterval lastTouched;  // When the user last interacted with the globe
 }
 
 // Initialize with a globe view.  All the rest is optional.

@@ -31,7 +31,7 @@
     float velocity,acceleration;
     Eigen::Vector3f dir;
     float maxTime;
-    NSDate *startDate;
+    CFTimeInterval startDate;
     WhirlyKit::Point3f org;
 }
 

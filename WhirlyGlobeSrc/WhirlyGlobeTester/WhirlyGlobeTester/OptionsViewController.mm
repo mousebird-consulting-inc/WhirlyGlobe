@@ -21,23 +21,8 @@
 #import "OptionsViewController.h"
 #import "InteractionLayer.h"
 
-@interface OptionsViewController()
-@property (nonatomic) UISegmentedControl *countryControl;
-@property (nonatomic) UISegmentedControl *markersControl;
-@property (nonatomic) UISwitch *particlesSwitch;
-@property (nonatomic) UISegmentedControl *loftedControl;    
-@property (nonatomic) UISwitch *statsSwitch;
-@property (nonatomic) NSMutableDictionary *values;
-@end
-
 @implementation OptionsViewController
 
-@synthesize countryControl;
-@synthesize markersControl;
-@synthesize particlesSwitch;
-@synthesize loftedControl;
-@synthesize statsSwitch;
-@synthesize values;
 @synthesize delegate;
 
 + (OptionsViewController *)loadFromNib
@@ -72,19 +57,18 @@ NSMutableDictionary *valueDict = nil;
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.values = valueDict;
-
+        values = valueDict;
     }
     return self;
 }
 
 - (void)clear
 {
-    self.countryControl = nil;
-    self.markersControl = nil;
-    self.particlesSwitch = nil;
-    self.loftedControl = nil;
-    self.statsSwitch = nil;
+    countryControl = nil;
+    markersControl = nil;
+    particlesSwitch = nil;
+    loftedControl = nil;
+    statsSwitch = nil;
 }
 
 - (void)dealloc
@@ -118,11 +102,11 @@ NSMutableDictionary *valueDict = nil;
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    self.countryControl.selectedSegmentIndex = [[values objectForKey:kWGCountryControl] intValue];
-    self.markersControl.selectedSegmentIndex = [[values objectForKey:kWGMarkerControl] intValue];
-    self.particlesSwitch.on = [[values objectForKey:kWGParticleControl] boolValue];
-    self.loftedControl.selectedSegmentIndex = [[values objectForKey:kWGLoftedControl] intValue];
-    self.statsSwitch.on = [[values objectForKey:kWGStatsControl] boolValue];
+    countryControl.selectedSegmentIndex = [[values objectForKey:kWGCountryControl] intValue];
+    markersControl.selectedSegmentIndex = [[values objectForKey:kWGMarkerControl] intValue];
+    particlesSwitch.on = [[values objectForKey:kWGParticleControl] boolValue];
+    loftedControl.selectedSegmentIndex = [[values objectForKey:kWGLoftedControl] intValue];
+    statsSwitch.on = [[values objectForKey:kWGStatsControl] boolValue];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -134,13 +118,13 @@ NSMutableDictionary *valueDict = nil;
 // One of the controls changes, update the dictionary and send out a notification
 - (IBAction)valueChangeAction:(id)sender
 {
-    [values setObject:[NSNumber numberWithInt:self.countryControl.selectedSegmentIndex] forKey:kWGCountryControl];
-    [values setObject:[NSNumber numberWithInt:self.markersControl.selectedSegmentIndex] forKey:kWGMarkerControl];
-    [values setObject:[NSNumber numberWithBool:self.particlesSwitch.on] forKey:kWGParticleControl];
-    [values setObject:[NSNumber numberWithInt:self.loftedControl.selectedSegmentIndex] forKey:kWGLoftedControl];
-    [values setObject:[NSNumber numberWithBool:self.statsSwitch.on] forKey:kWGStatsControl];
+    [values setObject:[NSNumber numberWithInt:countryControl.selectedSegmentIndex] forKey:kWGCountryControl];
+    [values setObject:[NSNumber numberWithInt:markersControl.selectedSegmentIndex] forKey:kWGMarkerControl];
+    [values setObject:[NSNumber numberWithBool:particlesSwitch.on] forKey:kWGParticleControl];
+    [values setObject:[NSNumber numberWithInt:loftedControl.selectedSegmentIndex] forKey:kWGLoftedControl];
+    [values setObject:[NSNumber numberWithBool:statsSwitch.on] forKey:kWGStatsControl];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:kWGControlChange object:self.values];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kWGControlChange object:values];
 }
 
 @end

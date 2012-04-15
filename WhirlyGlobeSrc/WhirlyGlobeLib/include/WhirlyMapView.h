@@ -41,11 +41,11 @@
     WhirlyKit::Point3f loc;
     
     /// Used to update position based on time (or whatever)
-    NSObject<WhirlyMapAnimationDelegate> * __strong delegate;
+    NSObject<WhirlyMapAnimationDelegate> * __weak delegate;
 }
 
 @property(nonatomic,assign) WhirlyKit::Point3f loc;
-@property(nonatomic,strong) NSObject<WhirlyMapAnimationDelegate> *delegate;
+@property(nonatomic,weak) NSObject<WhirlyMapAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
 - (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)coordSys;

@@ -27,9 +27,6 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 using namespace Eigen;
 
-@interface WhirlyGlobeView()
-@end
-
 @implementation WhirlyGlobeView
 
 @synthesize heightAboveGlobe;
@@ -60,7 +57,7 @@ using namespace Eigen;
 // Set the new rotation, but also keep track of when we did it
 - (void)setRotQuat:(Eigen::Quaternionf)newRotQuat
 {
-    self.lastChangedTime = [NSDate date];
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
 }
 	
@@ -102,7 +99,7 @@ using namespace Eigen;
 	float maxH = [self maxHeightAboveGlobe];
 	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
 
-    self.lastChangedTime = [NSDate date];
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
 }
 	
 - (Eigen::Affine3f)calcModelMatrix

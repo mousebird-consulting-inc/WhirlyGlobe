@@ -36,7 +36,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 // The pan delegate handles panning and rotates the globe accordingly
 @interface PanDelegateFixed : NSObject<UIGestureRecognizerDelegate> 
 {
-    WhirlyGlobeView *view;
+    WhirlyGlobeView * __weak view;
     UITouch *startTouch;  // The touch we're following
     CGPoint startPoint;
     // Used to keep track of what sort of rotation we're doing
@@ -50,7 +50,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 
     // Last sample for spinning
     Eigen::Quaternionf spinQuat;
-    NSDate *spinDate;
+    CFTimeInterval spinDate;
     CGPoint lastTouch;
 }
 
