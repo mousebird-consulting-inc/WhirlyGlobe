@@ -24,6 +24,7 @@
 #import "GlobeScene.h"
 #import "DataLayer.h"
 #import "RenderCache.h"
+#import "LayerThread.h"
 
 namespace WhirlyGlobe
 {
@@ -40,6 +41,7 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
  */
 @interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyKitLayer>
 {
+    WhirlyKitLayerThread *layerThread;
 	WhirlyKitTextureGroup *texGroup;
 	WhirlyGlobe::GlobeScene *scene;
 	unsigned int xDim,yDim;
@@ -49,7 +51,8 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     WhirlyKit::RenderCacheWriter *cacheWriter;
     /// If set, the time to fade in the globe
     float fade;
-//	float radius;  // 1.0 by default
+    std::vector<WhirlyKit::SimpleIdentity> texIDs;
+    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
 }
 
 @property (nonatomic,assign) float fade;
@@ -73,4 +76,9 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 ///  overlaid geometry should be.  This is intended to avoid Z fighting
 - (float)smallestTesselation;
 
+/// Change the texture group being used.
+/// The new one must be exactly the same size as the old one.
+/// Returns true if that was possible.
+- (bool)changeTexGroup:(WhirlyKitTextureGroup *)texGroup;
+	
 @end

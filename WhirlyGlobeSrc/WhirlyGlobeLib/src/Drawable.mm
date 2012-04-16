@@ -746,6 +746,15 @@ void FadeChangeRequest::execute2(Scene *scene,Drawable *draw)
     BasicDrawable *basicDraw = (BasicDrawable *)draw;
     basicDraw->setFade(fadeDown, fadeUp);
 }
-    
-    
+
+DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId)
+: DrawableChangeRequest(drawId), newTexId(newTexId)
+{
+}
+
+void DrawTexChangeRequest::execute2(Scene *scene,Drawable *draw)
+{
+    BasicDrawable *basicDraw = (BasicDrawable *)draw;
+    basicDraw->setTexId(newTexId);
+}    
 }

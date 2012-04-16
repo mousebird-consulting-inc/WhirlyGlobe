@@ -66,9 +66,10 @@ using namespace WhirlyGlobe;
 }
 
 // Set up the next chunk to build and schedule it
-- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
-	scene = (WhirlyGlobe::GlobeScene *)inScene;
+    layerThread = inLayerThread;	
+    scene = (WhirlyGlobe::GlobeScene *)inScene;
 	chunkX = chunkY = 0;
 	[self performSelector:@selector(startProcess:) withObject:nil];
 }
@@ -78,6 +79,9 @@ using namespace WhirlyGlobe;
 // Load from a pregenerated cache
 - (BOOL)loadFromCache
 {
+    drawIDs.clear();
+    texIDs.clear();
+    
     RenderCacheReader cacheReader(cacheName);
     std::vector<Texture *> textures;
     std::vector<Drawable *> drawables;
@@ -97,6 +101,7 @@ using namespace WhirlyGlobe;
             for (unsigned int x = 0; x < texGroup.numX; x++)
             {
                 BasicDrawable *chunk = (BasicDrawable *)drawables[whichDrawable++];
+                drawIDs.push_back(chunk->getId());
                 
                 // Now for the changes to the scenegraph
                 std::vector<ChangeRequest *> changeRequests;
@@ -105,6 +110,7 @@ using namespace WhirlyGlobe;
                 Texture *tex = new Texture([texGroup generateFileNameX:x y:y],texGroup.ext);
                 tex->setWidth(texGroup.pixelsSquare);
                 tex->setHeight(texGroup.pixelsSquare);
+                texIDs.push_back(tex->getId());
                 changeRequests.push_back(new AddTextureReq(tex));
                 chunk->setTexId(tex->getId());
                 changeRequests.push_back(new AddDrawableReq(chunk));                
@@ -227,6 +233,7 @@ using namespace WhirlyGlobe;
     tex->setWidth(texGroup.pixelsSquare);
     tex->setHeight(texGroup.pixelsSquare);
 	changeRequests.push_back(new AddTextureReq(tex));
+    texIDs.push_back(tex->getId());
 	chunk->setTexId(tex->getId());
     if (fade > 0)
     {
@@ -234,6 +241,7 @@ using namespace WhirlyGlobe;
         chunk->setFade(curTime,curTime+fade);
     }
 	changeRequests.push_back(new AddDrawableReq(chunk));
+    drawIDs.push_back(chunk->getId());
     
     // Save out to the cache if we've got one
     if (cacheWriter)
@@ -271,6 +279,47 @@ using namespace WhirlyGlobe;
     float smallLat = M_PI/(yDim*SphereTessY);
     
     return std::min(smallLon,smallLat);
+}
+
+// Actually make the texture group changes
+- (void)runChangeTexGroup:(WhirlyKitTextureGroup *)newTexGroup
+{
+    texGroup = newTexGroup;
+    
+    // Now just run through and rebuild textures and reassign IDs
+    for (unsigned int y = 0; y < texGroup.numY; y++)
+        for (unsigned int x = 0; x < texGroup.numX; x++)
+        {
+            SimpleIdentity oldTexId = texIDs[y*texGroup.numX+x];
+            
+            // Set up a new texture
+            Texture *tex = new Texture([texGroup generateFileNameX:x y:y],texGroup.ext);
+            tex->setWidth(texGroup.pixelsSquare);
+            tex->setHeight(texGroup.pixelsSquare);
+            scene->addChangeRequest(new AddTextureReq(tex));
+            texIDs[y*texGroup.numX+x] = tex->getId();
+            
+            // Reassign the drawable and delete the old texture
+            SimpleIdentity drawId = drawIDs[y*texGroup.numX+x];
+            scene->addChangeRequest(new DrawTexChangeRequest(drawId,tex->getId()));
+            scene->addChangeRequest(new RemTextureReq(oldTexId));
+        }
+}
+
+- (bool)changeTexGroup:(WhirlyKitTextureGroup *)newTexGroup
+{
+    // Tex group is not compatible or
+    if (newTexGroup.numX != texGroup.numX ||
+        newTexGroup.numY != texGroup.numY ||
+        texIDs.size() != drawIDs.size() ||
+        newTexGroup.numX * newTexGroup.numY != drawIDs.size())
+        return false;
+    
+    if (!layerThread || ([NSThread currentThread] == layerThread))
+        [self runChangeTexGroup:newTexGroup];
+    else
+        [self performSelector:@selector(runChangeTexGroup:) onThread:layerThread withObject:newTexGroup waitUntilDone:NO];
+    return true;
 }
 
 @end

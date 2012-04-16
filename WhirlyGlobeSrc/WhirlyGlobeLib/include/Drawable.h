@@ -32,7 +32,9 @@
 
 using namespace Eigen;
 
+/// @cond
 @class WhirlyKitRendererFrameInfo;
+/// @endcon
 
 namespace WhirlyKit
 {
@@ -339,5 +341,17 @@ public:
 protected:
     NSTimeInterval fadeUp,fadeDown;
 };
+    
+/// Change the texture used by a drawable
+class DrawTexChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId);
+    
+    void execute2(Scene *scene,Drawable *draw);
+    
+protected:
+    SimpleIdentity newTexId;
+};    
     
 }

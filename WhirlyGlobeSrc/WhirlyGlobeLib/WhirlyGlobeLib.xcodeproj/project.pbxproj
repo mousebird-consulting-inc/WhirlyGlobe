@@ -443,7 +443,6 @@
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */,
-				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -617,6 +616,7 @@
 		2BCF39E314BB8F16006B0FC0 /* layers */ = {
 			isa = PBXGroup;
 			children = (
+				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
 			);
 			name = layers;
