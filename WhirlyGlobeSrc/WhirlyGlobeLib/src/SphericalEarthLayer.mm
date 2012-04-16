@@ -262,13 +262,15 @@ using namespace WhirlyGlobe;
 	
 	// Schedule the next chunk
 	if (chunkY < yDim)
-		[self performSelector:@selector(process:) withObject:nil];
+		[self performSelector:@selector(process:) withObject:nil afterDelay:0.0];
 	else {
         if (cacheWriter)
             delete cacheWriter;
         cacheWriter = NULL;
-//		NSLog(@"Spherical Earth layer done");
-	}
+
+        // If we're done, have the renderer send out a notification.
+        // Odds are it's still processing the data right now
+        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,nil));	}
 
 }
 

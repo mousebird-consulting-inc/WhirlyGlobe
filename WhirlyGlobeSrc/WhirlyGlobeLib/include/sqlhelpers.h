@@ -41,6 +41,9 @@ public:
 	StatementRead(sqlite3 *db,NSString *,bool justRun=false);
 	/// Destructor will call finalize
 	~StatementRead();
+    
+    /// Returns false if initialization failed
+    bool isValid();
 	
 	/// Calls step, expecting a row.
 	/// Returns false if we're done, throws an exception on error
@@ -57,10 +60,13 @@ public:
 	NSString *getString();
 	/// Return a boolean from the current row
 	BOOL getBool();
+    /// Return a blob from the current row
+    NSData *getBlob();
 	
 protected:
 	void init(sqlite3 *db,const char *,bool justRun=false);
 	
+    bool valid;
 	sqlite3 *db;
 	sqlite3_stmt *stmt;
 	bool isFinalized;

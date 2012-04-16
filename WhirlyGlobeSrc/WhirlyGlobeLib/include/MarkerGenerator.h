@@ -62,6 +62,7 @@ public:
         NSTimeInterval period;
         NSTimeInterval fadeUp,fadeDown;
         int drawOffset;
+        int drawPriority;
         float minVis,maxVis;
     };
 

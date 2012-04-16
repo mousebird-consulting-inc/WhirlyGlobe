@@ -115,7 +115,9 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
     GeoMbr geoMbr = draw->getGeoMbr();
     geoMbr.addGeoCoord(loc);
     draw->setGeoMbr(geoMbr);
-}
+    // Note: Should really be sorting by this, but that's kinda nuts
+    int oldDrawPriority = draw->getDrawPriority();
+    draw->setDrawPriority((drawPriority > oldDrawPriority) ? drawPriority : oldDrawPriority);}
 
 MarkerGenerator::MarkerGenerator()
 {    

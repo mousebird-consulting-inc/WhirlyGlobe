@@ -271,6 +271,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             newMarker->drawOffset = markerInfo.drawOffset;
             newMarker->minVis = markerInfo.minVis;
             newMarker->maxVis = markerInfo.maxVis;
+            newMarker->drawPriority = markerInfo.drawPriority;
             if (markerInfo.fade > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();

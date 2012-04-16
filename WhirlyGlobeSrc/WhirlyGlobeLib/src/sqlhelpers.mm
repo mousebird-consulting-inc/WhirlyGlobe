@@ -60,16 +60,24 @@ StatementRead::StatementRead(sqlite3 *db,NSString *stmtStr,bool justRun)
 
 void StatementRead::init(sqlite3 *db,const char *stmtStr,bool justRun)
 {
+    valid = false;
+    if (!stmtStr)
+        return;    
+    
 	this->db = db;
 	stmt = NULL;
 	isFinalized = false;
 	curField = 0;
 	
 	if (sqlite3_prepare_v2(db,stmtStr,-1,&stmt,NULL) != SQLITE_OK)
-		throw 1;
+    {
+        return;
+    }
 	
 	if (justRun)
 		stepRow();
+    
+    valid = true;
 }
 		
 // Clean up statement
@@ -77,11 +85,16 @@ StatementRead::~StatementRead()
 {
 	finalize();
 }
+    
+bool StatementRead::isValid()
+{
+    return valid;
+}
 	
 // Step
 bool StatementRead::stepRow()
 {
-	if (isFinalized || !stmt)
+	if (isFinalized || !stmt || !valid)
 		return false;
     
     curField = 0;
@@ -98,7 +111,7 @@ bool StatementRead::stepRow()
 // Done with the statement
 void StatementRead::finalize()
 {
-	if (!isFinalized)
+	if (!isFinalized && valid)
 	{
 		sqlite3_finalize(stmt);
 		isFinalized = true;
@@ -149,6 +162,18 @@ BOOL StatementRead::getBool()
 		return YES;
 	else
 		return NO;
+}
+    
+NSData *StatementRead::getBlob()
+{
+    if (isFinalized)
+            throw 1;
+
+    const char *blob = (const char *)sqlite3_column_blob(stmt, curField);
+    int blobSize = sqlite3_column_bytes(stmt,curField);
+    curField++;
+
+    return [NSData dataWithBytes:blob length:blobSize];
 }
 	
 // Construct a write statement

@@ -271,4 +271,28 @@ void RemGeneratorReq::execute(Scene *scene,WhirlyKitView *view)
     }
 }
     
+NotificationReq::NotificationReq(NSString *inNoteName,NSObject *inNoteObj)
+{
+    noteName = inNoteName;
+    noteObj = inNoteObj;
+}
+
+NotificationReq::~NotificationReq()
+{
+    noteName = nil;
+    noteObj = nil;
+}
+
+void NotificationReq::execute(Scene *scene,WhirlyKitView *view)
+{
+    NSString *theNoteName = noteName;
+    NSObject *theNoteObj = noteObj;
+    
+    // Send out the notification on the main thread
+    dispatch_async(dispatch_get_main_queue(),
+                   ^{
+                       [[NSNotificationCenter defaultCenter] postNotificationName:theNoteName object:theNoteObj];
+                   });
+}
+    
 }

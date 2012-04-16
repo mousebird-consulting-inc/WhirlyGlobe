@@ -28,6 +28,9 @@
 
 namespace WhirlyGlobe
 {
+/// We send this notification out after the layer has completed loading
+#define kWhirlyGlobeSphericalEarthLoaded @"WhirlyGlobeSphericalEarthLoaded"
+    
 // Each chunk of the globe is broken into this many units
 static const unsigned int SphereTessX = 10,SphereTessY = 25;
 //static const unsigned int SphereTessX = 20,SphereTessY = 50;

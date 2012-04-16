@@ -398,6 +398,8 @@ void VectorDatabase::getMatchingVectors(NSString *query,UIntSet &vecIds)
     try {
         sqlhelpers::StatementRead readStmt(db,
                                            [NSString stringWithFormat:@"SELECT vecid from vectors where %@;",query]);
+        if (!readStmt.isValid())
+            return;
         while (readStmt.stepRow())
             vecIds.insert(readStmt.getInt());
     } 

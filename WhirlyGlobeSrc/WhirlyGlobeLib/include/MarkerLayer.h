@@ -31,9 +31,9 @@
 
 namespace WhirlyKit
 {
-/// Default priority for markers
-static const int MarkerDrawPriority=1005;
-
+/// Default priority for markers.  At the end, basically
+static const int MarkerDrawPriority=10000;
+    
 /// Maximum number of triangles we'll stick in a drawable
 static const int MaxMarkerDrawableTris=1<<15/3;
 }
