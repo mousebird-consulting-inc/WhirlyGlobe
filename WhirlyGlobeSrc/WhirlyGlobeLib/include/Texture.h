@@ -67,7 +67,7 @@ public:
 	
 protected:
 	/// Raw texture data
-	__strong NSData *texData;
+	NSData * __strong texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
 	

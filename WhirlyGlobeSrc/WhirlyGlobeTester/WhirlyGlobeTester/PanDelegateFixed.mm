@@ -217,7 +217,8 @@ using namespace WhirlyGlobe;
             drag *= scale/(MaxAngularVelocity-MinAngularVelocity);
             
             // Keep going in that direction for a while
-            view.delegate = [[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector];
+            viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector];
+            view.delegate = viewAnimation;
         }
 			break;
         default:

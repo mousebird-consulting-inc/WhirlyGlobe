@@ -36,8 +36,14 @@ using namespace WhirlyKit;
 
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
-struct drawListSortStruct
+class drawListSortStruct
 {
+public:
+    // These methods are here to make the compiler shut up
+    drawListSortStruct() { }
+    ~drawListSortStruct() { }
+    drawListSortStruct(const drawListSortStruct &that) {  }
+    drawListSortStruct & operator = (const drawListSortStruct &that) { return *this; }
     bool operator()(const Drawable *a,const Drawable *b) 
     {
         if (a->hasAlpha(frameInfo) == b->hasAlpha(frameInfo))

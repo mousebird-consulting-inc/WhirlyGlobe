@@ -52,6 +52,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     Eigen::Quaternionf spinQuat;
     CFTimeInterval spinDate;
     CGPoint lastTouch;
+    AnimateViewMomentum *viewAnimation;
 }
 
 + (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

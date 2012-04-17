@@ -97,7 +97,7 @@
 		2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95192E12EF4417005003AE /* WhirlyVector.mm */; };
 		2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCABB9A12FA14660049D73C /* GlobeMath.mm */; };
 		2BDC4ACC133404D400E25283 /* SceneRendererES1.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */; };
-		2BDC4ACD133404D400E25283 /* EAGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FE912DE23D400778431 /* EAGLView.m */; };
+		2BDC4ACD133404D400E25283 /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC53FE912DE23D400778431 /* EAGLView.mm */; };
 		2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE5612E4F48800415490 /* PinchDelegate.mm */; };
 		2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */; };
 		2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3A341F12E605C800698DA1 /* PanDelegate.mm */; };
@@ -216,7 +216,7 @@
 		2BC53FDE12DE23BA00778431 /* TextureGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGroup.h; sourceTree = "<group>"; };
 		2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIImage+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BC53FE112DE23BA00778431 /* WhirlyVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyVector.h; sourceTree = "<group>"; };
-		2BC53FE912DE23D400778431 /* EAGLView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = EAGLView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		2BC53FE912DE23D400778431 /* EAGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = EAGLView.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		2BC53FEA12DE23D400778431 /* GlobeScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeScene.mm; sourceTree = "<group>"; };
 		2BC53FEB12DE23D400778431 /* SphericalEarthLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthLayer.mm; sourceTree = "<group>"; };
 		2BC53FEC12DE23D400778431 /* TextureGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureGroup.mm; sourceTree = "<group>"; };
@@ -343,7 +343,7 @@
 			isa = PBXGroup;
 			children = (
 				2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */,
-				2BC53FE912DE23D400778431 /* EAGLView.m */,
+				2BC53FE912DE23D400778431 /* EAGLView.mm */,
 			);
 			name = rendering;
 			sourceTree = "<group>";
@@ -874,7 +874,7 @@
 				2BDC4ACA133404D400E25283 /* WhirlyVector.mm in Sources */,
 				2BDC4ACB133404D400E25283 /* GlobeMath.mm in Sources */,
 				2BDC4ACC133404D400E25283 /* SceneRendererES1.mm in Sources */,
-				2BDC4ACD133404D400E25283 /* EAGLView.m in Sources */,
+				2BDC4ACD133404D400E25283 /* EAGLView.mm in Sources */,
 				2BDC4ACE133404D400E25283 /* PinchDelegate.mm in Sources */,
 				2BDC4ACF133404D400E25283 /* SwipeDelegate.mm in Sources */,
 				2BDC4AD0133404D400E25283 /* PanDelegate.mm in Sources */,
@@ -984,6 +984,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				DSTROOT = /tmp/WhirlyGlobeLib.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -992,6 +994,11 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1003,12 +1010,19 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_OBJCPP_ARC_ABI = YES;
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				DSTROOT = /tmp/WhirlyGlobeLib.dst;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
