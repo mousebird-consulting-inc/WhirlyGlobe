@@ -72,8 +72,9 @@ using namespace WhirlyKit;
 			startTransform = [view calcModelMatrix];
 			startQuat = view.rotQuat;
 			panning = NO;
-			if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform 
-									frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&startOnSphere])
+            if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                            hit:&startOnSphere])
 				panning = YES;
 		}
 			break;
@@ -85,8 +86,9 @@ using namespace WhirlyKit;
 
 				// Figure out where we are now
 				Point3f hit;
-				[view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform 
-									frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit ];
+                [view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                            hit:&hit ];
 
 				// This gives us a direction to rotate around
 				// And how far to rotate

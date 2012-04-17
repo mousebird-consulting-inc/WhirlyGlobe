@@ -36,11 +36,14 @@
 	NSInteger frameInterval;
     BOOL animating;
     CADisplayLink *displayLink;
+    /// Set this false if you don't want the doubling for the retina display
+    BOOL useRetina;
 }
 
 @property (nonatomic) id<WhirlyKitESRenderer> renderer;
 @property (nonatomic) NSInteger frameInterval;
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
+@property (nonatomic, assign) BOOL useRetina;
 
 /// Start the animation.  Typically right before we're displayed
 - (void) startAnimation;

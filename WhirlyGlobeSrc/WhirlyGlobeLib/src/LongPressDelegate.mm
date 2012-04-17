@@ -67,7 +67,7 @@ using namespace WhirlyGlobe;
         Point3f hit;
         Eigen::Affine3f theTransform = [globeView calcModelMatrix];
         CGPoint touchLoc = [press locationOfTouch:0 inView:press.view];
-        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
+        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
         {
             WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
             msg.view = press.view;

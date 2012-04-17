@@ -144,8 +144,8 @@ using namespace WhirlyGlobe;
 {
     // Tap within 10 pixels (or points?)
     Point2f touchPt;  touchPt.x() = msg.touchLoc.x;  touchPt.y() = msg.touchLoc.y;
-    SimpleIdentity objectId = [self.selectionLayer pickObject:touchPt maxDist:10.0];
-
+    SimpleIdentity objectId = [selectionLayer pickObject:touchPt view:msg.view maxDist:10.0];
+    
     bool hit = false;
     if (labelSelectIDs.find(objectId) != labelSelectIDs.end())
     {

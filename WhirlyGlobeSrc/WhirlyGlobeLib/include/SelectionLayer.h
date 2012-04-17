@@ -89,7 +89,7 @@ typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
 /// Remove the given selectable from consideration
 - (void)removeSelectable:(WhirlyKit::SimpleIdentity)selectId;
 
-/// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-- (WhirlyKit::SimpleIdentity)pickObject:(WhirlyKit::Point2f)touchPt maxDist:(float)maxDist;
+/// Pass in the screen point where the user touched and the view.  This returns the closest hit within the given distance
+- (WhirlyKit::SimpleIdentity)pickObject:(WhirlyKit::Point2f)touchPt view:(UIView *)view maxDist:(float)maxDist;
 
 @end

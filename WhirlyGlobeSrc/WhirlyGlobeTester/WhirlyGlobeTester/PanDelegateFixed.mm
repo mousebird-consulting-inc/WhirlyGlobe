@@ -63,7 +63,7 @@ using namespace WhirlyGlobe;
     spinDate = CFAbsoluteTimeGetCurrent();
     lastTouch = [pan locationOfTouch:0 inView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
-                            frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&startOnSphere])
+                            frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere])
         // We'll start out letting them play with box axes
         panType = PanFree;                
     else
@@ -112,7 +112,7 @@ using namespace WhirlyGlobe;
                 CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
                 lastTouch = touchPt;
 				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
-									frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit ];                
+									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit ];                
                                                 
 				// This gives us a direction to rotate around
 				// And how far to rotate
@@ -167,9 +167,9 @@ using namespace WhirlyGlobe;
             CGPoint vel = [pan velocityInView:pan.view];
             CGPoint touch0 = lastTouch;
             
-            Point3f p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth height:sceneRender.framebufferHeight clip:false];
+            Point3f p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
             Point2f touch1(touch0.x+vel.x,touch0.y+vel.y);
-            Point3f p1 = [view pointUnproject:touch1 width:sceneRender.framebufferWidth height:sceneRender.framebufferHeight clip:false];
+            Point3f p1 = [view pointUnproject:touch1 width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
             
             // Now unproject them back to the canonical model
             Eigen::Matrix4f modelMat = [view calcModelMatrix].inverse().matrix();

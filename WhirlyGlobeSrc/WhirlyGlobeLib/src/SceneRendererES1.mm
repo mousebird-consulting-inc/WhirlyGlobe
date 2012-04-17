@@ -167,25 +167,25 @@ struct drawListSortStruct
     } else {
         // Otherwise we'll do a default setup
         // If you make your own, just copy this to start
-	const GLfloat			lightAmbient[] = {0.5, 0.5, 0.5, 1.0};
-	const GLfloat			lightDiffuse[] = {0.6, 0.6, 0.6, 1.0};
-	const GLfloat			matAmbient[] = {0.5, 0.5, 0.5, 1.0};
-	const GLfloat			matDiffuse[] = {1.0, 1.0, 1.0, 1.0};	
-	const GLfloat			matSpecular[] = {1.0, 1.0, 1.0, 1.0};
-	const GLfloat			lightPosition[] = {0.75, 0.5, 1.0, 0.0}; 
-	const GLfloat			lightShininess = 100.0;
-	
-	//Configure OpenGL lighting
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matSpecular);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, lightShininess);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition); 
-	glShadeModel(GL_SMOOTH);
+        const GLfloat			lightAmbient[] = {0.5, 0.5, 0.5, 1.0};
+        const GLfloat			lightDiffuse[] = {0.6, 0.6, 0.6, 1.0};
+        const GLfloat			matAmbient[] = {0.5, 0.5, 0.5, 1.0};
+        const GLfloat			matDiffuse[] = {1.0, 1.0, 1.0, 1.0};	
+        const GLfloat			matSpecular[] = {1.0, 1.0, 1.0, 1.0};
+        const GLfloat			lightPosition[] = {0.75, 0.5, 1.0, 0.0}; 
+        const GLfloat			lightShininess = 100.0;
+        
+        //Configure OpenGL lighting
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matSpecular);
+        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, lightShininess);
+        glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
+        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition); 
+        glShadeModel(GL_SMOOTH);
         glEnable(GL_COLOR_MATERIAL);
     }
 

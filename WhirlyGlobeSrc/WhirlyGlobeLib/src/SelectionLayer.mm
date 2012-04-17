@@ -96,7 +96,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-- (SimpleIdentity)pickObject:(Point2f)touchPt maxDist:(float)maxDist
+- (SimpleIdentity)pickObject:(Point2f)touchPt view:(UIView *)view maxDist:(float)maxDist
 {
     // Can only run in the layer thread
     if ([NSThread currentThread] != layerThread)
@@ -132,7 +132,7 @@ bool RectSelectable::operator < (const RectSelectable &that) const
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     CGPoint screenPt;
-                    screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
+                    screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
                     screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                 }
                 
