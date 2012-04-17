@@ -86,6 +86,12 @@
 		2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92105314BD1A8100653536 /* PanDelegateMap.h */; };
 		2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B93C81514522DE600D768BA /* MarkerLayer.h */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
+		2BA2BB77153E08F800DAB382 /* Quadtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB76153E08F800DAB382 /* Quadtree.h */; };
+		2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */; };
+		2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */; };
+		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
+		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
+		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -203,6 +209,12 @@
 		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
 		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2BA2BB76153E08F800DAB382 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
+		2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
+		2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeLayerViewWatcher.h; sourceTree = "<group>"; };
+		2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeLayerViewWatcher.mm; sourceTree = "<group>"; };
+		2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
+		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -433,6 +445,7 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
+				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
 				2BCAB9A912F897E20049D73C /* DataLayer.h */,
 				2B951C7D12EFA262005003AE /* GridLines.h */,
@@ -450,6 +463,8 @@
 		2B951D9712F09EEC005003AE /* layers & loaders */ = {
 			isa = PBXGroup;
 			children = (
+				2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */,
+				2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */,
 				2BEFDE921499643000C63326 /* LoftLayer.mm */,
 				2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */,
 				2B80455714990A1A003FFABE /* MarkerGenerator.mm */,
@@ -494,6 +509,7 @@
 		2BCABA5912F8D6DD0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				2BA2BB76153E08F800DAB382 /* Quadtree.h */,
 				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
 				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
 				2BEFDE95149966D400C63326 /* GridClipper.h */,
@@ -529,6 +545,7 @@
 				2BEFDE99149966F300C63326 /* GridClipper.mm */,
 				2BEFDE9A149966F300C63326 /* Tesselator.mm */,
 				2BEFDEA114997C0400C63326 /* clipper.cpp */,
+				2BA2BB8C153E107100DAB382 /* Quadtree.mm */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";
@@ -616,6 +633,7 @@
 		2BCF39E314BB8F16006B0FC0 /* layers */ = {
 			isa = PBXGroup;
 			children = (
+				2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */,
 				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
 			);
@@ -811,6 +829,9 @@
 				2B03701514C9FA9000A51AC4 /* AnimateTranslation.h in Headers */,
 				2B03702214CA02A900A51AC4 /* MapTapDelegate.h in Headers */,
 				2B5E6365151C072F0007904C /* GlobeScene.h in Headers */,
+				2BA2BB77153E08F800DAB382 /* Quadtree.h in Headers */,
+				2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */,
+				2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -926,6 +947,9 @@
 				2B03701A14C9FDDE00A51AC4 /* AnimateTranslation.mm in Sources */,
 				2B03702014CA01C600A51AC4 /* MapTapDelegate.mm in Sources */,
 				2B5E63D9152283B20007904C /* Scene.mm in Sources */,
+				2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */,
+				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
+				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

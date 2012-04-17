@@ -20,8 +20,9 @@
 
 #import <UIKit/UIKit.h>
 #import <vector>
-#import "GlobeScene.h"
+#import "Scene.h"
 #import "DataLayer.h"
+#import "LayerViewWatcher.h"
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -32,6 +33,9 @@
 {
 	/// Scene we're messing with
 	WhirlyKit::Scene *scene;
+    
+    /// Used to let layers get view change notices
+    WhirlyKitLayerViewWatcher *viewWatcher;
 	
 	/// The various data layers we'll display
 	NSMutableArray<NSObject> *layers;

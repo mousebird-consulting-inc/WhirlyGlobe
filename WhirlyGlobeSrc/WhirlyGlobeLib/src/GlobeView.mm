@@ -32,6 +32,7 @@ using namespace Eigen;
 @synthesize heightAboveGlobe;
 @synthesize rotQuat;
 @synthesize delegate;
+@synthesize watchDelegate;
 
 - (id)init
 {
@@ -50,8 +51,6 @@ using namespace Eigen;
     if (coordSystem)
         delete coordSystem;
     coordSystem = NULL;
-    
-
 }
 
 // Set the new rotation, but also keep track of when we did it
@@ -59,6 +58,8 @@ using namespace Eigen;
 {
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
+    if (watchDelegate)
+        [watchDelegate viewUpdated:self];
 }
 	
 - (float)minHeightAboveGlobe
@@ -100,6 +101,9 @@ using namespace Eigen;
 	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
 
     lastChangedTime = CFAbsoluteTimeGetCurrent();
+    
+    if (watchDelegate)
+        [watchDelegate viewUpdated:self];
 }
 	
 - (Eigen::Affine3f)calcModelMatrix
