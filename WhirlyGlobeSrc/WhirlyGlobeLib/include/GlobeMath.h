@@ -26,6 +26,7 @@ namespace WhirlyGlobe
 
 class GlobeCoordSystem : public WhirlyKit::CoordSystem
 {
+public:
     /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
     WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
 	

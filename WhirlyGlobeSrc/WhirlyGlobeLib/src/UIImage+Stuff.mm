@@ -28,9 +28,11 @@
 	CGImageRef cgImage = self.CGImage;
 	*width = CGImageGetWidth(cgImage);
 	*height = CGImageGetHeight(cgImage);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();;
 	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
-	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);
+	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+//	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);
 	CGContextDrawImage(theContext, CGRectMake(0.0, 0.0, (CGFloat)(*width), (CGFloat)(*height)), cgImage);
 	CGContextRelease(theContext);
 	

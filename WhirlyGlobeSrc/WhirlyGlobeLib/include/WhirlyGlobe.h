@@ -22,6 +22,8 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "Quadtree.h"
+#import "WhirlyKitView.h"
 #import "GlobeView.h"
 #import "AnimateRotation.h"
 #import "AnimateViewMomentum.h"
@@ -61,4 +63,4 @@
 #import "PanDelegateMap.h"
 #import "AnimateTranslation.h"
 #import "MapTapDelegate.h"
-
+#import "GlobeQuadDisplayLayer.h"

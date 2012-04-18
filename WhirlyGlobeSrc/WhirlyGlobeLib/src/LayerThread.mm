@@ -19,24 +19,26 @@
  */
 
 #import "LayerThread.h"
+#import "GlobeLayerViewWatcher.h"
+#import "GlobeScene.h"
+#import "GlobeView.h"
 
 using namespace WhirlyKit;
 
-@interface WhirlyKitLayerThread()
-@property(nonatomic) NSMutableArray<NSObject> *layers;
-@end
-
 @implementation WhirlyKitLayerThread
 
-@synthesize layers;
 @synthesize runLoop;
+@synthesize viewWatcher;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView
 {
 	if ((self = [super init]))
 	{
 		scene = inScene;
-		self.layers = [NSMutableArray array];
+		layers = [NSMutableArray array];
+        // Note: This could be better
+        if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
+            viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
 	}
 	
 	return self;
@@ -70,9 +72,9 @@ using namespace WhirlyKit;
                 [runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
             }
         }
-        
-        self.runLoop = nil;
-        self.layers = nil;
+
+        runLoop = nil;
+        layers = nil;
     }
 }
 

@@ -167,6 +167,8 @@ public:
 
 	/// See if a single geo coordinate is inside the MBR
 	bool inside(GeoCoord coord) const;
+    
+    operator Mbr() { return Mbr(pt_ll,pt_ur); }
 
 protected:
 	/// Break into one or two MBRs

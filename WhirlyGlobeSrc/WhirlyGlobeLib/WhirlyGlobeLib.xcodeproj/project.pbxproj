@@ -92,6 +92,8 @@
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
+		2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */; };
+		2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -215,6 +217,8 @@
 		2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeLayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
+		2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeQuadDisplayLayer.h; sourceTree = "<group>"; };
+		2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeQuadDisplayLayer.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -476,6 +480,7 @@
 				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
 				2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */,
+				2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -636,6 +641,7 @@
 				2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */,
 				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
+				2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */,
 			);
 			name = layers;
 			sourceTree = "<group>";
@@ -832,6 +838,7 @@
 				2BA2BB77153E08F800DAB382 /* Quadtree.h in Headers */,
 				2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */,
 				2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */,
+				2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -950,6 +957,7 @@
 				2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */,
 				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
 				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
+				2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

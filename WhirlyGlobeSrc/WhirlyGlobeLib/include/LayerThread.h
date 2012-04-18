@@ -45,9 +45,10 @@
 }
 
 @property (nonatomic) NSRunLoop *runLoop;
+@property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 
-/// Set it up with a renderer (for context) and a scene
-- (id)initWithScene:(WhirlyKit::Scene *)scene;
+/// Set up with a scene and a view
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;
