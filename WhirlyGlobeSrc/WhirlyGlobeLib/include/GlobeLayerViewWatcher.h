@@ -32,9 +32,22 @@
     float heightAboveGlobe;
 	Eigen::Quaternion<float> rotQuat;    
     Eigen::Affine3f modelMatrix;
+	float fieldOfView;
+	float imagePlaneSize;
+	float nearPlane;
+	float farPlane;
 }
 
 - (id)initWithView:(WhirlyGlobeView *)globeView;
+
+/// Calculate the viewing frustum (which is also the image plane)
+/// Need the framebuffer size in pixels as input
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
+
+/** From a world location (3D), figure out the projection to the screen
+ Returns a point within the frame
+ */
+- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 @end
 

@@ -26,7 +26,7 @@
  */
 @interface WhirlyGlobePanDelegate : NSObject<UIGestureRecognizerDelegate> 
 {
-	WhirlyGlobeView *view;
+	WhirlyGlobeView * __weak view;
     /// Set if we're in the process of panning
 	BOOL panning;
 	/// The view transform when we started

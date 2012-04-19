@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface WhirlyGlobeQuadDisplayLayer()
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines;
 @property (nonatomic,assign) GlobeScene *scene;
 @end
 
@@ -45,7 +45,6 @@ public:
     WhirlyGlobeViewState *viewState;
     int pixelsSquare;
     Point2f frameSize;
-    WhirlyGlobeView *globeView;
     Point3f eyeVec;
     NSObject<WhirlyGlobeQuadDataSource> * __weak dataSource;
     
@@ -75,7 +74,7 @@ public:
             if (pts3d[ii].dot(eyeVec) > 0.0)
                 forwardFacing = true;
             
-            CGPoint screenPt = [globeView pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
+            CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
             screenPts[ii] = Point2f(screenPt.x,screenPt.y);
         }
         
@@ -106,7 +105,7 @@ public:
         Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
         if (!node->mbr.overlaps(realMbr))
             return 0.0;
-
+        
         // Snap to the real world
         Mbr theMbr = node->mbr;
         if (theMbr.ll().x() < -M_PI)
@@ -132,7 +131,7 @@ public:
         {
             Point3f pt3d = geoSystem.pointFromGeo(GeoCoord(testPoints[ii].x(),testPoints[ii].y()));
             
-            CGPoint screenPt = [globeView pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
+            CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
             mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
         }
         Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
@@ -167,7 +166,7 @@ void LoadedTile::addToScene(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene
 {
     BasicDrawable *draw = NULL;
     Texture *tex = NULL;
-    [layer buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0)];
+    [layer buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:false];
     drawId = draw->getId();
     if (tex)
         texId = tex->getId();
@@ -290,7 +289,7 @@ void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *laye
                         {
                             Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
                             BasicDrawable *childDraw = NULL;
-                            [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy)];
+                            [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:(texId == EmptyIdentity)];
                             childDrawIds[whichChild] = childDraw->getId();
                             if (!layer.lineMode && texId)
                                 childDraw->setTexId(texId);
@@ -335,6 +334,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize debugMode;
 @synthesize dataSource;
 @synthesize scene;
+@synthesize viewUpdatePeriod;
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataSource> *)inDataSource renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
 {
@@ -380,7 +380,6 @@ void LoadedTile::Print(Quadtree *tree)
     
     // Note: Should figure this out from the data
     sizeCalc->pixelsSquare = [dataSource pixelsPerTile];        
-    sizeCalc->globeView = (WhirlyGlobeView *)renderer.theView;
     sizeCalc->dataSource = dataSource;
     
     // We want view updates, but only 1s in frequency
@@ -392,7 +391,6 @@ void LoadedTile::Print(Quadtree *tree)
 // It's here that we evaluate what to load
 - (void)viewUpdate:(WhirlyGlobeViewState *)viewState
 {
-//    NSLog(@"View update called.");
     
     sizeCalc->setViewState(viewState);
     sizeCalc->frameSize = Point2f(renderer.framebufferWidth,renderer.framebufferHeight);
@@ -413,6 +411,7 @@ void LoadedTile::Print(Quadtree *tree)
             nodesForEval.insert(thisNode);
         }
     
+//    NSLog(@"View update called: (eye) = (%f,%f,%f), nodesForEval = %lu",eyeVec3.x(),eyeVec3.y(),eyeVec3.z(),nodesForEval.size());
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
@@ -493,7 +492,7 @@ void LoadedTile::Print(Quadtree *tree)
                                 delete theTile;
                         }
                     }
-            //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
+            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
             
             // Let the parent nodes know they need to update
 #if 0
@@ -539,7 +538,7 @@ void LoadedTile::Print(Quadtree *tree)
 // Tesselation for each chunk of the sphere
 const int SphereTessX = 10, SphereTessY = 10;
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -609,7 +608,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
         
         // We're in line mode or the texture didn't load
-        if (lineMode || (tex && !*tex))
+        if (buildLines || (tex && !(*tex)))
         {
             chunk->setType(GL_LINES);
             

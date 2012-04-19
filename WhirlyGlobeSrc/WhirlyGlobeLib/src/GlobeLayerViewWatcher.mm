@@ -21,6 +21,8 @@
 #import "GlobeLayerViewWatcher.h"
 #import "LayerThread.h"
 
+using namespace WhirlyKit;
+
 // Keep track of what our watchers are up to
 @interface LocalWatcher : NSObject
 {
@@ -45,9 +47,52 @@
         heightAboveGlobe = globeView.heightAboveGlobe;
         rotQuat = globeView.rotQuat;
         modelMatrix = [globeView calcModelMatrix];
+        fieldOfView = globeView.fieldOfView;
+        imagePlaneSize = globeView.imagePlaneSize;
+        nearPlane = globeView.nearPlane;
+        farPlane = globeView.farPlane;
     }
     
     return self;
+}
+
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
+{
+	ll.x() = -imagePlaneSize;
+	ur.x() = imagePlaneSize;
+	float ratio =  ((float)frameHeight / (float)frameWidth);
+	ll.y() = -imagePlaneSize * ratio;
+	ur.y() = imagePlaneSize * ratio ;
+	near = nearPlane;
+	far = farPlane;
+}
+
+- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize
+{
+    // Run the model point through the model transform (presumably what they passed in)
+    Eigen::Affine3f modelTrans = *transform;
+    Matrix4f modelMat = modelTrans.matrix();
+    Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
+    
+    // Intersection with near gives us the same plane as the screen 
+    Point3f ray;  
+    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
+    ray *= -nearPlane/ray.z();
+    
+    // Now we need to scale that to the frame
+    Point2f ll,ur;
+    float near,far;
+    [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
+    float u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    float v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+    v = 1.0 - v;
+    
+    CGPoint retPt;
+    retPt.x = u * frameSize.x();
+    retPt.y = v * frameSize.y();
+    
+    return retPt;
 }
 
 @end
@@ -81,7 +126,8 @@
     }
     
     // Make sure it gets a starting update
-    [self performSelector:@selector(updateSingleWatcher:) onThread:layerThread withObject:watch waitUntilDone:NO];
+    // The trick here is we need to let the main thread finish setting up first
+    [self performSelectorOnMainThread:@selector(updateSingleWatcherDelay:) withObject:watch waitUntilDone:NO];
 }
 
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector
@@ -112,6 +158,13 @@
     [self performSelector:@selector(viewUpdateLayerThread:) onThread:layerThread withObject:viewState waitUntilDone:NO];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sweepLaggards:) object:nil];
     lastUpdate = [[NSDate date] timeIntervalSinceReferenceDate];
+}
+
+// We're in the main thread here
+// Now we can kick off the watcher delay on the layer thread
+- (void)updateSingleWatcherDelay:(LocalWatcher *)watch
+{
+    [self performSelector:@selector(updateSingleWatcher:) onThread:layerThread withObject:watch waitUntilDone:NO];
 }
 
 // Let the watcher know about an update

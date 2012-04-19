@@ -169,6 +169,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 @property (nonatomic,assign) float minTileArea;
 @property (nonatomic,assign) bool lineMode;
 @property (nonatomic,assign) bool debugMode;
+@property (nonatomic,assign) float viewUpdatePeriod;
 @property (nonatomic,strong) NSObject<WhirlyGlobeQuadDataSource> *dataSource;
 
 /// Construct with a renderer and data source for the tiles
