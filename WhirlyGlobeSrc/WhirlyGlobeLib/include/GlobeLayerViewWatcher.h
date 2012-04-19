@@ -36,6 +36,7 @@
 	float imagePlaneSize;
 	float nearPlane;
 	float farPlane;
+    WhirlyKit::Point3f eyeVec;
 }
 
 - (id)initWithView:(WhirlyGlobeView *)globeView;

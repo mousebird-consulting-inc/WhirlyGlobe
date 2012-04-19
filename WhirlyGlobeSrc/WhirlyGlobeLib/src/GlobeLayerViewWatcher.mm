@@ -51,6 +51,11 @@ using namespace WhirlyKit;
         imagePlaneSize = globeView.imagePlaneSize;
         nearPlane = globeView.nearPlane;
         farPlane = globeView.farPlane;
+
+        // Need the eye point for backface checking
+        Eigen::Matrix4f modelTransInv = modelMatrix.inverse().matrix();
+        Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
+        eyeVec = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     }
     
     return self;

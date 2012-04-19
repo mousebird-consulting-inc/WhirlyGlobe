@@ -64,3 +64,4 @@
 #import "AnimateTranslation.h"
 #import "MapTapDelegate.h"
 #import "GlobeQuadDisplayLayer.h"
+#import "GlobeLayerViewWatcher.h"

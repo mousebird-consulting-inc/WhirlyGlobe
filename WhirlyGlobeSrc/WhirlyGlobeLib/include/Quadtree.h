@@ -21,18 +21,21 @@
 #import "WhirlyVector.h"
 #import <set>
 
+/// @cond
 @class WhirlyGlobeViewState;
+@protocol WhirlyKitQuadTreeImportanceDelegate;
+/// @endcond
 
 namespace WhirlyKit
 {
-    
-class SizeOnScreenCalculator;
     
 /// Quad tree representation
 class Quadtree
 {
 public:   
-    Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,SizeOnScreenCalculator *);
+    /// Construct with the spatial information, number of nodes, min importance to consider
+    ///  and a delegate to calculate importance.
+    Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate);
     ~Quadtree();
 
     /// Represents a single quad tree node
@@ -92,6 +95,9 @@ public:
     // Return true if so, false if not.
     bool hasParent(Identifier ident,Identifier &parentIdent);
     
+    // Generate an MBR for the given node identifier
+    Mbr generateMbrForNode(Identifier ident);
+    
     // Dump out to the log for debugging
     void Print();
     
@@ -147,21 +153,20 @@ protected:
     int minLevel,maxLevel;
     int maxNodes;
     float minImportance;
-    SizeOnScreenCalculator *calc;
+    /// Used to calculate importance for a particular 
+    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __weak importDelegate;
     
     // All nodes, sorted by ID
     NodesByIdentType nodesByIdent;
     // Child nodes, sorted by importance
     NodesBySizeType nodesBySize;
 };
- 
-/// Calculate the max comparable size of a quad tree element on the screen
-class SizeOnScreenCalculator
-{
-public:
-    virtual ~SizeOnScreenCalculator() { }
-    
-    virtual float calcSize(Quadtree *quadtree,Quadtree::NodeInfo *node) = 0;
-};
 
 }
+
+/// Fill in this protocol to return the importance value for a given tile.
+@protocol WhirlyKitQuadTreeImportanceDelegate
+/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree;
+@end
+

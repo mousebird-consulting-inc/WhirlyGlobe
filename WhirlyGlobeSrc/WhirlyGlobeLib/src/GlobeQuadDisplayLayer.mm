@@ -35,119 +35,105 @@ using namespace WhirlyGlobe;
 
 namespace WhirlyGlobe 
 {
+
+// Note: This will go away when we make the coordinate system explicit
+GlobeCoordSystem geoSystem;
+    
+// Calculate the importance for the given texel
+static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,GeoCoord pt,GeoCoord pixSize,Point2f frameSize)
+{
+    GeoCoord pts[4];
+    pts[0] = pt + GeoCoord(-pixSize.x()/2.0,-pixSize.y()/2.0);
+    pts[1] = pt + GeoCoord(pixSize.x()/2.0,-pixSize.y()/2.0);
+    pts[2] = pt + GeoCoord(pixSize.x()/2.0,pixSize.y()/2.0);
+    pts[3] = pt + GeoCoord(-pixSize.x()/2.0,pixSize.y()/2.0);
+    
+    // Convert to 3-space
+    Point3f pts3d[4];
+    Point2f screenPts[4];
+    bool forwardFacing = false;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        pts3d[ii] = geoSystem.pointFromGeo(pts[ii]);
+        
+        // Check the normal (point in this case) against the eye vec
+        if (pts3d[ii].dot(eyeVec) > 0.0)
+            forwardFacing = true;
+        
+        CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
+        screenPts[ii] = Point2f(screenPt.x,screenPt.y);
+    }
+    
+    // Look at area on the screen
+    float area = 0.0;
+    if (forwardFacing)
+    {
+        Point2f ac = screenPts[2]-screenPts[0];
+        Point2f bd = screenPts[3]-screenPts[1];
+        area = 0.5 * (ac.x()*bd.y()-bd.x()*ac.y());
+    }
+    
+    if (boost::math::isnan(area))
+        area = 0.0;
+    
+    //        if (area > 10000.0)
+    //        {
+    //            NSLog(@"Got one");
+    //        }
+    
+    return std::abs(area);
+}
+
     
 // Calculate the max pixel size for a tile
-class LocalSizeCalculator : public SizeOnScreenCalculator
+float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,Mbr nodeMbr)
 {
-public:    
-    GlobeCoordSystem geoSystem;
+    // Make sure the MBR overlaps the real world
+    Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
+    if (!nodeMbr.overlaps(realMbr))
+        return 0.0;
     
-    WhirlyGlobeViewState *viewState;
-    int pixelsSquare;
-    Point2f frameSize;
-    Point3f eyeVec;
-    NSObject<WhirlyGlobeQuadDataSource> * __weak dataSource;
+    // Snap to the real world
+    Mbr theMbr = nodeMbr;
+    if (theMbr.ll().x() < -M_PI)
+        theMbr.ll().x() = -M_PI;
+    if (theMbr.ur().x() > M_PI)
+        theMbr.ur().x() = M_PI;
+    if (theMbr.ll().y() < -M_PI/2.0)
+        theMbr.ll().y() = -M_PI/2.0;
+    if (theMbr.ur().y() > M_PI/2.0)
+        theMbr.ur().y() = M_PI/2.0;
     
-    void setViewState(WhirlyGlobeViewState *newViewState)
+    Point2f pixSize((theMbr.ur().x()-theMbr.ll().x())/pixelsSquare,(theMbr.ur().y()-theMbr.ll().y())/pixelsSquare);
+    Point2f testPoints[5];
+    testPoints[0] = theMbr.ll();
+    testPoints[1] = Point2f(theMbr.ur().x(),theMbr.ll().y());
+    testPoints[2] = Point2f(theMbr.ur());
+    testPoints[3] = Point2f(theMbr.ll().x(),theMbr.ur().y());
+    testPoints[4] = (theMbr.ll()+theMbr.ur())/2.0;
+    
+    // Let's make sure we at least overlap the screen
+    Mbr mbrOnScreen;
+    for (unsigned int ii=0;ii<4;ii++)
     {
-        viewState = newViewState;
+        Point3f pt3d = geoSystem.pointFromGeo(GeoCoord(testPoints[ii].x(),testPoints[ii].y()));
+        
+        CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
+        mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
+    }
+    Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
+    if (!mbrOnScreen.overlaps(frameMbr))
+        return 0.0;
+    
+    float maxImport = 0.0;
+    for (unsigned int ii=0;ii<5;ii++)
+    {
+        float thisImport = calcImportance(viewState,eyeVec,GeoCoord(testPoints[ii].x(),testPoints[ii].y()),GeoCoord(pixSize.x(),pixSize.y()),frameSize);
+        maxImport = std::max(thisImport,maxImport);
     }
     
-    // Calculate the importance for the given texel
-    float calcImportance(GeoCoord pt,GeoCoord pixSize)
-    {
-        GeoCoord pts[4];
-        pts[0] = pt + GeoCoord(-pixSize.x()/2.0,-pixSize.y()/2.0);
-        pts[1] = pt + GeoCoord(pixSize.x()/2.0,-pixSize.y()/2.0);
-        pts[2] = pt + GeoCoord(pixSize.x()/2.0,pixSize.y()/2.0);
-        pts[3] = pt + GeoCoord(-pixSize.x()/2.0,pixSize.y()/2.0);
-        
-        // Convert to 3-space
-        Point3f pts3d[4];
-        Point2f screenPts[4];
-        bool forwardFacing = false;
-        for (unsigned int ii=0;ii<4;ii++)
-        {
-            pts3d[ii] = geoSystem.pointFromGeo(pts[ii]);
-            
-            // Check the normal (point in this case) against the eye vec
-            if (pts3d[ii].dot(eyeVec) > 0.0)
-                forwardFacing = true;
-            
-            CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
-            screenPts[ii] = Point2f(screenPt.x,screenPt.y);
-        }
-        
-        // Look at area on the screen
-        float area = 0.0;
-        if (forwardFacing)
-        {
-            Point2f ac = screenPts[2]-screenPts[0];
-            Point2f bd = screenPts[3]-screenPts[1];
-            area = 0.5 * (ac.x()*bd.y()-bd.x()*ac.y());
-        }
-        
-        if (boost::math::isnan(area))
-            area = 0.0;
-        
-//        if (area > 10000.0)
-//        {
-//            NSLog(@"Got one");
-//        }
-        
-        return std::abs(area);
-    }
-    
-    // Calculate the importance fo the given node/tile
-    float calcSize(Quadtree *quadtree,Quadtree::NodeInfo *node)
-    {
-        // Make sure the MBR overlaps the real world
-        Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
-        if (!node->mbr.overlaps(realMbr))
-            return 0.0;
-        
-        // Snap to the real world
-        Mbr theMbr = node->mbr;
-        if (theMbr.ll().x() < -M_PI)
-            theMbr.ll().x() = -M_PI;
-        if (theMbr.ur().x() > M_PI)
-            theMbr.ur().x() = M_PI;
-        if (theMbr.ll().y() < -M_PI/2.0)
-            theMbr.ll().y() = -M_PI/2.0;
-        if (theMbr.ur().y() > M_PI/2.0)
-            theMbr.ur().y() = M_PI/2.0;
-        
-        Point2f pixSize((theMbr.ur().x()-theMbr.ll().x())/pixelsSquare,(theMbr.ur().y()-theMbr.ll().y())/pixelsSquare);
-        Point2f testPoints[5];
-        testPoints[0] = theMbr.ll();
-        testPoints[1] = Point2f(theMbr.ur().x(),theMbr.ll().y());
-        testPoints[2] = Point2f(theMbr.ur());
-        testPoints[3] = Point2f(theMbr.ll().x(),theMbr.ur().y());
-        testPoints[4] = (theMbr.ll()+theMbr.ur())/2.0;
-        
-        // Let's make sure we at least overlap the screen
-        Mbr mbrOnScreen;
-        for (unsigned int ii=0;ii<4;ii++)
-        {
-            Point3f pt3d = geoSystem.pointFromGeo(GeoCoord(testPoints[ii].x(),testPoints[ii].y()));
-            
-            CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
-            mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
-        }
-        Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
-        if (!mbrOnScreen.overlaps(frameMbr))
-            return 0.0;
-        
-        float maxImport = 0.0;
-        for (unsigned int ii=0;ii<5;ii++)
-        {
-            float thisImport = calcImportance(GeoCoord(testPoints[ii].x(),testPoints[ii].y()),GeoCoord(pixSize.x(),pixSize.y()));
-            maxImport = std::max(thisImport,maxImport);
-        }
-        
-        return maxImport * [dataSource importanceScaleForTile:node->ident];
-    }
-};
+    return maxImport;
+}
 
 LoadedTile::LoadedTile()
 {
@@ -209,12 +195,19 @@ void LoadedTile::clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *sc
             scene->addChangeRequest(new RemDrawableReq(childDrawIds[ii]));
 }
 
+// Make sure a given tile overlaps the real world
+bool isValidTile(Mbr theMbr)
+{    
+    Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
+    return theMbr.overlaps(realMbr);
+}
+
 // Update based on what children are doing
 void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer)
 {
     std::vector<Quadtree::Identifier> childIdents;
     tree->childrenForNode(nodeInfo.ident,childIdents);
-    
+        
     //    NSLog(@"Updating children for node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
     
     std::vector<ChangeRequest *> changeRequests;
@@ -288,13 +281,16 @@ void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *laye
                         if (childDrawIds[whichChild] == EmptyIdentity)
                         {
                             Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
-                            BasicDrawable *childDraw = NULL;
-                            [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:(texId == EmptyIdentity)];
-                            childDrawIds[whichChild] = childDraw->getId();
-                            if (!layer.lineMode && texId)
-                                childDraw->setTexId(texId);
-                            changeRequests.push_back(new AddDrawableReq(childDraw));
-                            childIsOn[whichChild] = true;
+                            if (isValidTile(childInfo.mbr))
+                            {
+                                BasicDrawable *childDraw = NULL;
+                                [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:(texId == EmptyIdentity)];
+                                childDrawIds[whichChild] = childDraw->getId();
+                                if (!layer.lineMode && texId)
+                                    childDraw->setTexId(texId);
+                                changeRequests.push_back(new AddDrawableReq(childDraw));
+                                childIsOn[whichChild] = true;
+                            }
                         } else
                             // Just turn it on
                             changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
@@ -348,8 +344,7 @@ void LoadedTile::Print(Quadtree *tree)
         maxTiles = 100;
         minTileArea = 1.0;
         viewUpdatePeriod = 1.0;
-        sizeCalc = new LocalSizeCalculator();
-        quadtree = new Quadtree(geoMbr,minZoom,maxZoom,maxTiles,minTileArea,sizeCalc);
+        quadtree = new Quadtree(geoMbr,minZoom,maxZoom,maxTiles,minTileArea,self);
         renderer = inRenderer;
         lineMode = false;
         debugMode = false;
@@ -365,8 +360,6 @@ void LoadedTile::Print(Quadtree *tree)
         delete *it;
     tileSet.clear();
     
-    if (sizeCalc)
-        delete sizeCalc;
     if (quadtree)
         delete quadtree;
     if (layerThread.viewWatcher)
@@ -377,11 +370,7 @@ void LoadedTile::Print(Quadtree *tree)
 {
     layerThread = inLayerThread;
 	scene = (GlobeScene *)inScene;
-    
-    // Note: Should figure this out from the data
-    sizeCalc->pixelsSquare = [dataSource pixelsPerTile];        
-    sizeCalc->dataSource = dataSource;
-    
+        
     // We want view updates, but only 1s in frequency
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:viewUpdatePeriod];
@@ -389,17 +378,9 @@ void LoadedTile::Print(Quadtree *tree)
 
 // Called every so often by the view watcher
 // It's here that we evaluate what to load
-- (void)viewUpdate:(WhirlyGlobeViewState *)viewState
+- (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
 {
-    
-    sizeCalc->setViewState(viewState);
-    sizeCalc->frameSize = Point2f(renderer.framebufferWidth,renderer.framebufferHeight);
-    // Need the eye point for backface checking
-    Eigen::Matrix4f modelTransInv = viewState->modelMatrix.inverse().matrix();
-    Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
-    Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-    sizeCalc->eyeVec = eyeVec3;
-    
+    viewState = inViewState;
     nodesForEval.clear();
     quadtree->reevaluateNodes();
     
@@ -492,7 +473,7 @@ void LoadedTile::Print(Quadtree *tree)
                                 delete theTile;
                         }
                     }
-            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
+//            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
             
             // Let the parent nodes know they need to update
 #if 0
@@ -546,7 +527,7 @@ const int SphereTessX = 10, SphereTessY = 10;
     Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
     if (!theMbr.overlaps(realMbr))
     {
-        NSLog(@"Building bogus tile.");
+        NSLog(@"Building bogus tile: (%d,%d,%d)",nodeInfo->ident.x,nodeInfo->ident.y,nodeInfo->ident.level);
     }
     
     // Snap to the real world
@@ -613,8 +594,8 @@ const int SphereTessX = 10, SphereTessY = 10;
             chunk->setType(GL_LINES);
             
             // Two lines per cell
-            for (unsigned int iy=0;iy<SphereTessY+1;iy++)
-                for (unsigned int ix=0;ix<SphereTessX+1;ix++)
+            for (unsigned int iy=0;iy<SphereTessY;iy++)
+                for (unsigned int ix=0;ix<SphereTessX;ix++)
                 {
                     Point3f org3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y()));
                     Point3f ptA_3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y()));
@@ -636,8 +617,6 @@ const int SphereTessX = 10, SphereTessY = 10;
                     chunk->addNormal(ptB_3D);
                     chunk->addTexCoord(texCoord);
                 }
-            
-            
         } else {
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
@@ -677,6 +656,13 @@ const int SphereTessX = 10, SphereTessY = 10;
         
         *draw = chunk;
     }    
+}
+
+#pragma mark - Quad Tree Importance Delegate
+
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)mbr tree:(WhirlyKit::Quadtree *)tree
+{
+    return [dataSource importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
 }
 
 @end

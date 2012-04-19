@@ -108,9 +108,10 @@ void Quadtree::Node::Print()
             NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
 }
 
-Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,SizeOnScreenCalculator *sizeCalc)
-    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), calc(sizeCalc), minImportance(minImportance)
+Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
+    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance)
 {
+    this->importDelegate = importDelegate;
 }
     
 Quadtree::~Quadtree()
@@ -166,7 +167,7 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
-        node->nodeInfo.importance = calc->calcSize(this, &node->nodeInfo);        
+        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this];        
         if (!node->hasChildren())
             nodesBySize.insert(node);
     }
@@ -210,15 +211,23 @@ Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
 {
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
+    nodeInfo.mbr = generateMbrForNode(ident);
+    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this];
+    
+    return nodeInfo;
+}
+    
+Mbr Quadtree::generateMbrForNode(Identifier ident)
+{
     Point2f chunkSize(mbr.ur()-mbr.ll());
     chunkSize.x() /= (1<<ident.level);
     chunkSize.y() /= (1<<ident.level);
     
-    nodeInfo.mbr.ll() = Point2f(chunkSize.x()*ident.x,chunkSize.y()*ident.y) + mbr.ll();
-    nodeInfo.mbr.ur() = Point2f(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + mbr.ll();
-    nodeInfo.importance = calc->calcSize(this, &nodeInfo);
+    Mbr outMbr;
+    outMbr.ll() = Point2f(chunkSize.x()*ident.x,chunkSize.y()*ident.y) + mbr.ll();
+    outMbr.ur() = Point2f(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + mbr.ll();    
     
-    return nodeInfo;
+    return outMbr;
 }
     
 void Quadtree::generateChildren(Identifier ident, std::vector<NodeInfo> &nodes)

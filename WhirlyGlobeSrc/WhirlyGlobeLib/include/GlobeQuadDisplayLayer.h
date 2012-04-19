@@ -57,7 +57,7 @@ public:
     
     /// Update what we're displaying based on the quad tree, particulary for children
     void updateContents(WhirlyKit::Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer);
-    
+        
     /// Dump out to the log
     void Print(WhirlyKit::Quadtree *tree);
     
@@ -85,6 +85,11 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     
 /// Quad tree Nodeinfo structures sorted by importance
 typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
+    
+/// Utility function to calculate importance based on pixel screen size.
+/// This would be used by the data source as a default.
+float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::Mbr nodeMbr);
+
 }
 
 /** Quad tree based data source.  Fill in this protocol to provide
@@ -101,11 +106,8 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /// Return the maximum zoom level.  Must be at least minZoom
 - (int)maxZoom;
 
-/// The number of pixels per tiles, square.  This is used for estimation
-- (int)pixelsPerTile;
-
-/// Scale factor for a given tile's importance.  Used to mess with things.
-- (float)importanceScaleForTile:(WhirlyKit::Quadtree::Identifier)ident;
+/// Return an importance value for the given tile
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 
 /// If there is an image, return it.  Null otherwise.
 - (NSData *)fetchImageForLevel:(int)level col:(int)col row:(int)row;
@@ -115,7 +117,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
  */
-@interface WhirlyGlobeQuadDisplayLayer : NSObject<WhirlyKitLayer>
+@interface WhirlyGlobeQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
 {
     /// Layer thread we're attached to
     WhirlyKitLayerThread * __weak layerThread;
@@ -125,10 +127,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
     
     /// The renderer we need for frame sizes
     WhirlyKitSceneRendererES1 * __weak renderer;
-    
-    /// Used to calculate how big a given tile is on screen
-    WhirlyGlobe::LocalSizeCalculator *sizeCalc;
-    
+        
     /// Geographic bounding box
     WhirlyKit::GeoMbr geoMbr;
     
@@ -162,7 +161,8 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
     /// Data source for the tiles
     NSObject<WhirlyGlobeQuadDataSource> *dataSource;
     
-    WhirlyGlobe::GlobeCoordSystem geoSystem;
+    /// State of the view the last time we were called
+    WhirlyGlobeViewState *viewState;
 }
 
 @property (nonatomic,assign) int maxTiles;
