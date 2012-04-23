@@ -274,7 +274,7 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = verts[ii];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = coordSys->pointFromGeo(geoCoord);
+            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
             Point3f pt1 = norm * (1.0 + polyInfo->height);
             
             drawable->addPoint(pt1);
@@ -308,7 +308,7 @@ public:
     
     void addSkirtPoints(VectorRing &pts)
     {            
-        CoordSystem *coordSys = scene->getCoordSystem();
+//        CoordSystem *coordSys = scene->getCoordSystem();
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -321,7 +321,7 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = coordSys->pointFromGeo(geoCoord);
+            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
             Point3f pt0 = norm;
             Point3f pt1 = pt0 + norm * polyInfo->height;
                         

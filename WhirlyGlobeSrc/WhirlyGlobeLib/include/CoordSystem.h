@@ -24,13 +24,13 @@
 namespace WhirlyKit
 {
     
-    /// Degree to radians conversion
-    template<typename T>
-    T DegToRad(T deg) { return deg / 180.0 * (T)M_PI; }
-    
-    /// Radians to degress
-    template<typename T>
-    T RadToDeg(T rad) { return rad / (T)M_PI * 180.0; }    
+/// Degree to radians conversion
+template<typename T>
+T DegToRad(T deg) { return deg / 180.0 * (T)M_PI; }
+
+/// Radians to degress
+template<typename T>
+T RadToDeg(T rad) { return rad / (T)M_PI * 180.0; }    
     
 }
 
@@ -45,15 +45,18 @@ public:
     CoordSystem() { }
     virtual ~CoordSystem() { }
     
-    /// Implement this to convert from lat/lon (radians) to the location in
-    ///  3D.
-    virtual WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo) = 0;
-  
-    /// Implement this to convert from a 3D point to a lat/lon value in radians
-    virtual WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt) = 0;
-    
+    /// Convert from the local coordinate system to lat/lon
+    virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3f) = 0;
+    /// Convert from lat/lon t the local coordinate system
+    virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
+
+    /// Convert from the local coordinate system to display coordinates (geocentric-ish)
+    virtual WhirlyKit::Point3f localToGeocentricish(WhirlyKit::Point3f) = 0;    
+    /// Convert from display coordinates to the local coordinate system
+    virtual WhirlyKit::Point3f geocentricishToLocal(WhirlyKit::Point3f) = 0;
+        
     /// Return true if this is a relatively flat coordinate system.
-    /// False for a globe.
+    /// False for geographic.
     virtual bool isFlat() = 0;
 };
 

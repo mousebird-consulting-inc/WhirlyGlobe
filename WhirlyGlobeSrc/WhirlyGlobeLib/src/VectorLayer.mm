@@ -119,7 +119,7 @@ public:
         
     void addPoints(VectorRing &pts,bool closed)
     {          
-        CoordSystem *coordSys = scene->getCoordSystem();
+//        CoordSystem *coordSys = scene->getCoordSystem();
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -148,7 +148,7 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = coordSys->pointFromGeo(geoCoord);
+            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
             Point3f pt = norm;
             
             // Add to drawable

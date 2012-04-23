@@ -24,7 +24,6 @@
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 using namespace Eigen;
 
 @implementation WhirlyGlobeView
@@ -40,7 +39,7 @@ using namespace Eigen;
 	{
 		heightAboveGlobe = 1.1;
 		rotQuat = Eigen::AngleAxisf(0.0f,Vector3f(0.0f,0.0f,1.0f));
-        coordSystem = new WhirlyGlobe::GlobeCoordSystem();
+        coordSystem = new GeoCoordSystem();
 	}
 	
 	return self;
@@ -218,7 +217,7 @@ using namespace Eigen;
 //  and return it.  Doesn't actually do anything yet.
 - (Eigen::Quaternionf) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3f worldLoc = coordSystem->pointFromGeo(worldCoord);
+    Point3f worldLoc = GeoCoordSystem::LocalToGeocentricish(worldCoord);
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3f curUp = [self currentUp];

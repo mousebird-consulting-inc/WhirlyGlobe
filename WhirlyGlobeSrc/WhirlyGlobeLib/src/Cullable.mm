@@ -29,10 +29,11 @@ void Cullable::setGeoMbr(const GeoMbr &inMbr,WhirlyKit::CoordSystem *coordSystem
 	geoMbr = inMbr;
 	
 	// Turn the corner points in real world values
-	cornerPoints[0] = coordSystem->pointFromGeo(geoMbr.ll());
-	cornerPoints[1] = coordSystem->pointFromGeo(GeoCoord(geoMbr.ur().x(),geoMbr.ll().y()));
-	cornerPoints[2] = coordSystem->pointFromGeo(geoMbr.ur());
-	cornerPoints[3] = coordSystem->pointFromGeo(GeoCoord(geoMbr.ll().x(),geoMbr.ur().y()));
+    // Note: Need to update this for scenes in local coordinates
+    cornerPoints[0] = GeoCoordSystem::LocalToGeocentricish(geoMbr.ll());
+    cornerPoints[1] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(geoMbr.ur().x(),geoMbr.ll().y()));
+    cornerPoints[2] = GeoCoordSystem::LocalToGeocentricish(geoMbr.ur());
+    cornerPoints[3] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(geoMbr.ll().x(),geoMbr.ur().y()));
 	
 	// Normals happen to be the same
 	for (unsigned int ii=0;ii<4;ii++)

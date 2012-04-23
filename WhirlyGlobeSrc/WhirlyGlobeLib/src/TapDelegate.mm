@@ -56,7 +56,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyKit::Scene *scene = sceneRender.scene;
+//    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
@@ -69,7 +69,8 @@ using namespace WhirlyKit;
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
 		[msg setWorldLoc:hit];
-		[msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];
+        Point3f localCoord = GeoCoordSystem::GeocentricishToLocal(hit);
+		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];

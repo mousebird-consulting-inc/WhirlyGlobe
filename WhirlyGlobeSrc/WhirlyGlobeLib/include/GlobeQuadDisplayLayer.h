@@ -88,7 +88,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
     
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::Mbr nodeMbr);
+float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *coordSys,WhirlyKit::Mbr nodeMbr);
 
 }
 
@@ -97,13 +97,20 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
   */
 @protocol WhirlyGlobeQuadDataSource <NSObject>
 
-/// Return the bounding box, geographic only
-- (WhirlyKit::GeoMbr)geoExtents;
+/// Return the coordinate system we're working in
+- (WhirlyKit::CoordSystem *)coordSystem;
 
-/// Return the minimum zoom level (usually 0)
+/// Bounding box used to calculate quad tree nodes.  In local coordinate system.
+- (WhirlyKit::Mbr)totalExtents;
+
+/// Bounding box of data you actually want to display.  In local coordinate system.
+/// Unless you're being clever, make this the same as totalExtents.
+- (WhirlyKit::Mbr)validExtents;
+
+/// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom;
 
-/// Return the maximum zoom level.  Must be at least minZoom
+/// Return the maximum quad tree zoom level.  Must be at least minZoom
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
@@ -128,8 +135,12 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     /// The renderer we need for frame sizes
     WhirlyKitSceneRendererES1 * __weak renderer;
         
-    /// Geographic bounding box
-    WhirlyKit::GeoMbr geoMbr;
+    /// Coordinate system we're working in for tiling
+    /// The visual output is on the globe
+    WhirlyKit::CoordSystem *coordSys;
+    
+    /// Valid bounding box in local coordinates (coordSys)
+    WhirlyKit::Mbr mbr;
     
     /// [minZoom,maxZoom] range
     int minZoom,maxZoom;
@@ -152,6 +163,11 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     /// How often this layer gets notified of view changes.  1s by default.
     float viewUpdatePeriod;
     
+    /// If set, we'll draw the empty tiles as lines
+    /// If not set, we'll just stop loading at that tile
+    // Note: Note implemented
+    bool drawEmpty;
+    
     /// Draw lines instead of polygons, for demonstration.
     bool lineMode;
     
@@ -165,10 +181,13 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     WhirlyGlobeViewState *viewState;
 }
 
+@property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
+@property (nonatomic,readonly) WhirlyKit::Mbr mbr;
 @property (nonatomic,assign) int maxTiles;
 @property (nonatomic,assign) float minTileArea;
 @property (nonatomic,assign) bool lineMode;
 @property (nonatomic,assign) bool debugMode;
+@property (nonatomic,assign) bool drawEmpty;
 @property (nonatomic,assign) float viewUpdatePeriod;
 @property (nonatomic,strong) NSObject<WhirlyGlobeQuadDataSource> *dataSource;
 

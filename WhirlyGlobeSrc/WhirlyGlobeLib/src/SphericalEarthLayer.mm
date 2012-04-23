@@ -158,7 +158,7 @@ using namespace WhirlyGlobe;
 //  up to match the given texture group
 - (void)process:(id)sender
 {
-    CoordSystem *coordSys = scene->getCoordSystem();
+//    CoordSystem *coordSys = scene->getCoordSystem();
     
 	// Unit size of each tesselation, basically
 	GeoCoord geoIncr(2*M_PI/(texGroup.numX*SphereTessX),M_PI/(texGroup.numY*SphereTessY));
@@ -198,7 +198,7 @@ using namespace WhirlyGlobe;
 			if (geoLoc.y() > M_PI/2.0) geoLoc.y() = M_PI/2.0;
 			
 			// Physical location from that
-			Point3f loc = coordSys->pointFromGeo(geoLoc);
+			Point3f loc = GeoCoordSystem::LocalToGeocentricish(geoLoc);
 			
 			// Do the texture coordinate seperately
 			TexCoord texCoord((ix*texIncr.x())*adjTexSpan.x()+adjTexMin.x(),adjTexMax.y()-(iy*texIncr.y())*adjTexSpan.y());

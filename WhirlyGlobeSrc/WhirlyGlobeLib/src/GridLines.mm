@@ -47,7 +47,7 @@ using namespace WhirlyGlobe;
 // Generate grid lines covering the earth model
 - (void)process:(id)sender
 {
-    CoordSystem *coordSys = scene->getCoordSystem();
+//    CoordSystem *coordSys = scene->getCoordSystem();
 	std::vector<ChangeRequest> changeRequests;
 
 	GeoCoord geoIncr(2*M_PI/numX,M_PI/numY);
@@ -70,10 +70,10 @@ using namespace WhirlyGlobe;
 			// Start out with the points in 3-space
 			// Note: Duplicating work
 			Point3f norms[4],pts[4];
-			norms[0] = coordSys->pointFromGeo(GeoCoord(x*GridCellSize,y*GridCellSize));
-			norms[1] = coordSys->pointFromGeo(GeoCoord((x+1)*GridCellSize,y*GridCellSize));
-			norms[2] = coordSys->pointFromGeo(GeoCoord((x+1)*GridCellSize,GridCellSize*(y+1)));
-			norms[3] = coordSys->pointFromGeo(GeoCoord(GridCellSize*x,GridCellSize*(y+1)));
+			norms[0] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(x*GridCellSize,y*GridCellSize));
+			norms[1] = GeoCoordSystem::LocalToGeocentricish(GeoCoord((x+1)*GridCellSize,y*GridCellSize));
+			norms[2] = GeoCoordSystem::LocalToGeocentricish(GeoCoord((x+1)*GridCellSize,GridCellSize*(y+1)));
+			norms[3] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(GridCellSize*x,GridCellSize*(y+1)));
 			
 			// Nudge them out a little bit
 			for (unsigned int ii=0;ii<4;ii++)

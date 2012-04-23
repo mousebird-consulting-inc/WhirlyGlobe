@@ -94,6 +94,8 @@
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
 		2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */; };
 		2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */; };
+		2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */; };
+		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -219,6 +221,8 @@
 		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
 		2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeQuadDisplayLayer.h; sourceTree = "<group>"; };
 		2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeQuadDisplayLayer.mm; sourceTree = "<group>"; };
+		2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
+		2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalMercator.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -412,7 +416,6 @@
 		2B4504AE14BBACF900C99306 /* view */ = {
 			isa = PBXGroup;
 			children = (
-				2B4504B114BBB40D00C99306 /* CoordSystem.h */,
 				2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */,
 			);
 			name = view;
@@ -485,6 +488,27 @@
 			name = "layers & loaders";
 			sourceTree = "<group>";
 		};
+		2BA8FFDB1540E12300AEA53C /* coordinate systems */ = {
+			isa = PBXGroup;
+			children = (
+				2B4504B114BBB40D00C99306 /* CoordSystem.h */,
+				2BCABB9812FA14300049D73C /* GlobeMath.h */,
+				2B4504B314BBBC6600C99306 /* FlatMath.h */,
+				2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */,
+			);
+			name = "coordinate systems";
+			sourceTree = "<group>";
+		};
+		2BA8FFDE1540E5F100AEA53C /* coordinate systems */ = {
+			isa = PBXGroup;
+			children = (
+				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
+				2B4504B814BCC29D00C99306 /* FlatMath.mm */,
+				2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */,
+			);
+			name = "coordinate systems";
+			sourceTree = "<group>";
+		};
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -502,6 +526,7 @@
 				2B35A8521337CC3B0047C705 /* OpenGL Utils */,
 				2B3890BF12DF8F87006FC3A1 /* Cocoa Utils */,
 				2BCABA6612F8D9FC0049D73C /* geometry utils */,
+				2BA8FFDE1540E5F100AEA53C /* coordinate systems */,
 				2B3890A712DF8C90006FC3A1 /* rendering */,
 				2BE6EE5312E4F3D100415490 /* interaction */,
 				2BCABA6712F8DA280049D73C /* scene & view */,
@@ -543,10 +568,8 @@
 		2BCABA6612F8D9FC0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
-				2B4504B814BCC29D00C99306 /* FlatMath.mm */,
 				2B3A36E512E63F9500698DA1 /* WhirlyGeometry.mm */,
 				2B95192E12EF4417005003AE /* WhirlyVector.mm */,
-				2BCABB9A12FA14660049D73C /* GlobeMath.mm */,
 				2BEFDE99149966F300C63326 /* GridClipper.mm */,
 				2BEFDE9A149966F300C63326 /* Tesselator.mm */,
 				2BEFDEA114997C0400C63326 /* clipper.cpp */,
@@ -594,6 +617,7 @@
 			isa = PBXGroup;
 			children = (
 				2BCABA5912F8D6DD0049D73C /* geometry utils */,
+				2BA8FFDB1540E12300AEA53C /* coordinate systems */,
 				2B35A84F1337CC0F0047C705 /* OpenGL Utils */,
 				2B3890BE12DF8F69006FC3A1 /* Cocoa Utils */,
 				2B3890A612DF8C8B006FC3A1 /* rendering */,
@@ -622,7 +646,6 @@
 		2BCF39E114BB8EC2006B0FC0 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
-				2BCABB9812FA14300049D73C /* GlobeMath.h */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";
@@ -654,7 +677,6 @@
 				2B92105314BD1A8100653536 /* PanDelegateMap.h */,
 				2B4504DE14BD119300C99306 /* PinchDelegateMap.h */,
 				2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */,
-				2B4504B314BBBC6600C99306 /* FlatMath.h */,
 				2B03702114CA02A900A51AC4 /* MapTapDelegate.h */,
 			);
 			name = WhirlyMap;
@@ -839,6 +861,7 @@
 				2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */,
 				2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */,
 				2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */,
+				2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -958,6 +981,7 @@
 				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
 				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
 				2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */,
+				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

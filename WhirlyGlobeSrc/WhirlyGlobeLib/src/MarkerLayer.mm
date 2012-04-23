@@ -169,7 +169,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // We're in the layer thread here
 - (void)runAddMarkers:(MarkerInfo *)markerInfo
 {
-    CoordSystem *coordSys = scene->getCoordSystem();
+//    CoordSystem *coordSys = scene->getCoordSystem();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fade = markerInfo.fade;
     markerRep->setId(markerInfo.markerId);
@@ -187,7 +187,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
         float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
         
-        norm = coordSys->pointFromGeo(marker.loc);
+        norm = GeoCoordSystem::LocalToGeocentricish(marker.loc);
         Point3f center = norm;
         Vector3f up(0,0,1);
         Point3f horiz = up.cross(norm).normalized();

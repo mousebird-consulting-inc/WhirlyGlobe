@@ -35,18 +35,15 @@ using namespace WhirlyGlobe;
 
 namespace WhirlyGlobe 
 {
-
-// Note: This will go away when we make the coordinate system explicit
-GlobeCoordSystem geoSystem;
     
 // Calculate the importance for the given texel
-static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,GeoCoord pt,GeoCoord pixSize,Point2f frameSize)
+static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,Point3f pt,Point2f pixSize,Point2f frameSize,WhirlyKit::CoordSystem *coordSys)
 {
-    GeoCoord pts[4];
-    pts[0] = pt + GeoCoord(-pixSize.x()/2.0,-pixSize.y()/2.0);
-    pts[1] = pt + GeoCoord(pixSize.x()/2.0,-pixSize.y()/2.0);
-    pts[2] = pt + GeoCoord(pixSize.x()/2.0,pixSize.y()/2.0);
-    pts[3] = pt + GeoCoord(-pixSize.x()/2.0,pixSize.y()/2.0);
+    Point3f pts[4];
+    pts[0] = pt + Point3f(-pixSize.x()/2.0,-pixSize.y()/2.0,0.0);
+    pts[1] = pt + Point3f(pixSize.x()/2.0,-pixSize.y()/2.0,0.0);
+    pts[2] = pt + Point3f(pixSize.x()/2.0,pixSize.y()/2.0,0.0);
+    pts[3] = pt + Point3f(-pixSize.x()/2.0,pixSize.y()/2.0,0.0);
     
     // Convert to 3-space
     Point3f pts3d[4];
@@ -54,7 +51,7 @@ static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,GeoCo
     bool forwardFacing = false;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        pts3d[ii] = geoSystem.pointFromGeo(pts[ii]);
+        pts3d[ii] = coordSys->localToGeocentricish(pts[ii]);
         
         // Check the normal (point in this case) against the eye vec
         if (pts3d[ii].dot(eyeVec) > 0.0)
@@ -86,37 +83,21 @@ static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,GeoCo
 
     
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,Mbr nodeMbr)
+float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *coordSys,Mbr nodeMbr)
 {
-    // Make sure the MBR overlaps the real world
-    Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
-    if (!nodeMbr.overlaps(realMbr))
-        return 0.0;
-    
-    // Snap to the real world
-    Mbr theMbr = nodeMbr;
-    if (theMbr.ll().x() < -M_PI)
-        theMbr.ll().x() = -M_PI;
-    if (theMbr.ur().x() > M_PI)
-        theMbr.ur().x() = M_PI;
-    if (theMbr.ll().y() < -M_PI/2.0)
-        theMbr.ll().y() = -M_PI/2.0;
-    if (theMbr.ur().y() > M_PI/2.0)
-        theMbr.ur().y() = M_PI/2.0;
-    
-    Point2f pixSize((theMbr.ur().x()-theMbr.ll().x())/pixelsSquare,(theMbr.ur().y()-theMbr.ll().y())/pixelsSquare);
-    Point2f testPoints[5];
-    testPoints[0] = theMbr.ll();
-    testPoints[1] = Point2f(theMbr.ur().x(),theMbr.ll().y());
-    testPoints[2] = Point2f(theMbr.ur());
-    testPoints[3] = Point2f(theMbr.ll().x(),theMbr.ur().y());
-    testPoints[4] = (theMbr.ll()+theMbr.ur())/2.0;
+    Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
+    Point3f testPoints[5];
+    testPoints[0] = Point3f(nodeMbr.ll().x(),nodeMbr.ll().y(),0.0);
+    testPoints[1] = Point3f(nodeMbr.ur().x(),nodeMbr.ll().y(),0.0);
+    testPoints[2] = Point3f(nodeMbr.ur().x(),nodeMbr.ur().y(),0.0);
+    testPoints[3] = Point3f(nodeMbr.ll().x(),nodeMbr.ur().y(),0.0);
+    testPoints[4] = (testPoints[0]+testPoints[2])/2.0;
     
     // Let's make sure we at least overlap the screen
     Mbr mbrOnScreen;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point3f pt3d = geoSystem.pointFromGeo(GeoCoord(testPoints[ii].x(),testPoints[ii].y()));
+        Point3f pt3d = coordSys->localToGeocentricish(testPoints[ii]);
         
         CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
         mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
@@ -128,7 +109,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     float maxImport = 0.0;
     for (unsigned int ii=0;ii<5;ii++)
     {
-        float thisImport = calcImportance(viewState,eyeVec,GeoCoord(testPoints[ii].x(),testPoints[ii].y()),GeoCoord(pixSize.x(),pixSize.y()),frameSize);
+        float thisImport = calcImportance(viewState,eyeVec,testPoints[ii],pixSize,frameSize,coordSys);
         maxImport = std::max(thisImport,maxImport);
     }
     
@@ -324,9 +305,12 @@ void LoadedTile::Print(Quadtree *tree)
 
 @implementation WhirlyGlobeQuadDisplayLayer
 
+@synthesize coordSys;
+@synthesize mbr;
 @synthesize maxTiles;
 @synthesize minTileArea;
 @synthesize lineMode;
+@synthesize drawEmpty;
 @synthesize debugMode;
 @synthesize dataSource;
 @synthesize scene;
@@ -338,15 +322,17 @@ void LoadedTile::Print(Quadtree *tree)
     if (self)
     {
         dataSource = inDataSource;
-        geoMbr = [dataSource geoExtents];
+        coordSys = [dataSource coordSystem];
+        mbr = [dataSource validExtents];
         minZoom = [dataSource minZoom];
         maxZoom = [dataSource maxZoom];
         maxTiles = 100;
         minTileArea = 1.0;
         viewUpdatePeriod = 1.0;
-        quadtree = new Quadtree(geoMbr,minZoom,maxZoom,maxTiles,minTileArea,self);
+        quadtree = new Quadtree([dataSource totalExtents],minZoom,maxZoom,maxTiles,minTileArea,self);
         renderer = inRenderer;
         lineMode = false;
+        drawEmpty = false;
         debugMode = false;
     }
     
@@ -522,23 +508,22 @@ const int SphereTessX = 10, SphereTessY = 10;
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines
 {
     Mbr theMbr = nodeInfo->mbr;
-    
-    // Make sure the MBR overlaps the real world
-    Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
-    if (!theMbr.overlaps(realMbr))
+
+    // Make sure this overlaps the area we care about
+    if (!theMbr.overlaps(mbr))
     {
         NSLog(@"Building bogus tile: (%d,%d,%d)",nodeInfo->ident.x,nodeInfo->ident.y,nodeInfo->ident.level);
     }
     
-    // Snap to the real world
-    if (theMbr.ll().x() < -M_PI)
-        theMbr.ll().x() = -M_PI;
-    if (theMbr.ur().x() > M_PI)
-        theMbr.ur().x() = M_PI;
-    if (theMbr.ll().y() < -M_PI/2.0)
-        theMbr.ll().y() = -M_PI/2.0;
-    if (theMbr.ur().y() > M_PI/2.0)
-        theMbr.ur().y() = M_PI/2.0;
+    // Snap to the designated area
+    if (theMbr.ll().x() < mbr.ll().x())
+        theMbr.ll().x() = mbr.ll().x();
+    if (theMbr.ur().x() > mbr.ur().x())
+        theMbr.ur().x() = mbr.ur().x();
+    if (theMbr.ll().y() < mbr.ll().y())
+        theMbr.ll().y() = mbr.ll().y();
+    if (theMbr.ur().y() > mbr.ur().y())
+        theMbr.ur().y() = mbr.ur().y();
 
     // Number of pieces at this level
     int xDim = 1<<nodeInfo->ident.level;
@@ -597,9 +582,9 @@ const int SphereTessX = 10, SphereTessY = 10;
             for (unsigned int iy=0;iy<SphereTessY;iy++)
                 for (unsigned int ix=0;ix<SphereTessX;ix++)
                 {
-                    Point3f org3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y()));
-                    Point3f ptA_3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y()));
-                    Point3f ptB_3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y()));
+                    Point3f org3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
+                    Point3f ptA_3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
+                    Point3f ptB_3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0));
                     
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
                     
@@ -623,7 +608,7 @@ const int SphereTessX = 10, SphereTessY = 10;
             for (unsigned int iy=0;iy<SphereTessY+1;iy++)
                 for (unsigned int ix=0;ix<SphereTessX+1;ix++)
                 {
-                    Point3f loc3D = geoSystem.pointFromGeo(GeoCoord(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y()));
+                    Point3f loc3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
                     
                     // Do the texture coordinate seperately
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
@@ -660,9 +645,9 @@ const int SphereTessX = 10, SphereTessY = 10;
 
 #pragma mark - Quad Tree Importance Delegate
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)mbr tree:(WhirlyKit::Quadtree *)tree
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree
 {
-    return [dataSource importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
+    return [dataSource importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
 }
 
 @end

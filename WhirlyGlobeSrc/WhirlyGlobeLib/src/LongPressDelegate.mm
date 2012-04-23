@@ -24,7 +24,6 @@
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeLongPressDelegate
 
@@ -58,7 +57,7 @@ using namespace WhirlyGlobe;
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
 	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyKit::Scene *scene = sceneRender.scene;
+//    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
     {
@@ -73,7 +72,8 @@ using namespace WhirlyGlobe;
             msg.view = press.view;
             msg.touchLoc = touchLoc;
             [msg setWorldLoc:hit];
-            [msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];
+            Point3f geoHit = GeoCoordSystem::GeocentricishToLocal(hit);
+            [msg setWhereGeo:GeoCoord(geoHit.x(),geoHit.y())];
             msg.heightAboveSurface = globeView.heightAboveGlobe;
             
             [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeLongPressMsg object:msg]];

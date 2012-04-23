@@ -97,7 +97,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 // Calculate the corners in this order:  (ll,lr,ur,ul)
 - (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordSystem:(CoordSystem *)coordSys
 {
-    *norm = coordSys->pointFromGeo(loc);
+    *norm = GeoCoordSystem::LocalToGeocentricish(loc);
     Point3f center = *norm;
     Point3f up(0,0,1);
     Point3f horiz,vert;

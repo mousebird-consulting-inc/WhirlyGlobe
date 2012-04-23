@@ -21,47 +21,28 @@
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
 
-namespace WhirlyMap
+namespace WhirlyKit
 {
     
 /** The Flat Coordinate System just unrolls lat/lon in radians and
     represents the map as a flat non-projection of that.
-    Technically, this is plate caree: http://en.wikipedia.org/wiki/Equirectangular_projection
+    Technically, this is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
-class FlatCoordSystem : public WhirlyKit::CoordSystem
+class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
-    /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
-    WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
+    /// Convert from the local coordinate system to lat/lon
+    GeoCoord localToGeographic(Point3f);
+    /// Convert from lat/lon t the local coordinate system
+    Point3f geographicToLocal(GeoCoord);
     
-    /// From a 3D point on a plane at z = 0.0, convert to geographic
-    WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt);     
+    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
+    Point3f localToGeocentricish(Point3f);    
+    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
+    Point3f geocentricishToLocal(Point3f);
     
     /// Working in a flat space
     bool isFlat() { return true; }
 };
-    
-/** The Mercator Projection, bane of cartographers everywhere.
-    It stretches out the world in a familiar way, making the US
-    look almost as big as our collective ego.  And Greenland.  For some reason.
-  */
-class MercatorCoordSystem : public WhirlyKit::CoordSystem
-{
-public:
-    /// Construct with an optional origin for the projection in radians
-    /// The equator is default
-    MercatorCoordSystem(float originLon=0.0);
-    
-    /// From a geo coordinate, generate the 3D location on a globe of radius 1.0
-    WhirlyKit::Point3f pointFromGeo(WhirlyKit::GeoCoord geo);
-    
-    /// From a 3D point on a plane at z = 0.0, convert to geographic
-    WhirlyKit::GeoCoord geoFromPoint(WhirlyKit::Point3f pt);     
-
-    bool isFlat() { return true; }
-    
-protected:
-    float originLon;
-};
-    
+        
 }

@@ -22,6 +22,7 @@
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
 #import "WhirlyMapView.h"
+#import "GlobeMath.h"
 
 using namespace WhirlyKit;
 
@@ -57,7 +58,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
-    WhirlyKit::Scene *scene = sceneRender.scene;
+//    WhirlyKit::Scene *scene = sceneRender.scene;
     
     // Just figure out where we tapped
 	Point3f hit;
@@ -69,7 +70,7 @@ using namespace WhirlyKit;
         [msg setTouchLoc:touchLoc];
         [msg setView:tap.view];
 		[msg setWorldLoc:hit];
-		[msg setWhereGeo:scene->getCoordSystem()->geoFromPoint(hit)];
+		[msg setWhereGeo:GeoCoordSystem::GeocentricishToGeoCoord(hit)];
         msg.heightAboveSurface = hit.z();
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];

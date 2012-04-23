@@ -1,8 +1,8 @@
 /*
- *  GlobeMath.h
+ *  FlatMath.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 2/2/11.
+ *  Created by Steve Gifford on 4/19/12.
  *  Copyright 2011 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,36 +21,34 @@
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
 
-namespace WhirlyKit
+namespace WhirlyKit 
 {
 
-/** Geographic coordinate system represents a coordinate system that uses
-    lat/lon/elevation.
-  */
-class GeoCoordSystem : public WhirlyKit::CoordSystem
+    /** The Mercator Projection, bane of cartographers everywhere.
+ It stretches out the world in a familiar way, making the US
+ look almost as big as our collective ego.  And Greenland.  For some reason.
+ */
+class SphericalMercatorCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    /// Construct with an optional origin for the projection in radians
+    /// The equator is default
+    SphericalMercatorCoordSystem(float originLon=0.0);
+    
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     
-    /// Convert from the local coordinate system to display coordinates (geocentric-ish)
-    Point3f localToGeocentricish(Point3f);
-    
-    /// Static so other coordinate systems can use it
-    static Point3f LocalToGeocentricish(Point3f);
-    static Point3f LocalToGeocentricish(GeoCoord);
-
-    /// Convert from display coordinates to the local coordinate system
+    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
+    Point3f localToGeocentricish(Point3f);    
+    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
     Point3f geocentricishToLocal(Point3f);
     
-    /// Static so other coordinate systems can use it
-    static Point3f GeocentricishToLocal(Point3f);
-    static GeoCoord GeocentricishToGeoCoord(Point3f);
-
-    /// Not flat
-    bool isFlat() { return false; }
+    bool isFlat() { return true; }
+    
+protected:
+    float originLon;
 };
 
 }

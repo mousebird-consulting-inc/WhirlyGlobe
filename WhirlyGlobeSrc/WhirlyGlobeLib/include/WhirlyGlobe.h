@@ -58,6 +58,7 @@
 #import "DrawCost.h"
 #import "RenderCache.h"
 #import "FlatMath.h"
+#import "SphericalMercator.h"
 #import "WhirlyMapView.h"
 #import "PinchDelegateMap.h"
 #import "PanDelegateMap.h"
