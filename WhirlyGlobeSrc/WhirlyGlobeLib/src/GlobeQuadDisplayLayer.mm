@@ -133,7 +133,7 @@ void LoadedTile::addToScene(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene
 {
     BasicDrawable *draw = NULL;
     Texture *tex = NULL;
-    [layer buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:false];
+    [layer buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode];
     drawId = draw->getId();
     if (tex)
         texId = tex->getId();
@@ -265,7 +265,7 @@ void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *laye
                             if (isValidTile(childInfo.mbr))
                             {
                                 BasicDrawable *childDraw = NULL;
-                                [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:(texId == EmptyIdentity)];
+                                [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode)];
                                 childDrawIds[whichChild] = childDraw->getId();
                                 if (!layer.lineMode && texId)
                                     childDraw->setTexId(texId);
@@ -547,8 +547,8 @@ const int SphereTessX = 10, SphereTessY = 10;
     // We need the corners in geographic for the cullable
     Point2f chunkLL = theMbr.ll();
     Point2f chunkUR = theMbr.ur();
-    GeoCoord geoLL(chunkLL.x(),chunkLL.y());
-    GeoCoord geoUR(chunkUR.x(),chunkUR.y());
+    GeoCoord geoLL(coordSys->localToGeographic(Point3f(chunkLL.x(),chunkLL.y(),0.0)));
+    GeoCoord geoUR(coordSys->localToGeographic(Point3f(chunkUR.x(),chunkUR.y(),0.0)));
     
     // Get texture (locally)
     if (tex)
@@ -559,7 +559,10 @@ const int SphereTessX = 10, SphereTessY = 10;
             UIImage *texImage = [UIImage imageWithData:texData];
             if (texImage)
             {
+                // Create the texture and set it up in OpenGL
                 Texture *newTex = new Texture(texImage);
+                [EAGLContext setCurrentContext:layerThread.glContext];
+                newTex->createInGL();
                 *tex = newTex;
             }
         } else
@@ -571,7 +574,9 @@ const int SphereTessX = 10, SphereTessY = 10;
         // We'll set up and fill in the drawable
         BasicDrawable *chunk = new BasicDrawable((SphereTessX+1)*(SphereTessY+1),2*SphereTessX*SphereTessY);
         //	chunk->setType(GL_POINTS);
-        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+        // Note: Put this back
+//        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180, -90),GeoCoord::CoordFromDegrees(180, 90)));
         
         // We're in line mode or the texture didn't load
         if (buildLines || (tex && !(*tex)))

@@ -61,6 +61,7 @@ public:
 
 @implementation WhirlyKitSceneRendererES1
 
+@synthesize context;
 @synthesize scene,theView;
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize framesPerSec;

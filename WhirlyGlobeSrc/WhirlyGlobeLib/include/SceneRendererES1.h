@@ -125,6 +125,7 @@ static const unsigned int RenderFrameCount = 25;
     WhirlyKit::RGBAColor clearColor;
 }
 
+@property (nonatomic) EAGLContext *context;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,weak) WhirlyKitView *theView;
 

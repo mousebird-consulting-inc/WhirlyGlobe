@@ -66,3 +66,5 @@
 #import "MapTapDelegate.h"
 #import "GlobeQuadDisplayLayer.h"
 #import "GlobeLayerViewWatcher.h"
+#import "MBTileQuadSource.h"
+

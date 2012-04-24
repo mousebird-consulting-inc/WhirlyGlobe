@@ -29,8 +29,9 @@ using namespace WhirlyKit;
 
 @synthesize runLoop;
 @synthesize viewWatcher;
+@synthesize glContext;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
 {
 	if ((self = [super init]))
 	{
@@ -39,6 +40,8 @@ using namespace WhirlyKit;
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
             viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
+        
+        glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:renderer.context.sharegroup];
 	}
 	
 	return self;

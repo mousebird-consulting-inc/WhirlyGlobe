@@ -69,9 +69,11 @@ using namespace WhirlyGlobe;
     
     theView = nil;
     texGroup = nil;
+    mbTiles = nil;
     layerThread = nil;
     
     earthLayer = nil;
+    quadLayer = nil;
     vectorLayer = nil;
     labelLayer = nil;
     particleSystemLayer = nil;
@@ -129,20 +131,30 @@ using namespace WhirlyGlobe;
 	[sceneRenderer useContext];
 	
 	// Set up a texture group for the world texture
-	texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]];
+    if (UseMBTiles)
+        mbTiles = [[WhirlyMBTileQuadSource alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"blue-marble-topo-jan" ofType:@"mbtiles"]];
+    else
+        texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]];
     
 	// Need an empty scene and view    
 	theView = [[WhirlyGlobeView alloc] init];
-	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY,theView.coordSystem);
+	theScene = new WhirlyGlobe::GlobeScene(16,16,theView.coordSystem);
     sceneRenderer.theView = theView;
 	
 	// Need a layer thread to manage the layers
-	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:theScene];
+	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:theScene view:theView renderer:sceneRenderer];
 	
 	// Earth layer on the bottom
-	earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil];
-    earthLayer.fade = 1.0;
-	[layerThread addLayer:earthLayer];
+    if (UseMBTiles)
+    {
+        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles renderer:sceneRenderer];
+        quadLayer.lineMode = false;
+        [layerThread addLayer:quadLayer];
+    } else {
+        earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil];
+        earthLayer.fade = 1.0;
+        [layerThread addLayer:earthLayer];
+    }
     
     // Selection feedback
     selectionLayer = [[WhirlyKitSelectionLayer alloc] initWithView:theView renderer:sceneRenderer];

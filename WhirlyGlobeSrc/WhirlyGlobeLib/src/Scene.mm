@@ -201,7 +201,8 @@ void Scene::addDrawable(Drawable *drawable)
 
 void AddTextureReq::execute(Scene *scene,WhirlyKitView *view)
 {
-    tex->createInGL(true);
+    if (!tex->getId())
+        tex->createInGL(true);
     scene->textures.insert(tex);
     tex = NULL;
 }

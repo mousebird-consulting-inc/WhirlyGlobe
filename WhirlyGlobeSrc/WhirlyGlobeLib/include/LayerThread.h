@@ -23,6 +23,7 @@
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerViewWatcher.h"
+#import "SceneRendererES1.h"
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -42,13 +43,17 @@
 	
 	/// Run loop created within our main
 	NSRunLoop *runLoop;
+    
+    /// Our own EAGLContext, connected by a share group to the main one
+    EAGLContext *glContext;
 }
 
 @property (nonatomic) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
+@property (nonatomic) EAGLContext *glContext;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

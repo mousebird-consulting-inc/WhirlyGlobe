@@ -478,7 +478,7 @@ const int NumParticleSystems = 150;
             WhirlyKitParticleSystem *particleSystem = [[WhirlyKitParticleSystem alloc] init];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [particleSystem setLoc:coord];
-            [particleSystem setNorm:coordSys->pointFromGeo(coord)];   
+            [particleSystem setNorm:coordSys->geographicToLocal(coord)];   
             [partSystems addObject:particleSystem];
         }
         

@@ -70,6 +70,7 @@
 		2B2C1E4B1458BB9100B5D61D /* big_wtb_info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2B2C1E221458BB9100B5D61D /* big_wtb_info.plist */; };
 		2B2C1E4D1458BC8100B5D61D /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1E4C1458BC8100B5D61D /* libsqlite3.dylib */; };
 		2B2C1E501458C52100B5D61D /* InteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1E4F1458C52000B5D61D /* InteractionLayer.mm */; };
+		2B774CDF1546607700BA79E4 /* blue-marble-topo-jan.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B774CDE1546607700BA79E4 /* blue-marble-topo-jan.mbtiles */; };
 		2B80456514992063003FFABE /* number_0.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455B14992063003FFABE /* number_0.png */; };
 		2B80456614992063003FFABE /* number_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455C14992063003FFABE /* number_1.png */; };
 		2B80456714992063003FFABE /* number_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455D14992063003FFABE /* number_2.png */; };
@@ -178,6 +179,7 @@
 		2B2C1E4C1458BC8100B5D61D /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		2B2C1E4E1458C52000B5D61D /* InteractionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InteractionLayer.h; sourceTree = "<group>"; };
 		2B2C1E4F1458C52000B5D61D /* InteractionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InteractionLayer.mm; sourceTree = "<group>"; };
+		2B774CDE1546607700BA79E4 /* blue-marble-topo-jan.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = "blue-marble-topo-jan.mbtiles"; sourceTree = "<group>"; };
 		2B80455B14992063003FFABE /* number_0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_0.png; path = resources/number_0.png; sourceTree = SOURCE_ROOT; };
 		2B80455C14992063003FFABE /* number_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_1.png; path = resources/number_1.png; sourceTree = SOURCE_ROOT; };
 		2B80455D14992063003FFABE /* number_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_2.png; path = resources/number_2.png; sourceTree = SOURCE_ROOT; };
@@ -334,6 +336,7 @@
 				2B8045591499204D003FFABE /* numbers */,
 				2BEB7402146F487600B8AB0A /* globebutton.png */,
 				2B2C1DF81458BB7400B5D61D /* earth texture */,
+				2B774CDD1546607700BA79E4 /* MBTiles */,
 				2B232AFA14709ED100CF2438 /* vectors */,
 			);
 			name = resources;
@@ -394,6 +397,15 @@
 			);
 			name = big_wtb;
 			path = resources/big_wtb;
+			sourceTree = SOURCE_ROOT;
+		};
+		2B774CDD1546607700BA79E4 /* MBTiles */ = {
+			isa = PBXGroup;
+			children = (
+				2B774CDE1546607700BA79E4 /* blue-marble-topo-jan.mbtiles */,
+			);
+			name = MBTiles;
+			path = resources/MBTiles;
 			sourceTree = SOURCE_ROOT;
 		};
 		2B8045591499204D003FFABE /* numbers */ = {
@@ -601,6 +613,7 @@
 				2B95619814B50A8D00B80A7F /* Icon@2x.png in Resources */,
 				2B95619914B50A8D00B80A7F /* iPadLaunch.png in Resources */,
 				2B95619A14B50A8D00B80A7F /* iPhoneLaunch.png in Resources */,
+				2B774CDF1546607700BA79E4 /* blue-marble-topo-jan.mbtiles in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
