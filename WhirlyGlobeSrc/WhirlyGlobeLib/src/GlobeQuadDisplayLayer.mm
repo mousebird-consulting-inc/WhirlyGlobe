@@ -159,21 +159,23 @@ void LoadedTile::addToScene(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene
 }
 
 // Clean out the geometry and texture associated with the given tile
-void LoadedTile::clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene)
+void LoadedTile::clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,std::vector<ChangeRequest *> &changeRequests)
 {
     if (drawId != EmptyIdentity)
     {
-        scene->addChangeRequest(new RemDrawableReq(drawId));
+        changeRequests.push_back(new RemDrawableReq(drawId));
         drawId = EmptyIdentity;
     }
     if (texId != EmptyIdentity)
     {
-        scene->addChangeRequest(new RemTextureReq(texId));
+        changeRequests.push_back(new RemTextureReq(texId));
         texId = EmptyIdentity;
     }
     for (unsigned int ii=0;ii<4;ii++)
         if (childDrawIds[ii] != EmptyIdentity)
-            scene->addChangeRequest(new RemDrawableReq(childDrawIds[ii]));
+        {
+            changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+        }
 }
 
 // Make sure a given tile overlaps the real world
@@ -184,14 +186,12 @@ bool isValidTile(Mbr theMbr)
 }
 
 // Update based on what children are doing
-void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer)
+void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer,std::vector<ChangeRequest *> &changeRequests)
 {
     std::vector<Quadtree::Identifier> childIdents;
     tree->childrenForNode(nodeInfo.ident,childIdents);
         
     //    NSLog(@"Updating children for node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
-    
-    std::vector<ChangeRequest *> changeRequests;
     
     // If there are no children and it's not on, turn it on
     if (childIdents.size() == 0)
@@ -281,8 +281,6 @@ void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *laye
                 whichChild++;
             }
     }
-    
-    layer.scene->addChangeRequests(changeRequests);
     
     //    tree->Print();
 }
@@ -402,6 +400,10 @@ void LoadedTile::Print(Quadtree *tree)
     if (nodesForEval.empty())
         return;
     
+    // We'll gather up all the changes for this step
+    // This avoids flashing
+    std::vector<ChangeRequest *> changeRequests;
+    
     // Grab the first node.
     QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
     nodeIt--;
@@ -454,7 +456,7 @@ void LoadedTile::Print(Quadtree *tree)
                             if (childIDs.size() > 0)
                                 NSLog(@" *** Deleting node with children *** ");
                                 
-                                theTile->clearContents(self,scene);
+                                theTile->clearContents(self,scene,changeRequests);
                                 tileSet.erase(it);
                                 delete theTile;
                         }
@@ -472,7 +474,7 @@ void LoadedTile::Print(Quadtree *tree)
                 if (lit != tileSet.end())
                 {
                     LoadedMBTile *theTile = *lit;
-                    theTile->updateContents(quadtree,self);
+                    theTile->updateContents(quadtree,self, changeRequests);
                 }
             }
 #endif
@@ -480,7 +482,7 @@ void LoadedTile::Print(Quadtree *tree)
                  it != tileSet.end(); ++it)
             {
                 LoadedTile *theTile = *it;
-                theTile->updateContents(quadtree, self);
+                theTile->updateContents(quadtree, self, changeRequests);
             }
         }
         
@@ -494,6 +496,12 @@ void LoadedTile::Print(Quadtree *tree)
     } else
     {
         //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
+    }
+
+    // Flush out all the changes at once for this step
+    if (!changeRequests.empty())
+    {
+        scene->addChangeRequests(changeRequests);
     }
     
     if (debugMode)

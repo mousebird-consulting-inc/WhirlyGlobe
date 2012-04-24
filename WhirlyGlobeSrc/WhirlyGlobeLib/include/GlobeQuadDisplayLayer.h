@@ -52,11 +52,12 @@ public:
     /// Build the data needed for a scene representation
     void addToScene(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene);
     
-    /// Remove data from scene
-    void clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene);
+    /// Remove data from scene.  This just sets up the changes requests.
+    /// They must still be passed to the scene
+    void clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(WhirlyKit::Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer);
+    void updateContents(WhirlyKit::Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
         
     /// Dump out to the log
     void Print(WhirlyKit::Quadtree *tree);
