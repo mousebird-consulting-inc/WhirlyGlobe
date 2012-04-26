@@ -98,7 +98,7 @@ bool Texture::createInGL(bool releaseData)
 	glBindTexture(GL_TEXTURE_2D, glId);
     CheckGLError("Texture::createInGL() glBindTexture()");
 	
-	// Set the texture parameters to use a minifying filter and a linear filer (weighted average)
+	// Set the texture parameters to use a minifying filter and a linear filter (weighted average)
     if (usesMipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     else

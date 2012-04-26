@@ -544,11 +544,11 @@
 		2BCABA5912F8D6DD0049D73C /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
-				2BA2BB76153E08F800DAB382 /* Quadtree.h */,
 				2BC53FE112DE23BA00778431 /* WhirlyVector.h */,
 				2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */,
 				2BEFDE95149966D400C63326 /* GridClipper.h */,
 				2BEFDE96149966D400C63326 /* Tesselator.h */,
+				2BA2BB76153E08F800DAB382 /* Quadtree.h */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";

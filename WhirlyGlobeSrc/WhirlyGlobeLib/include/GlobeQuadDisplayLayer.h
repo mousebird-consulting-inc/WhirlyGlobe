@@ -62,12 +62,20 @@ public:
     /// Dump out to the log
     void Print(WhirlyKit::Quadtree *tree);
     
+    // Details of which node we're representing
     WhirlyKit::Quadtree::NodeInfo nodeInfo;
+    
+    /// Set if this parent tile is on
     bool isOn;
+    // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
-    bool childIsOn[4];
-    WhirlyKit::SimpleIdentity childDrawIds[4];
+    // Texture ID for the parent tile
     WhirlyKit::SimpleIdentity texId;
+    
+    // Set for each child that's on.  That is, that we're drawing as filler.
+    bool childIsOn[4];
+    // IDs for the various fake child geometry
+    WhirlyKit::SimpleIdentity childDrawIds[4];
 };
     
 /// This is a comparison operator for sorting loaded tile pointers by

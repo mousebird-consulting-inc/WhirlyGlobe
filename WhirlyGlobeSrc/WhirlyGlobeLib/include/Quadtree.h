@@ -29,7 +29,11 @@
 namespace WhirlyKit
 {
     
-/// Quad tree representation
+/** The Quadtree is used to represented the quad tree spatial subdivision
+    algorithm.  This version tracks abstract representations of quad tree
+    nodes.  It's up to the caller to track their own specific data along with
+    it.
+ */
 class Quadtree
 {
 public:   
@@ -45,60 +49,70 @@ public:
         Identifier() { }
         Identifier(int x,int y,int level) : x(x), y(y), level(level) { }
         
-        // Comparison based on x,y,level.  Used for sorting
+        /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
         
-        int x,y,level;
+        /// Spatial subdivision along the X axis relative to the space
+        int x;
+        /// Spatial subdivision along tye Y axis relative to the space
+        int y;
+        /// Level of detail, starting with 0 at the top (low)
+        int level;
     };
 
-    /// Quad tree node with bounding box and projected size on the screen
+    /// Quad tree node with bounding box and importance, which is possibly screen size
     class NodeInfo
     {
     public:
-        // Compare based on importance.  Used for sorting
+        /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
         
+        /// Unique identifier for the particular node
         Identifier ident;
+        /// Bounding box of just this quad node
         Mbr mbr;
+        /// Importance as calculated by the callback.  More is better.
         float importance;
     };
 
-    // Check if the given tile is already present
+    /// Check if the given tile is already present
     bool isTileLoaded(Identifier ident);
 
-    // Check if the quad tree will accept the given tile
-    // This means either there's room or less important nodes loaded
-    // It does not mean isn't already loaded.  Check that separately.
+    /** Check if the quad tree will accept the given tile.
+        This means either there's room or less important nodes loaded
+        It could already be loaded.  Check that separately.
+     */
     bool willAcceptTile(NodeInfo nodeInfo);
     
-    // Recalculate the importance of everything
+    /// Recalculate the importance of everything.  This calls the callback.
     void reevaluateNodes();
     
-    // Add the given tile, keeping track of what needed to be removed
+    /// Add the given tile, keeping track of what needed to be removed
     void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved);
     
     // Remove the given tile
 //    void removeTile(Identifier ident);
 
-    // Given an identifier, fill out the node info
-    // MBR, importance and such
+    /// Given an identifier, fill out the node info such as
+    /// MBR and importance.
     NodeInfo generateNode(Identifier ident);
 
-    // Given the identifier of a parent, fill out the children
+    /// Given the identifier of a parent, fill out the children IDs.
+    /// This does not load them.
     void generateChildren(Identifier ident,std::vector<NodeInfo> &nodes);
     
-    // Return the children from the given node
-    // If the node isn't in the tree, return false
+    /// Return the loaded children of the given node.
+    /// If the node isn't in the tree, return false
     bool childrenForNode(Identifier ident,std::vector<Identifier> &childIdents);
     
-    // Check if the given node has a parent loaded
-    // Return true if so, false if not.
+    /// Check if the given node has a parent loaded.
+    /// Return true if so, false if not.
     bool hasParent(Identifier ident,Identifier &parentIdent);
     
-    // Generate an MBR for the given node identifier
+    /// Generate an MBR for the given node identifier
     Mbr generateMbrForNode(Identifier ident);
     
-    // Dump out to the log for debugging
+    /// Dump out to the log for debugging
     void Print();
     
 protected:
