@@ -148,7 +148,8 @@ using namespace WhirlyGlobe;
     if (UseMBTiles)
     {
         quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles renderer:sceneRenderer];
-        quadLayer.lineMode = false;
+//        quadLayer.lineMode = true;
+//        quadLayer.debugMode = true;
         [layerThread addLayer:quadLayer];
     } else {
         earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil];

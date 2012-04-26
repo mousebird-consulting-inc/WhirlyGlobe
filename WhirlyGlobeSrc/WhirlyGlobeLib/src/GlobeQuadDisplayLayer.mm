@@ -179,10 +179,9 @@ void LoadedTile::clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *sc
 }
 
 // Make sure a given tile overlaps the real world
-bool isValidTile(Mbr theMbr)
+bool isValidTile(WhirlyGlobeQuadDisplayLayer *layer,Mbr theMbr)
 {    
-    Mbr realMbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
-    return theMbr.overlaps(realMbr);
+    return (theMbr.overlaps(layer.mbr));
 }
 
 // Update based on what children are doing
@@ -262,7 +261,7 @@ void LoadedTile::updateContents(Quadtree *tree,WhirlyGlobeQuadDisplayLayer *laye
                         if (childDrawIds[whichChild] == EmptyIdentity)
                         {
                             Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
-                            if (isValidTile(childInfo.mbr))
+                            if (isValidTile(layer,childInfo.mbr))
                             {
                                 BasicDrawable *childDraw = NULL;
                                 [layer buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode)];

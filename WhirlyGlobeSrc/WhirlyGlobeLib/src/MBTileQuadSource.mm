@@ -74,8 +74,6 @@ using namespace WhirlyGlobe;
         sqlhelpers::StatementRead readStmt3(sqlDb,@"select value from metadata where name='maxzoom';");
         if (readStmt3.stepRow())
             maxZoom = [readStmt3.getString() intValue];
-        minZoom = 0;
-        maxZoom = 3;
         
         // Note: We could load something and calculate this, but I don't want to slow us down here
         pixelsPerTile = 256;        
