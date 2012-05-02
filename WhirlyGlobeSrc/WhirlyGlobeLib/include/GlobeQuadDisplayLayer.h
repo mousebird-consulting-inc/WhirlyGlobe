@@ -37,73 +37,17 @@
 
 namespace WhirlyGlobe
 {
-class LocalSizeCalculator;
-
-/** The Loaded Tile is used to track tiles that have been
-    loaded in to memory, but may be in various states.  It's also
-    used to fill in child outlines that may be missing.
- */
-class LoadedTile
-{
-public:
-    LoadedTile();
-    ~LoadedTile() { }
-    
-    /// Build the data needed for a scene representation
-    void addToScene(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene);
-    
-    /// Remove data from scene.  This just sets up the changes requests.
-    /// They must still be passed to the scene
-    void clearContents(WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    
-    /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(WhirlyKit::Quadtree *tree,WhirlyGlobeQuadDisplayLayer *layer,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-        
-    /// Dump out to the log
-    void Print(WhirlyKit::Quadtree *tree);
-    
-    // Details of which node we're representing
-    WhirlyKit::Quadtree::NodeInfo nodeInfo;
-    
-    /// Set if this parent tile is on
-    bool isOn;
-    // DrawID for this parent tile
-    WhirlyKit::SimpleIdentity drawId;
-    // Texture ID for the parent tile
-    WhirlyKit::SimpleIdentity texId;
-    
-    // Set for each child that's on.  That is, that we're drawing as filler.
-    bool childIsOn[4];
-    // IDs for the various fake child geometry
-    WhirlyKit::SimpleIdentity childDrawIds[4];
-};
-    
-/// This is a comparison operator for sorting loaded tile pointers by
-/// Quadtree node identifier.
-typedef struct
-{
-    /// Comparison operator based on node identifier
-    bool operator() (const LoadedTile *a,const LoadedTile *b)
-    {
-        return a->nodeInfo.ident < b->nodeInfo.ident;
-    }
-} LoadedTileSorter;
-
-/// A set that sorts loaded MB Tiles by Quad tree identifier
-typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
-    
 /// Quad tree Nodeinfo structures sorted by importance
-typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
-    
+typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;    
+
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
 float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *coordSys,WhirlyKit::Mbr nodeMbr);
-
 }
 
-/** Quad tree based data source.  Fill in this protocol to provide
-    image tiles on demand.
-  */
+/** Quad tree based data source.  Fill this in to provide structure and
+    extents for the quad tree.
+ */
 @protocol WhirlyGlobeQuadDataSource <NSObject>
 
 /// Return the coordinate system we're working in
@@ -125,10 +69,30 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 /// Return an importance value for the given tile
 - (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 
-/// If there is an image, return it.  Null otherwise.
-- (NSData *)fetchImageForLevel:(int)level col:(int)col row:(int)row;
+@end
+
+/** Loader protocol for quad tree changes.  Fill this in to be
+    notified when the quad layer is adding and removing tiles.
+    Presumably you'll want to add or remove geometry as well.
+ */
+@protocol WhirlyGlobeQuadLoader <NSObject>
+
+/// Called right before we start a series of updates
+- (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer;
+
+/// Called right after we starta  series of updates
+- (void)quadDisplayLayerEndUpdates:(WhirlyGlobeQuadDisplayLayer *)layer;
+
+/// The quad tree wants to load the given tile.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer loadedTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+
+/// Quad tree wants to unload the given tile.
+/// This is in the layer thread.
+- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadedTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
 
 @end
+
 
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
@@ -156,13 +120,10 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     
     /// Quad tree used for paging advice
     WhirlyKit::Quadtree *quadtree;
-    
+        
     /// Nodes being evaluated for loading
     WhirlyGlobe::QuadNodeInfoSet nodesForEval;
-    
-    /// Tiles we currently have loaded in the scene
-    WhirlyGlobe::LoadedTileSet tileSet;
-    
+
     /// Maximum number of tiles loaded in at once
     int maxTiles;
     
@@ -183,13 +144,19 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     /// If set, we print out way too much debugging info.
     bool debugMode;    
 
-    /// Data source for the tiles
-    NSObject<WhirlyGlobeQuadDataSource> *dataSource;
-    
     /// State of the view the last time we were called
     WhirlyGlobeViewState *viewState;
+
+    /// Data source for the quad tree structure
+    NSObject<WhirlyGlobeQuadDataSource> *dataSource;
+    
+    /// Loaders that want to be notified when tiles load and unload
+    NSMutableArray *loaders; 
 }
 
+@property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,readonly) WhirlyGlobe::GlobeScene *scene;
+@property (nonatomic,readonly) WhirlyKit::Quadtree *quadtree;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
 @property (nonatomic,assign) int maxTiles;
@@ -198,10 +165,16 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 @property (nonatomic,assign) bool debugMode;
 @property (nonatomic,assign) bool drawEmpty;
 @property (nonatomic,assign) float viewUpdatePeriod;
-@property (nonatomic,strong) NSObject<WhirlyGlobeQuadDataSource> *dataSource;
+@property (nonatomic,strong,readonly) NSObject<WhirlyGlobeQuadDataSource> *dataSource;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataSource> *)dataSource renderer:(WhirlyKitSceneRendererES1 *)renderer;
+
+/// Add the given loader to the list
+- (void)addLoader:(NSObject<WhirlyGlobeQuadLoader> *)loader;
+
+/// Remove the given loader from the list
+- (void)removeLoader:(NSObject<WhirlyGlobeQuadLoader> *)loader;
 
 @end
 

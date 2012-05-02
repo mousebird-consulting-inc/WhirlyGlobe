@@ -148,6 +148,7 @@ using namespace WhirlyGlobe;
     if (UseMBTiles)
     {
         quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles renderer:sceneRenderer];
+        [quadLayer addLoader:[WhirlyGlobeQuadTileLoader loaderWithImageSource:mbTiles]];
 //        quadLayer.lineMode = true;
 //        quadLayer.debugMode = true;
         [layerThread addLayer:quadLayer];

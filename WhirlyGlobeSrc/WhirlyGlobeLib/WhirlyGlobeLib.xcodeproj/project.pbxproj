@@ -84,6 +84,8 @@
 		2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */; };
 		2B774CD0154659A800BA79E4 /* MBTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */; };
 		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
+		2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87302A154B535500AFEE25 /* TileQuadLoader.h */; };
+		2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */; };
 		2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8D92C8137C958000015833 /* VectorDatabase.h */; };
 		2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92105314BD1A8100653536 /* PanDelegateMap.h */; };
 		2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B93C81514522DE600D768BA /* MarkerLayer.h */; };
@@ -204,6 +206,8 @@
 		2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBTileQuadSource.h; sourceTree = "<group>"; };
 		2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MBTileQuadSource.mm; sourceTree = "<group>"; };
 		2B80455714990A1A003FFABE /* MarkerGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerGenerator.mm; sourceTree = "<group>"; };
+		2B87302A154B535500AFEE25 /* TileQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadLoader.h; sourceTree = "<group>"; };
+		2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TileQuadLoader.mm; sourceTree = "<group>"; };
 		2B8D92C8137C958000015833 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
 		2B92105314BD1A8100653536 /* PanDelegateMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanDelegateMap.h; sourceTree = "<group>"; };
 		2B93C81514522DE600D768BA /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
@@ -488,6 +492,7 @@
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
 				2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */,
 				2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */,
+				2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */,
 				2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */,
 			);
 			name = "layers & loaders";
@@ -670,6 +675,7 @@
 				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,
 				2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */,
+				2B87302A154B535500AFEE25 /* TileQuadLoader.h */,
 				2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */,
 			);
 			name = layers;
@@ -869,6 +875,7 @@
 				2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */,
 				2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */,
 				2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */,
+				2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -990,6 +997,7 @@
 				2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */,
 				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
 				2B774CD0154659A800BA79E4 /* MBTileQuadSource.mm in Sources */,
+				2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

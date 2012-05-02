@@ -67,4 +67,4 @@
 #import "GlobeQuadDisplayLayer.h"
 #import "GlobeLayerViewWatcher.h"
 #import "MBTileQuadSource.h"
-
+#import "TileQuadLoader.h"

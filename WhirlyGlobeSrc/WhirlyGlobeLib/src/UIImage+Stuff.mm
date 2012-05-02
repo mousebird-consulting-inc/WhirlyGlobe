@@ -28,7 +28,7 @@
 	CGImageRef cgImage = self.CGImage;
 	*width = CGImageGetWidth(cgImage);
 	*height = CGImageGetHeight(cgImage);
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);

@@ -568,7 +568,7 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
         glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
         CheckGLError("BasicDrawable::drawVBO() glVertexPointer");        
     }
-
+    
 	if (textureId)
 	{
 		glEnable(GL_TEXTURE_2D);

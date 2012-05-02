@@ -20,13 +20,14 @@
 
 #import "GlobeQuadDisplayLayer.h"
 #import "SphericalMercator.h"
+#import "TileQuadLoader.h"
 
 /** MabBox Tile Quad Data source.
     This implements the data source protocol for MapBox Tiles.
     Initialize with an archive, hand it a quad display layer and it'll
     page.
  */
-@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataSource>
+@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataSource,WhirlyGlobeQuadTileImageDataSource>
 {
     /// The SQLite database we're looking at
     sqlite3 *sqlDb;
@@ -47,3 +48,4 @@
 - (id)initWithPath:(NSString *)path;
 
 @end
+
