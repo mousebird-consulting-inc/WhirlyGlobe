@@ -29,6 +29,7 @@ using namespace WhirlyGlobe;
 @implementation WhirlyGlobeSphericalEarthLayer
 
 @synthesize fade;
+@synthesize drawPriority;
 
 - (id)initWithTexGroup:(WhirlyKitTextureGroup *)inTexGroup
 {
@@ -46,6 +47,7 @@ using namespace WhirlyGlobe;
         cacheName = inCacheName;
         cacheWriter = NULL;
         fade = 0.0;
+        drawPriority = 0;
 	}
 	
 	return self;
@@ -124,6 +126,7 @@ using namespace WhirlyGlobe;
             for (unsigned int x = 0; x < texGroup.numX; x++)
             {
                 BasicDrawable *chunk = (BasicDrawable *)drawables[whichDrawable++];
+                chunk->setDrawPriority(drawPriority);
                 drawIDs.push_back(chunk->getId());
                 
                 // Now for the changes to the scenegraph
@@ -201,6 +204,7 @@ using namespace WhirlyGlobe;
 	chunk->setType(GL_TRIANGLES);
 //	chunk->setType(GL_POINTS);
 	chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+    chunk->setDrawPriority(drawPriority);
     
     // Texture coordinates are actually scaled down a bit to
     //  deal with borders

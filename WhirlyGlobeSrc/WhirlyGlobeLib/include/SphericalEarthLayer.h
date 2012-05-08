@@ -56,9 +56,12 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     float fade;
     std::vector<WhirlyKit::SimpleIdentity> texIDs;
     std::vector<WhirlyKit::SimpleIdentity> drawIDs;
+    /// The drawPriority of any drawables we create.  Useful for sorting in non-z mode.
+    int drawPriority;
 }
 
 @property (nonatomic,assign) float fade;
+@property (nonatomic,assign) int drawPriority;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.

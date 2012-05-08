@@ -97,6 +97,10 @@ static const unsigned int RenderFrameCount = 25;
 	WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
 	WhirlyKitView * __weak theView;
+    
+    /// Set this to turn z buffering on or off.
+    /// If you turn z buffering off, drawPriority in the drawables is still used
+    bool zBuffer;
 
     /// The pixel width of the CAEAGLLayer.
     GLint framebufferWidth;
@@ -128,6 +132,7 @@ static const unsigned int RenderFrameCount = 25;
 @property (nonatomic) EAGLContext *context;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,weak) WhirlyKitView *theView;
+@property (nonatomic,assign) bool zBuffer;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
 

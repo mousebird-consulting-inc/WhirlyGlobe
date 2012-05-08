@@ -63,6 +63,7 @@ public:
 
 @synthesize context;
 @synthesize scene,theView;
+@synthesize zBuffer;
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize framesPerSec;
 @synthesize numDrawables;
@@ -76,6 +77,7 @@ public:
 		framesPerSec = 0.0;
         numDrawables = 0;
 		frameCountStart = nil;
+        zBuffer = true;
         clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
 		
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
@@ -234,7 +236,10 @@ public:
 		
 	glEnable(GL_CULL_FACE);
     
-    glDepthMask(GL_TRUE);
+    if (zBuffer)
+        glDepthMask(GL_TRUE);
+    else
+        glDepthMask(GL_FALSE);
     
     // Call the pre-frame callback
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])
@@ -352,7 +357,7 @@ public:
         sortStruct.frameInfo = frameInfo;
 		std::sort(drawList.begin(),drawList.end(),sortStruct);
 		
-        bool depthMaskOn = true;
+        bool depthMaskOn = zBuffer;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			const Drawable *drawable = drawList[ii];
@@ -379,7 +384,8 @@ public:
         generatedDrawables.clear();
 	}
     
-    glDepthMask(GL_TRUE);
+    if (zBuffer)
+        glDepthMask(GL_TRUE);
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
 
