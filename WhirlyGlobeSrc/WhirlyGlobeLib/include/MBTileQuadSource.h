@@ -47,5 +47,8 @@
 /// Initialize the data source with the full path to the SQLite DB
 - (id)initWithPath:(NSString *)path;
 
+/// Called by the layer to shut things down
+- (void)shutdown;
+
 @end
 

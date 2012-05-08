@@ -52,6 +52,11 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     layerThread = inLayerThread;
 }
 
+- (void)shutdown
+{
+    // No visual representation, so nothing to do
+}
+
 // Add a rectangle (in 3-space) available for selection
 - (void)addSelectableRect:(SimpleIdentity)selectId rect:(Point3f *)pts
 {

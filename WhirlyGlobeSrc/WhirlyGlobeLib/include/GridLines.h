@@ -36,6 +36,8 @@ static const float GridCellSize = 3*(float)M_PI/180.0;
 	unsigned int numX,numY;
 	unsigned int chunkX,chunkY;
 	WhirlyKit::Scene *scene;
+    
+    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
 }
 
 /// Initialize with the number of chunks of lines we want
@@ -43,5 +45,8 @@ static const float GridCellSize = 3*(float)M_PI/180.0;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+
+/// Remove any outstanding features
+- (void)shutdown;
 
 @end

@@ -138,6 +138,9 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
+/// Called in the layer thread
+- (void)shutdown;
+
 /// Add a single marker.  The returned ID can be used to delete or modify it.
 - (WhirlyKit::SimpleIdentity) addMarker:(WhirlyKitMarker *)marker desc:(NSDictionary *)desc;
 

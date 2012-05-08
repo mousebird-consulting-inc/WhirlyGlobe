@@ -142,13 +142,17 @@ MarkerSceneRep::MarkerSceneRep()
 
 @synthesize selectLayer;
 
-- (void)dealloc
+- (void)clear
 {
     for (MarkerSceneRepSet::iterator it = markerReps.begin();
          it != markerReps.end(); ++it)
         delete *it;
-    markerReps.clear();
-    
+    markerReps.clear();    
+}
+
+- (void)dealloc
+{
+    [self clear];
 }
 
 // Called in the layer thread
@@ -161,6 +165,39 @@ MarkerSceneRep::MarkerSceneRep()
     MarkerGenerator *gen = new MarkerGenerator();
     generatorId = gen->getId();
     scene->addChangeRequest(new AddGeneratorReq(gen));
+}
+
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (MarkerSceneRepSet::iterator it = markerReps.begin();
+         it != markerReps.end(); ++it)
+    {
+        MarkerSceneRep *markerRep = *it;
+        for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
+             idIt != markerRep->drawIDs.end(); ++idIt)
+            changeRequests.push_back(new RemDrawableReq(*idIt));
+        
+        if (!markerRep->markerIDs.empty())
+        {
+            std::vector<SimpleIdentity> markerIDs;
+            for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
+                 idIt != markerRep->markerIDs.end(); ++idIt)
+                markerIDs.push_back(*idIt);
+            changeRequests.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDs));
+        }
+        
+        if (self.selectLayer && markerRep->selectID != EmptyIdentity)
+            [self.selectLayer removeSelectable:markerRep->selectID];        
+    }
+    
+    if (generatorId != EmptyIdentity)
+        changeRequests.push_back(new RemGeneratorReq(generatorId));
+    
+    scene->addChangeRequests(changeRequests);
+    
+    [self clear];
 }
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;

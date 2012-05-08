@@ -182,6 +182,19 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:viewUpdatePeriod];
 }
 
+- (void)shutdown
+{
+    if (layerThread.viewWatcher)
+        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    
+    [dataSource shutdown];
+    
+    for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
+        [loader shutdownLayer:self scene:scene];
+    
+    scene = NULL;
+}
+
 // Called every so often by the view watcher
 // It's here that we evaluate what to load
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState

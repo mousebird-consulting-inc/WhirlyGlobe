@@ -69,6 +69,9 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 /// Return an importance value for the given tile
 - (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 
+/// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
+- (void)shutdown;
+
 @end
 
 /** Loader protocol for quad tree changes.  Fill this in to be
@@ -90,6 +93,9 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 /// Quad tree wants to unload the given tile.
 /// This is in the layer thread.
 - (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadedTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+
+/// Called when the layer is about to shut down.  Clear out any drawables and caches.
+- (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
 @end
 

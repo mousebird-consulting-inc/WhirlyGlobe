@@ -138,6 +138,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// Set this up with an object that'll return an image per tile
 - (id)initWithImageDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
 
+/// Called when the layer shuts down
+- (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
+
 // Convenience function for createin a quad tile loader with data source
 + (WhirlyGlobeQuadTileLoader *)loaderWithImageSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
 

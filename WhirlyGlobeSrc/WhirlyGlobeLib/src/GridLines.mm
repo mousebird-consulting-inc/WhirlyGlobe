@@ -44,6 +44,17 @@ using namespace WhirlyGlobe;
 	[self performSelector:@selector(process:) withObject:nil afterDelay:0.0];
 }
 
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changeRequests;
+    for (unsigned int ii=0;ii<drawIDs.size();ii++)
+        changeRequests.push_back(new RemDrawableReq(drawIDs[ii]));
+    scene->addChangeRequests(changeRequests);
+    
+    drawIDs.clear();
+    scene = NULL;
+}
+
 // Generate grid lines covering the earth model
 - (void)process:(id)sender
 {
@@ -92,6 +103,7 @@ using namespace WhirlyGlobe;
 		}
 	
 	scene->addChangeRequest(new AddDrawableReq(drawable));
+    drawIDs.push_back(drawable->getId());
 	
 	// Move on to the next chunk
 	if (++chunkX >= numX)

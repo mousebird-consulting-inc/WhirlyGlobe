@@ -349,7 +349,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     return self;
 }
 
-- (void)dealloc
+- (void)clear
 {
     layerThread = nil;
     for (LabelSceneRepMap::iterator it=labelReps.begin();
@@ -357,6 +357,12 @@ typedef enum {Middle,Left,Right} LabelJustify;
         delete it->second;
     labelReps.clear();
     
+    scene = NULL;
+}
+
+- (void)dealloc
+{
+    [self clear];
 }
 
 // We only do things when called on, so nothing much to do here
@@ -364,6 +370,31 @@ typedef enum {Middle,Left,Right} LabelJustify;
 {
     layerThread = inLayerThread;
     scene = inScene;
+}
+
+// Clean out our textures and drawables
+- (void)shutdown
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (LabelSceneRepMap::iterator it=labelReps.begin();
+         it!=labelReps.end(); ++it)
+    {
+        LabelSceneRep *labelRep = it->second;
+        for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
+             idIt != labelRep->drawIDs.end(); ++idIt)
+            changeRequests.push_back(new RemDrawableReq(*idIt));
+        for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
+             idIt != labelRep->texIDs.end(); ++idIt)        
+            changeRequests.push_back(new RemTextureReq(*idIt));
+        
+        if (labelRep->selectID != EmptyIdentity && selectLayer)
+            [self.selectLayer removeSelectable:labelRep->selectID];
+    }
+    scene->addChangeRequests(changeRequests);
+    
+    [self clear];
 }
 
 // We use these for labels that have icons

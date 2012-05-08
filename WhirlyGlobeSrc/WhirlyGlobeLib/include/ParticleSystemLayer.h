@@ -116,6 +116,9 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
+/// Called in the layer thread
+- (void)shutdown;
+
 /// Add a single particle system to the layer
 - (WhirlyKit::SimpleIdentity) addParticleSystem:(WhirlyKitParticleSystem *)partSystem desc:(NSDictionary *)desc;
 

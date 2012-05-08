@@ -163,6 +163,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
+/// Called by the layer thread
+- (void)shutdown;
+
 /// Create a label at the given coordinates, with the given look and feel.
 /// You get an ID for the label back so you can delete or modify it later.
 /// If you have more than one label, call addLabels instead.

@@ -92,6 +92,11 @@ using namespace WhirlyGlobe;
         sqlite3_close(sqlDb);        
 }
 
+- (void)shutdown
+{
+    // Nothing much to do here
+}
+
 - (WhirlyKit::CoordSystem *)coordSystem
 {
     return coordSys;

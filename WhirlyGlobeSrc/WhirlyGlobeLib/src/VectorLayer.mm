@@ -222,18 +222,43 @@ protected:
 
 @implementation WhirlyKitVectorLayer
 
-- (void)dealloc
+- (void)clear
 {
     for (VectorSceneRepMap::iterator it = vectorReps.begin();
          it != vectorReps.end(); ++it)
         delete it->second;
-    vectorReps.clear();
+    vectorReps.clear();    
+    
+    scene = NULL;
+}
+
+- (void)dealloc
+{
+    [self clear];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
 	scene = inScene;
     layerThread = inLayerThread;
+}
+
+- (void)shutdown
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (VectorSceneRepMap::iterator it = vectorReps.begin();
+         it != vectorReps.end(); ++it)
+    {
+        VectorSceneRep *sceneRep = it->second;
+        for (SimpleIDSet::iterator sit = sceneRep->drawIDs.begin();
+             sit != sceneRep->drawIDs.end(); ++sit)
+            changeRequests.push_back(new RemDrawableReq(*sit));
+    }
+    scene->addChangeRequests(changeRequests);
+    
+    [self clear];
 }
 
 // Generate drawables.  We'll stack areas into as few drawables

@@ -91,6 +91,9 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
 /// Called in layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
+/// Called in the layer thread
+- (void)shutdown;
+
 /** Create one or more lofted polygons from the set of shapes given.
     The given dictionary defines how the will look.
     If the cache name is specified, we'll look for the given cache file

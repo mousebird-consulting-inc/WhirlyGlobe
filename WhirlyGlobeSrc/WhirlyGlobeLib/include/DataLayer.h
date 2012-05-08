@@ -38,9 +38,13 @@
  */
 @protocol WhirlyKitLayer
 
-/// This is called after the layer thread kicks off
+/// This is called after the layer thread kicks off.
 /// Open your files and such here and then insert yourself in the run loop
-///  for further processing
+///  for further processing.
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+
+/// Called by the layer thread to shut a layer down.
+/// Clean all your stuff out of the scenegraph and so forth.
+- (void)shutdown;
 
 @end

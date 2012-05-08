@@ -67,6 +67,21 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitParticleSystemLayer
 
+- (void)clear
+{
+    for (ParticleSysSceneRepSet::iterator it = sceneReps.begin();
+         it != sceneReps.end(); ++it)
+        delete *it;
+    sceneReps.clear();
+
+    scene = NULL;
+}
+
+- (void)dealloc
+{
+    [self clear];
+}
+
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     layerThread = inLayerThread;
@@ -77,6 +92,31 @@ using namespace WhirlyKit;
     ParticleGenerator *gen = new ParticleGenerator(500000);
     generatorId = gen->getId();
     scene->addChangeRequest(new AddGeneratorReq(gen));
+}
+
+// Remove outstanding particle systems
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (ParticleSysSceneRepSet::iterator it = sceneReps.begin();
+         it != sceneReps.end(); ++it)
+    {
+        ParticleSysSceneRep *partRep = *it;
+        for (SimpleIDSet::iterator sit = partRep->partSysIDs.begin();
+             sit != partRep->partSysIDs.end(); ++sit)
+            changeRequests.push_back(new ParticleGeneratorRemSystemRequest(generatorId,*sit));        
+    }
+    
+    if (generatorId != EmptyIdentity)
+    {
+        changeRequests.push_back(new RemGeneratorReq(generatorId));
+        generatorId = EmptyIdentity;
+    }
+    
+    scene->addChangeRequests(changeRequests);
+    
+    [self clear];
 }
 
 // Parse the basic particle system parameters out of an NSDictionary

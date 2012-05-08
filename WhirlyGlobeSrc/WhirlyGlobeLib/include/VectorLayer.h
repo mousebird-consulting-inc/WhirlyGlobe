@@ -92,6 +92,9 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
+/// Remove any outstanding features
+- (void)shutdown;
+
 /// Create geometry from the given vector.
 /// The dictionary controls how the vector will appear.
 /// We refer to that vector by the returned ID.

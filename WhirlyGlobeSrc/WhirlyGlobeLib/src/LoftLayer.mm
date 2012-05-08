@@ -435,18 +435,41 @@ protected:
     return self;
 }
 
-- (void)dealloc
+- (void)clear
 {
     for (LoftedPolySceneRepMap::iterator it = polyReps.begin();
          it != polyReps.end(); ++it)
         delete it->second;
-    polyReps.clear();
+    polyReps.clear();   
+    
+    scene = NULL;
+}
+
+- (void)dealloc
+{
+    [self clear];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
 	scene = inScene;
     layerThread = inLayerThread;
+}
+
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (LoftedPolySceneRepMap::iterator it = polyReps.begin();
+         it != polyReps.end(); ++it)
+    {
+        LoftedPolySceneRep *sceneRep = it->second;
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+            changeRequests.push_back(new RemDrawableReq(*idIt));
+    }
+    
+    [self clear];
 }
 
 // From a scene rep and a description, add the given polygons to the drawable builder

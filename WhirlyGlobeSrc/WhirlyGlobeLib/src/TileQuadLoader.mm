@@ -245,12 +245,40 @@ void LoadedTile::Print(Quadtree *tree)
     return self;
 }
 
-- (void)dealloc
+- (void)clear
 {
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
-        delete *it;
+        delete *it;    
     tileSet.clear();
+
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+        delete changeRequests[ii];
+    changeRequests.clear();
+
+    parents.clear();
+}
+
+- (void)dealloc
+{
+    [self clear];
+}
+
+- (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+{
+    std::vector<ChangeRequest *> theChangeRequests;
+    
+    for (LoadedTileSet::iterator it = tileSet.begin();
+         it != tileSet.end(); ++it)
+    {
+        LoadedTile *tile = *it;
+        tile->clearContents(self,layer,(WhirlyGlobe::GlobeScene *)scene,theChangeRequests);
+    }
+    
+    scene->addChangeRequests(theChangeRequests);
+    
+    
+    [self clear];
 }
 
 // Tesselation for each chunk of the sphere
@@ -443,6 +471,7 @@ const int SphereTessX = 10, SphereTessY = 10;
     if (!changeRequests.empty())
     {
         layer.scene->addChangeRequests(changeRequests);
+        changeRequests.clear();
     }
 }
 

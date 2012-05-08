@@ -58,6 +58,9 @@
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;
 
+/// Remove the given layer.
+- (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer;
+
 // We're overriding the main entry point
 - (void)main;
 

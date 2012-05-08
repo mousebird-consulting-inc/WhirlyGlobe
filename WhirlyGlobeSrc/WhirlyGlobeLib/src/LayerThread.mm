@@ -53,6 +53,21 @@ using namespace WhirlyKit;
 	[layers addObject:layer];
 }
 
+- (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer
+{
+    [self performSelector:@selector(removeLayerThread:) onThread:self withObject:layer waitUntilDone:NO];
+}
+
+// This runs in the layer thread
+- (void)removeLayerThread:(NSObject<WhirlyKitLayer> *)layer
+{
+    if ([layers containsObject:layer])
+    {
+        [layer shutdown];
+        [layers removeObject:layer];
+    }
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main

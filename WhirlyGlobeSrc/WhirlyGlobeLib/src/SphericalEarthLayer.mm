@@ -51,12 +51,21 @@ using namespace WhirlyGlobe;
 	return self;
 }
 
+- (void)clear
+{
+    texIDs.clear();
+    drawIDs.clear();
+    
+    scene = NULL;
+}
+
 - (void)dealloc
 {
+    [self clear];
+
     if (cacheWriter)
         delete cacheWriter;
     cacheWriter = NULL;
-	
 }
 
 - (void)saveToCacheName:(NSString *)inCacheName
@@ -72,6 +81,20 @@ using namespace WhirlyGlobe;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
 	chunkX = chunkY = 0;
 	[self performSelector:@selector(startProcess:) withObject:nil];
+}
+
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changeRequests;
+    
+    for (unsigned int ii=0;ii<drawIDs.size();ii++)
+        changeRequests.push_back(new RemDrawableReq(drawIDs[ii]));
+    for (unsigned int ii=0;ii<texIDs.size();ii++)
+        changeRequests.push_back(new RemTextureReq(texIDs[ii]));
+    
+    scene->addChangeRequests(changeRequests);
+    
+    [self clear];
 }
 
 using namespace WhirlyGlobe;
