@@ -127,12 +127,16 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     /// Priority order to use in the renderer
     int drawPriority;
     
-    /// Set this if the tiles are partially transparent
+    /// Base color for the drawables created by the layer
+    WhirlyKit::RGBAColor color;
+    
+    /// Set this if the tile images are partially transparent
     bool hasAlpha;
 }
 
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) int drawPriority;
+@property (nonatomic,assign) WhirlyKit::RGBAColor color;
 @property (nonatomic,assign) bool hasAlpha;
 
 /// Set this up with an object that'll return an image per tile

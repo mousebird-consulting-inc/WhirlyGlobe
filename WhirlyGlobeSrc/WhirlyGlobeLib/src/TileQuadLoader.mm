@@ -223,6 +223,7 @@ void LoadedTile::Print(Quadtree *tree)
 
 @synthesize drawOffset;
 @synthesize drawPriority;
+@synthesize color;
 @synthesize hasAlpha;
 
 + (WhirlyGlobeQuadTileLoader *)loaderWithImageSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource
@@ -239,6 +240,7 @@ void LoadedTile::Print(Quadtree *tree)
         dataSource = inDataSource;
         drawOffset = 0;
         drawPriority = 0;
+        color = RGBAColor(255,255,255,255);
         hasAlpha = false;
     }
     
@@ -359,6 +361,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         chunk->setDrawOffset(drawOffset);
         chunk->setDrawPriority(drawPriority);
         chunk->setAlpha(hasAlpha);
+        chunk->setColor(color);
         chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
         
         // We're in line mode or the texture didn't load
