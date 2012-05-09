@@ -23,6 +23,7 @@
 #import "GlobeMath.h"
 #import "NSDictionary+Stuff.h"
 #import "RenderCache.h"
+#import "ScreenSpaceGenerator.h"
 
 using namespace WhirlyKit;
 
@@ -45,6 +46,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     UIColor                 *textColor;
     UIColor                 *backColor;
     UIFont                  *font;
+    bool                    screenObject;
     float                   width,height;
     int                     drawOffset;
     float                   minVis,maxVis;
@@ -58,6 +60,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
 @property (nonatomic) UIFont *font;
+@property (nonatomic,assign) bool screenObject;
 @property (nonatomic,assign) float width,height;
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) float minVis,maxVis;
@@ -149,6 +152,50 @@ typedef enum {Middle,Left,Right} LabelJustify;
     iconPts[3] = ll + iconSize*vert;
 }
 
+// This version calculates extents for a screen space label
+- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts
+{
+    Point3f center(0,0,0);
+    Point3f ll;
+    Point3f horiz = Point3f(1,0,0);
+    Point3f vert = Point3f(0,1,0);
+    
+    switch (justify)
+    {
+        case Left:
+            ll = center + iconSize * horiz - height2 * vert;
+            break;
+        case Middle:
+            ll = center - (width2 + iconSize/2) * horiz - height2 * vert;
+            break;
+        case Right:
+            ll = center - 2*width2 * horiz - height2 * vert;
+            break;
+    }
+    pts[0] = ll;
+    pts[1] = ll + 2*width2 * horiz;
+    pts[2] = ll + 2*width2 * horiz + 2 * height2 * vert;
+    pts[3] = ll + 2 * height2 * vert;
+    
+    // Now add the quad for the icon
+    switch (justify)
+    {
+        case Left:
+            ll = center - height2*vert;
+            break;
+        case Middle:
+            ll = center - (width2 + iconSize) * horiz - height2*vert;
+            break;
+        case Right:
+            ll = center - (2*width2 + iconSize) * horiz - height2*vert;
+            break;
+    }
+    iconPts[0] = ll;
+    iconPts[1] = ll + iconSize*horiz;
+    iconPts[2] = ll + iconSize*horiz + iconSize*vert;
+    iconPts[3] = ll + iconSize*vert;
+}
+
 - (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordSystem:(CoordSystem *)coordSys
 {
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:self.text] desc:topDesc];
@@ -204,6 +251,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @synthesize strs;
 @synthesize textColor,backColor;
 @synthesize font;
+@synthesize screenObject;
 @synthesize width,height;
 @synthesize drawOffset;
 @synthesize minVis,maxVis;
@@ -219,8 +267,9 @@ typedef enum {Middle,Left,Right} LabelJustify;
     self.textColor = [desc objectForKey:@"textColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     self.backColor = [desc objectForKey:@"backgroundColor" checkType:[UIColor class] default:[UIColor clearColor]];
     self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
-    width = [desc floatForKey:@"width" default:0.001];
-    height = [desc floatForKey:@"height" default:0.001];
+    screenObject = [desc boolForKey:@"screen" default:false];
+    width = [desc floatForKey:@"width" default:(screenObject ? 0.0 : 0.001)];
+    height = [desc floatForKey:@"height" default:(screenObject ? 16.0 : 0.001)];
     drawOffset = [desc intForKey:@"drawOffset" default:0];
     minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
@@ -370,6 +419,12 @@ typedef enum {Middle,Left,Right} LabelJustify;
 {
     layerThread = inLayerThread;
     scene = inScene;
+
+    // Set up a screen space generator
+    // Note: Need to share this between layers
+    ScreenSpaceGenerator *gen = new ScreenSpaceGenerator("ScreenSpaceGenerator");
+    screenGenId = gen->getId();
+    scene->addChangeRequest(new AddGeneratorReq(gen));
 }
 
 // Clean out our textures and drawables
@@ -388,6 +443,9 @@ typedef enum {Middle,Left,Right} LabelJustify;
         for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
              idIt != labelRep->texIDs.end(); ++idIt)        
             changeRequests.push_back(new RemTextureReq(*idIt));
+        for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
+             idIt != labelRep->screenIDs.end(); ++idIt)
+            scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
         
         if (labelRep->selectID != EmptyIdentity && selectLayer)
             [self.selectLayer removeSelectable:labelRep->selectID];
@@ -413,6 +471,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     // Texture atlases we're building up for the labels
     std::vector<TextureAtlas *> texAtlases;
     std::vector<BasicDrawable *> drawables;
+    
+    // Screen space objects to create
+    std::vector<ScreenSpaceGenerator::ConvexShape *> screenObjects;
     
     // If we're writing out to a cache, set that up as well
     RenderCacheWriter *renderCacheWriter=NULL;
@@ -455,29 +516,36 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 texAtlases.push_back(texAtlas);
                 [texAtlas addImage:textImage texOrg:texOrg texDest:texDest];
                 
-                // And a corresponding drawable
-                BasicDrawable *drawable = new BasicDrawable();
+                if (!labelInfo.screenObject)
+                {
+                    // And a corresponding drawable
+                    BasicDrawable *drawable = new BasicDrawable();
+                    drawable->setDrawOffset(labelInfo.drawOffset);
+                    drawable->setType(GL_TRIANGLES);
+                    drawable->setColor(RGBAColor(255,255,255,255));
+                    drawable->setDrawPriority(labelInfo.drawPriority);
+                    drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);
+                    drawable->setAlpha(true);
+                    drawables.push_back(drawable);
+                }
+            }
+            if (!labelInfo.screenObject)
+                drawable = drawables[foundii];
+            texAtlas = texAtlases[foundii];
+        } else {
+            if (!labelInfo.screenObject)
+            {
+                // Add a drawable for just the one label because it's too big
+                drawable = new BasicDrawable();
                 drawable->setDrawOffset(labelInfo.drawOffset);
                 drawable->setType(GL_TRIANGLES);
                 drawable->setColor(RGBAColor(255,255,255,255));
+                drawable->addTriangle(BasicDrawable::Triangle(0,1,2));
+                drawable->addTriangle(BasicDrawable::Triangle(2,3,0));
                 drawable->setDrawPriority(labelInfo.drawPriority);
-                drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);
+                drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);            
                 drawable->setAlpha(true);
-                drawables.push_back(drawable);
             }
-            drawable = drawables[foundii];
-            texAtlas = texAtlases[foundii];
-        } else {
-            // Add a drawable for just the one label because it's too big
-            drawable = new BasicDrawable();
-            drawable->setDrawOffset(labelInfo.drawOffset);
-            drawable->setType(GL_TRIANGLES);
-            drawable->setColor(RGBAColor(255,255,255,255));
-            drawable->addTriangle(BasicDrawable::Triangle(0,1,2));
-            drawable->addTriangle(BasicDrawable::Triangle(2,3,0));
-            drawable->setDrawPriority(labelInfo.drawPriority);
-            drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);            
-            drawable->setAlpha(true);
         } 
         
         // Figure out the extents in 3-space
@@ -505,20 +573,43 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         // If there's an icon, we need to offset the label
         float iconSize = (label.iconTexture==EmptyIdentity ? 0.f : 2*height2);
 
+        // Texture coordinates are a little odd because text might not take up the whole texture
+        TexCoord texCoord[4];
+        texCoord[0].u() = texOrg.u();  texCoord[0].v() = texOrg.v();
+        texCoord[1].u() = texDest.u();  texCoord[1].v() = texOrg.v();
+        texCoord[2].u() = texDest.u();  texCoord[2].v() = texDest.v();
+        texCoord[3].u() = texOrg.u();  texCoord[3].v() = texDest.v();
+
         Point3f norm;
         Point3f pts[4],iconPts[4];
+        if (labelInfo.screenObject)
         {
+            [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts iconCorners:iconPts];
+            ScreenSpaceGenerator::ConvexShape *screenShape = new ScreenSpaceGenerator::ConvexShape();
+            labelRep->screenIDs.insert(screenShape->getId());
+            screenShape->color = RGBAColor(255,255,255,255);
+            screenShape->worldLoc = scene->coordSystem->geographicToLocal(label.loc);
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                screenShape->coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
+                screenShape->texCoords.push_back(texCoord[ii]);
+            }
+            if (!texAtlas)
+            {
+                // This texture was unique to the object
+                Texture *tex = new Texture(textImage);
+                scene->addChangeRequest(new AddTextureReq(tex));
+                screenShape->texID = tex->getId();
+                labelRep->texIDs.insert(tex->getId());
+            } else
+                screenShape->texID = texAtlas.texId;
+            
+            screenObjects.push_back(screenShape);
+        } else {
             Point3f ll;
             
             [label calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts norm:&norm iconCorners:iconPts coordSystem:scene->getCoordSystem()];
                         
-            // Texture coordinates are a little odd because text might not take up the whole texture
-            TexCoord texCoord[4];
-            texCoord[0].u() = texOrg.u();  texCoord[0].v() = texOrg.v();
-            texCoord[1].u() = texDest.u();  texCoord[1].v() = texOrg.v();
-            texCoord[2].u() = texDest.u();  texCoord[2].v() = texDest.v();
-            texCoord[3].u() = texOrg.u();  texCoord[3].v() = texDest.v();
-
             // Add to the drawable we found (corresponding to a texture atlas)
             int vOff = drawable->getNumPoints();
             for (unsigned int ii=0;ii<4;ii++)
@@ -582,58 +673,61 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             
             SubTexture subTex = scene->getSubTexture(label.iconTexture);
             
-            // Try to add this to an existing drawable
-            IconDrawables::iterator it = iconDrawables.find(subTex.texId);
-            BasicDrawable *iconDrawable = NULL;
-            if (it == iconDrawables.end())
+            if (!labelInfo.screenObject)
             {
-                // Create one
-                iconDrawable = new BasicDrawable();
-                iconDrawable->setDrawOffset(labelInfo.drawOffset);
-                iconDrawable->setType(GL_TRIANGLES);
-                iconDrawable->setColor(RGBAColor(255,255,255,255));
-                iconDrawable->setDrawPriority(labelInfo.drawPriority);
-                iconDrawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);
-                iconDrawable->setAlpha(true);  // Note: Don't know this
-                iconDrawable->setTexId(subTex.texId);
-                iconDrawables[subTex.texId] = iconDrawable;
-            } else
-                iconDrawable = it->second;
-                        
-            // Texture coordinates are a little odd because text might not take up the whole texture
-            std::vector<TexCoord> texCoord;
-            texCoord.resize(4);
-            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
-            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
-            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
-            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
-            subTex.processTexCoords(texCoord);
-            
-            // Add to the drawable we found (corresponding to a texture atlas)
-            int vOff = iconDrawable->getNumPoints();
-            for (unsigned int ii=0;ii<4;ii++)
-            {
-                Point3f &pt = iconPts[ii];
-                iconDrawable->addPoint(pt);
-                iconDrawable->addNormal(norm);
-                iconDrawable->addTexCoord(texCoord[ii]);
-                GeoMbr geoMbr = iconDrawable->getGeoMbr();
-                geoMbr.addGeoCoord(label.loc);
-                iconDrawable->setGeoMbr(geoMbr);
-            }
-            iconDrawable->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
-            iconDrawable->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
+                // Try to add this to an existing drawable
+                IconDrawables::iterator it = iconDrawables.find(subTex.texId);
+                BasicDrawable *iconDrawable = NULL;
+                if (it == iconDrawables.end())
+                {
+                    // Create one
+                    iconDrawable = new BasicDrawable();
+                    iconDrawable->setDrawOffset(labelInfo.drawOffset);
+                    iconDrawable->setType(GL_TRIANGLES);
+                    iconDrawable->setColor(RGBAColor(255,255,255,255));
+                    iconDrawable->setDrawPriority(labelInfo.drawPriority);
+                    iconDrawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);
+                    iconDrawable->setAlpha(true);  // Note: Don't know this
+                    iconDrawable->setTexId(subTex.texId);
+                    iconDrawables[subTex.texId] = iconDrawable;
+                } else
+                    iconDrawable = it->second;
+                            
+                // Texture coordinates are a little odd because text might not take up the whole texture
+                std::vector<TexCoord> texCoord;
+                texCoord.resize(4);
+                texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
+                texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
+                texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
+                texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
+                subTex.processTexCoords(texCoord);
+                
+                // Add to the drawable we found (corresponding to a texture atlas)
+                int vOff = iconDrawable->getNumPoints();
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    Point3f &pt = iconPts[ii];
+                    iconDrawable->addPoint(pt);
+                    iconDrawable->addNormal(norm);
+                    iconDrawable->addTexCoord(texCoord[ii]);
+                    GeoMbr geoMbr = iconDrawable->getGeoMbr();
+                    geoMbr.addGeoCoord(label.loc);
+                    iconDrawable->setGeoMbr(geoMbr);
+                }
+                iconDrawable->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
+                iconDrawable->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
 
-            // Register the icon separately
-            // Note: This won't work.  One rectangle per ID.
-            if (selectLayer && label.isSelectable)
-            {
-                // If the marker doesn't already have an ID, it needs one
+                // Register the icon separately
+                // Note: This won't work.  One rectangle per ID.
+                if (selectLayer && label.isSelectable)
+                {
+                    // If the marker doesn't already have an ID, it needs one
 //                if (!label.selectID)
 //                    label.selectID = Identifiable::genId();
 //                
 //                [selectLayer addSelectableRect:label.selectID rect:pts];
-            }            
+                }            
+            }
         }
     }
 
@@ -684,6 +778,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         labelRep->drawIDs.insert(iconDrawable->getId());
     }
     
+    // Send the screen objects to the generator
+    scene->addChangeRequest(new ScreenSpaceGeneratorAddRequest(screenGenId,screenObjects));
+    
     labelReps[labelRep->getId()] = labelRep;
     
     if (renderCacheWriter)
@@ -727,7 +824,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));                
+                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
+            
+            for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
+                 idIt != labelRep->screenIDs.end(); ++idIt)
+                scene->addChangeRequest(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveLabel:) withObject:num afterDelay:labelRep->fade];
@@ -739,6 +840,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                  idIt != labelRep->texIDs.end(); ++idIt)        
                 scene->addChangeRequest(new RemTextureReq(*idIt));
+            for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
+                 idIt != labelRep->screenIDs.end(); ++idIt)
+                scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
             
             if (labelRep->selectID != EmptyIdentity && selectLayer)
                 [self.selectLayer removeSelectable:labelRep->selectID];

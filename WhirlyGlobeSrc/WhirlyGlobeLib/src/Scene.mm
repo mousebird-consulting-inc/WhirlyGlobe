@@ -77,6 +77,19 @@ void Scene::removeFromCullables(Drawable *drawable)
         cullable.remDrawable(drawable);
     }
 }
+    
+SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
+{
+    for (GeneratorSet::iterator it = generators.begin();
+         it != generators.end(); ++it)
+    {
+        Generator *gen = *it;
+        if (!name.compare(gen->name))
+            return gen->getId();
+    }
+    
+    return EmptyIdentity;
+}
 
 // Add change requests to our list
 void Scene::addChangeRequests(const std::vector<ChangeRequest *> &newChanges)

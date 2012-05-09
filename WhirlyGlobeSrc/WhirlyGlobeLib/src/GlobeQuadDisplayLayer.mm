@@ -153,6 +153,8 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 
 - (void)dealloc
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+
     if (quadtree)
         delete quadtree;
     if (layerThread.viewWatcher)
@@ -184,6 +186,8 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 
 - (void)shutdown
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
@@ -199,6 +203,12 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 // It's here that we evaluate what to load
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
 {
+    if (!scene)
+    {
+        NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after begin shutdown.");
+        return;
+    }
+    
     viewState = inViewState;
     nodesForEval.clear();
     quadtree->reevaluateNodes();
@@ -234,7 +244,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 {
     if (nodesForEval.empty())
         return;
-
+    
     // Let the loaders know we're about to do some updates
     for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
         [loader quadDisplayLayerStartUpdates:self];

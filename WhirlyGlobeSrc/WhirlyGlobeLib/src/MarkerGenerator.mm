@@ -172,14 +172,14 @@ MarkerGenerator::Marker *MarkerGenerator::getMarker(SimpleIdentity markerId)
     return NULL;
 }
     
-void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables)
+void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables, std::vector<Drawable *> &screenDrawables)
 {
     if (markers.empty())
         return;
 
     float minZres = [frameInfo.theView calcZbufferRes];
     
-    // Keep drawables sorted by destination teture ID
+    // Keep drawables sorted by destination texture ID
     DrawableMap drawables;
     
     // Work through the markers, asking each to generate its content

@@ -38,7 +38,7 @@ public:
     virtual ~MarkerGenerator();
 
     /// Generate the drawables for the given frame
-    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables);
+    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables,std::vector<Drawable *> &screenDrawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
@@ -94,7 +94,7 @@ class MarkerGeneratorAddRequest : public GeneratorChangeRequest
 public:
     /// Construct with the marker generator's ID and the marker
     MarkerGeneratorAddRequest(SimpleIdentity genID,MarkerGenerator::Marker *marker);
-    /// Construct with a vector fo markers to add
+    /// Construct with a vector of markers to add
     MarkerGeneratorAddRequest(SimpleIdentity genID,const std::vector<MarkerGenerator::Marker *> &markers);
     ~MarkerGeneratorAddRequest();
     
@@ -128,7 +128,9 @@ protected:
 class MarkerGeneratorFadeRequest : public GeneratorChangeRequest
 {
 public:
+    /// Construct with the IDs for the generator, the marker, and the fade up/down absolute times
     MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    /// Construct with the ID for the generator, a list of IDs for markers and the fade up/down absolute times
     MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
     virtual void execute2(Scene *scene,Generator *gen);

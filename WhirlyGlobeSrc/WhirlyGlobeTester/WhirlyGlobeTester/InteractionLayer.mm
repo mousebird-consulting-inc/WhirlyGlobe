@@ -288,6 +288,7 @@ using namespace WhirlyGlobe;
       [NSNumber numberWithInt:4],@"drawOffset",
       [NSNumber numberWithFloat:0.05],@"width",
       [NSNumber numberWithFloat:1.0],@"fade",
+      [NSNumber numberWithBool:TRUE],@"screen",
       nil];
     
     // Draw all the countries in the admin 0 shape file

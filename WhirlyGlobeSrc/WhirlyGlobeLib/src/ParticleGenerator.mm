@@ -105,7 +105,7 @@ void ParticleGenerator::removeParticleSystem(SimpleIdentity theId)
 }
     
 // Generate the drawables for this frame
-void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables)
+void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables,std::vector<Drawable *> &screenDrawables)
 {
     NSTimeInterval currentTime = CFAbsoluteTimeGetCurrent();
 

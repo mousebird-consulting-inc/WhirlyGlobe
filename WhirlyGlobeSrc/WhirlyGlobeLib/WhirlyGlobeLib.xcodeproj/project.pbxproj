@@ -19,6 +19,8 @@
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194430138C717500E8FA42 /* AnimateViewMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
+		2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */; };
+		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
 		2B2C1DB91458A3D500B5D61D /* SelectionLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */; };
 		2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */; };
 		2B3009BE1427959000B1C69E /* RenderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3009BD1427959000B1C69E /* RenderCache.h */; };
@@ -156,6 +158,8 @@
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateRotation.mm; sourceTree = "<group>"; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateViewMomentum.h; sourceTree = "<group>"; };
 		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateViewMomentum.mm; sourceTree = "<group>"; };
+		2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceGenerator.h; sourceTree = "<group>"; };
+		2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceGenerator.mm; sourceTree = "<group>"; };
 		2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
 		2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionLayer.mm; sourceTree = "<group>"; };
 		2B3009BD1427959000B1C69E /* RenderCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderCache.h; sourceTree = "<group>"; };
@@ -469,6 +473,7 @@
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
 				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
+				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
 				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */,
 			);
@@ -491,6 +496,7 @@
 				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
 				2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */,
+				2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */,
 				2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */,
 				2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */,
 				2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */,
@@ -876,6 +882,7 @@
 				2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */,
 				2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */,
 				2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */,
+				2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -998,6 +1005,7 @@
 				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
 				2B774CD0154659A800BA79E4 /* MBTileQuadSource.mm in Sources */,
 				2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */,
+				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

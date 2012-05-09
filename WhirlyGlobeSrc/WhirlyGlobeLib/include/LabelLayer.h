@@ -48,6 +48,7 @@ public:
     float fade;          // Fade interval, for deletion
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
+    SimpleIDSet screenIDs;  // Screen space objects
     SimpleIdentity selectID;  // Selection rect
 };
 typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
@@ -137,12 +138,16 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>maxVis          [NSNumber float]
     <item>justify         [NSString>] middle, left, right
     <item>fade            [NSSTring float]
+    <item>screen          [NSNumber bool]  [If true, this is a 2D object, width and height are in screen coordinates]
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
 {
 	WhirlyKitLayerThread * __weak layerThread;
 	WhirlyKit::Scene *scene;
+    
+    /// Screen space generator on the render side
+    WhirlyKit::SimpleIdentity screenGenId;
     
     /// If set, we register labels as selectable here
     WhirlyKitSelectionLayer * __weak selectLayer;

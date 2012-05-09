@@ -40,12 +40,15 @@
     /// View
     WhirlyKitView * __weak theView;
     
+    /// Current model matrix from the view
+    Eigen::Affine3f modelTrans;
+    
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     
     /// Vector pointing up from the globe describing where the view point is
     Vector3f eyeVec;
-
+    
     /// Expected length of the current frame
     float frameLen;
     
@@ -55,6 +58,7 @@
 
 @property (nonatomic,weak) WhirlyKitSceneRendererES1 *sceneRenderer;
 @property (nonatomic,weak) WhirlyKitView *theView;
+@property (nonatomic,assign) Eigen::Affine3f modelTrans;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
@@ -106,6 +110,9 @@ static const unsigned int RenderFrameCount = 25;
     GLint framebufferWidth;
     /// The pixel height of the CAEAGLLayer.
     GLint framebufferHeight;
+    
+    /// Scale, to reflect the device's screen
+    float scale;
 
     /// OpenGL ES Name for the frame buffer
     GLuint defaultFramebuffer;
@@ -135,6 +142,7 @@ static const unsigned int RenderFrameCount = 25;
 @property (nonatomic,assign) bool zBuffer;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
+@property (nonatomic,readonly) float scale;
 
 @property (nonatomic,readonly) float framesPerSec;
 @property (nonatomic,readonly) unsigned int numDrawables;

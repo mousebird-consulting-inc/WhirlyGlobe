@@ -178,6 +178,10 @@ public:
     
     /// Full set of Generators
     const GeneratorSet *getGenerators() { return &generators; }
+    
+    /// Search for a Generator by name.
+    /// This is not thread safe, so do this in the main thread
+    SimpleIdentity getGeneratorIDByName(const std::string &name);
 
 	/// Add a single change request.  You can call this from any thread, it locks.
     /// If you have more than one, don't iterate, use the other version.

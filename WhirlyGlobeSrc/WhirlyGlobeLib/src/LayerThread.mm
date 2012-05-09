@@ -50,7 +50,16 @@ using namespace WhirlyKit;
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
 {
-	[layers addObject:layer];
+    if (self.runLoop)
+        [self performSelector:@selector(addLayerThread:) onThread:self withObject:layer waitUntilDone:NO];
+    else
+        [layers addObject:layer];    
+}
+
+- (void)addLayerThread:(NSObject<WhirlyKitLayer> *)layer
+{
+	[layers addObject:layer];    
+    [layer startWithThread:self scene:scene];
 }
 
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer

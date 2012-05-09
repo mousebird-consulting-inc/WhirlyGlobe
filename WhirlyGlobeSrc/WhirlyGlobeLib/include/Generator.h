@@ -40,11 +40,17 @@ class Generator : public Identifiable
 {
 public:
     Generator() { }
+    Generator(const std::string &inName) : name(inName) { }
     virtual ~Generator() { }
+
+    /// Generate drawables in one of two lists for the renderer.
+    /// World drawables are drawn in 3D, screen drawables are drawn in 2D, after the 3D.
+    /// The renderer deletes the drawables at the end of the frame
+    virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
+                                   std::vector<Drawable *> &worldDrawables,std::vector<Drawable *> &screenDrawables) { };
     
-    /// Generate a list of drawables to draw.
-    /// The renderer will delete these at the end of the frame.
-    virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables) { };
+    /// An optional name used to identify the generator
+    std::string name;
 };
 
 /** The Generator Change Request is the base class for communication

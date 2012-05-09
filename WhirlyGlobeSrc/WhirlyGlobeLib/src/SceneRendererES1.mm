@@ -27,6 +27,7 @@ using namespace WhirlyKit;
 
 @synthesize sceneRenderer;
 @synthesize theView;
+@synthesize modelTrans;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
@@ -65,6 +66,7 @@ public:
 @synthesize scene,theView;
 @synthesize zBuffer;
 @synthesize framebufferWidth,framebufferHeight;
+@synthesize scale;
 @synthesize framesPerSec;
 @synthesize numDrawables;
 @synthesize delegate;
@@ -79,6 +81,7 @@ public:
 		frameCountStart = nil;
         zBuffer = true;
         clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
+        scale = [[UIScreen mainScreen] scale];
 		
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         
@@ -252,6 +255,7 @@ public:
         WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         frameInfo.sceneRenderer = self;
         frameInfo.theView = theView;
+        frameInfo.modelTrans = modelTrans;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
@@ -345,11 +349,11 @@ public:
         // Now ask our generators to make their drawables
         // Note: Not doing any culling here
         //       And we should reuse these Drawables
-        std::vector<Drawable *> generatedDrawables;
+        std::vector<Drawable *> generatedDrawables,screenDrawables;
         const GeneratorSet *generators = scene->getGenerators();
         for (GeneratorSet::iterator it = generators->begin();
              it != generators->end(); ++it)
-            (*it)->generateDrawables(frameInfo, generatedDrawables);
+            (*it)->generateDrawables(frameInfo, generatedDrawables, screenDrawables);
         
         // Add the generated drawables and sort them all together
         drawList.insert(drawList.end(), generatedDrawables.begin(), generatedDrawables.end());
@@ -382,10 +386,41 @@ public:
             delete generatedDrawables[ig];
         }
         generatedDrawables.clear();
+        drawList.clear();
+        
+        // Now for the 2D display
+        if (!screenDrawables.empty())
+        {
+            // Sort by draw priority (and alpha, I guess)
+            drawList.insert(drawList.end(), screenDrawables.begin(), screenDrawables.end());
+            drawListSortStruct sortStruct;
+            sortStruct.frameInfo = frameInfo;
+            std::sort(drawList.begin(),drawList.end(),sortStruct);
+            
+            // Set up the matrix
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrthof(0, framebufferWidth, framebufferHeight, 0, 0, 1);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            
+            for (unsigned int ii=0;ii<drawList.size();ii++)
+            {
+                const Drawable *drawable = drawList[ii];
+                if (drawable->isOn(frameInfo))
+                {
+                    drawable->draw(frameInfo,scene);
+                    numDrawables++;
+                }
+            }
+            
+            for (unsigned int ig=0;ig<screenDrawables.size();ig++)
+                delete screenDrawables[ig];
+            screenDrawables.clear();
+            drawList.clear();
+        }
 	}
     
-    if (zBuffer)
-        glDepthMask(GL_TRUE);
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
 
