@@ -26,92 +26,150 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry()
+    : texID(EmptyIdentity), color(255,255,255,255)
+{
+}
+
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords)
+    : texID(texID), color(color), coords(coords), texCoords(texCoords)
+{    
+}
+
+ScreenSpaceGenerator::ConvexShape::ConvexShape()
+{
+    minVis = maxVis = DrawVisibleInvalid;
+    fadeUp = fadeDown = 0.0;
+    drawPriority = 0;
+}
 
 // Calculate its position and add this feature to the appropriate drawable
-void ScreenSpaceGenerator::ConvexShape::addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables)
+void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
-    if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
-          ((minVis <= visVal && visVal <= maxVis) ||
-           (maxVis <= visVal && visVal <= minVis))))
+    if (!(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
+          ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
+           (shape->maxVis <= visVal && visVal <= shape->minVis))))
         return;
     
     // If it's pointed away from the user, don't bother
-    if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
+    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
         return;
     
-    // Look for an existing drawable or add one
-    DrawableMap::iterator it = drawables.find(texID);
-    BasicDrawable *draw = NULL;
-    if (it == drawables.end())
-    {
-        draw = new BasicDrawable();
-        draw->setType(GL_TRIANGLES);
-        draw->setTexId(texID);
-        drawables[texID] = draw;
-    } else
-        draw = it->second;
-
-    // Project the world location to the screen
-    CGPoint screenPt;
-    // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-        return;
-    
-    Eigen::Affine3f modelTrans = frameInfo.modelTrans;
-    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
-    
-    // Now build the points, texture coordinates and colors
-    Point3f center(screenPt.x,screenPt.y,0.0);
+    // Set up the alpha scaling
     bool hasAlpha = false;
-    int vOff = draw->getNumPoints();
-    for (unsigned int ii=0;ii<coords.size();ii++)
+    float scale = 1.0;
+    if (shape->fadeDown < shape->fadeUp)
     {
-        Point2f coord = coords[ii];
-        draw->addPoint(Point3f(coord.x(),coord.y(),0.0)+center);
-        draw->addTexCoord(texCoords[ii]);
-        float scale = 1.0;
-        if (fadeDown < fadeUp)
-        {
-            // Heading to 1
-            if (frameInfo.currentTime < fadeDown)
-                scale = 0.0;
+        // Heading to 1
+        if (frameInfo.currentTime < shape->fadeDown)
+            scale = 0.0;
+        else
+            if (frameInfo.currentTime > shape->fadeUp)
+                scale = 1.0;
             else
-                if (frameInfo.currentTime > fadeUp)
-                    scale = 1.0;
+            {
+                scale = (frameInfo.currentTime - shape->fadeDown)/(shape->fadeUp - shape->fadeDown);
+                hasAlpha = true;
+            }
+    } else
+        if (shape->fadeUp < shape->fadeDown)
+        {
+            // Heading to 0
+            if (frameInfo.currentTime < shape->fadeUp)
+                scale = 1.0;
+            else
+                if (frameInfo.currentTime > shape->fadeDown)
+                    scale = 0.0;
                 else
                 {
-                    scale = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
                     hasAlpha = true;
+                    scale = 1.0-(frameInfo.currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
                 }
-        } else
-            if (fadeUp < fadeDown)
-            {
-                // Heading to 0
-                if (frameInfo.currentTime < fadeUp)
-                    scale = 1.0;
-                else
-                    if (frameInfo.currentTime > fadeDown)
-                        scale = 0.0;
-                    else
-                    {
-                        hasAlpha = true;
-                        scale = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
-                    }
-            }
-        draw->addColor(RGBAColor(scale*color.r,scale*color.g,scale*color.b,scale*color.a));
-    }
-    draw->setAlpha(hasAlpha);
+        }
     
-    // Build the triangles
-    for (unsigned int ii=2;ii<coords.size();ii++)
+    // Look for an existing drawable or add one
+    for (unsigned int si=0;si<shape->geom.size();si++)
     {
-        draw->addTriangle(BasicDrawable::Triangle(0+vOff,ii-1+vOff,ii+vOff));
-    }
+        SimpleGeometry &geom = shape->geom[si];
+
+        DrawableMap::iterator it = drawables.find(geom.texID);
+        BasicDrawable *draw = NULL;
+        if (it == drawables.end())
+        {
+            draw = new BasicDrawable();
+            draw->setType(GL_TRIANGLES);
+            draw->setTexId(geom.texID);
+            drawables[geom.texID] = draw;
+        } else
+            draw = it->second;
+
+        // Project the world location to the screen
+        CGPoint screenPt;
+        // Note: Make this work for generic 3D views
+        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+        if (![globeView isKindOfClass:[WhirlyGlobeView class]])
+            return;
+        
+        Eigen::Affine3f modelTrans = frameInfo.modelTrans;
+        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
     
-    int oldDrawPriority = draw->getDrawPriority();
-    draw->setDrawPriority((drawPriority > oldDrawPriority) ? drawPriority : oldDrawPriority);
+        // Now build the points, texture coordinates and colors
+        Point2f center(screenPt.x,screenPt.y);
+        int vOff = draw->getNumPoints();
+
+        RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
+    
+        // Set up the point, including snap to make it look better
+        float resScale = frameInfo.sceneRenderer.scale;
+        std::vector<Point2f> pts;
+        pts.resize(geom.coords.size());
+        Point2f org(MAXFLOAT,MAXFLOAT);
+        for (unsigned int ii=0;ii<geom.coords.size();ii++)
+        {
+            Point2f &coord = geom.coords[ii];
+            pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
+            org.x() = std::min(pts[ii].x(),org.x());
+            org.y() = std::min(pts[ii].y(),org.y());
+        }
+    
+    // Snapping doesn't look that good
+#if 0
+        float orgX = org.x() - floorf(org.x());
+        float orgY = org.y() - floorf(org.y());
+        if (orgX < 0.5)
+            orgX = -orgX;
+        else
+            orgX = 1.0 - orgX;
+        if (orgY < 0.5)
+            orgY = -orgY;
+        else
+            orgY = 1.0 - orgY;
+#else
+        float orgX = 0.0;
+        float orgY = 0.0;
+#endif
+    
+        for (unsigned int ii=0;ii<geom.coords.size();ii++)
+        {
+            Point2f coord = pts[ii];
+            draw->addPoint(Point3f(coord.x()+orgX,coord.y()+orgY,0.0));
+            draw->addTexCoord(geom.texCoords[ii]);
+            draw->addColor(color);
+            draw->addNormal(Point3f(0,0,1));
+        }
+        draw->setAlpha(hasAlpha);
+
+        // Build the triangles
+        for (unsigned int ii=2;ii<geom.coords.size();ii++)
+        {
+            draw->addTriangle(BasicDrawable::Triangle(0+vOff,ii+vOff,ii-1+vOff));
+        }
+        
+        int oldDrawPriority = draw->getDrawPriority();
+        draw->setDrawPriority((shape->drawPriority > oldDrawPriority) ? shape->drawPriority : oldDrawPriority);
+    }    
 }
     
 ScreenSpaceGenerator::ScreenSpaceGenerator()
@@ -170,7 +228,7 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
          it != convexShapes.end(); ++it)
     {
         ConvexShape *shape = *it;
-        shape->addToDrawables(frameInfo,drawables);
+        addToDrawables(shape,frameInfo,drawables);
     }
     
     // Copy the drawables out

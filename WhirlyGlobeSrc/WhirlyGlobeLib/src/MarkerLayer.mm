@@ -23,6 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "MarkerGenerator.h"
+#import "ScreenSpaceGenerator.h"
 
 using namespace WhirlyKit;
 
@@ -74,6 +75,7 @@ MarkerSceneRep::MarkerSceneRep()
     UIColor         *color;
     int             drawOffset;
     float           minVis,maxVis;
+    bool            screenObject;
     float           width,height;
     int             drawPriority;
     float           fade;
@@ -84,6 +86,7 @@ MarkerSceneRep::MarkerSceneRep()
 @property (nonatomic) UIColor *color;
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) float minVis,maxVis;
+@property (nonatomic,assign) bool screenObject;
 @property (nonatomic,assign) float width,height;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) float fade;
@@ -102,6 +105,7 @@ MarkerSceneRep::MarkerSceneRep()
 @synthesize drawOffset;
 @synthesize minVis,maxVis;
 @synthesize width,height;
+@synthesize screenObject;
 @synthesize drawPriority;
 @synthesize fade;
 @synthesize markerId;
@@ -130,8 +134,9 @@ MarkerSceneRep::MarkerSceneRep()
     minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     drawPriority = [desc intForKey:@"drawPriority" default:MarkerDrawPriority];
-    width = [desc floatForKey:@"width" default:0.001];
-    height = [desc floatForKey:@"height" default:0.001];
+    screenObject = [desc boolForKey:@"screen" default:false];
+    width = [desc floatForKey:@"width" default:(screenObject ? 16.0 : 0.001)];
+    height = [desc floatForKey:@"height" default:(screenObject ? 16.0 : 0.001)];
     fade = [desc floatForKey:@"fade" default:0.0];
 }
 
@@ -160,6 +165,7 @@ MarkerSceneRep::MarkerSceneRep()
 {
     layerThread = inLayerThread;
     scene = inScene;    
+    screenGenId = scene->getScreenSpaceGeneratorID();
 
     // Set up the generator we'll pass markers to
     MarkerGenerator *gen = new MarkerGenerator();
@@ -216,6 +222,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     DrawableMap drawables;
     std::vector<MarkerGenerator::Marker *> markersToAdd;
     
+    // Screen space markers
+    std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
+    
     for (WhirlyKitMarker *marker in markerInfo.markers)
     {
         // Build the rectangle for this one
@@ -225,16 +234,25 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
         
         norm = GeoCoordSystem::LocalToGeocentricish(marker.loc);
-        Point3f center = norm;
-        Vector3f up(0,0,1);
-        Point3f horiz = up.cross(norm).normalized();
-        Point3f vert = norm.cross(horiz).normalized();;        
         
-        Point3f ll = center - width2*horiz - height2*vert;
-        pts[0] = ll;
-        pts[1] = ll + 2 * width2 * horiz;
-        pts[2] = ll + 2 * width2 * horiz + 2 * height2 * vert;
-        pts[3] = ll + 2 * height2 * vert;
+        if (markerInfo.screenObject)
+        {
+            pts[0] = Point3f(-width2,-height2,0.0);
+            pts[1] = Point3f(width2,-height2,0.0);
+            pts[2] = Point3f(width2,height2,0.0);
+            pts[3] = Point3f(-width2,height2,0.0);
+        } else {            
+            Point3f center = norm;
+            Vector3f up(0,0,1);
+            Point3f horiz = up.cross(norm).normalized();
+            Point3f vert = norm.cross(horiz).normalized();;        
+            
+            Point3f ll = center - width2*horiz - height2*vert;
+            pts[0] = ll;
+            pts[1] = ll + 2 * width2 * horiz;
+            pts[2] = ll + 2 * width2 * horiz + 2 * height2 * vert;
+            pts[3] = ll + 2 * height2 * vert;
+        }
 
         // While we're at it, let's add this to the selection layer
         if (selectLayer && marker.isSelectable)
@@ -245,6 +263,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             
             markerRep->selectID = marker.selectID;
             [selectLayer addSelectableRect:marker.selectID rect:pts];
+            
+            // Note: Handle the screen object case
         }
         
         // If the marker has just one texture, we can treat it as static
@@ -254,23 +274,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             SimpleIdentity texID = (marker.texIDs.empty() ? EmptyIdentity : marker.texIDs.at(0));
             SubTexture subTex = scene->getSubTexture(texID);
             
-            // We're sorting the static drawables by texture, so look for that
-            DrawableMap::iterator it = drawables.find(subTex.texId);
-            BasicDrawable *draw = NULL;
-            if (it != drawables.end())
-                draw = it->second;
-            else {
-                draw = new BasicDrawable();
-                draw->setType(GL_TRIANGLES);
-                draw->setDrawOffset(markerInfo.drawOffset);
-                draw->setColor([markerInfo.color asRGBAColor]);
-                draw->setDrawPriority(markerInfo.drawPriority);
-                draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
-                draw->setTexId(subTex.texId);
-                drawables[subTex.texId] = draw;
-                markerRep->drawIDs.insert(draw->getId());
-            }
-
             // Build one set of texture coordinates
             std::vector<TexCoord> texCoord;
             texCoord.resize(4);
@@ -279,22 +282,60 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
             texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
             subTex.processTexCoords(texCoord);    
-            
-            // Toss the geometry into the drawable
-            int vOff = draw->getNumPoints();
-            for (unsigned int ii=0;ii<4;ii++)
+
+            if (markerInfo.screenObject)
             {
-                Point3f &pt = pts[ii];
-                draw->addPoint(pt);
-                draw->addNormal(norm);
-                draw->addTexCoord(texCoord[ii]);
-                GeoMbr geoMbr = draw->getGeoMbr();
-                geoMbr.addGeoCoord(marker.loc);
-                draw->setGeoMbr(geoMbr);
+                ScreenSpaceGenerator::SimpleGeometry smGeom;
+                smGeom.texID = subTex.texId;
+                smGeom.color = [markerInfo.color asRGBAColor];
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
+                    smGeom.texCoords.push_back(texCoord[ii]);
+                }
+                ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
+                shape->worldLoc = norm;
+                // Note: Fade up/down
+                shape->minVis = markerInfo.minVis;
+                shape->maxVis = markerInfo.maxVis;
+                shape->drawPriority = markerInfo.drawPriority;
+                shape->geom.push_back(smGeom);
+                screenShapes.push_back(shape);
+                
+            } else {
+                // We're sorting the static drawables by texture, so look for that
+                DrawableMap::iterator it = drawables.find(subTex.texId);
+                BasicDrawable *draw = NULL;
+                if (it != drawables.end())
+                    draw = it->second;
+                else {
+                    draw = new BasicDrawable();
+                    draw->setType(GL_TRIANGLES);
+                    draw->setDrawOffset(markerInfo.drawOffset);
+                    draw->setColor([markerInfo.color asRGBAColor]);
+                    draw->setDrawPriority(markerInfo.drawPriority);
+                    draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
+                    draw->setTexId(subTex.texId);
+                    drawables[subTex.texId] = draw;
+                    markerRep->drawIDs.insert(draw->getId());
+                }
+
+                // Toss the geometry into the drawable
+                int vOff = draw->getNumPoints();
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    Point3f &pt = pts[ii];
+                    draw->addPoint(pt);
+                    draw->addNormal(norm);
+                    draw->addTexCoord(texCoord[ii]);
+                    GeoMbr geoMbr = draw->getGeoMbr();
+                    geoMbr.addGeoCoord(marker.loc);
+                    draw->setGeoMbr(geoMbr);
+                }
+                
+                draw->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
+                draw->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
             }
-            
-            draw->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
-            draw->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
         } else {
             // The marker changes textures, so we need to pass it to the generator
             MarkerGenerator::Marker *newMarker = new MarkerGenerator::Marker();
@@ -356,6 +397,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         scene->addChangeRequest(new AddDrawableReq(it->second));        
     }
     drawables.clear();
+    
+    // Add all the screen space markers at once
+    if (!screenShapes.empty())
+        scene->addChangeRequest(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
+    screenShapes.clear();
 }
 
 // Remove the given marker(s)

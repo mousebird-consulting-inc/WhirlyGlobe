@@ -201,8 +201,6 @@ public:
         glEnable(GL_COLOR_MATERIAL);
     }
 
-	glEnable(GL_DEPTH_TEST);
-
 	// Set it back to model view
 	glMatrixMode(GL_MODELVIEW);	
 	glEnable(GL_BLEND);	
@@ -234,16 +232,20 @@ public:
 	Eigen::Affine3f modelTrans = [theView calcModelMatrix];
 	glLoadMatrixf(modelTrans.data());
 
+    if (zBuffer)
+    {
+        glDepthMask(GL_TRUE);
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDepthMask(GL_FALSE);
+        glDisable(GL_DEPTH_TEST);
+    }
+
 	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 	glEnable(GL_CULL_FACE);
-    
-    if (zBuffer)
-        glDepthMask(GL_TRUE);
-    else
-        glDepthMask(GL_FALSE);
-    
+        
     // Call the pre-frame callback
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])
         [delegate preFrame:self];
@@ -372,7 +374,7 @@ public:
                 if (drawable->hasAlpha(frameInfo) && depthMaskOn)
                 {
                     depthMaskOn = false;
-                    glDepthMask(GL_FALSE);
+                    glDisable(GL_DEPTH_TEST);
                 }
 				drawable->draw(frameInfo,scene);	
 				numDrawables++;
@@ -391,6 +393,7 @@ public:
         // Now for the 2D display
         if (!screenDrawables.empty())
         {
+            glDisable(GL_DEPTH_TEST);
             // Sort by draw priority (and alpha, I guess)
             drawList.insert(drawList.end(), screenDrawables.begin(), screenDrawables.end());
             drawListSortStruct sortStruct;
@@ -400,9 +403,11 @@ public:
             // Set up the matrix
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrthof(0, framebufferWidth, framebufferHeight, 0, 0, 1);
+            glOrthof(0, framebufferWidth, framebufferHeight, 0, -1, 1);
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
+            // Move things over just a bit to get better sampling
+            glTranslatef(0.375, 0.375, 0);
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {

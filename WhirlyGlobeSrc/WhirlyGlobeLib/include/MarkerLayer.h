@@ -127,6 +127,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     WhirlyKitSelectionLayer * __weak selectLayer;
     /// Used to track what scene components correspond to which markers
     WhirlyKit::MarkerSceneRepSet markerReps;
+    /// Screen space generator on the render side
+    WhirlyKit::SimpleIdentity screenGenId;
 }
 
 /// Set this for selection layer support.  If this is set

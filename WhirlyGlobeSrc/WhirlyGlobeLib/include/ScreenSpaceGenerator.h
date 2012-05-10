@@ -28,6 +28,9 @@
 namespace WhirlyKit 
 {
 
+/// Name of the shared screen space generate that a scene creates on startup
+#define kScreenSpaceGeneratorShared "SharedScreenSpaceGenerator"
+    
 /** The Screen Space Generator keeps a list of objects in world space
     that need to be projected to the screen and drawn.  Overlays, basically.
  */
@@ -42,6 +45,20 @@ public:
     void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables,std::vector<Drawable *> &screenDrawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
+    
+    // A simple geometric representation used in shapes
+    // We do it this way so we can have multiple 
+    class SimpleGeometry
+    {
+    public:
+        SimpleGeometry();
+        SimpleGeometry(SimpleIdentity texID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords);
+
+        SimpleIdentity texID;
+        RGBAColor color;
+        std::vector<Point2f> coords;
+        std::vector<TexCoord> texCoords;
+    };
 
     /** Simple convex shape to be drawn on the screen.
         It has a texture and a list of vertices as well as
@@ -50,20 +67,20 @@ public:
     class ConvexShape : public Identifiable
     {
     public:
-        /// Called by the marker generator build the geometry
-        void addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables);
+        ConvexShape();
 
-        RGBAColor color;
         /// Center location
         Point3f worldLoc;
-        /// Offset around 0,0 where we wind up on screen
-        std::vector<Point2f> coords;
-        SimpleIdentity texID;
-        std::vector<TexCoord> texCoords;
         NSTimeInterval fadeUp,fadeDown;
         int drawPriority;
         float minVis,maxVis;
+        
+        /// List of geometry we'll transform to the destination
+        std::vector<SimpleGeometry> geom;
     };
+
+    /// Called by the marker generator build the geometry
+    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables);
     
     /// Called by the render to add shapes from a layer
     void addConvexShapes(std::vector<ConvexShape *> shape);

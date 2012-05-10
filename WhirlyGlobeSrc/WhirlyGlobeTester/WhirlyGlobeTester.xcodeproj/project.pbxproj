@@ -24,7 +24,6 @@
 		2B2C1DE11458B73D00B5D61D /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DE01458B73D00B5D61D /* AppDelegate.mm */; };
 		2B2C1DEA1458B7FC00B5D61D /* GlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DE81458B7FC00B5D61D /* GlobeViewController.mm */; };
 		2B2C1DEB1458B7FC00B5D61D /* GlobeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B2C1DE91458B7FC00B5D61D /* GlobeViewController.xib */; };
-		2B2C1DED1458B86100B5D61D /* WhirlyGlobe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1DEC1458B86100B5D61D /* WhirlyGlobe.framework */; };
 		2B2C1DEF1458B90A00B5D61D /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1DEE1458B90A00B5D61D /* OpenGLES.framework */; };
 		2B2C1DF11458B92600B5D61D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1DF01458B92600B5D61D /* QuartzCore.framework */; };
 		2B2C1E231458BB9100B5D61D /* big_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2B2C1DFA1458BB9100B5D61D /* big_wtb_0x0.pvrtc */; };
@@ -96,6 +95,7 @@
 		2B95619814B50A8D00B80A7F /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B95619014B50A8D00B80A7F /* Icon@2x.png */; };
 		2B95619914B50A8D00B80A7F /* iPadLaunch.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B95619114B50A8D00B80A7F /* iPadLaunch.png */; };
 		2B95619A14B50A8D00B80A7F /* iPhoneLaunch.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B95619214B50A8D00B80A7F /* iPhoneLaunch.png */; };
+		2BA174D3155B165400C31996 /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA174D1155B164D00C31996 /* libWhirlyGlobeLib.a */; };
 		2BEB73E7146F2DCF00B8AB0A /* OptionsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BEB73E6146F2DCF00B8AB0A /* OptionsView.xib */; };
 		2BEB73FC146F461600B8AB0A /* PanDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEB73FB146F461600B8AB0A /* PanDelegateFixed.mm */; };
 		2BEB7400146F478900B8AB0A /* BigButtonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEB73FE146F478800B8AB0A /* BigButtonViewController.m */; };
@@ -108,6 +108,16 @@
 		2BEFDEAF1499838700C63326 /* country_260.loftcache in Resources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA91499838700C63326 /* country_260.loftcache */; };
 		2BEFDEB01499838700C63326 /* country_320.loftcache in Resources */ = {isa = PBXBuildFile; fileRef = 2BEFDEAA1499838700C63326 /* country_320.loftcache */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2BA174D0155B164D00C31996 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2BA174BF155B163900C31996 /* WhirlyGlobeLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2BDC4ABB133404BB00E25283;
+			remoteInfo = WhirlyGlobeLib;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		2B232AFC14709F3500CF2438 /* 10m_admin_0_map_subunits.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = 10m_admin_0_map_subunits.dbf; path = resources/vectors/10m_admin_0_map_subunits.dbf; sourceTree = SOURCE_ROOT; };
@@ -132,7 +142,6 @@
 		2B2C1DE71458B7FC00B5D61D /* GlobeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeViewController.h; sourceTree = "<group>"; };
 		2B2C1DE81458B7FC00B5D61D /* GlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeViewController.mm; sourceTree = "<group>"; };
 		2B2C1DE91458B7FC00B5D61D /* GlobeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GlobeViewController.xib; sourceTree = "<group>"; };
-		2B2C1DEC1458B86100B5D61D /* WhirlyGlobe.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WhirlyGlobe.framework; path = ../WhirlyGlobeLib/WhirlyGlobe.framework; sourceTree = "<group>"; };
 		2B2C1DEE1458B90A00B5D61D /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2B2C1DF01458B92600B5D61D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2B2C1DFA1458BB9100B5D61D /* big_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_wtb_0x0.pvrtc; sourceTree = "<group>"; };
@@ -207,6 +216,7 @@
 		2B95619014B50A8D00B80A7F /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
 		2B95619114B50A8D00B80A7F /* iPadLaunch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPadLaunch.png; sourceTree = "<group>"; };
 		2B95619214B50A8D00B80A7F /* iPhoneLaunch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhoneLaunch.png; sourceTree = "<group>"; };
+		2BA174BF155B163900C31996 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
 		2BEB73E6146F2DCF00B8AB0A /* OptionsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OptionsView.xib; sourceTree = "<group>"; };
 		2BEB73FA146F461600B8AB0A /* PanDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanDelegateFixed.h; sourceTree = "<group>"; };
 		2BEB73FB146F461600B8AB0A /* PanDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PanDelegateFixed.mm; sourceTree = "<group>"; };
@@ -227,10 +237,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BA174D3155B165400C31996 /* libWhirlyGlobeLib.a in Frameworks */,
 				2B2C1E4D1458BC8100B5D61D /* libsqlite3.dylib in Frameworks */,
 				2B2C1DF11458B92600B5D61D /* QuartzCore.framework in Frameworks */,
 				2B2C1DEF1458B90A00B5D61D /* OpenGLES.framework in Frameworks */,
-				2B2C1DED1458B86100B5D61D /* WhirlyGlobe.framework in Frameworks */,
 				2B2C1DD11458B73D00B5D61D /* UIKit.framework in Frameworks */,
 				2B2C1DD31458B73D00B5D61D /* Foundation.framework in Frameworks */,
 				2B2C1DD51458B73D00B5D61D /* CoreGraphics.framework in Frameworks */,
@@ -280,6 +290,7 @@
 			isa = PBXGroup;
 			children = (
 				2B2C1DD61458B73D00B5D61D /* WhirlyGlobeTester */,
+				2BA174BF155B163900C31996 /* WhirlyGlobeLib.xcodeproj */,
 				2B2C1DCF1458B73D00B5D61D /* Frameworks */,
 				2B2C1DCD1458B73D00B5D61D /* Products */,
 			);
@@ -299,7 +310,6 @@
 				2B2C1E4C1458BC8100B5D61D /* libsqlite3.dylib */,
 				2B2C1DF01458B92600B5D61D /* QuartzCore.framework */,
 				2B2C1DEE1458B90A00B5D61D /* OpenGLES.framework */,
-				2B2C1DEC1458B86100B5D61D /* WhirlyGlobe.framework */,
 				2B2C1DD01458B73D00B5D61D /* UIKit.framework */,
 				2B2C1DD21458B73D00B5D61D /* Foundation.framework */,
 				2B2C1DD41458B73D00B5D61D /* CoreGraphics.framework */,
@@ -466,6 +476,14 @@
 			path = "resources/icons and launch";
 			sourceTree = SOURCE_ROOT;
 		};
+		2BA174CD155B164D00C31996 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BA174D1155B164D00C31996 /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2BEFDEA31499836E00C63326 /* loftcache */ = {
 			isa = PBXGroup;
 			children = (
@@ -517,12 +535,28 @@
 			mainGroup = 2B2C1DC11458B73D00B5D61D;
 			productRefGroup = 2B2C1DCD1458B73D00B5D61D /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2BA174CD155B164D00C31996 /* Products */;
+					ProjectRef = 2BA174BF155B163900C31996 /* WhirlyGlobeLib.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				2B2C1DCB1458B73D00B5D61D /* WhirlyGlobeTester */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2BA174D1155B164D00C31996 /* libWhirlyGlobeLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWhirlyGlobeLib.a;
+			remoteRef = 2BA174D0155B164D00C31996 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		2B2C1DCA1458B73D00B5D61D /* Resources */ = {

@@ -22,6 +22,7 @@
 #import "GlobeView.h"
 #import "GlobeMath.h"
 #import "TextureAtlas.h"
+#import "ScreenSpaceGenerator.h"
 
 namespace WhirlyKit
 {
@@ -44,6 +45,11 @@ Scene::Scene(unsigned int numX, unsigned int numY,WhirlyKit::CoordSystem *coordS
             cullable.setGeoMbr(GeoMbr(geoLL,geoUR),coordSystem);
         }
     }
+    
+    // Also toss in a screen space generator to share amongst the layers
+    ScreenSpaceGenerator *ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared);
+    screenSpaceGeneratorID = ssGen->getId();
+    generators.insert(ssGen);
     
     pthread_mutex_init(&changeRequestLock,NULL);
 }
@@ -209,6 +215,11 @@ void Scene::addDrawable(Drawable *drawable)
 {
     // By default we'll add it without any thought
     drawables.insert(drawable);
+}
+    
+SimpleIdentity Scene::getScreenSpaceGeneratorID()
+{
+    return screenSpaceGeneratorID;
 }
 
 

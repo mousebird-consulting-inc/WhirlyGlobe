@@ -214,6 +214,9 @@ public:
     /// A subclass can override this to control how this interacts with cullabes.
     /// The scene is responsible for the Drawable after this call.
     virtual void addDrawable(Drawable *drawable);
+    
+    /// We create one screen space generator on startup.  This is its ID.
+    SimpleIdentity getScreenSpaceGeneratorID();
 	
 public:	
 	/// Remove the given drawable from the cullables
@@ -257,6 +260,9 @@ public:
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
+    
+    /// ID for screen space generator
+    SimpleIdentity screenSpaceGeneratorID;
 };
 	
 }

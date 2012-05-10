@@ -94,6 +94,11 @@ using namespace WhirlyGlobe;
     lastTouched = CFAbsoluteTimeGetCurrent();
 }
 
+- (void)shutdown
+{
+    // Note: Should be cleaning out all our objects here
+}
+
 // We'll see if the globe view has been modified lately.  If not, we'll start the spinning
 - (void)processAutoSpin:(id)sender
 {
@@ -271,6 +276,12 @@ using namespace WhirlyGlobe;
     // Clear out the select IDs 
     labelSelectIDs.clear();
 
+    // Testing icons
+    // Note: Leaking texture here
+    Texture *newTex = new Texture(@"number_1",@"png");
+    SimpleIdentity iconTexID = newTex->getId();
+    scene->addChangeRequest(new AddTextureReq(newTex));    
+    
     // Visual description of the vectors and labels
     NSDictionary *shapeDesc = 
      [NSDictionary dictionaryWithObjectsAndKeys:
@@ -284,13 +295,14 @@ using namespace WhirlyGlobe;
       [NSNumber numberWithBool:YES],@"enable",
       [UIColor clearColor],@"backgroundColor",
       [UIColor whiteColor],@"textColor",
-      [UIFont boldSystemFontOfSize:32.0],@"font",
+      [UIFont boldSystemFontOfSize:24.0],@"font",
       [NSNumber numberWithInt:4],@"drawOffset",
-      [NSNumber numberWithFloat:0.05],@"width",
+//      [NSNumber numberWithFloat:0.05],@"width",
+      [NSNumber numberWithFloat:12.0],@"height",
       [NSNumber numberWithFloat:1.0],@"fade",
       [NSNumber numberWithBool:TRUE],@"screen",
       nil];
-    
+        
     // Draw all the countries in the admin 0 shape file
     if (how)
     {        
@@ -323,6 +335,7 @@ using namespace WhirlyGlobe;
                     // And build a label.  We'll add these as a group below
                     WhirlyKitSingleLabel *label = [[WhirlyKitSingleLabel alloc] init];
                     label.isSelectable = YES;
+                    label.iconTexture = iconTexID;
                     label.selectID = Identifiable::genId();
                     label.text = name;
                     [label setLoc:ar->calcGeoMbr().mid()];
@@ -372,6 +385,7 @@ const int NumMarkers=250;
          [NSNumber numberWithFloat:0.8],@"maxVis",
          [NSNumber numberWithInt:2],@"drawOffset",
          [NSNumber numberWithFloat:1.0],@"fade",
+         [NSNumber numberWithBool:TRUE],@"screen",
          nil];
 
         // Set up the number textures
@@ -414,13 +428,15 @@ const int NumMarkers=250;
             [marker setLoc:coord];
             
             // Give it several textures in a row to display
-            for (unsigned int jj=0;jj<num_textures.size();jj++)
-                [marker addTexID:num_textures[jj]];
+//            for (unsigned int jj=0;jj<num_textures.size();jj++)
+//                [marker addTexID:num_textures[jj]];
+            [marker addTexID:num_textures[0]];
             marker.period = 10.0;
             marker.timeOffset = ii*1.0;
 
             // These values are relative to the globe, which has a radius of 1.0
-            marker.width = 0.01;            marker.height = 0.01;
+//            marker.width = 0.01;            marker.height = 0.01;
+            marker.width = 20;            marker.height = 20;
 
             // Now we'll set this up for selection.  If we turn selection on
             //  and give the marker a unique ID as below, we'll get it back later
