@@ -109,6 +109,15 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 - (BOOL)addImage:(UIImage *)image texOrg:(TexCoord &)org texDest:(TexCoord &)dest
 {
+    // See if we've already done this one
+    for (ImageInstance *imageInst in images)
+        if (imageInst.image == image)
+        {
+            org = imageInst->org;
+            dest = imageInst->dest;
+            return true;
+        }
+    
     // Number of grid cells we'll need
     unsigned int gridCellsX = std::ceil(image.size.width / cellSizeX);
     unsigned int gridCellsY = std::ceil(image.size.height / cellSizeY);

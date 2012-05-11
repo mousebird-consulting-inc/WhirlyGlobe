@@ -21,6 +21,7 @@
 #import "LabelLayer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "RenderCache.h"
 #import "ScreenSpaceGenerator.h"
@@ -480,15 +481,29 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     
     // Let's only bother for more than one label
     bool texAtlasOn = [labelInfo.strs count] > 1;
-
+    
+    // Keep track of images rendered from text
+    std::map<std::string,UIImage *> renderedImages;
+    
     // Work through the labels
     for (WhirlyKitSingleLabel *label in labelInfo.strs)
     {    
         TexCoord texOrg,texDest;
         CGSize textSize;
-        UIImage *textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest];
-        if (!textImage)
-            return;
+
+        // Find the image (if we already rendered it) or create it as needed
+        UIImage *textImage = nil;
+        std::string labelStr = [label.text asStdString];
+        std::map<std::string,UIImage *>::iterator it = renderedImages.find(labelStr);
+        if (it != renderedImages.end())
+        {
+            textImage = it->second;
+        } else {
+            textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest];
+            if (!textImage)
+                continue;
+            renderedImages[labelStr] = textImage;
+        }
         
         // Look for a spot in an existing texture atlas
         int foundii = -1;

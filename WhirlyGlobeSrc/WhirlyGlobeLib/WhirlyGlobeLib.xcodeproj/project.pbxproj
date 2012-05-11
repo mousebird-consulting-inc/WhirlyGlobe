@@ -140,6 +140,8 @@
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
+		2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF74358155D7C4C000499DD /* NSString+Stuff.h */; };
+		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		2BFBF15D14BF64100020FE6B /* PanDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */; };
 		2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFC34D513CBF9F500403799 /* DrawCost.h */; };
 		2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC34DA13CBFA9A00403799 /* DrawCost.mm */; };
@@ -285,6 +287,8 @@
 		2BEFDE99149966F300C63326 /* GridClipper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridClipper.mm; sourceTree = "<group>"; };
 		2BEFDE9A149966F300C63326 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tesselator.mm; sourceTree = "<group>"; };
 		2BEFDEA114997C0400C63326 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = ../../../../utilities/clipper_ver4.3.0/cpp/clipper.cpp; sourceTree = "<group>"; };
+		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
+		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PanDelegateMap.mm; sourceTree = "<group>"; };
 		2BFC34D513CBF9F500403799 /* DrawCost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawCost.h; sourceTree = "<group>"; };
 		2BFC34DA13CBFA9A00403799 /* DrawCost.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawCost.mm; sourceTree = "<group>"; };
@@ -386,6 +390,7 @@
 				2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */,
 				2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */,
 				2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */,
+				2BF74358155D7C4C000499DD /* NSString+Stuff.h */,
 			);
 			name = "Cocoa Utils";
 			sourceTree = "<group>";
@@ -396,6 +401,7 @@
 				2BC53FED12DE23D400778431 /* UIImage+Stuff.mm */,
 				2B3C81BD132FE77C0029DEF2 /* NSDictionary+Stuff.m */,
 				2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */,
+				2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */,
 			);
 			name = "Cocoa Utils";
 			sourceTree = "<group>";
@@ -883,6 +889,7 @@
 				2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */,
 				2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */,
 				2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */,
+				2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1006,6 +1013,7 @@
 				2B774CD0154659A800BA79E4 /* MBTileQuadSource.mm in Sources */,
 				2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */,
 				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
+				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

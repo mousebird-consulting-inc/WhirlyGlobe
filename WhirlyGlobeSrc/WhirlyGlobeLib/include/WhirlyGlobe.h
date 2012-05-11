@@ -30,6 +30,7 @@
 #import "GlobeScene.h"
 #import "SphericalEarthLayer.h"
 #import "GridLines.h"
+#import "NSString+Stuff.h"
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
 #import "SceneRendererES1.h"
