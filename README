@@ -1,5 +1,23 @@
-This is the development tree for WhirlyGlobe 2.0.  As for now (5/12) 2.0 is not yet released.
+This is the development tree for WhirlyGlobe 2.0.  As of now (5/12) 2.0 is not yet released.
 
-You're better off using WhirlyGlobe 1.2 from its google code page, particularly if you're just getting started.
-If you want to use this version for some reason, talk to Steve about it first.
+You're better off using WhirlyGlobe 1.2 from its google code page, particularly if you're just getting started:
+http://code.google.com/p/whirlyglobe/
 
+For news on WhirlyGlobe related things, follow this blog:
+http://mousebirdconsulting.blogspot.com/
+
+If you want to use this version for some reason, talk to me (Steve) about that first.  I've made the 2.0 pre-release public because I'm collaborating with other people (clients).  If you don't fall into that category, best to wait until the formal 2.0 release sometime this summer.
+
+What is WhirlyGlobe (1.2)?
+---
+
+WhirlyGlobe is a self contained 3D earth display view suitable for use in iPhone and iPad applications. The globe is rendered in OpenGL ES with a configurable multi-part texture and allows for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.
+
+What is WhirlyGlobe (2.0)?
+---
+
+It's about big data.  Paging giant imagery data sets on the fly, that sort of thing.
+
+It's about maturity.  WhirlyGlobe has found its way into some iPad melting apps and they have certain needs.
+
+And it's about maps.  I'm branching out from a simple 3D globe and moving into interactive maps.  That won't make 2.0, but you can see the structural changes already.
