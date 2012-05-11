@@ -583,6 +583,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             
             [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts iconCorners:iconPts];
             screenShape = new ScreenSpaceGenerator::ConvexShape();
+            screenShape->minVis = labelInfo.minVis;
+            screenShape->maxVis = labelInfo.maxVis;
             labelRep->screenIDs.insert(screenShape->getId());
             screenShape->worldLoc = scene->coordSystem->localToGeocentricish(scene->coordSystem->geographicToLocal(label.loc));
             ScreenSpaceGenerator::SimpleGeometry smGeom;
@@ -591,6 +593,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
                 smGeom.texCoords.push_back(texCoord[ii]);
             }
+//            smGeom.color = labelInfo.color;
             if (!texAtlas)
             {
                 // This texture was unique to the object

@@ -282,7 +282,8 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
             }
 //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
         }
-        
+
+        // Note: Move this to its own routine
         if (nodeInfo.ident.level < maxZoom)
         {
             // Now try the children
