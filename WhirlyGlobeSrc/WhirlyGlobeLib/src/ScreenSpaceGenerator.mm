@@ -45,7 +45,7 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
 }
 
 // Calculate its position and add this feature to the appropriate drawable
-void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables)
+void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
     if (!(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
@@ -57,6 +57,21 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
         return;
     
+    // Note: Make this work for generic 3D views
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
+        return;
+    
+    // Project the world location to the screen
+    CGPoint screenPt;
+    Eigen::Affine3f modelTrans = frameInfo.modelTrans;
+    screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
+    
+    // Note: This check is too simple
+    if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
+        screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
+        return;
+
     // Set up the alpha scaling
     bool hasAlpha = false;
     float scale = 1.0;
@@ -105,16 +120,6 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         } else
             draw = it->second;
 
-        // Project the world location to the screen
-        CGPoint screenPt;
-        // Note: Make this work for generic 3D views
-        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-        if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-            return;
-        
-        Eigen::Affine3f modelTrans = frameInfo.modelTrans;
-        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
-    
         // Now build the points, texture coordinates and colors
         Point2f center(screenPt.x,screenPt.y);
         int vOff = draw->getNumPoints();
@@ -172,13 +177,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     }    
 }
     
-ScreenSpaceGenerator::ScreenSpaceGenerator()
-    : Generator()
-{    
-}
-    
-ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name)
-    : Generator(name)
+ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2f margin)
+    : Generator(name), margin(margin)
 {
 }
     
@@ -223,12 +223,19 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     // Keep drawables sorted by destination texture ID
     DrawableMap drawables;
     
+    // Overall extents we'll look at.  Everything else is tossed.
+    Mbr frameMbr;
+    float marginX = frameInfo.sceneRenderer.framebufferWidth * margin.x();
+    float marginY = frameInfo.sceneRenderer.framebufferHeight * margin.y();
+    frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
+    frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
+    
     // Work through the markers, asking each to generate its content
     for (ConvexShapeSet::iterator it = convexShapes.begin();
          it != convexShapes.end(); ++it)
     {
         ConvexShape *shape = *it;
-        addToDrawables(shape,frameInfo,drawables);
+        addToDrawables(shape,frameInfo,drawables,frameMbr);
     }
     
     // Copy the drawables out

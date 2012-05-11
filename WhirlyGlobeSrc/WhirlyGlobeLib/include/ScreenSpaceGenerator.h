@@ -37,8 +37,7 @@ namespace WhirlyKit
 class ScreenSpaceGenerator : public Generator
 {
 public:
-    ScreenSpaceGenerator();
-    ScreenSpaceGenerator(const std::string &name);
+    ScreenSpaceGenerator(const std::string &name,Point2f margin);
     virtual ~ScreenSpaceGenerator();
     
     /// Generate drawables for the current frame
@@ -80,7 +79,7 @@ public:
     };
 
     /// Called by the marker generator build the geometry
-    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables);
+    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,Mbr &frameMbr);
     
     /// Called by the render to add shapes from a layer
     void addConvexShapes(std::vector<ConvexShape *> shape);
@@ -97,6 +96,7 @@ public:
 protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
+    Point2f margin;
 };
     
 /** A Screen Space Generator Add Request comes from a layer that needs to

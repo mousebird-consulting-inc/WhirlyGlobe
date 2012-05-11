@@ -204,6 +204,9 @@ public:
 	// Set it back to model view
 	glMatrixMode(GL_MODELVIEW);	
 	glEnable(GL_BLEND);	
+    
+	// Set a blending function to use
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 - (void) render:(CFTimeInterval)duration

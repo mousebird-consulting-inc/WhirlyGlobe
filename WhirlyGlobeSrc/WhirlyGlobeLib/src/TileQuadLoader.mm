@@ -345,9 +345,7 @@ const int SphereTessX = 10, SphereTessY = 10;
                 // Create the texture and set it up in OpenGL
                 Texture *newTex = new Texture(texImage);
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
-                // Note: This is bogus
-                if (!hasAlpha)
-                    newTex->createInGL();
+                newTex->createInGL();
                 *tex = newTex;
             }
         } else

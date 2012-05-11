@@ -460,6 +460,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 // Note: Badly optimized for single label case
 - (void)runAddLabels:(LabelInfo *)labelInfo
 {
+    // This lets us set up textures here
+    [EAGLContext setCurrentContext:layerThread.glContext];
+    
     LabelSceneRep *labelRep = new LabelSceneRep();
     labelRep->fade = labelInfo.fade;
     labelRep->setId(labelInfo.labelId);
@@ -613,6 +616,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             {
                 // This texture was unique to the object
                 Texture *tex = new Texture(textImage);
+                tex->createInGL();
                 scene->addChangeRequest(new AddTextureReq(tex));
                 smGeom.texID = tex->getId();
                 labelRep->texIDs.insert(tex->getId());
@@ -653,6 +657,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             if (!texAtlas)
             {
                 Texture *tex = new Texture(textImage);
+                tex->createInGL();
                 drawable->setTexId(tex->getId());
                 
                 // Add these to the cache first, before the renderer messes with them
@@ -758,6 +763,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     {
         UIImage *theImage = nil;
         Texture *tex = [texAtlases[ii] createTexture:&theImage];
+        tex->createInGL();
         scene->addChangeRequest(new AddTextureReq(tex));
         labelRep->texIDs.insert(tex->getId());
 

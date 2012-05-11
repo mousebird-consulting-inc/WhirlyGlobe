@@ -47,7 +47,7 @@ Scene::Scene(unsigned int numX, unsigned int numY,WhirlyKit::CoordSystem *coordS
     }
     
     // Also toss in a screen space generator to share amongst the layers
-    ScreenSpaceGenerator *ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared);
+    ScreenSpaceGenerator *ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
     generators.insert(ssGen);
     
