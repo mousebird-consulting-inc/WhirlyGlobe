@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
 // Notification for control dictionary changes
 #define kWGControlChange @"WGControlChange"

@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
 // Kind of panning we're in the middle of
 typedef enum {PanNone,PanFree,PanSuspended} PanningType;

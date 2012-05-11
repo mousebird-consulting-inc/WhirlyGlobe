@@ -20,7 +20,7 @@
 
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 #import "InteractionLayer.h"
 #import "OptionsViewController.h"
 #import "PanDelegateFixed.h"
@@ -48,6 +48,7 @@ static const bool UseMBTiles = true;
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
 	WhirlyKitTextureGroup *texGroup;
+    WhirlyGlobeQuadTileLoader *tileLoader;
     WhirlyMBTileQuadSource *mbTiles;
     
 	// Thread used to control Whirly Globe layers

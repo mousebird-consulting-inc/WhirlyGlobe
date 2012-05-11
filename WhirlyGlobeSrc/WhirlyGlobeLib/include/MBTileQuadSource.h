@@ -27,7 +27,7 @@
     Initialize with an archive, hand it a quad display layer and it'll
     page.
  */
-@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataSource,WhirlyGlobeQuadTileImageDataSource>
+@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource>
 {
     /// The SQLite database we're looking at
     sqlite3 *sqlDb;

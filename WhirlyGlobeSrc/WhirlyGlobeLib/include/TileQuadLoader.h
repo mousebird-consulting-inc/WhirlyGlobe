@@ -47,10 +47,11 @@ class LoadedTile
 {
 public:
     LoadedTile();
+    LoadedTile(const WhirlyKit::Quadtree::Identifier &);
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene);
+    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -67,6 +68,8 @@ public:
     
     /// Set if this parent tile is on
     bool isOn;
+    /// Set if this tile is in the process of loading
+    bool isLoading;
     // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
     // Texture ID for the parent tile
@@ -98,8 +101,13 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     to put on top of the simple geometry created by the quad tile loader.
  */
 @protocol WhirlyGlobeQuadTileImageDataSource<NSObject>
-/// If there is an image, return it.  Null otherwise.
-- (NSData *)fetchImageForLevel:(int)level col:(int)col row:(int)row;
+/// Number of simultaneous fetches this data source can support.
+/// You can change this on the fly, but it won't cancel outstanding fetches.
+- (int)maxSimultaneousFetches;
+
+/// The quad loader is letting us know to start loading the image.
+/// We'll call the loader back with the image when it's ready
+- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row;
 @end
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
@@ -108,6 +116,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
  */
 @interface WhirlyGlobeQuadTileLoader : NSObject<WhirlyGlobeQuadLoader>
 {    
+    /// Data layer we're attached to
+    WhirlyGlobeQuadDisplayLayer * __weak quadLayer;
+    
     /// Tiles we currently have loaded in the scene
     WhirlyGlobe::LoadedTileSet tileSet;    
     
@@ -132,20 +143,26 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     
     /// Set this if the tile images are partially transparent
     bool hasAlpha;
+    
+    /// How many fetches we have going at the moment
+    int numFetches;
 }
 
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 @property (nonatomic,assign) bool hasAlpha;
+@property (nonatomic,weak) WhirlyGlobeQuadDisplayLayer *quadLayer;
 
 /// Set this up with an object that'll return an image per tile
-- (id)initWithImageDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
+- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
 
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
-// Convenience function for createin a quad tile loader with data source
-+ (WhirlyGlobeQuadTileLoader *)loaderWithImageSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
+/// When a data source has finished its fetch for a given image, it calls
+///  this method to hand that back to the quad tile loader
+/// If this isn't called in the layer thread, it will switch over to that thread first.
+- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image forLevel:(int)level col:(int)col row:(int)row;
 
 @end

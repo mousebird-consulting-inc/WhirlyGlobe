@@ -147,8 +147,8 @@ using namespace WhirlyGlobe;
 	// Earth layer on the bottom
     if (UseMBTiles)
     {
-        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles renderer:sceneRenderer];
-        [quadLayer addLoader:[WhirlyGlobeQuadTileLoader loaderWithImageSource:mbTiles]];
+        tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:mbTiles];
+        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles loader:tileLoader renderer:sceneRenderer];
 //        quadLayer.lineMode = true;
 //        quadLayer.debugMode = true;
         [layerThread addLayer:quadLayer];

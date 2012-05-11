@@ -132,20 +132,31 @@ using namespace WhirlyGlobe;
     return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, tileMbr);
 }
 
-- (NSData *)fetchImageForLevel:(int)level col:(int)col row:(int)row
+// Just one fetch at a time
+- (int)maxSimultaneousFetches
 {
+    return 1;
+}
+
+// Load the given tile.  We'll do that right here
+- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+{
+    NSData *imageData = nil;
+    
     sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_id from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
-    if (!readStmt.stepRow())
-        return nil;
+    if (readStmt.stepRow())
+    {
+        NSString *tile_id = readStmt.getString();
+        sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
+        if (readStmt2.stepRow())
+            imageData = readStmt2.getBlob();
+    }
     
-    NSString *tile_id = readStmt.getString();
-    sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
-    if (!readStmt2.stepRow())
-        return nil;
-    
-    NSData *data = readStmt2.getBlob();
-    
-    return data;    
+//    if (!imageData)
+//        NSLog(@"Missing tile: (%d,%d,%d)",col,row,level);
+
+    // Tell the quad loader about the new tile data, whether its null or not
+    [quadLoader dataSource:self loadedImage:imageData forLevel:level col:col row:row];
 }
 
 

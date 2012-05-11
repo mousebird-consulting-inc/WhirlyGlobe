@@ -124,28 +124,30 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 @synthesize lineMode;
 @synthesize drawEmpty;
 @synthesize debugMode;
-@synthesize dataSource;
+@synthesize dataStructure;
+@synthesize loader;
 @synthesize viewUpdatePeriod;
 
-- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataSource> *)inDataSource renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
+- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyGlobeQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
 {
     self = [super init];
     if (self)
     {
-        dataSource = inDataSource;
-        coordSys = [dataSource coordSystem];
-        mbr = [dataSource validExtents];
-        minZoom = [dataSource minZoom];
-        maxZoom = [dataSource maxZoom];
+        dataStructure = inDataStructure;
+        loader = inLoader;
+        [loader setQuadLayer:self];
+        coordSys = [dataStructure coordSystem];
+        mbr = [dataStructure validExtents];
+        minZoom = [dataStructure minZoom];
+        maxZoom = [dataStructure maxZoom];
         maxTiles = 100;
         minTileArea = 1.0;
         viewUpdatePeriod = 1.0;
-        quadtree = new Quadtree([dataSource totalExtents],minZoom,maxZoom,maxTiles,minTileArea,self);
+        quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minTileArea,self);
         renderer = inRenderer;
         lineMode = false;
         drawEmpty = false;
         debugMode = false;
-        loaders = [NSMutableArray array];
     }
     
     return self;
@@ -159,19 +161,6 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
         delete quadtree;
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
-}
-
-/// Add the given loader to the list
-- (void)addLoader:(NSObject<WhirlyGlobeQuadLoader> *)loader
-{
-    if (![loaders containsObject:loader])
-        [loaders addObject:loader];
-}
-
-/// Remove the given loader from the list
-- (void)removeLoader:(NSObject<WhirlyGlobeQuadLoader> *)loader
-{
-    [loaders removeObject:loader];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
@@ -191,10 +180,8 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [dataSource shutdown];
-    
-    for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
-        [loader shutdownLayer:self scene:scene];
+    [dataStructure shutdown];
+    [loader shutdownLayer:self scene:scene];
     
     scene = NULL;
 }
@@ -245,9 +232,15 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     if (nodesForEval.empty())
         return;
     
-    // Let the loaders know we're about to do some updates
-    for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
-        [loader quadDisplayLayerStartUpdates:self];
+    // If the loader isn't ready, try again in a bit
+    if (![loader isReady])
+    {
+        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];        
+        return;
+    }
+    
+    // Let the loader know we're about to do some updates
+    [loader quadDisplayLayerStartUpdates:self];
     
     // Grab the first node.
     QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
@@ -265,8 +258,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
             std::vector<Quadtree::Identifier> tilesToRemove;
             quadtree->addTile(nodeInfo, tilesToRemove);
                         
-            for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
-                [loader quadDisplayLayer:self loadedTile:nodeInfo ];
+            [loader quadDisplayLayer:self loadTile:nodeInfo ];
                             
             // Remove the old tiles
             for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
@@ -274,31 +266,26 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
                 Quadtree::Identifier &thisIdent = tilesToRemove[ii];
                 //                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
                 
-                for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
-                {
-                    Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
-                    [loader quadDisplayLayer:self unloadedTile:remNodeInfo];           
-                }
+                Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
+                [loader quadDisplayLayer:self unloadTile:remNodeInfo];           
             }
 //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
-        }
-
-        // Note: Move this to its own routine
-        if (nodeInfo.ident.level < maxZoom)
-        {
-            // Now try the children
-            std::vector<Quadtree::NodeInfo> childNodes;
-            quadtree->generateChildren(nodeInfo.ident, childNodes);
-            nodesForEval.insert(childNodes.begin(),childNodes.end());
+        } else {
+            // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
+            if ([loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
+            {
+                std::vector<Quadtree::NodeInfo> childNodes;
+                quadtree->generateChildren(nodeInfo.ident, childNodes);
+                nodesForEval.insert(childNodes.begin(),childNodes.end());                
+            }
         }
     } else
     {
         //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
     }
     
-    // Let the loaders know we're done with this eval step
-    for (NSObject<WhirlyGlobeQuadLoader> *loader in loaders)
-            [loader quadDisplayLayerEndUpdates:self];    
+    // Let the loader know we're done with this eval step
+    [loader quadDisplayLayerEndUpdates:self];
     
 //    if (debugMode)
 //        [self dumpInfo];
@@ -306,11 +293,31 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
+// This is called by the loader when it finished loading a tile
+// Once loaded we can try the children
+- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+{
+    if (tileIdent.level < maxZoom)
+    {
+        // Now try the children
+        std::vector<Quadtree::NodeInfo> childNodes;
+        quadtree->generateChildren(tileIdent, childNodes);
+        nodesForEval.insert(childNodes.begin(),childNodes.end());
+    }
+}
+
+// Tile failed to load.
+// At the moment we don't care, but we won't look at the children
+- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+{
+    
+}
+
 #pragma mark - Quad Tree Importance Delegate
 
 - (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree
 {
-    return [dataSource importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
+    return [dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
 }
 
 @end
