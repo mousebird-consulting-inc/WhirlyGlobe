@@ -1,8 +1,8 @@
 /*
- *  MBTileQuadSource.h
+ *  NetworkTileQuadSource.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 4/23/12.
+ *  Created by Steve Gifford on 5/11/12.
  *  Copyright 2011 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,33 +22,36 @@
 #import "SphericalMercator.h"
 #import "TileQuadLoader.h"
 
-/** MabBox Tile Quad Data source.
-    This implements the data source protocol for MapBox Tiles.
-    Initialize with an archive, hand it a quad display layer and it'll
-    page.
+/** Network Tile Quad Source.
+    This implements a tile source for the standard http level/x/y
+    image hiearachy.
  */
-@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource>
+@interface WhirlyGlobeNetworkTileQuadSource : NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource>
 {
-    /// The SQLite database we're looking at
-    sqlite3 *sqlDb;
+    /// Where we're fetching from
+    NSString *baseURL;
+    /// Image extension
+    NSString *ext;
     /// Spherical Mercator coordinate system, for the tiles
     WhirlyKit::SphericalMercatorCoordSystem *coordSys;
     /// Bounds in Spherical Mercator
     WhirlyKit::Mbr mbr;
-    /// Bounds in geographic
-    WhirlyKit::GeoMbr geoMbr;
     /// Available levels, as read from the database.
     /// You can modify these yourself as well, to limit what's loaded
     int minZoom,maxZoom;
+    /// Number of simultaneous fetches.  Defaults to 4.
+    int numSimultaneous;
     /// Size of a tile in pixels square.  256 is the usual.
     int pixelsPerTile;   
 }
 
-/// Initialize the data source with the full path to the SQLite DB
-- (id)initWithPath:(NSString *)path;
+@property (nonatomic,assign) int numSimultaneous;
 
-/// Called by the layer to shut things down
-- (void)shutdown;
+/// Initialize with the base URL and the 
+- (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;
+
+- (void)setMinZoom:(int)zoom;
+- (void)setMaxZoom:(int)zoom;
 
 @end
 

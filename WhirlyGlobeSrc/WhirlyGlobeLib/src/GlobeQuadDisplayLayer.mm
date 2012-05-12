@@ -272,7 +272,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
         } else {
             // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
-            if ([loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
+            if (nodeInfo.ident.level < maxZoom && [loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
             {
                 std::vector<Quadtree::NodeInfo> childNodes;
                 quadtree->generateChildren(nodeInfo.ident, childNodes);

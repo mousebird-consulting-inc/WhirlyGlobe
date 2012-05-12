@@ -28,7 +28,8 @@
 // Update the frame rate display this often
 static const float FPSUpdateInterval = 4.0;
 
-static const bool UseMBTiles = true;
+static const bool UseMBTiles = false;
+static const bool UseStamenTiles = true;
 
 /** Globe View Controller
     This class pops up a a view controller with specific
@@ -50,6 +51,7 @@ static const bool UseMBTiles = true;
 	WhirlyKitTextureGroup *texGroup;
     WhirlyGlobeQuadTileLoader *tileLoader;
     WhirlyMBTileQuadSource *mbTiles;
+    WhirlyGlobeNetworkTileQuadSource *netTiles;
     
 	// Thread used to control Whirly Globe layers
 	WhirlyKitLayerThread *layerThread;

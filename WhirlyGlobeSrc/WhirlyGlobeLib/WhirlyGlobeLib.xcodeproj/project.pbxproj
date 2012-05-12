@@ -77,6 +77,8 @@
 		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
 		2B5E6365151C072F0007904C /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5E6364151C072F0007904C /* GlobeScene.h */; };
 		2B5E63D9152283B20007904C /* Scene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5E63D8152283B20007904C /* Scene.mm */; };
+		2B5FA418155DD7A100232E18 /* NetworkTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5FA417155DD7A100232E18 /* NetworkTileQuadSource.h */; };
+		2B5FA41B155DD84A00232E18 /* NetworkTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */; };
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
 		2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B65F90B137DBEE4004326A9 /* sqlhelpers.h */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
@@ -203,6 +205,8 @@
 		2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleGenerator.mm; sourceTree = "<group>"; };
 		2B5E6364151C072F0007904C /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
 		2B5E63D8152283B20007904C /* Scene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Scene.mm; sourceTree = "<group>"; };
+		2B5FA417155DD7A100232E18 /* NetworkTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkTileQuadSource.h; sourceTree = "<group>"; };
+		2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NetworkTileQuadSource.mm; sourceTree = "<group>"; };
 		2B65F8F9137DA864004326A9 /* VectorDatabase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorDatabase.mm; sourceTree = "<group>"; };
 		2B65F90B137DBEE4004326A9 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
 		2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
@@ -506,6 +510,7 @@
 				2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */,
 				2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */,
 				2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */,
+				2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -689,6 +694,7 @@
 				2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */,
 				2B87302A154B535500AFEE25 /* TileQuadLoader.h */,
 				2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */,
+				2B5FA417155DD7A100232E18 /* NetworkTileQuadSource.h */,
 			);
 			name = layers;
 			sourceTree = "<group>";
@@ -890,6 +896,7 @@
 				2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */,
 				2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */,
 				2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */,
+				2B5FA418155DD7A100232E18 /* NetworkTileQuadSource.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1014,6 +1021,7 @@
 				2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */,
 				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
 				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
+				2B5FA41B155DD84A00232E18 /* NetworkTileQuadSource.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

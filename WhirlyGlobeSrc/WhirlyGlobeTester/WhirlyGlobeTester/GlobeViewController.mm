@@ -69,7 +69,9 @@ using namespace WhirlyGlobe;
     
     theView = nil;
     texGroup = nil;
+    tileLoader = nil;
     mbTiles = nil;
+    netTiles = nil;
     layerThread = nil;
     
     earthLayer = nil;
@@ -133,7 +135,24 @@ using namespace WhirlyGlobe;
 	// Set up a texture group for the world texture
     if (UseMBTiles)
         mbTiles = [[WhirlyMBTileQuadSource alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"blue-marble-topo-jan" ofType:@"mbtiles"]];
-    else
+    
+    // Set up a network tile set
+    if (UseStamenTiles)
+    {
+//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://a.tile.openstreetmap.org/" ext:@"png"];
+//        netTiles.minZoom = 0;
+//        netTiles.maxZoom = 14;
+        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
+        netTiles.minZoom = 0;
+        netTiles.maxZoom = 5;
+        netTiles.numSimultaneous = 8;
+//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/toner/" ext:@"png"];
+//        netTiles.minZoom = 0;
+//        netTiles.maxZoom = 10;
+    }
+
+    // Load in a texture group if all else failes
+    if (!mbTiles && !netTiles)
         texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]];
     
 	// Need an empty scene and view    
@@ -145,10 +164,11 @@ using namespace WhirlyGlobe;
 	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:theScene view:theView renderer:sceneRenderer];
 	
 	// Earth layer on the bottom
-    if (UseMBTiles)
+    if (UseMBTiles || UseStamenTiles)
     {
-        tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:mbTiles];
-        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:mbTiles loader:tileLoader renderer:sceneRenderer];
+        NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource> *dataSource = (UseMBTiles ? mbTiles : netTiles);
+        tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:dataSource];
+        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:sceneRenderer];
 //        quadLayer.lineMode = true;
 //        quadLayer.debugMode = true;
         [layerThread addLayer:quadLayer];
