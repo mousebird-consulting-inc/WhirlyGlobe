@@ -90,7 +90,8 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(optionsChange:) name:kWGControlChange object:nil];
     
     // Kick off the autospin check
-    [self performSelector:@selector(processAutoSpin:) withObject:nil afterDelay:kAutoSpinInterval];    
+    if (DoAutoSpin)
+        [self performSelector:@selector(processAutoSpin:) withObject:nil afterDelay:kAutoSpinInterval];    
     lastTouched = CFAbsoluteTimeGetCurrent();
 }
 

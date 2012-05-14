@@ -126,15 +126,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
     
     bool childrenExist = false;
     
-    // If there are no children and it's not on, turn it on
     {
-        // Turn off our representation, the fake children will do that work
-        //        if (isOn)
-        {
-            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
-            isOn = false;
-        }
-        
         // Work through the possible children
         int whichChild = 0;
         for (unsigned int iy=0;iy<2;iy++)
@@ -151,16 +143,10 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                 {
                     //                    NSLog(@"  Child present: (%d,%d,%d)",childIdent.x,childIdent.y,childIdent.level);
                     // Turn the child back off
-                    if (childIsOn[whichChild])
+                    if (childDrawIds[whichChild] != EmptyIdentity)
                     {
                         changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
                         childIsOn[whichChild] = false;
-                    } else {
-                        if (childDrawIds[whichChild] != EmptyIdentity)
-                        {
-                            changeRequests.push_back(new RemDrawableReq(childDrawIds[whichChild]));
-                            childDrawIds[whichChild] = EmptyIdentity;
-                        }
                     }
                     
                     childrenExist = true;
@@ -184,9 +170,11 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                                 changeRequests.push_back(new AddDrawableReq(childDraw));
                                 childIsOn[whichChild] = true;
                             }
-                        } else
+                        } else {
                             // Just turn it on
                             changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
+                            childIsOn[whichChild] = true;
+                        }
                     }
                 }
                 
@@ -194,7 +182,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
             }
     }
     
-    // No children, so turn the geometry for this tile back one
+    // No children, so turn the geometry for this tile back on
     if (!childrenExist)
     {
         //        if (!isOn)
@@ -207,9 +195,17 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
         for (unsigned int ii=0;ii<4;ii++)
             //            if (childIsOn[ii])
         {
-            changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
-            childIsOn[ii] = false;
+            if (childDrawIds[ii] != EmptyIdentity)
+            {
+                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
+                childIsOn[ii] = false;
+            }
         }
+    } else {
+        // Make sure our representation is off
+        // if (isOn)
+        changeRequests.push_back(new OnOffChangeRequest(drawId,false));
+        isOn = false;
     }
     
     //    tree->Print();
@@ -374,7 +370,9 @@ const int SphereTessX = 10, SphereTessY = 10;
         chunk->setDrawPriority(drawPriority);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
-        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+//        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+        // Note: This is bogus, but it fixes a display bug
+        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180, 90)));
         
         // We're in line mode or the texture didn't load
         if (buildLines || (tex && !(*tex)))
@@ -464,7 +462,9 @@ const int SphereTessX = 10, SphereTessY = 10;
          it != parents.end(); ++it)
     {
         LoadedTile *theTile = [self getTile:*it];
-        if (theTile)
+        NSLog(@"Updating parent (%d,%d,%d) isLoading = %@",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
+              theTile->nodeInfo.ident.level,(theTile->isLoading ? @"yes" : @"no"));
+        if (theTile && !theTile->isLoading)
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
     }
     parents.clear();
@@ -502,11 +502,8 @@ const int SphereTessX = 10, SphereTessY = 10;
     tileSet.insert(newTile);
     numFetches++;
     [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
-
-    // If it had a parent, need to change that parent's display
-    Quadtree::Identifier parentId;
-    if (layer.quadtree->hasParent(tileInfo.ident,parentId))
-        parents.insert(parentId);
+    
+    NSLog(@"Started loading tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 }
 
 // Check if we're in the process of loading the given tile
@@ -546,6 +543,8 @@ const int SphereTessX = 10, SphereTessY = 10;
         tileSet.erase(it);
         delete tile;
     }
+
+    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
     if (level > 0)
@@ -574,6 +573,8 @@ const int SphereTessX = 10, SphereTessY = 10;
         delete theTile;
     }    
 
+    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
+
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
     if (tileInfo.ident.level > 0)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
@@ -582,14 +583,24 @@ const int SphereTessX = 10, SphereTessY = 10;
 // Look for a specific tile
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident
 {
-    LoadedTile dummyTile;
-    dummyTile.nodeInfo.ident = ident;
-    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-
-    if (it == tileSet.end())
-        return nil;
+//    LoadedTile dummyTile;
+//    dummyTile.nodeInfo.ident = ident;
+//    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
+//
+//    if (it == tileSet.end())
+//        return nil;
     
-    return *it;
+    for (LoadedTileSet::iterator it = tileSet.begin();
+         it != tileSet.end(); ++it)
+    {
+        LoadedTile *tile = *it;
+        if (tile->nodeInfo.ident.level == ident.level &&
+            tile->nodeInfo.ident.x == ident.x &&
+            tile->nodeInfo.ident.y == ident.y)
+            return tile;
+    }
+    
+    return nil;
 }
 
 

@@ -144,7 +144,7 @@ using namespace WhirlyGlobe;
 //        netTiles.maxZoom = 14;
         netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
         netTiles.minZoom = 0;
-        netTiles.maxZoom = 5;
+        netTiles.maxZoom = 7;
         netTiles.numSimultaneous = 8;
 //        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/toner/" ext:@"png"];
 //        netTiles.minZoom = 0;

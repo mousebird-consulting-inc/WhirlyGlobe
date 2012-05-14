@@ -38,6 +38,8 @@
 // Values for the various types
 typedef enum {IsOff=0,OnNonCached,OnCached} WGSegmentEnum;
 
+#define DoAutoSpin false
+
 // We'll start spinning after this much time
 #define kAutoSpinInterval 20.0
 // How far to spin within a second
