@@ -125,10 +125,6 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     /// Delegate used to provide images
     NSObject<WhirlyGlobeQuadTileImageDataSource> * __weak dataSource;
     
-    // We'll gather up all the changes for one step
-    // This avoids flashing
-    std::vector<WhirlyKit::ChangeRequest *> changeRequests;    
-
     // Parents to update after changes
     std::set<WhirlyKit::Quadtree::Identifier> parents;
     

@@ -257,10 +257,6 @@ void LoadedTile::Print(Quadtree *tree)
          it != tileSet.end(); ++it)
         delete *it;    
     tileSet.clear();
-
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
-        delete changeRequests[ii];
-    changeRequests.clear();
     
     numFetches = 0;
 
@@ -447,34 +443,26 @@ const int SphereTessX = 10, SphereTessY = 10;
 // We'll get this before a series of unloads
 - (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
 {
-    // This should not happen
-    if (!changeRequests.empty())
-        for (unsigned int ii=0;ii<<changeRequests.size();ii++)
-            delete changeRequests[ii];    
-    changeRequests.clear();
 }
 
 // Make all the various parents update their child geometry
 - (void)refreshParents:(WhirlyGlobeQuadDisplayLayer *)layer
 {
+    std::vector<ChangeRequest *> changeRequests;
+    
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
          it != parents.end(); ++it)
     {
         LoadedTile *theTile = [self getTile:*it];
-        NSLog(@"Updating parent (%d,%d,%d) isLoading = %@",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
-              theTile->nodeInfo.ident.level,(theTile->isLoading ? @"yes" : @"no"));
+//        NSLog(@"Updating parent (%d,%d,%d) isLoading = %@",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
+//              theTile->nodeInfo.ident.level,(theTile->isLoading ? @"yes" : @"no"));
         if (theTile && !theTile->isLoading)
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
     }
-    parents.clear();
+    parents.clear();    
     
-    // Flush out all the changes at once for this step
-    if (!changeRequests.empty())
-    {
-        layer.scene->addChangeRequests(changeRequests);
-        changeRequests.clear();
-    }        
+    layer.scene->addChangeRequests(changeRequests);
 }
 
 // Thus ends the unloads.  Now we can update parents
@@ -503,7 +491,7 @@ const int SphereTessX = 10, SphereTessY = 10;
     numFetches++;
     [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
     
-    NSLog(@"Started loading tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
+//    NSLog(@"Started loading tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 }
 
 // Check if we're in the process of loading the given tile
@@ -532,9 +520,9 @@ const int SphereTessX = 10, SphereTessY = 10;
         return;
     
     LoadedTile *tile = *it;
+    tile->isLoading = false;
     if (image)
     {
-        tile->isLoading = false;
         tile->addToScene(self,quadLayer,quadLayer.scene,image);    
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
@@ -544,7 +532,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         delete tile;
     }
 
-    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
+//    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
     if (level > 0)
@@ -554,6 +542,8 @@ const int SphereTessX = 10, SphereTessY = 10;
 
 - (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    std::vector<ChangeRequest *> changeRequests;
+    
     // Get rid of an old tile
     LoadedTile dummyTile;
     dummyTile.nodeInfo.ident = tileInfo.ident;
@@ -573,34 +563,26 @@ const int SphereTessX = 10, SphereTessY = 10;
         delete theTile;
     }    
 
-    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
+//    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
     if (tileInfo.ident.level > 0)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
+    
+    layer.scene->addChangeRequests(changeRequests);
 }
 
 // Look for a specific tile
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident
 {
-//    LoadedTile dummyTile;
-//    dummyTile.nodeInfo.ident = ident;
-//    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-//
-//    if (it == tileSet.end())
-//        return nil;
-    
-    for (LoadedTileSet::iterator it = tileSet.begin();
-         it != tileSet.end(); ++it)
-    {
-        LoadedTile *tile = *it;
-        if (tile->nodeInfo.ident.level == ident.level &&
-            tile->nodeInfo.ident.x == ident.x &&
-            tile->nodeInfo.ident.y == ident.y)
-            return tile;
-    }
-    
-    return nil;
+    LoadedTile dummyTile;
+    dummyTile.nodeInfo.ident = ident;
+    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
+
+    if (it == tileSet.end())
+        return nil;
+
+    return *it;
 }
 
 
