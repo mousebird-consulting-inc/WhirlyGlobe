@@ -87,9 +87,10 @@ bool Texture::createInGL(bool releaseData)
 {
 	if (!texData)
 		return false;
-	
+
+    // We'll only create this once
 	if (glId)
-		destroyInGL();
+        return true;
 	
 	// Allocate a texture and set up the various params
 	glGenTextures(1, &glId);

@@ -31,6 +31,7 @@ using namespace WhirlyGlobe;
 @interface WhirlyGlobeQuadTileLoader()
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
+- (void)flushUpdates:(WhirlyKit::Scene *)scene;
 @end
 
 namespace WhirlyGlobe
@@ -64,7 +65,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData)
+void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     BasicDrawable *draw = NULL;
     Texture *tex = NULL;
@@ -77,11 +78,9 @@ void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDis
     
     // Now for the changes to the scenegraph
     // Texture first, then drawable
-    std::vector<ChangeRequest *> changeRequests;
     if (tex)
         changeRequests.push_back(new AddTextureReq(tex));
     changeRequests.push_back(new AddDrawableReq(draw));    
-    scene->addChangeRequests(changeRequests);
     
     // Just in case, we don't have any child drawables here
     for (unsigned int ii=0;ii<4;ii++)
@@ -143,7 +142,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                 {
                     //                    NSLog(@"  Child present: (%d,%d,%d)",childIdent.x,childIdent.y,childIdent.level);
                     // Turn the child back off
-                    if (childDrawIds[whichChild] != EmptyIdentity)
+                    if (childDrawIds[whichChild] != EmptyIdentity && childIsOn[whichChild])
                     {
                         changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
                         childIsOn[whichChild] = false;
@@ -172,8 +171,11 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                             }
                         } else {
                             // Just turn it on
-                            changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
-                            childIsOn[whichChild] = true;
+                            if (!childIsOn[whichChild])
+                            {
+                                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
+                                childIsOn[whichChild] = true;
+                            }
                         }
                     }
                 }
@@ -185,7 +187,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
     // No children, so turn the geometry for this tile back on
     if (!childrenExist)
     {
-        //        if (!isOn)
+        if (!isOn)
         {
             changeRequests.push_back(new OnOffChangeRequest(drawId,true));
             isOn = true;
@@ -195,7 +197,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
         for (unsigned int ii=0;ii<4;ii++)
             //            if (childIsOn[ii])
         {
-            if (childDrawIds[ii] != EmptyIdentity)
+            if (childDrawIds[ii] != EmptyIdentity && childIsOn[ii])
             {
                 changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
                 childIsOn[ii] = false;
@@ -203,9 +205,11 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
         }
     } else {
         // Make sure our representation is off
-        // if (isOn)
-        changeRequests.push_back(new OnOffChangeRequest(drawId,false));
-        isOn = false;
+        if (isOn)
+        {
+            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
+            isOn = false;
+        }
     }
     
     //    tree->Print();
@@ -275,6 +279,8 @@ void LoadedTile::Print(Quadtree *tree)
 
 - (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
+    [self flushUpdates:layer.scene];
+    
     std::vector<ChangeRequest *> theChangeRequests;
     
     for (LoadedTileSet::iterator it = tileSet.begin();
@@ -437,38 +443,53 @@ const int SphereTessX = 10, SphereTessY = 10;
         }
         
         *draw = chunk;
+        
+        // Set up the geometry before we hand it over
+        [EAGLContext setCurrentContext:layer.layerThread.glContext];
+        // Note: This will work poorly with a draw offset
+        chunk->setupGL(0.0);
     }    
 }
 
-// We'll get this before a series of unloads
-- (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
+// Look for a specific tile
+- (LoadedTile *)getTile:(Quadtree::Identifier)ident
 {
+    LoadedTile dummyTile;
+    dummyTile.nodeInfo.ident = ident;
+    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    
+    if (it == tileSet.end())
+        return nil;
+    
+    return *it;
 }
 
 // Make all the various parents update their child geometry
 - (void)refreshParents:(WhirlyGlobeQuadDisplayLayer *)layer
 {
-    std::vector<ChangeRequest *> changeRequests;
-    
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
          it != parents.end(); ++it)
     {
         LoadedTile *theTile = [self getTile:*it];
-//        NSLog(@"Updating parent (%d,%d,%d) isLoading = %@",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
-//              theTile->nodeInfo.ident.level,(theTile->isLoading ? @"yes" : @"no"));
         if (theTile && !theTile->isLoading)
+        {
+            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
+                  theTile->nodeInfo.ident.level);
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
+        }
     }
     parents.clear();    
-    
-    layer.scene->addChangeRequests(changeRequests);
 }
 
-// Thus ends the unloads.  Now we can update parents
-- (void)quadDisplayLayerEndUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
+// Flush out any outstanding updates saved in the changeRequests
+- (void)flushUpdates:(WhirlyKit::Scene *)scene
 {
-    [self refreshParents:layer];
+    if (!changeRequests.empty())
+    {
+        scene->addChangeRequests(changeRequests);
+        changeRequests.clear();
+    }
 }
 
 #pragma mark - Loader delegate
@@ -497,12 +518,7 @@ const int SphereTessX = 10, SphereTessY = 10;
 // Check if we're in the process of loading the given tile
 - (bool)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
-    LoadedTile dummyTile(tileInfo.ident);
-    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-    // This means the quad layer thinks we have a tile we don't.  No idea why that might be.
-    if (it == tileSet.end())
-        return false;    
-    LoadedTile *tile = *it;
+    LoadedTile *tile = [self getTile:tileInfo.ident];
     
     // If it's not loading, sure
     return !tile->isLoading;
@@ -523,7 +539,7 @@ const int SphereTessX = 10, SphereTessY = 10;
     tile->isLoading = false;
     if (image)
     {
-        tile->addToScene(self,quadLayer,quadLayer.scene,image);    
+        tile->addToScene(self,quadLayer,quadLayer.scene,image,changeRequests);    
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it
@@ -538,12 +554,18 @@ const int SphereTessX = 10, SphereTessY = 10;
     if (level > 0)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     [self refreshParents:quadLayer];
+    
+    [self flushUpdates:quadLayer.scene];
+}
+
+// We'll get this before a series of unloads
+- (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
+{
+    [self flushUpdates:layer.scene];
 }
 
 - (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
-    std::vector<ChangeRequest *> changeRequests;
-    
     // Get rid of an old tile
     LoadedTile dummyTile;
     dummyTile.nodeInfo.ident = tileInfo.ident;
@@ -568,22 +590,14 @@ const int SphereTessX = 10, SphereTessY = 10;
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
     if (tileInfo.ident.level > 0)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
-    
-    layer.scene->addChangeRequests(changeRequests);
 }
 
-// Look for a specific tile
-- (LoadedTile *)getTile:(Quadtree::Identifier)ident
+// Thus ends the unloads.  Now we can update parents
+- (void)quadDisplayLayerEndUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
 {
-    LoadedTile dummyTile;
-    dummyTile.nodeInfo.ident = ident;
-    LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-
-    if (it == tileSet.end())
-        return nil;
-
-    return *it;
+    [self refreshParents:layer];
+    
+    [self flushUpdates:layer.scene];
 }
-
 
 @end

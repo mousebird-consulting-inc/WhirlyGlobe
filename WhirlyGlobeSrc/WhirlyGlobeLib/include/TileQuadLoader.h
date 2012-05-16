@@ -51,7 +51,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData);
+    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -127,6 +127,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     
     // Parents to update after changes
     std::set<WhirlyKit::Quadtree::Identifier> parents;
+    
+    /// Change requests queued up between a begin and end
+    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     
     /// Offset for the data being generated
     int drawOffset;

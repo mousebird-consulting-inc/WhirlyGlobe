@@ -166,6 +166,10 @@ void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3
 // Define VBOs to make this fast(er)
 void BasicDrawable::setupGL(float minZres)
 {
+    // If we're already setup, don't do it twice
+    if (pointBuffer)
+        return;
+    
 	// Offset the geometry upward by minZres units along the normals
 	// Only do this once, obviously
 	if (drawOffset != 0 && (points.size() == norms.size()))
