@@ -372,9 +372,9 @@ const int SphereTessX = 10, SphereTessY = 10;
         chunk->setDrawPriority(drawPriority);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
-//        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+        chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
         // Note: This is bogus, but it fixes a display bug
-        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180, 90)));
+//        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180, 90)));
         
         // We're in line mode or the texture didn't load
         if (buildLines || (tex && !(*tex)))
