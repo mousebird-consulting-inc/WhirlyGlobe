@@ -142,13 +142,14 @@ using namespace WhirlyGlobe;
 //        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://a.tile.openstreetmap.org/" ext:@"png"];
 //        netTiles.minZoom = 0;
 //        netTiles.maxZoom = 14;
-        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
-        netTiles.minZoom = 0;
-        netTiles.maxZoom = 7;
-        netTiles.numSimultaneous = 8;
-//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/toner/" ext:@"png"];
+//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
 //        netTiles.minZoom = 0;
-//        netTiles.maxZoom = 10;
+//        netTiles.maxZoom = 7;
+//        netTiles.numSimultaneous = 8;
+        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"jpg"];
+        netTiles.minZoom = 0;
+        netTiles.maxZoom = 10;
+        netTiles.numSimultaneous = 8;
     }
 
     // Load in a texture group if all else failes

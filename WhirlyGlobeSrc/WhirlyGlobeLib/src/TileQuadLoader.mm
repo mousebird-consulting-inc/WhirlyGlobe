@@ -519,6 +519,8 @@ const int SphereTessX = 10, SphereTessY = 10;
 - (bool)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     LoadedTile *tile = [self getTile:tileInfo.ident];
+    if (!tile)
+        return false;
     
     // If it's not loading, sure
     return !tile->isLoading;

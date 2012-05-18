@@ -58,9 +58,6 @@ using namespace WhirlyGlobe;
 // Generate grid lines covering the earth model
 - (void)process:(id)sender
 {
-//    CoordSystem *coordSys = scene->getCoordSystem();
-	std::vector<ChangeRequest> changeRequests;
-
 	GeoCoord geoIncr(2*M_PI/numX,M_PI/numY);
 	GeoCoord geoLL(-M_PI + chunkX*geoIncr.x(),-M_PI/2.0 + chunkY*geoIncr.y());
 	GeoMbr geoMbr(geoLL,geoLL+geoIncr);
