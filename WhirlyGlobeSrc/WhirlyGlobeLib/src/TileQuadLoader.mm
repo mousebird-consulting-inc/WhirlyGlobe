@@ -144,7 +144,9 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                     // Turn the child back off
                     if (childDrawIds[whichChild] != EmptyIdentity && childIsOn[whichChild])
                     {
-                        changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
+//                        changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
+                        changeRequests.push_back(new RemDrawableReq(childDrawIds[whichChild]));
+                        childDrawIds[whichChild] = EmptyIdentity;
                         childIsOn[whichChild] = false;
                     }
                     
@@ -189,7 +191,15 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
     {
         if (!isOn)
         {
-            changeRequests.push_back(new OnOffChangeRequest(drawId,true));
+            if (drawId == EmptyIdentity)
+            {
+                BasicDrawable *draw = NULL;
+                [loader buildTile:&nodeInfo draw:&draw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil];
+                draw->setTexId(texId);
+                drawId = draw->getId();
+                changeRequests.push_back(new AddDrawableReq(draw));
+            } else
+                changeRequests.push_back(new OnOffChangeRequest(drawId,true));
             isOn = true;
         }
         
@@ -207,7 +217,9 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
         // Make sure our representation is off
         if (isOn)
         {
-            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
+//            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
+            changeRequests.push_back(new RemDrawableReq(drawId));
+            drawId = EmptyIdentity;
             isOn = false;
         }
     }
@@ -356,6 +368,8 @@ const int SphereTessX = 10, SphereTessY = 10;
             {
                 // Create the texture and set it up in OpenGL
                 Texture *newTex = new Texture(texImage);
+                if (hasAlpha)
+                    newTex->setUsesMipmaps(true);
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
                 newTex->createInGL();
                 *tex = newTex;
@@ -474,7 +488,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         LoadedTile *theTile = [self getTile:*it];
         if (theTile && !theTile->isLoading)
         {
-            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
+            if( tileLoaderDebug ) NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
                   theTile->nodeInfo.ident.level);
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
         }

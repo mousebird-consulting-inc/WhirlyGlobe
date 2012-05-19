@@ -23,6 +23,116 @@
 
 using namespace WhirlyKit;
 
+namespace WhirlyKit
+{
+PerformanceTimer::TimeEntry::TimeEntry()
+{
+    name = "";
+    minDur = MAXFLOAT;
+    maxDur = 0.0;
+    avgDur = 0.0;
+    numRuns = 0;
+}
+    
+bool PerformanceTimer::TimeEntry::operator<(const WhirlyKit::PerformanceTimer::TimeEntry &that) const
+{
+    return name < that.name;
+}
+    
+void PerformanceTimer::TimeEntry::addTime(NSTimeInterval dur)
+{
+    minDur = std::min(minDur,dur);
+    maxDur = std::max(maxDur,dur);
+    avgDur += dur;
+    numRuns++;
+}
+    
+PerformanceTimer::CountEntry::CountEntry()
+{
+    name = "";
+    minCount = 1<<30;
+    maxCount = 0;
+    avgCount = 0;
+    numRuns = 0;
+}
+    
+bool PerformanceTimer::CountEntry::operator<(const WhirlyKit::PerformanceTimer::CountEntry &that) const
+{
+    return name < that.name;
+}
+    
+void PerformanceTimer::CountEntry::addCount(int count)
+{
+    minCount = std::min(minCount,count);
+    maxCount = std::max(maxCount,count);
+    avgCount += count;
+    numRuns++;
+}
+    
+void PerformanceTimer::startTiming(const std::string &what)
+{
+    actives[what] = CFAbsoluteTimeGetCurrent();
+}
+
+void PerformanceTimer::stopTiming(const std::string &what)
+{
+    std::map<std::string,NSTimeInterval>::iterator it = actives.find(what);
+    if (it == actives.end())
+        return;
+    NSTimeInterval start = it->second;
+    actives.erase(it);
+    
+    std::map<std::string,TimeEntry>::iterator eit = timeEntries.find(what);
+    if (eit != timeEntries.end())
+        eit->second.addTime(CFAbsoluteTimeGetCurrent()-start);
+    else {
+        TimeEntry newEntry;
+        newEntry.addTime(CFAbsoluteTimeGetCurrent()-start);
+        newEntry.name = what;
+        timeEntries[what] = newEntry;
+    }
+}
+    
+void PerformanceTimer::addCount(const std::string &what,int count)
+{
+    std::map<std::string,CountEntry>::iterator it = countEntries.find(what);
+    if (it != countEntries.end())
+        it->second.addCount(count);
+    else {
+        CountEntry newEntry;
+        newEntry.addCount(count);
+        newEntry.name = what;
+        countEntries[what] = newEntry;
+    }
+}
+    
+void PerformanceTimer::clear()
+{
+    actives.clear();
+    timeEntries.clear();
+    countEntries.clear();
+}
+
+void PerformanceTimer::log()
+{
+    for (std::map<std::string,TimeEntry>::iterator it = timeEntries.begin();
+         it != timeEntries.end(); ++it)
+    {
+        TimeEntry &entry = it->second;
+        if (entry.numRuns > 0)
+            NSLog(@"  %s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+    }
+    for (std::map<std::string,CountEntry>::iterator it = countEntries.begin();
+         it != countEntries.end(); ++it)
+    {
+        CountEntry &entry = it->second;
+        if (entry.numRuns > 0)
+            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns);
+    }
+}
+    
+}
+
 @implementation WhirlyKitRendererFrameInfo
 
 @synthesize sceneRenderer;
@@ -68,6 +178,7 @@ public:
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize scale;
 @synthesize framesPerSec;
+@synthesize perfInterval;
 @synthesize numDrawables;
 @synthesize delegate;
 
@@ -81,6 +192,7 @@ public:
 		frameCountStart = nil;
         zBuffer = true;
         clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
+        perfInterval = -1;
         scale = [[UIScreen mainScreen] scale];
 		
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
@@ -211,11 +323,16 @@ public:
 
 - (void) render:(CFTimeInterval)duration
 {  
+    if (perfInterval > 0)
+        perfTimer.startTiming("Render");
+
     CoordSystem *coordSys = scene->getCoordSystem();
     
 	if (frameCountStart)
 		frameCountStart = CFAbsoluteTimeGetCurrent();
 	
+    if (perfInterval > 0)
+        perfTimer.startTiming("Render Setup");
 	[theView animate];
 	
     [EAGLContext setCurrentContext:context];
@@ -253,6 +370,9 @@ public:
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])
         [delegate preFrame:self];
     
+    if (perfInterval > 0)
+        perfTimer.stopTiming("Render Setup");
+    
 	if (scene)
 	{
 		numDrawables = 0;
@@ -265,10 +385,22 @@ public:
         frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
 		
+        if (perfInterval > 0)
+            perfTimer.startTiming("Scene processing");
+
+        if (perfInterval > 0)
+            perfTimer.addCount("Scene changes", scene->changeRequests.size());
+        
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
 		// Note: Time this and move it elsewhere
 		scene->processChanges(theView);
+        
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Scene processing");
+        
+        if (perfInterval > 0)
+            perfTimer.startTiming("Culling");
 		
 		// We need a reverse of the eye vector in model space
 		// We'll use this to determine what's pointed away
@@ -288,9 +420,35 @@ public:
 		Vector4f projB = projMat * test2;
 		Vector3f projA_3(projA.x()/projA.w(),projA.y()/projA.w(),projA.z()/projA.w());
 		Vector3f projB_3(projB.x()/projB.w(),projB.y()/projB.w(),projB.z()/projB.w());
+        
+        // Need an approximate MBR for the view
+        // Note: This assumes we're working in geographic
+        GeoMbr viewGeoMbr;
+        WhirlyGlobeView *globeView = nil;
+        if ([theView isKindOfClass:[WhirlyGlobeView class]])
+            globeView = (WhirlyGlobeView *)theView;
+        if (globeView)
+        {
+            Point3f hits[4];
+            
+            Point2f frameSize(framebufferWidth,framebufferHeight);
+            if ([globeView pointOnSphereFromScreen:CGPointMake(-framebufferWidth/4, -framebufferHeight/4) transform:&modelTrans frameSize:frameSize hit:&hits[0]] &&
+                [globeView pointOnSphereFromScreen:CGPointMake(1.25*framebufferWidth, -framebufferHeight/4) transform:&modelTrans frameSize:frameSize hit:&hits[1]] &&
+                [globeView pointOnSphereFromScreen:CGPointMake(1.25*framebufferWidth, 1.25*framebufferHeight) transform:&modelTrans frameSize:frameSize hit:&hits[2]] &&
+                [globeView pointOnSphereFromScreen:CGPointMake(-framebufferWidth/4, 1.25*framebufferHeight) transform:&modelTrans frameSize:frameSize hit:&hits[3]])
+            {
+                CoordSystem *coordSys = scene->coordSystem;
+                for (unsigned int jj=0;jj<4;jj++)
+                {
+                    GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
+                    viewGeoMbr.addGeoCoord(coord);
+                }
+            }
+        }
 		
 		// Look through the cullables to assemble the set of drawables
 		// We may encounter the same drawable multiple times, hence the std::set
+        int drawablesConsidered = 0;
 		std::set<const Drawable *> toDraw;
 		unsigned int numX,numY;
 		scene->getCullableSize(numX,numY);
@@ -340,17 +498,30 @@ public:
 			if (inView)
 			{
 				const std::set<Drawable *> &theseDrawables = theCullable->getDrawables();
-				toDraw.insert(theseDrawables.begin(),theseDrawables.end());
+                for (std::set<Drawable *>::const_iterator it = theseDrawables.begin();
+                     it != theseDrawables.end(); ++it)
+                {
+                    Drawable *drawable = *it;
+                    if (drawable->isOn(frameInfo) && (!viewGeoMbr.valid() || drawable->getGeoMbr().overlaps(viewGeoMbr)))
+                        toDraw.insert(drawable);
+                    drawablesConsidered++;
+                }
 			}
 		}
-
+        
         // Turn these drawables in to a vector
 		std::vector<const Drawable *> drawList;
 		drawList.reserve(toDraw.size());
 		for (std::set<const Drawable *>::iterator it = toDraw.begin();
 			 it != toDraw.end(); ++it)
 			drawList.push_back(*it);
+
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Culling");
         
+        if (perfInterval > 0)
+            perfTimer.startTiming("Generators - 3D");
+
         // Now ask our generators to make their drawables
         // Note: Not doing any culling here
         //       And we should reuse these Drawables
@@ -365,24 +536,36 @@ public:
         drawListSortStruct sortStruct;
         sortStruct.frameInfo = frameInfo;
 		std::sort(drawList.begin(),drawList.end(),sortStruct);
+        
+        if (perfInterval > 0)
+            perfTimer.addCount("Drawables considered", drawablesConsidered);
+        
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Generators - 3D");
+        
+        if (perfInterval > 0)
+            perfTimer.startTiming("Draw Execution");
 		
         bool depthMaskOn = zBuffer;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			const Drawable *drawable = drawList[ii];
-			if (drawable->isOn(frameInfo))
-			{
-                // The first time we hit an explicitly alpha drawable
-                //  turn off the depth buffer
-                if (drawable->hasAlpha(frameInfo) && depthMaskOn)
-                {
-                    depthMaskOn = false;
-                    glDisable(GL_DEPTH_TEST);
-                }
-				drawable->draw(frameInfo,scene);	
-				numDrawables++;
-			}
+            // The first time we hit an explicitly alpha drawable
+            //  turn off the depth buffer
+            if (depthMaskOn && drawable->hasAlpha(frameInfo))
+            {
+                depthMaskOn = false;
+                glDisable(GL_DEPTH_TEST);
+            }
+            drawable->draw(frameInfo,scene);	
+            numDrawables++;
 		}
+        
+        if (perfInterval > 0)
+            perfTimer.addCount("Drawables drawn", numDrawables);
+
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Draw Execution");
         
         // Anything generated needs to be cleaned up
         // Note: Should have the generators keep them
@@ -391,8 +574,11 @@ public:
             delete generatedDrawables[ig];
         }
         generatedDrawables.clear();
-        drawList.clear();
+        drawList.clear();        
         
+        if (perfInterval > 0)
+            perfTimer.startTiming("Generators - 2D");
+
         // Now for the 2D display
         if (!screenDrawables.empty())
         {
@@ -427,24 +613,34 @@ public:
             screenDrawables.clear();
             drawList.clear();
         }
-	}
+
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Generators - 2D");
+    }
     
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
+    
+    // Call the pre-frame callback
+    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(postFrame:)])
+        [delegate postFrame:self]; 
+        
+    if (perfInterval > 0)
+        perfTimer.stopTiming("Render");    
 
 	// Update the frames per sec
-	if (frameCount++ > RenderFrameCount)
+	if (perfInterval > 0 && frameCount++ > perfInterval)
 	{
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
 		NSTimeInterval howLong =  now - frameCountStart;;
 		framesPerSec = frameCount / howLong;
 		frameCountStart = now;
 		frameCount = 0;
+        
+        NSLog(@"---Rendering Performance---");
+        perfTimer.log();
+        perfTimer.clear();
 	}
-    
-    // Call the pre-frame callback
-    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(postFrame:)])
-        [delegate postFrame:self]; 
 }
 
 @end

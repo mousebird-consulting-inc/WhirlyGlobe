@@ -32,6 +32,8 @@
 #import "SceneRendererES1.h"
 #import "GlobeQuadDisplayLayer.h"
 
+static BOOL tileLoaderDebug = false;
+
 /// @cond
 @class WhirlyGlobeQuadTileLoader;
 /// @endcond
