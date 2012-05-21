@@ -209,7 +209,9 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
         {
             if (childDrawIds[ii] != EmptyIdentity && childIsOn[ii])
             {
-                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
+//                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
+                changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+                childDrawIds[ii] = EmptyIdentity;
                 childIsOn[ii] = false;
             }
         }
@@ -368,8 +370,6 @@ const int SphereTessX = 10, SphereTessY = 10;
             {
                 // Create the texture and set it up in OpenGL
                 Texture *newTex = new Texture(texImage);
-                if (hasAlpha)
-                    newTex->setUsesMipmaps(true);
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
                 newTex->createInGL();
                 *tex = newTex;

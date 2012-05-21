@@ -321,6 +321,55 @@ public:
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+// Utility function to calculate a reasonable Geo MBR for the viewport
+- (GeoMbr) calcViewGeoMbr:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
+{
+    Point3f hits[8];
+    GeoMbr viewGeoMbr;
+    CGPoint pts[8];
+    
+    // Corner points
+    pts[0] = CGPointMake(-frameSize.x()/4, -frameSize.y()/4);
+    pts[1] = CGPointMake(1.25*frameSize.x(), -frameSize.y()/4);
+    pts[2] = CGPointMake(1.25*frameSize.x(), 1.25*frameSize.y());
+    pts[3] = CGPointMake(-frameSize.x()/4, 1.25*frameSize.y());
+    // Add some mid points to catch the curvature
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        CGPoint &p0 = pts[ii];
+        CGPoint &p1 = pts[(ii+1)%4];
+        CGPoint mid = CGPointMake((p0.x+p1.x)/2, (p0.y+p1.y)/2);
+        pts[ii+4] = mid;
+    }
+
+    bool onSphere = true;
+    for (unsigned int ii=0;ii<8;ii++)
+    {
+        if (![globeView pointOnSphereFromScreen:pts[ii] transform:modelTrans frameSize:frameSize hit:&hits[ii]])
+        {
+            onSphere = false;
+            break;
+        }
+    }
+    
+    // If all those points where on the sphere, get us an MBR
+    if (onSphere)
+    {
+        CoordSystem *coordSys = scene->coordSystem;
+        for (unsigned int jj=0;jj<8;jj++)
+        {
+            GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
+            viewGeoMbr.addGeoCoord(coord);
+        }        
+    } else {
+        // If we're sampling points outside the sphere, toss back the whole thing
+        viewGeoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -90);
+        viewGeoMbr.ur() = GeoCoord::CoordFromDegrees(180, 90);
+    }
+    
+    return viewGeoMbr;
+}
+
 - (void) render:(CFTimeInterval)duration
 {  
     if (perfInterval > 0)
@@ -426,24 +475,9 @@ public:
         GeoMbr viewGeoMbr;
         WhirlyGlobeView *globeView = nil;
         if ([theView isKindOfClass:[WhirlyGlobeView class]])
-            globeView = (WhirlyGlobeView *)theView;
-        if (globeView)
         {
-            Point3f hits[4];
-            
-            Point2f frameSize(framebufferWidth,framebufferHeight);
-            if ([globeView pointOnSphereFromScreen:CGPointMake(-framebufferWidth/4, -framebufferHeight/4) transform:&modelTrans frameSize:frameSize hit:&hits[0]] &&
-                [globeView pointOnSphereFromScreen:CGPointMake(1.25*framebufferWidth, -framebufferHeight/4) transform:&modelTrans frameSize:frameSize hit:&hits[1]] &&
-                [globeView pointOnSphereFromScreen:CGPointMake(1.25*framebufferWidth, 1.25*framebufferHeight) transform:&modelTrans frameSize:frameSize hit:&hits[2]] &&
-                [globeView pointOnSphereFromScreen:CGPointMake(-framebufferWidth/4, 1.25*framebufferHeight) transform:&modelTrans frameSize:frameSize hit:&hits[3]])
-            {
-                CoordSystem *coordSys = scene->coordSystem;
-                for (unsigned int jj=0;jj<4;jj++)
-                {
-                    GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
-                    viewGeoMbr.addGeoCoord(coord);
-                }
-            }
+            globeView = (WhirlyGlobeView *)theView;
+            viewGeoMbr = [self calcViewGeoMbr:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans];
         }
 		
 		// Look through the cullables to assemble the set of drawables

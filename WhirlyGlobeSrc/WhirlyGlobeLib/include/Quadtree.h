@@ -90,6 +90,9 @@ public:
     /// Add the given tile, keeping track of what needed to be removed
     void addTile(NodeInfo nodeInfo,std::vector<Identifier> &tilesRemoved);
     
+    /// Explicitly remove a given tile
+    void removeTile(Identifier which);
+    
     // Remove the given tile
 //    void removeTile(Identifier ident);
 
@@ -109,8 +112,18 @@ public:
     /// Return true if so, false if not.
     bool hasParent(Identifier ident,Identifier &parentIdent);
     
+    /// Check if the given node has children loaded
+    bool hasChildren(Identifier ident);
+    
     /// Generate an MBR for the given node identifier
     Mbr generateMbrForNode(Identifier ident);
+    
+    /// Fetch the least important (smallest) node currently loaded.
+    /// Returns false if there wasn't one
+    bool leastImportantNode(NodeInfo &nodeInfo);
+
+    /// Return a vector of all nodes less than the given importance without children
+    void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
     
     /// Dump out to the log for debugging
     void Print();

@@ -120,7 +120,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 @synthesize coordSys;
 @synthesize mbr;
 @synthesize maxTiles;
-@synthesize minTileArea;
+@synthesize minImportance;
 @synthesize lineMode;
 @synthesize drawEmpty;
 @synthesize debugMode;
@@ -141,9 +141,9 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
         minZoom = [dataStructure minZoom];
         maxZoom = [dataStructure maxZoom];
         maxTiles = 100;
-        minTileArea = 1.0;
+        minImportance = 1.0;
         viewUpdatePeriod = 1.0;
-        quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minTileArea,self);
+        quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
         lineMode = false;
         drawEmpty = false;
@@ -207,7 +207,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
             Quadtree::NodeInfo thisNode = quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
-    
+        
 //    NSLog(@"View update called: (eye) = (%f,%f,%f), nodesForEval = %lu",eyeVec3.x(),eyeVec3.y(),eyeVec3.z(),nodesForEval.size());
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
@@ -229,8 +229,20 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 // Run the evaluation step for outstanding nodes
 - (void)evalStep:(id)Sender
 {
-    if (nodesForEval.empty())
-        return;
+    bool didSomething = false;
+    
+    // Look for a node to remove
+    Quadtree::NodeInfo remNodeInfo;
+    if (quadtree->leastImportantNode(remNodeInfo))
+    {
+        [loader quadDisplayLayerStartUpdates:self];
+
+        quadtree->removeTile(remNodeInfo.ident);
+        [loader quadDisplayLayer:self unloadTile:remNodeInfo];
+
+        [loader quadDisplayLayerEndUpdates:self];
+        didSomething = true;
+    }
     
     // If the loader isn't ready, try again in a bit
     if (![loader isReady])
@@ -239,58 +251,64 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
         return;
     }
     
-    // Let the loader know we're about to do some updates
-    [loader quadDisplayLayerStartUpdates:self];
-    
-    // Grab the first node.
-    QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
-    nodeIt--;
-    Quadtree::NodeInfo nodeInfo = *nodeIt;
-    nodesForEval.erase(nodeIt);
-    
-    // The quad tree will take this node over an existing one
-    bool isLoaded = quadtree->isTileLoaded(nodeInfo.ident);
-    if (isLoaded || quadtree->willAcceptTile(nodeInfo))
+    if (!nodesForEval.empty())
     {
-        if (!isLoaded)
+        // Let the loader know we're about to do some updates
+        [loader quadDisplayLayerStartUpdates:self];
+        
+        // Grab the first node.
+        QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
+        nodeIt--;
+        Quadtree::NodeInfo nodeInfo = *nodeIt;
+        nodesForEval.erase(nodeIt);
+        
+        // The quad tree will take this node over an existing one
+        bool isLoaded = quadtree->isTileLoaded(nodeInfo.ident);
+        if (isLoaded || quadtree->willAcceptTile(nodeInfo))
         {
-            // Tell the quad tree what we're up to
-            std::vector<Quadtree::Identifier> tilesToRemove;
-            quadtree->addTile(nodeInfo, tilesToRemove);
-                        
-            [loader quadDisplayLayer:self loadTile:nodeInfo ];
+            if (!isLoaded)
+            {
+                // Tell the quad tree what we're up to
+                std::vector<Quadtree::Identifier> tilesToRemove;
+                quadtree->addTile(nodeInfo, tilesToRemove);
                             
-            // Remove the old tiles
-            for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
-            {
-                Quadtree::Identifier &thisIdent = tilesToRemove[ii];
-                //                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
-                
-                Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
-                [loader quadDisplayLayer:self unloadTile:remNodeInfo];           
+                [loader quadDisplayLayer:self loadTile:nodeInfo ];
+                                
+                // Remove the old tiles
+                for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
+                {
+                    Quadtree::Identifier &thisIdent = tilesToRemove[ii];
+                    //                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
+                    
+                    Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
+                    [loader quadDisplayLayer:self unloadTile:remNodeInfo];           
+                }
+    //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
+            } else {
+                // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
+                if (nodeInfo.ident.level < maxZoom && [loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
+                {
+                    std::vector<Quadtree::NodeInfo> childNodes;
+                    quadtree->generateChildren(nodeInfo.ident, childNodes);
+                    nodesForEval.insert(childNodes.begin(),childNodes.end());                
+                }
             }
-//            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
-        } else {
-            // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
-            if (nodeInfo.ident.level < maxZoom && [loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
-            {
-                std::vector<Quadtree::NodeInfo> childNodes;
-                quadtree->generateChildren(nodeInfo.ident, childNodes);
-                nodesForEval.insert(childNodes.begin(),childNodes.end());                
-            }
+        } else
+        {
+            //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
         }
-    } else
-    {
-        //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
+        
+        // Let the loader know we're done with this eval step
+        [loader quadDisplayLayerEndUpdates:self];
+        
+        didSomething = true;
     }
-    
-    // Let the loader know we're done with this eval step
-    [loader quadDisplayLayerEndUpdates:self];
     
 //    if (debugMode)
 //        [self dumpInfo];
     
-    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    if (didSomething)
+        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
 // This is called by the loader when it finished loading a tile

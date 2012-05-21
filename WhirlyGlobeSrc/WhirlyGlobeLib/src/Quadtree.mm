@@ -207,6 +207,13 @@ void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
     node->sizePos = nodesBySize.insert(node).first;
 }
     
+void Quadtree::removeTile(Identifier ident)
+{
+    Node *node = getNode(ident);
+    if (node)
+        removeNode(node);
+}
+    
 Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
 {
     NodeInfo nodeInfo;
@@ -228,6 +235,48 @@ Mbr Quadtree::generateMbrForNode(Identifier ident)
     outMbr.ur() = Point2f(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + mbr.ll();    
     
     return outMbr;
+}
+    
+bool Quadtree::leastImportantNode(NodeInfo &nodeInfo)
+{
+    // Look for the first unimportant node without children
+    for (NodesBySizeType::iterator it = nodesBySize.begin();
+         it != nodesBySize.end(); ++it)
+    {
+        Node *node = *it;
+        if (node->nodeInfo.importance < minImportance && node->nodeInfo.ident.level > minLevel)
+        {
+            unsigned int ii;
+            for (ii=0;ii<4;ii++)
+                if (node->children[ii])
+                    break;
+            if (ii == 4)
+            {
+                nodeInfo = node->nodeInfo;
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+    
+void Quadtree::unimportantNodes(std::vector<NodeInfo> &nodes,float importance)
+{
+    for (NodesBySizeType::iterator it = nodesBySize.begin();
+         it != nodesBySize.end(); ++it)
+    {
+        Node *node = *it;
+        if (node->nodeInfo.importance < importance && node->nodeInfo.ident.level > minLevel)
+        {
+            unsigned int ii;
+            for (ii=0;ii<4;ii++)
+                if (node->children[ii])
+                    break;
+            if (ii == 4)
+                nodes.push_back(node->nodeInfo);
+        }
+    }
 }
     
 void Quadtree::generateChildren(Identifier ident, std::vector<NodeInfo> &nodes)

@@ -147,7 +147,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
     int maxTiles;
     
     /// Minimum screen area to consider for a pixel
-    float minTileArea;
+    float minImportance;
     
     /// How often this layer gets notified of view changes.  1s by default.
     float viewUpdatePeriod;
@@ -180,7 +180,7 @@ float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameS
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
 @property (nonatomic,assign) int maxTiles;
-@property (nonatomic,assign) float minTileArea;
+@property (nonatomic,assign) float minImportance;
 @property (nonatomic,assign) bool lineMode;
 @property (nonatomic,assign) bool debugMode;
 @property (nonatomic,assign) bool drawEmpty;
