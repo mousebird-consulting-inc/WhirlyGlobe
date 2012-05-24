@@ -460,6 +460,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 // Note: Badly optimized for single label case
 - (void)runAddLabels:(LabelInfo *)labelInfo
 {
+    CoordSystem *coordSys = scene->getCoordSystem();
+    
     // This lets us set up textures here
     [EAGLContext setCurrentContext:layerThread.glContext];
     
@@ -645,9 +647,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 drawable->addPoint(pt);
                 drawable->addNormal(norm);
                 drawable->addTexCoord(texCoord[ii]);
-                GeoMbr geoMbr = drawable->getGeoMbr();
-                geoMbr.addGeoCoord(label.loc);
-                drawable->setGeoMbr(geoMbr);
+                Mbr localMbr = drawable->getLocalMbr();
+                Point3f localLoc = coordSys->geographicToLocal(label.loc);
+                localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
+                drawable->setLocalMbr(localMbr);
             }
             drawable->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
             drawable->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
@@ -746,9 +749,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                     iconDrawable->addPoint(pt);
                     iconDrawable->addNormal(norm);
                     iconDrawable->addTexCoord(texCoord[ii]);
-                    GeoMbr geoMbr = iconDrawable->getGeoMbr();
-                    geoMbr.addGeoCoord(label.loc);
-                    iconDrawable->setGeoMbr(geoMbr);
+                    Mbr localMbr = iconDrawable->getLocalMbr();
+                    Point3f localLoc = coordSys->geographicToLocal(label.loc);
+                    localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
+                    iconDrawable->setLocalMbr(localMbr);
                 }
                 iconDrawable->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
                 iconDrawable->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));

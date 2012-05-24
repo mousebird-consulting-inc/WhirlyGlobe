@@ -23,46 +23,90 @@
 
 namespace WhirlyKit
 {	
+    
+class Cullable;
+
+/** This is the top level of the culling tree, represented by Cullables.
+    In general, you should see this.  It's used by the Scene represented
+    for scenegraph culling.
+  */
+class CullTree
+{ 
+    friend class Cullable;
+public:
+    CullTree(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth,int maxDrawPerNode = 8);
+    ~CullTree();
+    
+    Cullable *getTopCullable() { return topCullable; }
+    int getCount() { return numCullables; }
+    
+protected:
+    CoordSystem *coordSystem;
+    Cullable *topCullable;
+    int depth;
+    int maxDrawPerNode;
+    int numCullables;
+};
 
 /** This is a representation of cullable geometry.  It has
     geometry/direction info and a list of associated
     Drawables.
-    Cullables are always rectangles in lon/lat.
+    Cullables are always rectangles in local space.
     In general, users shouldn't use these.  Your drawables
      will be sorted into them behind the scenes.
  */
 class Cullable : public Identifiable
 {
 public:
-    /// Construct empty
-	Cullable() { }
+    /// Construct recursively down to the given depth
+	Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth);
+    ~Cullable();
 	
-	/// Add the given drawable to our set
-	void addDrawable(Drawable *drawable) { drawables.insert(drawable); }
+	/// Add the given drawable to our set or the appropriate children
+	void addDrawable(CullTree *cullTree,Mbr localMbr,Drawable *drawable);
 	
 	/// Remove a given drawable if it's there
-	void remDrawable(Drawable *drawable) { std::set<Drawable *>::iterator it = drawables.find(drawable);  if (it != drawables.end()) drawables.erase(it); }
+	void remDrawable(CullTree *cullTree,Mbr localMbr,Drawable *drawable);
 	
     /// Get the set of drawables associated with the cullable
-	const std::set<Drawable *> &getDrawables() const { return drawables; }
-
-    /// Get the bounding box for this cullable
-	GeoMbr getGeoMbr() const { return geoMbr; }
+	const std::set<Drawable *,IdentifiableSorter> &getDrawables() const { return drawables; }
     
-    /// Set the bounding box
-	void setGeoMbr(const GeoMbr &inMbr,WhirlyKit::CoordSystem *coordSystem);
-	
+    /// Get the set of drawables for all the children.
+    /// We cache them in the parent nodes for speed
+	const std::set<Drawable *,IdentifiableSorter> &getChildDrawables() const { return childDrawables; }
+    
+    /// Return true if there are any children
+    bool hasChildren() { return children[0] || children[1] || children[2] || children[3]; }
+    
+    /// Return true if there are no drawables here (or in children)
+    bool isEmpty() { return drawables.empty() && childDrawables.empty(); }
+    
+    /// Return the Nth child.  Might be null.
+    Cullable *getChild(int which) { return children[which]; }
+    
+    /// Get the bounding box for this cullable
+	Mbr getMbr() const { return localMbr; }
+        
 public:	
-	/// 3D locations (in model space) of the corners
+    Cullable *getOrAddChild(int which,CullTree *tree);
+    void possibleRemoveChild(int which,CullTree *tree);
+    void addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw);
+    void split(CullTree *);
+    
+    /// 3D locations (in model space) of the corners
 	Point3f cornerPoints[4];
 	/// Normal vectors (in model space) for the corners
 	Vector3f cornerNorms[4];
-	/// Geographic coordinates of our bounding box
-	GeoMbr geoMbr;
-    /// Local coordinates for bounding box, if applicable
+    /// Opposite of depth.  0 means go no lower
+    int height;
+    /// Local coordinates for bounding box
     Mbr localMbr;
+    /// Bounding boxes for each of the children
+    Mbr childMbr[4];
 	
-	std::set<Drawable *> drawables;
+    Cullable *children[4];
+	std::set<Drawable *,IdentifiableSorter> drawables;
+    std::set<Drawable *,IdentifiableSorter> childDrawables;
 };
 
 }

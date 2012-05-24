@@ -159,22 +159,15 @@ class Scene
 {
 	friend class ChangeRequest;
 public:
-	/// Construct with the grid size of the cullables
-    /// The earth will be divided up into these pieces
-	Scene(unsigned int numX,unsigned int numY,WhirlyKit::CoordSystem *coordSystem);
+	/// Construct with the depth of the cullable quad tree,
+    ///  the coordinate system we're using, and the MBR of the
+    ///  top level.
+    /// The earth will be recursively divided into a quad tree of depth.
+	Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth);
 	virtual ~Scene();
     
     /// Return the coordinate system we're working in
     WhirlyKit::CoordSystem *getCoordSystem() { return coordSystem; }
-
-	/// Get the cullable grid size
-	void getCullableSize(unsigned int &numX,unsigned int &numY) { numX = this->numX;  numY = this->numY; }
-	
-	/// Return a particular cullable
-	const Cullable * getCullable(unsigned int x,unsigned int y) { return &cullables[y*numX+x]; }
-	
-	/// Full list of cullables (for the renderer)
-	const Cullable *getCullables() { return cullables; }
     
     /// Full set of Generators
     const GeneratorSet *getGenerators() { return &generators; }
@@ -213,16 +206,18 @@ public:
     /// Add a drawable to the scene.
     /// A subclass can override this to control how this interacts with cullabes.
     /// The scene is responsible for the Drawable after this call.
-    virtual void addDrawable(Drawable *drawable);
+    virtual void addDrawable(Drawable *drawable) = 0;
+    
+    /// Remove a drawable from the scene
+    virtual void remDrawable(Drawable *drawable) = 0;
     
     /// We create one screen space generator on startup.  This is its ID.
     SimpleIdentity getScreenSpaceGeneratorID();
-	
-public:	
-	/// Remove the given drawable from the cullables
-	// Note: This could be optimized
-	void removeFromCullables(Drawable *drawable);
     
+    /// Return the top level cullable
+    CullTree *getCullTree() { return cullTree; }
+	
+public:	    
     /// Coordinate system 
     WhirlyKit::CoordSystem *coordSystem;
     
@@ -238,11 +233,8 @@ public:
     /// All the drawable generators we've been handed, sorted by ID
     GeneratorSet generators;
 
-	/// Cullable grid dimensions
-	unsigned int numX,numY;
-
-	/// Array of active cullables.  Static after construction for now
-	Cullable *cullables;
+    /// Top level of Cullable quad tree
+    CullTree *cullTree;
 	
 	typedef std::set<Drawable *,IdentifiableSorter> DrawableSet;
 	/// All the drawables we've been handed, sorted by ID

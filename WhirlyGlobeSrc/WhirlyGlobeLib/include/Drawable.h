@@ -70,10 +70,7 @@ public:
     /// Construct empty
 	Drawable();
 	virtual ~Drawable();
-	
-	/// Return a geo MBR for sorting into cullables
-	virtual GeoMbr getGeoMbr() const = 0;
-    
+	    
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const = 0;
 	
@@ -171,16 +168,10 @@ public:
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff) { isAlpha = onOff; }
-	
-	/// Extents used for display culling, lat/lon version
-	virtual GeoMbr getGeoMbr() const { return geoMbr; }
-    
+	    
     /// Extents used for display culling in local coordinates, if we're using them
     virtual Mbr getLocalMbr() const  { return localMbr; }
-	
-	/// Set geo extents (don't forget this)
-	void setGeoMbr(GeoMbr mbr) { geoMbr = mbr; }
-    
+	    
     /// Set local extents
     void setLocalMbr(Mbr mbr) { localMbr = mbr; }
 	
@@ -277,7 +268,6 @@ protected:
 	unsigned int drawPriority;  // Used to sort drawables
 	unsigned int drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
-	GeoMbr geoMbr;  // Extents on the globe
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type
 	SimpleIdentity texId;  // ID for Texture (in scene)

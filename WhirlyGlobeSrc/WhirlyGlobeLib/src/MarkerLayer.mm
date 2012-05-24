@@ -212,7 +212,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // We're in the layer thread here
 - (void)runAddMarkers:(MarkerInfo *)markerInfo
 {
-//    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystem *coordSys = scene->getCoordSystem();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fade = markerInfo.fade;
     markerRep->setId(markerInfo.markerId);
@@ -328,9 +328,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                     draw->addPoint(pt);
                     draw->addNormal(norm);
                     draw->addTexCoord(texCoord[ii]);
-                    GeoMbr geoMbr = draw->getGeoMbr();
-                    geoMbr.addGeoCoord(marker.loc);
-                    draw->setGeoMbr(geoMbr);
+                    Mbr localMbr = draw->getLocalMbr();
+                    Point3f localLoc = coordSys->geographicToLocal(marker.loc);
+                    localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
+                    draw->setLocalMbr(localMbr);
                 }
                 
                 draw->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));

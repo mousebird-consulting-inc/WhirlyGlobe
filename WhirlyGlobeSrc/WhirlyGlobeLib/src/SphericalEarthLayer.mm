@@ -203,7 +203,7 @@ using namespace WhirlyGlobe;
 	BasicDrawable *chunk = new BasicDrawable((SphereTessX+1)*(SphereTessY+1),2*SphereTessX*SphereTessY);
 	chunk->setType(GL_TRIANGLES);
 //	chunk->setType(GL_POINTS);
-	chunk->setGeoMbr(GeoMbr(geoLL,geoUR));
+    chunk->setLocalMbr(GeoCoordSystem::GeographicMbrToLocal(GeoMbr(geoLL,geoUR)));
     chunk->setDrawPriority(drawPriority);
     
     // Texture coordinates are actually scaled down a bit to

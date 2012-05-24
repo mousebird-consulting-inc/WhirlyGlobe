@@ -23,41 +23,42 @@
 #import "GlobeMath.h"
 #import "TextureAtlas.h"
 
+using namespace WhirlyKit;
+
 namespace WhirlyGlobe
 {
-    
-using namespace WhirlyKit;
-    
-GlobeScene::GlobeScene(unsigned int numX,unsigned int numY,WhirlyKit::CoordSystem *coordSystem)
-    : Scene(numX,numY,coordSystem)
+        
+GlobeScene::GlobeScene(CoordSystem *coordSystem,int depth)
+    : Scene(coordSystem,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1)    
 {
     
-}
-
-// Return a list of overlapping cullables, given the geo MBR
-// Note: This could be a lot smarter
-void GlobeScene::overlapping(GeoMbr geoMbr,std::vector<Cullable *> &foundCullables)
-{
-    foundCullables.clear();
-    for (unsigned int ii=0;ii<numX*numY;ii++)
-    {
-        Cullable *cullable = &cullables[ii];
-        if (geoMbr.overlaps(cullable->geoMbr))
-            foundCullables.push_back(cullable);
-    }
 }
     
 void GlobeScene::addDrawable(Drawable *drawable)
 {
-    drawables.insert(drawable);
+    // Account for the geo coordinate wrapping
+    Mbr localMbr = drawable->getLocalMbr();
+    GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
+    std::vector<Mbr> localMbrs;
+    geoMbr.splitIntoMbrs(localMbrs);
+    
+    for (unsigned int ii=0;ii<localMbrs.size();ii++)
+        cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],drawable);
 
-    // Sort into cullables
-    // Note: Need a more selective MBR check.  We're going to catch edge overlaps
-    std::vector<Cullable *> foundCullables;
-    overlapping(drawable->getGeoMbr(),foundCullables);
-    for (unsigned int ci=0;ci<foundCullables.size();ci++)
-        foundCullables[ci]->addDrawable(drawable);
+    drawables.insert(drawable);
 }
 
+void GlobeScene::remDrawable(Drawable *drawable)
+{
+    Mbr localMbr = drawable->getLocalMbr();
+    GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
+    std::vector<Mbr> localMbrs;
+    geoMbr.splitIntoMbrs(localMbrs);
+    
+    for (unsigned int ii=0;ii<localMbrs.size();ii++)
+        cullTree->getTopCullable()->remDrawable(cullTree,localMbrs[ii],drawable);
+
+    drawables.erase(drawable);
+}
 
 }

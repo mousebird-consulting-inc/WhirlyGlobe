@@ -140,7 +140,7 @@ public:
             drawable->setDrawPriority(vecInfo->priority);
             drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }
-        drawMbr.addGeoCoords(pts);
+        drawMbr.addPoints(pts);
             
         Point3f prevPt,prevNorm,firstPt,firstNorm;
         for (unsigned int jj=0;jj<pts.size();jj++)
@@ -189,7 +189,7 @@ public:
         {            
             if (drawable->getNumPoints() > 0)
             {
-                drawable->setGeoMbr(drawMbr);
+                drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
 
                 // Save to the cache
@@ -211,7 +211,7 @@ public:
 protected:   
     Scene *scene;
     VectorSceneRep *sceneRep;
-    GeoMbr drawMbr;
+    Mbr drawMbr;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
     RenderCacheWriter *cacheWriter;

@@ -48,6 +48,8 @@ public:
     /// Static so other coordinate systems can use it
     static Point3f GeocentricishToLocal(Point3f);
     static GeoCoord GeocentricishToGeoCoord(Point3f);
+    /// Convenience routine to convert a whole MBR to local coordinates
+    static Mbr GeographicMbrToLocal(GeoMbr);
 
     /// Not flat
     bool isFlat() { return false; }

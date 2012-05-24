@@ -27,25 +27,11 @@
 namespace WhirlyKit
 {
     
-Scene::Scene(unsigned int numX, unsigned int numY,WhirlyKit::CoordSystem *coordSystem)
-    : numX(numX), numY(numY), coordSystem(coordSystem)
+Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth)
+    : coordSystem(coordSystem)
 {
-    cullables = new Cullable [numX*numY];
-    
-    // Set up the various MBRs
-    GeoCoord geoIncr(2*M_PI/numX,M_PI/numY);
-    for (unsigned int iy=0;iy<numY;iy++)
-    {
-        for (unsigned int ix=0;ix<numX;ix++)
-        {
-            // Set up the extents for each cullable
-            GeoCoord geoLL(-M_PI + ix*geoIncr.x(),-M_PI/2.0 + iy*geoIncr.y());
-            GeoCoord geoUR(geoLL.x() + geoIncr.x(),geoLL.y() + geoIncr.y());
-            Cullable &cullable = cullables[iy*numX+ix];
-            cullable.setGeoMbr(GeoMbr(geoLL,geoUR),coordSystem);
-        }
-    }
-    
+    cullTree = new CullTree(coordSystem,localMbr,depth);
+
     // Also toss in a screen space generator to share amongst the layers
     ScreenSpaceGenerator *ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
@@ -56,7 +42,7 @@ Scene::Scene(unsigned int numX, unsigned int numY,WhirlyKit::CoordSystem *coordS
 
 Scene::~Scene()
 {
-    delete [] cullables;
+    delete cullTree;
     for (DrawableSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
         delete *it;
     for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
@@ -71,17 +57,6 @@ Scene::~Scene()
     changeRequests.clear();
     
     subTextureMap.clear();
-}
-
-// Remove the given drawable from all the cullables
-// Note: Optimize this
-void Scene::removeFromCullables(Drawable *drawable)
-{
-    for (unsigned int ii=0;ii<numX*numY;ii++)
-    {
-        Cullable &cullable = cullables[ii];
-        cullable.remDrawable(drawable);
-    }
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
@@ -210,13 +185,7 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     
     return *it;
 }
-    
-void Scene::addDrawable(Drawable *drawable)
-{
-    // By default we'll add it without any thought
-    drawables.insert(drawable);
-}
-    
+        
 SimpleIdentity Scene::getScreenSpaceGeneratorID()
 {
     return screenSpaceGeneratorID;
@@ -264,9 +233,8 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitView *view)
     if (it != scene->drawables.end())
     {
         Drawable *theDrawable = *it;
-        scene->removeFromCullables(theDrawable);
+        scene->remDrawable(theDrawable);
         
-        scene->drawables.erase(it);
         // Teardown OpenGL foo
         theDrawable->teardownGL();
         // And delete

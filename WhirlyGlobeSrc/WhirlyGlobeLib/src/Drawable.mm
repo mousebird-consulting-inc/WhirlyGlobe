@@ -311,8 +311,8 @@ bool BasicDrawable::writeToFile(FILE *fp, const TextureIDMap &texIDMap, bool doT
         fwrite(&isAlpha,sizeof(isAlpha),1,fp) != 1)
         return false;
     float ll_x,ll_y,ur_x,ur_y;
-    ll_x = geoMbr.ll().x();    ll_y = geoMbr.ll().y();
-    ur_x = geoMbr.ur().x();    ur_y = geoMbr.ur().y();
+    ll_x = localMbr.ll().x();    ll_y = localMbr.ll().y();
+    ur_x = localMbr.ur().x();    ur_y = localMbr.ur().y();
     if (fwrite(&ll_x,sizeof(float),1,fp) != 1 ||
         fwrite(&ll_y,sizeof(float),1,fp) != 1||
         fwrite(&ur_x,sizeof(float),1,fp) != 1||
@@ -408,8 +408,8 @@ bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool do
         fread(&ur_x,sizeof(float),1,fp) != 1||
         fread(&ur_y,sizeof(float),1,fp) != 1)
         return false;
-    geoMbr.addGeoCoord(GeoCoord(ll_x,ll_y));
-    geoMbr.addGeoCoord(GeoCoord(ur_x,ur_y));
+    localMbr.addPoint(Point2f(ll_x,ll_y));
+    localMbr.addPoint(Point2f(ur_x,ur_y));
 
     SimpleIdentity fileTexId;
     if (fread(&type,sizeof(type),1,fp) != 1 ||

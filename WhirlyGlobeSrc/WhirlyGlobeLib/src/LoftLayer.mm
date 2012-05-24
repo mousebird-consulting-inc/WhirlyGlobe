@@ -394,7 +394,7 @@ public:
         {
             if (drawable->getNumPoints() > 0)
             {
-                drawable->setGeoMbr(drawMbr);
+                drawable->setLocalMbr(Mbr(Point2f(drawMbr.ll().x(),drawMbr.ll().y()),Point2f(drawMbr.ur().x(),drawMbr.ur().y())));
                 sceneRep->drawIDs.insert(drawable->getId());
                 if (polyInfo.fade > 0)
                 {

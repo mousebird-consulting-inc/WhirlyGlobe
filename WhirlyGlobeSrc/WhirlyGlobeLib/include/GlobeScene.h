@@ -31,13 +31,16 @@ namespace WhirlyGlobe
 class GlobeScene : public WhirlyKit::Scene
 {
 public:
-    GlobeScene(unsigned int numX,unsigned int numY,WhirlyKit::CoordSystem *coordSystem);
+    /// Construct with the geo coordinate system and the quad tree depth for the culling.
+    GlobeScene(WhirlyKit::CoordSystem *coordSystem,int depth);
     
-	/// Given a geo mbr, return all the overlapping cullables
-	void overlapping(WhirlyKit::GeoMbr geoMbr,std::vector<WhirlyKit::Cullable *> &cullables);
-
-    /// Add a drawable, taking 
+    /// Add a drawable, taking overlap into account
     virtual void addDrawable(WhirlyKit::Drawable *drawable);
+    
+    /// Remove a drawable
+    virtual void remDrawable(WhirlyKit::Drawable *drawable);
+    
+protected:
 };
     
 }

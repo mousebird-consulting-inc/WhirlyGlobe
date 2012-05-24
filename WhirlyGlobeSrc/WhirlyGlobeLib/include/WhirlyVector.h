@@ -87,6 +87,9 @@ public:
 	Mbr(Point2f ll,Point2f ur) : pt_ll(ll), pt_ur(ur) { }
 	/// Construct from the MBR of a vector of points
 	Mbr(const std::vector<Point2f> &pts);
+    
+    /// Resets back to invalid
+    void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur(-1.f,-1.f); }
 	
     /// Lower left corner
 	const Point2f &ll() const { return pt_ll; }
@@ -103,12 +106,24 @@ public:
 
 	/// Extend the MBR by the given point
 	void addPoint(Point2f pt);
+    
+    /// Extend the MBR by the givenpoints
+    void addPoints(const std::vector<Point2f> &coords);
 
 	/// See if this Mbr overlaps the other one
 	bool overlaps(const Mbr &that) const;
 
 	/// Check if the given 2d point is inside this MBR
 	bool inside(Point2f pt) const { return ((pt_ll.x() < pt.x()) && (pt_ll.y() < pt.y()) && (pt.x() < pt_ur.x()) && (pt.y() < pt_ur.y())); }
+    
+    /// The given MBR is contained within (or on the edge of) this one
+    bool contained(const Mbr &that) { return that.insideOrOnEdge(pt_ll) && that.insideOrOnEdge(pt_ur); }
+    
+    /// Inside or on the edge
+    bool insideOrOnEdge(Point2f pt) const { return ((pt_ll.x() <= pt.x()) && (pt_ll.y() <= pt.y()) && (pt.x() <= pt_ur.x()) && (pt.y() <= pt_ur.y())); }
+    
+    /// Return a list of points, for those routines that need just a list of points
+    void asPoints(std::vector<Point2f> &pts) const;
 	
 protected:
 	Point2f pt_ll,pt_ur;
@@ -170,9 +185,10 @@ public:
     
     operator Mbr() { return Mbr(pt_ll,pt_ur); }
 
-protected:
-	/// Break into one or two MBRs
+    /// Break into one or two MBRs
 	void splitIntoMbrs(std::vector<Mbr> &mbrs) const;
+
+protected:
 	
 	GeoCoord pt_ll,pt_ur;
 };

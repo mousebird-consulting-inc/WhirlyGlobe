@@ -321,61 +321,179 @@ public:
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-// Utility function to calculate a reasonable Geo MBR for the viewport
-- (GeoMbr) calcViewGeoMbr:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
-{
-    Point3f hits[8];
-    GeoMbr viewGeoMbr;
-    CGPoint pts[8];
-    
-    // Corner points
-    pts[0] = CGPointMake(-frameSize.x()/4, -frameSize.y()/4);
-    pts[1] = CGPointMake(1.25*frameSize.x(), -frameSize.y()/4);
-    pts[2] = CGPointMake(1.25*frameSize.x(), 1.25*frameSize.y());
-    pts[3] = CGPointMake(-frameSize.x()/4, 1.25*frameSize.y());
-    // Add some mid points to catch the curvature
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        CGPoint &p0 = pts[ii];
-        CGPoint &p1 = pts[(ii+1)%4];
-        CGPoint mid = CGPointMake((p0.x+p1.x)/2, (p0.y+p1.y)/2);
-        pts[ii+4] = mid;
-    }
+// Make the screen a bit bigger for testing
+static const float ScreenOverlap = 0.1;
 
-    bool onSphere = true;
-    for (unsigned int ii=0;ii<8;ii++)
+//// Determine whether the screen overlaps the given geo MBR
+//- (bool) overlapScreenGeoMbr:(GeoMbr)geoMbr view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
+//{
+//    Mbr screenMbr;
+//    screenMbr.addPoint(Point2f(-ScreenOverlap*frameSize.x(),-ScreenOverlap*frameSize.y()));
+//    screenMbr.addPoint(Point2f((1+ScreenOverlap)*frameSize.x(),(1+ScreenOverlap)*frameSize.y()));
+//    CoordSystem *coordSys = scene->coordSystem;
+//    Point3f localPts[8];
+//    localPts[0] = coordSys->geographicToLocal(geoMbr.ll());
+//    localPts[1] = coordSys->geographicToLocal(GeoCoord(geoMbr.ur().x(),geoMbr.ll().y()));
+//    localPts[2] = coordSys->geographicToLocal(geoMbr.ur());
+//    localPts[3] = coordSys->geographicToLocal(GeoCoord(geoMbr.ll().x(),geoMbr.ur().y()));
+//    
+//    // Throw in a few mid points as well
+//    for (unsigned int ii=0;ii<4;ii++)
+//        localPts[4+ii] = (localPts[ii] + localPts[(ii+1)%4])/2.0;
+//
+//    Mbr geoScreenMbr;
+//    for (unsigned int ii=0;ii<8;ii++)
+//    {
+//        Point3f worldLoc = coordSys->localToGeocentricish(localPts[ii]);
+//        CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
+//        geoScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
+//    }
+//    
+//    return geoScreenMbr.overlaps(screenMbr);
+//}
+
+- (void) mergeDrawableSet:(const std::set<Drawable *,IdentifiableSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<const Drawable *> *) toDraw considered:(int *)drawablesConsidered
+{
+    CoordSystem *coordSys = globeView.coordSystem;
+    
+    // Grab any drawables that live just at this level
+    *drawablesConsidered += newDrawables.size();        
+    for (std::set<Drawable *,IdentifiableSorter>::const_iterator it = newDrawables.begin();
+         it != newDrawables.end(); ++it)
     {
-        if (![globeView pointOnSphereFromScreen:pts[ii] transform:modelTrans frameSize:frameSize hit:&hits[ii]])
+        Drawable *draw = *it;
+        // Make sure we haven't added it already and it's on
+        // Note: We're doing the on check repeatedly
+        //       And we're doing the refusal check repeatedly as well, possibly
+        if ((toDraw->find(draw) == toDraw->end()) && draw->isOn(frameInfo))
         {
-            onSphere = false;
-            break;
+            Mbr localScreenMbr;
+            std::vector<Point2f> localPts;
+            draw->getLocalMbr().asPoints(localPts);
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                Point3f worldLoc = coordSys->localToGeocentricish(Point3f(localPts[ii].x(),localPts[ii].y(),0.0));
+                CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
+                localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
+            }
+
+            // If this overlaps, we want to draw it
+            if (screenMbr.overlaps(localScreenMbr))
+                toDraw->insert(draw);
+        } 
+    }    
+}
+
+- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<const Drawable *> *) toDraw considered:(int *)drawablesConsidered
+{
+    CoordSystem *coordSys = globeView.coordSystem;
+    
+    // Check the four corners of the cullable to see if they're pointed away
+    // But just for the globe case
+    bool inView = false;
+    if (coordSys->isFlat() || isTopLevel)
+    {
+        inView = true;
+    } else {
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            Vector3f norm = cullable->cornerNorms[ii];
+            if (norm.dot(eyeVec) > 0)
+            {
+                inView = true;
+                break;
+            }
         }
     }
-    
-    // If all those points where on the sphere, get us an MBR
-    if (onSphere)
+    if (!inView)
+        return;
+        
+    Mbr localScreenMbr;
+    for (unsigned int ii=0;ii<4;ii++)
     {
-        CoordSystem *coordSys = scene->coordSystem;
-        for (unsigned int jj=0;jj<8;jj++)
-        {
-            GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
-            viewGeoMbr.addGeoCoord(coord);
-        }        
-    } else {
-        // If we're sampling points outside the sphere, toss back the whole thing
-        viewGeoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -90);
-        viewGeoMbr.ur() = GeoCoord::CoordFromDegrees(180, 90);
+        CGPoint screenPt = [globeView pointOnScreenFromSphere:cullable->cornerPoints[ii] transform:modelTrans frameSize:frameSize];
+        localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     
-    return viewGeoMbr;
+    // If this doesn't overlap what we're viewing, we're done
+    if (!screenMbr.overlaps(localScreenMbr))
+        return;
+
+    // If the footprint of this level on the screen is larger than
+    //  the screen area, keep going down (if we can).
+    float localScreenArea = localScreenMbr.area();
+    float screenArea = screenMbr.area();
+    if (isTopLevel || (localScreenArea > screenArea/4 && cullable->hasChildren()))
+    {
+        // Grab the drawables at this level
+        [self mergeDrawableSet:cullable->getDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
+        
+        // And recurse downward for the rest
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            Cullable *child = cullable->getChild(ii);
+            if (child)
+                [self findDrawables:child view:globeView frameSize:frameSize modelTrans:modelTrans eyeVec:eyeVec frameInfo:frameInfo screenMbr:screenMbr topLevel:false toDraw:toDraw considered:drawablesConsidered];
+        }
+    } else {
+        // If not, then just return what we found here
+        [self mergeDrawableSet:cullable->getChildDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
+    }
 }
+
+//// Utility function to calculate a reasonable Geo MBR for the viewport
+//- (GeoMbr) calcViewGeoMbr:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
+//{
+//    Point3f hits[8];
+//    GeoMbr viewGeoMbr;
+//    CGPoint pts[8];
+//    
+//    // Corner points
+//    pts[0] = CGPointMake(-frameSize.x()/4, -frameSize.y()/4);
+//    pts[1] = CGPointMake(1.25*frameSize.x(), -frameSize.y()/4);
+//    pts[2] = CGPointMake(1.25*frameSize.x(), 1.25*frameSize.y());
+//    pts[3] = CGPointMake(-frameSize.x()/4, 1.25*frameSize.y());
+//    // Add some mid points to catch the curvature
+//    for (unsigned int ii=0;ii<4;ii++)
+//    {
+//        CGPoint &p0 = pts[ii];
+//        CGPoint &p1 = pts[(ii+1)%4];
+//        CGPoint mid = CGPointMake((p0.x+p1.x)/2, (p0.y+p1.y)/2);
+//        pts[ii+4] = mid;
+//    }
+//
+//    bool onSphere = true;
+//    for (unsigned int ii=0;ii<8;ii++)
+//    {
+//        if (![globeView pointOnSphereFromScreen:pts[ii] transform:modelTrans frameSize:frameSize hit:&hits[ii]])
+//        {
+//            onSphere = false;
+//            break;
+//        }
+//    }
+//    
+//    // If all those points where on the sphere, get us an MBR
+//    if (onSphere)
+//    {
+//        CoordSystem *coordSys = scene->coordSystem;
+//        for (unsigned int jj=0;jj<8;jj++)
+//        {
+//            GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
+//            viewGeoMbr.addGeoCoord(coord);
+//        }        
+//    } else {
+//        // If we're sampling points outside the sphere, toss back the whole thing
+//        viewGeoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -90);
+//        viewGeoMbr.ur() = GeoCoord::CoordFromDegrees(180, 90);
+//    }
+//    
+//    return viewGeoMbr;
+//}
 
 - (void) render:(CFTimeInterval)duration
 {  
     if (perfInterval > 0)
         perfTimer.startTiming("Render");
-
-    CoordSystem *coordSys = scene->getCoordSystem();
     
 	if (frameCountStart)
 		frameCountStart = CFAbsoluteTimeGetCurrent();
@@ -477,71 +595,88 @@ public:
         if ([theView isKindOfClass:[WhirlyGlobeView class]])
         {
             globeView = (WhirlyGlobeView *)theView;
-            viewGeoMbr = [self calcViewGeoMbr:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans];
+//            viewGeoMbr = [self calcViewGeoMbr:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans];
         }
-		
-		// Look through the cullables to assemble the set of drawables
-		// We may encounter the same drawable multiple times, hence the std::set
+
+        // Recursively search for the drawables that overlap the screen
+        Mbr screenMbr;
+        // Stretch the screen MBR a little for safety
+        screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+        screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
         int drawablesConsidered = 0;
 		std::set<const Drawable *> toDraw;
-		unsigned int numX,numY;
-		scene->getCullableSize(numX,numY);
-		const Cullable *cullables = scene->getCullables();
-		for (unsigned int ci=0;ci<numX*numY;ci++)
-		{
-			// Check the four corners of the cullable to see if they're pointed away
-            // But just for the globe case
-			const Cullable *theCullable = &cullables[ci];
-			bool inView = false;
-            if (coordSys->isFlat())
-            {
-                inView = true;
-            } else {
-                for (unsigned int ii=0;ii<4;ii++)
-                {
-                    Vector3f norm = theCullable->cornerNorms[ii];
-                    if (norm.dot(eyeVec3) > 0)
-                    {
-                        inView = true;
-                        break;
-                    }
-                }
-            }
-			
-			// Now project the corners onto the viewing plane and see if we overlap
-			// This lets us catch things around the edges
-			if (inView)
-			{
-				Mbr cullMbr;
-				
-				for (unsigned int ii=0;ii<4;ii++)
-				{
-					// Build up the MBR on the view plane
-					Vector3f pt = theCullable->cornerPoints[ii];
-					Vector4f projPt = projMat * (modelTrans * Vector4f(pt.x(),pt.y(),pt.z(),1.0));
-					Vector3f projPt3(projPt.x()/projPt.w(),projPt.y()/projPt.w(),projPt.z()/projPt.w());
-					cullMbr.addPoint(Point2f(projPt3.x(),projPt3.y()));
-				}
-				
-				if (!cullMbr.overlaps(viewMbr))
-				{
-					inView = false;
-				}
-			}
-			
-			if (inView)
-			{
-				const std::set<Drawable *> &theseDrawables = theCullable->getDrawables();
-                for (std::set<Drawable *>::const_iterator it = theseDrawables.begin();
-                     it != theseDrawables.end(); ++it)
-                {
-                    Drawable *drawable = *it;
-                    if (drawable->isOn(frameInfo) && (!viewGeoMbr.valid() || drawable->getGeoMbr().overlaps(viewGeoMbr)))
-                        toDraw.insert(drawable);
-                    drawablesConsidered++;
-                }
-			}
-		}
+        CullTree *cullTree = scene->getCullTree();
+        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+		
+//		// Look through the cullables to assemble the set of drawables
+//		// We may encounter the same drawable multiple times, hence the std::set
+//		unsigned int numX,numY;
+//		scene->getCullableSize(numX,numY);
+//		const Cullable *cullables = scene->getCullables();
+//		for (unsigned int ci=0;ci<numX*numY;ci++)
+//		{
+//			// Check the four corners of the cullable to see if they're pointed away
+//            // But just for the globe case
+//			const Cullable *theCullable = &cullables[ci];
+//			bool inView = false;
+//            if (coordSys->isFlat())
+//            {
+//                inView = true;
+//            } else {
+//                for (unsigned int ii=0;ii<4;ii++)
+//                {
+//                    Vector3f norm = theCullable->cornerNorms[ii];
+//                    if (norm.dot(eyeVec3) > 0)
+//                    {
+//                        inView = true;
+//                        break;
+//                    }
+//                }
+//            }
+//			
+//			// Now project the corners onto the viewing plane and see if we overlap
+//			// This lets us catch things around the edges
+//			if (inView)
+//			{
+//                // Note: This version is too slow
+////                if (![self overlapScreenGeoMbr:theCullable->getGeoMbr() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans])
+////                    inView = false;
+//                
+//				Mbr cullMbr;
+//				
+//				for (unsigned int ii=0;ii<4;ii++)
+//				{
+//					// Build up the MBR on the view plane
+//					Vector3f pt = theCullable->cornerPoints[ii];
+//					Vector4f projPt = projMat * (modelTrans * Vector4f(pt.x(),pt.y(),pt.z(),1.0));
+//					Vector3f projPt3(projPt.x()/projPt.w(),projPt.y()/projPt.w(),projPt.z()/projPt.w());
+//					cullMbr.addPoint(Point2f(projPt3.x(),projPt3.y()));
+//				}
+//				
+//				if (!cullMbr.overlaps(viewMbr))
+//				{
+//					inView = false;
+//				}
+//                
+//                // Note: Debugging
+////                inView = true;
+//			}
+//			
+//			if (inView)
+//			{
+//				const std::set<Drawable *> &theseDrawables = theCullable->getDrawables();
+//                for (std::set<Drawable *>::const_iterator it = theseDrawables.begin();
+//                     it != theseDrawables.end(); ++it)
+//                {
+//                    Drawable *drawable = *it;
+////                    if (drawable->isOn(frameInfo) && (!viewGeoMbr.valid() || drawable->getGeoMbr().overlaps(viewGeoMbr)))
+//                    if (drawable->isOn(frameInfo) && 
+//                        [self overlapScreenGeoMbr:drawable->getGeoMbr() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans])
+//                        toDraw.insert(drawable);
+//                    drawablesConsidered++;
+//                }
+//			}
+//		}
         
         // Turn these drawables in to a vector
 		std::vector<const Drawable *> drawList;
@@ -572,7 +707,10 @@ public:
 		std::sort(drawList.begin(),drawList.end(),sortStruct);
         
         if (perfInterval > 0)
+        {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
+            perfTimer.addCount("Cullables", cullTree->getCount());
+        }
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Generators - 3D");

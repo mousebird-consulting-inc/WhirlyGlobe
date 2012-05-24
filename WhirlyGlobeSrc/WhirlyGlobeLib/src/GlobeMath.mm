@@ -79,5 +79,14 @@ GeoCoord GeoCoordSystem::GeocentricishToGeoCoord(Point3f pt)
     Point3f geo3d = GeocentricishToLocal(pt);
     return GeoCoord(geo3d.x(),geo3d.y());
 }
+    
+Mbr GeoCoordSystem::GeographicMbrToLocal(GeoMbr geoMbr)
+{
+    Mbr localMbr;
+    localMbr.addPoint(Point2f(geoMbr.ll().x(),geoMbr.ll().y()));
+    localMbr.addPoint(Point2f(geoMbr.ur().x(),geoMbr.ur().y()));
+    
+    return localMbr;
+}
 	
 }

@@ -53,7 +53,7 @@ public:
         void addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         
         RGBAColor color;
-        GeoCoord loc;
+        Point2f loc;
         Vector3f norm;
         Point3f pts[4];
         std::vector<std::vector<TexCoord> > texCoords;

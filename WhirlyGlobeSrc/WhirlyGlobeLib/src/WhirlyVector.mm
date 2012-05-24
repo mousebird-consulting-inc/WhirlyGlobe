@@ -50,6 +50,12 @@ void Mbr::addPoint(Point2f pt)
 	pt_ur.x() = std::max(pt_ur.x(),pt.x());
 	pt_ur.y() = std::max(pt_ur.y(),pt.y());
 }
+    
+void Mbr::addPoints(const std::vector<Point2f> &coords)
+{
+    for (unsigned int ii=0;ii<coords.size();ii++)
+        addPoint(coords[ii]);
+}
 
 // Calculate MBR overlap.  All the various kinds.
 bool Mbr::overlaps(const Mbr &that) const
@@ -57,8 +63,8 @@ bool Mbr::overlaps(const Mbr &that) const
 	Point2f ul(),lr();
 	
 	// Basic inclusion cases
-	if ((that.inside(pt_ll) || that.inside(pt_ur) || that.inside(Point2f(pt_ll.x(),pt_ur.y())) || that.inside(Point2f(pt_ur.x(),pt_ll.y()))) ||
-		(inside(that.pt_ll) || inside(that.pt_ur) || inside(Point2f(that.pt_ll.x(),that.pt_ur.y())) || inside(Point2f(that.pt_ur.x(),that.pt_ll.y()))))
+	if ((that.insideOrOnEdge(pt_ll) || that.insideOrOnEdge(pt_ur) || that.insideOrOnEdge(Point2f(pt_ll.x(),pt_ur.y())) || that.insideOrOnEdge(Point2f(pt_ur.x(),pt_ll.y()))) ||
+		(insideOrOnEdge(that.pt_ll) || insideOrOnEdge(that.pt_ur) || insideOrOnEdge(Point2f(that.pt_ll.x(),that.pt_ur.y())) || insideOrOnEdge(Point2f(that.pt_ur.x(),that.pt_ll.y()))))
 		return true;
 	
 	// Now for the skinny overlap cases
@@ -79,6 +85,14 @@ bool Mbr::overlaps(const Mbr &that) const
 float Mbr::area() const
 {
 	return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
+}
+    
+void Mbr::asPoints(std::vector<Point2f> &pts) const
+{
+    pts.push_back(pt_ll);
+    pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
+    pts.push_back(pt_ur);
+    pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
 	
 GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
