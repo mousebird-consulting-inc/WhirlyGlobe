@@ -44,7 +44,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 	// The view transform when we started
 	Eigen::Affine3f startTransform;
 	// Where we first touched the sphere
-	Point3f startOnSphere;
+    WhirlyKit::Point3f startOnSphere;
 	// Rotation when we started
 	Eigen::Quaternionf startQuat;
 
@@ -52,6 +52,8 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     Eigen::Quaternionf spinQuat;
     NSDate *spinDate;
     CGPoint lastTouch;
+    
+    AnimateViewMomentum *animateMomentum;
 }
 
 + (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

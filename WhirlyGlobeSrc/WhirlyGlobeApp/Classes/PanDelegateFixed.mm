@@ -20,17 +20,20 @@
 
 #import "PanDelegateFixed.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface PanDelegateFixed()
 @property (nonatomic,retain) NSDate *spinDate;
 @property (nonatomic,retain) UITouch *startTouch;
+@property (nonatomic,retain) AnimateViewMomentum *animateMomentum;
 @end
 
 @implementation PanDelegateFixed
 
 @synthesize spinDate;
 @synthesize startTouch;
+@synthesize animateMomentum;
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -47,6 +50,7 @@ using namespace WhirlyGlobe;
 {
     self.spinDate = nil;
     self.startTouch = nil;
+    self.animateMomentum = nil;
     [super dealloc];
 }
 
@@ -66,7 +70,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES1 *)sceneRender glView:(EAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = [view calcModelMatrix];
@@ -87,8 +91,8 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	EAGLView *glView = (EAGLView *)pan.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
     
     // Put ourselves on hold for more than one touch
     if ([pan numberOfTouches] > 1)
@@ -122,7 +126,7 @@ using namespace WhirlyGlobe;
                 
 				// Figure out where we are now
 				Point3f hit;
-                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                CGPoint touchPt = [pan locationOfTouch:0 inView:pan.view];
                 lastTouch = touchPt;
 				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
 									frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit ];                
@@ -177,7 +181,7 @@ using namespace WhirlyGlobe;
             // Note: This constant is a hack
 
             // We'll use this to get two points in model space
-            CGPoint vel = [pan velocityInView:glView];
+            CGPoint vel = [pan velocityInView:pan.view];
             CGPoint touch0 = lastTouch;
             
             Point3f p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth height:sceneRender.framebufferHeight clip:false];
@@ -230,7 +234,8 @@ using namespace WhirlyGlobe;
             drag *= scale/(MaxAngularVelocity-MinAngularVelocity);
             
             // Keep going in that direction for a while
-            view.delegate = [[[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector] autorelease];
+            self.animateMomentum = [[[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector] autorelease];
+            view.delegate = animateMomentum;
         }
 			break;
         default:

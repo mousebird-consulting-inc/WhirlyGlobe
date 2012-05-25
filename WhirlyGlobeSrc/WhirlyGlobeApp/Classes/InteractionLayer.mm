@@ -20,11 +20,12 @@
 
 #import "InteractionLayer.h"
 
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 FeatureRep::FeatureRep() :
-    outlineRep(WhirlyGlobe::EmptyIdentity), labelId(WhirlyGlobe::EmptyIdentity),
-    subOutlinesRep(WhirlyGlobe::EmptyIdentity), subLabels(WhirlyGlobe::EmptyIdentity),
+    outlineRep(EmptyIdentity), labelId(EmptyIdentity),
+    subOutlinesRep(EmptyIdentity), subLabels(EmptyIdentity),
     midPoint(100.0)
 {
 }
@@ -34,10 +35,11 @@ FeatureRep::~FeatureRep()
 }
 
 @interface InteractionLayer()
-@property(nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property(nonatomic,retain) VectorLayer *vectorLayer;
-@property(nonatomic,retain) LabelLayer *labelLayer;
+@property(nonatomic,retain) WhirlyKitLayerThread *layerThread;
+@property(nonatomic,retain) WhirlyKitVectorLayer *vectorLayer;
+@property(nonatomic,retain) WhirlyKitLabelLayer *labelLayer;
 @property(nonatomic,retain) WhirlyGlobeView *globeView;
+@property(nonatomic,retain) AnimateViewRotation *animateRotation;
 @end
 
 @implementation InteractionLayer
@@ -51,8 +53,9 @@ FeatureRep::~FeatureRep()
 @synthesize globeView;
 @synthesize vectorLayer;
 @synthesize labelLayer;
+@synthesize animateRotation;
 
-- (id)initWithVectorLayer:(VectorLayer *)inVecLayer labelLayer:(LabelLayer *)inLabelLayer globeView:(WhirlyGlobeView *)inGlobeView
+- (id)initWithVectorLayer:(WhirlyKitVectorLayer *)inVecLayer labelLayer:(WhirlyKitLabelLayer *)inLabelLayer globeView:(WhirlyGlobeView *)inGlobeView
              countryShape:(NSString *)countryShape oceanShape:(NSString *)oceanShape regionShape:(NSString *)regionShape
 {
 	if ((self = [super init]))
@@ -129,6 +132,11 @@ FeatureRep::~FeatureRep()
 	return self;
 }
 
+- (void)shutdown
+{
+    // Note: Not handling correctly
+}
+
 - (void)dealloc
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -140,6 +148,7 @@ FeatureRep::~FeatureRep()
     self.countryDesc = nil;
     self.oceanDesc = nil;
     self.regionDesc = nil;
+    self.animateRotation = nil;
     if (countryDb)  delete countryDb;
     if (oceanDb)  delete oceanDb;
     if (regionDb)  delete regionDb;
@@ -150,7 +159,7 @@ FeatureRep::~FeatureRep()
 	[super dealloc];
 }
 
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
 	self.layerThread = inThread;
 	scene = inScene;
@@ -171,7 +180,7 @@ FeatureRep::~FeatureRep()
 // We're in the main thread here
 - (void)tapSelector:(NSNotification *)note
 {
-	TapMessage *msg = note.object;
+	WhirlyGlobeTapMessage *msg = note.object;
 
     if (RotateToCountry)
     {
@@ -183,7 +192,8 @@ FeatureRep::~FeatureRep()
         Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
 
         // Rotate to the given position over 1s
-        globeView.delegate = [[[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:1.0] autorelease];
+        self.animateRotation = [[[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:1.0] autorelease];
+        globeView.delegate = animateRotation;
     }
 	
 	// Now we need to switch over to the layer thread for the rest of this
@@ -194,7 +204,7 @@ FeatureRep::~FeatureRep()
 // We're in the main thread here
 - (void)pressSelector:(NSNotification *)note
 {
-	TapMessage *msg = note.object;
+	WhirlyGlobeTapMessage *msg = note.object;
     
 	// If we were rotating from one point to another, stop
 	[globeView cancelAnimation];
@@ -205,10 +215,10 @@ FeatureRep::~FeatureRep()
 
 // Figure out where to put a label
 //  and roughly how big.  Loc is already set.  We may tweak it.
-- (void)calcLabelPlacement:(ShapeSet *)shapes loc:(WhirlyGlobe::GeoCoord &)loc  minWidth:(float)minWidth width:(float *)retWidth height:(float *)retHeight 
+- (void)calcLabelPlacement:(ShapeSet *)shapes loc:(GeoCoord &)loc  minWidth:(float)minWidth width:(float *)retWidth height:(float *)retHeight 
 {
     double width=0.0,height=0.0;    
-    WhirlyGlobe::VectorRing *largeLoop = NULL;
+    VectorRing *largeLoop = NULL;
     float largeArea = 0.0;
 
     // Work through all the areals that make up the country
@@ -216,15 +226,15 @@ FeatureRep::~FeatureRep()
     for (ShapeSet::iterator it = shapes->begin();
          it != shapes->end(); it++)
     {        
-        WhirlyGlobe::VectorArealRef theAreal = boost::dynamic_pointer_cast<WhirlyGlobe::VectorAreal> (*it);
+        VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal> (*it);
         if (theAreal.get() && !theAreal->loops.empty())
         {
             // We need to find the largest loop.
             // It's there that we want to place the label
             for (unsigned int ii=0;ii<theAreal->loops.size();ii++)
             {
-                WhirlyGlobe::VectorRing *thisLoop = &(theAreal->loops[ii]);
-                float thisArea = WhirlyGlobe::GeoMbr(*thisLoop).area();
+                VectorRing *thisLoop = &(theAreal->loops[ii]);
+                float thisArea = GeoMbr(*thisLoop).area();
                 if (!largeLoop || (thisArea > largeArea))
                 {
                     largeArea = thisArea;
@@ -238,9 +248,9 @@ FeatureRep::~FeatureRep()
     // Now get a width in the direction we care about
     if (largeLoop)
     {
-        WhirlyGlobe::GeoMbr ringMbr(*largeLoop);
-        Point3f pt0 = PointFromGeo(ringMbr.ll());
-        Point3f pt1 = PointFromGeo(ringMbr.lr());
+        GeoMbr ringMbr(*largeLoop);
+        Point3f pt0 = GeoCoordSystem::LocalToGeocentricish(ringMbr.ll());
+        Point3f pt1 = GeoCoordSystem::LocalToGeocentricish(ringMbr.lr());
         width = (pt1-pt0).norm() * 0.5;
         // Don't let the width get too crazy
         width = std::min(width,0.5);
@@ -327,7 +337,7 @@ static const float DesiredScreenProj = 0.4;
         
         // Figure out the placement and size of the label
         // Other things will key off of this size
-        WhirlyGlobe::GeoCoord loc;
+        GeoCoord loc;
         float labelWidth,labelHeight;
         [self calcLabelPlacement:&feat->outlines loc:loc minWidth:0.3 width:&labelWidth height:&labelHeight];
         
@@ -346,7 +356,7 @@ static const float DesiredScreenProj = 0.4;
         
         // Make up a label for the country
         // We'll have it appear when we're farther out
-        SingleLabel *countryLabel = [[[SingleLabel alloc] init] autorelease];
+        WhirlyKitSingleLabel *countryLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
         countryLabel.text = name;
         NSMutableDictionary *labelDesc = [NSMutableDictionary dictionaryWithDictionary:[countryDesc objectForKey:@"label"]];
         [labelDesc setObject:[NSNumber numberWithFloat:feat->midPoint] forKey:@"minVis"];
@@ -397,8 +407,8 @@ static const float DesiredScreenProj = 0.4;
             NSString *regionName = [(*it)->getAttrDict() objectForKey:@"NAME_1"];
             if (regionName)
             {
-                WhirlyGlobe::GeoCoord regionLoc;
-                SingleLabel *sLabel = [[[SingleLabel alloc] init] autorelease];
+                GeoCoord regionLoc;
+                WhirlyKitSingleLabel *sLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
                 NSMutableDictionary *thisDesc = [NSMutableDictionary dictionary];
                 ShapeSet canShapes;
                 canShapes.insert(*it);
@@ -454,7 +464,7 @@ static const float DesiredScreenProj = 0.4;
         NSMutableDictionary *labelDesc = [NSMutableDictionary dictionaryWithDictionary:[oceanDesc objectForKey:@"label"]];
         
         // Figure out where to place it
-        WhirlyGlobe::GeoCoord loc;
+        GeoCoord loc;
         ShapeSet canShapes;
         canShapes.insert(ar);
         float labelWidth,labelHeight;
@@ -491,18 +501,18 @@ static const float DesiredScreenProj = 0.4;
 
 // Try to pick an object
 // We're in the layer thread
-- (void)pickObject:(TapMessage *)msg
+- (void)pickObject:(WhirlyGlobeTapMessage *)msg
 {
     GeoCoord coord = msg.whereGeo;
     
     // Let's look for objects we're already representing
-    FeatureRep *theFeat = [self findFeatureRep:coord height:msg.heightAboveGlobe whichShape:NULL];
+    FeatureRep *theFeat = [self findFeatureRep:coord height:msg.heightAboveSurface whichShape:NULL];
     
     // We found a country or its regions
     if (theFeat)
     {
         // Turn the country/ocean off
-        if (msg.heightAboveGlobe >= theFeat->midPoint)
+        if (msg.heightAboveSurface >= theFeat->midPoint)
             [self removeFeatureRep:theFeat];
         else {
             // Selected a region
@@ -540,13 +550,13 @@ static const float DesiredScreenProj = 0.4;
 
 // Look for an outline to select
 // We're in the layer thread
-- (void)selectObject:(TapMessage *)msg
+- (void)selectObject:(WhirlyGlobeTapMessage *)msg
 {
     GeoCoord coord = msg.whereGeo;
     
     // Look for an object, taking LODs into account
     VectorShapeRef selectedShape;
-    FeatureRep *theFeat = [self findFeatureRep:coord height:msg.heightAboveGlobe whichShape:&selectedShape];
+    FeatureRep *theFeat = [self findFeatureRep:coord height:msg.heightAboveSurface whichShape:&selectedShape];
     
     if (theFeat)
     {
