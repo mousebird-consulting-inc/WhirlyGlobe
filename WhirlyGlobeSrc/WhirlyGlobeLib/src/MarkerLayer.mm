@@ -301,6 +301,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 shape->drawPriority = markerInfo.drawPriority;
                 shape->geom.push_back(smGeom);
                 screenShapes.push_back(shape);
+                markerRep->screenShapeIDs.insert(shape->getId());
                 
             } else {
                 // We're sorting the static drawables by texture, so look for that
@@ -401,7 +402,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
     // Add all the screen space markers at once
     if (!screenShapes.empty())
+    {
+        
         scene->addChangeRequest(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
+    }
     screenShapes.clear();
 }
 
@@ -417,12 +421,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     {
         MarkerSceneRep *markerRep = *it;
         
+        std::vector<ChangeRequest *> changeRequests;
         if (markerRep->fade > 0.0)
         {
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
                  idIt != markerRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));
+                changeRequests.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));
 
             if (!markerRep->markerIDs.empty())
             {
@@ -430,7 +435,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
                      idIt != markerRep->markerIDs.end(); ++idIt)
                     markerIDs.push_back(*idIt);
-                scene->addChangeRequest(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));            
+                changeRequests.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));            
+            }
+            
+            if (!markerRep->screenShapeIDs.empty())
+            {
+                std::vector<SimpleIdentity> screenIDs;
+                for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
+                     idIt != markerRep->screenShapeIDs.end(); ++idIt)
+                    screenIDs.push_back(*idIt);
+                changeRequests.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
             }
             
             [self performSelector:@selector(runRemoveMarkers:) withObject:num afterDelay:markerRep->fade];
@@ -439,7 +453,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             // Just delete everything
             for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
                  idIt != markerRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                changeRequests.push_back(new RemDrawableReq(*idIt));
 
             if (!markerRep->markerIDs.empty())
             {
@@ -447,7 +461,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
                      idIt != markerRep->markerIDs.end(); ++idIt)
                     markerIDs.push_back(*idIt);
-                scene->addChangeRequest(new MarkerGeneratorRemRequest(generatorId,markerIDs));
+                changeRequests.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDs));
+            }
+            
+            if (!markerRep->screenShapeIDs.empty())
+            {
+                std::vector<SimpleIdentity> screenIDs;
+                for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
+                     idIt != markerRep->screenShapeIDs.end(); ++idIt)
+                    screenIDs.push_back(*idIt);
+                changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
             }
             
             if (self.selectLayer && markerRep->selectID != EmptyIdentity)
@@ -456,6 +479,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             markerReps.erase(it);
             delete markerRep;
         }
+        
+        scene->addChangeRequests(changeRequests);
     }
 }
 

@@ -72,9 +72,15 @@ using namespace Eigen;
 }
 
 /// Generate the model view matrix for use by OpenGL.
-- (Eigen::Affine3f)calcModelMatrix
+- (Eigen::Matrix4f)calcModelMatrix
 {
-    Eigen::Affine3f ident;
+    Eigen::Matrix4f ident = ident.Identity();
+    return ident;
+}
+
+- (Eigen::Matrix4f)calcViewMatrix
+{
+    Eigen::Matrix4f ident = ident.Identity();
     return ident;
 }
 

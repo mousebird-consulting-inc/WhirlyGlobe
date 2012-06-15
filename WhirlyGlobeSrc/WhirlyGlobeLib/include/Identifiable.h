@@ -19,6 +19,8 @@
  */
 
 #import <set>
+#import <boost/shared_ptr.hpp>
+#import <boost/pointer_cast.hpp>
 
 namespace WhirlyKit
 {
@@ -49,6 +51,8 @@ public:
 	/// Construct with a new ID
 	// Note: This will probably work with multiple threads
 	Identifiable();
+    // Construct with an existing ID
+    Identifiable(SimpleIdentity oldId) : myId(oldId) { }
 	virtual ~Identifiable() { }
 	
 	/// Return the identity
@@ -69,12 +73,21 @@ public:
 protected:
 	SimpleIdentity myId;
 };
+
+/// Reference counted version of Identifiable
+typedef boost::shared_ptr<Identifiable> IdentifiableRef;
 	
 /// Used to sort identifiables in a set or similar STL container
 typedef struct
 {
 	bool operator () (const Identifiable *a,const Identifiable *b) { return a->getId() < b->getId(); }
 } IdentifiableSorter;
+    
+/// Used to sort identifiable Refs in a container
+typedef struct
+{
+	bool operator () (const IdentifiableRef a,const IdentifiableRef b) { return a->getId() < b->getId(); }    
+} IdentifiableRefSorter;
 
 }
 

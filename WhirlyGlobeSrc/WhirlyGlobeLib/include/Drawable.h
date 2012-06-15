@@ -26,6 +26,8 @@
 #import <vector>
 #import <set>
 #import <map>
+#import <boost/shared_ptr.hpp>
+#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
@@ -105,6 +107,9 @@ public:
     virtual bool writeToFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) const { return false; }
 };
 
+/// Reference counted Drawable pointer
+typedef boost::shared_ptr<Drawable> DrawableRef;
+
 /** Drawable Change Request is a subclass of the change request
     for drawables.  This is, itself, subclassed for specific
     change requests.
@@ -121,7 +126,7 @@ public:
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-	virtual void execute2(Scene *scene,Drawable *draw) = 0;
+	virtual void execute2(Scene *scene,DrawableRef draw) = 0;
 	
 protected:
 	SimpleIdentity drawId;
@@ -257,6 +262,9 @@ public:
     
     /// Write this drawable to a cache file;
     virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
+    
+    // Return the point buffer ID (for debugging)
+    GLuint getPointBuffer() { return pointBuffer; }
 
 protected:
 	void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
@@ -283,6 +291,9 @@ protected:
 	
 	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer;
 };
+    
+// Reference counted version of BasicDrawable
+typedef boost::shared_ptr<BasicDrawable> BasicDrawableRef;
 
 /// Ask the renderer to change a drawable's color
 class ColorChangeRequest : public DrawableChangeRequest
@@ -290,7 +301,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
 	ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
 	
-	void execute2(Scene *scene,Drawable *draw);
+	void execute2(Scene *scene,DrawableRef draw);
 	
 protected:
 	unsigned char color[4];
@@ -302,7 +313,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
 	OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
 	
-	void execute2(Scene *scene,Drawable *draw);
+	void execute2(Scene *scene,DrawableRef draw);
 	
 protected:
 	bool newOnOff;
@@ -314,7 +325,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(Scene *scene,Drawable *draw);
+    void execute2(Scene *scene,DrawableRef draw);
     
 protected:
     float minVis,maxVis;
@@ -326,7 +337,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    void execute2(Scene *scene,Drawable *draw);
+    void execute2(Scene *scene,DrawableRef draw);
     
 protected:
     NSTimeInterval fadeUp,fadeDown;
@@ -338,7 +349,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId);
     
-    void execute2(Scene *scene,Drawable *draw);
+    void execute2(Scene *scene,DrawableRef draw);
     
 protected:
     SimpleIdentity newTexId;

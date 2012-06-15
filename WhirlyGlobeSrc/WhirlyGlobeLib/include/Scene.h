@@ -206,10 +206,10 @@ public:
     /// Add a drawable to the scene.
     /// A subclass can override this to control how this interacts with cullabes.
     /// The scene is responsible for the Drawable after this call.
-    virtual void addDrawable(Drawable *drawable) = 0;
+    virtual void addDrawable(DrawableRef drawable) = 0;
     
     /// Remove a drawable from the scene
-    virtual void remDrawable(Drawable *drawable) = 0;
+    virtual void remDrawable(DrawableRef drawable) = 0;
     
     /// We create one screen space generator on startup.  This is its ID.
     SimpleIdentity getScreenSpaceGeneratorID();
@@ -225,7 +225,7 @@ public:
     Generator *getGenerator(SimpleIdentity genId);
 	
 	/// Look for a Drawable by ID
-	Drawable *getDrawable(SimpleIdentity drawId);
+	DrawableRef getDrawable(SimpleIdentity drawId);
 	
 	/// Look for a Texture by ID
 	Texture *getTexture(SimpleIdentity texId);
@@ -236,9 +236,9 @@ public:
     /// Top level of Cullable quad tree
     CullTree *cullTree;
 	
-	typedef std::set<Drawable *,IdentifiableSorter> DrawableSet;
+	typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
 	/// All the drawables we've been handed, sorted by ID
-	DrawableSet drawables;
+	DrawableRefSet drawables;
 	
 	typedef std::set<Texture *,IdentifiableSorter> TextureSet;
 	/// Textures, sorted by ID

@@ -102,10 +102,10 @@ void Cullable::possibleRemoveChild(int which, CullTree *cullTree)
 // Split the existing node into 4 and sort all the drawables
 void Cullable::split(CullTree *cullTree)
 {
-    for (std::set<Drawable *,IdentifiableSorter>::iterator it = drawables.begin();
+    for (std::set<DrawableRef,IdentifiableRefSorter>::iterator it = drawables.begin();
          it != drawables.end(); ++it)
     {
-        Drawable *draw = *it;
+        DrawableRef draw = *it;
         // Note: This doesn't take the geographic case into account
         Mbr localMbr = draw->getLocalMbr();
         
@@ -115,7 +115,7 @@ void Cullable::split(CullTree *cullTree)
     drawables.clear();
 }
     
-void Cullable::addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw)
+void Cullable::addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
 {
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -127,7 +127,7 @@ void Cullable::addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,Drawabl
     }
 }
     
-void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw)
+void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
 {
     // Will be present in the children (or here)
     childDrawables.insert(draw);
@@ -152,7 +152,7 @@ void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw)
     }
 }
     
-void Cullable::remDrawable(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw)
+void Cullable::remDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
 {
     // Remove it from here
     childDrawables.erase(draw);

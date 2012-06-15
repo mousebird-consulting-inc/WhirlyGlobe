@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface WhirlyGlobeQuadTileLoader()
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKit::Scene *)scene;
 @end
@@ -65,11 +65,11 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     BasicDrawable *draw = NULL;
     Texture *tex = NULL;
-    [loader buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:imageData];
+    [loader buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:imageData pvrtcSize:pvrtcSize];
     drawId = draw->getId();
     if (tex)
         texId = tex->getId();
@@ -164,7 +164,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
                             if (isValidTile(layer,childInfo.mbr))
                             {
                                 BasicDrawable *childDraw = NULL;
-                                [loader buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil];
+                                [loader buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
                                 childDrawIds[whichChild] = childDraw->getId();
                                 if (!layer.lineMode && texId)
                                     childDraw->setTexId(texId);
@@ -194,7 +194,7 @@ void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQua
             if (drawId == EmptyIdentity)
             {
                 BasicDrawable *draw = NULL;
-                [loader buildTile:&nodeInfo draw:&draw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil];
+                [loader buildTile:&nodeInfo draw:&draw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
                 draw->setTexId(texId);
                 drawId = draw->getId();
                 changeRequests.push_back(new AddDrawableReq(draw));
@@ -313,7 +313,7 @@ void LoadedTile::Print(Quadtree *tree)
 // Tesselation for each chunk of the sphere
 const int SphereTessX = 10, SphereTessY = 10;
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -365,11 +365,23 @@ const int SphereTessX = 10, SphereTessY = 10;
     {
         if (imageData)
         {
-            UIImage *texImage = [UIImage imageWithData:imageData];
-            if (texImage)
+            Texture *newTex = NULL;
+            if (pvrtcSize > 0)
             {
-                // Create the texture and set it up in OpenGL
-                Texture *newTex = new Texture(texImage);
+                newTex = new Texture(imageData,true);
+                newTex->setWidth(pvrtcSize);
+                newTex->setHeight(pvrtcSize);
+            } else {
+                UIImage *texImage = [UIImage imageWithData:imageData];
+                if (texImage)
+                {
+                    // Create the texture and set it up in OpenGL
+                     newTex = new Texture(texImage);
+                }
+            }
+            
+            if (newTex)
+            {
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
                 newTex->createInGL();
                 *tex = newTex;
@@ -488,8 +500,8 @@ const int SphereTessX = 10, SphereTessY = 10;
         LoadedTile *theTile = [self getTile:*it];
         if (theTile && !theTile->isLoading)
         {
-            if( tileLoaderDebug ) NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
-                  theTile->nodeInfo.ident.level);
+//            NSLog(@"Updating parent (%d,%d,%d)",theTile->nodeInfo.ident.x,theTile->nodeInfo.ident.y,
+//                  theTile->nodeInfo.ident.level);
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
         }
     }
@@ -541,7 +553,7 @@ const int SphereTessX = 10, SphereTessY = 10;
 }
 
 // When the data source loads the image, we'll get called here
-- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
 {
     // Look for the tile
     // If it's not here, just drop this on the floor
@@ -555,7 +567,7 @@ const int SphereTessX = 10, SphereTessY = 10;
     tile->isLoading = false;
     if (image)
     {
-        tile->addToScene(self,quadLayer,quadLayer.scene,image,changeRequests);    
+        tile->addToScene(self,quadLayer,quadLayer.scene,image,pvrtcSize,changeRequests);    
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it

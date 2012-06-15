@@ -63,17 +63,17 @@ public:
     ~Cullable();
 	
 	/// Add the given drawable to our set or the appropriate children
-	void addDrawable(CullTree *cullTree,Mbr localMbr,Drawable *drawable);
+	void addDrawable(CullTree *cullTree,Mbr localMbr,DrawableRef drawable);
 	
 	/// Remove a given drawable if it's there
-	void remDrawable(CullTree *cullTree,Mbr localMbr,Drawable *drawable);
+	void remDrawable(CullTree *cullTree,Mbr localMbr,DrawableRef drawable);
 	
     /// Get the set of drawables associated with the cullable
-	const std::set<Drawable *,IdentifiableSorter> &getDrawables() const { return drawables; }
+	const std::set<DrawableRef,IdentifiableRefSorter> &getDrawables() const { return drawables; }
     
     /// Get the set of drawables for all the children.
     /// We cache them in the parent nodes for speed
-	const std::set<Drawable *,IdentifiableSorter> &getChildDrawables() const { return childDrawables; }
+	const std::set<DrawableRef,IdentifiableRefSorter> &getChildDrawables() const { return childDrawables; }
     
     /// Return true if there are any children
     bool hasChildren() { return children[0] || children[1] || children[2] || children[3]; }
@@ -90,7 +90,7 @@ public:
 public:	
     Cullable *getOrAddChild(int which,CullTree *tree);
     void possibleRemoveChild(int which,CullTree *tree);
-    void addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,Drawable *draw);
+    void addDrawableToChildren(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw);
     void split(CullTree *);
     
     /// 3D locations (in model space) of the corners
@@ -105,8 +105,8 @@ public:
     Mbr childMbr[4];
 	
     Cullable *children[4];
-	std::set<Drawable *,IdentifiableSorter> drawables;
-    std::set<Drawable *,IdentifiableSorter> childDrawables;
+	std::set<DrawableRef,IdentifiableRefSorter> drawables;
+    std::set<DrawableRef,IdentifiableRefSorter> childDrawables;
 };
 
 }

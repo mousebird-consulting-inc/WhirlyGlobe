@@ -64,7 +64,7 @@ using namespace WhirlyKit;
 
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer
 {
-    [self performSelector:@selector(removeLayerThread:) onThread:self withObject:layer waitUntilDone:NO];
+    [self performSelector:@selector(removeLayerThread:) onThread:self withObject:layer waitUntilDone:YES];
 }
 
 // This runs in the layer thread
@@ -82,7 +82,7 @@ using namespace WhirlyKit;
 - (void)main
 {
     @autoreleasepool {
-        self.runLoop = [NSRunLoop currentRunLoop];
+        runLoop = [NSRunLoop currentRunLoop];
         
         // Wake up our layers.  It's up to them to do the rest
         for (unsigned int ii=0;ii<[layers count];ii++)

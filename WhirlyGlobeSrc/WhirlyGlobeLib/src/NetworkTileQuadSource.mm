@@ -27,6 +27,7 @@ using namespace WhirlyGlobe;
 @implementation WhirlyGlobeNetworkTileQuadSource
 
 @synthesize numSimultaneous;
+@synthesize cacheDir;
 
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt
 {
@@ -124,16 +125,37 @@ using namespace WhirlyGlobe;
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
                    ^{
-                       NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",baseURL,level,col,y,ext];
-                       NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-                                        
-                       // Fetch the image synchronously
-                       NSURLResponse *resp = nil;
-                       NSError *error = nil;
-                       NSData *imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+                       NSData *imgData;
                        
-                       if (error || !imgData)
-                           imgData = nil;
+                       // Look for it in the local cache first
+                       NSString *localName = nil;
+                       if (cacheDir)
+                       {
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",cacheDir,level,col,y,ext];
+                           
+                           if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
+                           {
+                               imgData = [NSData dataWithContentsOfFile:localName];
+                           }
+                       }
+
+                       if (!imgData)
+                       {
+                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",baseURL,level,col,y,ext];
+                           NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                                            
+                           // Fetch the image synchronously
+                           NSURLResponse *resp = nil;
+                           NSError *error = nil;
+                           imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+                           
+                           if (error || !imgData)
+                               imgData = nil;
+
+                           // Save to the cache
+                           if (imgData && localName)
+                               [imgData writeToFile:localName atomically:YES];
+                       }
                        
                        // Let the loader know what's up
                        NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]), 
@@ -153,9 +175,9 @@ using namespace WhirlyGlobe;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
     }
 }
 

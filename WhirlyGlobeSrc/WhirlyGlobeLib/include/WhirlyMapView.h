@@ -60,7 +60,7 @@
 - (float)calcZbufferRes;
 
 /// Generate the model view matrix for use by OpenGL.
-- (Eigen::Affine3f)calcModelMatrix;
+- (Eigen::Matrix4f)calcModelMatrix;
 
 /// Height above the plane
 - (float)heightAboveSurface;
@@ -69,11 +69,11 @@
     the plane.  Returns true if we hit and where.
     Returns false if we didn't, which can only happened if we're turned away.
  */
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
 
 /** From a world location in 3D, figure the projection to the screen.
     Returns a point within the frame.
   */
-- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point2f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point2f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 @end

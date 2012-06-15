@@ -289,7 +289,7 @@ using namespace WhirlyGlobe;
       [NSNumber numberWithBool:YES],@"enable",
       [NSNumber numberWithInt:3],@"drawOffset",
       [UIColor whiteColor],@"color",
-      [NSNumber numberWithFloat:1.0],@"fade",
+//      [NSNumber numberWithFloat:1.0],@"fade",
       nil];
     NSDictionary *labelDesc =
      [NSDictionary dictionaryWithObjectsAndKeys:
@@ -298,10 +298,10 @@ using namespace WhirlyGlobe;
       [UIColor whiteColor],@"textColor",
       [UIFont boldSystemFontOfSize:24.0],@"font",
       [NSNumber numberWithInt:4],@"drawOffset",
-//      [NSNumber numberWithFloat:0.05],@"width",
-      [NSNumber numberWithFloat:12.0],@"height",
+      [NSNumber numberWithFloat:0.05],@"width",
+//      [NSNumber numberWithFloat:12.0],@"height",
       [NSNumber numberWithFloat:1.0],@"fade",
-      [NSNumber numberWithBool:TRUE],@"screen",
+//      [NSNumber numberWithBool:TRUE],@"screen",
       nil];
         
     // Draw all the countries in the admin 0 shape file
@@ -336,7 +336,7 @@ using namespace WhirlyGlobe;
                     // And build a label.  We'll add these as a group below
                     WhirlyKitSingleLabel *label = [[WhirlyKitSingleLabel alloc] init];
                     label.isSelectable = YES;
-                    label.iconTexture = iconTexID;
+//                    label.iconTexture = iconTexID;
                     label.selectID = Identifiable::genId();
                     label.text = name;
                     [label setLoc:ar->calcGeoMbr().mid()];
@@ -386,7 +386,7 @@ const int NumMarkers=250;
          [NSNumber numberWithFloat:0.8],@"maxVis",
          [NSNumber numberWithInt:2],@"drawOffset",
          [NSNumber numberWithFloat:1.0],@"fade",
-         [NSNumber numberWithBool:TRUE],@"screen",
+//         [NSNumber numberWithBool:TRUE],@"screen",
          nil];
 
         // Set up the number textures

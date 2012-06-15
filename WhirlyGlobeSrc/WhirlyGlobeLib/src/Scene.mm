@@ -43,8 +43,6 @@ Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth
 Scene::~Scene()
 {
     delete cullTree;
-    for (DrawableSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
-        delete *it;
     for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
         delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
@@ -94,6 +92,9 @@ void Scene::addChangeRequest(ChangeRequest *newChange)
 
 GLuint Scene::getGLTexture(SimpleIdentity texIdent)
 {
+    if (texIdent == EmptyIdentity)
+        return 0;
+    
     Texture dumbTex;
     dumbTex.setId(texIdent);
     TextureSet::iterator it = textures.find(&dumbTex);
@@ -103,15 +104,15 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     return 0;
 }
 
-Drawable *Scene::getDrawable(SimpleIdentity drawId)
+DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
-    BasicDrawable dumbDraw;
-    dumbDraw.setId(drawId);
-    Scene::DrawableSet::iterator it = drawables.find(&dumbDraw);
+    BasicDrawable *dumbDraw = new BasicDrawable();
+    dumbDraw->setId(drawId);
+    Scene::DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
     if (it != drawables.end())
         return *it;
     
-    return NULL;
+    return DrawableRef();
 }
 
 Generator *Scene::getGenerator(SimpleIdentity genId)
@@ -216,7 +217,8 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitView *view)
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitView *view)
 {
-    scene->addDrawable(drawable);
+    DrawableRef drawRef(drawable);
+    scene->addDrawable(drawRef);
         
     // Initialize any OpenGL foo
     // Note: Make the Z offset a parameter
@@ -227,18 +229,15 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitView *view)
 
 void RemDrawableReq::execute(Scene *scene,WhirlyKitView *view)
 {
-    BasicDrawable dumbDraw;
-    dumbDraw.setId(drawable);
-    Scene::DrawableSet::iterator it = scene->drawables.find(&dumbDraw);
+    BasicDrawable *dumbDraw = new BasicDrawable();
+    dumbDraw->setId(drawable);
+    Scene::DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())
     {
-        Drawable *theDrawable = *it;
-        scene->remDrawable(theDrawable);
-        
         // Teardown OpenGL foo
-        theDrawable->teardownGL();
-        // And delete
-        delete theDrawable;
+        (*it)->teardownGL();
+
+        scene->remDrawable(*it);        
     }
 }
 

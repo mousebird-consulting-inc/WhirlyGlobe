@@ -129,7 +129,7 @@
 		2B232B171471863D00CF2438 /* 50m_populated_places_simple.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = 50m_populated_places_simple.prj; path = resources/vectors/50m_populated_places_simple.prj; sourceTree = SOURCE_ROOT; };
 		2B232B181471863D00CF2438 /* 50m_populated_places_simple.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = 50m_populated_places_simple.shp; path = resources/vectors/50m_populated_places_simple.shp; sourceTree = SOURCE_ROOT; };
 		2B232B191471863D00CF2438 /* 50m_populated_places_simple.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = 50m_populated_places_simple.shx; path = resources/vectors/50m_populated_places_simple.shx; sourceTree = SOURCE_ROOT; };
-		2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeTester2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B2C1DD01458B73D00B5D61D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B2C1DD21458B73D00B5D61D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2B2C1DD41458B73D00B5D61D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -299,7 +299,7 @@
 		2B2C1DCD1458B73D00B5D61D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester.app */,
+				2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester2.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -514,7 +514,7 @@
 			);
 			name = WhirlyGlobeTester;
 			productName = WhirlyGlobeTester;
-			productReference = 2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester.app */;
+			productReference = 2B2C1DCC1458B73D00B5D61D /* WhirlyGlobeTester2.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -754,7 +754,7 @@
 					"-all_load",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = WhirlyGlobeTester2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -777,7 +777,7 @@
 					"-all_load",
 					"-ObjC",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = WhirlyGlobeTester2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

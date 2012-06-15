@@ -99,7 +99,7 @@ protected:
     WhirlyKitView * __weak theView;
     
     /// Current model matrix from the view
-    Eigen::Affine3f modelTrans;
+    Eigen::Matrix4f modelTrans;
     
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
@@ -116,7 +116,7 @@ protected:
 
 @property (nonatomic,weak) WhirlyKitSceneRendererES1 *sceneRenderer;
 @property (nonatomic,weak) WhirlyKitView *theView;
-@property (nonatomic,assign) Eigen::Affine3f modelTrans;
+@property (nonatomic,assign) Eigen::Matrix4f modelTrans;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
@@ -131,6 +131,10 @@ protected:
 @protocol WhirlyKitSceneRendererDelegate
 
 @optional
+
+/// Return true if the lighting has changed since last lightingSetup: was called
+- (BOOL)lightingChanged:(WhirlyKitSceneRendererES1 *)sceneRenderer;
+
 /// This overrides the setup view, including lights and modes
 /// Be sure to do *all* the setup if you do this
 - (void)lightingSetup:(WhirlyKitSceneRendererES1 *)sceneRenderer;
@@ -194,7 +198,7 @@ protected:
     WhirlyKit::RGBAColor clearColor;
 }
 
-@property (nonatomic) EAGLContext *context;
+@property (nonatomic,readonly) EAGLContext *context;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,weak) WhirlyKitView *theView;
 @property (nonatomic,assign) bool zBuffer;

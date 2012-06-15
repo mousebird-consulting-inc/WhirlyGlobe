@@ -29,9 +29,9 @@
 @interface WhirlyGlobeViewState : NSObject
 {
 @public
-    float heightAboveGlobe;
+    Eigen::Matrix4f modelMatrix;
 	Eigen::Quaternion<float> rotQuat;    
-    Eigen::Affine3f modelMatrix;
+    float heightAboveGlobe;
 	float fieldOfView;
 	float imagePlaneSize;
 	float nearPlane;
@@ -48,7 +48,13 @@
 /** From a world location (3D), figure out the projection to the screen
  Returns a point within the frame
  */
-- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+
+/// Return where up (0,0,1) is after model rotation
+- (Eigen::Vector3f)currentUp;
+
+/// Calculate where the eye is in model coordinates
+- (Eigen::Vector3f)eyePos;
 
 @end
 
@@ -57,6 +63,8 @@
   */
 @interface WhirlyGlobeLayerViewWatcher : WhirlyKitLayerViewWatcher<WhirlyGlobeViewWatcherDelegate>
 {
+    /// You should know the type here.  A globe or a map view state.
+    WhirlyGlobeViewState *lastViewState;
 }
 
 /// Initialize with the globe view to watch and the layer thread

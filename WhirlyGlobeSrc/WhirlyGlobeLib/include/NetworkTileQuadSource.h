@@ -43,11 +43,14 @@
     int numSimultaneous;
     /// Size of a tile in pixels square.  256 is the usual.
     int pixelsPerTile;   
+    /// Location of cache, if set
+    NSString *cacheDir;
 }
 
 @property (nonatomic,assign) int numSimultaneous;
+@property (nonatomic) NSString *cacheDir;
 
-/// Initialize with the base URL and the 
+/// Initialize with the base URL and image extension (e.g. png, jpg)
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;
 
 - (void)setMinZoom:(int)zoom;

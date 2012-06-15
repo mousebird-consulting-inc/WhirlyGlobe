@@ -29,9 +29,9 @@ using namespace Eigen;
 @implementation WhirlyGlobeView
 
 @synthesize heightAboveGlobe;
-@synthesize rotQuat;
 @synthesize delegate;
 @synthesize watchDelegate;
+@synthesize rotQuat;
 
 - (id)init
 {
@@ -105,17 +105,17 @@ using namespace Eigen;
         [watchDelegate viewUpdated:self];
 }
 	
-- (Eigen::Affine3f)calcModelMatrix
+- (Eigen::Matrix4f)calcModelMatrix
 {
 	Eigen::Affine3f trans(Eigen::Translation3f(0,0,-[self calcEarthZOffset]));
 	Eigen::Affine3f rot(rotQuat);
 	
-	return trans * rot;
+	return (trans * rot).matrix();
 }
 
 - (Vector3f)currentUp
 {
-	Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse().matrix();
+	Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
 	
 	Vector4f newUp = modelMat * Vector4f(0,0,1,0);
 	return Vector3f(newUp.x(),newUp.y(),newUp.z());
@@ -129,15 +129,15 @@ using namespace Eigen;
     return Vector3f(newUp.x(),newUp.y(),newUp.z());
 }
 	
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
 {
 	// Back project the point from screen space into model space
 	Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
-	Eigen::Affine3f modelTrans = *transform;
-	Matrix4f invModelMat = modelTrans.inverse().matrix();
+	Eigen::Matrix4f modelTrans = *transform;
+	Matrix4f invModelMat = modelTrans.inverse();
 	Point3f eyePt(0,0,0);
 	Vector4f modelEye = invModelMat * Vector4f(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
 	Vector4f modelScreenPt = invModelMat * Vector4f(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
@@ -159,11 +159,11 @@ using namespace Eigen;
 	return false;
 }
 
-- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Affine3f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans.matrix();
+    Eigen::Matrix4f modelTrans = *transform;
+    Matrix4f modelMat = modelTrans;
     Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
 
@@ -225,7 +225,7 @@ using namespace Eigen;
     // The rotation from where we are to where we tapped
     Eigen::Quaternionf endRot;
     endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaternionf curRotQuat = self.rotQuat;
+    Eigen::Quaternionf curRotQuat = rotQuat;
     Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
     
     if (northUp)
@@ -248,6 +248,14 @@ using namespace Eigen;
     }
     
     return newRotQuat;
+}
+
+- (Eigen::Vector3f)eyePos
+{
+	Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
+	
+	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
+	return Vector3f(newUp.x(),newUp.y(),newUp.z());    
 }
 
 @end

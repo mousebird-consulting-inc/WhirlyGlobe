@@ -47,7 +47,7 @@ public:
     /// World drawables are drawn in 3D, screen drawables are drawn in 2D, after the 3D.
     /// The renderer deletes the drawables at the end of the frame
     virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
-                                   std::vector<Drawable *> &worldDrawables,std::vector<Drawable *> &screenDrawables) { };
+                                   std::vector<DrawableRef> &worldDrawables,std::vector<DrawableRef> &screenDrawables) { };
     
     /// An optional name used to identify the generator
     std::string name;

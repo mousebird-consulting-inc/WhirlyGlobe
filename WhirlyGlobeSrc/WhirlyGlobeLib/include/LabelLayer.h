@@ -83,9 +83,9 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 
 @property (nonatomic,assign) bool isSelectable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
-@property (nonatomic) NSString *text;
+@property (nonatomic,retain) NSString *text;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic) NSDictionary *desc;
+@property (nonatomic,retain) NSDictionary *desc;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
 
 /// This is used to sort out width and height from the defaults.  Pass

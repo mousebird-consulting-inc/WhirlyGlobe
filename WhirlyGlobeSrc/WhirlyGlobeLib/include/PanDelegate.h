@@ -30,7 +30,7 @@
     /// Set if we're in the process of panning
 	BOOL panning;
 	/// The view transform when we started
-	Eigen::Affine3f startTransform;
+	Eigen::Matrix4f startTransform;
 	/// Where we first touched the sphere
 	WhirlyKit::Point3f startOnSphere;
 	/// Rotation when we started

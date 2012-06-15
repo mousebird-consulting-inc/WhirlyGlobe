@@ -48,7 +48,7 @@
     unsigned int borderPixels;  
 }
 
-@property (nonatomic) NSString *basePath,*baseName,*ext;
+@property (nonatomic,retain) NSString *basePath,*baseName,*ext;
 @property (nonatomic,readonly) unsigned int numX,numY;
 @property (nonatomic,readonly) unsigned int pixelsSquare,borderPixels;
 

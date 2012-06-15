@@ -1,4 +1,4 @@
-You will need three additional libraries to compile WhirlyGlobeLib and WhirlyGlobeApp.
+You will need four additional libraries to compile WhirlyGlobeLib and WhirlyGlobeApp.
 
 Shapefile Reader:
 http://shapelib.maptools.org/
@@ -10,8 +10,10 @@ I'm including shapelib by source, and I put it in ../../utilities/shapelib-1.3.0
 Vector (and other) library:
 http://eigen.tuxfamily.org/index.php?title=Main_Page
 
-I'm using eigen 2.  I put it under ../../utilities/eigen/ relative to this directory.
-Haven't tried it with eigen 3 yet.  No idea if it'll work.
+I'm using eigen 3 for matrix math.  I put it under ../../utilities/eigen/ relative to this directory.
+
+I'm using a complex polygon clipping library as well.  That one is included by reference, also in the ../../utilities dir.
+http://www.angusj.com/delphi/clipper.php
 
 Boost:
 http://www.boost.org/

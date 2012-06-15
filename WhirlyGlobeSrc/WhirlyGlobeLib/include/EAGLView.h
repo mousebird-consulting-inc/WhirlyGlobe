@@ -40,7 +40,7 @@
     BOOL useRetina;
 }
 
-@property (nonatomic) id<WhirlyKitESRenderer> renderer;
+@property (nonatomic,retain) id<WhirlyKitESRenderer> renderer;
 @property (nonatomic) NSInteger frameInterval;
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
 @property (nonatomic, assign) BOOL useRetina;

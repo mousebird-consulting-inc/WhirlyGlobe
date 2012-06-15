@@ -48,9 +48,9 @@
     EAGLContext *glContext;
 }
 
-@property (nonatomic) NSRunLoop *runLoop;
+@property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
-@property (nonatomic) EAGLContext *glContext;
+@property (nonatomic,readonly) EAGLContext *glContext;
 
 /// Set up with a scene and a view
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;

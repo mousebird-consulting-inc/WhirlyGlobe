@@ -38,8 +38,6 @@
     /// Watchers we'll call back for updates
     NSMutableArray *watchers;
     
-    /// You should know the type here.  A globe or a map view state.
-    NSObject *lastViewState;
     /// When the last update was run
     NSTimeInterval lastUpdate;
 }

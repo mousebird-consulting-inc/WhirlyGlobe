@@ -172,7 +172,7 @@ MarkerGenerator::Marker *MarkerGenerator::getMarker(SimpleIdentity markerId)
     return NULL;
 }
     
-void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables, std::vector<Drawable *> &screenDrawables)
+void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
     if (markers.empty())
         return;
@@ -193,7 +193,7 @@ void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, s
     // Copy the drawables out
     for (DrawableMap::iterator it = drawables.begin();
          it != drawables.end(); ++it)
-        outDrawables.push_back(it->second);
+        outDrawables.push_back(DrawableRef(it->second));
 }
 
 MarkerGeneratorAddRequest::MarkerGeneratorAddRequest(SimpleIdentity genId,MarkerGenerator::Marker *marker)

@@ -57,7 +57,7 @@ using namespace WhirlyGlobe;
 // Save the current state as the initial rotation state
 - (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView  *)glView
 {
-    startQuat = globeView.rotQuat;
+    startQuat = [globeView rotQuat];
     axis = [globeView currentUp];
     rotType = RotFree;
 }

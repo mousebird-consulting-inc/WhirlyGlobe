@@ -60,11 +60,11 @@ using namespace WhirlyKit;
     return delta;
 }
 
-- (Eigen::Affine3f)calcModelMatrix
+- (Eigen::Matrix4f)calcModelMatrix
 {
     Eigen::Affine3f trans(Eigen::Translation3f(-loc.x(),-loc.y(),-loc.z()));
     
-    return trans;
+    return trans.matrix();
 }
 
 - (float)heightAboveSurface
@@ -72,15 +72,15 @@ using namespace WhirlyKit;
     return loc.z();
 }
 
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
 {
     // Back Project the screen point into model space
     Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
-    Eigen::Affine3f modelTrans = *transform;
-    Matrix4f invModelMat = modelTrans.inverse().matrix();
+    Eigen::Matrix4f modelTrans = *transform;
+    Matrix4f invModelMat = modelTrans.inverse();
     Point3f eyePt(0,0,0);
     Vector4f modelEye = invModelMat * Vector4f(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
     Vector4f modelScreenPt = invModelMat * Vector4f(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
@@ -99,13 +99,13 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const Point2f &)worldLoc2d transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromPlane:(const Point2f &)worldLoc2d transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
     Point3f worldLoc(worldLoc2d.x(),worldLoc2d.y(),0.0);
     
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Affine3f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans.matrix();
+    Eigen::Matrix4f modelTrans = *transform;
+    Matrix4f modelMat = modelTrans;
     Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
     

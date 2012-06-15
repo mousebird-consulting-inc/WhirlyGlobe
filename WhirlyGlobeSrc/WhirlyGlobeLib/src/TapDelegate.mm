@@ -40,20 +40,23 @@ using namespace WhirlyKit;
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
 {
 	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
-	[view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
+    
+	[view addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
+    
 	return tapDelegate;
 }
 
 // We'll let other gestures run
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return TRUE;
+    return otherGestureRecognizer.view == gestureRecognizer.view;
 }
 
 // Called for a tap
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
+    
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
@@ -61,7 +64,7 @@ using namespace WhirlyKit;
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
 	Point3f hit;
-	Eigen::Affine3f theTransform = [globeView calcModelMatrix];
+	Eigen::Matrix4f theTransform = [globeView calcModelMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
     if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
     {

@@ -105,7 +105,7 @@ void ParticleGenerator::removeParticleSystem(SimpleIdentity theId)
 }
     
 // Generate the drawables for this frame
-void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables,std::vector<Drawable *> &screenDrawables)
+void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables)
 {
     NSTimeInterval currentTime = CFAbsoluteTimeGetCurrent();
 
@@ -179,7 +179,7 @@ void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
             {
                 draw = new BasicDrawable((numFull > MaxDrawablePoints ? MaxDrawablePoints : numFull),0);                
                 draw->setType(GL_POINTS);
-                drawables.push_back(draw);
+                drawables.push_back(DrawableRef(draw));
             }
             draw->addPoint(particle.loc);
             draw->addColor(particle.color);

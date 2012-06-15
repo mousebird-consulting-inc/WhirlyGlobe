@@ -64,7 +64,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Affine3f modelTrans = frameInfo.modelTrans;
+    Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
     screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
     
     // Note: This check is too simple
@@ -215,7 +215,7 @@ void ScreenSpaceGenerator::removeConvexShapes(std::vector<SimpleIdentity> &shape
         removeConvexShape(shapeIDs[ii]);
 }
     
-void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<Drawable *> &outDrawables, std::vector<Drawable *> &screenDrawables)
+void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
     if (convexShapes.empty())
         return;
@@ -241,7 +241,7 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     // Copy the drawables out
     for (DrawableMap::iterator it = drawables.begin();
          it != drawables.end(); ++it)
-        screenDrawables.push_back(it->second);
+        screenDrawables.push_back(DrawableRef(it->second));
 }
     
 ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleIdentity markerId)

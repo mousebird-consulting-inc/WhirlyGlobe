@@ -499,6 +499,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         // Find the image (if we already rendered it) or create it as needed
         UIImage *textImage = nil;
         std::string labelStr = [label.text asStdString];
+        if (labelStr.length() != [label.text length])
+            NSLog(@"LabelLayer: Label string mismatch for rendering.");
         std::map<std::string,UIImage *>::iterator it = renderedImages.find(labelStr);
         if (it != renderedImages.end())
         {
@@ -603,6 +605,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             
             [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts iconCorners:iconPts];
             screenShape = new ScreenSpaceGenerator::ConvexShape();
+            screenShape->drawPriority = labelInfo.drawPriority;
             screenShape->minVis = labelInfo.minVis;
             screenShape->maxVis = labelInfo.maxVis;
             labelRep->screenIDs.insert(screenShape->getId());

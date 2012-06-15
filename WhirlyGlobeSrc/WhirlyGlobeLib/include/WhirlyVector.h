@@ -20,7 +20,7 @@
 
 // Note: This works around a problem in compilation for the iphone
 #define EIGEN_DONT_VECTORIZE 1
-// #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
+//#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 
 #import <Eigen/Eigen>
 #import <vector>
@@ -89,7 +89,7 @@ public:
 	Mbr(const std::vector<Point2f> &pts);
     
     /// Resets back to invalid
-    void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur(-1.f,-1.f); }
+    void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur = Point2f(-1.f,-1.f); }
 	
     /// Lower left corner
 	const Point2f &ll() const { return pt_ll; }

@@ -573,7 +573,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -596,7 +596,7 @@
 					"-ObjC",
 				);
 				PRODUCT_NAME = WhirlyGlobeApp;
-				PROVISIONING_PROFILE = "0F088CA6-FC7F-48CC-A545-F4A66C315421";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

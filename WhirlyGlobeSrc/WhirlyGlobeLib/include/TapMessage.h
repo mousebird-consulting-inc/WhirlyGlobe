@@ -49,7 +49,7 @@
     float heightAboveSurface;   
 }
 
-@property (nonatomic) UIView *view;
+@property (nonatomic,retain) UIView *view;
 @property (nonatomic,assign) CGPoint touchLoc;
 @property (nonatomic,assign) WhirlyKit::GeoCoord whereGeo;
 @property (nonatomic,assign) WhirlyKit::Point3f worldLoc;

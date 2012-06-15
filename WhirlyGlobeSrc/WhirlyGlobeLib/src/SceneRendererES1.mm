@@ -20,6 +20,7 @@
 
 #import "SceneRendererES1.h"
 #import "UIColor+Stuff.h"
+//#import <Eigen/OpenGLSupport>
 
 using namespace WhirlyKit;
 
@@ -155,7 +156,7 @@ public:
     ~drawListSortStruct() { }
     drawListSortStruct(const drawListSortStruct &that) {  }
     drawListSortStruct & operator = (const drawListSortStruct &that) { return *this; }
-    bool operator()(const Drawable *a,const Drawable *b) 
+    bool operator()(DrawableRef a,DrawableRef b) 
     {
         if (a->hasAlpha(frameInfo) == b->hasAlpha(frameInfo))
             return a->getDrawPriority() < b->getDrawPriority();
@@ -271,6 +272,7 @@ public:
 		return NO;
 	}
 	
+    glMatrixMode(GL_MODELVIEW);
 	[self setupView];
 	
 	return YES;
@@ -324,44 +326,19 @@ public:
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
-//// Determine whether the screen overlaps the given geo MBR
-//- (bool) overlapScreenGeoMbr:(GeoMbr)geoMbr view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
-//{
-//    Mbr screenMbr;
-//    screenMbr.addPoint(Point2f(-ScreenOverlap*frameSize.x(),-ScreenOverlap*frameSize.y()));
-//    screenMbr.addPoint(Point2f((1+ScreenOverlap)*frameSize.x(),(1+ScreenOverlap)*frameSize.y()));
-//    CoordSystem *coordSys = scene->coordSystem;
-//    Point3f localPts[8];
-//    localPts[0] = coordSys->geographicToLocal(geoMbr.ll());
-//    localPts[1] = coordSys->geographicToLocal(GeoCoord(geoMbr.ur().x(),geoMbr.ll().y()));
-//    localPts[2] = coordSys->geographicToLocal(geoMbr.ur());
-//    localPts[3] = coordSys->geographicToLocal(GeoCoord(geoMbr.ll().x(),geoMbr.ur().y()));
-//    
-//    // Throw in a few mid points as well
-//    for (unsigned int ii=0;ii<4;ii++)
-//        localPts[4+ii] = (localPts[ii] + localPts[(ii+1)%4])/2.0;
-//
-//    Mbr geoScreenMbr;
-//    for (unsigned int ii=0;ii<8;ii++)
-//    {
-//        Point3f worldLoc = coordSys->localToGeocentricish(localPts[ii]);
-//        CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
-//        geoScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
-//    }
-//    
-//    return geoScreenMbr.overlaps(screenMbr);
-//}
+// Use this to turn off culling (for debugging)
+static const bool DoingCulling = false;
 
-- (void) mergeDrawableSet:(const std::set<Drawable *,IdentifiableSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<const Drawable *> *) toDraw considered:(int *)drawablesConsidered
+- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     CoordSystem *coordSys = globeView.coordSystem;
     
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();        
-    for (std::set<Drawable *,IdentifiableSorter>::const_iterator it = newDrawables.begin();
+    for (std::set<DrawableRef,IdentifiableSorter>::const_iterator it = newDrawables.begin();
          it != newDrawables.end(); ++it)
     {
-        Drawable *draw = *it;
+        DrawableRef draw = *it;
         // Make sure we haven't added it already and it's on
         // Note: We're doing the on check repeatedly
         //       And we're doing the refusal check repeatedly as well, possibly
@@ -378,13 +355,13 @@ static const float ScreenOverlap = 0.1;
             }
 
             // If this overlaps, we want to draw it
-            if (screenMbr.overlaps(localScreenMbr))
+            if (!DoingCulling || screenMbr.overlaps(localScreenMbr))
                 toDraw->insert(draw);
         } 
     }    
 }
 
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<const Drawable *> *) toDraw considered:(int *)drawablesConsidered
+- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     CoordSystem *coordSys = globeView.coordSystem;
     
@@ -405,7 +382,7 @@ static const float ScreenOverlap = 0.1;
             }
         }
     }
-    if (!inView)
+    if (DoingCulling && !inView)
         return;
         
     Mbr localScreenMbr;
@@ -416,7 +393,7 @@ static const float ScreenOverlap = 0.1;
     }
     
     // If this doesn't overlap what we're viewing, we're done
-    if (!screenMbr.overlaps(localScreenMbr))
+    if (DoingCulling && !screenMbr.overlaps(localScreenMbr))
         return;
 
     // If the footprint of this level on the screen is larger than
@@ -441,55 +418,6 @@ static const float ScreenOverlap = 0.1;
     }
 }
 
-//// Utility function to calculate a reasonable Geo MBR for the viewport
-//- (GeoMbr) calcViewGeoMbr:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Affine3f *)modelTrans
-//{
-//    Point3f hits[8];
-//    GeoMbr viewGeoMbr;
-//    CGPoint pts[8];
-//    
-//    // Corner points
-//    pts[0] = CGPointMake(-frameSize.x()/4, -frameSize.y()/4);
-//    pts[1] = CGPointMake(1.25*frameSize.x(), -frameSize.y()/4);
-//    pts[2] = CGPointMake(1.25*frameSize.x(), 1.25*frameSize.y());
-//    pts[3] = CGPointMake(-frameSize.x()/4, 1.25*frameSize.y());
-//    // Add some mid points to catch the curvature
-//    for (unsigned int ii=0;ii<4;ii++)
-//    {
-//        CGPoint &p0 = pts[ii];
-//        CGPoint &p1 = pts[(ii+1)%4];
-//        CGPoint mid = CGPointMake((p0.x+p1.x)/2, (p0.y+p1.y)/2);
-//        pts[ii+4] = mid;
-//    }
-//
-//    bool onSphere = true;
-//    for (unsigned int ii=0;ii<8;ii++)
-//    {
-//        if (![globeView pointOnSphereFromScreen:pts[ii] transform:modelTrans frameSize:frameSize hit:&hits[ii]])
-//        {
-//            onSphere = false;
-//            break;
-//        }
-//    }
-//    
-//    // If all those points where on the sphere, get us an MBR
-//    if (onSphere)
-//    {
-//        CoordSystem *coordSys = scene->coordSystem;
-//        for (unsigned int jj=0;jj<8;jj++)
-//        {
-//            GeoCoord coord = coordSys->localToGeographic(coordSys->geocentricishToLocal(hits[jj]));
-//            viewGeoMbr.addGeoCoord(coord);
-//        }        
-//    } else {
-//        // If we're sampling points outside the sphere, toss back the whole thing
-//        viewGeoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -90);
-//        viewGeoMbr.ur() = GeoCoord::CoordFromDegrees(180, 90);
-//    }
-//    
-//    return viewGeoMbr;
-//}
-
 - (void) render:(CFTimeInterval)duration
 {  
     if (perfInterval > 0)
@@ -501,8 +429,17 @@ static const float ScreenOverlap = 0.1;
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
 	[theView animate];
-	
+    
     [EAGLContext setCurrentContext:context];
+    
+    // Deal with any lighting changes
+    glMatrixMode(GL_MODELVIEW);
+    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(lightingChanged:)] &&
+        [(NSObject *)delegate respondsToSelector:@selector(lightingSetup:)] &&
+        [delegate lightingChanged:self])
+    {
+        [delegate lightingSetup:self];
+    }
     
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
     glViewport(0, 0, framebufferWidth, framebufferHeight);
@@ -516,9 +453,33 @@ static const float ScreenOverlap = 0.1;
 	
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-	Eigen::Affine3f modelTrans = [theView calcModelMatrix];
-	glLoadMatrixf(modelTrans.data());
+    
+    // See if we're dealing with a globe view
+    WhirlyGlobeView *globeView = nil;
+    if ([theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = (WhirlyGlobeView *)theView;
 
+    // Note: Testing
+    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
+    if (globeView)
+    {
+
+//        printf("Renderer partialCalc:\n");
+//        for (unsigned int iy=0;iy<4;iy++)
+//        {
+//            for (unsigned int ix=0;ix<4;ix++)
+//                printf(" %f",fullMat.data()[iy*4+ix]);
+//            printf("\n");
+//        }
+//        printf("\n");
+        Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+        
+        glMultMatrixf(viewTrans.data());
+        glMultMatrixf(modelTrans.data());
+    } else {
+        glMultMatrixf(modelTrans.data());
+    }
+    
     if (zBuffer)
     {
         glDepthMask(GL_TRUE);
@@ -528,7 +489,7 @@ static const float ScreenOverlap = 0.1;
         glDisable(GL_DEPTH_TEST);
     }
 
-	glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 	glEnable(GL_CULL_FACE);
@@ -571,7 +532,7 @@ static const float ScreenOverlap = 0.1;
 		
 		// We need a reverse of the eye vector in model space
 		// We'll use this to determine what's pointed away
-		Eigen::Matrix4f modelTransInv = modelTrans.inverse().matrix();
+		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
         frameInfo.eyeVec = eyeVec3;
@@ -587,16 +548,6 @@ static const float ScreenOverlap = 0.1;
 		Vector4f projB = projMat * test2;
 		Vector3f projA_3(projA.x()/projA.w(),projA.y()/projA.w(),projA.z()/projA.w());
 		Vector3f projB_3(projB.x()/projB.w(),projB.y()/projB.w(),projB.z()/projB.w());
-        
-        // Need an approximate MBR for the view
-        // Note: This assumes we're working in geographic
-        GeoMbr viewGeoMbr;
-        WhirlyGlobeView *globeView = nil;
-        if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        {
-            globeView = (WhirlyGlobeView *)theView;
-//            viewGeoMbr = [self calcViewGeoMbr:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans];
-        }
 
         // Recursively search for the drawables that overlap the screen
         Mbr screenMbr;
@@ -604,84 +555,14 @@ static const float ScreenOverlap = 0.1;
         screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
         screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
         int drawablesConsidered = 0;
-		std::set<const Drawable *> toDraw;
+		std::set<DrawableRef> toDraw;
         CullTree *cullTree = scene->getCullTree();
         [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
-		
-//		// Look through the cullables to assemble the set of drawables
-//		// We may encounter the same drawable multiple times, hence the std::set
-//		unsigned int numX,numY;
-//		scene->getCullableSize(numX,numY);
-//		const Cullable *cullables = scene->getCullables();
-//		for (unsigned int ci=0;ci<numX*numY;ci++)
-//		{
-//			// Check the four corners of the cullable to see if they're pointed away
-//            // But just for the globe case
-//			const Cullable *theCullable = &cullables[ci];
-//			bool inView = false;
-//            if (coordSys->isFlat())
-//            {
-//                inView = true;
-//            } else {
-//                for (unsigned int ii=0;ii<4;ii++)
-//                {
-//                    Vector3f norm = theCullable->cornerNorms[ii];
-//                    if (norm.dot(eyeVec3) > 0)
-//                    {
-//                        inView = true;
-//                        break;
-//                    }
-//                }
-//            }
-//			
-//			// Now project the corners onto the viewing plane and see if we overlap
-//			// This lets us catch things around the edges
-//			if (inView)
-//			{
-//                // Note: This version is too slow
-////                if (![self overlapScreenGeoMbr:theCullable->getGeoMbr() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans])
-////                    inView = false;
-//                
-//				Mbr cullMbr;
-//				
-//				for (unsigned int ii=0;ii<4;ii++)
-//				{
-//					// Build up the MBR on the view plane
-//					Vector3f pt = theCullable->cornerPoints[ii];
-//					Vector4f projPt = projMat * (modelTrans * Vector4f(pt.x(),pt.y(),pt.z(),1.0));
-//					Vector3f projPt3(projPt.x()/projPt.w(),projPt.y()/projPt.w(),projPt.z()/projPt.w());
-//					cullMbr.addPoint(Point2f(projPt3.x(),projPt3.y()));
-//				}
-//				
-//				if (!cullMbr.overlaps(viewMbr))
-//				{
-//					inView = false;
-//				}
-//                
-//                // Note: Debugging
-////                inView = true;
-//			}
-//			
-//			if (inView)
-//			{
-//				const std::set<Drawable *> &theseDrawables = theCullable->getDrawables();
-//                for (std::set<Drawable *>::const_iterator it = theseDrawables.begin();
-//                     it != theseDrawables.end(); ++it)
-//                {
-//                    Drawable *drawable = *it;
-////                    if (drawable->isOn(frameInfo) && (!viewGeoMbr.valid() || drawable->getGeoMbr().overlaps(viewGeoMbr)))
-//                    if (drawable->isOn(frameInfo) && 
-//                        [self overlapScreenGeoMbr:drawable->getGeoMbr() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans])
-//                        toDraw.insert(drawable);
-//                    drawablesConsidered++;
-//                }
-//			}
-//		}
-        
+		        
         // Turn these drawables in to a vector
-		std::vector<const Drawable *> drawList;
+		std::vector<DrawableRef> drawList;
 		drawList.reserve(toDraw.size());
-		for (std::set<const Drawable *>::iterator it = toDraw.begin();
+		for (std::set<DrawableRef>::iterator it = toDraw.begin();
 			 it != toDraw.end(); ++it)
 			drawList.push_back(*it);
 
@@ -694,7 +575,7 @@ static const float ScreenOverlap = 0.1;
         // Now ask our generators to make their drawables
         // Note: Not doing any culling here
         //       And we should reuse these Drawables
-        std::vector<Drawable *> generatedDrawables,screenDrawables;
+        std::vector<DrawableRef> generatedDrawables,screenDrawables;
         const GeneratorSet *generators = scene->getGenerators();
         for (GeneratorSet::iterator it = generators->begin();
              it != generators->end(); ++it)
@@ -721,7 +602,7 @@ static const float ScreenOverlap = 0.1;
         bool depthMaskOn = zBuffer;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
-			const Drawable *drawable = drawList[ii];
+			DrawableRef drawable = drawList[ii];
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
             if (depthMaskOn && drawable->hasAlpha(frameInfo))
@@ -731,6 +612,11 @@ static const float ScreenOverlap = 0.1;
             }
             drawable->draw(frameInfo,scene);	
             numDrawables++;
+            if (perfInterval > 0)
+            {
+                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable.get());
+                perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
+            }
 		}
         
         if (perfInterval > 0)
@@ -740,11 +626,6 @@ static const float ScreenOverlap = 0.1;
             perfTimer.stopTiming("Draw Execution");
         
         // Anything generated needs to be cleaned up
-        // Note: Should have the generators keep them
-        for (unsigned int ig=0;ig<generatedDrawables.size();ig++)
-        {
-            delete generatedDrawables[ig];
-        }
         generatedDrawables.clear();
         drawList.clear();        
         
@@ -772,7 +653,7 @@ static const float ScreenOverlap = 0.1;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
-                const Drawable *drawable = drawList[ii];
+                DrawableRef drawable = drawList[ii];
                 if (drawable->isOn(frameInfo))
                 {
                     drawable->draw(frameInfo,scene);
@@ -780,8 +661,6 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            for (unsigned int ig=0;ig<screenDrawables.size();ig++)
-                delete screenDrawables[ig];
             screenDrawables.clear();
             drawList.clear();
         }

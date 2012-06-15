@@ -139,17 +139,25 @@ using namespace WhirlyGlobe;
     // Set up a network tile set
     if (UseStamenTiles)
     {
+        NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+
 //        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://a.tile.openstreetmap.org/" ext:@"png"];
 //        netTiles.minZoom = 0;
 //        netTiles.maxZoom = 14;
-//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
-//        netTiles.minZoom = 0;
-//        netTiles.maxZoom = 7;
 //        netTiles.numSimultaneous = 8;
-        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"jpg"];
+//        netTiles.cacheDir = [NSString stringWithFormat:@"%@/osm_tiles/",cacheDir];
+        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
         netTiles.minZoom = 0;
-        netTiles.maxZoom = 10;
+        netTiles.maxZoom = 12;
         netTiles.numSimultaneous = 8;
+        netTiles.cacheDir = [NSString stringWithFormat:@"%@/osm2_tiles/",cacheDir];        
+//        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"jpg"];
+//        netTiles.minZoom = 0;
+//        netTiles.maxZoom = 10;
+//        netTiles.numSimultaneous = 8;
+//        netTiles.cacheDir = [NSString stringWithFormat:@"%@/stamen_tiles/",cacheDir];
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:netTiles.cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
     }
 
     // Load in a texture group if all else failes
@@ -158,7 +166,7 @@ using namespace WhirlyGlobe;
     
 	// Need an empty scene and view    
 	theView = [[WhirlyGlobeView alloc] init];
-	theScene = new WhirlyGlobe::GlobeScene(16,16,theView.coordSystem);
+    theScene = new WhirlyGlobe::GlobeScene(theView.coordSystem,4);
     sceneRenderer.theView = theView;
 	
 	// Need a layer thread to manage the layers

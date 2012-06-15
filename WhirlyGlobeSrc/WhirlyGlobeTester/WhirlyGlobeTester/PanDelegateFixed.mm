@@ -172,7 +172,7 @@ using namespace WhirlyGlobe;
             Point3f p1 = [view pointUnproject:touch1 width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
             
             // Now unproject them back to the canonical model
-            Eigen::Matrix4f modelMat = [view calcModelMatrix].inverse().matrix();
+            Eigen::Matrix4f modelMat = [view calcModelMatrix].inverse();
             Vector4f model_p0 = modelMat * Vector4f(p0.x(),p0.y(),p0.z(),1.0);
             Vector4f model_p1 = modelMat * Vector4f(p1.x(),p1.y(),p1.z(),1.0);
             model_p0.x() /= model_p0.w();  model_p0.y() /= model_p0.w();  model_p0.z() /= model_p0.w();

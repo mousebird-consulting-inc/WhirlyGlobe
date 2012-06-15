@@ -52,6 +52,7 @@ public:
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIdentity selectID;  // ID used for selection
     SimpleIDSet markerIDs;  // IDs for markers sent to the generator
+    SimpleIDSet screenShapeIDs;  // IDs for screen space objects
     float fade;   // Time to fade away for deletion
 };
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
@@ -90,7 +91,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) bool isSelectable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,readonly) std::vector<WhirlyKit::SimpleIdentity> texIDs;
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
 @property (nonatomic,assign) float width,height;
 @property (nonatomic,assign) NSTimeInterval period;
 @property (nonatomic,assign) NSTimeInterval timeOffset;

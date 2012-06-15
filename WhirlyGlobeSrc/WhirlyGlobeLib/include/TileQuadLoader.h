@@ -32,8 +32,6 @@
 #import "SceneRendererES1.h"
 #import "GlobeQuadDisplayLayer.h"
 
-static BOOL tileLoaderDebug = false;
-
 /// @cond
 @class WhirlyGlobeQuadTileLoader;
 /// @endcond
@@ -53,7 +51,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -164,6 +162,6 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// When a data source has finished its fetch for a given image, it calls
 ///  this method to hand that back to the quad tile loader
 /// If this isn't called in the layer thread, it will switch over to that thread first.
-- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
 
 @end

@@ -38,7 +38,7 @@ public:
     virtual ~MarkerGenerator();
 
     /// Generate the drawables for the given frame
-    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<Drawable *> &drawables,std::vector<Drawable *> &screenDrawables);
+    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 

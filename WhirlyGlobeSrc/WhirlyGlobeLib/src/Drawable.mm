@@ -39,7 +39,7 @@ Drawable::~Drawable()
 	
 void DrawableChangeRequest::execute(Scene *scene,WhirlyKitView *view)
 {
-	Drawable *theDrawable = scene->getDrawable(drawId);
+	DrawableRef theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
 		execute2(scene,theDrawable);
 }
@@ -89,6 +89,9 @@ BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
 	
 BasicDrawable::~BasicDrawable()
 {
+    // This assumes we have a valid context
+    //  or that we already did it when we had a valid context
+    teardownGL();
 }
     
 bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
@@ -259,26 +262,31 @@ void BasicDrawable::teardownGL()
     {
 		glDeleteBuffers(1,&pointBuffer);
         CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        pointBuffer = 0;
     }
     if (colorBuffer)
     {
 		glDeleteBuffers(1,&colorBuffer);
         CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");        
+        colorBuffer = 0;
     }
 	if (texCoordBuffer)
     {
 		glDeleteBuffers(1,&texCoordBuffer);
         CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        texCoordBuffer = 0;
     }
 	if (normBuffer)
     {
 		glDeleteBuffers(1,&normBuffer);
         CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        normBuffer = 0;
     }
 	if (triBuffer)
     {
 		glDeleteBuffers(1,&triBuffer);
         CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        triBuffer = 0;
     }
 }
 	
@@ -565,7 +573,7 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
     
     if (colorBuffer)
     {
-        glEnable(GL_COLOR_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
         CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
@@ -644,6 +652,11 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 // Non-VBO based drawing
 void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
+	if (type == GL_TRIANGLES)
+		glEnable(GL_LIGHTING);
+	else
+		glDisable(GL_LIGHTING);
+
 	GLuint textureId = scene->getGLTexture(texId);
 	
 	if (textureId)
@@ -698,6 +711,8 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
         glDisableClientState(GL_NORMAL_ARRAY);
     if (!colors.empty())
         glDisableClientState(GL_COLOR_ARRAY);
+    
+    glDisable(GL_LIGHTING);
 }	
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
@@ -709,9 +724,9 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	color[3] = inColor.a;
 }
 	
-void ColorChangeRequest::execute2(Scene *scene,Drawable *draw)
+void ColorChangeRequest::execute2(Scene *scene,DrawableRef draw)
 {
-	BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
 	basicDrawable->setColor(color);
 }
 	
@@ -721,9 +736,9 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 	
 }
 	
-void OnOffChangeRequest::execute2(Scene *scene,Drawable *draw)
+void OnOffChangeRequest::execute2(Scene *scene,DrawableRef draw)
 {
-	BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
 	basicDrawable->setOnOff(newOnOff);
 }
     
@@ -732,9 +747,9 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 {
 }
     
-void VisibilityChangeRequest::execute2(Scene *scene,Drawable *draw)
+void VisibilityChangeRequest::execute2(Scene *scene,DrawableRef draw)
 {
-    BasicDrawable *basicDrawable = dynamic_cast<BasicDrawable *> (draw);
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setVisibleRange(minVis,maxVis);
 }
     
@@ -744,11 +759,11 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp
     
 }
     
-void FadeChangeRequest::execute2(Scene *scene,Drawable *draw)
+void FadeChangeRequest::execute2(Scene *scene,DrawableRef draw)
 {
     // Fade it out, then remove it
-    BasicDrawable *basicDraw = (BasicDrawable *)draw;
-    basicDraw->setFade(fadeDown, fadeUp);
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    basicDrawable->setFade(fadeDown, fadeUp);
 }
 
 DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId)
@@ -756,9 +771,9 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity 
 {
 }
 
-void DrawTexChangeRequest::execute2(Scene *scene,Drawable *draw)
+void DrawTexChangeRequest::execute2(Scene *scene,DrawableRef draw)
 {
-    BasicDrawable *basicDraw = (BasicDrawable *)draw;
-    basicDraw->setTexId(newTexId);
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    basicDrawable->setTexId(newTexId);
 }    
 }

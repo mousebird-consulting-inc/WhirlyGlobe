@@ -87,7 +87,9 @@ using namespace WhirlyKit;
     enable = [dict boolForKey:@"enable" default:YES];
     drawOffset = [dict intForKey:@"drawOffset" default:1];
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"priority" default:0];
+    priority = [dict intForKey:@"drawPriority" default:0];
+    // This looks like an old bug
+    priority = [dict intForKey:@"priority" default:priority];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     fade = [dict floatForKey:@"fade" default:0.0];

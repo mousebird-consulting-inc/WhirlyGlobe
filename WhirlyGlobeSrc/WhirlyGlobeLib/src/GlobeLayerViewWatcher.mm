@@ -45,7 +45,7 @@ using namespace WhirlyKit;
     if (self)
     {
         heightAboveGlobe = globeView.heightAboveGlobe;
-        rotQuat = globeView.rotQuat;
+        rotQuat = [globeView rotQuat];
         modelMatrix = [globeView calcModelMatrix];
         fieldOfView = globeView.fieldOfView;
         imagePlaneSize = globeView.imagePlaneSize;
@@ -53,12 +53,17 @@ using namespace WhirlyKit;
         farPlane = globeView.farPlane;
 
         // Need the eye point for backface checking
-        Eigen::Matrix4f modelTransInv = modelMatrix.inverse().matrix();
+        Eigen::Matrix4f modelTransInv = modelMatrix.inverse();
         Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
         eyeVec = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    
 }
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
@@ -72,11 +77,11 @@ using namespace WhirlyKit;
 	far = farPlane;
 }
 
-- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Affine3f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Affine3f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans.matrix();
+    Eigen::Matrix4f modelTrans = *transform;
+    Matrix4f modelMat = modelTrans;
     Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
     
@@ -98,6 +103,22 @@ using namespace WhirlyKit;
     retPt.y = v * frameSize.y();
     
     return retPt;
+}
+
+- (Vector3f)currentUp
+{
+	Eigen::Matrix4f modelMat = modelMatrix.inverse();
+	
+	Vector4f newUp = modelMat * Vector4f(0,0,1,0);
+	return Vector3f(newUp.x(),newUp.y(),newUp.z());
+}
+
+- (Eigen::Vector3f)eyePos
+{
+	Eigen::Matrix4f modelMat = modelMatrix.inverse();
+	
+	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
+	return Vector3f(newUp.x(),newUp.y(),newUp.z());    
 }
 
 @end
@@ -137,11 +158,20 @@ using namespace WhirlyKit;
 
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector
 {
+    // Call into the layer thread, just to be safe
+    LocalWatcher *toRemove = [[LocalWatcher alloc] init];
+    toRemove->target = target;
+    toRemove->selector = selector;
+    [self performSelector:@selector(removeWatcherTargetLayer:) onThread:layerThread withObject:toRemove waitUntilDone:YES];    
+}
+
+- (void)removeWatcherTargetLayer:(LocalWatcher *)toRemove
+{
     LocalWatcher *found = nil;
     
     for (LocalWatcher *watch in watchers)
     {
-        if (watch->target == target && watch->selector == selector)
+        if (watch->target == toRemove->target && watch->selector == toRemove->selector)
         {
             found = watch;
             break;
@@ -152,7 +182,7 @@ using namespace WhirlyKit;
     {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateSingleWatcher:) object:found];
         [watchers removeObject:found];
-    }
+    }    
 }
 
 // This is called in the main thread

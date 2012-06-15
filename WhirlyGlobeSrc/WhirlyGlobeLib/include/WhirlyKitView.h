@@ -59,7 +59,11 @@
 - (float)calcZbufferRes;
 
 /// Generate the model view matrix for use by OpenGL.  Filled in by subclass.
-- (Eigen::Affine3f)calcModelMatrix;
+- (Eigen::Matrix4f)calcModelMatrix;
+
+/// An optional matrix used to calculate where we're looking
+///  as a second step from where we are
+- (Eigen::Matrix4f)calcViewMatrix;
 
 /// Return the nominal height above the surface of the data
 - (float)heightAboveSurface;

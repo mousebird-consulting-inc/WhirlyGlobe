@@ -34,31 +34,31 @@ GlobeScene::GlobeScene(CoordSystem *coordSystem,int depth)
     
 }
     
-void GlobeScene::addDrawable(Drawable *drawable)
+void GlobeScene::addDrawable(DrawableRef draw)
 {
+    drawables.insert(draw);
+
     // Account for the geo coordinate wrapping
-    Mbr localMbr = drawable->getLocalMbr();
+    Mbr localMbr = draw->getLocalMbr();
     GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
     std::vector<Mbr> localMbrs;
     geoMbr.splitIntoMbrs(localMbrs);
     
     for (unsigned int ii=0;ii<localMbrs.size();ii++)
-        cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],drawable);
-
-    drawables.insert(drawable);
+        cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
 }
 
-void GlobeScene::remDrawable(Drawable *drawable)
+void GlobeScene::remDrawable(DrawableRef draw)
 {
-    Mbr localMbr = drawable->getLocalMbr();
+    Mbr localMbr = draw->getLocalMbr();
     GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
     std::vector<Mbr> localMbrs;
     geoMbr.splitIntoMbrs(localMbrs);
     
     for (unsigned int ii=0;ii<localMbrs.size();ii++)
-        cullTree->getTopCullable()->remDrawable(cullTree,localMbrs[ii],drawable);
+        cullTree->getTopCullable()->remDrawable(cullTree,localMbrs[ii],draw);
 
-    drawables.erase(drawable);
+    drawables.erase(draw);
 }
 
 }

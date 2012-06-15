@@ -113,7 +113,7 @@ using namespace WhirlyKit;
                 CGPoint touch1 = touch0;  touch1.x += vel.x; touch1.y += vel.y;
                 Point3f model_p0,model_p1;
 
-                Eigen::Affine3f modelMat = [mapView calcModelMatrix];
+                Eigen::Matrix4f modelMat = [mapView calcModelMatrix];
                 [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0];
                 [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1];
                 

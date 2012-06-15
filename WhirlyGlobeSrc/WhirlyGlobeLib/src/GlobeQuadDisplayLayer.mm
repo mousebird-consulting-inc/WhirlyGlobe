@@ -77,7 +77,7 @@ static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,Point
 
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyGlobeViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *coordSys,Mbr nodeMbr)
+float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *coordSys,Mbr nodeMbr)
 {
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
     Point3f testPoints[5];

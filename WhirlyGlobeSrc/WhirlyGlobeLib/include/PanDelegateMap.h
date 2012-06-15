@@ -27,7 +27,7 @@
     /// Set if we're panning
     BOOL panning;
     /// View transform when we started
-    Eigen::Affine3f startTransform;
+    Eigen::Matrix4f startTransform;
     /// Where we first touched the plane
     WhirlyKit::Point3f startOnPlane;
     /// Viewer location when we started panning

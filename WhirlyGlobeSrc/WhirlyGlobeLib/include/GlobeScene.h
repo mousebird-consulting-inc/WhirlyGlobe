@@ -35,10 +35,10 @@ public:
     GlobeScene(WhirlyKit::CoordSystem *coordSystem,int depth);
     
     /// Add a drawable, taking overlap into account
-    virtual void addDrawable(WhirlyKit::Drawable *drawable);
+    virtual void addDrawable(WhirlyKit::DrawableRef drawable);
     
     /// Remove a drawable
-    virtual void remDrawable(WhirlyKit::Drawable *drawable);
+    virtual void remDrawable(WhirlyKit::DrawableRef drawable);
     
 protected:
 };

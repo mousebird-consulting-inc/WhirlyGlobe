@@ -70,7 +70,7 @@ using namespace WhirlyKit;
 
 			// Save the first place we touched
 			startTransform = [view calcModelMatrix];
-			startQuat = view.rotQuat;
+			startQuat = [view rotQuat];
 			panning = NO;
             if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)

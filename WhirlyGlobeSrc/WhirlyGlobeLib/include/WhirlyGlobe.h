@@ -70,4 +70,6 @@
 #import "MBTileQuadSource.h"
 #import "TileQuadLoader.h"
 #import "NetworkTileQuadSource.h"
+#import "SceneGraphGenerator.h"
+#import "SphericalEarthQuadLayer.h"
 

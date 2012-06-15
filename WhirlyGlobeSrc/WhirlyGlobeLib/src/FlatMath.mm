@@ -44,5 +44,58 @@ Point3f PlateCarreeCoordSystem::geocentricishToLocal(Point3f pt)
     Point3f coord = GeoCoordSystem::GeocentricishToLocal(pt);
     return geographicToLocal(GeoCoord(coord.x(),coord.y()));
 }    
+    
+FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin)
+    : origin(origin)
+{
+    converge = cosf(origin.lat());    
+}
+    
+// Note: This is completely bogus
+static const float MetersPerRadian = 111120.0 * 180.0 / M_PI;
+
+GeoCoord FlatEarthCoordSystem::localToGeographic(Point3f pt)
+{
+    GeoCoord coord;
+    coord.lon() = pt.x() / (MetersPerRadian * converge) + origin.lon();
+    coord.lat() = pt.y() / MetersPerRadian + origin.lat();
+    
+    return coord;
+}
+
+Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
+{
+    Point3f pt;
+    pt.x() = (geo.lon() - origin.lon()) * converge * MetersPerRadian;
+    pt.y() = (geo.lat() - origin.lat()) * MetersPerRadian;
+    pt.z() = 0.0;
+    
+    return pt;
+}
+
+Point3f FlatEarthCoordSystem::localToGeocentricish(Point3f inPt)
+{
+    // Note: This is entirely bogus.  We need to use proj4 and take the elipsoid into account
+    GeoCoord coord = localToGeographic(inPt);
+    Point3f pt = GeoCoordSystem::LocalToGeocentricish(Point3f(coord.lon(),coord.lat(),0.0));
+    
+    // And don't forget the Z
+    pt *= 1.0 + inPt.z() / EarthRadius;
+    
+    return pt;
+}
+
+Point3f FlatEarthCoordSystem::geocentricishToLocal(Point3f inPt)
+{
+    // Note: Entirely bogus. Pull in proj4 for the elipsoid
+    float len = inPt.norm() - 1.0;
+    inPt.normalize();
+
+    Point3f coord = GeoCoordSystem::GeocentricishToLocal(inPt);
+    Point3f pt = geographicToLocal(GeoCoord(coord.x(),coord.y()));
+    pt.z() = len * EarthRadius;
+    
+    return pt;
+}    
 
 }

@@ -64,7 +64,7 @@ using namespace WhirlyKit;
         // Translate that to the sphere
         // If we hit, then we'll generate a message
         Point3f hit;
-        Eigen::Affine3f theTransform = [globeView calcModelMatrix];
+        Eigen::Matrix4f theTransform = [globeView calcModelMatrix];
         CGPoint touchLoc = [press locationOfTouch:0 inView:press.view];
         if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
         {

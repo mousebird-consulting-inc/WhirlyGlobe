@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
     
-/** The Flat Coordinate System just unrolls lat/lon in radians and
+/** The Plate Careee just unrolls lat/lon in radians and
     represents the map as a flat non-projection of that.
     Technically, this is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
@@ -44,5 +44,34 @@ public:
     /// Working in a flat space
     bool isFlat() { return true; }
 };
-        
+    
+/** Flat Earth refers to the MultiGen flat earth coordinate system.
+    This is a scaled unrolling from a center point.
+ */
+class FlatEarthCoordSystem : public WhirlyKit::CoordSystem
+{
+public:
+    FlatEarthCoordSystem(const GeoCoord &origin);
+    
+    /// Convert from the local coordinate system to lat/lon
+    GeoCoord localToGeographic(Point3f);
+    /// Convert from lat/lon t the local coordinate system
+    Point3f geographicToLocal(GeoCoord);
+    
+    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
+    Point3f localToGeocentricish(Point3f);    
+    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
+    Point3f geocentricishToLocal(Point3f);
+    
+    /// Working in a flat space
+    bool isFlat() { return true; }        
+    
+protected:
+    GeoCoord origin;
+    float converge;
+};
+
+// Note: Entirely bogus
+static const float EarthRadius = 6371000;
+
 }
