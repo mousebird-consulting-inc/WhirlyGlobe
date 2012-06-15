@@ -22,7 +22,7 @@
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe/WhirlyGlobe.h>
 
-typedef std::set<WhirlyGlobe::SimpleIdentity> SimpleIDSet;
+typedef std::set<WhirlyKit::SimpleIdentity> SimpleIDSet;
 
 typedef enum {FeatRepCountry,FeatRepOcean} FeatureRepType;
 
@@ -38,14 +38,14 @@ public:
     ~FeatureRep();
     
     FeatureRepType featType;            // What this is
-    WhirlyGlobe::ShapeSet outlines;  // Areal feature outline (may be more than one)
-    WhirlyGlobe::SimpleIdentity outlineRep;  // ID for the outline in the vector layer
-    WhirlyGlobe::SimpleIdentity labelId;  // ID of label in label layer
+    WhirlyKit::ShapeSet outlines;  // Areal feature outline (may be more than one)
+    WhirlyKit::SimpleIdentity outlineRep;  // ID for the outline in the vector layer
+    WhirlyKit::SimpleIdentity labelId;  // ID of label in label layer
     float midPoint;  // Distance where we switch from the low res to high res representation
     // Sub-features, such as states
-    WhirlyGlobe::ShapeSet subOutlines;            // IDs in the regionDB
-    WhirlyGlobe::SimpleIdentity subOutlinesRep;  // Represented with a single entity in the vector layer
-    WhirlyGlobe::SimpleIdentity subLabels;       // ID for all the sub outline labels together
+    WhirlyKit::ShapeSet subOutlines;            // IDs in the regionDB
+    WhirlyKit::SimpleIdentity subOutlinesRep;  // Represented with a single entity in the vector layer
+    WhirlyKit::SimpleIdentity subLabels;       // ID for all the sub outline labels together
 };
 
 typedef std::list<FeatureRep *> FeatureRepList;
@@ -57,26 +57,28 @@ static const unsigned int MaxFeatureReps = 8;
     This handles user interaction (taps) and manipulates data in the
     vector and label layers accordingly.
  */
-@interface InteractionLayer : NSObject <WhirlyGlobeLayer>
+@interface InteractionLayer : NSObject <WhirlyKitLayer>
 {
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	WhirlyGlobe::GlobeScene *scene;
 	WhirlyGlobeView *globeView;
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
     
     NSDictionary *countryDesc;  // Visual representation for countries and their labels
     NSDictionary *oceanDesc;    // Visual representation for oceans and their labels
     NSDictionary *regionDesc;   // Visual representation for regions (states/provinces) and labels
 
     // Databases that live on top of the shape files (for fast access)
-    WhirlyGlobe::VectorDatabase *countryDb;
-    WhirlyGlobe::VectorDatabase *oceanDb;
-    WhirlyGlobe::VectorDatabase *regionDb;
+    WhirlyKit::VectorDatabase *countryDb;
+    WhirlyKit::VectorDatabase *oceanDb;
+    WhirlyKit::VectorDatabase *regionDb;
     
     FeatureRepList featureReps;   // Countries we're currently representing
     
     float maxEdgeLen;    // Maximum length for a vector edge
+    
+    AnimateViewRotation *animateRotation;
 }
 
 @property (nonatomic,retain) NSDictionary *countryDesc;
@@ -85,10 +87,10 @@ static const unsigned int MaxFeatureReps = 8;
 @property (nonatomic,assign) float maxEdgeLen;
 
 // Need a pointer to the vector layer to start with
-- (id)initWithVectorLayer:(VectorLayer *)layer labelLayer:(LabelLayer *)labelLayer globeView:(WhirlyGlobeView *)globeView
+- (id)initWithVectorLayer:(WhirlyKitVectorLayer *)layer labelLayer:(WhirlyKitLabelLayer *)labelLayer globeView:(WhirlyGlobeView *)globeView
              countryShape:(NSString *)countryShape oceanShape:(NSString *)oceanShape regionShape:(NSString *)regionShape;
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 @end

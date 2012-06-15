@@ -34,8 +34,8 @@ static const bool UseGridLayer = true;
  */
 @interface WhirlyGlobeAppViewController : UIViewController
 {
-	EAGLView *glView;
-	SceneRendererES1 *sceneRenderer;
+	WhirlyKitEAGLView *glView;
+	WhirlyKitSceneRendererES1 *sceneRenderer;
 	
 	UILabel *fpsLabel;
 	UILabel *drawLabel;
@@ -51,17 +51,19 @@ static const bool UseGridLayer = true;
 	// Scene, view, and associated data created when controller is up
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
-	TextureGroup *texGroup;
+	WhirlyKitTextureGroup *texGroup;
 	
 	// Thread used to control Whirly Globe layers
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	
 	// Data layers, readers, and loaders
-	SphericalEarthLayer *earthLayer;
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
-    GridLayer *gridLayer;
+	WhirlyGlobeSphericalEarthLayer *earthLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
+    WhirlyKitGridLayer *gridLayer;
 	InteractionLayer *interactLayer;
+    
+    WhirlyKit::GeoCoordSystem geoCoordSystem;
 }
 
 @end
