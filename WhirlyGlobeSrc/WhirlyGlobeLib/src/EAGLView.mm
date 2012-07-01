@@ -93,7 +93,7 @@
     {
         displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
         [displayLink setFrameInterval:frameInterval];
-        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         
         animating = TRUE;
     }

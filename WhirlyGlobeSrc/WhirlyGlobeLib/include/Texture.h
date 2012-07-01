@@ -26,6 +26,7 @@
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
+#import "Drawable.h"
 
 namespace WhirlyKit
 {
@@ -53,10 +54,10 @@ public:
 	GLuint getGLId() const { return glId; }
 	
 	/// Render side only.  Don't call this.  Create the openGL version
-	bool createInGL(bool releaseData=true);
+	bool createInGL(bool releaseData,OpenGLMemManager *memManager);
 	
 	/// Render side only.  Don't call this.  Destroy the openGL version
-	void destroyInGL();
+	void destroyInGL(OpenGLMemManager *memManager);
 
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }

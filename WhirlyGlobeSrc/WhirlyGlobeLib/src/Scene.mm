@@ -141,8 +141,6 @@ Texture *Scene::getTexture(SimpleIdentity texId)
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 void Scene::processChanges(WhirlyKitView *view)
 {
-    std::vector<Cullable *> foundCullables;
-    
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
     {
@@ -156,6 +154,19 @@ void Scene::processChanges(WhirlyKitView *view)
         
         pthread_mutex_unlock(&changeRequestLock);
     }
+}
+    
+bool Scene::hasChanges()
+{
+    bool changes = false;
+    if (!pthread_mutex_trylock(&changeRequestLock))
+    {
+        changes = !changeRequests.empty();
+        
+        pthread_mutex_unlock(&changeRequestLock);            
+    }        
+    
+    return changes;
 }
 
 // Add a single sub texture map
@@ -196,7 +207,7 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
 void AddTextureReq::execute(Scene *scene,WhirlyKitView *view)
 {
     if (!tex->getGLId())
-        tex->createInGL(true);
+        tex->createInGL(true,scene->getMemManager());
     scene->textures.insert(tex);
     tex = NULL;
 }
@@ -209,7 +220,7 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitView *view)
     if (it != scene->textures.end())
     {
         Texture *tex = *it;
-        tex->destroyInGL();
+        tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
         delete tex;
     }
@@ -222,7 +233,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitView *view)
         
     // Initialize any OpenGL foo
     // Note: Make the Z offset a parameter
-    drawable->setupGL([view calcZbufferRes]);
+    drawable->setupGL([view calcZbufferRes],scene->getMemManager());
     
     drawable = NULL;
 }
@@ -235,7 +246,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitView *view)
     if (it != scene->drawables.end())
     {
         // Teardown OpenGL foo
-        (*it)->teardownGL();
+        (*it)->teardownGL(scene->getMemManager());
 
         scene->remDrawable(*it);        
     }

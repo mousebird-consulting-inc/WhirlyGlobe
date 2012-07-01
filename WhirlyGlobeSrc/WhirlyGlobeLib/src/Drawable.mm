@@ -28,6 +28,57 @@ using namespace WhirlyGlobe;
 
 namespace WhirlyKit
 {
+    
+GLuint OpenGLMemManager::getBufferID()
+{
+    GLuint which = 0;
+    if (!buffIDs.empty())
+    {
+        std::set<GLuint>::iterator it = buffIDs.begin();
+        which = *it;
+        buffIDs.erase(it);
+    } else {
+        glGenBuffers(1, &which);
+    }
+    
+    return which;
+}
+
+void OpenGLMemManager::removeBufferID(GLuint bufID)
+{
+//    glBindBuffer(GL_ARRAY_BUFFER, bufID);
+//    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+    buffIDs.insert(bufID);
+}
+
+GLuint OpenGLMemManager::getTexID()
+{
+    GLuint which = 0;
+    if (!texIDs.empty())
+    {
+        std::set<GLuint>::iterator it = texIDs.begin();
+        which = *it;
+        texIDs.erase(it);
+    } else {
+        glGenTextures(1, &which);
+    }
+    
+    return which;
+}
+    
+void OpenGLMemManager::removeTexID(GLuint texID)
+{
+    // Note: Might want to clear out texture
+    texIDs.insert(texID);
+}
+
+void OpenGLMemManager::copyIDsFrom(OpenGLMemManager *that)
+{
+    buffIDs.insert(that->buffIDs.begin(), that->buffIDs.end());
+    texIDs.insert(that->texIDs.begin(), that->texIDs.end());
+    that->buffIDs.clear();
+    that->texIDs.clear();
+}
 		
 Drawable::Drawable()
 {
@@ -57,6 +108,7 @@ BasicDrawable::BasicDrawable()
 
     fadeDown = fadeUp = 0.0;
 	color.r = color.g = color.b = color.a = 255;
+    lineWidth = 1.0;
     
     numTris = 0;
     numPoints = 0;
@@ -77,6 +129,7 @@ BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
 	tris.reserve(numTri);
     fadeDown = fadeUp = 0.0;
 	color.r = color.g = color.b = color.a = 255;
+    lineWidth = 1.0;
 	drawPriority = 0;
 	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
@@ -91,7 +144,7 @@ BasicDrawable::~BasicDrawable()
 {
     // This assumes we have a valid context
     //  or that we already did it when we had a valid context
-    teardownGL();
+//    teardownGL();
 }
     
 bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
@@ -167,7 +220,7 @@ void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3
 
 
 // Define VBOs to make this fast(er)
-void BasicDrawable::setupGL(float minZres)
+void BasicDrawable::setupGL(float minZres,OpenGLMemManager *memManager)
 {
     // If we're already setup, don't do it twice
     if (pointBuffer)
@@ -189,8 +242,7 @@ void BasicDrawable::setupGL(float minZres)
 	pointBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
 	if (points.size())
 	{
-		glGenBuffers(1,&pointBuffer);
-        CheckGLError("BasicDrawable::setupGL() glGenBuffers()");
+        pointBuffer = memManager->getBufferID();
 		glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer()");
 		glBufferData(GL_ARRAY_BUFFER,points.size()*sizeof(Vector3f),&points[0],GL_STATIC_DRAW);
@@ -200,8 +252,7 @@ void BasicDrawable::setupGL(float minZres)
 	}
     if (colors.size())
     {
-		glGenBuffers(1,&colorBuffer);
-        CheckGLError("BasicDrawable::setupGL() glGenBuffers()");
+        colorBuffer = memManager->getBufferID();
 		glBindBuffer(GL_ARRAY_BUFFER,colorBuffer);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer()");
 		glBufferData(GL_ARRAY_BUFFER,colors.size()*sizeof(RGBAColor),&colors[0],GL_STATIC_DRAW);
@@ -211,8 +262,7 @@ void BasicDrawable::setupGL(float minZres)
     }
 	if (texCoords.size())
 	{
-		glGenBuffers(1,&texCoordBuffer);
-        CheckGLError("BasicDrawable::setupGL() glGenBuffers()");
+        texCoordBuffer = memManager->getBufferID();
 		glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer()");
 		glBufferData(GL_ARRAY_BUFFER,texCoords.size()*sizeof(Vector2f),&texCoords[0],GL_STATIC_DRAW);
@@ -222,8 +272,7 @@ void BasicDrawable::setupGL(float minZres)
 	}
 	if (norms.size())
 	{
-		glGenBuffers(1, &normBuffer);
-        CheckGLError("BasicDrawable::setupGL() glGenBuffers()");
+        normBuffer = memManager->getBufferID();
 		glBindBuffer(GL_ARRAY_BUFFER,normBuffer);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer()");
 		glBufferData(GL_ARRAY_BUFFER,norms.size()*sizeof(Vector3f),&norms[0],GL_STATIC_DRAW);
@@ -233,8 +282,7 @@ void BasicDrawable::setupGL(float minZres)
 	}
 	if (tris.size())
 	{
-		glGenBuffers(1, &triBuffer);
-        CheckGLError("BasicDrawable::setupGL() glGenBuffers()");
+        triBuffer = memManager->getBufferID();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,triBuffer);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer()");
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,tris.size()*sizeof(Triangle),&tris[0],GL_STATIC_DRAW);
@@ -256,36 +304,31 @@ void BasicDrawable::setupGL(float minZres)
 }
 	
 // Tear down the VBOs we set up
-void BasicDrawable::teardownGL()
+void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
 	if (pointBuffer)
     {
-		glDeleteBuffers(1,&pointBuffer);
-        CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        memManager->removeBufferID(pointBuffer);
         pointBuffer = 0;
     }
     if (colorBuffer)
     {
-		glDeleteBuffers(1,&colorBuffer);
-        CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");        
+        memManager->removeBufferID(colorBuffer);
         colorBuffer = 0;
     }
 	if (texCoordBuffer)
     {
-		glDeleteBuffers(1,&texCoordBuffer);
-        CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        memManager->removeBufferID(texCoordBuffer);
         texCoordBuffer = 0;
     }
 	if (normBuffer)
     {
-		glDeleteBuffers(1,&normBuffer);
-        CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        memManager->removeBufferID(normBuffer);
         normBuffer = 0;
     }
 	if (triBuffer)
     {
-		glDeleteBuffers(1,&triBuffer);
-        CheckGLError("BasicDrawable::teardownGL() glDeleteBuffers()");
+        memManager->removeBufferID(triBuffer);
         triBuffer = 0;
     }
 }
@@ -617,7 +660,9 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 		case GL_LINES:
 		case GL_LINE_STRIP:
 		case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
 			glDrawArrays(type, 0, numPoints);
+            glLineWidth(1.0);
             CheckGLError("BasicDrawable::drawVBO() glDrawArrays");
 			break;
 	}
@@ -697,7 +742,9 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 		case GL_LINES:
 		case GL_LINE_STRIP:
 		case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
 			glDrawArrays(type, 0, points.size());
+            glLineWidth(1.0);
 			break;
 	}
 	

@@ -131,6 +131,20 @@ void PerformanceTimer::log()
             NSLog(@"  %s: min, max, avg = (%d,%d,%2.f) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns);
     }
 }
+
+// Compare two matrices float by float
+// The default comparison seems to have an epsilon and the cwise version isn't getting picked up
+bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
+{
+    float *floatsA = a.data();
+    float *floatsB = b.data();
+    
+    for (unsigned int ii=0;ii<16;ii++)
+        if (floatsA[ii] != floatsB[ii])
+            return false;
+    
+    return true;
+}
     
 }
 
@@ -182,6 +196,7 @@ public:
 @synthesize perfInterval;
 @synthesize numDrawables;
 @synthesize delegate;
+@synthesize useViewChanged;
 
 - (id <WhirlyKitESRenderer>) init
 {
@@ -215,6 +230,9 @@ public:
 		// Allocate depth buffer
 		glGenRenderbuffers(1, &depthRenderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+
+        // Off by default because animations will get confused
+        useViewChanged = false;
 	}
 	
 	return self;
@@ -418,8 +436,47 @@ static const bool DoingCulling = false;
     }
 }
 
+// Check if the view changed from the last frame
+- (bool) viewDidChange
+{
+    if (!useViewChanged)
+        return true;
+    
+    // First time through
+    if (lastDraw == 0.0)
+        return true;
+    
+    WhirlyGlobeView *globeView = nil;
+    if ([theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = (WhirlyGlobeView *)theView;
+    
+    Matrix4f newModelMat = [theView calcModelMatrix];
+    Matrix4f newViewMat = [theView calcViewMatrix];
+    
+    // Should be exactly the same
+    if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat))
+        return false;
+    
+    modelMat = newModelMat;
+    viewMat = newViewMat;
+    return true;
+}
+
+- (void)forceDrawNextFrame
+{
+    lastDraw = 0;
+}
+
 - (void) render:(CFTimeInterval)duration
 {  
+	[theView animate];
+
+    // Decide if we even need to draw
+    if (!scene->hasChanges() && ![self viewDidChange])
+        return;
+    
+    lastDraw = CFAbsoluteTimeGetCurrent();
+    
     if (perfInterval > 0)
         perfTimer.startTiming("Render");
     
@@ -428,7 +485,6 @@ static const bool DoingCulling = false;
 	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
-	[theView animate];
     
     [EAGLContext setCurrentContext:context];
     
@@ -493,6 +549,8 @@ static const bool DoingCulling = false;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 	glEnable(GL_CULL_FACE);
+//    // Note: Debugging
+//    glDisable(GL_CULL_FACE);
         
     // Call the pre-frame callback
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])

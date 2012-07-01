@@ -383,7 +383,7 @@ const int SphereTessX = 10, SphereTessY = 10;
             if (newTex)
             {
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
-                newTex->createInGL();
+                newTex->createInGL(true,quadLayer.layerThread.memManager);
                 *tex = newTex;
             }
         } else
@@ -473,7 +473,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         // Set up the geometry before we hand it over
         [EAGLContext setCurrentContext:layer.layerThread.glContext];
         // Note: This will work poorly with a draw offset
-        chunk->setupGL(0.0);
+        chunk->setupGL(0.0,quadLayer.layerThread.memManager);
     }    
 }
 
@@ -537,8 +537,6 @@ const int SphereTessX = 10, SphereTessY = 10;
     tileSet.insert(newTile);
     numFetches++;
     [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
-    
-//    NSLog(@"Started loading tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 }
 
 // Check if we're in the process of loading the given tile

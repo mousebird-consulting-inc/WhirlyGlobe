@@ -72,4 +72,6 @@
 #import "NetworkTileQuadSource.h"
 #import "SceneGraphGenerator.h"
 #import "SphericalEarthQuadLayer.h"
+#import "UpdateDisplayLayer.h"
+#import "GeometryLayer.h"
 

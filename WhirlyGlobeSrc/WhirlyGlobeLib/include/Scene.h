@@ -147,6 +147,14 @@ protected:
     NSObject * __strong noteObj;
 };
     
+/// This class give us a virtual destructor to make use of
+///  when we're deleting random objects at the end of the layer thread
+class DelayedDeletable
+{
+public:
+    virtual ~DelayedDeletable() { }
+};
+    
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
@@ -155,7 +163,7 @@ typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
      cullables and it handles the change requests, which
      consist of pretty much everything that can happen.
  */
-class Scene
+class Scene : public DelayedDeletable
 {
 	friend class ChangeRequest;
 public:
@@ -192,6 +200,9 @@ public:
 	// Note: Should give this a time limit
 	void processChanges(WhirlyKitView *view);
     
+    /// True if there are pending updates
+    bool hasChanges();
+    
     /// Add sub texture mappings.
     /// These are mappings from images to parts of texture atlases.
     /// They're here so we can use SimpleIdentity's to point into larger
@@ -216,6 +227,10 @@ public:
     
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
+    
+    /// Get the renderer's buffer/texture ID manager.
+    /// You can only use this on the main thread
+    OpenGLMemManager *getMemManager() { return &memManager; }
 	
 public:	    
     /// Coordinate system 
@@ -255,6 +270,9 @@ public:
     
     /// ID for screen space generator
     SimpleIdentity screenSpaceGeneratorID;
+    
+    /// Memory manager, really buffer and texture ID manager
+    OpenGLMemManager memManager;
 };
 	
 }

@@ -46,11 +46,21 @@
     
     /// Our own EAGLContext, connected by a share group to the main one
     EAGLContext *glContext;
+    
+    /// OpenGL buffer and texture ID manager
+    WhirlyKit::OpenGLMemManager *memManager;
+    
+    /// Used to keep track of things to delete
+    std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
+    
+    /// Used to keep track of things to release
+    NSMutableArray *thingsToRelease;
 }
 
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 @property (nonatomic,readonly) EAGLContext *glContext;
+@property (nonatomic,readonly) WhirlyKit::OpenGLMemManager *memManager;
 
 /// Set up with a scene and a view
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
@@ -60,6 +70,14 @@
 
 /// Remove the given layer.
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer;
+
+/// Add a C++ object to be deleted after the thread has stopped
+/// Always clal this from the main thread before you cancel the layer thread
+- (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing;
+
+/// Add an Objective C object to release after the thread has stopped
+/// Always call this from the main thread before you cancel the layer thread
+- (void)addThingToRelease:(NSObject *)thing;
 
 // We're overriding the main entry point
 - (void)main;

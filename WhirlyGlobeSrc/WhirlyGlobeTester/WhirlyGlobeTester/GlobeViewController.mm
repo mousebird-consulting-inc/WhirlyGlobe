@@ -45,13 +45,9 @@ using namespace WhirlyGlobe;
 - (void)clear
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
-    if (layerThread)
-    {
-        [layerThread cancel];
-        while (!layerThread.isFinished)
-            [NSThread sleepForTimeInterval:0.001];
-    }
+        
+    [layerThread addThingToDelete:theScene];
+    [layerThread cancel];
     
     statsView = nil;
     fpsLabel = nil;
@@ -60,19 +56,14 @@ using namespace WhirlyGlobe;
     
     glView = nil;
     sceneRenderer = nil;
-    
-    if (theScene)
-    {
-        delete theScene;
-        theScene = NULL;
-    }
+
+    theScene = NULL;
     
     theView = nil;
     texGroup = nil;
     tileLoader = nil;
     mbTiles = nil;
     netTiles = nil;
-    layerThread = nil;
     
     earthLayer = nil;
     quadLayer = nil;
@@ -92,6 +83,8 @@ using namespace WhirlyGlobe;
     
     popoverController = nil;
     optionsViewC = nil;
+
+    layerThread = nil;
 }
 
 - (void)dealloc
@@ -131,6 +124,9 @@ using namespace WhirlyGlobe;
     
 	// Create the textures and geometry, but in the right GL context
 	[sceneRenderer useContext];
+    
+    // Turn off the model matrix optimization for drawing.  We have too many animations.
+    sceneRenderer.useViewChanged = false;
 	
 	// Set up a texture group for the world texture
     if (UseMBTiles)

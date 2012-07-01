@@ -19,7 +19,7 @@
  */
 
 // Note: This works around a problem in compilation for the iphone
-#define EIGEN_DONT_VECTORIZE 1
+//#define EIGEN_DONT_VECTORIZE 1
 //#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 
 #import <Eigen/Eigen>
@@ -70,6 +70,9 @@ public:
 	RGBAColor() { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
+    
+    /// Returns an an array of 4 floats
+    void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
     bool operator == (RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
 	

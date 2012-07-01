@@ -83,7 +83,7 @@ Texture::~Texture()
 
 // Define the texture in OpenGL
 // Note: Should load the texture from disk elsewhere
-bool Texture::createInGL(bool releaseData)
+bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
 {
 	if (!texData)
 		return false;
@@ -93,7 +93,7 @@ bool Texture::createInGL(bool releaseData)
         return true;
 	
 	// Allocate a texture and set up the various params
-	glGenTextures(1, &glId);
+    glId = memManager->getTexID();
     CheckGLError("Texture::createInGL() glGenTextures()");
 
 	glBindTexture(GL_TEXTURE_2D, glId);
@@ -136,13 +136,10 @@ bool Texture::createInGL(bool releaseData)
 }
 
 // Release the OpenGL texture
-void Texture::destroyInGL()
+void Texture::destroyInGL(OpenGLMemManager *memManager)
 {
 	if (glId)
-    {
-		glDeleteTextures(1, &glId);
-        CheckGLError("Texture::createInGL() glDeleteTextures()");
-    }
+        memManager->removeTexID(glId);
 }
 
 }

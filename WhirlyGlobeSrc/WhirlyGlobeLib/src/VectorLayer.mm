@@ -41,12 +41,14 @@ using namespace WhirlyKit;
     int                         priority;
     float                       minVis,maxVis;
     float                       fade;
+    float                       lineWidth;
     NSString                    *cacheName;
 }
 
 @property (nonatomic) UIColor *color;
 @property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
+@property (nonatomic,assign) float lineWidth;
 
 - (void)parseDict:(NSDictionary *)dict;
 
@@ -57,6 +59,7 @@ using namespace WhirlyKit;
 @synthesize color;
 @synthesize cacheName;
 @synthesize fade;
+@synthesize lineWidth;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)dict
 {
@@ -93,6 +96,7 @@ using namespace WhirlyKit;
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     fade = [dict floatForKey:@"fade" default:0.0];
+    lineWidth = [dict floatForKey:@"width" default:1.0];
 }
 
 @end
@@ -139,6 +143,7 @@ public:
             drawable->setOnOff(vecInfo->enable);
             drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor([vecInfo.color asRGBAColor]);
+            drawable->setLineWidth(vecInfo.lineWidth);
             drawable->setDrawPriority(vecInfo->priority);
             drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }

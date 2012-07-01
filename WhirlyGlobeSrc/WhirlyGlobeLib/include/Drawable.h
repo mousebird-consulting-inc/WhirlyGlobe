@@ -43,6 +43,31 @@ namespace WhirlyKit
 	
 class Scene;
 
+/// Used to manage OpenGL buffer IDs and such.
+/// They're expensive to create and delete, so we try to do it
+///  outside the renderer.
+class OpenGLMemManager
+{
+public:
+    // Pick a buffer ID off the list or ask OpenGL for one
+    GLuint getBufferID();
+    // Toss the given buffer ID back on the list for reuse
+    void removeBufferID(GLuint bufID);
+
+    // Pick a texture ID off the list or ask OpenGL for one
+    GLuint getTexID();
+    // Toss the given texture ID back on the list for reuse
+    void removeTexID(GLuint texID);
+    
+    // Move IDs from the mem manager given to this one.
+    // Don't ever call this on your own.
+    void copyIDsFrom(OpenGLMemManager *);
+    
+protected:
+    std::set<GLuint> buffIDs;
+    std::set<GLuint> texIDs;
+};
+
 /// Mapping from Simple ID to an int.  This is used by the render cache
 ///  reader and writer.
 typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
@@ -85,10 +110,10 @@ public:
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
 	/// We pass in the minimum Z buffer resolution (for offsets).
-	virtual void setupGL(float minZres) { };
+	virtual void setupGL(float minZres,OpenGLMemManager *memManage) { };
 	
 	/// Clean up any OpenGL objects you may have (e.g. VBOs).
-	virtual void teardownGL() { };
+	virtual void teardownGL(OpenGLMemManager *memManage) { };
 
 	/// Set up what you need in the way of context and draw.
 	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;	
@@ -153,10 +178,10 @@ public:
 	virtual ~BasicDrawable();
 
 	/// Set up the VBOs
-	virtual void setupGL(float minZres);
+	virtual void setupGL(float minZres,OpenGLMemManager *memManage);
 	
 	/// Clean up the VBOs
-	virtual void teardownGL();	
+	virtual void teardownGL(OpenGLMemManager *memManage);	
 	
 	/// Fill this in to draw the basic drawable
 	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
@@ -223,6 +248,12 @@ public:
     
     /// Set the fade in and out
     void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp) { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
+    
+    /// Set the line width (if using lines)
+    void setLineWidth(float inWidth) { lineWidth = inWidth; }
+    
+    /// Return the line width (1.0 is the default)
+    float getLineWidth() { return lineWidth; }
 
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
@@ -238,6 +269,9 @@ public:
 
     /// Add a triangle.  Should point to the vertex IDs.
 	void addTriangle(Triangle tri) { tris.push_back(tri); }
+    
+    /// Return the texture ID
+    SimpleIdentity getTexId() { return texId; }
     
     /// Return the number of points added so far
     unsigned int getNumPoints() const { return points.size(); }
@@ -281,6 +315,7 @@ protected:
 	SimpleIdentity texId;  // ID for Texture (in scene)
 	RGBAColor color;
     float minVisible,maxVisible;
+    float lineWidth;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
 	std::vector<Vector3f> points;

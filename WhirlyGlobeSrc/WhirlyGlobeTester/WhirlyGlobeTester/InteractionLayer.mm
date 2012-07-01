@@ -386,7 +386,7 @@ const int NumMarkers=250;
          [NSNumber numberWithFloat:0.8],@"maxVis",
          [NSNumber numberWithInt:2],@"drawOffset",
          [NSNumber numberWithFloat:1.0],@"fade",
-//         [NSNumber numberWithBool:TRUE],@"screen",
+         [NSNumber numberWithBool:TRUE],@"screen",
          nil];
 
         // Set up the number textures

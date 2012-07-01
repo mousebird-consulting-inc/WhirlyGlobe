@@ -196,6 +196,17 @@ protected:
 
     /// This is the color used to clear the screen.  Defaults to black
     WhirlyKit::RGBAColor clearColor;
+    
+    /// Set if we're using the view based change mechanism to tell when to draw.
+    /// This works well for figuring out when the model matrix changes, but
+    ///  not so well with animation such as fades, particles systems and such.
+    bool useViewChanged;
+    
+    /// Last time we rendered
+    NSTimeInterval lastDraw;
+    
+    // View state from the last render, for comparison
+    Matrix4f modelMat,viewMat;
 }
 
 @property (nonatomic,readonly) EAGLContext *context;
@@ -209,6 +220,8 @@ protected:
 @property (nonatomic,readonly) float framesPerSec;
 @property (nonatomic,readonly) unsigned int numDrawables;
 @property (nonatomic,assign) int perfInterval;
+
+@property (nonatomic,assign) bool useViewChanged;
 
 @property (nonatomic,weak) NSObject<WhirlyKitSceneRendererDelegate> *delegate;
 
@@ -225,5 +238,9 @@ protected:
 /// If you're setting up resources within OpenGL, you need to have that
 ///  context active.  Call this to do that.
 - (void)useContext;
+
+/// Call this to force a draw on the next frame.
+/// This turns off the draw optimization, but just for one frame.
+- (void)forceDrawNextFrame;
 
 @end

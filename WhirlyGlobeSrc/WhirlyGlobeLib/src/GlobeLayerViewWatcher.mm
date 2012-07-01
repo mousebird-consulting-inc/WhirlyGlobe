@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 @interface LocalWatcher : NSObject
 {
 @public
-    id target;
+    id __unsafe_unretained target;
     SEL selector;
     NSTimeInterval minTime;
     NSTimeInterval lastUpdated;

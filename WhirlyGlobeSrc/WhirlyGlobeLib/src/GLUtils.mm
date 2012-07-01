@@ -20,8 +20,12 @@
 
 #import "GLUtils.h"
 
+// Turn this off for a little performance gain
+static bool ErrorsOn = false;
 bool CheckGLError(const char *msg)
 {
+    if (!ErrorsOn)
+        return true;
     GLenum theError = glGetError();
     if (theError != GL_NO_ERROR)
     {

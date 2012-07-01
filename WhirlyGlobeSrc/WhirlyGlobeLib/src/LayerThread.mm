@@ -30,6 +30,7 @@ using namespace WhirlyKit;
 @synthesize runLoop;
 @synthesize viewWatcher;
 @synthesize glContext;
+@synthesize memManager;
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
 {
@@ -42,11 +43,21 @@ using namespace WhirlyKit;
             viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
         
         glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:renderer.context.sharegroup];
+        memManager = new OpenGLMemManager();
+        thingsToRelease = [NSMutableArray array];
 	}
 	
 	return self;
 }
 
+- (void)dealloc
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
+    if (memManager)
+        delete memManager;
+    memManager = nil;
+}
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
 {
@@ -64,7 +75,7 @@ using namespace WhirlyKit;
 
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer
 {
-    [self performSelector:@selector(removeLayerThread:) onThread:self withObject:layer waitUntilDone:YES];
+    [self performSelector: @selector(removeLayerThread:) onThread: self withObject:layer waitUntilDone:NO];
 }
 
 // This runs in the layer thread
@@ -72,9 +83,40 @@ using namespace WhirlyKit;
 {
     if ([layers containsObject:layer])
     {
-        [layer shutdown];
+        // If we're done, we won't bother shutting down things nicely
+        if (![self isCancelled])
+            [layer shutdown];
         [layers removeObject:layer];
     }
+}
+
+- (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing
+{
+    thingsToDelete.push_back(thing);
+}
+
+- (void)addThingToRelease:(NSObject *)thing
+{
+    [thingsToRelease addObject:thing];
+}
+
+// Called every so often to move OpenGL IDs between threads
+- (void)openglMemCleanup
+{
+    if (![self isCancelled])
+    {
+        // This will block, thus letting us mess with both memory objects at the same time
+        [self performSelectorOnMainThread:@selector(openglMemCleanupMain) withObject:nil waitUntilDone:YES];
+        
+        // Do this every second or so
+        [self performSelector:@selector(openglMemCleanup) withObject:nil afterDelay:1.0];
+    }
+}
+
+// We'll move free'd IDs back from the main thread to the layer thread
+- (void)openglMemCleanupMain
+{
+    memManager->copyIDsFrom(scene->getMemManager());
 }
 
 // Called to start the thread
@@ -90,6 +132,8 @@ using namespace WhirlyKit;
             NSObject<WhirlyKitLayer> *layer = [layers objectAtIndex:ii];
             [layer startWithThread:self scene:scene];
         }
+        
+        [self performSelector:@selector(openglMemCleanup) withObject:nil afterDelay:0.0];
 
         // Process the run loop until we're cancelled
         // We'll check every 10th of a second
@@ -99,10 +143,22 @@ using namespace WhirlyKit;
                 [runLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
             }
         }
+        
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
         runLoop = nil;
+        // For some reason we need to do this explicitly in some cases
+        while ([layers count] > 0)
+            [self removeLayerThread:[layers objectAtIndex:0]];
         layers = nil;
     }
+
+    // Clean up the things the main thread has asked us to
+    for (unsigned int ii=0;ii<thingsToDelete.size();ii++)
+        delete thingsToDelete[ii];
+    thingsToDelete.clear();
+    while ([thingsToRelease count] > 0)
+        [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
 }
 
 @end

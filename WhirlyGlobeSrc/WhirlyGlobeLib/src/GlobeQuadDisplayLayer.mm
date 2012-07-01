@@ -181,6 +181,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
     [dataStructure shutdown];
+    dataStructure = nil;
     [loader shutdownLayer:self scene:scene];
     
     scene = NULL;
