@@ -19,7 +19,7 @@
  */
 
 // Note: This works around a problem in compilation for the iphone
-//#define EIGEN_DONT_VECTORIZE 1
+#define EIGEN_DONT_VECTORIZE 1
 //#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 
 #import <Eigen/Eigen>
