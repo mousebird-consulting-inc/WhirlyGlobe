@@ -730,7 +730,7 @@ static const bool DoingCulling = false;
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
     
-    // Call the pre-frame callback
+    // Call the post-frame callback
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(postFrame:)])
         [delegate postFrame:self]; 
         
