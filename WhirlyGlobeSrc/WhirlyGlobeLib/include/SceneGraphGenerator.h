@@ -61,13 +61,14 @@ typedef boost::shared_ptr<SceneGraphGeometry> SceneGraphGeometryRef;
 class SceneGraphGroup : public SceneGraphNode, public WhirlyKit::Identifiable
 {
 public:
-    SceneGraphGroup() { }
+    SceneGraphGroup() : numExpectedChildren(0) { }
     SceneGraphGroup(SimpleIdentity theId) : Identifiable(theId) { }
     virtual ~SceneGraphGroup() { nodes.clear(); }
     
     void addChild(SceneGraphNodeRef child) { nodes.insert(child); child->parent = this; }
     void removeChild(SceneGraphNodeRef child) { child->parent = NULL; nodes.erase(child); }
     
+    int numExpectedChildren;
     std::set<SceneGraphNodeRef> nodes;
 };    
 typedef boost::shared_ptr<SceneGraphGroup> SceneGraphGroupRef;
@@ -76,9 +77,8 @@ typedef boost::shared_ptr<SceneGraphGroup> SceneGraphGroupRef;
 class SceneGraphLOD : public SceneGraphGroup
 {
 public:
-    SceneGraphLOD() : numExpectedChildren(0) { }
+    SceneGraphLOD() { numExpectedChildren = 0; }
     
-    int numExpectedChildren;
     float switchIn,switchOut;
     WhirlyKit::Point3f center;
 };
@@ -98,7 +98,7 @@ public:
     
 protected:
     // Recursive traversal for a scenegraph node
-    void traverseNode(WhirlyKitRendererFrameInfo *frameInfo,WhirlyKit::Point3f localPt,SceneGraphNodeRef node,std::vector<WhirlyKit::DrawableRef> &drawables);
+    void traverseNode(WhirlyKitRendererFrameInfo *frameInfo,WhirlyKit::Point3f localPt,SceneGraphNodeRef node,std::set<SceneGraphNodeRef> &siblingNodes,std::vector<WhirlyKit::DrawableRef> &drawables);
     
     // Recursively add Node IDs to our full set of node IDs
     void traverseAddNodeIDs(SceneGraphNodeRef node);

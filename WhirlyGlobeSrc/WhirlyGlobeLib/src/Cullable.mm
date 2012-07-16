@@ -48,10 +48,14 @@ Cullable::Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth)
     cornerPoints[1] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ll().y(),0.0));
     cornerPoints[2] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ur().y(),0.0));
     cornerPoints[3] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ur().y(),0.0));
+    Point2f halfBot = (localMbr.ll() + Point2f(localMbr.ur().x(),localMbr.ll().y()))/2.0;
+    cornerPoints[4] = coordSystem->localToGeocentricish(Point3f(halfBot.x(),halfBot.y(),0.0));
+    Point2f halfTop = (Point2f(localMbr.ll().x(),localMbr.ur().y()) + localMbr.ur())/2.0;
+    cornerPoints[5] = coordSystem->localToGeocentricish(Point3f(halfTop.x(),halfTop.y(),0.0));
 
 	// Normals happen to be the same
     // Note: This only works for the globe
-	for (unsigned int ii=0;ii<4;ii++)
+	for (unsigned int ii=0;ii<6;ii++)
 		cornerNorms[ii] = cornerPoints[ii];
     
     // Set the child bounding boxes as well

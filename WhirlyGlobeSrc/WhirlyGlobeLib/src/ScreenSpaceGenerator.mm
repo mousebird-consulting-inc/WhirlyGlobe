@@ -42,6 +42,8 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     minVis = maxVis = DrawVisibleInvalid;
     fadeUp = fadeDown = 0.0;
     drawPriority = 0;
+    useRotation = false;
+    rotation = 0.0;
 }
 
 // Calculate its position and add this feature to the appropriate drawable
@@ -65,12 +67,34 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     // Project the world location to the screen
     CGPoint screenPt;
     Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
-    screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];    
-    
+    screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)]; 
+        
     // Note: This check is too simple
     if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
+
+    // If we need to do a rotation, throw out a point along the vector and see where it goes
+    float screenRot = 0.0;
+    Matrix2f screenRotMat;
+    if (shape->useRotation)
+    {
+        Point3f simpleUp(0,0,1);
+        Point3f norm = shape->worldLoc;
+        norm.normalize();
+        Point3f right = simpleUp.cross(norm);
+        Point3f up = norm.cross(right);
+        right.normalize();
+        up.normalize();
+        // Note: Check if the axes made any sense.  We might be at a pole.
+        Point3f rightDir = right * sinf(shape->rotation);
+        Point3f upDir = up * cosf(shape->rotation);
+        
+        Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
+        CGPoint outScreenPt = [globeView pointOnScreenFromSphere:outPt transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
+        screenRotMat = Eigen::Rotation2Df(screenRot);
+    }
 
     // Set up the alpha scaling
     bool hasAlpha = false;
@@ -103,8 +127,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
                     scale = 1.0-(frameInfo.currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
                 }
         }
-    
-    // Look for an existing drawable or add one
+
+    // Work through the individual pieces of geometry
     for (unsigned int si=0;si<shape->geom.size();si++)
     {
         SimpleGeometry &geom = shape->geom[si];
@@ -133,7 +157,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         Point2f org(MAXFLOAT,MAXFLOAT);
         for (unsigned int ii=0;ii<geom.coords.size();ii++)
         {
-            Point2f &coord = geom.coords[ii];
+            Point2f coord = geom.coords[ii];
+            if (screenRot != 0.0)
+                coord = screenRotMat * coord;
             pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
             org.x() = std::min(pts[ii].x(),org.x());
             org.y() = std::min(pts[ii].y(),org.y());

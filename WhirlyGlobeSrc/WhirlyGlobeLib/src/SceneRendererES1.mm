@@ -128,7 +128,7 @@ void PerformanceTimer::log()
     {
         CountEntry &entry = it->second;
         if (entry.numRuns > 0)
-            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns);
+            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,%d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
     }
 }
 
@@ -345,11 +345,25 @@ public:
 static const float ScreenOverlap = 0.1;
 
 // Use this to turn off culling (for debugging)
-static const bool DoingCulling = false;
+static const bool DoingCulling = true;
+
+// Calculate an acceptable MBR from world coords
+- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4f *)modelTrans frameSize:(Point2f)frameSize
+{
+    Mbr localScreenMbr;
+    
+    for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
+    {
+        CGPoint screenPt = [globeView pointOnScreenFromSphere:corners[ii] transform:modelTrans frameSize:frameSize];
+        localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
+    }    
+    
+    return localScreenMbr;
+}
 
 - (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
-    CoordSystem *coordSys = globeView.coordSystem;
+//    CoordSystem *coordSys = globeView.coordSystem;
     
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();        
@@ -362,18 +376,20 @@ static const bool DoingCulling = false;
         //       And we're doing the refusal check repeatedly as well, possibly
         if ((toDraw->find(draw) == toDraw->end()) && draw->isOn(frameInfo))
         {
-            Mbr localScreenMbr;
-            std::vector<Point2f> localPts;
-            draw->getLocalMbr().asPoints(localPts);
-            for (unsigned int ii=0;ii<4;ii++)
-            {
-                Point3f worldLoc = coordSys->localToGeocentricish(Point3f(localPts[ii].x(),localPts[ii].y(),0.0));
-                CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
-                localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
-            }
+//            Mbr localScreenMbr;
+//            std::vector<Point2f> localPts;
+//            draw->getLocalMbr().asPoints(localPts);
+//            for (unsigned int ii=0;ii<4;ii++)
+//            {
+//                Point3f worldLoc = coordSys->localToGeocentricish(Point3f(localPts[ii].x(),localPts[ii].y(),0.0));
+//                CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
+//                localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
+//            }
 
             // If this overlaps, we want to draw it
-            if (!DoingCulling || screenMbr.overlaps(localScreenMbr))
+//            if (!DoingCulling || screenMbr.overlaps(localScreenMbr))
+            // Note: Turned this off for now because it doesn't deal well with curvature
+            if (true)
                 toDraw->insert(draw);
         } 
     }    
@@ -390,7 +406,7 @@ static const bool DoingCulling = false;
     {
         inView = true;
     } else {
-        for (unsigned int ii=0;ii<4;ii++)
+        for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
         {
             Vector3f norm = cullable->cornerNorms[ii];
             if (norm.dot(eyeVec) > 0)
@@ -404,11 +420,7 @@ static const bool DoingCulling = false;
         return;
         
     Mbr localScreenMbr;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        CGPoint screenPt = [globeView pointOnScreenFromSphere:cullable->cornerPoints[ii] transform:modelTrans frameSize:frameSize];
-        localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
-    }
+    localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
     
     // If this doesn't overlap what we're viewing, we're done
     if (DoingCulling && !screenMbr.overlaps(localScreenMbr))
@@ -628,7 +640,7 @@ static const bool DoingCulling = false;
             perfTimer.stopTiming("Culling");
         
         if (perfInterval > 0)
-            perfTimer.startTiming("Generators - 3D");
+            perfTimer.startTiming("Generators - generate");
 
         // Now ask our generators to make their drawables
         // Note: Not doing any culling here
@@ -652,7 +664,7 @@ static const bool DoingCulling = false;
         }
         
         if (perfInterval > 0)
-            perfTimer.stopTiming("Generators - 3D");
+            perfTimer.stopTiming("Generators - generate");
         
         if (perfInterval > 0)
             perfTimer.startTiming("Draw Execution");
@@ -688,7 +700,7 @@ static const bool DoingCulling = false;
         drawList.clear();        
         
         if (perfInterval > 0)
-            perfTimer.startTiming("Generators - 2D");
+            perfTimer.startTiming("Generators - Draw 2D");
 
         // Now for the 2D display
         if (!screenDrawables.empty())
@@ -724,7 +736,7 @@ static const bool DoingCulling = false;
         }
 
         if (perfInterval > 0)
-            perfTimer.stopTiming("Generators - 2D");
+            perfTimer.stopTiming("Generators - Draw 2D");
     }
     
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);

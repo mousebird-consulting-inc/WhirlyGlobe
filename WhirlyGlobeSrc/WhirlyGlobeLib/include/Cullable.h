@@ -47,6 +47,9 @@ protected:
     int maxDrawPerNode;
     int numCullables;
 };
+    
+// Number of "corners" we used to define things in world space
+#define WhirlyKitCullableCorners 6
 
 /** This is a representation of cullable geometry.  It has
     geometry/direction info and a list of associated
@@ -94,9 +97,9 @@ public:
     void split(CullTree *);
     
     /// 3D locations (in model space) of the corners
-	Point3f cornerPoints[4];
+	Point3f cornerPoints[WhirlyKitCullableCorners];
 	/// Normal vectors (in model space) for the corners
-	Vector3f cornerNorms[4];
+	Vector3f cornerNorms[WhirlyKitCullableCorners];
     /// Opposite of depth.  0 means go no lower
     int height;
     /// Local coordinates for bounding box

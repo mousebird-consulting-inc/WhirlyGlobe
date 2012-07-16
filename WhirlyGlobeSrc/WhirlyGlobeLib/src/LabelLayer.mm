@@ -623,7 +623,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 Texture *tex = new Texture(textImage);
                 if (labelInfo.screenObject)
                     tex->setUsesMipmaps(false);
-                tex->createInGL(true,layerThread.memManager);
+                tex->createInGL(true,scene->getMemManager());
                 scene->addChangeRequest(new AddTextureReq(tex));
                 smGeom.texID = tex->getId();
                 labelRep->texIDs.insert(tex->getId());
@@ -665,7 +665,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             if (!texAtlas)
             {
                 Texture *tex = new Texture(textImage);
-                tex->createInGL(true,layerThread.memManager);
+                tex->createInGL(true,scene->getMemManager());
                 drawable->setTexId(tex->getId());
                 
                 // Add these to the cache first, before the renderer messes with them
@@ -774,7 +774,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         Texture *tex = [texAtlases[ii] createTexture:&theImage];
         if (labelInfo.screenObject)
             tex->setUsesMipmaps(false);
-        tex->createInGL(true,layerThread.memManager);
+        tex->createInGL(true,scene->getMemManager());
         scene->addChangeRequest(new AddTextureReq(tex));
         labelRep->texIDs.insert(tex->getId());
 

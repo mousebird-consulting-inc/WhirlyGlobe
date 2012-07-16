@@ -70,6 +70,9 @@ public:
 
         /// Center location
         Point3f worldLoc;
+        bool useRotation;
+        /// Rotation clockwise from north
+        float rotation;
         NSTimeInterval fadeUp,fadeDown;
         int drawPriority;
         float minVis,maxVis;

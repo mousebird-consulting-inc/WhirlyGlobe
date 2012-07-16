@@ -36,7 +36,7 @@ SceneGraphGenerator::~SceneGraphGenerator()
     
 }
     
-void SceneGraphGenerator::traverseNode(WhirlyKitRendererFrameInfo *frameInfo,Point3f localPt,SceneGraphNodeRef node,std::vector<WhirlyKit::DrawableRef> &drawables)
+void SceneGraphGenerator::traverseNode(WhirlyKitRendererFrameInfo *frameInfo,Point3f localPt,SceneGraphNodeRef node,std::set<SceneGraphNodeRef> &siblingNodes,std::vector<WhirlyKit::DrawableRef> &drawables)
 {
     SceneGraphGeometryRef geom = boost::dynamic_pointer_cast<SceneGraphGeometry>(node);
     if (geom.get())
@@ -56,13 +56,31 @@ void SceneGraphGenerator::traverseNode(WhirlyKitRendererFrameInfo *frameInfo,Poi
             SceneGraphLODRef lod = boost::dynamic_pointer_cast<SceneGraphLOD>(node);
             if (lod.get())
             {
+                // Basic LOD test
                 float dist = (localPt-lod->center).norm();
-                if (lod->nodes.size() >= lod->numExpectedChildren &&
-                    ((lod->switchIn < dist && dist < lod->switchOut) ||
-                     (lod->switchOut < dist && dist < lod->switchIn)))
+                if (lod->switchOut < dist && dist < lod->switchIn)
                     doTraverse = true;
                 else
                     doTraverse = false;
+                
+                // If we're missing children, don't traverse
+                if (lod->nodes.size() < lod->numExpectedChildren)
+                    doTraverse = false;
+                else {
+                    // Only nodes with pageable children are marked with expectedChildren
+                    if (lod->numExpectedChildren == 0 && dist < lod->switchOut)
+                    {
+                        // If a sibling node is missing children, lock this LOD on
+                        for (std::set<SceneGraphNodeRef>::iterator siblingIt = siblingNodes.begin();
+                             siblingIt != siblingNodes.end(); ++siblingIt)                            
+                        {
+                            SceneGraphLODRef siblingLod = boost::dynamic_pointer_cast<SceneGraphLOD>(*siblingIt);
+                            if (siblingLod.get() && siblingLod != lod &&
+                                (siblingLod->nodes.size() < siblingLod->numExpectedChildren))
+                                doTraverse = true;
+                        }
+                    }
+                }
             }
             
             // Traverse the children
@@ -70,7 +88,9 @@ void SceneGraphGenerator::traverseNode(WhirlyKitRendererFrameInfo *frameInfo,Poi
             {
                 for (std::set<SceneGraphNodeRef>::iterator it = group->nodes.begin();
                      it != group->nodes.end(); ++it)
-                    traverseNode(frameInfo, localPt, *it, drawables);
+                {
+                    traverseNode(frameInfo, localPt, *it, group->nodes, drawables);
+                }
             }
         }
     }
@@ -115,7 +135,10 @@ void SceneGraphGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInf
     
     // Traverse the various top level nodes, gathering as we go
     for (NodeRefSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)
-        traverseNode(frameInfo,localPt,*it,drawables);
+    {
+        std::set<SceneGraphNodeRef> emptySet;
+        traverseNode(frameInfo,localPt,*it,emptySet,drawables);
+    }
 }
     
 void SceneGraphGenerator::attachSceneFragment(SimpleIdentity attachID,SceneGraphNodeRef node)

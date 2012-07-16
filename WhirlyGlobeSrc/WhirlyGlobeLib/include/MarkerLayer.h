@@ -81,6 +81,10 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     float width;
     /// The height in 3-space (remember the globe has radius = 1.0)
     float height;
+    /// Set if we want a static rotation.  Only matters in screen space
+    bool lockRotation;
+    /// This is rotation clockwise from north in radians
+    float rotation;
     /// The period over which we'll switch textures
     NSTimeInterval period;
     /// For markers with more than one texture, this is the offset
@@ -92,7 +96,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 @property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
-@property (nonatomic,assign) float width,height;
+@property (nonatomic,assign) bool lockRotation;
+@property (nonatomic,assign) float width,height,rotation;
 @property (nonatomic,assign) NSTimeInterval period;
 @property (nonatomic,assign) NSTimeInterval timeOffset;
 

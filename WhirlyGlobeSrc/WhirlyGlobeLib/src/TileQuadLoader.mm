@@ -383,7 +383,7 @@ const int SphereTessX = 10, SphereTessY = 10;
             if (newTex)
             {
                 [EAGLContext setCurrentContext:layer.layerThread.glContext];
-                newTex->createInGL(true,quadLayer.layerThread.memManager);
+                newTex->createInGL(true,quadLayer.scene->getMemManager());
                 *tex = newTex;
             }
         } else
@@ -473,7 +473,7 @@ const int SphereTessX = 10, SphereTessY = 10;
         // Set up the geometry before we hand it over
         [EAGLContext setCurrentContext:layer.layerThread.glContext];
         // Note: This will work poorly with a draw offset
-        chunk->setupGL(0.0,quadLayer.layerThread.memManager);
+        chunk->setupGL(0.0,quadLayer.scene->getMemManager());
     }    
 }
 

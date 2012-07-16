@@ -229,7 +229,7 @@ public:
     CullTree *getCullTree() { return cullTree; }
     
     /// Get the renderer's buffer/texture ID manager.
-    /// You can only use this on the main thread
+    /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
 	
 public:	    

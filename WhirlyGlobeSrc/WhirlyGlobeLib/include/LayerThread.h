@@ -46,10 +46,7 @@
     
     /// Our own EAGLContext, connected by a share group to the main one
     EAGLContext *glContext;
-    
-    /// OpenGL buffer and texture ID manager
-    WhirlyKit::OpenGLMemManager *memManager;
-    
+        
     /// Used to keep track of things to delete
     std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
     
@@ -60,7 +57,6 @@
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 @property (nonatomic,readonly) EAGLContext *glContext;
-@property (nonatomic,readonly) WhirlyKit::OpenGLMemManager *memManager;
 
 /// Set up with a scene and a view
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;

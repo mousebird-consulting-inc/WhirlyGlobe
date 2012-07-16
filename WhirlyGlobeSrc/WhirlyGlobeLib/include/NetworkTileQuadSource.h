@@ -48,7 +48,7 @@
 }
 
 @property (nonatomic,assign) int numSimultaneous;
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,retain) NSString *cacheDir;
 
 /// Initialize with the base URL and image extension (e.g. png, jpg)
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;

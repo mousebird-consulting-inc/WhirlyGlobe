@@ -49,6 +49,9 @@ class Scene;
 class OpenGLMemManager
 {
 public:
+    OpenGLMemManager();
+    ~OpenGLMemManager();
+    
     // Pick a buffer ID off the list or ask OpenGL for one
     GLuint getBufferID();
     // Toss the given buffer ID back on the list for reuse
@@ -58,12 +61,10 @@ public:
     GLuint getTexID();
     // Toss the given texture ID back on the list for reuse
     void removeTexID(GLuint texID);
-    
-    // Move IDs from the mem manager given to this one.
-    // Don't ever call this on your own.
-    void copyIDsFrom(OpenGLMemManager *);
-    
+        
 protected:
+    pthread_mutex_t idLock;
+
     std::set<GLuint> buffIDs;
     std::set<GLuint> texIDs;
 };
@@ -284,6 +285,21 @@ public:
     
     /// Return the number of texture coordinates added so far
     unsigned int getNumTexCoords() const { return texCoords.size(); }
+    
+    /// Reserve the extra space for points
+    void reserveNumPoints(int numPoints) { points.reserve(points.size()+numPoints); }
+    
+    /// Reserve the extra space for triangles
+    void reserveNumTris(int numTris) { tris.reserve(tris.size()+numTris); }
+    
+    /// Reserve extra space for texture coordinates
+    void reserveNumTexCoords(int numCoords) { texCoords.reserve(texCoords.size()+numCoords); }
+    
+    /// Reserve extra space for normals
+    void reserveNumNorms(int numNorms) { norms.reserve(norms.size()+numNorms); }
+    
+    /// Reserve extra space for colors
+    void reserveNumColors(int numColors) { colors.reserve(colors.size()+numColors); }
 	
 	// Widen a line and turn it into a rectangle of the given width
 	void addRect(const Point3f &l0, const Vector3f &ln0, const Point3f &l1, const Vector3f &ln1,float width);

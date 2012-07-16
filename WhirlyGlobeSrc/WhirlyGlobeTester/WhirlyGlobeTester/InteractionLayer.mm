@@ -280,7 +280,7 @@ using namespace WhirlyGlobe;
     // Testing icons
     // Note: Leaking texture here
     Texture *newTex = new Texture(@"number_1",@"png");
-    SimpleIdentity iconTexID = newTex->getId();
+//    SimpleIdentity iconTexID = newTex->getId();
     scene->addChangeRequest(new AddTextureReq(newTex));    
     
     // Visual description of the vectors and labels

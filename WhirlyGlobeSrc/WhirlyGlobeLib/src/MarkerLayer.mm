@@ -42,7 +42,8 @@ MarkerSceneRep::MarkerSceneRep()
 @synthesize isSelectable;
 @synthesize selectID;
 @synthesize loc;
-@synthesize width,height;
+@synthesize width,height,rotation;
+@synthesize lockRotation;
 @synthesize texIDs;
 @synthesize period;
 @synthesize timeOffset;
@@ -295,6 +296,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 }
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
                 shape->worldLoc = norm;
+                if (marker.lockRotation)
+                {
+                    shape->useRotation = true;
+                    shape->rotation = marker.rotation;
+                }
                 // Note: Fade up/down
                 shape->minVis = markerInfo.minVis;
                 shape->maxVis = markerInfo.maxVis;

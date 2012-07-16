@@ -29,15 +29,32 @@ using namespace WhirlyGlobe;
 namespace WhirlyKit
 {
     
+OpenGLMemManager::OpenGLMemManager()
+{
+    pthread_mutex_init(&idLock,NULL);
+}
+    
+OpenGLMemManager::~OpenGLMemManager()
+{
+    pthread_mutex_destroy(&idLock);
+}
+    
 GLuint OpenGLMemManager::getBufferID()
 {
+    pthread_mutex_lock(&idLock);
+
     GLuint which = 0;
     if (!buffIDs.empty())
     {
         std::set<GLuint>::iterator it = buffIDs.begin();
         which = *it;
         buffIDs.erase(it);
+
+        pthread_mutex_unlock(&idLock);
     } else {
+        // glGenBuffers doesn't need to be locked
+        pthread_mutex_unlock(&idLock);
+
         glGenBuffers(1, &which);
     }
     
@@ -46,20 +63,31 @@ GLuint OpenGLMemManager::getBufferID()
 
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
+    pthread_mutex_lock(&idLock);
+    
 //    glBindBuffer(GL_ARRAY_BUFFER, bufID);
 //    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     buffIDs.insert(bufID);
+
+    pthread_mutex_unlock(&idLock);
 }
 
 GLuint OpenGLMemManager::getTexID()
 {
+    pthread_mutex_lock(&idLock);
+
     GLuint which = 0;
     if (!texIDs.empty())
     {
         std::set<GLuint>::iterator it = texIDs.begin();
         which = *it;
         texIDs.erase(it);
+
+        pthread_mutex_unlock(&idLock);
     } else {
+        // Gen Textures doesn't need to be locked
+        pthread_mutex_unlock(&idLock);
+
         glGenTextures(1, &which);
     }
     
@@ -68,16 +96,12 @@ GLuint OpenGLMemManager::getTexID()
     
 void OpenGLMemManager::removeTexID(GLuint texID)
 {
+    pthread_mutex_lock(&idLock);
+
     // Note: Might want to clear out texture
     texIDs.insert(texID);
-}
 
-void OpenGLMemManager::copyIDsFrom(OpenGLMemManager *that)
-{
-    buffIDs.insert(that->buffIDs.begin(), that->buffIDs.end());
-    texIDs.insert(that->texIDs.begin(), that->texIDs.end());
-    that->buffIDs.clear();
-    that->texIDs.clear();
+    pthread_mutex_unlock(&idLock);
 }
 		
 Drawable::Drawable()
