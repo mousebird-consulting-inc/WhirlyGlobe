@@ -1,0 +1,384 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B11E0DE15B4C030007AAE3F /* Foundation.framework */; };
+		2B11E0F415B4C0C0007AAE3F /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B11E0F315B4C0BA007AAE3F /* libWhirlyGlobeLib.a */; };
+		2B897A6515BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6415BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h */; };
+		2B897A6B15BB59F300250F23 /* WGComponentObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6615BB59F300250F23 /* WGComponentObject_private.h */; };
+		2B897A6D15BB59F300250F23 /* WGScreenMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6815BB59F300250F23 /* WGScreenMarker.h */; };
+		2B897A6E15BB59F300250F23 /* WhirlyGlobeComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6915BB59F300250F23 /* WhirlyGlobeComponent.h */; };
+		2B897A6F15BB59F300250F23 /* WhirlyGlobeViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6A15BB59F300250F23 /* WhirlyGlobeViewController.h */; };
+		2B897A7115BB5A2F00250F23 /* WGCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A7015BB5A2F00250F23 /* WGCoordinate.h */; };
+		2B897A7315BB5A5E00250F23 /* PanDelegateFixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A7215BB5A5E00250F23 /* PanDelegateFixed.h */; };
+		2B897A7515BB5A6A00250F23 /* WGViewControllerLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A7415BB5A6A00250F23 /* WGViewControllerLayer_private.h */; };
+		2B897A7715BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A7615BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h */; };
+		2B897A7915BB5AC600250F23 /* WGInteractionLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A7815BB5AC600250F23 /* WGInteractionLayer_private.h */; };
+		2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8415BB5DEB00250F23 /* WhirlyGlobeViewController.mm */; };
+		2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8615BBB83E00250F23 /* WGInteractionLayer.mm */; };
+		2B897A8915BC664A00250F23 /* WGCoordinate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8815BC664A00250F23 /* WGCoordinate.mm */; };
+		2B897A8B15BC698800250F23 /* WGScreenMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8A15BC698800250F23 /* WGScreenMarker.m */; };
+		2B897A8D15BC6BF000250F23 /* WGComponentObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8C15BC6BF000250F23 /* WGComponentObject.mm */; };
+		2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */; };
+		2B897A9115BC6CEE00250F23 /* WGViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9015BC6CEE00250F23 /* WGViewControllerLayer.mm */; };
+		2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2B11E0F215B4C0BA007AAE3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2BDC4ABB133404BB00E25283;
+			remoteInfo = WhirlyGlobeLib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2B11E0DB15B4C030007AAE3F /* libWhirlyGlobeComponent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeComponent.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B11E0DE15B4C030007AAE3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
+		2B897A6415BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeComponent-Prefix.h"; sourceTree = SOURCE_ROOT; };
+		2B897A6615BB59F300250F23 /* WGComponentObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGComponentObject_private.h; path = include/WGComponentObject_private.h; sourceTree = SOURCE_ROOT; };
+		2B897A6815BB59F300250F23 /* WGScreenMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGScreenMarker.h; path = include/WGScreenMarker.h; sourceTree = SOURCE_ROOT; };
+		2B897A6915BB59F300250F23 /* WhirlyGlobeComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobeComponent.h; path = include/WhirlyGlobeComponent.h; sourceTree = SOURCE_ROOT; };
+		2B897A6A15BB59F300250F23 /* WhirlyGlobeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobeViewController.h; path = include/WhirlyGlobeViewController.h; sourceTree = SOURCE_ROOT; };
+		2B897A7015BB5A2F00250F23 /* WGCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGCoordinate.h; path = include/WGCoordinate.h; sourceTree = SOURCE_ROOT; };
+		2B897A7215BB5A5E00250F23 /* PanDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PanDelegateFixed.h; path = include/private/PanDelegateFixed.h; sourceTree = SOURCE_ROOT; };
+		2B897A7415BB5A6A00250F23 /* WGViewControllerLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGViewControllerLayer_private.h; path = include/private/WGViewControllerLayer_private.h; sourceTree = SOURCE_ROOT; };
+		2B897A7615BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGSphericalEarthWithTexGroup_private.h; path = include/private/WGSphericalEarthWithTexGroup_private.h; sourceTree = SOURCE_ROOT; };
+		2B897A7815BB5AC600250F23 /* WGInteractionLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGInteractionLayer_private.h; path = include/private/WGInteractionLayer_private.h; sourceTree = SOURCE_ROOT; };
+		2B897A8415BB5DEB00250F23 /* WhirlyGlobeViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WhirlyGlobeViewController.mm; path = src/WhirlyGlobeViewController.mm; sourceTree = SOURCE_ROOT; };
+		2B897A8615BBB83E00250F23 /* WGInteractionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGInteractionLayer.mm; path = src/WGInteractionLayer.mm; sourceTree = SOURCE_ROOT; };
+		2B897A8815BC664A00250F23 /* WGCoordinate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGCoordinate.mm; path = src/WGCoordinate.mm; sourceTree = SOURCE_ROOT; };
+		2B897A8A15BC698800250F23 /* WGScreenMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGScreenMarker.m; path = src/WGScreenMarker.m; sourceTree = SOURCE_ROOT; };
+		2B897A8C15BC6BF000250F23 /* WGComponentObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGComponentObject.mm; path = src/WGComponentObject.mm; sourceTree = SOURCE_ROOT; };
+		2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PanDelegateFixed.mm; path = src/PanDelegateFixed.mm; sourceTree = SOURCE_ROOT; };
+		2B897A9015BC6CEE00250F23 /* WGViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGViewControllerLayer.mm; path = src/WGViewControllerLayer.mm; sourceTree = SOURCE_ROOT; };
+		2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGSphericalEarthWithTexGroup.mm; path = src/WGSphericalEarthWithTexGroup.mm; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2B11E0D815B4C030007AAE3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B11E0F415B4C0C0007AAE3F /* libWhirlyGlobeLib.a in Frameworks */,
+				2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2B11E0D015B4C030007AAE3F = {
+			isa = PBXGroup;
+			children = (
+				2B11E0E015B4C030007AAE3F /* WhirlyGlobeComponent */,
+				2B11E0DD15B4C030007AAE3F /* Frameworks */,
+				2B11E0DC15B4C030007AAE3F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2B11E0DC15B4C030007AAE3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B11E0DB15B4C030007AAE3F /* libWhirlyGlobeComponent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B11E0DD15B4C030007AAE3F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */,
+				2B11E0DE15B4C030007AAE3F /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2B11E0E015B4C030007AAE3F /* WhirlyGlobeComponent */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A6915BB59F300250F23 /* WhirlyGlobeComponent.h */,
+				2B897A6A15BB59F300250F23 /* WhirlyGlobeViewController.h */,
+				2B897A8415BB5DEB00250F23 /* WhirlyGlobeViewController.mm */,
+				2B897A7815BB5AC600250F23 /* WGInteractionLayer_private.h */,
+				2B897A8615BBB83E00250F23 /* WGInteractionLayer.mm */,
+				2B1D05FF15B5CBB300B844C4 /* coordinates */,
+				2B1D061215B5CE0300B844C4 /* object wrappers */,
+				2B1D05F315B5C20500B844C4 /* gestures */,
+				2B11E11715B4DAFF007AAE3F /* layer wrappers */,
+				2B11E0E115B4C030007AAE3F /* Supporting Files */,
+			);
+			path = WhirlyGlobeComponent;
+			sourceTree = "<group>";
+		};
+		2B11E0E115B4C030007AAE3F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A6415BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2B11E0EC15B4C0BA007AAE3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B11E0F315B4C0BA007AAE3F /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B11E11715B4DAFF007AAE3F /* layer wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A7415BB5A6A00250F23 /* WGViewControllerLayer_private.h */,
+				2B897A9015BC6CEE00250F23 /* WGViewControllerLayer.mm */,
+				2B897A7615BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h */,
+				2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */,
+			);
+			name = "layer wrappers";
+			sourceTree = "<group>";
+		};
+		2B1D05F315B5C20500B844C4 /* gestures */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A7215BB5A5E00250F23 /* PanDelegateFixed.h */,
+				2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */,
+			);
+			name = gestures;
+			sourceTree = "<group>";
+		};
+		2B1D05FF15B5CBB300B844C4 /* coordinates */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A7015BB5A2F00250F23 /* WGCoordinate.h */,
+				2B897A8815BC664A00250F23 /* WGCoordinate.mm */,
+			);
+			name = coordinates;
+			sourceTree = "<group>";
+		};
+		2B1D061215B5CE0300B844C4 /* object wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				2B897A6815BB59F300250F23 /* WGScreenMarker.h */,
+				2B897A8A15BC698800250F23 /* WGScreenMarker.m */,
+				2B897A6615BB59F300250F23 /* WGComponentObject_private.h */,
+				2B897A8C15BC6BF000250F23 /* WGComponentObject.mm */,
+			);
+			name = "object wrappers";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		2B11E0D915B4C030007AAE3F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B897A6515BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h in Headers */,
+				2B897A6B15BB59F300250F23 /* WGComponentObject_private.h in Headers */,
+				2B897A6D15BB59F300250F23 /* WGScreenMarker.h in Headers */,
+				2B897A6E15BB59F300250F23 /* WhirlyGlobeComponent.h in Headers */,
+				2B897A6F15BB59F300250F23 /* WhirlyGlobeViewController.h in Headers */,
+				2B897A7115BB5A2F00250F23 /* WGCoordinate.h in Headers */,
+				2B897A7315BB5A5E00250F23 /* PanDelegateFixed.h in Headers */,
+				2B897A7515BB5A6A00250F23 /* WGViewControllerLayer_private.h in Headers */,
+				2B897A7715BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h in Headers */,
+				2B897A7915BB5AC600250F23 /* WGInteractionLayer_private.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2B11E0DA15B4C030007AAE3F /* WhirlyGlobeComponent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B11E0E815B4C030007AAE3F /* Build configuration list for PBXNativeTarget "WhirlyGlobeComponent" */;
+			buildPhases = (
+				2B11E0D715B4C030007AAE3F /* Sources */,
+				2B11E0D815B4C030007AAE3F /* Frameworks */,
+				2B11E0D915B4C030007AAE3F /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WhirlyGlobeComponent;
+			productName = WhirlyGlobeComponent;
+			productReference = 2B11E0DB15B4C030007AAE3F /* libWhirlyGlobeComponent.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2B11E0D215B4C030007AAE3F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 2B11E0D515B4C030007AAE3F /* Build configuration list for PBXProject "WhirlyGlobeComponent" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2B11E0D015B4C030007AAE3F;
+			productRefGroup = 2B11E0DC15B4C030007AAE3F /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2B11E0EC15B4C0BA007AAE3F /* Products */;
+					ProjectRef = 2B11E0EB15B4C0BA007AAE3F /* WhirlyGlobeLib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				2B11E0DA15B4C030007AAE3F /* WhirlyGlobeComponent */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2B11E0F315B4C0BA007AAE3F /* libWhirlyGlobeLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWhirlyGlobeLib.a;
+			remoteRef = 2B11E0F215B4C0BA007AAE3F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B11E0D715B4C030007AAE3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */,
+				2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */,
+				2B897A8915BC664A00250F23 /* WGCoordinate.mm in Sources */,
+				2B897A8B15BC698800250F23 /* WGScreenMarker.m in Sources */,
+				2B897A8D15BC6BF000250F23 /* WGComponentObject.mm in Sources */,
+				2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */,
+				2B897A9115BC6CEE00250F23 /* WGViewControllerLayer.mm in Sources */,
+				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2B11E0E615B4C030007AAE3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		2B11E0E715B4C030007AAE3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2B11E0E915B4C030007AAE3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeComponent/WhirlyGlobeComponent-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../WhirlyGlobeLib/include/,
+					../../../utilities/boost_1_45_0,
+					"../../../utilities/eigen-eigen-3.0.1",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		2B11E0EA15B4C030007AAE3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeComponent/WhirlyGlobeComponent-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../WhirlyGlobeLib/include/,
+					../../../utilities/boost_1_45_0,
+					"../../../utilities/eigen-eigen-3.0.1",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2B11E0D515B4C030007AAE3F /* Build configuration list for PBXProject "WhirlyGlobeComponent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B11E0E615B4C030007AAE3F /* Debug */,
+				2B11E0E715B4C030007AAE3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B11E0E815B4C030007AAE3F /* Build configuration list for PBXNativeTarget "WhirlyGlobeComponent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B11E0E915B4C030007AAE3F /* Debug */,
+				2B11E0EA15B4C030007AAE3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2B11E0D215B4C030007AAE3F /* Project object */;
+}
