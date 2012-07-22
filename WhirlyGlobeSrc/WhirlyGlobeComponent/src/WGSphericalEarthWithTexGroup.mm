@@ -35,7 +35,8 @@ using namespace WhirlyGlobe;
     self = [super init];
     if (self)
     {
-        texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:texGroupName];
+        NSString *infoPath = [[NSBundle mainBundle] pathForResource:texGroupName ofType:@"plist"];
+        texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:infoPath];
         if (!texGroup)
         {
             self = nil;

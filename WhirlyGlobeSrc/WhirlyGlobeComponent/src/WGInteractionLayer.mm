@@ -76,7 +76,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
     
     // Add it and download it
     Texture *tex = new Texture(image);
-    tex->createInGL(YES, scene->getMemManager());
+//    tex->createInGL(YES, scene->getMemManager());
     scene->addChangeRequest(new AddTextureReq(tex));
     
     // Add to our cache

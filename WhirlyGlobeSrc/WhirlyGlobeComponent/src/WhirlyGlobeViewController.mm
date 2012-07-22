@@ -173,6 +173,13 @@ using namespace WhirlyGlobe;
 	[layerThread start];
 }
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self loadSetup];
+}
+
 - (void)viewDidUnload
 {	
 	[self clear];
