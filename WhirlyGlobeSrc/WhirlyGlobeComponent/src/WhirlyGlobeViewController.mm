@@ -77,9 +77,12 @@ using namespace WhirlyGlobe;
 
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
-    [layerThread addThingToDelete:globeScene];
-    [layerThread addThingToRelease:layerThread];
-    [layerThread cancel];
+    if (layerThread)
+    {
+        [layerThread addThingToDelete:globeScene];
+        [layerThread addThingToRelease:layerThread];
+        [layerThread cancel];
+    }
     globeScene = NULL;
     
     glView = nil;
@@ -223,8 +226,8 @@ using namespace WhirlyGlobe;
 // Register for interesting tap events
 - (void)registerForTaps
 {
-    // If the user taps, the globe we'll rotate there
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnGlobe:) name:WhirlyGlobeTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOutsideGlobe:) name:WhirlyGlobeTapOutsideMsg object:nil];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -320,5 +323,11 @@ using namespace WhirlyGlobe;
     [interactLayer userDidTap:msg];
 }
 
+// Called when the user taps outside the globe.
+- (void) tapOutsideGlobe:(NSNotification *)note
+{
+    if (selection && delegate && [delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+        [delegate globeViewControllerDidTapOutside:self];
+}
 
 @end
