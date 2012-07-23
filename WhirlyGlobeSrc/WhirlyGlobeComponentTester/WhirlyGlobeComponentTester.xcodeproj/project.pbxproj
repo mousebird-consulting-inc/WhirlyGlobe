@@ -1,0 +1,423 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2BE8497215BDE270006CFD3F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497115BDE270006CFD3F /* UIKit.framework */; };
+		2BE8497415BDE270006CFD3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497315BDE270006CFD3F /* Foundation.framework */; };
+		2BE8497615BDE270006CFD3F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497515BDE270006CFD3F /* CoreGraphics.framework */; };
+		2BE8497C15BDE270006CFD3F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8497A15BDE270006CFD3F /* InfoPlist.strings */; };
+		2BE8497E15BDE270006CFD3F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8497D15BDE270006CFD3F /* main.m */; };
+		2BE8498215BDE270006CFD3F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8498115BDE270006CFD3F /* AppDelegate.m */; };
+		2BE8498A15BDEFA1006CFD3F /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE8498915BDEFA1006CFD3F /* TestViewController.m */; };
+		2BE8499A15BDEFE1006CFD3F /* libWhirlyGlobeComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8499715BDEFC4006CFD3F /* libWhirlyGlobeComponent.a */; };
+		2BE849A215BDF410006CFD3F /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE849A115BDF410006CFD3F /* StartupViewController.m */; };
+		2BE849A815BDF7A4006CFD3F /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE849A715BDF7A4006CFD3F /* libstdc++.dylib */; };
+		2BE849AA15BDF7AB006CFD3F /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE849A915BDF7AB006CFD3F /* libsqlite3.dylib */; };
+		2BE849AC15BDF7AF006CFD3F /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */; };
+		2BE849AE15BDF7B6006CFD3F /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */; };
+		2BE849BC15BDF902006CFD3F /* lowres_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B115BDF902006CFD3F /* lowres_wtb_0x0.pvrtc */; };
+		2BE849BD15BDF902006CFD3F /* lowres_wtb_0x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B215BDF902006CFD3F /* lowres_wtb_0x1.pvrtc */; };
+		2BE849BE15BDF902006CFD3F /* lowres_wtb_1x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B315BDF902006CFD3F /* lowres_wtb_1x0.pvrtc */; };
+		2BE849BF15BDF902006CFD3F /* lowres_wtb_1x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B415BDF902006CFD3F /* lowres_wtb_1x1.pvrtc */; };
+		2BE849C015BDF902006CFD3F /* lowres_wtb_2x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B515BDF902006CFD3F /* lowres_wtb_2x0.pvrtc */; };
+		2BE849C115BDF902006CFD3F /* lowres_wtb_2x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B615BDF902006CFD3F /* lowres_wtb_2x1.pvrtc */; };
+		2BE849C215BDF902006CFD3F /* lowres_wtb_3x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B715BDF902006CFD3F /* lowres_wtb_3x0.pvrtc */; };
+		2BE849C315BDF902006CFD3F /* lowres_wtb_3x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B815BDF902006CFD3F /* lowres_wtb_3x1.pvrtc */; };
+		2BE849C415BDF902006CFD3F /* lowres_wtb_4x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849B915BDF902006CFD3F /* lowres_wtb_4x0.pvrtc */; };
+		2BE849C515BDF902006CFD3F /* lowres_wtb_4x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849BA15BDF902006CFD3F /* lowres_wtb_4x1.pvrtc */; };
+		2BE849C615BDF902006CFD3F /* lowres_wtb_info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849BB15BDF902006CFD3F /* lowres_wtb_info.plist */; };
+		2BE849C915BDFA22006CFD3F /* geography-class.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849C815BDFA22006CFD3F /* geography-class.mbtiles */; };
+		2BE849CD15BDFB40006CFD3F /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE849CB15BDFB40006CFD3F /* ConfigViewController.m */; };
+		2BE849CE15BDFB40006CFD3F /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */; };
+		2BE849D015BE01EE006CFD3F /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CF15BE01EE006CFD3F /* map_pin.png */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2BE8499615BDEFC4006CFD3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2BE8498B15BDEFC4006CFD3F /* WhirlyGlobeComponent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2B11E0DB15B4C030007AAE3F;
+			remoteInfo = WhirlyGlobeComponent;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2BE8496D15BDE270006CFD3F /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BE8497115BDE270006CFD3F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2BE8497315BDE270006CFD3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2BE8497515BDE270006CFD3F /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2BE8497915BDE270006CFD3F /* WhirlyGlobeComponentTester-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WhirlyGlobeComponentTester-Info.plist"; sourceTree = "<group>"; };
+		2BE8497B15BDE270006CFD3F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		2BE8497D15BDE270006CFD3F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2BE8497F15BDE270006CFD3F /* WhirlyGlobeComponentTester-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeComponentTester-Prefix.pch"; sourceTree = "<group>"; };
+		2BE8498015BDE270006CFD3F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		2BE8498115BDE270006CFD3F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		2BE8498815BDEFA1006CFD3F /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
+		2BE8498915BDEFA1006CFD3F /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
+		2BE8498B15BDEFC4006CFD3F /* WhirlyGlobeComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeComponent.xcodeproj; path = ../WhirlyGlobeComponent/WhirlyGlobeComponent.xcodeproj; sourceTree = "<group>"; };
+		2BE849A015BDF410006CFD3F /* StartupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartupViewController.h; sourceTree = "<group>"; };
+		2BE849A115BDF410006CFD3F /* StartupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartupViewController.m; sourceTree = "<group>"; };
+		2BE849A715BDF7A4006CFD3F /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
+		2BE849A915BDF7AB006CFD3F /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		2BE849B115BDF902006CFD3F /* lowres_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x0.pvrtc; sourceTree = "<group>"; };
+		2BE849B215BDF902006CFD3F /* lowres_wtb_0x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x1.pvrtc; sourceTree = "<group>"; };
+		2BE849B315BDF902006CFD3F /* lowres_wtb_1x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_1x0.pvrtc; sourceTree = "<group>"; };
+		2BE849B415BDF902006CFD3F /* lowres_wtb_1x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_1x1.pvrtc; sourceTree = "<group>"; };
+		2BE849B515BDF902006CFD3F /* lowres_wtb_2x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_2x0.pvrtc; sourceTree = "<group>"; };
+		2BE849B615BDF902006CFD3F /* lowres_wtb_2x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_2x1.pvrtc; sourceTree = "<group>"; };
+		2BE849B715BDF902006CFD3F /* lowres_wtb_3x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_3x0.pvrtc; sourceTree = "<group>"; };
+		2BE849B815BDF902006CFD3F /* lowres_wtb_3x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_3x1.pvrtc; sourceTree = "<group>"; };
+		2BE849B915BDF902006CFD3F /* lowres_wtb_4x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_4x0.pvrtc; sourceTree = "<group>"; };
+		2BE849BA15BDF902006CFD3F /* lowres_wtb_4x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_4x1.pvrtc; sourceTree = "<group>"; };
+		2BE849BB15BDF902006CFD3F /* lowres_wtb_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = lowres_wtb_info.plist; sourceTree = "<group>"; };
+		2BE849C815BDFA22006CFD3F /* geography-class.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = "geography-class.mbtiles"; sourceTree = "<group>"; };
+		2BE849CA15BDFB40006CFD3F /* ConfigViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
+		2BE849CB15BDFB40006CFD3F /* ConfigViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
+		2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
+		2BE849CF15BE01EE006CFD3F /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2BE8496A15BDE270006CFD3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BE849AE15BDF7B6006CFD3F /* OpenGLES.framework in Frameworks */,
+				2BE849AC15BDF7AF006CFD3F /* QuartzCore.framework in Frameworks */,
+				2BE849AA15BDF7AB006CFD3F /* libsqlite3.dylib in Frameworks */,
+				2BE849A815BDF7A4006CFD3F /* libstdc++.dylib in Frameworks */,
+				2BE8499A15BDEFE1006CFD3F /* libWhirlyGlobeComponent.a in Frameworks */,
+				2BE8497215BDE270006CFD3F /* UIKit.framework in Frameworks */,
+				2BE8497415BDE270006CFD3F /* Foundation.framework in Frameworks */,
+				2BE8497615BDE270006CFD3F /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2BE8496215BDE270006CFD3F = {
+			isa = PBXGroup;
+			children = (
+				2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */,
+				2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */,
+				2BE849A915BDF7AB006CFD3F /* libsqlite3.dylib */,
+				2BE849A715BDF7A4006CFD3F /* libstdc++.dylib */,
+				2BE8497715BDE270006CFD3F /* WhirlyGlobeComponentTester */,
+				2BE8497015BDE270006CFD3F /* Frameworks */,
+				2BE8496E15BDE270006CFD3F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2BE8496E15BDE270006CFD3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8496D15BDE270006CFD3F /* WhirlyGlobeComponentTester.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2BE8497015BDE270006CFD3F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8498B15BDEFC4006CFD3F /* WhirlyGlobeComponent.xcodeproj */,
+				2BE8497115BDE270006CFD3F /* UIKit.framework */,
+				2BE8497315BDE270006CFD3F /* Foundation.framework */,
+				2BE8497515BDE270006CFD3F /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2BE8497715BDE270006CFD3F /* WhirlyGlobeComponentTester */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8498015BDE270006CFD3F /* AppDelegate.h */,
+				2BE8498115BDE270006CFD3F /* AppDelegate.m */,
+				2BE849A015BDF410006CFD3F /* StartupViewController.h */,
+				2BE849A115BDF410006CFD3F /* StartupViewController.m */,
+				2BE8498815BDEFA1006CFD3F /* TestViewController.h */,
+				2BE8498915BDEFA1006CFD3F /* TestViewController.m */,
+				2BE849CA15BDFB40006CFD3F /* ConfigViewController.h */,
+				2BE849CB15BDFB40006CFD3F /* ConfigViewController.m */,
+				2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */,
+				2BE849AF15BDF8B9006CFD3F /* resources */,
+				2BE8497815BDE270006CFD3F /* Supporting Files */,
+			);
+			path = WhirlyGlobeComponentTester;
+			sourceTree = "<group>";
+		};
+		2BE8497815BDE270006CFD3F /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8497915BDE270006CFD3F /* WhirlyGlobeComponentTester-Info.plist */,
+				2BE8497A15BDE270006CFD3F /* InfoPlist.strings */,
+				2BE8497D15BDE270006CFD3F /* main.m */,
+				2BE8497F15BDE270006CFD3F /* WhirlyGlobeComponentTester-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2BE8498C15BDEFC4006CFD3F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8499715BDEFC4006CFD3F /* libWhirlyGlobeComponent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2BE849AF15BDF8B9006CFD3F /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				2BE849CF15BE01EE006CFD3F /* map_pin.png */,
+				2BE849B015BDF902006CFD3F /* lowres_wtb */,
+				2BE849C715BDFA22006CFD3F /* MBTiles */,
+			);
+			name = resources;
+			sourceTree = "<group>";
+		};
+		2BE849B015BDF902006CFD3F /* lowres_wtb */ = {
+			isa = PBXGroup;
+			children = (
+				2BE849B115BDF902006CFD3F /* lowres_wtb_0x0.pvrtc */,
+				2BE849B215BDF902006CFD3F /* lowres_wtb_0x1.pvrtc */,
+				2BE849B315BDF902006CFD3F /* lowres_wtb_1x0.pvrtc */,
+				2BE849B415BDF902006CFD3F /* lowres_wtb_1x1.pvrtc */,
+				2BE849B515BDF902006CFD3F /* lowres_wtb_2x0.pvrtc */,
+				2BE849B615BDF902006CFD3F /* lowres_wtb_2x1.pvrtc */,
+				2BE849B715BDF902006CFD3F /* lowres_wtb_3x0.pvrtc */,
+				2BE849B815BDF902006CFD3F /* lowres_wtb_3x1.pvrtc */,
+				2BE849B915BDF902006CFD3F /* lowres_wtb_4x0.pvrtc */,
+				2BE849BA15BDF902006CFD3F /* lowres_wtb_4x1.pvrtc */,
+				2BE849BB15BDF902006CFD3F /* lowres_wtb_info.plist */,
+			);
+			name = lowres_wtb;
+			path = resources/lowres_wtb;
+			sourceTree = SOURCE_ROOT;
+		};
+		2BE849C715BDFA22006CFD3F /* MBTiles */ = {
+			isa = PBXGroup;
+			children = (
+				2BE849C815BDFA22006CFD3F /* geography-class.mbtiles */,
+			);
+			name = MBTiles;
+			path = resources/MBTiles;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2BE8496C15BDE270006CFD3F /* WhirlyGlobeComponentTester */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2BE8498515BDE270006CFD3F /* Build configuration list for PBXNativeTarget "WhirlyGlobeComponentTester" */;
+			buildPhases = (
+				2BE8496915BDE270006CFD3F /* Sources */,
+				2BE8496A15BDE270006CFD3F /* Frameworks */,
+				2BE8496B15BDE270006CFD3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WhirlyGlobeComponentTester;
+			productName = WhirlyGlobeComponentTester;
+			productReference = 2BE8496D15BDE270006CFD3F /* WhirlyGlobeComponentTester.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2BE8496415BDE270006CFD3F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0430;
+			};
+			buildConfigurationList = 2BE8496715BDE270006CFD3F /* Build configuration list for PBXProject "WhirlyGlobeComponentTester" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2BE8496215BDE270006CFD3F;
+			productRefGroup = 2BE8496E15BDE270006CFD3F /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2BE8498C15BDEFC4006CFD3F /* Products */;
+					ProjectRef = 2BE8498B15BDEFC4006CFD3F /* WhirlyGlobeComponent.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				2BE8496C15BDE270006CFD3F /* WhirlyGlobeComponentTester */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2BE8499715BDEFC4006CFD3F /* libWhirlyGlobeComponent.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWhirlyGlobeComponent.a;
+			remoteRef = 2BE8499615BDEFC4006CFD3F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2BE8496B15BDE270006CFD3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BE8497C15BDE270006CFD3F /* InfoPlist.strings in Resources */,
+				2BE849BC15BDF902006CFD3F /* lowres_wtb_0x0.pvrtc in Resources */,
+				2BE849BD15BDF902006CFD3F /* lowres_wtb_0x1.pvrtc in Resources */,
+				2BE849BE15BDF902006CFD3F /* lowres_wtb_1x0.pvrtc in Resources */,
+				2BE849BF15BDF902006CFD3F /* lowres_wtb_1x1.pvrtc in Resources */,
+				2BE849C015BDF902006CFD3F /* lowres_wtb_2x0.pvrtc in Resources */,
+				2BE849C115BDF902006CFD3F /* lowres_wtb_2x1.pvrtc in Resources */,
+				2BE849C215BDF902006CFD3F /* lowres_wtb_3x0.pvrtc in Resources */,
+				2BE849C315BDF902006CFD3F /* lowres_wtb_3x1.pvrtc in Resources */,
+				2BE849C415BDF902006CFD3F /* lowres_wtb_4x0.pvrtc in Resources */,
+				2BE849C515BDF902006CFD3F /* lowres_wtb_4x1.pvrtc in Resources */,
+				2BE849C615BDF902006CFD3F /* lowres_wtb_info.plist in Resources */,
+				2BE849C915BDFA22006CFD3F /* geography-class.mbtiles in Resources */,
+				2BE849CE15BDFB40006CFD3F /* ConfigViewController.xib in Resources */,
+				2BE849D015BE01EE006CFD3F /* map_pin.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2BE8496915BDE270006CFD3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BE8497E15BDE270006CFD3F /* main.m in Sources */,
+				2BE8498215BDE270006CFD3F /* AppDelegate.m in Sources */,
+				2BE8498A15BDEFA1006CFD3F /* TestViewController.m in Sources */,
+				2BE849A215BDF410006CFD3F /* StartupViewController.m in Sources */,
+				2BE849CD15BDFB40006CFD3F /* ConfigViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		2BE8497A15BDE270006CFD3F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2BE8497B15BDE270006CFD3F /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2BE8498315BDE270006CFD3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2BE8498415BDE270006CFD3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2BE8498615BDE270006CFD3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
+				HEADER_SEARCH_PATHS = ../WhirlyGlobeComponent/include/;
+				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		2BE8498715BDE270006CFD3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
+				HEADER_SEARCH_PATHS = ../WhirlyGlobeComponent/include/;
+				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
+				OTHER_LDFLAGS = "-all_load";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2BE8496715BDE270006CFD3F /* Build configuration list for PBXProject "WhirlyGlobeComponentTester" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2BE8498315BDE270006CFD3F /* Debug */,
+				2BE8498415BDE270006CFD3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2BE8498515BDE270006CFD3F /* Build configuration list for PBXNativeTarget "WhirlyGlobeComponentTester" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2BE8498615BDE270006CFD3F /* Debug */,
+				2BE8498715BDE270006CFD3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2BE8496415BDE270006CFD3F /* Project object */;
+}
