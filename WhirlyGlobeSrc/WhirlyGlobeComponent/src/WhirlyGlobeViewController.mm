@@ -31,6 +31,9 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
+@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate>
+@end
+
 @implementation WhirlyGlobeViewController
 {    
     WhirlyKitEAGLView *glView;
@@ -59,7 +62,13 @@ using namespace WhirlyGlobe;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;    
     AnimateViewRotation *animateRotation;
+    
+    // If set we'll look for selectables
+    bool selection;
 }
+
+@synthesize delegate;
+@synthesize selection;
 
 // Tear down layers and layer thread
 - (void) clear
@@ -156,6 +165,8 @@ using namespace WhirlyGlobe;
     interactLayer.labelLayer = labelLayer;
     interactLayer.markerLayer = markerLayer;
     interactLayer.selectLayer = selectLayer;
+    interactLayer.viewController = self;
+    interactLayer.glView = glView;
     [layerThread addLayer:interactLayer];
 
 	// Give the renderer what it needs
@@ -171,6 +182,8 @@ using namespace WhirlyGlobe;
 	// Kick off the layer thread
 	// This will start loading things
 	[layerThread start];
+    
+    selection = true;
 }
 
 - (void)viewDidLoad
@@ -219,25 +232,6 @@ using namespace WhirlyGlobe;
     return YES;
 }
 
-// Called when the user taps on the globe.  We'll rotate to that position
-- (void) tapOnGlobe:(NSNotification *)note
-{
-    WhirlyGlobeTapMessage *msg = note.object;
-    
-    // Note: Check for selection
-    
-    // If we were rotating from one point to another, stop
-    [globeView cancelAnimation];
-    
-    // Construct a quaternion to rotate from where we are to where
-    //  the user tapped
-    Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
-    
-    // Rotate to the given position over 1s
-    animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:1.0];
-    globeView.delegate = animateRotation;    
-}
-
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
@@ -260,6 +254,70 @@ using namespace WhirlyGlobe;
 - (void)removeObject:(WGComponentObject *)theObj
 {
     
+}
+
+- (void)setKeepNorthUp:(bool)keepNorthUp
+{
+    panDelegate.northUp = keepNorthUp;
+}
+
+- (bool)keepNorthUp
+{
+    return panDelegate.northUp;
+}
+
+#pragma mark - Interaction
+
+// Rotate to the given location over time
+- (void)rotateToPoint:(GeoCoord)whereGeo time:(NSTimeInterval)howLong
+{
+    // If we were rotating from one point to another, stop
+    [globeView cancelAnimation];
+    
+    // Construct a quaternion to rotate from where we are to where
+    //  the user tapped
+    Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    
+    // Rotate to the given position over 1s
+    animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+    globeView.delegate = animateRotation;        
+}
+
+// External facing version of rotateToPoint
+- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
+{
+    [self rotateToPoint:GeoCoord(newPos.lon,newPos.lat) time:howLong];
+}
+
+// External facing set position
+- (void)setPosition:(WGCoordinate)newPos
+{
+    // Note: This might conceivably be a problem, though I'm not sure how.
+    [self rotateToPoint:GeoCoord(newPos.lon,newPos.lat) time:0.0];
+}
+
+// Called back on the main thread after the interaction thread does the selection
+- (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
+{
+    if (selectedObj && selection)
+    {
+        // Note: Check for selector first
+        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            [delegate globeViewController:self didSelect:selectedObj];
+    } else {
+        // Didn't select anything, so rotate
+        [self rotateToPoint:msg.whereGeo time:1.0];
+    }
+}
+
+// Called when the user taps on the globe.  We'll rotate to that position
+- (void) tapOnGlobe:(NSNotification *)note
+{
+    WhirlyGlobeTapMessage *msg = note.object;
+    
+    // Hand this over to the interaction layer to look for a selection
+    // If there is no selection, it will call us back in the main thread
+    [interactLayer userDidTap:msg];
 }
 
 

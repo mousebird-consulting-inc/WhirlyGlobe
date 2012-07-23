@@ -25,6 +25,8 @@ using namespace WhirlyGlobe;
 
 @implementation PanDelegateFixed
 
+@synthesize northUp;
+
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
@@ -120,7 +122,7 @@ using namespace WhirlyGlobe;
                 endRot = QuatFromTwoVectors(startOnSphere,hit);
                 Eigen::Quaternion<float> newRotQuat = startQuat * endRot;
 
-                if (KeepNorthUp)
+                if (northUp)
                 {
                     // We'd like to keep the north pole pointed up
                     // So we look at where the north pole is going
@@ -183,7 +185,7 @@ using namespace WhirlyGlobe;
 
             // Now for the direction
             Vector3f upVector(0,0,1);
-            if (KeepNorthUp)
+            if (northUp)
             {
                 // In this case we just care about movement in X and Y                
                 // The angle between them, ignoring z, is what we're after

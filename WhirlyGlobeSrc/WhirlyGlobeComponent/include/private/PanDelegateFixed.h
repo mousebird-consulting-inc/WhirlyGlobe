@@ -29,9 +29,6 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 #define MaxAngularVelocity 1500.0
 #define MinAngularVelocity 1.0
 
-// Turn this on if you want North to always be up
-#define KeepNorthUp false
-
 // Version of pan delegate specific to this app
 // The pan delegate handles panning and rotates the globe accordingly
 @interface PanDelegateFixed : NSObject<UIGestureRecognizerDelegate> 
@@ -53,7 +50,11 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     CFTimeInterval spinDate;
     CGPoint lastTouch;
     AnimateViewMomentum *viewAnimation;
+    
+    bool northUp;
 }
+
+@property(nonatomic,assign) bool northUp;
 
 + (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 

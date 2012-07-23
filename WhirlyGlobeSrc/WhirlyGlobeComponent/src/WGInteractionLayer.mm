@@ -49,6 +49,8 @@ typedef std::set<ImageTexture> ImageTextureSet;
 @synthesize labelLayer;
 @synthesize vectorLayer;
 @synthesize selectLayer;
+@synthesize glView;
+@synthesize viewController;
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
@@ -106,8 +108,12 @@ typedef std::set<ImageTexture> ImageTextureSet;
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
+        wgMarker.isSelectable = true;
+        wgMarker.selectID = Identifiable::genId();
         
         [wgMarkers addObject:wgMarker];
+        
+        selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
     }
 
     // Set up a description and create the markers in the marker layer
@@ -129,6 +135,38 @@ typedef std::set<ImageTexture> ImageTextureSet;
     [self performSelector:@selector(addScreenMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
+}
+
+// Do the logic for a selection
+// Runs in the layer thread
+- (void) userDidTapLayerThread:(WhirlyGlobeTapMessage *)msg
+{
+    SimpleIdentity selID = [selectLayer pickObject:Point2f(msg.touchLoc.x,msg.touchLoc.y) view:glView maxDist:10.0];
+
+    NSObject *selObj;
+    if (selID != EmptyIdentity)
+    {       
+        // Found something.  Now find the associated object
+        SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selID));
+        if (it != selectObjectSet.end())
+        {
+            selObj = it->obj;
+        }
+    }
+    
+    // Tell the view controller about it
+    dispatch_async(dispatch_get_main_queue(),^
+                   {
+                       [viewController handleSelection:msg didSelect:selObj];
+                   }
+                   );
+}
+
+// Check for a selection
+- (void) userDidTap:(WhirlyGlobeTapMessage *)msg
+{
+    // Pass it off to the layer thread
+    [self performSelector:@selector(userDidTapLayerThread:) onThread:layerThread withObject:msg waitUntilDone:NO];
 }
 
 @end

@@ -21,6 +21,7 @@ if [ -d "$FRAMEWORK_BUILD_PATH" ]
 then
 echo "Framework: Cleaning framework..."
 rm -rf "$FRAMEWORK_BUILD_PATH"
+rm -rf WhirlyGlobeComponent.framework
 fi
 
 # Build the canonical Framework bundle directory structure
@@ -46,7 +47,7 @@ lipo -create build/Release-iphoneos/libWhirlyGlobeComponent.a build/Release-ipho
 # lipo -create "${PROJECT_DIR}/build/${BUILD_STYLE}-iphoneos/lib${PROJECT_NAME}.a" "${PROJECT_DIR}/build/${BUILD_STYLE}-iphonesimulator/lib${PROJECT_NAME}.a" -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
 
 echo "Framework: Copying assets into current version..."
-cp WhirlyGlobeComponent/include/*.h $FRAMEWORK_DIR/Headers/
+cp include/*.h $FRAMEWORK_DIR/Headers/
 
 #replace placeholder in plist with project name
 cp framework_info.plist $FRAMEWORK_DIR/Resources/Info.plist
