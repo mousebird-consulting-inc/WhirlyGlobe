@@ -35,6 +35,10 @@
 /// You're given the object you passed in original, such as a WGScreenMarker.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
+/// Called when the user taps outside the globe.
+/// Passes in the location on the view.
+- (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;
+
 @end
 
 /** This is the main object in the WhirlyGlobe Component.  You fire up one
