@@ -153,6 +153,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize sceneRenderer;
 @synthesize theView;
 @synthesize modelTrans;
+@synthesize projMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
@@ -582,6 +583,9 @@ static const bool DoingCulling = true;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
+        Matrix4f projMat;
+        glGetFloatv(GL_PROJECTION_MATRIX,projMat.data());
+        frameInfo.projMat = projMat;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -608,8 +612,6 @@ static const bool DoingCulling = true;
         frameInfo.eyeVec = eyeVec3;
 		
 		// Snag the projection matrix so we can use it later
-		Eigen::Matrix4f projMat;
-		glGetFloatv(GL_PROJECTION_MATRIX,projMat.data());
 		Mbr viewMbr(Point2f(-1,-1),Point2f(1,1));
 		
 		Vector4f test1(frustLL.x(),frustLL.y(),near,1.0);
