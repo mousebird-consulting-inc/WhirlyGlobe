@@ -101,6 +101,9 @@ protected:
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans;
     
+    /// Current projection matrix
+    Eigen::Matrix4f projMat;
+    
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     
@@ -117,6 +120,7 @@ protected:
 @property (nonatomic,weak) WhirlyKitSceneRendererES1 *sceneRenderer;
 @property (nonatomic,weak) WhirlyKitView *theView;
 @property (nonatomic,assign) Eigen::Matrix4f modelTrans;
+@property (nonatomic,assign) Eigen::Matrix4f &projMat;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;

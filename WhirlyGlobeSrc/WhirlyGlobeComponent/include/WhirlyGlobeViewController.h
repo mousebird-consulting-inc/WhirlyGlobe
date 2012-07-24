@@ -31,6 +31,7 @@
  */
 @protocol WhirlyGlobeViewControllerDelegate <NSObject>
 
+@optional
 /// Called when the user taps on or near an object.
 /// You're given the object you passed in original, such as a WGScreenMarker.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
