@@ -56,7 +56,26 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         return;
     
     // If it's pointed away from the user, don't bother
-    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
+//    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
+//        return;
+
+    // Run the world location through the projection matrix to see if its behind the globe
+    Point3f testPts[2];
+    testPts[0] = shape->worldLoc;
+    testPts[1] = shape->worldLoc*1.5;
+    for (unsigned int ii=0;ii<2;ii++)
+    {
+        Vector4f modelSpacePt = frameInfo.modelTrans * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
+//        modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
+        Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
+        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
+        testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
+    }
+    Vector3f testDir = testPts[1] - testPts[0];
+    testDir.normalize();
+    
+    // Note: This is so dumb it hurts.  Figure out why the math is broken.
+    if (testDir.z() > -0.000333)
         return;
     
     // Note: Make this work for generic 3D views
