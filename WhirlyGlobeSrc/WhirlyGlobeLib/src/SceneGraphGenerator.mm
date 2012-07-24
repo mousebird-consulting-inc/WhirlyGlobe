@@ -189,7 +189,7 @@ SceneGraphGeneratorAddRequest::SceneGraphGeneratorAddRequest(SimpleIdentity genI
 {
 }
 
-void SceneGraphGeneratorAddRequest::execute2(Scene *scene,Generator *gen)
+void SceneGraphGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     
@@ -201,7 +201,7 @@ SceneGraphGeneratorRemRequest::SceneGraphGeneratorRemRequest(SimpleIdentity genI
 {    
 }
 
-void SceneGraphGeneratorRemRequest::execute2(Scene *scene,Generator *gen)
+void SceneGraphGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     

@@ -201,7 +201,7 @@ ParticleGeneratorAddSystemRequest::~ParticleGeneratorAddSystemRequest()
         delete system;
 }
     
-void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,Generator *gen)
+void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->addParticleSystem(system);
@@ -214,7 +214,7 @@ ParticleGeneratorRemSystemRequest::ParticleGeneratorRemSystemRequest(SimpleIdent
     genId = generatorID;
 }
     
-void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,Generator *gen)
+void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->removeParticleSystem(systemId);

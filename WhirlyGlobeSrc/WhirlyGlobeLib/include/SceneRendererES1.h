@@ -209,6 +209,9 @@ protected:
     /// Last time we rendered
     NSTimeInterval lastDraw;
     
+    /// Something wants to make sure we render until at least this point.
+    NSTimeInterval renderUntil;
+    
     // View state from the last render, for comparison
     Matrix4f modelMat,viewMat;
 }

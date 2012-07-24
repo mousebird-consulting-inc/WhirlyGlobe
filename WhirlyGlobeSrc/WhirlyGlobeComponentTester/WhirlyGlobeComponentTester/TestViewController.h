@@ -11,8 +11,7 @@
 #import "ConfigViewController.h"
 
 // The various base layers we know about
-//typedef enum {BlueMarbleSingleResLocal,GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MaxBaseLayers} BaseLayer;
-typedef enum {BlueMarbleSingleResLocal,MaxBaseLayers} BaseLayer;
+typedef enum {BlueMarbleSingleResLocal,GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MaxBaseLayers} BaseLayer;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.

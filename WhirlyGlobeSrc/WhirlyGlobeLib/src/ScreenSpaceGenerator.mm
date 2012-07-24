@@ -56,8 +56,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         return;
     
     // If it's pointed away from the user, don't bother
-//    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
-//        return;
+    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
+        return;
 
     // Run the world location through the projection matrix to see if its behind the globe
     Point3f testPts[2];
@@ -75,8 +75,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     testDir.normalize();
     
     // Note: This is so dumb it hurts.  Figure out why the math is broken.
-    if (testDir.z() > -0.000333)
-        return;
+//    if (testDir.z() > -0.000333)
+//        return;
     
     // Note: Make this work for generic 3D views
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
@@ -344,9 +344,14 @@ ScreenSpaceGeneratorAddRequest::~ScreenSpaceGeneratorAddRequest()
     shapes.clear();
 }
     
-void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,Generator *gen)
+void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
+    for (unsigned int ii=0;ii<shapes.size();ii++)
+    {
+        [renderer setRenderUntil:shapes[ii]->fadeUp];
+        [renderer setRenderUntil:shapes[ii]->fadeDown];
+    }
     screenGen->addConvexShapes(shapes);
     shapes.clear();
 }
@@ -366,7 +371,7 @@ ScreenSpaceGeneratorRemRequest::~ScreenSpaceGeneratorRemRequest()
 {
 }
     
-void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,Generator *gen)
+void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     screenGen->removeConvexShapes(shapeIDs);
@@ -387,7 +392,7 @@ ScreenSpaceGeneratorFadeRequest::~ScreenSpaceGeneratorFadeRequest()
 {        
 }
     
-void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,Generator *gen)
+void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     
@@ -398,6 +403,8 @@ void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,Generator *gen)
         {
             shape->fadeUp = fadeUp;
             shape->fadeDown = fadeDown;
+            [renderer setRenderUntil:fadeUp];
+            [renderer setRenderUntil:fadeDown];
         }
     }    
 }

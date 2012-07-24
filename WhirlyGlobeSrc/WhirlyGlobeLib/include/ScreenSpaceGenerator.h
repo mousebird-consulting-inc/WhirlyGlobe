@@ -127,7 +127,7 @@ public:
     ScreenSpaceGeneratorAddRequest(SimpleIdentity genID,const std::vector<ScreenSpaceGenerator::ConvexShape *> &);
     ~ScreenSpaceGeneratorAddRequest();
     
-    virtual void execute2(Scene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
 
 protected:
     std::vector<ScreenSpaceGenerator::ConvexShape *> shapes;
@@ -144,7 +144,7 @@ public:
     ScreenSpaceGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &);
     ~ScreenSpaceGeneratorRemRequest();
     
-    virtual void execute2(Scene *scene,Generator *gen);    
+    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);    
 
 protected:
     std::vector<SimpleIdentity> shapeIDs;
@@ -162,7 +162,7 @@ public:
     ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     ~ScreenSpaceGeneratorFadeRequest();
     
-    virtual void execute2(Scene *scene,Generator *gen);
+    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
 
 protected:
     NSTimeInterval fadeUp,fadeDown;
