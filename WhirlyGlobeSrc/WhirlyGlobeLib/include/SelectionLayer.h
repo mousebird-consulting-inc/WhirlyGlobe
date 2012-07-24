@@ -31,16 +31,17 @@ namespace WhirlyKit
 {
 
 /** Rectangle Selectable.
-    This is used internal to the selection layer to track a
+    This is used internally to the selection layer to track a
     selectable rectangle.  It consists of geometry and an
     ID to track it.
   */
-class RectSelectable
+class RectSelectable3D
 {
-public:
-    
+public:    
+    RectSelectable3D() { }
+    RectSelectable3D(SimpleIdentity theID) : selectID(theID) { }
     // Comparison operator for sorting
-    bool operator < (const RectSelectable &that) const;
+    bool operator < (const RectSelectable3D &that) const;
     
     // Used to identify this selectable
     SimpleIdentity selectID;
@@ -49,7 +50,25 @@ public:
     float minVis,maxVis;  // Range over which this is visible
 };
 
-typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
+typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
+    
+/** Rectangle Selectable (screen space version).
+ */
+class RectSelectable2D
+{
+public:
+    RectSelectable2D() { }
+    RectSelectable2D(SimpleIdentity theID) : selectID(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const RectSelectable2D &that) const;
+    
+    // Used to identify this selectable
+    SimpleIdentity selectID;
+    Point2f pts[4];  // Geometry
+    float minVis,maxVis;  // Range over which this is visible
+};
+    
+typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
  
 }
 
@@ -66,12 +85,15 @@ typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
 {
     /// The view controls how the globe/map is displayed
     WhirlyKitView * __weak theView;
+    /// The scene we're working with
+    WhirlyKit::Scene * scene;
     /// The renderer has screen size information
     WhirlyKitSceneRendererES1 * __weak renderer;
     /// Layer thread we're associated with
     WhirlyKitLayerThread * __weak layerThread;
     /// The selectable objects themselves
-    WhirlyKit::RectSelectableSet selectables;
+    WhirlyKit::RectSelectable3DSet rect3Dselectables;
+    WhirlyKit::RectSelectable2DSet rect2Dselectables;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
@@ -85,6 +107,9 @@ typedef std::set<WhirlyKit::RectSelectable> RectSelectableSet;
 
 /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
 - (void)addSelectableRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
+
+/// Add a screen space rectangle (2D) for selection, between the given visibilities
+- (void)addSelectableScreenRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point2f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
 /// Remove the given selectable from consideration
 - (void)removeSelectable:(WhirlyKit::SimpleIdentity)selectId;

@@ -47,7 +47,7 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
 }
 
 // Calculate its position and add this feature to the appropriate drawable
-void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr)
+void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
     if (!(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
@@ -73,6 +73,12 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
+    
+    // It survived, so add it to the list if someone else needs to know where they wound up
+    ProjectedPoint projPt;
+    projPt.shapeID = shape->getId();
+    projPt.screenLoc = Point2f(screenPt.x,screenPt.y);
+    projPts.push_back(projPt);
 
     // If we need to do a rotation, throw out a point along the vector and see where it goes
     float screenRot = 0.0;
@@ -206,10 +212,13 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
 ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2f margin)
     : Generator(name), margin(margin)
 {
+    pthread_mutex_init(&projectedPtsLock,NULL);    
 }
     
 ScreenSpaceGenerator::~ScreenSpaceGenerator()
 {
+    pthread_mutex_destroy(&projectedPtsLock);
+    
     for (ConvexShapeSet::iterator it = convexShapes.begin();
          it != convexShapes.end(); ++it)
     {
@@ -256,18 +265,33 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
     
+    // Keep track of where the shapes wound up
+    std::vector<ProjectedPoint> newProjPts;
+    
     // Work through the markers, asking each to generate its content
     for (ConvexShapeSet::iterator it = convexShapes.begin();
          it != convexShapes.end(); ++it)
     {
         ConvexShape *shape = *it;
-        addToDrawables(shape,frameInfo,drawables,frameMbr);
+        addToDrawables(shape,frameInfo,drawables,frameMbr,newProjPts);
     }
     
     // Copy the drawables out
     for (DrawableMap::iterator it = drawables.begin();
          it != drawables.end(); ++it)
         screenDrawables.push_back(DrawableRef(it->second));
+    
+    // Now put the projected points in place
+    pthread_mutex_lock(&projectedPtsLock);
+    projectedPoints = newProjPts;
+    pthread_mutex_unlock(&projectedPtsLock);
+}
+    
+void ScreenSpaceGenerator::getProjectedPoints(std::vector<ProjectedPoint> &projPoints)
+{
+    pthread_mutex_lock(&projectedPtsLock);
+    projPoints = projectedPoints;
+    pthread_mutex_unlock(&projectedPtsLock);    
 }
     
 ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleIdentity markerId)

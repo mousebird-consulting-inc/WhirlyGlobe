@@ -416,6 +416,7 @@
 				2BE8498715BDE270006CFD3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
