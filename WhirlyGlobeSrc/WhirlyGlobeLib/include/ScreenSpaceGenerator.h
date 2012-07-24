@@ -80,9 +80,16 @@ public:
         /// List of geometry we'll transform to the destination
         std::vector<SimpleGeometry> geom;
     };
+    
+    /// Used to track the screen location of a single shape, by ID
+    typedef struct
+    {
+        SimpleIdentity shapeID;
+        Point2f screenLoc;
+    } ProjectedPoint;
 
     /// Called by the marker generator build the geometry
-    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,Mbr &frameMbr);
+    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts);
     
     /// Called by the render to add shapes from a layer
     void addConvexShapes(std::vector<ConvexShape *> shape);
@@ -96,10 +103,16 @@ public:
     /// Return a convex shape.  Only used by the change request objects.
     ConvexShape *getConvexShape(SimpleIdentity shapeId);
     
+    /// Get the projected points from the last frame.
+    /// This will lock, make a copy and unlock so go wild.
+    void getProjectedPoints(std::vector<ProjectedPoint> &projPoints);
+    
 protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
     Point2f margin;
+	pthread_mutex_t projectedPtsLock;
+    std::vector<ProjectedPoint> projectedPoints;
 };
     
 /** A Screen Space Generator Add Request comes from a layer that needs to

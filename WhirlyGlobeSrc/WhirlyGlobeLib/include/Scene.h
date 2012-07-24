@@ -38,6 +38,7 @@ namespace WhirlyKit
     
 class Scene;
 class SubTexture;
+class ScreenSpaceGenerator;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use by its ID
@@ -225,6 +226,9 @@ public:
     /// We create one screen space generator on startup.  This is its ID.
     SimpleIdentity getScreenSpaceGeneratorID();
     
+    /// Get the screen space generator (be careful).
+    ScreenSpaceGenerator *getScreenSpaceGenerator() { return ssGen; }
+    
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
     
@@ -273,6 +277,9 @@ public:
     
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
+    
+    /// Screen space generator created on startup
+    ScreenSpaceGenerator *ssGen;
 };
 	
 }

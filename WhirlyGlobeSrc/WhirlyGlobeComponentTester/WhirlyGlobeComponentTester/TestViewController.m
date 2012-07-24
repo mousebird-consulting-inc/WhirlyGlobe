@@ -92,7 +92,7 @@ const float locations[] = {38.895111,-77.036667,14.583333,120.966667,55.75, 37.6
 // User selected something
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
 {
-
+    NSLog(@"User selected: %@",[selectedObj description]);
 }
 
 // Bring up the config view when the user taps outside

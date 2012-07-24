@@ -22,14 +22,19 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
+#import "ScreenSpaceGenerator.h"
 
 using namespace WhirlyKit;
 
-bool RectSelectable::operator < (const RectSelectable &that) const
+bool RectSelectable3D::operator < (const RectSelectable3D &that) const
 {
     return selectID < that.selectID;
 }
 
+bool RectSelectable2D::operator < (const RectSelectable2D &that) const
+{
+    return selectID < that.selectID;
+}
 
 @implementation WhirlyKitSelectionLayer
 
@@ -47,9 +52,10 @@ bool RectSelectable::operator < (const RectSelectable &that) const
 }
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     layerThread = inLayerThread;
+    scene = inScene;
 }
 
 - (void)shutdown
@@ -63,14 +69,14 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     if (selectId == EmptyIdentity)
         return;
     
-    RectSelectable newSelect;
+    RectSelectable3D newSelect;
     newSelect.selectID = selectId;
     newSelect.minVis = newSelect.maxVis = DrawVisibleInvalid;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
-    selectables.insert(newSelect);
+    rect3Dselectables.insert(newSelect);
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
@@ -79,25 +85,47 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     if (selectId == EmptyIdentity)
         return;
     
-    RectSelectable newSelect;
+    RectSelectable3D newSelect;
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;  newSelect.maxVis = maxVis;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
-    selectables.insert(newSelect);
+    rect3Dselectables.insert(newSelect);
+}
+
+/// Add a screen space rectangle (2D) for selection, between the given visibilities
+- (void)addSelectableScreenRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point2f *)pts minVis:(float)minVis maxVis:(float)maxVis
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    RectSelectable2D newSelect;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    for (unsigned int ii=0;ii<4;ii++)
+        newSelect.pts[ii] = pts[ii];
+    
+    rect2Dselectables.insert(newSelect);
 }
 
 // Remove the given selectable from consideration
 - (void)removeSelectable:(SimpleIdentity)selectID
 {
-    RectSelectable dumbRect;
-    dumbRect.selectID = selectID;
-    RectSelectableSet::iterator it = selectables.find(dumbRect);
+    RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
     
-    if (it != selectables.end())
-        selectables.erase(it);
+    if (it != rect3Dselectables.end())
+    {
+        rect3Dselectables.erase(it);
+    }
+    
+    RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+    if (it2 != rect2Dselectables.end())
+    {
+        rect2Dselectables.erase(it2);
+    }
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
@@ -122,41 +150,90 @@ bool RectSelectable::operator < (const RectSelectable &that) const
     if (!globeView)
         return EmptyIdentity;
     
-    // Work through the available features
-    for (RectSelectableSet::iterator it = selectables.begin();
-         it != selectables.end(); ++it)
+    // First we need to know where the things wound up, 2D wise
+    std::vector<ScreenSpaceGenerator::ProjectedPoint> projPts;
+    scene->getScreenSpaceGenerator()->getProjectedPoints(projPts);    
+    
+    // Work through the 2D rectangles
+    for (unsigned int ii=0;ii<projPts.size();ii++)
     {
-        RectSelectable sel = *it;
-        if (sel.selectID != EmptyIdentity)
+        ScreenSpaceGenerator::ProjectedPoint &projPt = projPts[ii];
+        // Look for the corresponding selectable
+        RectSelectable2DSet::iterator it = rect2Dselectables.find(RectSelectable2D(projPt.shapeID));
+        if (it != rect2Dselectables.end())
         {
-            if (sel.minVis == DrawVisibleInvalid ||
-                (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+            RectSelectable2D sel = *it;
+            if (sel.selectID != EmptyIdentity)
             {
-                std::vector<Point2f> screenPts;
-                
-                for (unsigned int ii=0;ii<4;ii++)
+                if (sel.minVis == DrawVisibleInvalid ||
+                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
-                    CGPoint screenPt;
-                    screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
-                    screenPts.push_back(Point2f(screenPt.x,screenPt.y));
-                }
-                
-                // See if we fall within that polygon
-                if (PointInPolygon(touchPt, screenPts))
-                {
-                    retId = sel.selectID;
-                    break;
-                }
-                
-                // Now for a proximit check around the edges
-                for (unsigned int ii=0;ii<4;ii++)
-                {
-                    Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
-                    float dist2 = (closePt-touchPt).squaredNorm();
-                    if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                    std::vector<Point2f> screenPts;
+                    for (unsigned int jj=0;jj<4;jj++)
+                        screenPts.push_back(sel.pts[jj]+projPt.screenLoc);
+
+                    // See if we fall within that polygon
+                    if (PointInPolygon(touchPt, screenPts))
                     {
                         retId = sel.selectID;
-                        closeDist2 = dist2;
+                        break;
+                    }
+                    
+                    // Now for a proximity check around the edges
+                    for (unsigned int ii=0;ii<4;ii++)
+                    {
+                        Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+                        float dist2 = (closePt-touchPt).squaredNorm();
+                        if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                        {
+                            retId = sel.selectID;
+                            closeDist2 = dist2;
+                        }
+                    }                    
+                }
+            }
+        }
+    }
+    
+
+    if (retId == EmptyIdentity)
+    {
+        // Work through the 3D rectangles
+        for (RectSelectable3DSet::iterator it = rect3Dselectables.begin();
+             it != rect3Dselectables.end(); ++it)
+        {
+            RectSelectable3D sel = *it;
+            if (sel.selectID != EmptyIdentity)
+            {
+                if (sel.minVis == DrawVisibleInvalid ||
+                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                {
+                    std::vector<Point2f> screenPts;
+                    
+                    for (unsigned int ii=0;ii<4;ii++)
+                    {
+                        CGPoint screenPt;
+                        screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+                    }
+                    
+                    // See if we fall within that polygon
+                    if (PointInPolygon(touchPt, screenPts))
+                    {
+                        retId = sel.selectID;
+                        break;
+                    }
+                    
+                    // Now for a proximity check around the edges
+                    for (unsigned int ii=0;ii<4;ii++)
+                    {
+                        Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+                        float dist2 = (closePt-touchPt).squaredNorm();
+                        if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                        {
+                            retId = sel.selectID;
+                            closeDist2 = dist2;
+                        }
                     }
                 }
             }

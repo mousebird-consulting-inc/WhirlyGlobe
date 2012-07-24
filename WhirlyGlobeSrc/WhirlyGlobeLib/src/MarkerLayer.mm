@@ -263,7 +263,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 marker.selectID = Identifiable::genId();
             
             markerRep->selectID = marker.selectID;
-            [selectLayer addSelectableRect:marker.selectID rect:pts];
+            if (markerInfo.screenObject)
+            {
+                Point2f pts2d[4];
+                for (unsigned int jj=0;jj<4;jj++)
+                    pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
+                [selectLayer addSelectableScreenRect:marker.selectID rect:pts2d minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
+            } else
+                [selectLayer addSelectableRect:marker.selectID rect:pts minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
             
             // Note: Handle the screen object case
         }
@@ -295,6 +302,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                     smGeom.texCoords.push_back(texCoord[ii]);
                 }
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
+                if (marker.isSelectable && marker.selectID != EmptyIdentity)
+                    shape->setId(marker.selectID);
                 shape->worldLoc = norm;
                 if (marker.lockRotation)
                 {
