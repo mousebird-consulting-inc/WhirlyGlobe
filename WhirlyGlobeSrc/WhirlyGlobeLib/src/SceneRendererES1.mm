@@ -265,6 +265,12 @@ public:
 	
 }
 
+// We'll take the maximum requested time
+- (void)setRenderUntil:(NSTimeInterval)newRenderUntil
+{
+    renderUntil = std::max(renderUntil,newRenderUntil);
+}
+
 - (void)useContext
 {
 	if (context)
@@ -459,10 +465,11 @@ static const bool DoingCulling = true;
     if (lastDraw == 0.0)
         return true;
     
-    WhirlyGlobeView *globeView = nil;
-    if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)theView;
-    
+    // Something wants us to draw (probably an animation)
+    CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (now < renderUntil)
+        return true;
+        
     Matrix4f newModelMat = [theView calcModelMatrix];
     Matrix4f newViewMat = [theView calcViewMatrix];
     
@@ -596,7 +603,7 @@ static const bool DoingCulling = true;
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
 		// Note: Time this and move it elsewhere
-		scene->processChanges(theView);
+		scene->processChanges(theView,self);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");

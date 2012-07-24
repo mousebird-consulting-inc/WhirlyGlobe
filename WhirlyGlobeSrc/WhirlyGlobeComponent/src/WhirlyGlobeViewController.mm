@@ -26,6 +26,8 @@
 #import "WGInteractionLayer_private.h"
 #import "PanDelegateFixed.h"
 #import "WGSphericalEarthWithTexGroup_private.h"
+#import "WGQuadEarthWithMBTiles_private.h"
+#import "WGQuadEarthWithRemoteTiles_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -133,8 +135,8 @@ using namespace WhirlyGlobe;
 	// Create the textures and geometry, but in the right GL context
 	[sceneRenderer useContext];
     
-    // Turn off the model matrix optimization for drawing.  We have too many animations.
-    sceneRenderer.useViewChanged = false;
+    // Turn on the model matrix optimization for drawing
+    sceneRenderer.useViewChanged = true;
     
 	// Need an empty scene and view    
 	globeView = [[WhirlyGlobeView alloc] init];
@@ -245,6 +247,28 @@ using namespace WhirlyGlobe;
     [userLayers addObject:newLayer];
     
     return newLayer;
+}
+
+- (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
+{
+    WGViewControllerLayer *newLayer = [[WGQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer mbTiles:name];
+    if (!newLayer)
+        return nil;
+    
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
+- (WGViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
+{
+    WGQuadEarthWithRemoteTiles *newLayer = [[WGQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    if (!newLayer)
+        return nil;
+    newLayer.cacheDir = cacheDir;
+    [userLayers addObject:newLayer];
+    
+    return nil;
 }
 
 /// Add a group of screen (2D) markers

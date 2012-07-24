@@ -40,14 +40,39 @@
     // Start up over San Francisco
     // Woo!  California represent!
     [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
-//    globeViewC.selection = false;
-//    [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-77.036667, 38.895111) time:1.0];
     
     // Note: temporary
     [self addMarkers];
     
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+
     // Set up the base layer
-    [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+    switch (startupLayer)
+    {
+        case BlueMarbleSingleResLocal:
+            [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+            break;
+        case GeographyClassMBTilesLocal:
+            [globeViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
+            break;
+        case StamenWatercolorRemote:
+        {
+            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
+            NSError *error = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+            [globeViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:2 maxZoom:10];
+        }
+            break;
+        case OpenStreetmapRemote:
+        {
+            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
+            NSError *error = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+            [globeViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:12];            
+        }
+        default:
+            break;
+    }
 }
 
 - (void)viewDidUnload

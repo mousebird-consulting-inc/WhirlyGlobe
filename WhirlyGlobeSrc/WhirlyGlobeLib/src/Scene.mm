@@ -139,7 +139,7 @@ Texture *Scene::getTexture(SimpleIdentity texId)
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view)
+void Scene::processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
@@ -147,7 +147,7 @@ void Scene::processChanges(WhirlyKitView *view)
         for (unsigned int ii=0;ii<changeRequests.size();ii++)
         {
             ChangeRequest *req = changeRequests[ii];
-            req->execute(this,view);
+            req->execute(this,renderer,view);
             delete req;
         }
         changeRequests.clear();
@@ -204,7 +204,7 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
 }
 
 
-void AddTextureReq::execute(Scene *scene,WhirlyKitView *view)
+void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
         tex->createInGL(true,scene->getMemManager());
@@ -212,7 +212,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitView *view)
     tex = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,WhirlyKitView *view)
+void RemTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     Texture dumbTex;
     dumbTex.setId(texture);
@@ -226,7 +226,7 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitView *view)
     }
 }
 
-void AddDrawableReq::execute(Scene *scene,WhirlyKitView *view)
+void AddDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
@@ -235,10 +235,12 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitView *view)
     // Note: Make the Z offset a parameter
     drawable->setupGL([view calcZbufferRes],scene->getMemManager());
     
+    drawable->updateRenderer(renderer);
+        
     drawable = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,WhirlyKitView *view)
+void RemDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     BasicDrawable *dumbDraw = new BasicDrawable();
     dumbDraw->setId(drawable);
@@ -252,7 +254,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitView *view)
     }
 }
 
-void AddGeneratorReq::execute(Scene *scene,WhirlyKitView *view)
+void AddGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     // Add the generator
     scene->generators.insert(generator);
@@ -260,7 +262,7 @@ void AddGeneratorReq::execute(Scene *scene,WhirlyKitView *view)
     generator = NULL;
 }
 
-void RemGeneratorReq::execute(Scene *scene,WhirlyKitView *view)
+void RemGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     Generator dumbGen;
     dumbGen.setId(genId);
@@ -286,7 +288,7 @@ NotificationReq::~NotificationReq()
     noteObj = nil;
 }
 
-void NotificationReq::execute(Scene *scene,WhirlyKitView *view)
+void NotificationReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {
     NSString *theNoteName = noteName;
     NSObject *theNoteObj = noteObj;

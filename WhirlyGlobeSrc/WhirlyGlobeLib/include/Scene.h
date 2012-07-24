@@ -52,7 +52,7 @@ public:
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitView *view);
+	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
 	
 protected:
 	Texture *tex;
@@ -66,7 +66,7 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitView *view);
+	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -82,7 +82,7 @@ public:
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,WhirlyKitView *view);	
+	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);	
 	
 protected:
 	Drawable *drawable;
@@ -96,7 +96,7 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,WhirlyKitView *view);
+	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -110,7 +110,7 @@ public:
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitView *view);
+    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
     
 protected:
     Generator *generator;
@@ -124,7 +124,7 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitView *view);
+    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity genId;
@@ -141,7 +141,7 @@ public:
     virtual ~NotificationReq();
     
     /// Send out the notification
-    void execute(Scene *scene,WhirlyKitView *view);
+    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
     
 protected:
     NSString * __strong noteName;
@@ -199,7 +199,7 @@ public:
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
 	// Note: Should give this a time limit
-	void processChanges(WhirlyKitView *view);
+	void processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer);
     
     /// True if there are pending updates
     bool hasChanges();
