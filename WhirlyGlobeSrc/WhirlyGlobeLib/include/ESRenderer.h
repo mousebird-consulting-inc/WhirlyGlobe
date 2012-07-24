@@ -36,4 +36,8 @@
 /// Call this before defining things within the OpenGL context
 - (void)useContext;
 
+/// Set the render until time.  This is used by things like fade go keep
+///  the rendering optimization from cutting off animation.
+- (void)setRenderUntil:(NSTimeInterval)newTime;
+
 @end

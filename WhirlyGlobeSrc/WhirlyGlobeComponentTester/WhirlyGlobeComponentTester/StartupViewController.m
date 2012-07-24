@@ -73,6 +73,15 @@
         case BlueMarbleSingleResLocal:
             cell.textLabel.text = @"Blue Marble Single Res - Local";
             break;
+        case GeographyClassMBTilesLocal:
+            cell.textLabel.text = @"Geography Class - MapBox Tiles - Local";
+            break;
+        case StamenWatercolorRemote:
+            cell.textLabel.text = @"Stamen WaterColor - Remote";
+            break;
+        case OpenStreetmapRemote:
+            cell.textLabel.text = @"OpenStreetMap - Remote";
+            break;
         default:
             break;
     }
@@ -84,16 +93,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    BaseLayer startLayer = BlueMarbleSingleResLocal;
-    
-    switch (indexPath.row)
-    {
-        case BlueMarbleSingleResLocal:
-            startLayer = BlueMarbleSingleResLocal;
-            break;
-    }
-    
-    TestViewController *viewC = [[TestViewController alloc] initWithBaseLayer:startLayer];
+    TestViewController *viewC = [[TestViewController alloc] initWithBaseLayer:indexPath.row];
     [self.navigationController pushViewController:viewC animated:YES];
 }
 

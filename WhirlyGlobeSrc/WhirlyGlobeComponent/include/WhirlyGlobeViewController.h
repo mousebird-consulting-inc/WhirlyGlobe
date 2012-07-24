@@ -71,6 +71,12 @@
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 
+/// Add a quad tree paged earth layer with MapBox Tiles on top
+- (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name;
+
+/// Add a quad tree paged earth layer with 
+- (WGViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cachdDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
+
 /// Add a group of screen (2D) markers
 - (WGComponentObject *)addScreenMarkers:(NSArray *)markers;
 
