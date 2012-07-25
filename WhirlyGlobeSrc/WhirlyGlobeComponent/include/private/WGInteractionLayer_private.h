@@ -79,6 +79,15 @@ typedef std::set<SelectObject> SelectObjectSet;
 // Add screen space (2D) markers
 - (WGComponentObject *)addScreenMarkers:(NSArray *)markers;
 
+// Add 3D markers
+- (WGComponentObject *)addMarkers:(NSArray *)markers;
+
+// Add screen space (2D) labels
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels;
+
+// Add 3D labels
+- (WGComponentObject *)addLabels:(NSArray *)labels;
+
 // Call this to process a tap with the selection layer
 // It will call the given selector if there was no selection
 - (void) userDidTap:(WhirlyGlobeTapMessage *)msg;

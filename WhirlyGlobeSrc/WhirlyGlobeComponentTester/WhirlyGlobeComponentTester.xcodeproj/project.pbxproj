@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2BB9E02315BFA57600F1DDD8 /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB9E02215BFA57600F1DDD8 /* Star.png */; };
 		2BE8497215BDE270006CFD3F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497115BDE270006CFD3F /* UIKit.framework */; };
 		2BE8497415BDE270006CFD3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497315BDE270006CFD3F /* Foundation.framework */; };
 		2BE8497615BDE270006CFD3F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497515BDE270006CFD3F /* CoreGraphics.framework */; };
@@ -48,6 +49,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2BB9E02215BFA57600F1DDD8 /* Star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Star.png; path = resources/Star.png; sourceTree = SOURCE_ROOT; };
 		2BE8496D15BDE270006CFD3F /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE8497115BDE270006CFD3F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2BE8497315BDE270006CFD3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -176,6 +178,7 @@
 		2BE849AF15BDF8B9006CFD3F /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BB9E02215BFA57600F1DDD8 /* Star.png */,
 				2BE849CF15BE01EE006CFD3F /* map_pin.png */,
 				2BE849B015BDF902006CFD3F /* lowres_wtb */,
 				2BE849C715BDFA22006CFD3F /* MBTiles */,
@@ -292,6 +295,7 @@
 				2BE849C915BDFA22006CFD3F /* geography-class.mbtiles in Resources */,
 				2BE849CE15BDFB40006CFD3F /* ConfigViewController.xib in Resources */,
 				2BE849D015BE01EE006CFD3F /* map_pin.png in Resources */,
+				2BB9E02315BFA57600F1DDD8 /* Star.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

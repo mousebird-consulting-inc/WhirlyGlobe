@@ -277,6 +277,25 @@ using namespace WhirlyGlobe;
     return [interactLayer addScreenMarkers:markers];
 }
 
+/// Add a group of 3D markers
+- (WGComponentObject *)addMarkers:(NSArray *)markers
+{
+    return [interactLayer addMarkers:markers];
+}
+
+/// Add a group of screen (2D) labels
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels
+{
+    return [interactLayer addScreenLabels:labels];
+}
+
+/// Add a group of 3D labels
+- (WGComponentObject *)addLabels:(NSArray *)labels
+{
+    return [interactLayer addLabels:labels];
+}
+
+
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj
 {

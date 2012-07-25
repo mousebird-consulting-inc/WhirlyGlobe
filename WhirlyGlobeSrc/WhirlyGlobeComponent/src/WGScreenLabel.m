@@ -1,8 +1,8 @@
 /*
- *  WhirlyGlobeComponent.h
+ *  WGScreenLabel.h
  *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 7/21/12.
+ *  Created by Steve Gifford on 7/24/12.
  *  Copyright 2011 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,13 @@
  *
  */
 
-#import <WGCoordinate.h>
-#import <WGLabel.h>
-#import <WGScreenLabel.h>
-#import <WGMarker.h>
-#import <WGScreenMarker.h>
-#import <WhirlyGlobeViewController.h>
+#import "WGScreenLabel.h"
+
+@implementation WGScreenLabel
+
+@synthesize loc;
+@synthesize size;
+@synthesize text;
+@synthesize iconImage;
+
+@end

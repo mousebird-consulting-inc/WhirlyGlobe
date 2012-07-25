@@ -20,6 +20,9 @@
 
 #import "WGInteractionLayer_private.h"
 #import "WGScreenMarker.h"
+#import "WGMarker.h"
+#import "WGScreenLabel.h"
+#import "WGLabel.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -133,6 +136,160 @@ typedef std::set<ImageTexture> ImageTextureSet;
     
     NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, nil];    
     [self performSelector:@selector(addScreenMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+// Actually add the markers.
+// Called in the layer thread.
+- (void)addMarkersLayerThread:(NSArray *)argArray
+{
+    NSArray *markers = [argArray objectAtIndex:0];
+    WGComponentObject *compObj = [argArray objectAtIndex:1];
+    
+    // Convert to WG markers
+    NSMutableArray *wgMarkers = [NSMutableArray array];
+    for (WGMarker *marker in markers)
+    {
+        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
+        wgMarker.loc = GeoCoord(marker.loc.lon,marker.loc.lat);
+        SimpleIdentity texID = EmptyIdentity;
+        if (marker.image)
+            texID = [self addImage:marker.image];
+        if (texID != EmptyIdentity)
+            wgMarker.texIDs.push_back(texID);
+        wgMarker.width = marker.size.width;
+        wgMarker.height = marker.size.height;
+        wgMarker.isSelectable = true;
+        wgMarker.selectID = Identifiable::genId();
+        
+        [wgMarkers addObject:wgMarker];
+        
+        selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+    }
+    
+    // Set up a description and create the markers in the marker layer
+    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
+                          [NSNumber numberWithInt:1], @"drawOffset",
+                          nil];
+    SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:desc];
+    compObj.markerIDs.insert(markerID);
+    
+    [userObjects addObject:compObj];
+}
+
+// Add 3D markers
+- (WGComponentObject *)addMarkers:(NSArray *)markers
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+    
+    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, nil];
+    [self performSelector:@selector(addMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+// Actually add the labels.
+// Called in the layer thread.
+- (void)addScreenLabelsLayerThread:(NSArray *)argArray
+{
+    NSArray *labels = [argArray objectAtIndex:0];
+    WGComponentObject *compObj = [argArray objectAtIndex:1];
+    
+    // Convert to WG markers
+    NSMutableArray *wgLabels = [NSMutableArray array];
+    for (WGScreenLabel *label in labels)
+    {
+        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
+        wgLabel.loc = GeoCoord(label.loc.lon,label.loc.lat);
+        wgLabel.text = label.text;
+        SimpleIdentity texID = EmptyIdentity;
+        if (label.iconImage)
+            texID = [self addImage:label.iconImage];
+        wgLabel.iconTexture = texID;
+        if (label.size.width > 0.0)
+            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
+        if (label.size.height > 0.0)
+            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
+        wgLabel.isSelectable = true;
+        wgLabel.selectID = Identifiable::genId();
+        wgLabel.desc = desc;
+        
+        [wgLabels addObject:wgLabel];
+        
+        selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+    }
+    
+    // Set up a description and create the markers in the marker layer
+    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
+                          [NSNumber numberWithBool:YES], @"screen", 
+                          nil];
+    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:desc];
+    compObj.labelIDs.insert(labelID);
+    
+    [userObjects addObject:compObj];
+}
+
+// Add screen space (2D) labels
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+    
+    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, nil];    
+    [self performSelector:@selector(addScreenLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+// Actually add the labels.
+// Called in the layer thread.
+- (void)addLabelsLayerThread:(NSArray *)argArray
+{
+    NSArray *labels = [argArray objectAtIndex:0];
+    WGComponentObject *compObj = [argArray objectAtIndex:1];
+    
+    // Convert to WG markers
+    NSMutableArray *wgLabels = [NSMutableArray array];
+    for (WGScreenLabel *label in labels)
+    {
+        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
+        wgLabel.loc = GeoCoord(label.loc.lon,label.loc.lat);
+        wgLabel.text = label.text;
+        SimpleIdentity texID = EmptyIdentity;
+        if (label.iconImage)
+            texID = [self addImage:label.iconImage];
+        wgLabel.iconTexture = texID;
+        if (label.size.width > 0.0)
+            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
+        if (label.size.height > 0.0)
+            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
+        wgLabel.isSelectable = true;
+        wgLabel.selectID = Identifiable::genId();
+        wgLabel.desc = desc;
+        
+        [wgLabels addObject:wgLabel];
+        
+        selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+    }
+    
+    // Set up a description and create the markers in the marker layer
+    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
+                          nil];
+    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:desc];
+    compObj.labelIDs.insert(labelID);
+    
+    [userObjects addObject:compObj];
+}
+
+// Add 3D labels
+- (WGComponentObject *)addLabels:(NSArray *)labels
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+    
+    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, nil];    
+    [self performSelector:@selector(addLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
 }
