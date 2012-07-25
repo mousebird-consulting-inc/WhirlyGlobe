@@ -460,6 +460,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 // Note: Badly optimized for single label case
 - (void)runAddLabels:(LabelInfo *)labelInfo
 {
+    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     CoordSystem *coordSys = scene->getCoordSystem();
     
     // This lets us set up textures here
@@ -562,6 +563,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 drawable->setDrawPriority(labelInfo.drawPriority);
                 drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);            
                 drawable->setAlpha(true);
+                
             }
         } 
         
@@ -608,6 +610,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             screenShape->drawPriority = labelInfo.drawPriority;
             screenShape->minVis = labelInfo.minVis;
             screenShape->maxVis = labelInfo.maxVis;
+            if (labelInfo.fade > 0.0)
+            {
+                screenShape->fadeDown = curTime;
+                screenShape->fadeUp = curTime+labelInfo.fade;                    
+            }            
+            if (label.isSelectable && label.selectID != EmptyIdentity)
+                screenShape->setId(label.selectID);
             labelRep->screenIDs.insert(screenShape->getId());
             screenShape->worldLoc = scene->coordSystem->localToGeocentricish(scene->coordSystem->geographicToLocal(label.loc));
             ScreenSpaceGenerator::SimpleGeometry smGeom;
@@ -677,7 +686,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
                 if (labelInfo.fade > 0.0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+labelInfo.fade);
                 }
 
@@ -696,9 +704,18 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             // If the marker doesn't already have an ID, it needs one
             if (!label.selectID)
                 label.selectID = Identifiable::genId();
-            
-            [selectLayer addSelectableRect:label.selectID rect:pts];
-            labelRep->selectID = label.selectID;
+
+            if (labelInfo.screenObject)
+            {
+                Point2f pts2d[4];
+                for (unsigned int pp=0;pp<4;pp++)
+                    pts2d[pp] = Point2f(pts[pp].x(),pts[pp].y());
+                [selectLayer addSelectableScreenRect:label.selectID rect:pts2d minVis:labelInfo.minVis maxVis:labelInfo.maxVis];
+                labelRep->selectID = label.selectID;
+            } else {                
+                [selectLayer addSelectableRect:label.selectID rect:pts];
+                labelRep->selectID = label.selectID;
+            }
         }
         
         // If there's an icon, let's add that

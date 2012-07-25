@@ -465,8 +465,8 @@ static const float ScreenOverlap = 0.1;
         return true;
     
     // Something wants us to draw (probably an animation)
-    CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-    if (now < renderUntil)
+    // We look at the last draw so we can handle jumps in time
+    if (lastDraw < renderUntil)
         return true;
         
     Matrix4f newModelMat = [theView calcModelMatrix];
