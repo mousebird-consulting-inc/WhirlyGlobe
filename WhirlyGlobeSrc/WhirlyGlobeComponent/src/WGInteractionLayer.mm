@@ -59,6 +59,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     layerThread = inLayerThread;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
+    userObjects = [NSMutableArray array];
 }
 
 /// Called by the layer thread to shut a layer down.
@@ -292,6 +293,34 @@ typedef std::set<ImageTexture> ImageTextureSet;
     [self performSelector:@selector(addLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
+}
+
+// Remove the object, but do it on the layer thread
+- (void)removeObjectLayerThread:(WGComponentObject *)userObj
+{
+    
+    // First, let's make sure we're representing it
+    if ([userObjects containsObject:userObj])
+    {
+        // Get rid of the various layer objects
+        for (SimpleIDSet::iterator it = userObj.markerIDs.begin();
+             it != userObj.markerIDs.end(); ++it)
+            [markerLayer removeMarkers:*it];
+        for (SimpleIDSet::iterator it = userObj.labelIDs.begin();
+             it != userObj.labelIDs.end(); ++it)
+            [labelLayer removeLabel:*it];
+        for (SimpleIDSet::iterator it = userObj.vectorIDs.begin();
+             it != userObj.vectorIDs.end(); ++it)
+            [vectorLayer removeVector:*it];
+        
+        [userObjects removeObject:userObj];
+    }    
+}
+
+// Remove data associated with a user object
+- (void)removeObject:(WGComponentObject *)userObj
+{
+    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObj waitUntilDone:NO];
 }
 
 // Do the logic for a selection

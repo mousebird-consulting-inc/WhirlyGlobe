@@ -299,7 +299,7 @@ using namespace WhirlyGlobe;
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj
 {
-    
+    [interactLayer removeObject:theObj];
 }
 
 - (void)setKeepNorthUp:(bool)keepNorthUp

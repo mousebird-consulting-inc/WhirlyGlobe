@@ -16,7 +16,7 @@ typedef enum {BlueMarbleSingleResLocal,GeographyClassMBTilesLocal,StamenWatercol
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.
  */
-@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate>
+@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate,UIPopoverControllerDelegate>
 {
     WhirlyGlobeViewController *globeViewC;
     UIPopoverController *popControl;
