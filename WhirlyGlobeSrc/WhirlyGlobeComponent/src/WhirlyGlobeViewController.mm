@@ -207,6 +207,7 @@ using namespace WhirlyGlobe;
 
     NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
+                                  [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
                                   nil];
     [self setLabelDesc:newLabelDesc];
     
@@ -216,6 +217,7 @@ using namespace WhirlyGlobe;
     
     NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,                                   
+                                   [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,                                   
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
