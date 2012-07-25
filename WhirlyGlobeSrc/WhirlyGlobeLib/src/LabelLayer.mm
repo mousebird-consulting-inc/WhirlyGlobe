@@ -920,6 +920,12 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 /// Add a group of labels and save them to a render cache
 - (SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling addLabel.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithStrs:labels desc:desc];
     labelInfo.cacheName = cacheName;
     
