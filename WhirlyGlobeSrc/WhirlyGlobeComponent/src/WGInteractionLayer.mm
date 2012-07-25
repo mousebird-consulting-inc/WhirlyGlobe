@@ -98,6 +98,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     NSArray *markers = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -121,9 +122,8 @@ typedef std::set<ImageTexture> ImageTextureSet;
     }
 
     // Set up a description and create the markers in the marker layer
-    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithBool:YES], @"screen", 
-                          nil];
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+    [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
     SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:desc];
     compObj.markerIDs.insert(markerID);
     
@@ -131,11 +131,11 @@ typedef std::set<ImageTexture> ImageTextureSet;
 }
 
 // Called in the main thread.
-- (WGComponentObject *)addScreenMarkers:(NSArray *)markers
+- (WGComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, nil];    
+    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];    
     [self performSelector:@selector(addScreenMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -147,6 +147,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     NSArray *markers = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -170,21 +171,18 @@ typedef std::set<ImageTexture> ImageTextureSet;
     }
     
     // Set up a description and create the markers in the marker layer
-    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithInt:1], @"drawOffset",
-                          nil];
-    SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:desc];
+    SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:inDesc];
     compObj.markerIDs.insert(markerID);
     
     [userObjects addObject:compObj];
 }
 
 // Add 3D markers
-- (WGComponentObject *)addMarkers:(NSArray *)markers
+- (WGComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, nil];
+    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];
     [self performSelector:@selector(addMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -196,6 +194,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     NSArray *labels = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     
     // Convert to WG markers
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -215,7 +214,8 @@ typedef std::set<ImageTexture> ImageTextureSet;
             [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         wgLabel.isSelectable = true;
         wgLabel.selectID = Identifiable::genId();
-        wgLabel.desc = desc;
+        if ([desc count] > 0)
+            wgLabel.desc = desc;
         
         [wgLabels addObject:wgLabel];
         
@@ -223,9 +223,8 @@ typedef std::set<ImageTexture> ImageTextureSet;
     }
     
     // Set up a description and create the markers in the marker layer
-    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithBool:YES], @"screen", 
-                          nil];
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+    [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
     SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:desc];
     compObj.labelIDs.insert(labelID);
     
@@ -233,11 +232,11 @@ typedef std::set<ImageTexture> ImageTextureSet;
 }
 
 // Add screen space (2D) labels
-- (WGComponentObject *)addScreenLabels:(NSArray *)labels
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, nil];    
+    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
     [self performSelector:@selector(addScreenLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -249,6 +248,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     NSArray *labels = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     
     // Convert to WG markers
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -276,20 +276,18 @@ typedef std::set<ImageTexture> ImageTextureSet;
     }
     
     // Set up a description and create the markers in the marker layer
-    NSDictionary *desc = [NSDictionary dictionaryWithObjectsAndKeys:
-                          nil];
-    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:desc];
+    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:inDesc];
     compObj.labelIDs.insert(labelID);
     
     [userObjects addObject:compObj];
 }
 
 // Add 3D labels
-- (WGComponentObject *)addLabels:(NSArray *)labels
+- (WGComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, nil];    
+    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
     [self performSelector:@selector(addLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -298,7 +296,6 @@ typedef std::set<ImageTexture> ImageTextureSet;
 // Remove the object, but do it on the layer thread
 - (void)removeObjectLayerThread:(WGComponentObject *)userObj
 {
-    
     // First, let's make sure we're representing it
     if ([userObjects containsObject:userObj])
     {
