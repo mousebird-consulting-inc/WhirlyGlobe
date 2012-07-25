@@ -80,6 +80,15 @@
 /// Add a group of screen (2D) markers
 - (WGComponentObject *)addScreenMarkers:(NSArray *)markers;
 
+/// Add a group of 3D markers
+- (WGComponentObject *)addMarkers:(NSArray *)markers;
+
+/// Add a group of screen (2D) labels
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels;
+
+/// Add a group of 3D labels
+- (WGComponentObject *)addLabels:(NSArray *)labels;
+
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj;
 
