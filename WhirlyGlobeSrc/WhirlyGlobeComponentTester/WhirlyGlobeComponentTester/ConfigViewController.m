@@ -18,7 +18,9 @@
 @synthesize label3DSwitch;
 @synthesize marker2DSwitch;
 @synthesize marker3DSwitch;
-@synthesize northUp;
+@synthesize northUpSwitch;
+@synthesize zBufferSwitch;
+@synthesize cullingSwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

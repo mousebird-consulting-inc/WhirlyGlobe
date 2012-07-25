@@ -191,6 +191,7 @@ public:
 @synthesize context;
 @synthesize scene,theView;
 @synthesize zBuffer;
+@synthesize doCulling;
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize scale;
 @synthesize framesPerSec;
@@ -208,6 +209,7 @@ public:
         numDrawables = 0;
 		frameCountStart = nil;
         zBuffer = true;
+        doCulling = true;
         clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
         perfInterval = -1;
         scale = [[UIScreen mainScreen] scale];
@@ -351,9 +353,6 @@ public:
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
-// Use this to turn off culling (for debugging)
-static const bool DoingCulling = true;
-
 // Calculate an acceptable MBR from world coords
 - (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4f *)modelTrans frameSize:(Point2f)frameSize
 {
@@ -423,14 +422,14 @@ static const bool DoingCulling = true;
             }
         }
     }
-    if (DoingCulling && !inView)
+    if (doCulling && !inView)
         return;
         
     Mbr localScreenMbr;
     localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
     
     // If this doesn't overlap what we're viewing, we're done
-    if (DoingCulling && !screenMbr.overlaps(localScreenMbr))
+    if (doCulling && !screenMbr.overlaps(localScreenMbr))
         return;
 
     // If the footprint of this level on the screen is larger than
