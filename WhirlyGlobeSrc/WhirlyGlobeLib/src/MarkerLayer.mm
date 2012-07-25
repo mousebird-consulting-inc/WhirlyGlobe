@@ -516,6 +516,12 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // Add a group of markers
 - (SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Marker layer has not been initialized, yet you're calling addMarker.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+
     MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:markers desc:desc];
 
     if (!layerThread || ([NSThread currentThread] == layerThread))

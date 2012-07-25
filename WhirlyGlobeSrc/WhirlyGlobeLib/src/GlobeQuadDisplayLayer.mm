@@ -183,6 +183,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     [dataStructure shutdown];
     dataStructure = nil;
     [loader shutdownLayer:self scene:scene];
+    loader = nil;
     
     scene = NULL;
 }

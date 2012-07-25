@@ -415,6 +415,12 @@ protected:
 // Add a group of vectors and cache it to the given file, which might be on disk
 - (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Vector layer has not been initialized, yet you're calling addVectors.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+    
     VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
     vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();

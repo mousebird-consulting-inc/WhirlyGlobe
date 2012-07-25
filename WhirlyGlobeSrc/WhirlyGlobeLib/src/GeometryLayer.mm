@@ -267,6 +267,12 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 /// Add a group of geometry together
 - (WhirlyKit::SimpleIdentity)addGeometryArray:(NSArray *)geom desc:(NSDictionary *)desc
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Geometry layer has not been initialized, yet you're calling addGeometry.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+
     GeomInfo *geomInfo = [[GeomInfo alloc] initWithGeometry:geom desc:desc];
     geomInfo->sceneRepId = Identifiable::genId();
     
