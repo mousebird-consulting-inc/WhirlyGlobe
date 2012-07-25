@@ -77,16 +77,16 @@ typedef std::set<SelectObject> SelectObjectSet;
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Add screen space (2D) markers
-- (WGComponentObject *)addScreenMarkers:(NSArray *)markers;
+- (WGComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
 // Add 3D markers
-- (WGComponentObject *)addMarkers:(NSArray *)markers;
+- (WGComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
 // Add screen space (2D) labels
-- (WGComponentObject *)addScreenLabels:(NSArray *)labels;
+- (WGComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
 // Add 3D labels
-- (WGComponentObject *)addLabels:(NSArray *)labels;
+- (WGComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
 // Remove objects associated with the user object
 - (void)removeObject:(WGComponentObject *)userObj;

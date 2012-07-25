@@ -59,6 +59,12 @@ LocationInfo locations[NumLocations] =
     // The configuration view comes up when the user taps outside the globe
     ConfigViewController *configViewC;
     
+    // These are default visual descriptions for the various data types
+    NSDictionary *screenMarkerDesc;
+    NSDictionary *markerDesc;
+    NSDictionary *screenLabelDesc;
+    NSDictionary *labelDesc;
+    
     // These represent a group of objects we've added to the globe.
     // This is how we track them for removal
     WGComponentObject *screenMarkersObj;
@@ -116,6 +122,12 @@ LocationInfo locations[NumLocations] =
     // For network paging layers, where 
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 
+    // We'll pick default colors for the labels
+    UIColor *screenLabelColor = [UIColor whiteColor];
+    UIColor *screenLabelBackColor = [UIColor clearColor];
+    UIColor *labelColor = [UIColor whiteColor];
+    UIColor *labelBackColor = [UIColor clearColor];
+
     // Set up the base layer
     switch (startupLayer)
     {
@@ -124,8 +136,12 @@ LocationInfo locations[NumLocations] =
             [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
             break;
         case GeographyClassMBTilesLocal:
-            // This is the Geography Class from MapBox
+            // This is the Geography Class MBTiles data set from MapBox
             [globeViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
             break;
         case StamenWatercolorRemote:
         {
@@ -135,6 +151,10 @@ LocationInfo locations[NumLocations] =
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
             [globeViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:2 maxZoom:10];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
         }
             break;
         case OpenStreetmapRemote:
@@ -144,10 +164,27 @@ LocationInfo locations[NumLocations] =
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
             [globeViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:12];            
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
         }
+            break;
         default:
             break;
     }
+    
+    // Set up some defaults for display
+    screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
+                       screenLabelColor,kWGTextColor,
+                       screenLabelBackColor,kWGBackgroundColor,
+                       nil];
+    [globeViewC setScreenLabelDesc:screenLabelDesc];
+    labelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
+                 labelColor,kWGTextColor,
+                 labelBackColor,kWGBackgroundColor,
+                 nil];
+    [globeViewC setLabelDesc:labelDesc];
     
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeGlobeContents) withObject:nil afterDelay:0.0];
@@ -297,6 +334,8 @@ LocationInfo locations[NumLocations] =
             markersObj = nil;
         }
     }    
+    
+    globeViewC.keepNorthUp = configViewC.northUp.on;
 }
 
 #pragma mark - Whirly Globe Delegate

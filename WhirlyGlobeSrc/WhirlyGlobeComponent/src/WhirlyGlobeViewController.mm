@@ -67,6 +67,12 @@ using namespace WhirlyGlobe;
     
     // If set we'll look for selectables
     bool selection;
+    
+    // General rendering and other display hints
+    NSDictionary *hints;
+    
+    // Default description dictionaries for the various data types
+    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc;
 }
 
 @synthesize delegate;
@@ -188,6 +194,31 @@ using namespace WhirlyGlobe;
 	// This will start loading things
 	[layerThread start];
     
+    // Set up defaults for the hints
+    NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithBool:YES], kWGRenderHintZBuffer,
+                              nil];
+    [self setHints:newHints];
+    
+    // Set up default descriptions for the various data types
+    NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        nil];
+    [self setScreenLabelDesc:newScreenLabelDesc];
+
+    NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
+                                  nil];
+    [self setLabelDesc:newLabelDesc];
+    
+    NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                         nil];
+    [self setScreenMarkerDesc:newScreenMarkerDesc];
+    
+    NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,                                   
+                                   nil];
+    [self setMarkerDesc:newMarkerDesc];
+    
     selection = true;
 }
 
@@ -271,30 +302,88 @@ using namespace WhirlyGlobe;
     return nil;
 }
 
+#pragma mark - Defaults and descriptions
+
+// Merge the two dictionaries, add taking precidence, and then look for NSNulls
+- (NSDictionary *)mergeAndCheck:(NSDictionary *)baseDict changeDict:(NSDictionary *)addDict
+{
+    if (!addDict)
+        return baseDict;
+
+    NSMutableDictionary *newDict = [NSMutableDictionary dictionaryWithDictionary:baseDict];
+    [newDict addEntriesFromDictionary:addDict];
+    
+    // Now look for NSNulls, which we use to remove things
+    NSArray *keys = [newDict allKeys];
+    for (NSString *key in keys)
+    {
+        NSObject *obj = [newDict objectForKey:key];
+        if (obj && [obj isKindOfClass:[NSNull class]])
+            [newDict removeObjectForKey:key];
+    }
+    
+    return newDict;
+}
+
+// Set new hints and update any related settings
+- (void)setHints:(NSDictionary *)changeDict
+{
+    hints = [self mergeAndCheck:hints changeDict:changeDict];
+
+    // Settings we store in the hints
+    BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
+    sceneRenderer.zBuffer = zBuffer;
+}
+
+// Set the default description for screen markers
+- (void)setScreenMarkerDesc:(NSDictionary *)desc
+{
+    screenMarkerDesc = [self mergeAndCheck:screenMarkerDesc changeDict:desc];
+}
+
+// Set the default description for markers
+- (void)setMarkerDesc:(NSDictionary *)desc
+{
+    markerDesc = [self mergeAndCheck:markerDesc changeDict:desc];    
+}
+
+// Set the default description for screen labels
+- (void)setScreenLabelDesc:(NSDictionary *)desc
+{
+    screenLabelDesc = [self mergeAndCheck:screenLabelDesc changeDict:desc];    
+}
+
+// Set the default description for labels
+- (void)setLabelDesc:(NSDictionary *)desc
+{
+    labelDesc = [self mergeAndCheck:labelDesc changeDict:desc];    
+}
+
+#pragma mark - Geometry related methods
+
 /// Add a group of screen (2D) markers
 - (WGComponentObject *)addScreenMarkers:(NSArray *)markers
 {
-    return [interactLayer addScreenMarkers:markers];
+    return [interactLayer addScreenMarkers:markers desc:screenMarkerDesc];
 }
 
 /// Add a group of 3D markers
 - (WGComponentObject *)addMarkers:(NSArray *)markers
 {
-    return [interactLayer addMarkers:markers];
+    return [interactLayer addMarkers:markers desc:markerDesc];
 }
 
 /// Add a group of screen (2D) labels
 - (WGComponentObject *)addScreenLabels:(NSArray *)labels
 {
-    return [interactLayer addScreenLabels:labels];
+    return [interactLayer addScreenLabels:labels desc:screenLabelDesc];
 }
 
 /// Add a group of 3D labels
 - (WGComponentObject *)addLabels:(NSArray *)labels
 {
-    return [interactLayer addLabels:labels];
+    return [interactLayer addLabels:labels desc:labelDesc];
 }
-
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj

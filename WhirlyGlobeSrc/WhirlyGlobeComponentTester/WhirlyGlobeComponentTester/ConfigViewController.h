@@ -15,11 +15,13 @@
     IBOutlet UISwitch *label3DSwitch;
     IBOutlet UISwitch *marker2DSwitch;
     IBOutlet UISwitch *marker3DSwitch;
+    IBOutlet UISwitch *northUp;
 }
 
 @property (nonatomic,readonly) UISwitch *label2DSwitch;
 @property (nonatomic,readonly) UISwitch *label3DSwitch;
 @property (nonatomic,readonly) UISwitch *marker2DSwitch;
 @property (nonatomic,readonly) UISwitch *marker3DSwitch;
+@property (nonatomic,readonly) UISwitch *northUp;
 
 @end
