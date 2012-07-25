@@ -216,6 +216,12 @@ using namespace WhirlyKit;
 /// Add a group of particle systems
 - (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Particle Systems layer has not been initialized, yet you're calling addParticleSystem.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+
     ParticleSystemInfo *systemInfo = [[ParticleSystemInfo alloc] initWithSystems:partSystems desc:desc];
     systemInfo.destId = Identifiable::genId();
     

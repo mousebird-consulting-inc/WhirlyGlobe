@@ -614,6 +614,12 @@ protected:
 // Add a lofted poly
 - (SimpleIdentity)addLoftedPolys:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Loft Layer has not been initialized, yet you're calling addLoftedPoly.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+
     LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:cacheName];
     polyInfo->sceneRepId = Identifiable::genId();
     

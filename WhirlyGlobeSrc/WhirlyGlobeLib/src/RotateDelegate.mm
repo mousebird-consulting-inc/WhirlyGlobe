@@ -62,7 +62,7 @@ using namespace WhirlyGlobe;
     rotType = RotFree;
 }
 
-// Called for pinch actions
+// Called for rotate actions
 - (void)rotateGesture:(id)sender
 {
 	UIRotationGestureRecognizer *rotate = sender;
