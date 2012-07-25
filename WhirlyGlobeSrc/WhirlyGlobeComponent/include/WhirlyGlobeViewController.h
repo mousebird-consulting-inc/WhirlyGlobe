@@ -47,6 +47,7 @@
 
 /// Default draw offset for 3D markers.  Set to avoid label/marker intererence
 #define kWGMarkerDrawOffsetDefault 1
+#define kWGMarkerDrawPriorityDefault 1
 
 /// These are used just for the screen and regular labels
 
@@ -67,6 +68,7 @@
 
 /// Default draw offset for 3D labels.  This is set to avoid label/marker interference
 #define kWGLabelDrawOffsetDefault 2
+#define kWGLabelDrawPriorityDefault 2
 
 /// These are used for screen and regular markers.
 
