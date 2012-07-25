@@ -106,6 +106,8 @@ LocationInfo locations[NumLocations] =
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
+    // Force the view to load so we can get the default switch values
+    [configViewC view];
     
     // Create an empty globe view controller and hook it in to our view hiearchy
     globeViewC = [[WhirlyGlobeViewController alloc] init];
@@ -335,7 +337,13 @@ LocationInfo locations[NumLocations] =
         }
     }    
     
-    globeViewC.keepNorthUp = configViewC.northUp.on;
+    globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
+    
+    // Update rendering hints
+    NSMutableDictionary *hintDict = [NSMutableDictionary dictionary];
+    [hintDict setObject:[NSNumber numberWithBool:configViewC.cullingSwitch.on] forKey:kWGRenderHintCulling];
+    [hintDict setObject:[NSNumber numberWithBool:configViewC.zBufferSwitch.on] forKey:kWGRenderHintZBuffer];
+    [globeViewC setHints:hintDict];
 }
 
 #pragma mark - Whirly Globe Delegate
