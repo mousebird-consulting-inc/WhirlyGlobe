@@ -60,6 +60,8 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         return;
 
     // Run the world location through the projection matrix to see if its behind the globe
+    // Note: Turned off.  Doesn't work yet.
+#if 0
     Point3f testPts[2];
     testPts[0] = shape->worldLoc;
     testPts[1] = shape->worldLoc*1.5;
@@ -77,6 +79,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     // Note: This is so dumb it hurts.  Figure out why the math is broken.
 //    if (testDir.z() > -0.000333)
 //        return;
+#endif
     
     // Note: Make this work for generic 3D views
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;

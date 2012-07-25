@@ -213,6 +213,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // We're in the layer thread here
 - (void)runAddMarkers:(MarkerInfo *)markerInfo
 {
+    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+
     CoordSystem *coordSys = scene->getCoordSystem();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fade = markerInfo.fade;
@@ -271,8 +273,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 [selectLayer addSelectableScreenRect:marker.selectID rect:pts2d minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
             } else
                 [selectLayer addSelectableRect:marker.selectID rect:pts minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
-            
-            // Note: Handle the screen object case
         }
         
         // If the marker has just one texture, we can treat it as static
@@ -310,7 +310,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                     shape->useRotation = true;
                     shape->rotation = marker.rotation;
                 }
-                // Note: Fade up/down
+                if (markerInfo.fade > 0.0)
+                {
+                    shape->fadeDown = curTime;
+                    shape->fadeUp = curTime+markerInfo.fade;                    
+                }
                 shape->minVis = markerInfo.minVis;
                 shape->maxVis = markerInfo.maxVis;
                 shape->drawPriority = markerInfo.drawPriority;
@@ -369,7 +373,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             newMarker->drawPriority = markerInfo.drawPriority;
             if (markerInfo.fade > 0.0)
             {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 newMarker->fadeDown = curTime;
                 newMarker->fadeUp = curTime+markerInfo.fade;
             } else {

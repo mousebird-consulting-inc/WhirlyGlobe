@@ -202,22 +202,26 @@ using namespace WhirlyGlobe;
     
     // Set up default descriptions for the various data types
     NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        [NSNumber numberWithFloat:1.0], kWGFade,
                                         nil];
     [self setScreenLabelDesc:newScreenLabelDesc];
 
     NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
                                   [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
+                                  [NSNumber numberWithFloat:1.0], kWGFade,
                                   nil];
     [self setLabelDesc:newLabelDesc];
     
     NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                         [NSNumber numberWithFloat:1.0], kWGFade,
                                          nil];
     [self setScreenMarkerDesc:newScreenMarkerDesc];
     
     NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,                                   
                                    [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,                                   
+                                   [NSNumber numberWithFloat:1.0], kWGFade,
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
