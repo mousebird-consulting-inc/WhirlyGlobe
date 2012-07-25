@@ -1,8 +1,8 @@
 /*
- *  WhirlyGlobeComponent.h
+ *  WGMarker.h
  *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 7/21/12.
+ *  Created by Steve Gifford on 7/24/12.
  *  Copyright 2011 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,24 @@
  *
  */
 
-#import <WGCoordinate.h>
-#import <WGLabel.h>
-#import <WGScreenLabel.h>
-#import <WGMarker.h>
-#import <WGScreenMarker.h>
-#import <WhirlyGlobeViewController.h>
+#import <UIKit/UIKit.h>
+#import "WGCoordinate.h"
+
+/** 3D Marker.
+    Set this is up and hand it over to the WhirlyGlobeViewController for display.
+ */
+@interface WGMarker : NSObject
+{
+    /// Location in geographic (lat/lon) in radians
+    WGCoordinate loc;
+    /// Size in 3D.  Remember that the earth is radius = 1.0.
+    CGSize size;
+    /// If set, this is the image to use for the marker
+    UIImage *image;
+}
+
+@property (nonatomic,assign) WGCoordinate loc;
+@property (nonatomic,assign) CGSize size;
+@property (nonatomic,strong) UIImage *image;
+
+@end

@@ -30,6 +30,12 @@
 		2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */; };
 		2B897A9115BC6CEE00250F23 /* WGViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9015BC6CEE00250F23 /* WGViewControllerLayer.mm */; };
 		2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */; };
+		2BB9E01715BF9EE300F1DDD8 /* WGLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01415BF9EE300F1DDD8 /* WGLabel.h */; };
+		2BB9E01815BF9EE300F1DDD8 /* WGMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01515BF9EE300F1DDD8 /* WGMarker.h */; };
+		2BB9E01915BF9EE300F1DDD8 /* WGScreenLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01615BF9EE300F1DDD8 /* WGScreenLabel.h */; };
+		2BB9E01F15BF9EF200F1DDD8 /* WGLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01C15BF9EF200F1DDD8 /* WGLabel.m */; };
+		2BB9E02015BF9EF200F1DDD8 /* WGMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */; };
+		2BB9E02115BF9EF200F1DDD8 /* WGScreenLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01E15BF9EF200F1DDD8 /* WGScreenLabel.m */; };
 		2BE8491415BC8DEB006CFD3F /* WGComponentObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +74,12 @@
 		2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PanDelegateFixed.mm; path = src/PanDelegateFixed.mm; sourceTree = SOURCE_ROOT; };
 		2B897A9015BC6CEE00250F23 /* WGViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGViewControllerLayer.mm; path = src/WGViewControllerLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGSphericalEarthWithTexGroup.mm; path = src/WGSphericalEarthWithTexGroup.mm; sourceTree = SOURCE_ROOT; };
+		2BB9E01415BF9EE300F1DDD8 /* WGLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGLabel.h; path = include/WGLabel.h; sourceTree = SOURCE_ROOT; };
+		2BB9E01515BF9EE300F1DDD8 /* WGMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGMarker.h; path = include/WGMarker.h; sourceTree = SOURCE_ROOT; };
+		2BB9E01615BF9EE300F1DDD8 /* WGScreenLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGScreenLabel.h; path = include/WGScreenLabel.h; sourceTree = SOURCE_ROOT; };
+		2BB9E01C15BF9EF200F1DDD8 /* WGLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGLabel.m; path = src/WGLabel.m; sourceTree = SOURCE_ROOT; };
+		2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGMarker.m; path = src/WGMarker.m; sourceTree = SOURCE_ROOT; };
+		2BB9E01E15BF9EF200F1DDD8 /* WGScreenLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGScreenLabel.m; path = src/WGScreenLabel.m; sourceTree = SOURCE_ROOT; };
 		2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGComponentObject_private.h; path = include/private/WGComponentObject_private.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -179,6 +191,12 @@
 		2B1D061215B5CE0300B844C4 /* object wrappers */ = {
 			isa = PBXGroup;
 			children = (
+				2BB9E01615BF9EE300F1DDD8 /* WGScreenLabel.h */,
+				2BB9E01E15BF9EF200F1DDD8 /* WGScreenLabel.m */,
+				2BB9E01415BF9EE300F1DDD8 /* WGLabel.h */,
+				2BB9E01C15BF9EF200F1DDD8 /* WGLabel.m */,
+				2BB9E01515BF9EE300F1DDD8 /* WGMarker.h */,
+				2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */,
 				2B897A6815BB59F300250F23 /* WGScreenMarker.h */,
 				2B897A8A15BC698800250F23 /* WGScreenMarker.m */,
 				2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */,
@@ -206,6 +224,9 @@
 				2BE8491415BC8DEB006CFD3F /* WGComponentObject_private.h in Headers */,
 				2B0E934B15BF447100B3F95F /* WGQuadEarthWithMBTiles_private.h in Headers */,
 				2B0E935215BF4EE000B3F95F /* WGQuadEarthWithRemoteTiles_private.h in Headers */,
+				2BB9E01715BF9EE300F1DDD8 /* WGLabel.h in Headers */,
+				2BB9E01815BF9EE300F1DDD8 /* WGMarker.h in Headers */,
+				2BB9E01915BF9EE300F1DDD8 /* WGScreenLabel.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +306,9 @@
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
 				2B0E934515BF441200B3F95F /* WGQuadEarthWithMBTiles.mm in Sources */,
 				2B0E935415BF4EED00B3F95F /* WGQuadEarthWithRemoteTiles.mm in Sources */,
+				2BB9E01F15BF9EF200F1DDD8 /* WGLabel.m in Sources */,
+				2BB9E02015BF9EF200F1DDD8 /* WGMarker.m in Sources */,
+				2BB9E02115BF9EF200F1DDD8 /* WGScreenLabel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
