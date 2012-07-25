@@ -8,8 +8,76 @@
 
 #import "TestViewController.h"
 
-@interface TestViewController ()
+// Simple representation of locations and name for testing
+typedef struct
+{
+    char name[20];
+    float lat,lon;
+} LocationInfo;
 
+// Some random locations for testing.
+// If we've missed your home, it's because we think you suck.
+static const int NumLocations = 30;
+LocationInfo locations[NumLocations] = 
+{
+    {"San Francisco",37.7793, -122.4192},
+    {"Washington, DC",38.895111,-77.036667},
+    {"Manila",14.583333,120.966667},
+    {"Moscow",55.75, 37.616667},
+    {"London",51.507222, -0.1275},
+    {"Caracas",10.5, -66.916667},
+    {"Lagos",6.453056, 3.395833},
+    {"Sydney",-33.859972, 151.211111},
+    {"Seattle",47.609722, -122.333056},
+    {"Tokyo",35.689506, 139.6917},
+    {"McMurdo Station",-77.85, 166.666667},
+    {"Tehran",35.696111, 51.423056},
+    {"Santiago",-33.45, -70.666667},
+    {"Pretoria",-25.746111, 28.188056},
+    {"Perth",-31.952222, 115.858889},
+    {"Beijing",39.913889, 116.391667},
+    {"New Delhi",28.613889, 77.208889},
+    {"Kansas City",39.1, -94.58},
+    {"Pittsburgh",40.441667, -80},
+    {"Freetown",8.484444, -13.234444},
+    {"Windhoek",-22.57, 17.083611},
+    {"Buenos Aires",-34.6, -58.383333},
+    {"Zhengzhou",34.766667, 113.65},
+    {"Bergen",60.389444, 5.33},
+    {"Glasgow",55.858, -4.259},
+    {"Bogota",4.598056, -74.075833},
+    {"Haifa",32.816667, 34.983333},
+    {"Puerto Williams",-54.933333, -67.616667},
+    {"Panama City",8.983333, -79.516667},
+    {"Niihau",21.9, -160.166667}
+};
+
+// Local interface for TestViewController
+// We'll hide a few things here
+@interface TestViewController ()
+{
+    // The configuration view comes up when the user taps outside the globe
+    ConfigViewController *configViewC;
+    
+    // These represent a group of objects we've added to the globe.
+    // This is how we track them for removal
+    WGComponentObject *screenMarkersObj;
+    WGComponentObject *markersObj;
+    WGComponentObject *screenLabelsObj;
+    WGComponentObject *labelsObj;
+}
+
+// These routine add objects to the globe based on locations and/or labels in the
+//  locations passed in.  There's on locations array (for simplicity), so we just
+//  pass in a stride and an offset so we're not putting two different objects in
+//  the same place.
+- (void)addMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+
+// Change what we're showing based on the Configuration
+- (void)changeGlobeContents;
 @end
 
 @implementation TestViewController
@@ -30,35 +98,39 @@
 {
     [super viewDidLoad];
     
-    // Create an empty globe view controller and hook it in
+    // Configuration controller for turning features on and off
+    configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
+    
+    // Create an empty globe view controller and hook it in to our view hiearchy
     globeViewC = [[WhirlyGlobeViewController alloc] init];
-    globeViewC.delegate = self;
     [self.view addSubview:globeViewC.view];
     globeViewC.view.frame = self.view.bounds;
     [self addChildViewController:globeViewC];
     
+    // This will get us taps and such
+    globeViewC.delegate = self;
+    
     // Start up over San Francisco
-    // Woo!  California represent!
     [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
-    
-    // Note: temporary
-//    [self addMarkers];
-//    [self addScreenLabels];
-    [self addLabels];
-    
+
+    // For network paging layers, where 
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 
     // Set up the base layer
     switch (startupLayer)
     {
         case BlueMarbleSingleResLocal:
+            // This is the static image set, included with the app, built with ImageChopper
             [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
             break;
         case GeographyClassMBTilesLocal:
+            // This is the Geography Class from MapBox
             [globeViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
             break;
         case StamenWatercolorRemote:
         {
+            // These are the Stamen Watercolor tiles.
+            // They're beautiful, but the server isn't so great.
             NSString *thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
@@ -67,6 +139,7 @@
             break;
         case OpenStreetmapRemote:
         {
+            // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
             NSString *thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
@@ -75,12 +148,16 @@
         default:
             break;
     }
+    
+    // Bring up things based on what's turned on
+    [self performSelector:@selector(changeGlobeContents) withObject:nil afterDelay:0.0];
 }
 
 - (void)viewDidUnload
 {
     [super viewDidUnload];
     
+    // This should release the globe view
     [globeViewC removeFromParentViewController];
     globeViewC = nil;
 }
@@ -92,83 +169,134 @@
 
 #pragma mark - Data Display
 
-// Some random locations
-const char *locationNames[] = {"San Francisco","Washington, DC","Manila","Moscow","London","Caracas","Lagos","Sydney","Seattle","Tokyo","McMurdo Station","Tehran","Santiago","Pretoria","Perth","Beijing","New Delhi",NULL};
-// Coordinates in lon, lat
-const float locations[] = {37.7793, -122.4192, 38.895111,-77.036667,14.583333,120.966667,55.75, 37.616667, 51.507222, -0.1275, 10.5, -66.916667, 6.453056, 3.395833, -33.859972, 151.211111, 47.609722, -122.333056, 35.689506, 139.6917, -77.85, 166.666667, 35.696111, 51.423056, -33.45, -70.666667, -25.746111, 28.188056, -31.952222, 115.858889, 39.913889, 116.391667, 28.613889, 77.208889};	
-
 // Add screen (2D) markers at all our locations
-- (void)addScreenMarkers
+- (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
     CGSize size = CGSizeMake(20, 20);
     UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
     
     NSMutableArray *markers = [NSMutableArray array];
-    for (unsigned int ii=0;locationNames[ii];ii++)
+    for (unsigned int ii=offset;ii<len;ii+=stride)
     {
+        LocationInfo *location = &locations[ii];
         WGScreenMarker *marker = [[WGScreenMarker alloc] init];
         marker.image = pinImage;
-        marker.loc = WGCoordinateMakeWithDegrees(locations[2*ii+1], locations[2*ii]);
+        marker.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
         [markers addObject:marker];
     }
     
-    [globeViewC addScreenMarkers:markers];
+    screenMarkersObj = [globeViewC addScreenMarkers:markers];
 }
 
 // Add 3D markers
-- (void)addMarkers
+- (void)addMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
     CGSize size = CGSizeMake(0.05, 0.05);    
     UIImage *startImage = [UIImage imageNamed:@"Star"];
     
     NSMutableArray *markers = [NSMutableArray array];
-    for (unsigned int ii=0;locationNames[ii];ii++)
+    for (unsigned int ii=offset;ii<len;ii+=stride)
     {
+        LocationInfo *location = &locations[ii];
         WGMarker *marker = [[WGMarker alloc] init];
         marker.image = startImage;
-        marker.loc = WGCoordinateMakeWithDegrees(locations[2*ii+1], locations[2*ii]);
+        marker.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
         [markers addObject:marker];
     }
     
-    [globeViewC addMarkers:markers];
+    markersObj = [globeViewC addMarkers:markers];
 }
 
 // Add screen (2D) labels
-- (void)addScreenLabels
+- (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
     CGSize size = CGSizeMake(0, 20);
     
     NSMutableArray *labels = [NSMutableArray array];
-    for (unsigned int ii=0;locationNames[ii];ii++)
+    for (unsigned int ii=offset;ii<len;ii+=stride)
     {
+        LocationInfo *location = &locations[ii];
         WGScreenLabel *label = [[WGScreenLabel alloc] init];
-        label.loc = WGCoordinateMakeWithDegrees(locations[2*ii+1], locations[2*ii]);
+        label.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
         label.size = size;
-        label.text = [NSString stringWithFormat:@"%s",locationNames[ii]];
+        label.text = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
     
-    [globeViewC addScreenLabels:labels];    
+    screenLabelsObj = [globeViewC addScreenLabels:labels];    
 }
 
 // Add 3D labels
-- (void)addLabels
+- (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
     CGSize size = CGSizeMake(0, 0.05);
     
     NSMutableArray *labels = [NSMutableArray array];
-    for (unsigned int ii=0;locationNames[ii];ii++)
+    for (unsigned int ii=offset;ii<len;ii+=stride)
     {
+        LocationInfo *location = &locations[ii];
         WGLabel *label = [[WGLabel alloc] init];
-        label.loc = WGCoordinateMakeWithDegrees(locations[2*ii+1], locations[2*ii]);
+        label.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
         label.size = size;
-        label.text = [NSString stringWithFormat:@"%s",locationNames[ii]];
+        label.text = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
     
-    [globeViewC addLabels:labels];        
+    labelsObj = [globeViewC addLabels:labels];        
+}
+
+// Look at the configuration controller and decide what to turn off or on
+- (void)changeGlobeContents
+{
+    if (configViewC.label2DSwitch.on)
+    {
+        if (!screenLabelsObj)
+            [self addScreenLabels:locations len:NumLocations stride:4 offset:0];
+    } else {
+        if (screenLabelsObj)
+        {
+            [globeViewC removeObject:screenLabelsObj];
+            screenLabelsObj = nil;
+        }
+    }    
+
+    if (configViewC.label3DSwitch.on)
+    {
+        if (!labelsObj)
+            [self addLabels:locations len:NumLocations stride:4 offset:1];
+    } else {
+        if (labelsObj)
+        {
+            [globeViewC removeObject:labelsObj];
+            labelsObj = nil;
+        }
+    }    
+
+    if (configViewC.marker2DSwitch.on)
+    {
+        if (!screenMarkersObj)
+            [self addScreenMarkers:locations len:NumLocations stride:4 offset:2];
+    } else {
+        if (screenMarkersObj)
+        {
+            [globeViewC removeObject:screenMarkersObj];
+            screenMarkersObj = nil;
+        }
+    }    
+
+    if (configViewC.marker3DSwitch.on)
+    {
+        if (!markersObj)
+            [self addMarkers:locations len:NumLocations stride:4 offset:3];
+    } else {
+        if (markersObj)
+        {
+            [globeViewC removeObject:markersObj];
+            markersObj = nil;
+        }
+    }    
 }
 
 #pragma mark - Whirly Globe Delegate
@@ -182,9 +310,16 @@ const float locations[] = {37.7793, -122.4192, 38.895111,-77.036667,14.583333,12
 // Bring up the config view when the user taps outside
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC
 {
-    ConfigViewController *configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
     popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
+    popControl.delegate = self;
     [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+}
+
+#pragma mark - Popover Delegate
+
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+{
+    [self changeGlobeContents];
 }
 
 @end
