@@ -88,6 +88,9 @@ typedef std::set<SelectObject> SelectObjectSet;
 // Add 3D labels
 - (WGComponentObject *)addLabels:(NSArray *)labels;
 
+// Remove objects associated with the user object
+- (void)removeObject:(WGComponentObject *)userObj;
+
 // Call this to process a tap with the selection layer
 // It will call the given selector if there was no selection
 - (void) userDidTap:(WhirlyGlobeTapMessage *)msg;

@@ -14,6 +14,11 @@
 
 @implementation ConfigViewController
 
+@synthesize label2DSwitch;
+@synthesize label3DSwitch;
+@synthesize marker2DSwitch;
+@synthesize marker3DSwitch;
+
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
