@@ -333,6 +333,8 @@ using namespace WhirlyGlobe;
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
     sceneRenderer.zBuffer = zBuffer;
+    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
+    sceneRenderer.doCulling = culling;
 }
 
 // Set the default description for screen markers

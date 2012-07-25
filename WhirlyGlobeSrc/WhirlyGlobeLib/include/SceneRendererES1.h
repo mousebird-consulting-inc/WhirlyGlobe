@@ -168,6 +168,10 @@ protected:
     /// Set this to turn z buffering on or off.
     /// If you turn z buffering off, drawPriority in the drawables is still used
     bool zBuffer;
+    
+    /// Set this to turn culling on or off.
+    /// By default it's on, so leave it alone unless you know you want it off.
+    bool doCulling;
 
     /// The pixel width of the CAEAGLLayer.
     GLint framebufferWidth;
@@ -220,6 +224,7 @@ protected:
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,weak) WhirlyKitView *theView;
 @property (nonatomic,assign) bool zBuffer;
+@property (nonatomic,assign) bool doCulling;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
 @property (nonatomic,readonly) float scale;

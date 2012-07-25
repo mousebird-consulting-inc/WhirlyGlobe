@@ -28,6 +28,8 @@
 
 /// Use this hint to turn the zbuffer on or off.  Pass in an NSNumber boolean.  Takes effect on the next frame.
 #define kWGRenderHintZBuffer @"zbuffer"
+/// Use this hint to turn culling optimization on or off.  Pass in an NSNumber boolean.
+#define kWGRenderHintCulling @"culling"
 
 /// These are used for all object descriptions.
 
