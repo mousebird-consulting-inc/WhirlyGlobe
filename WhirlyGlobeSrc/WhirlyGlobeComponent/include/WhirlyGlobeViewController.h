@@ -92,6 +92,10 @@
 /// Passes in the location on the view.
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;
 
+/// The user tapped at the given location.
+/// This won't be called if they tapped and selected, just if they tapped.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord;
+
 @end
 
 /** This is the main object in the WhirlyGlobe Component.  You fire up one
