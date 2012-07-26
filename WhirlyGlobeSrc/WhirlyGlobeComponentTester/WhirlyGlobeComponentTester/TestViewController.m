@@ -425,6 +425,17 @@ LocationInfo locations[NumLocations] =
     [globeViewC addViewTracker:selectedViewTrack];
 }
 
+// User didn't select anything, but did tap
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord
+{
+    // Just clear the selection
+    if (selectedViewTrack)
+    {
+        [globeViewC removeViewTrackForView:selectedViewTrack.view];
+        selectedViewTrack = nil;        
+    }
+}
+
 // Bring up the config view when the user taps outside
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC
 {
