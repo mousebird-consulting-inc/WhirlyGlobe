@@ -1,9 +1,9 @@
 /*
- *  WhirlyGlobeComponent.h
+ *  WGViewTracker.m
  *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011 mousebird consulting
+ *  Created by Steve Gifford on 7/26/12.
+ *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,10 +18,11 @@
  *
  */
 
-#import <WGCoordinate.h>
-#import <WGLabel.h>
-#import <WGScreenLabel.h>
-#import <WGMarker.h>
-#import <WGScreenMarker.h>
-#import <WGViewTracker.h>
-#import <WhirlyGlobeViewController.h>
+#import "WGViewTracker.h"
+
+@implementation WGViewTracker
+
+@synthesize view;
+@synthesize loc;
+
+@end

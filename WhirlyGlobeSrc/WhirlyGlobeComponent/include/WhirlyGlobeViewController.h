@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import <WGCoordinate.h>
 #import <WGScreenMarker.h>
+#import <WGViewTracker.h>
 
 @class WGViewControllerLayer;
 @class WGComponentObject;
@@ -154,6 +155,12 @@
 
 /// Add a group of 3D labels
 - (WGComponentObject *)addLabels:(NSArray *)labels;
+
+/// Add a view to track to a particular location
+- (void)addViewTracker:(WGViewTracker *)viewTrack;
+
+/// Remove the view tracker associated with the given UIView
+- (void)removeViewTrackForView:(UIView *)view;
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj;
