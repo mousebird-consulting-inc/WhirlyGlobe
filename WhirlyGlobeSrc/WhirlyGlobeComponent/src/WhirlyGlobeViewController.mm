@@ -490,10 +490,18 @@ using namespace WhirlyGlobe;
 {
     if (selectedObj && selection)
     {
-        // Note: Check for selector first
+        // The user selected something, so let the delegate know
         if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             [delegate globeViewController:self didSelect:selectedObj];
     } else {
+        // The user didn't select anything, let the delegate know.
+        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        {
+            WGCoordinate coord;
+            coord.lon = msg.whereGeo.lon();
+            coord.lat = msg.whereGeo.lat();
+            [delegate globeViewController:self didTapAt:coord];
+        }
         // Didn't select anything, so rotate
         [self rotateToPoint:msg.whereGeo time:1.0];
     }
