@@ -323,6 +323,10 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
         std::vector<Quadtree::NodeInfo> childNodes;
         quadtree->generateChildren(tileIdent, childNodes);
         nodesForEval.insert(childNodes.begin(),childNodes.end());
+        
+        // Make sure we actually evaluate them
+        [NSObject cancelPreviousPerformRequestsWithTarget:self];
+        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
 }
 

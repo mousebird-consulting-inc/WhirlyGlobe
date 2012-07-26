@@ -71,6 +71,9 @@ LocationInfo locations[NumLocations] =
     WGComponentObject *markersObj;
     WGComponentObject *screenLabelsObj;
     WGComponentObject *labelsObj;
+    
+    // The view we're using to track a selected object
+    WGViewTracker *selectedViewTrack;
 }
 
 // These routine add objects to the globe based on locations and/or labels in the
@@ -351,7 +354,50 @@ LocationInfo locations[NumLocations] =
 // User selected something
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
 {
-    NSLog(@"User selected: %@",[selectedObj description]);
+    // If we've currently got a selected view, get rid of it
+    if (selectedViewTrack)
+    {
+        [globeViewC removeViewTrackForView:selectedViewTrack.view];
+        selectedViewTrack = nil;
+    }
+    
+    WGCoordinate loc;
+    NSString *msg = nil;
+    
+    if ([selectedObj isKindOfClass:[WGMarker class]])
+    {
+        WGMarker *marker = (WGMarker *)selectedObj;    
+        loc = marker.loc;
+        msg = [NSString stringWithFormat:@"Marker: %d",marker.image];
+    } else if ([selectedObj isKindOfClass:[WGScreenMarker class]])
+    {
+        WGScreenMarker *screenMarker = (WGScreenMarker *)selectedObj;        
+        loc = screenMarker.loc;
+        msg = [NSString stringWithFormat:@"Screen Marker: %d",screenMarker.image];
+    } else if ([selectedObj isKindOfClass:[WGLabel class]])
+    {
+        WGLabel *label = (WGLabel *)selectedObj;        
+        loc = label.loc;
+        msg = [NSString stringWithFormat:@"Label: %@",label.text];
+    } else if ([selectedObj isKindOfClass:[WGScreenLabel class]])
+    {
+        WGScreenLabel *screenLabel = (WGScreenLabel *)selectedObj;        
+        loc = screenLabel.loc;
+        msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.text];
+    } else
+        // Don't know what it is
+        return;
+    
+    // Make a label and stick it in as a view to track
+    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    testLabel.backgroundColor = [UIColor blueColor];
+    testLabel.text = msg;
+    selectedViewTrack = [[WGViewTracker alloc] init];
+    selectedViewTrack.loc = loc;
+    selectedViewTrack.view = testLabel;
+    [globeViewC addViewTracker:selectedViewTrack];
+    
+//    NSLog(@"User selected: %@",[selectedObj description]);
 }
 
 // Bring up the config view when the user taps outside

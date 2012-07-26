@@ -65,6 +65,9 @@ using namespace WhirlyGlobe;
     WhirlyGlobeRotateDelegate *rotateDelegate;    
     AnimateViewRotation *animateRotation;
     
+    // List of views we're tracking for location
+    NSMutableArray *viewTrackers;
+    
     // If set we'll look for selectables
     bool selection;
     
@@ -116,6 +119,8 @@ using namespace WhirlyGlobe;
     tapDelegate = nil;
     rotateDelegate = nil;
     animateRotation = nil;
+    
+    viewTrackers = nil;
 }
 
 - (void) dealloc
@@ -189,6 +194,8 @@ using namespace WhirlyGlobe;
 	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
 	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
     rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
+    
+    viewTrackers = [NSMutableArray array];
 	
 	// Kick off the layer thread
 	// This will start loading things
@@ -392,6 +399,45 @@ using namespace WhirlyGlobe;
 {
     return [interactLayer addLabels:labels desc:labelDesc];
 }
+
+/// Add a view to track to a particular location
+- (void)addViewTracker:(WGViewTracker *)viewTrack
+{
+    // Make sure we're not duplicating and add the object
+    [self removeViewTrackForView:viewTrack.view];
+    [viewTrackers addObject:viewTrack];
+    
+    // Hook it into the renderer
+    ViewPlacementGenerator *vpGen = globeScene->getViewPlacementGenerator();
+    vpGen->addView(GeoCoord(viewTrack.loc.lon,viewTrack.loc.lat),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    
+    // And add it to the view hierarchy
+    if ([viewTrack.view superview] == nil)
+        [glView addSubview:viewTrack.view];
+}
+
+/// Remove the view tracker associated with the given UIView
+- (void)removeViewTrackForView:(UIView *)view
+{
+    // Look for the entry
+    WGViewTracker *theTracker = nil;
+    for (WGViewTracker *viewTrack in viewTrackers)
+        if (viewTrack.view == view)
+        {
+            theTracker = viewTrack;
+            break;
+        }
+    
+    if (theTracker)
+    {
+        [viewTrackers removeObject:theTracker];
+        ViewPlacementGenerator *vpGen = globeScene->getViewPlacementGenerator();
+        vpGen->removeView(theTracker.view);
+        if ([theTracker.view superview] == glView)
+            [theTracker.view removeFromSuperview];
+    }
+}
+
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj

@@ -146,6 +146,10 @@
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
+		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
+		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
+		2BF401C015C0B49500B5BFD9 /* UpdateDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */; };
+		2BF401C115C0B49500B5BFD9 /* ViewPlacementGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */; };
 		2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF74358155D7C4C000499DD /* NSString+Stuff.h */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		2BFBF15D14BF64100020FE6B /* PanDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */; };
@@ -298,6 +302,10 @@
 		2BEFDE99149966F300C63326 /* GridClipper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GridClipper.mm; sourceTree = "<group>"; };
 		2BEFDE9A149966F300C63326 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tesselator.mm; sourceTree = "<group>"; };
 		2BEFDEA114997C0400C63326 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = ../../../../utilities/clipper_ver4.3.0/cpp/clipper.cpp; sourceTree = "<group>"; };
+		2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UpdateDisplayLayer.mm; sourceTree = "<group>"; };
+		2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewPlacementGenerator.mm; sourceTree = "<group>"; };
+		2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateDisplayLayer.h; sourceTree = "<group>"; };
+		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PanDelegateMap.mm; sourceTree = "<group>"; };
@@ -519,6 +527,8 @@
 				2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */,
 				2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */,
 				2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */,
+				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
+				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -705,6 +715,8 @@
 				2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */,
 				2B5FA417155DD7A100232E18 /* NetworkTileQuadSource.h */,
 				2BACE0611581010F00E3793D /* SceneGraphGenerator.h */,
+				2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */,
+				2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */,
 			);
 			name = layers;
 			sourceTree = "<group>";
@@ -909,6 +921,8 @@
 				2B5FA418155DD7A100232E18 /* NetworkTileQuadSource.h in Headers */,
 				2BACE0621581010F00E3793D /* SphericalEarthQuadLayer.h in Headers */,
 				2BACE0631581010F00E3793D /* SceneGraphGenerator.h in Headers */,
+				2BF401C015C0B49500B5BFD9 /* UpdateDisplayLayer.h in Headers */,
+				2BF401C115C0B49500B5BFD9 /* ViewPlacementGenerator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1036,6 +1050,8 @@
 				2B5FA41B155DD84A00232E18 /* NetworkTileQuadSource.mm in Sources */,
 				2BACE0671581017800E3793D /* SphericalEarthQuadLayer.mm in Sources */,
 				2BACE0681581017800E3793D /* SceneGraphGenerator.mm in Sources */,
+				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,
+				2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
