@@ -1,9 +1,9 @@
 /*
- *  WhirlyGlobeComponent.h
+ *  WGViewTracker.h
  *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011 mousebird consulting
+ *  Created by Steve Gifford on 7/26/12.
+ *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,10 +18,22 @@
  *
  */
 
-#import <WGCoordinate.h>
-#import <WGLabel.h>
-#import <WGScreenLabel.h>
-#import <WGMarker.h>
-#import <WGScreenMarker.h>
-#import <WGViewTracker.h>
-#import <WhirlyGlobeViewController.h>
+#import <UIKit/UIKit.h>
+#import "WGCoordinate.h"
+
+/** The View Tracker keeps track of a UIView and a corresponding geographic
+    location.  We'll use this to place the view on the screen according to
+    the location.
+ */
+@interface WGViewTracker : NSObject
+{
+    /// The view we want top place
+    UIView *view;
+    /// Where we want to place it
+    WGCoordinate loc;
+}
+
+@property (nonatomic,strong) UIView *view;
+@property (nonatomic,assign) WGCoordinate loc;
+
+@end

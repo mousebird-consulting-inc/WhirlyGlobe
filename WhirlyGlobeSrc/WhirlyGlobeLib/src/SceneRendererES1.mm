@@ -302,6 +302,8 @@ public:
     glMatrixMode(GL_MODELVIEW);
 	[self setupView];
 	
+    lastDraw = 0;
+	
 	return YES;
 }
 

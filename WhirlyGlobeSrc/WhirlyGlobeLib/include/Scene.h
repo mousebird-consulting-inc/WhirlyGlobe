@@ -39,6 +39,7 @@ namespace WhirlyKit
 class Scene;
 class SubTexture;
 class ScreenSpaceGenerator;
+class ViewPlacementGenerator;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use by its ID
@@ -229,6 +230,9 @@ public:
     /// Get the screen space generator (be careful).
     ScreenSpaceGenerator *getScreenSpaceGenerator() { return ssGen; }
     
+    /// Get the UIView placement generator.  Only use it in the main thread.
+    ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
+    
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
     
@@ -280,6 +284,9 @@ public:
     
     /// Screen space generator created on startup
     ScreenSpaceGenerator *ssGen;
+    
+    /// UIView placement generator created on startup
+    ViewPlacementGenerator *vpGen;
 };
 	
 }

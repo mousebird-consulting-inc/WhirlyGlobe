@@ -74,4 +74,4 @@
 #import "SphericalEarthQuadLayer.h"
 #import "UpdateDisplayLayer.h"
 #import "GeometryLayer.h"
-
+#import "ViewPlacementGenerator.h"

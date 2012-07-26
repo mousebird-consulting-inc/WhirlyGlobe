@@ -23,6 +23,7 @@
 #import "GlobeMath.h"
 #import "TextureAtlas.h"
 #import "ScreenSpaceGenerator.h"
+#import "ViewPlacementGenerator.h"
 
 namespace WhirlyKit
 {
@@ -36,6 +37,9 @@ Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth
     ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
     generators.insert(ssGen);
+    // And put in a UIView placement generator for use in the main thread
+    vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
+    generators.insert(vpGen);
     
     pthread_mutex_init(&changeRequestLock,NULL);
 }
