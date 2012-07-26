@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 mousebird consulting. All rights reserved.
 //
 
+#import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
 
 // Simple representation of locations and name for testing
@@ -20,7 +21,7 @@ typedef struct
 static const int NumLocations = 30;
 LocationInfo locations[NumLocations] = 
 {
-    {"San Francisco",37.7793, -122.4192},
+    {"Kansas City",39.1, -94.58},
     {"Washington, DC",38.895111,-77.036667},
     {"Manila",14.583333,120.966667},
     {"Moscow",55.75, 37.616667},
@@ -37,7 +38,7 @@ LocationInfo locations[NumLocations] =
     {"Perth",-31.952222, 115.858889},
     {"Beijing",39.913889, 116.391667},
     {"New Delhi",28.613889, 77.208889},
-    {"Kansas City",39.1, -94.58},
+    {"San Francisco",37.7793, -122.4192},
     {"Pittsburgh",40.441667, -80},
     {"Freetown",8.484444, -13.234444},
     {"Windhoek",-22.57, 17.083611},
@@ -351,6 +352,35 @@ LocationInfo locations[NumLocations] =
 
 #pragma mark - Whirly Globe Delegate
 
+// Build a simple selection view to draw over top of the globe
+- (UIView *)makeSelectionView:(NSString *)msg
+{
+    float fontSize = 32.0;
+    float marginX = 32.0;
+    
+    // Make a label and stick it in as a view to track
+    // We put it in a top level view so we can center it
+    UIView *topView = [[UIView alloc] initWithFrame:CGRectZero];
+    topView.alpha = 0.8;
+    UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
+    [topView addSubview:backView];
+    topView.clipsToBounds = NO;
+    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    [backView addSubview:testLabel];
+    testLabel.font = [UIFont systemFontOfSize:fontSize];
+    testLabel.textColor = [UIColor whiteColor];
+    testLabel.backgroundColor = [UIColor clearColor];
+    testLabel.text = msg;
+    CGSize textSize = [testLabel.text sizeWithFont:testLabel.font];
+    testLabel.frame = CGRectMake(marginX/2.0,0,textSize.width,textSize.height);
+    testLabel.opaque = NO;
+    backView.layer.cornerRadius = 5.0;
+    backView.backgroundColor = [UIColor colorWithRed:0.0 green:102/255.0 blue:204/255.0 alpha:1.0];
+    backView.frame = CGRectMake(-(textSize.width)/2.0,-(textSize.height)/2.0,textSize.width+marginX,textSize.height);
+    
+    return topView;
+}
+
 // User selected something
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
 {
@@ -368,12 +398,12 @@ LocationInfo locations[NumLocations] =
     {
         WGMarker *marker = (WGMarker *)selectedObj;    
         loc = marker.loc;
-        msg = [NSString stringWithFormat:@"Marker: %d",marker.image];
+        msg = [NSString stringWithFormat:@"Marker: Unknown"];
     } else if ([selectedObj isKindOfClass:[WGScreenMarker class]])
     {
         WGScreenMarker *screenMarker = (WGScreenMarker *)selectedObj;        
         loc = screenMarker.loc;
-        msg = [NSString stringWithFormat:@"Screen Marker: %d",screenMarker.image];
+        msg = [NSString stringWithFormat:@"Screen Marker: Unknown"];
     } else if ([selectedObj isKindOfClass:[WGLabel class]])
     {
         WGLabel *label = (WGLabel *)selectedObj;        
@@ -387,17 +417,12 @@ LocationInfo locations[NumLocations] =
     } else
         // Don't know what it is
         return;
-    
-    // Make a label and stick it in as a view to track
-    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
-    testLabel.backgroundColor = [UIColor blueColor];
-    testLabel.text = msg;
+
+    // Build the selection view and hand it over to the globe to track
     selectedViewTrack = [[WGViewTracker alloc] init];
     selectedViewTrack.loc = loc;
-    selectedViewTrack.view = testLabel;
+    selectedViewTrack.view = [self makeSelectionView:msg];
     [globeViewC addViewTracker:selectedViewTrack];
-    
-//    NSLog(@"User selected: %@",[selectedObj description]);
 }
 
 // Bring up the config view when the user taps outside
