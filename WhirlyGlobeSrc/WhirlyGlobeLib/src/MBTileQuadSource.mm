@@ -74,7 +74,7 @@ using namespace WhirlyGlobe;
         sqlhelpers::StatementRead readStmt3(sqlDb,@"select value from metadata where name='maxzoom';");
         if (readStmt3.stepRow())
             maxZoom = [readStmt3.getString() intValue];
-        
+                
         // Note: We could load something and calculate this, but I don't want to slow us down here
         pixelsPerTile = 256;        
     }
@@ -154,7 +154,7 @@ using namespace WhirlyGlobe;
     
 //    if (!imageData)
 //        NSLog(@"Missing tile: (%d,%d,%d)",col,row,level);
-
+    
     // Tell the quad loader about the new tile data, whether its null or not
     [quadLoader dataSource:self loadedImage:imageData pvrtcSize:0 forLevel:level col:col row:row];
 }
