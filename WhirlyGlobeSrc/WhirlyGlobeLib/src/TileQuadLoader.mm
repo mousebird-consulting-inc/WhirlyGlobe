@@ -398,7 +398,8 @@ const int SphereTessX = 10, SphereTessY = 10;
         chunk->setDrawPriority(drawPriority);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
-        chunk->setLocalMbr(Mbr(chunkLL,chunkUR));
+//        chunk->setLocalMbr(Mbr(chunkLL,chunkUR));
+        chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         // Note: This is bogus, but it fixes a display bug
 //        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180, 90)));
         
