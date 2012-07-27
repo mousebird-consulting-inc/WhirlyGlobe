@@ -104,6 +104,10 @@ protected:
     /// Current projection matrix
     Eigen::Matrix4f projMat;
     
+    /// What's currently in the GL model matrix.
+    /// We combine view and model together, however
+    Eigen::Matrix4f viewAndModelMat;
+    
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     
@@ -121,6 +125,7 @@ protected:
 @property (nonatomic,weak) WhirlyKitView *theView;
 @property (nonatomic,assign) Eigen::Matrix4f modelTrans;
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
+@property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
