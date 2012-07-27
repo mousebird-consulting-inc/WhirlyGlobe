@@ -154,6 +154,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize theView;
 @synthesize modelTrans;
 @synthesize projMat;
+@synthesize viewAndModelMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
@@ -594,6 +595,9 @@ static const float ScreenOverlap = 0.1;
         Matrix4f projMat;
         glGetFloatv(GL_PROJECTION_MATRIX,projMat.data());
         frameInfo.projMat = projMat;
+        Matrix4f matrixAndViewMat;
+        glGetFloatv(GL_MODELVIEW_MATRIX,matrixAndViewMat.data());
+        frameInfo.viewAndModelMat = matrixAndViewMat;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
