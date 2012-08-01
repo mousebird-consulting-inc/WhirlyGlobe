@@ -317,8 +317,14 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 // Once loaded we can try the children
 - (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
+    // Note: Need to check that we still care about this load
+    
     if (tileIdent.level < maxZoom)
     {
+        // Make sure we still want this one
+        if (!quadtree->isTileLoaded(tileIdent))
+            return;
+        
         // Now try the children
         std::vector<Quadtree::NodeInfo> childNodes;
         quadtree->generateChildren(tileIdent, childNodes);
@@ -335,6 +341,41 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 - (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
     
+}
+
+// Clear out all the existing tiles and start over
+- (void)refresh
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(refresh) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    // Clean out anything we might be currently evaluating
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    nodesForEval.clear();
+
+    // Remove nodes until we run out
+    Quadtree::NodeInfo remNodeInfo;
+    [loader quadDisplayLayerStartUpdates:self];
+    while (quadtree->leastImportantNode(remNodeInfo,true))
+    {
+        
+        quadtree->removeTile(remNodeInfo.ident);
+        [loader quadDisplayLayer:self unloadTile:remNodeInfo];        
+    }
+    [loader quadDisplayLayerEndUpdates:self];
+
+    // Add everything at the minLevel back in
+    for (int ix=0;ix<1<<minZoom;ix++)
+        for (int iy=0;iy<1<<minZoom;iy++)
+        {
+            Quadtree::NodeInfo thisNode = quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
+            nodesForEval.insert(thisNode);
+        }
+
+    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
 #pragma mark - Quad Tree Importance Delegate

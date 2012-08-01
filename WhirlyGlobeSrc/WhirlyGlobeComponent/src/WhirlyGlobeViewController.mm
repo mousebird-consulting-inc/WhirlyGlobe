@@ -76,6 +76,9 @@ using namespace WhirlyGlobe;
     
     // Default description dictionaries for the various data types
     NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc;
+    
+    // Clear color we're using
+    UIColor *theClearColor;
 }
 
 @synthesize delegate;
@@ -121,6 +124,8 @@ using namespace WhirlyGlobe;
     animateRotation = nil;
     
     viewTrackers = nil;
+    
+    theClearColor = nil;
 }
 
 - (void) dealloc
@@ -134,6 +139,8 @@ using namespace WhirlyGlobe;
 	// Set up an OpenGL ES view and renderer
 	glView = [[WhirlyKitEAGLView alloc] init];
 	sceneRenderer = [[WhirlyKitSceneRendererES1 alloc] init];
+    theClearColor = [UIColor blackColor];
+    [sceneRenderer setClearColor:theClearColor];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
@@ -190,10 +197,11 @@ using namespace WhirlyGlobe;
 	sceneRenderer.theView = globeView;
 	
 	// Wire up the gesture recognizers
-	pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
 	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
 	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
-    rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
+    // These will activate the appropriate gesture
+    self.pinchGesture = true;
+    self.rotateGesture = true;
     
     viewTrackers = [NSMutableArray array];
 	
@@ -445,6 +453,8 @@ using namespace WhirlyGlobe;
     [interactLayer removeObject:theObj];
 }
 
+#pragma mark - Properties
+
 - (void)setKeepNorthUp:(bool)keepNorthUp
 {
     panDelegate.northUp = keepNorthUp;
@@ -453,6 +463,65 @@ using namespace WhirlyGlobe;
 - (bool)keepNorthUp
 {
     return panDelegate.northUp;
+}
+
+- (void)setPinchGesture:(bool)pinchGesture
+{
+    if (pinchGesture)
+    {
+        if (!pinchDelegate)
+            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
+    } else {
+        if (pinchDelegate)
+        {
+            UIPinchGestureRecognizer *pinchRecog = nil;
+            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+                if ([recog isKindOfClass:[UIPinchGestureRecognizer class]])
+                    pinchRecog = (UIPinchGestureRecognizer *)recog;
+            [glView removeGestureRecognizer:pinchRecog];
+            pinchDelegate = nil;
+        }
+    }
+}
+
+- (bool)pinchGesture
+{
+    return pinchDelegate != nil;
+}
+
+- (void)setRotateGesture:(bool)rotateGesture
+{
+    if (rotateGesture)
+    {
+        if (!rotateDelegate)
+            rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
+    } else {        
+        if (rotateDelegate)
+        {
+            UIRotationGestureRecognizer *rotRecog = nil;
+            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+                if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
+                    rotRecog = (UIRotationGestureRecognizer *)recog;
+            [glView removeGestureRecognizer:rotRecog];
+            rotateDelegate = nil;
+        }
+    }
+}
+
+- (bool)rotateGesture
+{
+    return rotateDelegate != nil;
+}
+
+- (UIColor *)clearColor
+{
+    return theClearColor;
+}
+
+- (void)setClearColor:(UIColor *)clearColor
+{
+    theClearColor = clearColor;
+    [sceneRenderer setClearColor:clearColor];
 }
 
 #pragma mark - Interaction

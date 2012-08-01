@@ -18,6 +18,8 @@
     IBOutlet UISwitch *northUpSwitch;
     IBOutlet UISwitch *zBufferSwitch;
     IBOutlet UISwitch *cullingSwitch;
+    IBOutlet UISwitch *pinchSwitch;
+    IBOutlet UISwitch *rotateSwitch;
 }
 
 @property (nonatomic,readonly) UISwitch *label2DSwitch;
@@ -27,5 +29,7 @@
 @property (nonatomic,readonly) UISwitch *northUpSwitch;
 @property (nonatomic,readonly) UISwitch *zBufferSwitch;
 @property (nonatomic,readonly) UISwitch *cullingSwitch;
+@property (nonatomic,readonly) UISwitch *pinchSwitch;
+@property (nonatomic,readonly) UISwitch *rotateSwitch;
 
 @end

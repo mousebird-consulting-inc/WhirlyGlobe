@@ -168,6 +168,9 @@ static const float DrawVisibleInvalid = 1e10;
 /// Maximum number of points we want in a drawable
 static const unsigned int MaxDrawablePoints = ((1<<16)-1);
     
+/// Maximum number of triangles we want in a drawable
+static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
+    
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
     may or may not be textured.
