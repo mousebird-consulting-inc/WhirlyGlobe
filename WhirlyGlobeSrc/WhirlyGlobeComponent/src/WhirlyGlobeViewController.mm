@@ -303,7 +303,7 @@ using namespace WhirlyGlobe;
 
 - (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
-    WGViewControllerLayer *newLayer = [[WGQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer mbTiles:name];
+    WGViewControllerLayer *newLayer = [[WGQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer mbTiles:name handleEdges:sceneRenderer.zBuffer];
     if (!newLayer)
         return nil;
     
@@ -314,7 +314,7 @@ using namespace WhirlyGlobe;
 
 - (WGViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
 {
-    WGQuadEarthWithRemoteTiles *newLayer = [[WGQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    WGQuadEarthWithRemoteTiles *newLayer = [[WGQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:sceneRenderer.zBuffer];
     if (!newLayer)
         return nil;
     newLayer.cacheDir = cacheDir;
