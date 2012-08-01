@@ -16,7 +16,7 @@
     WhirlyGlobeNetworkTileQuadSource *dataSource;
 }
 
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene renderer:(WhirlyKitSceneRendererES1 *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene renderer:(WhirlyKitSceneRendererES1 *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges
 {
     self = [super init];
     if (self)
@@ -27,6 +27,7 @@
         // Note: Should make this flextible
         dataSource.numSimultaneous = 8;
         tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:dataSource];
+        tileLoader.ignoreEdgeMatching = !edges;
         quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
         [layerThread addLayer:quadLayer];
     }

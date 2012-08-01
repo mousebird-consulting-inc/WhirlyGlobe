@@ -15,7 +15,7 @@
     WhirlyMBTileQuadSource *dataSource;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene renderer:(WhirlyKitSceneRendererES1 *)renderer mbTiles:(NSString *)mbName
+- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene renderer:(WhirlyKitSceneRendererES1 *)renderer mbTiles:(NSString *)mbName handleEdges:(bool)edges
 {
     self = [super init];
     if (self)
@@ -29,6 +29,7 @@
         dataSource = [[WhirlyMBTileQuadSource alloc] initWithPath:infoPath];
         tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:dataSource];
         quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
+        tileLoader.ignoreEdgeMatching = !edges;
         [layerThread addLayer:quadLayer];
     }
     

@@ -571,8 +571,6 @@ static const float ScreenOverlap = 0.1;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 	glEnable(GL_CULL_FACE);
-//    // Note: Debugging
-//    glDisable(GL_CULL_FACE);
         
     // Call the pre-frame callback
     if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])
