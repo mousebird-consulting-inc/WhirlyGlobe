@@ -269,7 +269,7 @@ void LoadedTile::Print(Quadtree *tree)
         color = RGBAColor(255,255,255,255);
         hasAlpha = false;
         numFetches = 0;
-        ignoreEdgeMatching = true;
+        ignoreEdgeMatching = false;
     }
     
     return self;
@@ -317,6 +317,8 @@ void LoadedTile::Print(Quadtree *tree)
     [self clear];
 }
 
+static const float SkirtFactor = 0.95;
+
 // Helper routine for constructing the skirt around a tile
 - (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords
 {
@@ -328,22 +330,22 @@ void LoadedTile::Print(Quadtree *tree)
         cornerTex[0] = texCoords[ii];
         corners[1] = pts[ii+1];
         cornerTex[1] = texCoords[ii+1];
-        corners[2] = pts[ii+1] * 0.9;
+        corners[2] = pts[ii+1] * SkirtFactor;
         cornerTex[2] = texCoords[ii+1];
-        corners[3] = pts[ii] * 0.9;
+        corners[3] = pts[ii] * SkirtFactor;
         cornerTex[3] = texCoords[ii];
 
         // Toss in the points, but point the normal up
+        int base = draw->getNumPoints();
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(corners[jj]);
-            draw->addNormal(pts[ii]);
-//            draw->addTexCoord(cornerTex[jj]);
-            draw->addTexCoord(texCoords[ii]);
+            draw->addNormal((pts[ii]+pts[ii+1])/2.0);
+            TexCoord texCoord = cornerTex[jj];
+            draw->addTexCoord(texCoord);
         }
         
         // Add two triangles
-        int base = draw->getNumPoints();
         draw->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
         draw->addTriangle(BasicDrawable::Triangle(base+1,base+3,base+2));
     }
@@ -507,47 +509,39 @@ void LoadedTile::Print(Quadtree *tree)
                 // Bottom skirt
                 std::vector<Point3f> skirtLocs;
                 std::vector<TexCoord> skirtTexCoords;
-                skirtLocs.push_back(locs[0]);
-                skirtTexCoords.push_back(texCoords[0]);
                 for (unsigned int ix=0;ix<=sphereTessX;ix++)
                 {
                     skirtLocs.push_back(locs[ix]);
                     skirtTexCoords.push_back(texCoords[ix]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
                 // Top skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
-                skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+sphereTessX]);
-                skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+sphereTessX]);
                 for (int ix=sphereTessX;ix>=0;ix--)
                 {
                     skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
                     skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
                 // Left skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
-                skirtLocs.push_back(locs[0]);
-                skirtTexCoords.push_back(texCoords[0]);
-                for (int iy=0;iy<=sphereTessY;iy++)
+                for (int iy=sphereTessY;iy>=0;iy--)
                 {
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
                 // right skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
-                skirtLocs.push_back(locs[(sphereTessX+1)*sphereTessY+(sphereTessX)]);
-                skirtTexCoords.push_back(texCoords[(sphereTessX+1)*sphereTessY+(sphereTessX)]);
-                for (int iy=sphereTessY;iy>=0;iy--)
+                for (int iy=0;iy<=sphereTessY;iy++)
                 {
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
             }
             
             if (tex && *tex)

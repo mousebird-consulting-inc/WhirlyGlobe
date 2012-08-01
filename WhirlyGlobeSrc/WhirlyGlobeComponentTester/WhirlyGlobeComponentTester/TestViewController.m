@@ -120,7 +120,7 @@ LocationInfo locations[NumLocations] =
     [self addChildViewController:globeViewC];
     
     // Set the background color for the globe
-    globeViewC.clearColor = [UIColor grayColor];
+    globeViewC.clearColor = [UIColor blackColor];
     
     // This will get us taps and such
     globeViewC.delegate = self;
