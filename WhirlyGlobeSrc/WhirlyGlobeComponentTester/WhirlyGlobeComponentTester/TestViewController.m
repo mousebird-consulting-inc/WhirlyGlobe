@@ -119,6 +119,9 @@ LocationInfo locations[NumLocations] =
     globeViewC.view.frame = self.view.bounds;
     [self addChildViewController:globeViewC];
     
+    // Set the background color for the globe
+    globeViewC.clearColor = [UIColor grayColor];
+    
     // This will get us taps and such
     globeViewC.delegate = self;
     
@@ -342,6 +345,8 @@ LocationInfo locations[NumLocations] =
     }    
     
     globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
+    globeViewC.pinchGesture = configViewC.pinchSwitch.on;
+    globeViewC.rotateGesture = configViewC.rotateSwitch.on;
     
     // Update rendering hints
     NSMutableDictionary *hintDict = [NSMutableDictionary dictionary];

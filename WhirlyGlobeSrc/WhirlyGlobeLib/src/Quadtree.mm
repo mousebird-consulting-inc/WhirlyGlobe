@@ -237,14 +237,14 @@ Mbr Quadtree::generateMbrForNode(Identifier ident)
     return outMbr;
 }
     
-bool Quadtree::leastImportantNode(NodeInfo &nodeInfo)
+bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance)
 {
     // Look for the first unimportant node without children
     for (NodesBySizeType::iterator it = nodesBySize.begin();
          it != nodesBySize.end(); ++it)
     {
         Node *node = *it;
-        if (node->nodeInfo.importance < minImportance && node->nodeInfo.ident.level > minLevel)
+        if (ignoreImportance || (node->nodeInfo.importance < minImportance && node->nodeInfo.ident.level > minLevel))
         {
             unsigned int ii;
             for (ii=0;ii<4;ii++)

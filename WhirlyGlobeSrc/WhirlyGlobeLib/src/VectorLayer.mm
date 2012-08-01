@@ -42,6 +42,7 @@ using namespace WhirlyKit;
     float                       minVis,maxVis;
     float                       fade;
     float                       lineWidth;
+    BOOL                        filled;
     NSString                    *cacheName;
 }
 
@@ -97,6 +98,7 @@ using namespace WhirlyKit;
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     fade = [dict floatForKey:@"fade" default:0.0];
     lineWidth = [dict floatForKey:@"width" default:1.0];
+    filled = [dict boolForKey:@"filled" default:false];
 }
 
 @end
@@ -225,6 +227,100 @@ protected:
     GLenum primType;
 };
 
+/* Drawable Builder (Triangle version)
+ Used to construct drawables with multiple shapes in them.
+ Eventually, we'll move this out to be a more generic object.
+ */
+class DrawableBuilderTri
+{
+public:
+    DrawableBuilderTri(Scene *scene,VectorSceneRep *sceneRep,
+                       VectorInfo *vecInfo)
+    : scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
+    {
+    }
+    
+    ~DrawableBuilderTri()
+    {
+        flush();
+    }
+    
+    void addPoints(VectorRing &pts)
+    {          
+        if (pts.size() < 3)
+            return;
+        
+        // Decide if we'll appending to an existing drawable or
+        //  create a new one
+        int ptCount = pts.size();
+        int triCount = pts.size()-2;
+        if (!drawable || 
+            (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
+            (drawable->getNumTris()+triCount > MaxDrawableTriangles))
+        {
+            // We're done with it, toss it to the scene
+            if (drawable)
+                flush();
+            
+            drawable = new BasicDrawable();
+            drawMbr.reset();
+            drawable->setType(GL_TRIANGLES);
+            // Adjust according to the vector info
+            drawable->setOnOff(vecInfo->enable);
+            drawable->setDrawOffset(vecInfo->drawOffset);
+            drawable->setColor([vecInfo.color asRGBAColor]);
+            drawable->setDrawPriority(vecInfo->priority);
+            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+        }
+        drawMbr.addPoints(pts);
+        
+        // Add the points
+        for (unsigned int jj=0;jj<pts.size();jj++)
+        {
+            // Convert to real world coordinates and offset from the globe
+            Point2f &geoPt = pts[jj];
+            GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
+            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
+            Point3f pt = norm;
+            
+            drawable->addPoint(pt);
+            drawable->addNormal(norm);
+        }
+        
+        // Add the triangles
+        for (unsigned int jj=2;jj<pts.size();jj++)
+            drawable->addTriangle(BasicDrawable::Triangle(0,jj,jj-1));
+    }
+    
+    void flush()
+    {
+        if (drawable)
+        {            
+            if (drawable->getNumPoints() > 0)
+            {
+                drawable->setLocalMbr(drawMbr);
+                sceneRep->drawIDs.insert(drawable->getId());
+                
+                if (vecInfo.fade > 0.0)
+                {
+                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+                    drawable->setFade(curTime,curTime+vecInfo.fade);
+                }
+                scene->addChangeRequest(new AddDrawableReq(drawable));
+            } else
+                delete drawable;
+            drawable = NULL;
+        }
+    }
+    
+protected:   
+    Scene *scene;
+    VectorSceneRep *sceneRep;
+    Mbr drawMbr;
+    BasicDrawable *drawable;
+    VectorInfo *vecInfo;
+};
+    
 }
 
 @implementation WhirlyKitVectorLayer
@@ -292,6 +388,7 @@ protected:
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     DrawableBuilder drawBuild(scene,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
+    DrawableBuilderTri drawBuildTri(scene,sceneRep,vecInfo);
     
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
@@ -299,29 +396,42 @@ protected:
         VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);        
         if (theAreal.get())
         {
-            // Work through the loops
-            for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+            if (vecInfo->filled)
             {
-                VectorRing &ring = theAreal->loops[ri];					
+                // Triangulate the outside
+                drawBuildTri.addPoints(theAreal->loops[0]);
+            } else {
+                // Work through the loops
+                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+                {
+                    VectorRing &ring = theAreal->loops[ri];					
 
-                drawBuild.addPoints(ring,true);
+                    drawBuild.addPoints(ring,true);
+                }
             }
         } else {
             VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
-            if (theLinear.get())
+            if (vecInfo->filled)
             {
-                drawBuild.addPoints(theLinear->pts,false);
+                // Triangulate the outside
+                drawBuildTri.addPoints(theLinear->pts);
             } else {
-                VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
-                if (thePoints.get())
+                if (theLinear.get())
                 {
-                    drawBuild.addPoints(thePoints->pts,false);
+                    drawBuild.addPoints(theLinear->pts,false);
+                } else {
+                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                    if (thePoints.get())
+                    {
+                        drawBuild.addPoints(thePoints->pts,false);
+                    }
                 }
             }
         }
     }    
     
     drawBuild.flush();
+    drawBuildTri.flush();
     if (renderCacheWriter)
         delete renderCacheWriter;
 }

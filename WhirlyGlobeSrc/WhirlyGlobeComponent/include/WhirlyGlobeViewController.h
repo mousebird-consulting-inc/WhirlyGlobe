@@ -112,11 +112,23 @@
 /// Off by default.
 @property(nonatomic,assign) bool keepNorthUp;
 
+/// Set this to trun on/off the pinch (zoom) gesture recognizer
+/// On by default
+@property(nonatomic,assign) bool pinchGesture;
+
+/// Set this to turn on or off the rotation gesture recognizer.
+/// On by default.
+@property(nonatomic,assign) bool rotateGesture;
+
 /// Set this to get callbacks for various events.
 @property(nonatomic,strong) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
 /// Set selection support on or off here
 @property(nonatomic,assign) bool selection;
+
+/// Set the globe view's background color.
+/// Black, by default.
+@property (nonatomic,strong) UIColor *clearColor;
 
 /// Add rendering and other general hints for the globe view controller.
 - (void)setHints:(NSDictionary *)hintsDict;

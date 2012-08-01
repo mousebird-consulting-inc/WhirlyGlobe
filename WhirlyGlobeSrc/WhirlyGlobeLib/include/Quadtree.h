@@ -120,7 +120,7 @@ public:
     
     /// Fetch the least important (smallest) node currently loaded.
     /// Returns false if there wasn't one
-    bool leastImportantNode(NodeInfo &nodeInfo);
+    bool leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance=false);
 
     /// Return a vector of all nodes less than the given importance without children
     void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);

@@ -50,6 +50,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     BOOL            enable;
     UIColor         *color;
     float           fade;
+    int             drawPriority;
 }
 
 - (void)parseDict:(NSDictionary *)dict;
@@ -85,6 +86,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     enable = [dict boolForKey:@"enable" default:YES];
     color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     fade = [dict floatForKey:@"fade" default:0.0];
+    drawPriority = [dict intForKey:@"drawPriority" default:0];
 }
 
 @end
@@ -138,6 +140,23 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     }
     
     return true;
+}
+
+- (void)applyTransform:(Matrix4f &)mat
+{
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point3f &pt = pts[ii];
+        Vector4f outPt = mat * Eigen::Vector4f(pt.x(),pt.y(),pt.z(),1.0);
+        pt = Point3f(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
+    }
+    
+    for (unsigned int ii=0;ii<norms.size();ii++)
+    {
+        Point3f &norm = norms[ii];
+        Vector4f projNorm = mat * Eigen::Vector4f(norm.x(),norm.y(),norm.z(),0.0);
+        norm = Point3f(projNorm.x(),projNorm.y(),projNorm.z());
+    }
 }
 
 - (BasicDrawable *)buildDrawable
@@ -217,16 +236,25 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 - (void)runAddGeometry:(GeomInfo *)geomInfo
 {
     std::vector<ChangeRequest *> changeRequests;
+    GeomSceneRepRef geomRep(new GeomSceneRep());
+    geomRep->setId(geomInfo->sceneRepId);
     
     // Work through the array of geometry, building as we go
     for (WhirlyGlobeGeometry *geom in geomInfo->geom)
     {
         BasicDrawable *draw = [geom buildDrawable];
         if (draw)
+        {
+            draw->setDrawPriority(geomInfo->drawPriority);
+//            draw->setAlpha(true);
             changeRequests.push_back(new AddDrawableReq(draw));
+            geomRep->drawIDs.insert(draw->getId());
+        }
     }
     
     scene->addChangeRequests(changeRequests);
+    
+    geomReps.insert(geomRep);
 }
 
 // Remove the representation
