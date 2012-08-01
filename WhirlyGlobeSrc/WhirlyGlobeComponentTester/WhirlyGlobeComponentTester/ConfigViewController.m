@@ -21,6 +21,8 @@
 @synthesize northUpSwitch;
 @synthesize zBufferSwitch;
 @synthesize cullingSwitch;
+@synthesize pinchSwitch;
+@synthesize rotateSwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

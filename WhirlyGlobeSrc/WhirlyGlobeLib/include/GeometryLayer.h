@@ -92,6 +92,9 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 // Runs a consistency check
 - (bool)isValid;
 
+/// Apply the given tranformation matrix to the geometry (and normals)
+- (void)applyTransform:(Matrix4f &)mat;
+
 @end
 
 /** The Geometry Layer manages the display of simple geometric objects,

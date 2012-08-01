@@ -154,11 +154,11 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize theView;
 @synthesize modelTrans;
 @synthesize projMat;
-@synthesize viewAndModelMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
 @synthesize eyeVec;
+@synthesize viewAndModelMat;
 
 @end
 

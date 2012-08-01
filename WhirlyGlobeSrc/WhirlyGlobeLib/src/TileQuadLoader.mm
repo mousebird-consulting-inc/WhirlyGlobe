@@ -29,6 +29,10 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface WhirlyGlobeQuadTileLoader()
+{
+    int sphereTessX,sphereTessY;
+}
+
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKit::Scene *)scene;
@@ -252,6 +256,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize color;
 @synthesize hasAlpha;
 @synthesize quadLayer;
+@synthesize ignoreEdgeMatching;
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)inDataSource;
 {
@@ -264,6 +269,7 @@ void LoadedTile::Print(Quadtree *tree)
         color = RGBAColor(255,255,255,255);
         hasAlpha = false;
         numFetches = 0;
+        ignoreEdgeMatching = true;
     }
     
     return self;
@@ -289,6 +295,7 @@ void LoadedTile::Print(Quadtree *tree)
 - (void)setQuadLayer:(WhirlyGlobeQuadDisplayLayer *)layer
 {
     quadLayer = layer;
+    sphereTessX = sphereTessY = 10;
 }
 
 - (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
@@ -310,8 +317,37 @@ void LoadedTile::Print(Quadtree *tree)
     [self clear];
 }
 
-// Tesselation for each chunk of the sphere
-const int SphereTessX = 10, SphereTessY = 10;
+// Helper routine for constructing the skirt around a tile
+- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords
+{
+    for (unsigned int ii=0;ii<pts.size()-1;ii++)
+    {
+        Point3f corners[4];
+        TexCoord cornerTex[4];
+        corners[0] = pts[ii];
+        cornerTex[0] = texCoords[ii];
+        corners[1] = pts[ii+1];
+        cornerTex[1] = texCoords[ii+1];
+        corners[2] = pts[ii+1] * 0.9;
+        cornerTex[2] = texCoords[ii+1];
+        corners[3] = pts[ii] * 0.9;
+        cornerTex[3] = texCoords[ii];
+
+        // Toss in the points, but point the normal up
+        for (unsigned int jj=0;jj<4;jj++)
+        {
+            draw->addPoint(corners[jj]);
+            draw->addNormal(pts[ii]);
+//            draw->addTexCoord(cornerTex[jj]);
+            draw->addTexCoord(texCoords[ii]);
+        }
+        
+        // Add two triangles
+        int base = draw->getNumPoints();
+        draw->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
+        draw->addTriangle(BasicDrawable::Triangle(base+1,base+3,base+2));
+    }
+}
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
 {
@@ -344,14 +380,14 @@ const int SphereTessX = 10, SphereTessY = 10;
     Point2f chunkSize = theMbr.ur() - theMbr.ll();
     
     // Unit size of each tesselation in spherical mercator
-    Point2f incr(chunkSize.x()/SphereTessX,chunkSize.y()/SphereTessY);
+    Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
     // Texture increment for each tesselation
-    TexCoord texIncr(1.0/(float)SphereTessX,1.0/(float)SphereTessY);
+    TexCoord texIncr(1.0/(float)sphereTessX,1.0/(float)sphereTessY);
     
 	// We're viewing this as a parameterization from ([0->1.0],[0->1.0]) so we'll
 	//  break up these coordinates accordingly
-    Point2f paramSize(1.0/(xDim*SphereTessX),1.0/(yDim*SphereTessY));
+    Point2f paramSize(1.0/(xDim*sphereTessX),1.0/(yDim*sphereTessY));
     
     // We need the corners in geographic for the cullable
     Point2f chunkLL = theMbr.ll();
@@ -393,15 +429,12 @@ const int SphereTessX = 10, SphereTessY = 10;
     if (draw)
     {
         // We'll set up and fill in the drawable
-        BasicDrawable *chunk = new BasicDrawable((SphereTessX+1)*(SphereTessY+1),2*SphereTessX*SphereTessY);
+        BasicDrawable *chunk = new BasicDrawable((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
         chunk->setDrawOffset(drawOffset);
         chunk->setDrawPriority(drawPriority);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
-//        chunk->setLocalMbr(Mbr(chunkLL,chunkUR));
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
-        // Note: This is bogus, but it fixes a display bug
-//        chunk->setGeoMbr(GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180, 90)));
         
         // We're in line mode or the texture didn't load
         if (buildLines || (tex && !(*tex)))
@@ -409,8 +442,8 @@ const int SphereTessX = 10, SphereTessY = 10;
             chunk->setType(GL_LINES);
             
             // Two lines per cell
-            for (unsigned int iy=0;iy<SphereTessY;iy++)
-                for (unsigned int ix=0;ix<SphereTessX;ix++)
+            for (unsigned int iy=0;iy<sphereTessY;iy++)
+                for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
                     Point3f org3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
                     Point3f ptA_3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
@@ -435,13 +468,17 @@ const int SphereTessX = 10, SphereTessY = 10;
         } else {
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
-            for (unsigned int iy=0;iy<SphereTessY+1;iy++)
-                for (unsigned int ix=0;ix<SphereTessX+1;ix++)
+            std::vector<Point3f> locs((sphereTessX+1)*(sphereTessY+1));
+            std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
+            for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+                for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
                     Point3f loc3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
+                    locs[iy*(sphereTessX+1)+ix] = loc3D;
                     
                     // Do the texture coordinate seperately
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
+                    texCoords[iy*(sphereTessX+1)+ix] = texCoord;
                     
                     chunk->addPoint(loc3D);
                     chunk->addTexCoord(texCoord);
@@ -449,20 +486,68 @@ const int SphereTessX = 10, SphereTessY = 10;
                 }
             
             // Two triangles per cell
-            for (unsigned int iy=0;iy<SphereTessY;iy++)
+            for (unsigned int iy=0;iy<sphereTessY;iy++)
             {
-                for (unsigned int ix=0;ix<SphereTessX;ix++)
+                for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
                     BasicDrawable::Triangle triA,triB;
-                    triA.verts[0] = iy*(SphereTessX+1)+ix;
-                    triA.verts[1] = iy*(SphereTessX+1)+(ix+1);
-                    triA.verts[2] = (iy+1)*(SphereTessX+1)+(ix+1);
+                    triA.verts[0] = iy*(sphereTessX+1)+ix;
+                    triA.verts[1] = iy*(sphereTessX+1)+(ix+1);
+                    triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
                     triB.verts[0] = triA.verts[0];
                     triB.verts[1] = triA.verts[2];
-                    triB.verts[2] = (iy+1)*(SphereTessX+1)+ix;
+                    triB.verts[2] = (iy+1)*(sphereTessX+1)+ix;
                     chunk->addTriangle(triA);
                     chunk->addTriangle(triB);
                 }
+            }
+            
+            if (!ignoreEdgeMatching)
+            {
+                // Bottom skirt
+                std::vector<Point3f> skirtLocs;
+                std::vector<TexCoord> skirtTexCoords;
+                skirtLocs.push_back(locs[0]);
+                skirtTexCoords.push_back(texCoords[0]);
+                for (unsigned int ix=0;ix<=sphereTessX;ix++)
+                {
+                    skirtLocs.push_back(locs[ix]);
+                    skirtTexCoords.push_back(texCoords[ix]);
+                }
+                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                // Top skirt
+                skirtLocs.clear();
+                skirtTexCoords.clear();
+                skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+sphereTessX]);
+                skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+sphereTessX]);
+                for (int ix=sphereTessX;ix>=0;ix--)
+                {
+                    skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
+                    skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
+                }
+                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                // Left skirt
+                skirtLocs.clear();
+                skirtTexCoords.clear();
+                skirtLocs.push_back(locs[0]);
+                skirtTexCoords.push_back(texCoords[0]);
+                for (int iy=0;iy<=sphereTessY;iy++)
+                {
+                    skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
+                    skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
+                }
+                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
+                // right skirt
+                skirtLocs.clear();
+                skirtTexCoords.clear();
+                skirtLocs.push_back(locs[(sphereTessX+1)*sphereTessY+(sphereTessX)]);
+                skirtTexCoords.push_back(texCoords[(sphereTessX+1)*sphereTessY+(sphereTessX)]);
+                for (int iy=sphereTessY;iy>=0;iy--)
+                {
+                    skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
+                    skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
+                }
+                [self buildSkirt:chunk pts:skirtLocs tex:texCoords];
             }
             
             if (tex && *tex)

@@ -199,5 +199,8 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 /// Must be called in the layer thread.
 - (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
 
+/// Call this to force a reload for all existing tiles
+- (void)refresh;
+
 @end
 

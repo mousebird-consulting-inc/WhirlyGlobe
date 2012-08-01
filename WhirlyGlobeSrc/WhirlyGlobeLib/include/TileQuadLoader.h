@@ -145,6 +145,10 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     
     /// How many fetches we have going at the moment
     int numFetches;
+    
+    /// If set, we'll ignore edge matching.
+    /// This can work if you're zoomed in close
+    bool ignoreEdgeMatching;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -152,6 +156,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 @property (nonatomic,assign) bool hasAlpha;
 @property (nonatomic,weak) WhirlyGlobeQuadDisplayLayer *quadLayer;
+@property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
