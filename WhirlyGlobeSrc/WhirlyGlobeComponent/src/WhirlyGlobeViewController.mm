@@ -240,6 +240,14 @@ using namespace WhirlyGlobe;
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
+    NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,                                   
+                                   [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,                                   
+                                   // Note: Turned off because of fade issues
+//                                   [NSNumber numberWithFloat:1.0], kWGFade, 
+                                   nil];
+    [self setVectorDesc:newVectorDesc];
+    
     selection = true;
 }
 
@@ -382,6 +390,11 @@ using namespace WhirlyGlobe;
     labelDesc = [self mergeAndCheck:labelDesc changeDict:desc];    
 }
 
+- (void)setVectorDesc:(NSDictionary *)desc
+{
+    vectorDesc = [self mergeAndCheck:vectorDesc changeDict:desc];
+}
+
 #pragma mark - Geometry related methods
 
 /// Add a group of screen (2D) markers
@@ -406,6 +419,12 @@ using namespace WhirlyGlobe;
 - (WGComponentObject *)addLabels:(NSArray *)labels
 {
     return [interactLayer addLabels:labels desc:labelDesc];
+}
+
+/// Add one or more vectors
+- (WGComponentObject *)addVectors:(NSArray *)vectors
+{
+    return [interactLayer addVectors:vectors desc:vectorDesc];
 }
 
 /// Add a view to track to a particular location
@@ -451,6 +470,11 @@ using namespace WhirlyGlobe;
 - (void)removeObject:(WGComponentObject *)theObj
 {
     [interactLayer removeObject:theObj];
+}
+
+- (void)removeObjects:(NSArray *)theObjs
+{
+    [interactLayer removeObjects:theObjs];
 }
 
 #pragma mark - Properties

@@ -23,6 +23,7 @@
 @synthesize cullingSwitch;
 @synthesize pinchSwitch;
 @synthesize rotateSwitch;
+@synthesize countrySwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
