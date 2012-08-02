@@ -23,6 +23,7 @@
 #import "WGMarker.h"
 #import "WGScreenLabel.h"
 #import "WGLabel.h"
+#import "WGVectorObject_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -135,7 +136,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];    
+    NSArray *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];    
     [self performSelector:@selector(addScreenMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -182,7 +183,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];
+    NSArray *argArray = [NSArray arrayWithObjects:markers, compObj, desc, nil];
     [self performSelector:@selector(addMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -236,7 +237,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
+    NSArray *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
     [self performSelector:@selector(addScreenLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -287,37 +288,77 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSDictionary *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
+    NSArray *argArray = [NSArray arrayWithObjects:labels, compObj, desc, nil];    
     [self performSelector:@selector(addLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
 }
 
+// Actually add the vectors.
+// Called in the layer thread.
+- (void)addVectorsLayerThread:(NSArray *)argArray
+{
+    NSArray *vectors = [argArray objectAtIndex:0];
+    WGComponentObject *compObj = [argArray objectAtIndex:1];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];    
+    
+    ShapeSet shapes;
+    for (WGVectorObject *vecObj in vectors)
+    {
+        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    }
+    
+    SimpleIdentity vecID = [vectorLayer addVectors:&shapes desc:inDesc];
+    compObj.vectorIDs.insert(vecID);
+    
+    [userObjects addObject:compObj];
+}
+
+// Add vectors
+- (WGComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+    
+    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, desc, nil];
+    [self performSelector:@selector(addVectorsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
 // Remove the object, but do it on the layer thread
-- (void)removeObjectLayerThread:(WGComponentObject *)userObj
+- (void)removeObjectLayerThread:(NSArray *)userObjs
 {
     // First, let's make sure we're representing it
-    if ([userObjects containsObject:userObj])
+    for (WGComponentObject *userObj in userObjs)
     {
-        // Get rid of the various layer objects
-        for (SimpleIDSet::iterator it = userObj.markerIDs.begin();
-             it != userObj.markerIDs.end(); ++it)
-            [markerLayer removeMarkers:*it];
-        for (SimpleIDSet::iterator it = userObj.labelIDs.begin();
-             it != userObj.labelIDs.end(); ++it)
-            [labelLayer removeLabel:*it];
-        for (SimpleIDSet::iterator it = userObj.vectorIDs.begin();
-             it != userObj.vectorIDs.end(); ++it)
-            [vectorLayer removeVector:*it];
-        
-        [userObjects removeObject:userObj];
-    }    
+        if ([userObjects containsObject:userObj])
+        {
+            // Get rid of the various layer objects
+            for (SimpleIDSet::iterator it = userObj.markerIDs.begin();
+                 it != userObj.markerIDs.end(); ++it)
+                [markerLayer removeMarkers:*it];
+            for (SimpleIDSet::iterator it = userObj.labelIDs.begin();
+                 it != userObj.labelIDs.end(); ++it)
+                [labelLayer removeLabel:*it];
+            for (SimpleIDSet::iterator it = userObj.vectorIDs.begin();
+                 it != userObj.vectorIDs.end(); ++it)
+                [vectorLayer removeVector:*it];
+            
+            [userObjects removeObject:userObj];
+        }    
+    }
 }
 
 // Remove data associated with a user object
 - (void)removeObject:(WGComponentObject *)userObj
 {
-    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObj waitUntilDone:NO];
+    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:[NSArray arrayWithObject:userObj] waitUntilDone:NO];
+}
+
+// Remove a group of objects at once
+- (void)removeObjects:(NSArray *)userObjs
+{
+    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
 }
 
 // Do the logic for a selection

@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import <WGCoordinate.h>
 #import <WGScreenMarker.h>
+#import <WGVectorObject.h>
 #import <WGViewTracker.h>
 
 @class WGViewControllerLayer;
@@ -50,6 +51,10 @@
 #define kWGMarkerDrawOffsetDefault 1
 #define kWGMarkerDrawPriorityDefault 1
 
+/// Default draw offset for vectors.
+#define kWGVectorDrawOffsetDefault 3
+#define kWGVectorDrawPriorityDefault 3
+
 /// These are used just for the screen and regular labels
 
 /// Color of the text being rendered.  Takes a UIColor.
@@ -76,6 +81,9 @@
 /// Color is used for the polygon generated for a marker.  It will combine with the image,
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor
 #define kWGColor @"color"
+
+/// Width is used by the vector layer for line widths
+#define kWGVecWidth @"width"
 
 
 /** Fill in this protocol to get callbed when the user taps on or near an object for
@@ -172,6 +180,12 @@
 /// Add a group of 3D labels
 - (WGComponentObject *)addLabels:(NSArray *)labels;
 
+/// Add visual defaults for the vectors
+- (void)setVectorDesc:(NSDictionary *)desc;
+
+/// Add one or more vectors
+- (WGComponentObject *)addVectors:(NSArray *)vectors;
+
 /// Add a view to track to a particular location
 - (void)addViewTracker:(WGViewTracker *)viewTrack;
 
@@ -180,5 +194,8 @@
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj;
+
+/// Remove an array of data objects
+- (void)removeObjects:(NSArray *)theObjs;
 
 @end
