@@ -59,19 +59,14 @@ LocationInfo locations[NumLocations] =
 {
     // The configuration view comes up when the user taps outside the globe
     ConfigViewController *configViewC;
-    
-    // These are default visual descriptions for the various data types
-    NSDictionary *screenMarkerDesc;
-    NSDictionary *markerDesc;
-    NSDictionary *screenLabelDesc;
-    NSDictionary *labelDesc;
-    
+        
     // These represent a group of objects we've added to the globe.
     // This is how we track them for removal
     WGComponentObject *screenMarkersObj;
     WGComponentObject *markersObj;
     WGComponentObject *screenLabelsObj;
     WGComponentObject *labelsObj;
+    NSArray *vecObjects;
     
     // The view we're using to track a selected object
     WGViewTracker *selectedViewTrack;
@@ -136,6 +131,9 @@ LocationInfo locations[NumLocations] =
     UIColor *screenLabelBackColor = [UIColor clearColor];
     UIColor *labelColor = [UIColor whiteColor];
     UIColor *labelBackColor = [UIColor clearColor];
+    // And for the vectors to stand out
+    UIColor *vecColor = [UIColor whiteColor];
+    float vecWidth = 1.0;
 
     // Set up the base layer
     switch (startupLayer)
@@ -151,6 +149,8 @@ LocationInfo locations[NumLocations] =
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
             break;
         case StamenWatercolorRemote:
         {
@@ -164,6 +164,8 @@ LocationInfo locations[NumLocations] =
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
         }
             break;
         case OpenStreetmapRemote:
@@ -177,6 +179,8 @@ LocationInfo locations[NumLocations] =
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
         }
             break;
         default:
@@ -184,16 +188,21 @@ LocationInfo locations[NumLocations] =
     }
     
     // Set up some defaults for display
-    screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
+    NSDictionary *screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
                        screenLabelColor,kWGTextColor,
                        screenLabelBackColor,kWGBackgroundColor,
                        nil];
     [globeViewC setScreenLabelDesc:screenLabelDesc];
-    labelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
+    NSDictionary *labelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
                  labelColor,kWGTextColor,
                  labelBackColor,kWGBackgroundColor,
                  nil];
     [globeViewC setLabelDesc:labelDesc];
+    NSDictionary *vectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                vecColor,kWGColor,
+                                [NSNumber numberWithFloat:vecWidth],kWGVecWidth,
+                                nil];
+    [globeViewC setVectorDesc:vectorDesc];
     
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeGlobeContents) withObject:nil afterDelay:0.0];
@@ -293,6 +302,45 @@ LocationInfo locations[NumLocations] =
     labelsObj = [globeViewC addLabels:labels];        
 }
 
+// Add country outlines.  Pass in the names of the geoJSON files
+- (void)addCountries:(NSArray *)names stride:(int)stride
+{
+    // Parsing the JSON can take a while, so let's hand that over to another queue
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), 
+         ^{
+             NSMutableArray *locVecObjects = [NSMutableArray array];
+             
+             int ii = 0;
+             for (NSString *name in names)
+             {
+                 if (ii % stride == 0)
+                 {
+                     NSString *fileName = [[NSBundle mainBundle] pathForResource:name ofType:@"geojson"];
+                     if (fileName)
+                     {
+                         NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
+                         if (jsonData)
+                         {
+                             WGVectorObject *wgVecObj = [WGVectorObject VectorObjectFromGeoJSON:jsonData];
+                             WGComponentObject *compObj = [globeViewC addVectors:[NSArray arrayWithObject:wgVecObj]];
+                             if (compObj)
+                                 [locVecObjects addObject:compObj];
+                         }
+                     }
+                 }
+                 ii++;
+
+                 // Keep track of the created objects
+                 // Note: You could lose track of the objects if you turn the countries on/off quickly
+                 dispatch_async(dispatch_get_main_queue(),
+                                ^{
+                                    vecObjects = locVecObjects;
+                                });
+             }
+         }
+    );
+}
+
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeGlobeContents
 {
@@ -343,6 +391,37 @@ LocationInfo locations[NumLocations] =
             markersObj = nil;
         }
     }    
+    
+    if (configViewC.countrySwitch.on)
+    {
+        // Countries we have geoJSON for
+        NSArray *countryArray = [NSArray arrayWithObjects:
+         @"ABW", @"AFG", @"AGO", @"AIA", @"ALA", @"ALB", @"AND", @"ARE", @"ARG", @"ARM", @"ASM", @"ATA", @"ATF", @"ATG", @"AUS", @"AUT",
+         @"AZE", @"BDI", @"BEL", @"BEN", @"BES", @"BFA", @"BGD", @"BGR", @"BHR", @"BHS", @"BIH", @"BLM", @"BLR", @"BLZ", @"BMU", @"BOL",
+         @"BRA", @"BRB", @"BRN", @"BTN", @"BVT", @"BWA", @"CAF", @"CAN", @"CCK", @"CHE", @"CHL", @"CHN", @"CIV", @"CMR", @"COD", @"COG",
+         @"COK", @"COL", @"COM", @"CPV", @"CRI", @"CUB", @"CUW", @"CXR", @"CYM", @"CYP", @"CZE", @"DEU", @"DJI", @"DMA", @"DNK", @"DOM",
+         @"DZA", @"ECU", @"EGY", @"ERI", @"ESH", @"ESP", @"EST", @"ETH", @"FIN", @"FJI", @"FLK", @"FRA", @"FRO", @"FSM", @"GAB", @"GBR",
+         @"GEO", @"GGY", @"GHA", @"GIB", @"GIN", @"GLP", @"GMB", @"GNB", @"GNQ", @"GRC", @"GRD", @"GRL", @"GTM", @"GUF", @"GUM", @"GUY",
+         @"HKG", @"HMD", @"HND", @"HRV", @"HTI", @"HUN", @"IDN", @"IMN", @"IND", @"IOT", @"IRL", @"IRN", @"IRQ", @"ISL", @"ISR", @"ITA",
+         @"JAM", @"JEY", @"JOR", @"JPN", @"KAZ", @"KEN", @"KGZ", @"KHM", @"KIR", @"KNA", @"KOR", @"KWT", @"LAO", @"LBN", @"LBR", @"LBY",
+         @"LCA", @"LIE", @"LKA", @"LSO", @"LTU", @"LUX", @"LVA", @"MAC", @"MAF", @"MAR", @"MCO", @"MDA", @"MDG", @"MDV", @"MEX", @"MHL",
+         @"MKD", @"MLI", @"MLT", @"MMR", @"MNE", @"MNG", @"MNP", @"MOZ", @"MRT", @"MSR", @"MTQ", @"MUS", @"MWI", @"MYS", @"MYT", @"NAM",
+         @"NCL", @"NER", @"NFK", @"NGA", @"NIC", @"NIU", @"NLD", @"NOR", @"NPL", @"NRU", @"NZL", @"OMN", @"PAK", @"PAN", @"PCN", @"PER",
+         @"PHL", @"PLW", @"PNG", @"POL", @"PRI", @"PRK", @"PRT", @"PRY", @"PSE", @"PYF", @"QAT", @"REU", @"ROU", @"RUS", @"RWA", @"SAU",
+         @"SDN", @"SEN", @"SGP", @"SGS", @"SHN", @"SJM", @"SLB", @"SLE", @"SLV", @"SMR", @"SOM", @"SPM", @"SRB", @"SSD", @"STP", @"SUR",
+         @"SVK", @"SVN", @"SWE", @"SWZ", @"SXM", @"SYC", @"SYR", @"TCA", @"TCD", @"TGO", @"THA", @"TJK", @"TKL", @"TKM", @"TLS", @"TON",
+         @"TTO", @"TUN", @"TUR", @"TUV", @"TWN", @"TZA", @"UGA", @"UKR", @"UMI", @"URY", @"USA", @"UZB", @"VAT", @"VCT", @"VEN", @"VGB",
+         @"VIR", @"VNM", @"VUT", @"WLF", @"WSM", @"YEM", @"ZAF", @"ZMB", @"ZWE", nil];
+        
+        if (!vecObjects)
+            [self addCountries:countryArray stride:1];
+    } else {
+        if (vecObjects)
+        {
+            [globeViewC removeObjects:vecObjects];
+            vecObjects = nil;
+        }
+    }
     
     globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
     globeViewC.pinchGesture = configViewC.pinchSwitch.on;

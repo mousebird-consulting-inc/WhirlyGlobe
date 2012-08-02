@@ -38,6 +38,9 @@
 		2BB9E01F15BF9EF200F1DDD8 /* WGLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01C15BF9EF200F1DDD8 /* WGLabel.m */; };
 		2BB9E02015BF9EF200F1DDD8 /* WGMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */; };
 		2BB9E02115BF9EF200F1DDD8 /* WGScreenLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01E15BF9EF200F1DDD8 /* WGScreenLabel.m */; };
+		2BBEB82B15CB06A100E363E7 /* WGVectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB82A15CB06A100E363E7 /* WGVectorObject.h */; };
+		2BBEB82F15CB06AD00E363E7 /* WGVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBEB82E15CB06AD00E363E7 /* WGVectorObject.mm */; };
+		2BBEB83515CB2A2D00E363E7 /* WGVectorObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB83415CB2A2D00E363E7 /* WGVectorObject_private.h */; };
 		2BE8491415BC8DEB006CFD3F /* WGComponentObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */; };
 /* End PBXBuildFile section */
 
@@ -84,6 +87,9 @@
 		2BB9E01C15BF9EF200F1DDD8 /* WGLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGLabel.m; path = src/WGLabel.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGMarker.m; path = src/WGMarker.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01E15BF9EF200F1DDD8 /* WGScreenLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WGScreenLabel.m; path = src/WGScreenLabel.m; sourceTree = SOURCE_ROOT; };
+		2BBEB82A15CB06A100E363E7 /* WGVectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGVectorObject.h; path = include/WGVectorObject.h; sourceTree = SOURCE_ROOT; };
+		2BBEB82E15CB06AD00E363E7 /* WGVectorObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGVectorObject.mm; path = src/WGVectorObject.mm; sourceTree = SOURCE_ROOT; };
+		2BBEB83415CB2A2D00E363E7 /* WGVectorObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGVectorObject_private.h; path = include/private/WGVectorObject_private.h; sourceTree = SOURCE_ROOT; };
 		2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGComponentObject_private.h; path = include/private/WGComponentObject_private.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -205,6 +211,9 @@
 				2BB9E01D15BF9EF200F1DDD8 /* WGMarker.m */,
 				2B897A6815BB59F300250F23 /* WGScreenMarker.h */,
 				2B897A8A15BC698800250F23 /* WGScreenMarker.m */,
+				2BBEB82A15CB06A100E363E7 /* WGVectorObject.h */,
+				2BBEB83415CB2A2D00E363E7 /* WGVectorObject_private.h */,
+				2BBEB82E15CB06AD00E363E7 /* WGVectorObject.mm */,
 				2BE8491315BC8DEB006CFD3F /* WGComponentObject_private.h */,
 				2B897A8C15BC6BF000250F23 /* WGComponentObject.mm */,
 			);
@@ -234,6 +243,8 @@
 				2BB9E01815BF9EE300F1DDD8 /* WGMarker.h in Headers */,
 				2BB9E01915BF9EE300F1DDD8 /* WGScreenLabel.h in Headers */,
 				2B0B0D1315C1D88600CCB3B2 /* WGViewTracker.h in Headers */,
+				2BBEB82B15CB06A100E363E7 /* WGVectorObject.h in Headers */,
+				2BBEB83515CB2A2D00E363E7 /* WGVectorObject_private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +328,7 @@
 				2BB9E02015BF9EF200F1DDD8 /* WGMarker.m in Sources */,
 				2BB9E02115BF9EF200F1DDD8 /* WGScreenLabel.m in Sources */,
 				2B0B0D1415C1D88600CCB3B2 /* WGViewTracker.m in Sources */,
+				2BBEB82F15CB06AD00E363E7 /* WGVectorObject.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
