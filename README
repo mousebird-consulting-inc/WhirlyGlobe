@@ -1,23 +1,16 @@
-This is the development tree for WhirlyGlobe 2.0.  As of now (5/12) 2.0 is not yet released.
+There are two main parts to WhirlyGlobe, (1) the main WhirlyGlobe API, (2) WhirlyGlobe Component.  The latter is built on top of the former, as you might expect
 
-You're better off using WhirlyGlobe 1.2 from its google code page, particularly if you're just getting started:
-http://code.google.com/p/whirlyglobe/
+You probably want the Component.  It's a framework that lets you add an interactive 3D globe to your iPad or iPhone app.  The interface is entirely Objective-C and it's pretty easy to use.
 
-For news on WhirlyGlobe related things, follow this blog:
-http://mousebirdconsulting.blogspot.com/
+To get the WhirlyGlobe Component, just head on over to the downloads area and grab the latest:
+https://github.com/mousebird/WhirlyGlobe/downloads
 
-If you want to use this version for some reason, talk to me (Steve) about that first.  I've made the 2.0 pre-release public because I'm collaborating with other people (clients).  If you don't fall into that category, best to wait until the formal 2.0 release sometime this summer.
+If you want to know more about the WhirlyGlobe Component, check out the announcement:
+http://mousebirdconsulting.blogspot.com/2012/08/whirlyglobe-component-announcement.html
 
-What is WhirlyGlobe (1.2)?
+If you need to dig a bit deeper then take a look at the WhirlyGlobe API.  Just clone the repository and use the master branch.  You'll need a whole mess of support libraries as well.  Look at the notes file under WhirlyGlobeLib for details.
+
+What is WhirlyGlobe?
 ---
 
-WhirlyGlobe is a self contained 3D earth display view suitable for use in iPhone and iPad applications. The globe is rendered in OpenGL ES with a configurable multi-part texture and allows for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.
-
-What is WhirlyGlobe (2.0)?
----
-
-It's about big data.  Paging giant imagery data sets on the fly, that sort of thing.
-
-It's about maturity.  WhirlyGlobe has found its way into some iPad melting apps and they have certain needs.
-
-And it's about maps.  I'm branching out from a simple 3D globe and moving into interactive maps.  That won't make 2.0, but you can see the structural changes already.
+WhirlyGlobe is a self contained 3D earth display view suitable for use in iPhone and iPad applications. The globe is rendered in OpenGL ES with a pageable quad tree texture and support for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.
