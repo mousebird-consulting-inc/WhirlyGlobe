@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe.h>
+#import "WGVectorObject.h"
 
 /** The Component Object is used to track all the resources a user created
     to represent something.  We pass this back to them so they can remove
@@ -30,10 +31,12 @@
     WhirlyKit::SimpleIDSet markerIDs;
     WhirlyKit::SimpleIDSet labelIDs;
     WhirlyKit::SimpleIDSet vectorIDs;
+    NSArray *vectors;
 }
 
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &markerIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &labelIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &vectorIDs;
+@property (nonatomic,strong) NSArray *vectors;
 
 @end

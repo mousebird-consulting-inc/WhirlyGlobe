@@ -300,6 +300,7 @@ typedef std::set<ImageTexture> ImageTextureSet;
 {
     NSArray *vectors = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
+    compObj.vectors = vectors;
     NSDictionary *inDesc = [argArray objectAtIndex:2];    
     
     ShapeSet shapes;
@@ -361,10 +362,38 @@ typedef std::set<ImageTexture> ImageTextureSet;
     [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
 }
 
+// Search for a point inside any of our vector objects
+// Runs in layer thread
+- (NSObject *)findVectorInPoint:(Point2f)pt
+{
+    NSObject *selObj = nil;
+    
+    for (WGComponentObject *userObj in userObjects)
+    {
+        if (userObj.vectors)
+        {
+            for (WGVectorObject *vecObj in userObj.vectors)
+            {
+                WGCoordinate coord;
+                coord.lon = pt.x();
+                coord.lat = pt.y();
+                if ([vecObj pointInAreal:coord])
+                {
+                    selObj = vecObj;
+                    break;
+                }
+            }
+        }
+    }
+    
+    return selObj;
+}
+
 // Do the logic for a selection
 // Runs in the layer thread
 - (void) userDidTapLayerThread:(WhirlyGlobeTapMessage *)msg
 {
+    // First, we'll look for labels and markers
     SimpleIdentity selID = [selectLayer pickObject:Point2f(msg.touchLoc.x,msg.touchLoc.y) view:glView maxDist:10.0];
 
     NSObject *selObj;
@@ -376,6 +405,9 @@ typedef std::set<ImageTexture> ImageTextureSet;
         {
             selObj = it->obj;
         }
+    } else {
+        // Next, try the vectors
+        selObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
     }
     
     // Tell the view controller about it

@@ -498,6 +498,11 @@ LocationInfo locations[NumLocations] =
         WGScreenLabel *screenLabel = (WGScreenLabel *)selectedObj;        
         loc = screenLabel.loc;
         msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.text];
+    } else if ([selectedObj isKindOfClass:[WGVectorObject class]])
+    {
+        WGVectorObject *vecObj = (WGVectorObject *)selectedObj;
+        loc = [vecObj largestLoopCenter];
+        msg = [NSString stringWithFormat:@"Vector"];
     } else
         // Don't know what it is
         return;

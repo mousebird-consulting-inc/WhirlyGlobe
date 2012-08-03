@@ -131,4 +131,74 @@ using namespace WhirlyGlobe;
     }
 }
 
+// Look for areals that this point might be inside
+- (bool)pointInAreal:(WGCoordinate)coord
+{
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal)
+        {
+            if (areal->pointInside(GeoCoord(coord.lon,coord.lat)))
+                return true;
+        }
+    }
+                
+    return false;
+}
+
+// Calculate a center
+- (WGCoordinate)center
+{
+    Mbr mbr;
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        GeoMbr geoMbr = (*it)->calcGeoMbr();
+        mbr.addPoint(geoMbr.ll());
+        mbr.addPoint(geoMbr.ur());
+    }
+    
+    WGCoordinate ctr;
+    ctr.lon = (mbr.ll().x() + mbr.ur().x())/2.0;
+    ctr.lat = (mbr.ll().y() + mbr.ur().y())/2.0;
+
+    return ctr;
+}
+
+- (WGCoordinate)largestLoopCenter
+{
+    // Find the loop with the larest area
+    float bigArea = -1.0;
+    const VectorRing *bigLoop = NULL;
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal && areal->loops.size() > 0)
+        {
+            for (unsigned int ii=0;ii<areal->loops.size();ii++)
+            {
+                float area = std::abs(CalcLoopArea(areal->loops[ii]));
+                if (area > bigArea)
+                {
+                    bigLoop = &areal->loops[ii];
+                    bigArea = area;
+                }
+            }
+        }
+    }
+
+    WGCoordinate ctr;
+    ctr.lon = 0;  ctr.lat = 0;
+    if (bigLoop)
+    {
+        Mbr mbr;
+        mbr.addPoints(*bigLoop);
+        ctr.lon = (mbr.ll().x() + mbr.ur().x())/2.0;
+        ctr.lat = (mbr.ll().y() + mbr.ur().y())/2.0;
+    }
+
+    return ctr;
+}
+
+
 @end
