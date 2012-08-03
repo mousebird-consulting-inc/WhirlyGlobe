@@ -242,6 +242,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
             return false;
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(coords[0]);
+        pts->initGeoMbr();
         shapes.insert(pts);
     } else if (![type compare:@"LineString"])
     {
@@ -252,6 +253,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
             return false;
         VectorLinearRef lin = VectorLinear::createLinear();
         lin->pts = coords;
+        lin->initGeoMbr();
         shapes.insert(lin);
     } else if (![type compare:@"Polygon"])
     {
@@ -268,6 +270,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
                 return false;
             ar->loops.push_back(coords);
         }
+        ar->initGeoMbr();
         shapes.insert(ar);
     } else if (![type compare:@"MultiPoint"])
     {
@@ -278,6 +281,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
             return false;
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts = coords;
+        pts->initGeoMbr();
         shapes.insert(pts);
     } else if (![type compare:@"MultiLineString"])
     {
@@ -292,6 +296,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
                 return false;
             VectorLinearRef lin = VectorLinear::createLinear();
             lin->pts = coords;
+            lin->initGeoMbr();
             shapes.insert(lin);
         }
     } else if (![type compare:@"MultiPolygon"])
@@ -311,6 +316,7 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
                         return false;
                     ar->loops.push_back(coords);
                 }
+                ar->initGeoMbr();
                 shapes.insert(ar);                
             } else
                 return false;
@@ -386,7 +392,7 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
                 return false;
         }
     } 
-    
+        
     return true;
 }
     

@@ -25,5 +25,6 @@
 @synthesize markerIDs;
 @synthesize labelIDs;
 @synthesize vectorIDs;
+@synthesize vectors;
 
 @end

@@ -45,4 +45,13 @@
 /// Add a hole to an existing areal feature
 - (void)addHole:(WGCoordinate *)coords numCoords:(int)numCoords;
 
+/// For areal features, check if the given point is inside
+- (bool)pointInAreal:(WGCoordinate)coord;
+
+/// Calculate and return the center of the whole object
+- (WGCoordinate)center;
+
+/// Calculate and return the center of the single largest loop
+- (WGCoordinate)largestLoopCenter;
+
 @end

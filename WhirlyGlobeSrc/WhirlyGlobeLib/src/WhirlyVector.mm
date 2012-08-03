@@ -87,6 +87,13 @@ float Mbr::area() const
 	return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
 }
     
+void Mbr::expand(const Mbr &that)
+{
+    addPoint(that.pt_ll);
+    addPoint(that.pt_ur);
+}
+
+    
 void Mbr::asPoints(std::vector<Point2f> &pts) const
 {
     pts.push_back(pt_ll);
@@ -180,7 +187,7 @@ float GeoMbr::area() const
 	
 	return area;
 }
-	
+    	
 // Break a a geoMbr into one or two pieces
 // If we overlap -180/+180 then we need two mbrs
 void GeoMbr::splitIntoMbrs(std::vector<Mbr> &mbrs) const

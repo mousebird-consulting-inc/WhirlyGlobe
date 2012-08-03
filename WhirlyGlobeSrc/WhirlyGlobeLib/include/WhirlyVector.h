@@ -127,6 +127,9 @@ public:
     
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(std::vector<Point2f> &pts) const;
+    
+    /// Expand with the given MBR
+    void expand(const Mbr &that);
 	
 protected:
 	Point2f pt_ll,pt_ur;
