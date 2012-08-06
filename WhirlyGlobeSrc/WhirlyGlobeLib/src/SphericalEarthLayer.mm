@@ -297,7 +297,7 @@ using namespace WhirlyGlobe;
 
         // If we're done, have the renderer send out a notification.
         // Odds are it's still processing the data right now
-        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,nil));	}
+        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self));	}
 
 }
 

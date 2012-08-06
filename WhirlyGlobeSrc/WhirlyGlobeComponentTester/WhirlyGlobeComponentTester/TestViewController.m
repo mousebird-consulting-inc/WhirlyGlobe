@@ -122,6 +122,9 @@ LocationInfo locations[NumLocations] =
     
     // Start up over San Francisco
     [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+    
+    // Zoom in a bit
+    globeViewC.height = 0.8;
 
     // For network paging layers, where 
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
@@ -531,6 +534,11 @@ LocationInfo locations[NumLocations] =
     popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
     popControl.delegate = self;
     [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+}
+
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer
+{
+    NSLog(@"Spherical Earth Layer loaded.");
 }
 
 #pragma mark - Popover Delegate

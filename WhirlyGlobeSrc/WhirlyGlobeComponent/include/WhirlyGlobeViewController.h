@@ -104,6 +104,11 @@
 /// This won't be called if they tapped and selected, just if they tapped.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord;
 
+/// This is called when a given layer loads.
+/// Not all layers support this callback.  Those that load immediately (which is most of them)
+///  won't trigger this.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer;
+
 @end
 
 /** This is the main object in the WhirlyGlobe Component.  You fire up one
@@ -138,6 +143,10 @@
 /// Black, by default.
 @property (nonatomic,strong) UIColor *clearColor;
 
+/// Get/set the current height above terrain.
+/// The radius of the earth is 1.0.  Height above terrain is relative to that.
+@property (nonatomic,assign) float height;
+
 /// Add rendering and other general hints for the globe view controller.
 - (void)setHints:(NSDictionary *)hintsDict;
 
@@ -146,6 +155,9 @@
 
 /// Set the view to the given position immediately
 - (void)setPosition:(WGCoordinate)newPos;
+
+/// Set position and height at the same time
+- (void)setPosition:(WGCoordinate)newPos height:(float)height;
 
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
