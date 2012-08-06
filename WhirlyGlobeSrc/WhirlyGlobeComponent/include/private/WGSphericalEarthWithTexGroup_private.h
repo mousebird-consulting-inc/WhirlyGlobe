@@ -22,6 +22,8 @@
 
 @interface WGSphericalEarthWithTexGroup : WGViewControllerLayer
 
+@property (nonatomic,readonly) WhirlyGlobeSphericalEarthLayer *earthLayer;
+
 /// Set up a spherical earth layer with a texture group.
 /// Returns nil on failure.
 - (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene texGroup:(NSString *)texGroupName;

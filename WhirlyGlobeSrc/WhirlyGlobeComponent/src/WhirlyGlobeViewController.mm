@@ -136,6 +136,8 @@ using namespace WhirlyGlobe;
 // Put together all the random junk we need to draw
 - (void) loadSetup
 {
+    userLayers = [NSMutableArray array];
+    
 	// Set up an OpenGL ES view and renderer
 	glView = [[WhirlyKitEAGLView alloc] init];
 	sceneRenderer = [[WhirlyKitSceneRendererES1 alloc] init];
@@ -269,7 +271,7 @@ using namespace WhirlyGlobe;
 {
 	[glView startAnimation];
 	
-    [self registerForTaps];
+    [self registerForEvents];
     
 	[super viewWillAppear:animated];
 }
@@ -277,19 +279,20 @@ using namespace WhirlyGlobe;
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[glView stopAnimation];
-	
-    // Turn off responses to taps
+
+	// Stop tracking notifications
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
 	[super viewWillDisappear:animated];
 }
 
-// Register for interesting tap events
-- (void)registerForTaps
+// Register for interesting tap events and others
+- (void)registerForEvents
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnGlobe:) name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOutsideGlobe:) name:WhirlyGlobeTapOutsideMsg object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sphericalEarthLayerLoaded:) name:kWhirlyGlobeSphericalEarthLoaded object:nil];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -307,6 +310,27 @@ using namespace WhirlyGlobe;
     [userLayers addObject:newLayer];
     
     return newLayer;
+}
+
+// Called when the earth layer finishes loading
+- (void)sphericalEarthLayerLoaded:(NSNotification *)note
+{
+    WhirlyGlobeSphericalEarthLayer *layer = note.object;
+    
+    // Look for the matching layer
+    if ([delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
+        for (WGViewControllerLayer *userLayer in userLayers)
+        {
+            if ([userLayer isKindOfClass:[WGSphericalEarthWithTexGroup class]])
+            {
+                WGSphericalEarthWithTexGroup *userSphLayer = (WGSphericalEarthWithTexGroup *)userLayer;
+                if (userSphLayer.earthLayer == layer)
+                {
+                    [delegate globeViewController:self layerDidLoad:userLayer];
+                    break;
+                }
+            }
+        }
 }
 
 - (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
@@ -548,6 +572,16 @@ using namespace WhirlyGlobe;
     [sceneRenderer setClearColor:clearColor];
 }
 
+- (float)height
+{
+    return globeView.heightAboveGlobe;
+}
+
+- (void)setHeight:(float)height
+{
+    globeView.heightAboveGlobe = height;
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time
@@ -576,6 +610,12 @@ using namespace WhirlyGlobe;
 {
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.lon,newPos.lat) time:0.0];
+}
+
+- (void)setPosition:(WGCoordinate)newPos height:(float)height
+{
+    [self setPosition:newPos];
+    globeView.heightAboveGlobe = height;
 }
 
 // Called back on the main thread after the interaction thread does the selection

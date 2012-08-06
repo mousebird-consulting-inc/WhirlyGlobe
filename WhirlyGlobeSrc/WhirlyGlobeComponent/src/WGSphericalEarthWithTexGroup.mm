@@ -30,6 +30,8 @@ using namespace WhirlyGlobe;
     WhirlyKitTextureGroup *texGroup;
 }
 
+@synthesize earthLayer;
+
 - (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyGlobe::GlobeScene *)globeScene texGroup:(NSString *)texGroupName
 {
     self = [super init];
