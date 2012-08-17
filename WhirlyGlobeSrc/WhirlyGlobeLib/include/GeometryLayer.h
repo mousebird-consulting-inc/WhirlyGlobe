@@ -57,6 +57,7 @@ typedef std::set<WhirlyGlobe::GeomSceneRepRef,WhirlyKit::IdentifiableRefSorter> 
 class RawTriangle 
 {
 public:
+    RawTriangle() { }
     RawTriangle(int v0,int v1,int v2) { verts[0] = v0; verts[1] = v1; verts[2] = v2; }
     int verts[3];
 };
@@ -89,11 +90,27 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 @property (nonatomic) std::vector<WhirlyGlobe::RawTriangle> &triangles;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
 
+// Make a copy of the raw geometry and return it
++ (WhirlyGlobeGeometryRaw *)geometryWithGeometry:(WhirlyGlobeGeometryRaw *)inGeom;
+
 // Runs a consistency check
 - (bool)isValid;
 
 /// Apply the given tranformation matrix to the geometry (and normals)
 - (void)applyTransform:(Matrix4f &)mat;
+
+/// Apply a transform that orients the geometry as if it were a model at the given
+///  position with its nose pointed along forward.  You can also rotate (clockwise)
+///  around up.
+- (void)applyPosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+
+/// Same thing as applyPosition, but it returns the matrix instead of applying it
++ (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+
+/// Construct the drawables for this raw geometry object.
+/// Add thems to the drawable array passed in.
+/// Be careful when you use this.
+- (void)makeDrawables:(std::vector<WhirlyKit::Drawable *> &)drawables;
 
 @end
 
@@ -113,11 +130,17 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
     WhirlyGlobe::GeomSceneRepSet geomReps;
 }
 
-/// Add a sphere at the given location
+/// Add raw geometry at the given location
 - (WhirlyKit::SimpleIdentity)addGeometry:(WhirlyGlobeGeometry *)geom desc:(NSDictionary *)desc;
 
 /// Add a group of geometry together
 - (WhirlyKit::SimpleIdentity)addGeometryArray:(NSArray *)geom desc:(NSDictionary *)desc;
+
+/// Replace one group of geometry with another
+- (WhirlyKit::SimpleIdentity)replaceGeometry:(WhirlyKit::SimpleIdentity)geomID withGeometry:(WhirlyGlobeGeometry *)geom desc:(NSDictionary *)desc;
+
+/// Replace one group of geometry with a whole array
+- (WhirlyKit::SimpleIdentity)replaceGeometry:(WhirlyKit::SimpleIdentity)geomID withGeometryArray:(NSArray *)geom desc:(NSDictionary *)desc;
 
 /// Remove an entire set of geometry at once by its ID
 - (void)removeGeometry:(WhirlyKit::SimpleIdentity)geomID;

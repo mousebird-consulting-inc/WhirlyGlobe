@@ -60,8 +60,6 @@ void Mbr::addPoints(const std::vector<Point2f> &coords)
 // Calculate MBR overlap.  All the various kinds.
 bool Mbr::overlaps(const Mbr &that) const
 {
-	Point2f ul(),lr();
-	
 	// Basic inclusion cases
 	if ((that.insideOrOnEdge(pt_ll) || that.insideOrOnEdge(pt_ur) || that.insideOrOnEdge(Point2f(pt_ll.x(),pt_ur.y())) || that.insideOrOnEdge(Point2f(pt_ur.x(),pt_ll.y()))) ||
 		(insideOrOnEdge(that.pt_ll) || insideOrOnEdge(that.pt_ur) || insideOrOnEdge(Point2f(that.pt_ll.x(),that.pt_ur.y())) || insideOrOnEdge(Point2f(that.pt_ur.x(),that.pt_ll.y()))))

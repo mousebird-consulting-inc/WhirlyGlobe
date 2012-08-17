@@ -31,6 +31,7 @@
 #import "Cullable.h"
 #import "Drawable.h"
 #import "Generator.h"
+#import "ActiveModel.h"
 #import "CoordSystem.h"
 
 namespace WhirlyKit
@@ -233,6 +234,12 @@ public:
     /// Get the UIView placement generator.  Only use it in the main thread.
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
+    /// Add an active model.  Only call this on the main thread.
+    void addActiveModel(NSObject<WhirlyKitActiveModel> *);
+    
+    /// Remove an active model (if it's in here).  Only call this on the main thread.
+    void removeActiveModel(NSObject<WhirlyKitActiveModel> *);
+    
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
     
@@ -252,6 +259,9 @@ public:
 	
 	/// Look for a Texture by ID
 	Texture *getTexture(SimpleIdentity texId);
+    
+    /// All the active models
+    NSMutableArray *activeModels;
     
     /// All the drawable generators we've been handed, sorted by ID
     GeneratorSet generators;

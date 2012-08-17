@@ -49,7 +49,8 @@ protected:
 };
     
 // Number of "corners" we used to define things in world space
-#define WhirlyKitCullableCorners 6
+#define WhirlyKitCullableCorners 8
+#define WhirlyKitCullableCornerNorms 4
 
 /** This is a representation of cullable geometry.  It has
     geometry/direction info and a list of associated
@@ -99,7 +100,7 @@ public:
     /// 3D locations (in model space) of the corners
 	Point3f cornerPoints[WhirlyKitCullableCorners];
 	/// Normal vectors (in model space) for the corners
-	Vector3f cornerNorms[WhirlyKitCullableCorners];
+	Vector3f cornerNorms[WhirlyKitCullableCornerNorms];
     /// Opposite of depth.  0 means go no lower
     int height;
     /// Local coordinates for bounding box

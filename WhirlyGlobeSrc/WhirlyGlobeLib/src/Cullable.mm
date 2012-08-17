@@ -43,20 +43,51 @@ Cullable::Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth)
     for (unsigned int ii=0;ii<4;ii++)
         children[ii] = NULL;
     
-	// Turn the corner points into real world values
-    cornerPoints[0] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ll().y(),0.0));
-    cornerPoints[1] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ll().y(),0.0));
-    cornerPoints[2] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ur().y(),0.0));
-    cornerPoints[3] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ur().y(),0.0));
+    // Put together the extreme points
+    Point3f pts[8];
+    pts[0] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ll().y(),0.0));
+    pts[1] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ll().y(),0.0));
+    pts[2] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ur().y(),0.0));
+    pts[3] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ur().y(),0.0));
     Point2f halfBot = (localMbr.ll() + Point2f(localMbr.ur().x(),localMbr.ll().y()))/2.0;
-    cornerPoints[4] = coordSystem->localToGeocentricish(Point3f(halfBot.x(),halfBot.y(),0.0));
+    pts[4] = coordSystem->localToGeocentricish(Point3f(halfBot.x(),halfBot.y(),0.0));
     Point2f halfTop = (Point2f(localMbr.ll().x(),localMbr.ur().y()) + localMbr.ur())/2.0;
-    cornerPoints[5] = coordSystem->localToGeocentricish(Point3f(halfTop.x(),halfTop.y(),0.0));
-
-	// Normals happen to be the same
-    // Note: This only works for the globe
-	for (unsigned int ii=0;ii<6;ii++)
-		cornerNorms[ii] = cornerPoints[ii];
+    pts[5] = coordSystem->localToGeocentricish(Point3f(halfTop.x(),halfTop.y(),0.0));
+    Point2f halfLeft = (localMbr.ll() + Point2f(localMbr.ll().x(),localMbr.ur().y()))/2.0;
+    pts[6] = coordSystem->localToGeocentricish(Point3f(halfLeft.x(),halfLeft.y(),0.0));
+    Point2f halfRight = (Point2f(localMbr.ur().x(),localMbr.ll().y()) + localMbr.ur())/2.0;
+    pts[7] = coordSystem->localToGeocentricish(Point3f(halfRight.x(),halfRight.y(),0.0));
+    
+    // Now get the bounding box in 3-space
+    Point3f minPt,maxPt;
+    minPt = maxPt = pts[0];
+    for (unsigned int ii=1;ii<8;ii++)
+    {
+        const Point3f &pt = pts[ii];
+        minPt.x() = std::min(minPt.x(),pt.x());
+        minPt.y() = std::min(minPt.y(),pt.y());
+        minPt.z() = std::min(minPt.z(),pt.z());
+        maxPt.x() = std::max(maxPt.x(),pt.x());
+        maxPt.y() = std::max(maxPt.y(),pt.y());
+        maxPt.z() = std::max(maxPt.z(),pt.z());
+    }
+//    Point3f midPt = (minPt+maxPt)/2.0;
+//    minPt += 0.1 * (minPt - midPt);
+//    maxPt += 0.1 * (maxPt - midPt);
+    
+    // Turn this into a cube for evaluation by the culling logic
+    cornerPoints[0] = Point3f(minPt.x(),minPt.y(),minPt.z());
+    cornerPoints[1] = Point3f(maxPt.x(),minPt.y(),minPt.z());
+    cornerPoints[2] = Point3f(maxPt.x(),maxPt.y(),minPt.z());
+    cornerPoints[3] = Point3f(minPt.x(),maxPt.y(),minPt.z());
+    cornerPoints[4] = Point3f(minPt.x(),minPt.y(),maxPt.z());
+    cornerPoints[5] = Point3f(maxPt.x(),minPt.y(),maxPt.z());
+    cornerPoints[6] = Point3f(maxPt.x(),maxPt.y(),maxPt.z());
+    cornerPoints[7] = Point3f(minPt.x(),maxPt.y(),maxPt.z());
+    
+    // Use just 4 of the normals
+    for (unsigned int ii=0;ii<4;ii++)
+        cornerNorms[ii] = pts[ii];
     
     // Set the child bounding boxes as well
     // We use these to check for overlap without creating a child
@@ -135,6 +166,13 @@ void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
 {
     // Will be present in the children (or here)
     childDrawables.insert(draw);
+    
+    // If it's got a matrix, that can be changed and we have no clue where it might end up
+    if (draw->getMatrix())
+    {
+        drawables.insert(draw);
+        return;
+    }
 
     // Might need to split it
     if (drawables.size() > cullTree->maxDrawPerNode && height > 0)
