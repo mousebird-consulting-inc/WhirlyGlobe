@@ -38,6 +38,8 @@
 
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) int drawOffset;
+/// Turns edge matching logic on or off for the associated tile loader
+@property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Initialize with name of the plist the defines the image data set
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES1 *)renderer;

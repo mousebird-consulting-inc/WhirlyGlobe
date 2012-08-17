@@ -189,6 +189,16 @@ using namespace WhirlyGlobe;
     quadTileLoader.drawOffset = drawOffset;
 }
 
+- (bool)ignoreEdgeMatching
+{
+    return quadTileLoader.ignoreEdgeMatching;
+}
+
+- (void)setIgnoreEdgeMatching:(bool)ignoreEdgeMatching
+{
+    quadTileLoader.ignoreEdgeMatching = ignoreEdgeMatching;
+}
+
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES1 *)inRenderer
 {
     // Data source serves the tiles

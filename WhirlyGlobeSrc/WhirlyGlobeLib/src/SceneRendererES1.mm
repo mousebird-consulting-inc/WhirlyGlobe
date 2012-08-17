@@ -372,8 +372,6 @@ static const float ScreenOverlap = 0.1;
 
 - (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
-//    CoordSystem *coordSys = globeView.coordSystem;
-    
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();        
     for (std::set<DrawableRef,IdentifiableSorter>::const_iterator it = newDrawables.begin();
@@ -384,23 +382,7 @@ static const float ScreenOverlap = 0.1;
         // Note: We're doing the on check repeatedly
         //       And we're doing the refusal check repeatedly as well, possibly
         if ((toDraw->find(draw) == toDraw->end()) && draw->isOn(frameInfo))
-        {
-//            Mbr localScreenMbr;
-//            std::vector<Point2f> localPts;
-//            draw->getLocalMbr().asPoints(localPts);
-//            for (unsigned int ii=0;ii<4;ii++)
-//            {
-//                Point3f worldLoc = coordSys->localToGeocentricish(Point3f(localPts[ii].x(),localPts[ii].y(),0.0));
-//                CGPoint screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:modelTrans frameSize:frameSize];
-//                localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
-//            }
-
-            // If this overlaps, we want to draw it
-//            if (!DoingCulling || screenMbr.overlaps(localScreenMbr))
-            // Note: Turned this off for now because it doesn't deal well with curvature
-            if (true)
-                toDraw->insert(draw);
-        } 
+            toDraw->insert(draw);
     }    
 }
 
@@ -415,7 +397,7 @@ static const float ScreenOverlap = 0.1;
     {
         inView = true;
     } else {
-        for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
+        for (unsigned int ii=0;ii<WhirlyKitCullableCornerNorms;ii++)
         {
             Vector3f norm = cullable->cornerNorms[ii];
             if (norm.dot(eyeVec) > 0)
@@ -537,19 +519,9 @@ static const float ScreenOverlap = 0.1;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
 
-    // Note: Testing
     Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
     if (globeView)
     {
-
-//        printf("Renderer partialCalc:\n");
-//        for (unsigned int iy=0;iy<4;iy++)
-//        {
-//            for (unsigned int ix=0;ix<4;ix++)
-//                printf(" %f",fullMat.data()[iy*4+ix]);
-//            printf("\n");
-//        }
-//        printf("\n");
         Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
         
         glMultMatrixf(viewTrans.data());
@@ -599,13 +571,17 @@ static const float ScreenOverlap = 0.1;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
+        
+        // Let the active models to their thing
+        // That thing had better not take too long
+        for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
+            [activeModel updateForFrame:frameInfo];
 
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", scene->changeRequests.size());
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
-		// Note: Time this and move it elsewhere
 		scene->processChanges(theView,self);
         
         if (perfInterval > 0)
@@ -692,12 +668,25 @@ static const float ScreenOverlap = 0.1;
                 depthMaskOn = false;
                 glDisable(GL_DEPTH_TEST);
             }
-            drawable->draw(frameInfo,scene);	
+            
+            // If it has a transform, apply that
+            const Matrix4f *thisMat = drawable->getMatrix();
+            if (thisMat)
+            {
+                glPushMatrix();
+                glMultMatrixf(thisMat->data());
+            }
+            drawable->draw(frameInfo,scene);
+            
+            if (thisMat)
+                glPopMatrix();
+            
             numDrawables++;
             if (perfInterval > 0)
             {
                 BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable.get());
-                perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
+                if (basicDraw)
+                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
             }
 		}
         

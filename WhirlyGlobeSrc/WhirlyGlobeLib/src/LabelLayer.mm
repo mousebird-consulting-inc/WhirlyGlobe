@@ -563,7 +563,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 drawable->setDrawPriority(labelInfo.drawPriority);
                 drawable->setVisibleRange(labelInfo.minVis,labelInfo.maxVis);            
                 drawable->setAlpha(true);
-                
             }
         } 
         

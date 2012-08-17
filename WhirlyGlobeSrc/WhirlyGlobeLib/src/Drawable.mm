@@ -138,6 +138,8 @@ BasicDrawable::BasicDrawable()
     numPoints = 0;
     
     pointBuffer = colorBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+
+    hasMatrix = false;
 }
 	
 BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
@@ -162,6 +164,8 @@ BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
     numPoints = 0;
     
     pointBuffer = colorBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+
+    hasMatrix = false;
 }
 	
 BasicDrawable::~BasicDrawable()
@@ -858,5 +862,18 @@ void DrawTexChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setTexId(newTexId);
-}    
+}
+
+TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat)
+    : DrawableChangeRequest(drawId), newMat(*newMat)
+{
+}
+
+void TransformChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDraw = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDraw.get())
+        basicDraw->setMatrix(&newMat);
+}
+
 }
