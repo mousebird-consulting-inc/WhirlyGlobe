@@ -51,6 +51,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     UIColor         *color;
     float           fade;
     int             drawPriority;
+    SimpleIdentity  replaceId;
 }
 
 - (void)parseDict:(NSDictionary *)dict;
@@ -113,6 +114,20 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 @synthesize triangles;
 @synthesize texId;
 
++ (WhirlyGlobeGeometryRaw *)geometryWithGeometry:(WhirlyGlobeGeometryRaw *)inGeom
+{
+    WhirlyGlobeGeometryRaw *rawGeom = [[WhirlyGlobeGeometryRaw alloc] init];
+    rawGeom.type = inGeom.type;
+    rawGeom.pts = inGeom.pts;
+    rawGeom.norms = inGeom.norms;
+    rawGeom.texCoords = inGeom.texCoords;
+    rawGeom.colors = inGeom.colors;
+    rawGeom.triangles = inGeom.triangles;
+    rawGeom.texId = inGeom.texId;
+    
+    return rawGeom;
+}
+
 - (bool)isValid
 {
     if (type != WhirlyGlobeGeometryLines && type != WhirlyGlobeGeometryTriangles)
@@ -155,8 +170,32 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     {
         Point3f &norm = norms[ii];
         Vector4f projNorm = mat * Eigen::Vector4f(norm.x(),norm.y(),norm.z(),0.0);
-        norm = Point3f(projNorm.x(),projNorm.y(),projNorm.z());
+        norm = Point3f(projNorm.x(),projNorm.y(),projNorm.z()).normalized();
     }
+}
+
++ (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang
+{
+    Point3f yaxis = forward.normalized();
+    Point3f xaxis = yaxis.cross(up).normalized();
+    Point3f zaxis = xaxis.cross(yaxis);
+    
+    Matrix4f mat;
+    mat(0,0) = xaxis.x();  mat(1,0) = xaxis.y();  mat(2,0) = xaxis.z();  mat(3,0) = 0.0;
+    mat(0,1) = yaxis.x();  mat(1,1) = yaxis.y();  mat(2,1) = yaxis.z();  mat(3,1) = 0.0;
+    mat(0,2) = zaxis.x();  mat(1,2) = zaxis.y();  mat(2,2) = zaxis.z();  mat(3,2) = 0.0;
+    mat(0,3) = pos.x();  mat(1,3) = pos.y();  mat(2,3) = pos.z();  mat(3,3) = 1.0;
+    
+    Eigen::AngleAxisf rot(-ang,up);
+    Matrix4f resMat = ((Affine3f)rot).matrix() * mat;
+    
+    return resMat;
+}
+
+- (void)applyPosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+{
+    Matrix4f theMat = [WhirlyGlobeGeometryRaw makePosition:pos up:up forward:forward heading:ang];
+    [self applyTransform:theMat];
 }
 
 - (BasicDrawable *)buildDrawable
@@ -194,6 +233,13 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     }
     
     return draw;
+}
+
+- (void)makeDrawables:(std::vector<WhirlyKit::Drawable *> &)drawables
+{
+    BasicDrawable *theDraw = [self buildDrawable];
+    if (theDraw)
+        drawables.push_back(theDraw);
 }
 
 @end
@@ -238,6 +284,18 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     std::vector<ChangeRequest *> changeRequests;
     GeomSceneRepRef geomRep(new GeomSceneRep());
     geomRep->setId(geomInfo->sceneRepId);
+    
+    if (geomInfo->replaceId != EmptyIdentity)
+    {
+        GeomSceneRepRef dummyRep(new GeomSceneRep());
+        dummyRep->setId(geomInfo->replaceId);
+        GeomSceneRepSet::iterator it = geomReps.find(dummyRep);
+        if (it != geomReps.end())
+        {
+            geomRep->removeFromScene(changeRequests);
+            geomReps.erase(geomRep);
+        }
+    }
     
     // Work through the array of geometry, building as we go
     for (WhirlyGlobeGeometry *geom in geomInfo->geom)
@@ -302,6 +360,34 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     }
 
     GeomInfo *geomInfo = [[GeomInfo alloc] initWithGeometry:geom desc:desc];
+    geomInfo->sceneRepId = Identifiable::genId();
+    
+    if (!layerThread || ([NSThread currentThread] == layerThread))
+        [self runAddGeometry:geomInfo];
+    else
+        [self performSelector:@selector(runAddGeometry:) onThread:layerThread withObject:geomInfo waitUntilDone:NO];
+    
+    return geomInfo->sceneRepId;
+}
+
+/// Replace one group of geometry with another
+- (WhirlyKit::SimpleIdentity)replaceGeometry:(WhirlyKit::SimpleIdentity)geomID withGeometry:(WhirlyGlobeGeometry *)geom desc:(NSDictionary *)desc
+{
+    NSArray *array = [NSArray arrayWithObject:geom];
+    return [self replaceGeometry:geomID withGeometryArray:array desc:desc];
+}
+
+/// Replace one group of geometry with a whole array
+- (WhirlyKit::SimpleIdentity)replaceGeometry:(WhirlyKit::SimpleIdentity)geomID withGeometryArray:(NSArray *)geom desc:(NSDictionary *)desc
+{
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Geometry layer has not been initialized, yet you're calling addGeometry.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+    
+    GeomInfo *geomInfo = [[GeomInfo alloc] initWithGeometry:geom desc:desc];
+    geomInfo->replaceId = geomID;
     geomInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))

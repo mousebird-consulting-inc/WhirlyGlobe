@@ -1,5 +1,5 @@
 /*
- *  DrawGenerator.h
+ *  Generator.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/10/11.

@@ -123,6 +123,9 @@ public:
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
+    /// Return the Matrix if there is an active one (ideally not)
+    virtual const Matrix4f *getMatrix() const { return NULL; }
+
     /// Can this drawable respond to a caching request?
     virtual bool canCache() const = 0;
     
@@ -310,6 +313,12 @@ public:
 	
 	// Widen a line and turn it into a rectangle of the given width
 	void addRect(const Point3f &l0, const Vector3f &ln0, const Point3f &l1, const Vector3f &ln1,float width);
+    
+    /// Set the active transform matrix
+    void setMatrix(const Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+
+    /// Return the active transform matrix, if we have one
+    const Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
 
     /// The BasicDrawable can cache
     virtual bool canCache() const { return true; }
@@ -349,6 +358,10 @@ protected:
 	std::vector<Vector2f> texCoords;
 	std::vector<Vector3f> norms;
 	std::vector<Triangle> tris;
+    
+    bool hasMatrix;
+    // If the drawable has a matrix, we'll transform by that before drawing
+    Matrix4f mat;
 	
 	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer;
 };
@@ -414,6 +427,18 @@ public:
     
 protected:
     SimpleIdentity newTexId;
-};    
+};
+    
+/// Change the transform matrix on a drawable
+class TransformChangeRequest : public DrawableChangeRequest
+{
+public:
+    TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat);
+    
+    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    
+protected:
+    Matrix4f newMat;
+};
     
 }

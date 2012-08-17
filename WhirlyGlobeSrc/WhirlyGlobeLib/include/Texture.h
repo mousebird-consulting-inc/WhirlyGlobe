@@ -65,6 +65,8 @@ public:
     void setHeight(unsigned int newHeight) { height = newHeight; }
     /// Set this to have a mipmap generated and used for minification
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
+    /// Set this to let the texture wrap in the appropriate directions
+    void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
 	
 protected:
 	/// Raw texture data
@@ -74,6 +76,7 @@ protected:
 	
 	unsigned int width,height;
     bool usesMipmaps;
+    bool wrapU,wrapV;
 	
 	/// OpenGL ES ID
 	/// Set to 0 if we haven't loaded yet

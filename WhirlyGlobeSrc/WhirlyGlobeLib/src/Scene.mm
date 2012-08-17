@@ -41,6 +41,8 @@ Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth
     vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
     generators.insert(vpGen);
     
+    activeModels = [NSMutableArray array];
+    
     pthread_mutex_init(&changeRequestLock,NULL);
 }
 
@@ -57,6 +59,8 @@ Scene::~Scene()
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];
     changeRequests.clear();
+    
+    activeModels = nil;
     
     subTextureMap.clear();
 }
@@ -128,6 +132,21 @@ Generator *Scene::getGenerator(SimpleIdentity genId)
         return *it;
     
     return NULL;
+}
+    
+void Scene::addActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
+{
+    [activeModels addObject:activeModel];
+    [activeModel startWithScene:this];
+}
+    
+void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
+{
+    if ([activeModels containsObject:activeModel])
+    {
+        [activeModels removeObject:activeModel];
+        [activeModel shutdown];
+    }
 }
 
 Texture *Scene::getTexture(SimpleIdentity texId)

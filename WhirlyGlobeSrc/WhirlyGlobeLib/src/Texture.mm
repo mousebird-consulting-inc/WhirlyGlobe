@@ -26,19 +26,19 @@ namespace WhirlyKit
 {
 	
 Texture::Texture()
-	: glId(0), texData(NULL), isPVRTC(false), usesMipmaps(false)
+	: glId(0), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false)
 {
 }
 	
 // Construct with raw texture data
-Texture::Texture(NSData *texData,bool isPVRTC) 
-	: glId(0), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false)
+Texture::Texture(NSData *texData,bool isPVRTC)
+	: glId(0), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false)
 { 
 }
 
 // Set up the texture from a filename
 Texture::Texture(NSString *baseName,NSString *ext)
-    : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false)
+    : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false)
 {	
 	if (![ext compare:@"pvrtc"])
 	{
@@ -71,7 +71,7 @@ Texture::Texture(NSString *baseName,NSString *ext)
 
 // Construct with a UIImage
 Texture::Texture(UIImage *inImage)
-    : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false)
+    : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false)
 {
 	texData = [inImage rawDataRetWidth:&width height:&height];
 }
@@ -109,8 +109,8 @@ bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
     CheckGLError("Texture::createInGL() glBlendFunc()");
 	
 	// Configure textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (wrapU ? GL_REPEAT : GL_CLAMP_TO_EDGE));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (wrapV ? GL_REPEAT : GL_CLAMP_TO_EDGE));
 
     CheckGLError("Texture::createInGL() glTexParameteri()");
 	
