@@ -35,11 +35,6 @@ FeatureRep::~FeatureRep()
 }
 
 @interface InteractionLayer()
-@property(nonatomic,retain) WhirlyKitLayerThread *layerThread;
-@property(nonatomic,retain) WhirlyKitVectorLayer *vectorLayer;
-@property(nonatomic,retain) WhirlyKitLabelLayer *labelLayer;
-@property(nonatomic,retain) WhirlyGlobeView *globeView;
-@property(nonatomic,retain) AnimateViewRotation *animateRotation;
 @end
 
 @implementation InteractionLayer
@@ -49,20 +44,14 @@ FeatureRep::~FeatureRep()
 @synthesize regionDesc;
 @synthesize maxEdgeLen;
 
-@synthesize layerThread;
-@synthesize globeView;
-@synthesize vectorLayer;
-@synthesize labelLayer;
-@synthesize animateRotation;
-
 - (id)initWithVectorLayer:(WhirlyKitVectorLayer *)inVecLayer labelLayer:(WhirlyKitLabelLayer *)inLabelLayer globeView:(WhirlyGlobeView *)inGlobeView
              countryShape:(NSString *)countryShape oceanShape:(NSString *)oceanShape regionShape:(NSString *)regionShape
 {
 	if ((self = [super init]))
 	{
-		self.vectorLayer = inVecLayer;
-		self.labelLayer = inLabelLayer;
-		self.globeView = inGlobeView;
+		vectorLayer = inVecLayer;
+		labelLayer = inLabelLayer;
+		globeView = inGlobeView;
                 
         // Visual representation for countries when they first appear
         self.countryDesc = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -141,14 +130,6 @@ FeatureRep::~FeatureRep()
 {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 
-	self.layerThread = nil;
-    self.globeView = nil;
-    self.vectorLayer = nil;
-    self.labelLayer = nil;
-    self.countryDesc = nil;
-    self.oceanDesc = nil;
-    self.regionDesc = nil;
-    self.animateRotation = nil;
     if (countryDb)  delete countryDb;
     if (oceanDb)  delete oceanDb;
     if (regionDb)  delete regionDb;
@@ -156,12 +137,11 @@ FeatureRep::~FeatureRep()
          it != featureReps.end(); ++it)
         delete (*it);
     
-	[super dealloc];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
-	self.layerThread = inThread;
+	layerThread = inThread;
 	scene = inScene;
     
     [self performSelector:@selector(process:) onThread:layerThread withObject:nil waitUntilDone:NO];
@@ -192,7 +172,7 @@ FeatureRep::~FeatureRep()
         Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
 
         // Rotate to the given position over 1s
-        self.animateRotation = [[[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:1.0] autorelease];
+        animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:1.0];
         globeView.delegate = animateRotation;
     }
 	
@@ -356,7 +336,7 @@ static const float DesiredScreenProj = 0.4;
         
         // Make up a label for the country
         // We'll have it appear when we're farther out
-        WhirlyKitSingleLabel *countryLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
+        WhirlyKitSingleLabel *countryLabel = [[WhirlyKitSingleLabel alloc] init];
         countryLabel.text = name;
         NSMutableDictionary *labelDesc = [NSMutableDictionary dictionaryWithDictionary:[countryDesc objectForKey:@"label"]];
         [labelDesc setObject:[NSNumber numberWithFloat:feat->midPoint] forKey:@"minVis"];
@@ -400,7 +380,7 @@ static const float DesiredScreenProj = 0.4;
         NSMutableDictionary *regionLabelDesc = [NSMutableDictionary dictionaryWithDictionary:[regionDesc objectForKey:@"label"]];
         [regionLabelDesc setObject:[NSNumber numberWithFloat:0.0] forKey:@"minVis"];
         [regionLabelDesc setObject:[NSNumber numberWithFloat:feat->midPoint] forKey:@"maxVis"];
-        NSMutableArray *labels = [[[NSMutableArray alloc] init] autorelease];
+        NSMutableArray *labels = [[NSMutableArray alloc] init];
         for (ShapeSet::iterator it=regionShapes.begin();
              it != regionShapes.end(); ++it)
         {
@@ -408,7 +388,7 @@ static const float DesiredScreenProj = 0.4;
             if (regionName)
             {
                 GeoCoord regionLoc;
-                WhirlyKitSingleLabel *sLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
+                WhirlyKitSingleLabel *sLabel = [[WhirlyKitSingleLabel alloc] init];
                 NSMutableDictionary *thisDesc = [NSMutableDictionary dictionary];
                 ShapeSet canShapes;
                 canShapes.insert(*it);

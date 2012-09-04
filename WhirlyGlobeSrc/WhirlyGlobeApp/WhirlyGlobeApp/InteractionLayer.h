@@ -20,7 +20,7 @@
 
 #import <list>
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
 typedef std::set<WhirlyKit::SimpleIdentity> SimpleIDSet;
 
@@ -81,9 +81,9 @@ static const unsigned int MaxFeatureReps = 8;
     AnimateViewRotation *animateRotation;
 }
 
-@property (nonatomic,retain) NSDictionary *countryDesc;
-@property (nonatomic,retain) NSDictionary *oceanDesc;
-@property (nonatomic,retain) NSDictionary *regionDesc;
+@property (nonatomic,strong) NSDictionary *countryDesc;
+@property (nonatomic,strong) NSDictionary *oceanDesc;
+@property (nonatomic,strong) NSDictionary *regionDesc;
 @property (nonatomic,assign) float maxEdgeLen;
 
 // Need a pointer to the vector layer to start with
