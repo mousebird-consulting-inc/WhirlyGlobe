@@ -99,6 +99,17 @@ LocationInfo locations[NumLocations] =
     return self;
 }
 
+- (void)dealloc
+{
+    // This should release the globe view
+    if (globeViewC)
+    {
+        [globeViewC.view removeFromSuperview];
+        [globeViewC removeFromParentViewController];
+        globeViewC = nil;
+    }    
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -219,8 +230,12 @@ LocationInfo locations[NumLocations] =
     [super viewDidUnload];
     
     // This should release the globe view
-    [globeViewC removeFromParentViewController];
-    globeViewC = nil;
+    if (globeViewC)
+    {
+        [globeViewC.view removeFromSuperview];
+        [globeViewC removeFromParentViewController];
+        globeViewC = nil;
+    }
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation

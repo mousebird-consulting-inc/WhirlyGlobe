@@ -63,6 +63,10 @@ typedef std::set<ImageTexture> ImageTextureSet;
     userObjects = [NSMutableArray array];
 }
 
+- (void)dealloc
+{    
+}
+
 /// Called by the layer thread to shut a layer down.
 /// Clean all your stuff out of the scenegraph and so forth.
 - (void)shutdown
