@@ -215,6 +215,11 @@ protected:
     ///  not so well with animation such as fades, particles systems and such.
     bool useViewChanged;
     
+    /// By default we'll sort all alpha-containing drawables to the end.
+    /// Turn this off to tell the renderer you knew what you're doing and
+    ///  don't mess with my draw priorities.
+    bool sortAlphaToEnd;
+    
     /// Last time we rendered
     NSTimeInterval lastDraw;
     
@@ -239,6 +244,7 @@ protected:
 @property (nonatomic,assign) int perfInterval;
 
 @property (nonatomic,assign) bool useViewChanged;
+@property (nonatomic,assign) bool sortAlphaToEnd;
 
 @property (nonatomic,weak) NSObject<WhirlyKitSceneRendererDelegate> *delegate;
 

@@ -81,6 +81,7 @@ MarkerSceneRep::MarkerSceneRep()
     int             drawPriority;
     float           fade;
     SimpleIdentity  markerId;
+    SimpleIdentity  replaceID;
 }
 
 @property (nonatomic) NSArray *markers;
@@ -92,6 +93,7 @@ MarkerSceneRep::MarkerSceneRep()
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) SimpleIdentity markerId;
+@property (nonatomic,assign) SimpleIdentity replaceID;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
@@ -110,6 +112,7 @@ MarkerSceneRep::MarkerSceneRep()
 @synthesize drawPriority;
 @synthesize fade;
 @synthesize markerId;
+@synthesize replaceID;
 
 // Initialize with an array of makers and parse out parameters
 - (id)initWithMarkers:(NSArray *)inMarkers desc:(NSDictionary *)desc
@@ -122,6 +125,7 @@ MarkerSceneRep::MarkerSceneRep()
         [self parseDesc:desc];
         
         markerId = Identifiable::genId();
+        replaceID = EmptyIdentity;
     }
     
     return self;
@@ -227,6 +231,49 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
     // Screen space markers
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
+    
+    std::vector<ChangeRequest *> changeRequests;
+    
+    // Remove an existing marker
+    // Note: This code is copied from the remove method
+    if (markerInfo.replaceID != EmptyIdentity)
+    {
+        MarkerSceneRep dummyRep;
+        dummyRep.setId(markerInfo.replaceID);
+        MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);
+        if (it != markerReps.end())
+        {
+            MarkerSceneRep *markerRep = *it;
+            // Just delete everything
+            for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
+                 idIt != markerRep->drawIDs.end(); ++idIt)
+                changeRequests.push_back(new RemDrawableReq(*idIt));
+            
+            if (!markerRep->markerIDs.empty())
+            {
+                std::vector<SimpleIdentity> markerIDs;
+                for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
+                     idIt != markerRep->markerIDs.end(); ++idIt)
+                    markerIDs.push_back(*idIt);
+                changeRequests.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDs));
+            }
+            
+            if (!markerRep->screenShapeIDs.empty())
+            {
+                std::vector<SimpleIdentity> screenIDs;
+                for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
+                     idIt != markerRep->screenShapeIDs.end(); ++idIt)
+                    screenIDs.push_back(*idIt);
+                changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
+            }
+            
+            if (self.selectLayer && markerRep->selectID != EmptyIdentity)
+                [self.selectLayer removeSelectable:markerRep->selectID];
+            
+            markerReps.erase(it);
+            delete markerRep;
+        }
+    }
     
     for (WhirlyKitMarker *marker in markerInfo.markers)
     {
@@ -403,7 +450,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
     // Add all the new markers at once
     if (!markersToAdd.empty())
-        scene->addChangeRequest(new MarkerGeneratorAddRequest(generatorId,markersToAdd));
+        changeRequests.push_back(new MarkerGeneratorAddRequest(generatorId,markersToAdd));
     
     // Flush out any drawables for the static geometry
     for (DrawableMap::iterator it = drawables.begin();
@@ -414,17 +461,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             it->second->setFade(curTime,curTime+markerInfo.fade);
         }
-        scene->addChangeRequest(new AddDrawableReq(it->second));        
+        changeRequests.push_back(new AddDrawableReq(it->second));
     }
     drawables.clear();
     
     // Add all the screen space markers at once
     if (!screenShapes.empty())
-    {
-        
-        scene->addChangeRequest(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
-    }
+        changeRequests.push_back(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
     screenShapes.clear();
+    
+    scene->addChangeRequests(changeRequests);
 }
 
 // Remove the given marker(s)
@@ -519,14 +565,20 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // Add a group of markers
 - (SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
 {
+    return [self replaceMarker:EmptyIdentity withMarkers:markers desc:desc];
+}
+
+- (WhirlyKit::SimpleIdentity) replaceMarker:(WhirlyKit::SimpleIdentity)oldMarkerID withMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+{
     if (!layerThread || !scene)
     {
         NSLog(@"WhirlyGlobe Marker layer has not been initialized, yet you're calling addMarker.  Dropping data on floor.");
         return EmptyIdentity;
     }
-
+    
     MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:markers desc:desc];
-
+    markerInfo.replaceID = oldMarkerID;
+    
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddMarkers:markerInfo];
     else

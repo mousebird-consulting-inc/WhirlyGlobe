@@ -441,4 +441,28 @@ protected:
     Matrix4f newMat;
 };
     
+/// Change the drawPriority on a drawable
+class DrawPriorityChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
+    
+    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    
+protected:
+    int drawPriority;
+};
+    
+/// Change the line width on a drawable
+class LineWidthChangeRequest : public DrawableChangeRequest
+{
+public:
+    LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
+    
+    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    
+protected:
+    float lineWidth;
+};
+    
 }
