@@ -147,6 +147,12 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
+/// Return the min and max heights above the globe for zooming
+- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
+
+/// Set the min and max heights above the globe for zooming
+- (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
 /// Add rendering and other general hints for the globe view controller.
 - (void)setHints:(NSDictionary *)hintsDict;
 

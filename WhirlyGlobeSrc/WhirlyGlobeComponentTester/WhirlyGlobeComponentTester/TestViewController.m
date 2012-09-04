@@ -207,6 +207,9 @@ LocationInfo locations[NumLocations] =
                                 nil];
     [globeViewC setVectorDesc:vectorDesc];
     
+    // Restrict the min and max zoom
+//    [globeViewC setZoomLimitsMin:1.2 max:1.5];
+    
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeGlobeContents) withObject:nil afterDelay:0.0];
 }
