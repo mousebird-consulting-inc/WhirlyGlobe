@@ -217,6 +217,7 @@ public:
 @synthesize delegate;
 @synthesize useViewChanged;
 @synthesize sortAlphaToEnd;
+@synthesize depthBufferOffForAlpha;
 
 - (id <WhirlyKitESRenderer>) init
 {
@@ -257,6 +258,9 @@ public:
         
         // On by default.  Turn it off if you know why.
         sortAlphaToEnd = true;
+        
+        // Off by default.  Because duh.
+        depthBufferOffForAlpha = false;
 	}
 	
 	return self;
@@ -693,7 +697,7 @@ static const float ScreenOverlap = 0.1;
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthMaskOn && drawable->hasAlpha(frameInfo))
+            if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
             {
                 depthMaskOn = false;
                 glDisable(GL_DEPTH_TEST);
