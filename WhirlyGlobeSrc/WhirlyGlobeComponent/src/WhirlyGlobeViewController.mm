@@ -245,8 +245,7 @@ using namespace WhirlyGlobe;
     NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,                                   
                                    [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,                                   
-                                   // Note: Turned off because of fade issues
-//                                   [NSNumber numberWithFloat:1.0], kWGFade, 
+                                   [NSNumber numberWithFloat:1.0], kWGFade, 
                                    nil];
     [self setVectorDesc:newVectorDesc];
     

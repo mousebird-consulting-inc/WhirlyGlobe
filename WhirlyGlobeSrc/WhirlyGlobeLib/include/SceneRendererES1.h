@@ -220,6 +220,10 @@ protected:
     ///  don't mess with my draw priorities.
     bool sortAlphaToEnd;
     
+    // If this is set, we'll turn off the depth buffering the first time
+    //  we hit a drawable with alpha.  Off by default (not surprisingly).
+    bool depthBufferOffForAlpha;
+    
     /// Last time we rendered
     NSTimeInterval lastDraw;
     
@@ -245,6 +249,7 @@ protected:
 
 @property (nonatomic,assign) bool useViewChanged;
 @property (nonatomic,assign) bool sortAlphaToEnd;
+@property (nonatomic,assign) bool depthBufferOffForAlpha;
 
 @property (nonatomic,weak) NSObject<WhirlyKitSceneRendererDelegate> *delegate;
 
