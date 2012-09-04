@@ -500,8 +500,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         // Find the image (if we already rendered it) or create it as needed
         UIImage *textImage = nil;
         std::string labelStr = [label.text asStdString];
+        bool skipReuse = false;
         if (labelStr.length() != [label.text length])
-            NSLog(@"LabelLayer: Label string mismatch for rendering.");
+            skipReuse = true;
         std::map<std::string,UIImage *>::iterator it = renderedImages.find(labelStr);
         if (it != renderedImages.end())
         {
@@ -510,7 +511,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest];
             if (!textImage)
                 continue;
-            renderedImages[labelStr] = textImage;
+            if (!skipReuse)
+                renderedImages[labelStr] = textImage;
         }
         
         // Look for a spot in an existing texture atlas
