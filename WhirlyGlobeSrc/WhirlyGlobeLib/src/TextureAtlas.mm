@@ -208,7 +208,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     
     Texture *texture = new Texture(resultImage);
     texture->setId(texId);
-    texture->setUsesMipmaps(true);
+    // Note: Having trouble setting up mipmaps correctly
+    texture->setUsesMipmaps(false);
     return texture;
 }
 
