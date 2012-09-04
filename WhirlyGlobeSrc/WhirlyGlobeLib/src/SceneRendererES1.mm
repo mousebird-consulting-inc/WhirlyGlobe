@@ -128,7 +128,7 @@ void PerformanceTimer::log()
     {
         CountEntry &entry = it->second;
         if (entry.numRuns > 0)
-            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,%d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
     }
 }
 
@@ -164,23 +164,39 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
-class drawListSortStruct
+class DrawListSortStruct
 {
 public:
-    // These methods are here to make the compiler shut up
-    drawListSortStruct() { }
-    ~drawListSortStruct() { }
-    drawListSortStruct(const drawListSortStruct &that) {  }
-    drawListSortStruct & operator = (const drawListSortStruct &that) { return *this; }
-    bool operator()(DrawableRef a,DrawableRef b) 
+    DrawListSortStruct(bool useAlpha,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), frameInfo(frameInfo)
     {
-        if (a->hasAlpha(frameInfo) == b->hasAlpha(frameInfo))
-            return a->getDrawPriority() < b->getDrawPriority();
-
-        return !a->hasAlpha(frameInfo);
     }
-    
-    WhirlyKitRendererFrameInfo *frameInfo;
+    ~DrawListSortStruct() { }
+    DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), frameInfo(that.frameInfo)
+    {        
+    }
+    DrawListSortStruct & operator = (const DrawListSortStruct &that)
+    {
+        useAlpha = that.useAlpha;
+        frameInfo = that.frameInfo;
+        return *this;
+    }
+    bool operator()(Drawable *a,Drawable *b)
+    {
+        // We may or may not sort all alpha containing drawables to the end
+        if (useAlpha)
+        {
+            if (a->hasAlpha(frameInfo) == b->hasAlpha(frameInfo))
+                return a->getDrawPriority() < b->getDrawPriority();
+            
+            return !a->hasAlpha(frameInfo);
+        } else {
+            
+            return a->getDrawPriority() < b->getDrawPriority();
+        }
+    }
+            
+    bool useAlpha;
+    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
 
 @interface WhirlyKitSceneRendererES1()
@@ -200,6 +216,7 @@ public:
 @synthesize numDrawables;
 @synthesize delegate;
 @synthesize useViewChanged;
+@synthesize sortAlphaToEnd;
 
 - (id <WhirlyKitESRenderer>) init
 {
@@ -235,8 +252,11 @@ public:
 		glGenRenderbuffers(1, &depthRenderbuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
 
-        // Off by default because animations will get confused
-        useViewChanged = false;
+        // All the animations should work now, except for particle systems
+        useViewChanged = true;
+        
+        // On by default.  Turn it off if you know why.
+        sortAlphaToEnd = true;
 	}
 	
 	return self;
@@ -618,11 +638,17 @@ static const float ScreenOverlap = 0.1;
         [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
 		        
         // Turn these drawables in to a vector
-		std::vector<DrawableRef> drawList;
-		drawList.reserve(toDraw.size());
+		std::vector<Drawable *> drawList;
+//		drawList.reserve(toDraw.size());
 		for (std::set<DrawableRef>::iterator it = toDraw.begin();
 			 it != toDraw.end(); ++it)
-			drawList.push_back(*it);
+        {
+            Drawable *theDrawable = it->get();
+            if (theDrawable)
+                drawList.push_back(theDrawable);
+            else
+                NSLog(@"Bad drawable coming from cull tree.");
+        }
 
         if (perfInterval > 0)
             perfTimer.stopTiming("Culling");
@@ -640,10 +666,13 @@ static const float ScreenOverlap = 0.1;
             (*it)->generateDrawables(frameInfo, generatedDrawables, screenDrawables);
         
         // Add the generated drawables and sort them all together
-        drawList.insert(drawList.end(), generatedDrawables.begin(), generatedDrawables.end());
-        drawListSortStruct sortStruct;
-        sortStruct.frameInfo = frameInfo;
-		std::sort(drawList.begin(),drawList.end(),sortStruct);
+        for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
+        {
+            Drawable *theDrawable = generatedDrawables[ii].get();
+            if (theDrawable)
+                drawList.push_back(theDrawable);
+        }
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
         
         if (perfInterval > 0)
         {
@@ -660,7 +689,8 @@ static const float ScreenOverlap = 0.1;
         bool depthMaskOn = zBuffer;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
-			DrawableRef drawable = drawList[ii];
+			Drawable *drawable = drawList[ii];
+            
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
             if (depthMaskOn && drawable->hasAlpha(frameInfo))
@@ -684,7 +714,7 @@ static const float ScreenOverlap = 0.1;
             numDrawables++;
             if (perfInterval > 0)
             {
-                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable.get());
+                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
                 if (basicDraw)
                     perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
             }
@@ -708,10 +738,15 @@ static const float ScreenOverlap = 0.1;
         {
             glDisable(GL_DEPTH_TEST);
             // Sort by draw priority (and alpha, I guess)
-            drawList.insert(drawList.end(), screenDrawables.begin(), screenDrawables.end());
-            drawListSortStruct sortStruct;
-            sortStruct.frameInfo = frameInfo;
-            std::sort(drawList.begin(),drawList.end(),sortStruct);
+            for (unsigned int ii=0;ii<screenDrawables.size();ii++)
+            {
+                Drawable *theDrawable = screenDrawables[ii].get();
+                if (theDrawable)
+                    drawList.push_back(theDrawable);
+                else
+                    NSLog(@"Bad drawable coming from generator.");
+            }
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,frameInfo));
             
             // Set up the matrix
             glMatrixMode(GL_PROJECTION);
@@ -724,7 +759,8 @@ static const float ScreenOverlap = 0.1;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
-                DrawableRef drawable = drawList[ii];
+                Drawable *drawable = drawList[ii];
+                
                 if (drawable->isOn(frameInfo))
                 {
                     drawable->draw(frameInfo,scene);

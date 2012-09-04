@@ -48,6 +48,8 @@ public:
 	Texture(NSString *baseName,NSString *ext);
 	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side
 	Texture(UIImage *inImage);
+    /// Construct from a FILE, presumably because it was cached
+    Texture(FILE *fp);
 	
 	~Texture();
 	
@@ -67,6 +69,9 @@ public:
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
+    
+    /// Write to a FILE * for caching.
+    bool writeToFile(FILE *fp);
 	
 protected:
 	/// Raw texture data

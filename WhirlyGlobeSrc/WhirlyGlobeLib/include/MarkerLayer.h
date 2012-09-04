@@ -157,6 +157,9 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 //   the SingleMarkers, if set.
 - (WhirlyKit::SimpleIdentity) addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
+/// Same as addMarkers, but removes an existing marker at the same time.
+- (WhirlyKit::SimpleIdentity) replaceMarker:(WhirlyKit::SimpleIdentity)oldMarkerID withMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+
 /// Remove one or more markers, designated by their ID
 - (void) removeMarkers:(WhirlyKit::SimpleIdentity)markerID;
 

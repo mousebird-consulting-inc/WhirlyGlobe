@@ -244,6 +244,248 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 
 @end
 
+@implementation WhirlyGlobeGeometrySet
+
+@synthesize textures;
+@synthesize geom;
+
+static unsigned short CacheFileVersion = 1;
+
+- (id)initWithFile:(NSString *)fullPath
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    FILE *fp = fopen([fullPath cStringUsingEncoding:NSASCIIStringEncoding],"r");
+    if (!fp)
+        return nil;
+    
+    try
+    {
+        unsigned short fileVersion;
+        if (fread(&fileVersion, sizeof(unsigned short), 1, fp) != 1)
+            throw 1;
+        if (fileVersion != CacheFileVersion)
+            throw 1;
+        
+        // Textures
+        unsigned int numTex;
+        if (fread(&numTex, sizeof(unsigned int), 1, fp) != 1)
+            throw 1;
+        for (unsigned int ii=0;ii<numTex;ii++)
+        {
+//            Texture *tex = new Texture(fp);
+//            textures.push_back(tex);
+        }
+        
+        // Raw geometry
+        unsigned int numGeom;
+        if (fread(&numGeom, sizeof(unsigned int), 1, fp) != 1)
+            throw 1;
+        geom = [NSMutableArray array];
+        for (unsigned int ii=0;ii<numGeom;ii++)
+        {
+            WhirlyGlobeGeometryRaw *rawGeom = [[WhirlyGlobeGeometryRaw alloc] init];
+            
+            unsigned int type;
+            unsigned int texId;
+            std::vector<WhirlyKit::Point3f> &pts = rawGeom.pts;
+            std::vector<WhirlyKit::Point3f> &norms = rawGeom.norms;
+            std::vector<WhirlyKit::TexCoord> &texCoords = rawGeom.texCoords;
+            std::vector<WhirlyKit::RGBAColor> &colors = rawGeom.colors;
+            std::vector<WhirlyGlobe::RawTriangle> &triangles = rawGeom.triangles;
+            
+            if (fread(&type, sizeof(unsigned int), 1, fp) != 1 ||
+                fread(&texId, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            
+            unsigned int numPts;
+            if (fread(&numPts, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            pts.resize(numPts);
+            for (unsigned int ii=0;ii<pts.size();ii++)
+            {
+                float coords[3];
+                if (fread(coords,sizeof(float),3,fp) != 3)
+                    throw 1;
+                Point3f &pt = pts[ii];
+                pt.x() = coords[0];  pt.y() = coords[1];  pt.z() = coords[2];
+            }
+            
+            unsigned int numNorms;
+            if (fread(&numNorms, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            norms.resize(numNorms);
+            for (unsigned int ii=0;ii<norms.size();ii++)
+            {
+                float coords[3];
+                if (fread(coords,sizeof(float),3,fp) != 3)
+                    throw 1;
+                Point3f &nm = norms[ii];
+                nm.x() = coords[0];  nm.y() = coords[1];  nm.z() = coords[2];
+            }
+            
+            unsigned int numTexCoord;
+            if (fread(&numTexCoord, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            texCoords.resize(numTexCoord);
+            for (unsigned int ii=0;ii<texCoords.size();ii++)
+            {
+                float coords[2];
+                if (fread(coords,sizeof(float),2,fp) != 3)
+                    throw 1;
+                TexCoord &tc = texCoords[ii];
+                tc.u() = coords[0];  tc.v() = coords[1];
+            }
+            
+            unsigned int numColors = colors.size();
+            if (fread(&numColors, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            colors.resize(numColors);
+            for (unsigned int ii=0;ii<colors.size();ii++)
+            {
+                unsigned char vals[4];
+                if (fread(vals,sizeof(unsigned char),4,fp) != 4)
+                    throw 1;
+                RGBAColor &c = colors[ii];
+                c.r = vals[0];  c.g = vals[1];  c.b = vals[2];  c.a = vals[3];
+            }
+            
+            unsigned int numTri = triangles.size();
+            if (fread(&numTri, sizeof(unsigned int ), 1, fp) != 1)
+                throw 1;
+            triangles.resize(numTri);
+            for (unsigned int ii=0;ii<triangles.size();ii++)
+            {
+                RawTriangle &tri = triangles[ii];
+                if (fread(tri.verts,sizeof(unsigned int),3,fp) != 3)
+                    throw 1;
+            }            
+            
+            [geom addObject:rawGeom];
+        }
+    }
+    catch (...)
+    {
+        fclose(fp);
+        return nil;
+    }
+    
+    return self;
+}
+
+- (bool)writeToFile:(NSString *)fullPath
+{
+    FILE *fp = fopen([fullPath cStringUsingEncoding:NSASCIIStringEncoding],"w+");
+    if (!fp)
+        return false;
+    
+    try {
+        // File version number
+        unsigned short fileVersion = CacheFileVersion;
+        if (fwrite(&fileVersion, sizeof(unsigned short), 1, fp) != 1)
+            throw 1;
+        
+        // Textures first
+        unsigned int numTex = textures.size();
+        if (fwrite(&numTex, sizeof(unsigned int), 1, fp) != 1)
+            throw 1;
+        for (unsigned int ii=0;ii<textures.size();ii++)
+        {
+            Texture *tex = textures[ii];
+//            if (!tex->writeToFile(fp))
+//                throw 1;
+        }
+        
+        // Raw geometry
+        unsigned int numGeom = [geom count];
+        if (fwrite(&numGeom, sizeof(unsigned int), 1, fp) != 1)
+            throw 1;
+        for (WhirlyGlobeGeometryRaw *rawGeom in geom)
+        {
+            unsigned int type = rawGeom.type;
+            unsigned int texId = rawGeom.texId;
+            std::vector<WhirlyKit::Point3f> &pts = rawGeom.pts;
+            std::vector<WhirlyKit::Point3f> &norms = rawGeom.norms;
+            std::vector<WhirlyKit::TexCoord> &texCoords = rawGeom.texCoords;
+            std::vector<WhirlyKit::RGBAColor> &colors = rawGeom.colors;
+            std::vector<WhirlyGlobe::RawTriangle> &triangles = rawGeom.triangles;
+            
+            if (fwrite(&type, sizeof(unsigned int), 1, fp) != 1 ||
+                fwrite(&texId, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            
+            unsigned int numPts = pts.size();
+            if (fwrite(&numPts, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            for (unsigned int ii=0;ii<pts.size();ii++)
+            {
+                Point3f &pt = pts[ii];
+                float coords[3];
+                coords[0] = pt.x();  coords[1] = pt.y();  coords[2] = pt.z();
+                if (fwrite(coords,sizeof(float),3,fp) != 3)
+                    throw 1;
+            }
+            
+            unsigned int numNorms = norms.size();
+            if (fwrite(&numNorms, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            for (unsigned int ii=0;ii<norms.size();ii++)
+            {
+                Point3f &nm = norms[ii];
+                float coords[3];
+                coords[0] = nm.x();  coords[1] = nm.y();  coords[2] = nm.z();
+                if (fwrite(coords,sizeof(float),3,fp) != 3)
+                    throw 1;
+            }
+
+            unsigned int numTexCoord = texCoords.size();
+            if (fwrite(&numTexCoord, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            for (unsigned int ii=0;ii<texCoords.size();ii++)
+            {
+                TexCoord &tc = texCoords[ii];
+                float coords[2];
+                coords[0] = tc.u();  coords[1] = tc.v();
+                if (fwrite(coords,sizeof(float),2,fp) != 3)
+                    throw 1;
+            }
+
+            unsigned int numColors = colors.size();
+            if (fwrite(&numColors, sizeof(unsigned int), 1, fp) != 1)
+                throw 1;
+            for (unsigned int ii=0;ii<colors.size();ii++)
+            {
+                RGBAColor &c = colors[ii];
+                unsigned char vals[4];
+                vals[0] = c.r;  vals[1] = c.g;  vals[2] = c.b;  vals[3] = c.a;
+                if (fwrite(vals,sizeof(unsigned char),4,fp) != 4)
+                    throw 1;
+            }
+            
+            unsigned int numTri = triangles.size();
+            if (fwrite(&numTri, sizeof(unsigned int ), 1, fp) != 1)
+                throw 1;
+            for (unsigned int ii=0;ii<triangles.size();ii++)
+            {
+                RawTriangle &tri = triangles[ii];
+                if (fwrite(tri.verts,sizeof(unsigned int),3,fp) != 3)
+                    throw 1;
+            }
+        }
+
+    } catch (...)
+    {
+        fclose(fp);
+        return false;
+    }
+    
+    return true;
+}
+
+@end
+
 @implementation WhirlyGlobeGeometryLayer
 
 - (void)clear

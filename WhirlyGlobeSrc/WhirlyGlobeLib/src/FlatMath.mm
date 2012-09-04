@@ -96,6 +96,11 @@ Point3f FlatEarthCoordSystem::geocentricishToLocal(Point3f inPt)
     pt.z() = len * EarthRadius;
     
     return pt;
-}    
+}
+    
+GeoCoord FlatEarthCoordSystem::getOrigin() const
+{
+    return origin;
+}
 
 }
