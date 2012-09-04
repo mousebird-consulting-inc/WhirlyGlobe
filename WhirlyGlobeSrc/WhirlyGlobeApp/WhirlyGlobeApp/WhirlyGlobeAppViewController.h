@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 #import "InteractionLayer.h"
 #import "PanDelegateFixed.h"
 
@@ -27,7 +27,7 @@
 static const float FPSUpdateInterval = 4.0;
 
 // If set, we'll turn on a grid layer
-static const bool UseGridLayer = true;
+static const bool UseGridLayer = false;
 
 /* Whirly Globe View Controller
 	View controller that pops up a Whirly Globe view.
