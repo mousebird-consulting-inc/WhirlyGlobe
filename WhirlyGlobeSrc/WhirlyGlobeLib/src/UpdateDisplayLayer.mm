@@ -53,6 +53,7 @@ using namespace WhirlyGlobe;
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     layerThread = inLayerThread;
+    scene = inScene;
     
     // We want view updates, but only 1s in frequency
     if (layerThread.viewWatcher)
@@ -72,21 +73,24 @@ using namespace WhirlyGlobe;
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
 {
     WhirlyGlobeViewState *lastViewState = viewState;    
-    viewState = inViewState;
+    WhirlyGlobeViewState *newViewState = inViewState;
 
     // See how far we've moved
     float dist2 = 0.0;
     if (lastViewState)
     {
         Vector3f eye0 = [lastViewState eyePos];
-        Vector3f eye1 = [viewState eyePos];
+        Vector3f eye1 = [newViewState eyePos];
         
         dist2 = (eye0-eye1).squaredNorm();
     }
 
     // If this is the first go, call the data source, otherwise we need to have moved sufficiently
     if (!lastViewState || (dist2 >= moveDist*moveDist))
-        [dataSource viewerDidUpdate:viewState];
+    {
+        viewState = newViewState;
+        [dataSource viewerDidUpdate:viewState scene:scene];
+    }
 }
 
 @end

@@ -35,7 +35,7 @@
 @protocol WhirlyGlobeUpdateDataSource <NSObject>
 
 /// The update display layer will call this when the viewer has moved sufficiently
-- (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState;
+- (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
 
 /// Called when the layer needs to shutdown.  Clean up your objects.
 - (void)shutdown;
@@ -50,6 +50,9 @@
 {
     /// Layer thread we're attached to
     WhirlyKitLayerThread * __weak layerThread;
+    
+    /// Scene, just for the data source
+    WhirlyKit::Scene *scene;
     
     /// Distance we can move before triggering an update.
     /// The units are geocentric-like with a radius of 1.0

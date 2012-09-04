@@ -23,6 +23,7 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "RenderCache.h"
+#import "Tesselator.h"
 
 using namespace WhirlyKit;
 //using namespace WhirlyGlobe;
@@ -44,12 +45,14 @@ using namespace WhirlyKit;
     float                       lineWidth;
     BOOL                        filled;
     NSString                    *cacheName;
+    SimpleIdentity              replaceVecID;
 }
 
 @property (nonatomic) UIColor *color;
 @property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
+@property (nonatomic,assign) SimpleIdentity replaceVecID;
 
 - (void)parseDict:(NSDictionary *)dict;
 
@@ -61,6 +64,7 @@ using namespace WhirlyKit;
 @synthesize cacheName;
 @synthesize fade;
 @synthesize lineWidth;
+@synthesize replaceVecID;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)dict
 {
@@ -68,6 +72,7 @@ using namespace WhirlyKit;
     {
         if (inShapes)
             shapes = *inShapes;
+        replaceVecID = EmptyIdentity;
         [self parseDict:dict];
     }
     
@@ -113,9 +118,9 @@ namespace WhirlyKit
 class DrawableBuilder
 {
 public:
-    DrawableBuilder(Scene *scene,VectorSceneRep *sceneRep,
+    DrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
                     VectorInfo *vecInfo,bool linesOrPoints,RenderCacheWriter *cacheWriter)
-    : scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -210,7 +215,7 @@ public:
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+vecInfo.fade);
                 }
-                scene->addChangeRequest(new AddDrawableReq(drawable));
+                changeRequests.push_back(new AddDrawableReq(drawable));
             } else
                 delete drawable;
             drawable = NULL;
@@ -219,6 +224,7 @@ public:
     
 protected:   
     Scene *scene;
+    std::vector<ChangeRequest *> &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
@@ -234,9 +240,9 @@ protected:
 class DrawableBuilderTri
 {
 public:
-    DrawableBuilderTri(Scene *scene,VectorSceneRep *sceneRep,
+    DrawableBuilderTri(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
                        VectorInfo *vecInfo)
-    : scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
     }
     
@@ -245,51 +251,60 @@ public:
         flush();
     }
     
-    void addPoints(VectorRing &pts)
+    void addPoints(VectorRing &inRing)
     {          
-        if (pts.size() < 3)
+        if (inRing.size() < 3)
             return;
         
-        // Decide if we'll appending to an existing drawable or
-        //  create a new one
-        int ptCount = pts.size();
-        int triCount = pts.size()-2;
-        if (!drawable || 
-            (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
-            (drawable->getNumTris()+triCount > MaxDrawableTriangles))
-        {
-            // We're done with it, toss it to the scene
-            if (drawable)
-                flush();
-            
-            drawable = new BasicDrawable();
-            drawMbr.reset();
-            drawable->setType(GL_TRIANGLES);
-            // Adjust according to the vector info
-            drawable->setOnOff(vecInfo->enable);
-            drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor([vecInfo.color asRGBAColor]);
-            drawable->setDrawPriority(vecInfo->priority);
-            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
-        }
-        drawMbr.addPoints(pts);
+        std::vector<VectorRing> rings;
+        TesselateRing(inRing,rings);
         
-        // Add the points
-        for (unsigned int jj=0;jj<pts.size();jj++)
+        for (unsigned int ir=0;ir<rings.size();ir++)
         {
-            // Convert to real world coordinates and offset from the globe
-            Point2f &geoPt = pts[jj];
-            GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-            Point3f pt = norm;
+            VectorRing &pts = rings[ir];
+            // Decide if we'll appending to an existing drawable or
+            //  create a new one
+            int ptCount = pts.size();
+            int triCount = pts.size()-2;
+            if (!drawable || 
+                (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
+                (drawable->getNumTris()+triCount > MaxDrawableTriangles))
+            {
+                // We're done with it, toss it to the scene
+                if (drawable)
+                    flush();
+                
+                drawable = new BasicDrawable();
+                drawMbr.reset();
+                drawable->setType(GL_TRIANGLES);
+                // Adjust according to the vector info
+                drawable->setOnOff(vecInfo->enable);
+                drawable->setDrawOffset(vecInfo->drawOffset);
+                drawable->setColor([vecInfo.color asRGBAColor]);
+                drawable->setDrawPriority(vecInfo->priority);
+                drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+            }
+            int baseVert = drawable->getNumPoints();
+            drawMbr.addPoints(pts);
             
-            drawable->addPoint(pt);
-            drawable->addNormal(norm);
+            // Add the points
+            for (unsigned int jj=0;jj<pts.size();jj++)
+            {
+                // Convert to real world coordinates and offset from the globe
+                Point2f &geoPt = pts[jj];
+                GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
+                Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
+                Point3f pt = norm;
+                
+                drawable->addPoint(pt);
+                drawable->addNormal(norm);
+            }
+            
+            // Add the triangles
+            // Note: Should be reusing vertex indices
+            if (pts.size() == 3)
+                drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
         }
-        
-        // Add the triangles
-        for (unsigned int jj=2;jj<pts.size();jj++)
-            drawable->addTriangle(BasicDrawable::Triangle(0,jj,jj-1));
     }
     
     void flush()
@@ -306,7 +321,7 @@ public:
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+vecInfo.fade);
                 }
-                scene->addChangeRequest(new AddDrawableReq(drawable));
+                changeRequests.push_back(new AddDrawableReq(drawable));
             } else
                 delete drawable;
             drawable = NULL;
@@ -315,6 +330,7 @@ public:
     
 protected:   
     Scene *scene;
+    std::vector<ChangeRequest *> &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
@@ -387,8 +403,27 @@ protected:
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    DrawableBuilder drawBuild(scene,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
-    DrawableBuilderTri drawBuildTri(scene,sceneRep,vecInfo);
+    std::vector<ChangeRequest *> changeRequests;
+    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
+    DrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
+    
+    // Note: This is a duplicate of the runRemoveVector logic
+    if (vecInfo.replaceVecID)
+    {
+        VectorSceneRepMap::iterator it = vectorReps.find(vecInfo.replaceVecID);
+        
+        if (it != vectorReps.end())
+        {
+            VectorSceneRep *sceneRep = it->second;
+            
+            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+                 idIt != sceneRep->drawIDs.end(); ++idIt)
+                changeRequests.push_back(new RemDrawableReq(*idIt));
+            vectorReps.erase(it);
+                
+            delete sceneRep;
+        }
+    }
     
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
@@ -432,6 +467,9 @@ protected:
     
     drawBuild.flush();
     drawBuildTri.flush();
+    
+    scene->addChangeRequests(changeRequests);
+    
     if (renderCacheWriter)
         delete renderCacheWriter;
 }
@@ -479,6 +517,12 @@ protected:
             
             // Changed visibility
             scene->addChangeRequest(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis));
+            
+            // Changed line width
+            scene->addChangeRequest(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth));
+            
+            // Changed draw priority
+            scene->addChangeRequest(new DrawPriorityChangeRequest(*idIt, vecInfo->priority));
         }
     }
 }
@@ -511,6 +555,27 @@ protected:
             delete sceneRep;
         }
     }    
+}
+
+// Replace the given set of vectors wit the new one
+- (WhirlyKit::SimpleIdentity)replaceVector:(WhirlyKit::SimpleIdentity)oldVecID withVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict
+{
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Vector layer has not been initialized, yet you're calling replaceVector.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+    
+    VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:dict];
+    vecInfo.replaceVecID = oldVecID;
+    vecInfo->sceneRepId = Identifiable::genId();
+    
+    if (!layerThread || ([NSThread currentThread] == layerThread))
+        [self runAddVector:vecInfo];
+    else
+        [self performSelector:@selector(runAddVector:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
+    
+    return vecInfo->sceneRepId;    
 }
 
 // Add a vector

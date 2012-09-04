@@ -63,6 +63,9 @@ public:
     /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
     Point3f geocentricishToLocal(Point3f);
     
+    /// Return the origin
+    GeoCoord getOrigin() const;
+    
     /// Working in a flat space
     bool isFlat() { return true; }        
     

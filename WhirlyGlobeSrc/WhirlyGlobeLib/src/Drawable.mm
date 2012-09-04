@@ -875,5 +875,28 @@ void TransformChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer>
     if (basicDraw.get())
         basicDraw->setMatrix(&newMat);
 }
+    
+DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority)
+: DrawableChangeRequest(drawId), drawPriority(drawPriority)
+{
+}
+
+void DrawPriorityChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    basicDrawable->setDrawPriority(drawPriority);
+}
+
+LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth)
+: DrawableChangeRequest(drawId), lineWidth(lineWidth)
+{
+}
+
+void LineWidthChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    basicDrawable->setLineWidth(lineWidth);
+}
+
 
 }

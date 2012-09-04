@@ -108,9 +108,29 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 + (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
 
 /// Construct the drawables for this raw geometry object.
-/// Add thems to the drawable array passed in.
+/// Adds them to the drawable array passed in.
 /// Be careful when you use this.
 - (void)makeDrawables:(std::vector<WhirlyKit::Drawable *> &)drawables;
+
+@end
+
+/** A set of raw geometry and textures, suitable for reading
+    from and writing to permanent storage.
+ */
+@interface WhirlyGlobeGeometrySet : NSObject
+{
+    std::vector<WhirlyKit::Texture *> textures;
+    NSMutableArray *geom;
+}
+
+@property (nonatomic,readonly) std::vector<WhirlyKit::Texture *> &textures;
+@property (nonatomic,readonly) NSMutableArray *geom;
+
+/// Load cached geometry and textures from the given file
+- (id)initWithFile:(NSString *)fullPath;
+
+/// Write to storage using the given base name in the given location
+- (bool)writeToFile:(NSString *)fullPath;
 
 @end
 
