@@ -118,7 +118,7 @@
  */
 @interface WhirlyGlobeViewController : UIViewController
 {
-    NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
+    NSObject<WhirlyGlobeViewControllerDelegate> * __weak delegate;
 }
 
 /// Set this to keep the north pole facing upward when moving around.
@@ -134,7 +134,7 @@
 @property(nonatomic,assign) bool rotateGesture;
 
 /// Set this to get callbacks for various events.
-@property(nonatomic,strong) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
+@property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
 /// Set selection support on or off here
 @property(nonatomic,assign) bool selection;

@@ -161,6 +161,7 @@ using namespace WhirlyGlobe;
                        NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]), 
                                         [NSNumber numberWithInt:level], [NSNumber numberWithInt:col], [NSNumber numberWithInt:row], nil];
                        [self performSelector:@selector(tileUpdate:) onThread:quadLoader.quadLayer.layerThread withObject:args waitUntilDone:NO];
+                       imgData = nil;
                    });
 }
 
