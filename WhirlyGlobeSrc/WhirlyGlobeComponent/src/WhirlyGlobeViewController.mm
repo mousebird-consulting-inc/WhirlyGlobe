@@ -20,11 +20,11 @@
 
 #import <WhirlyGlobe.h>
 #import "WhirlyGlobeViewController.h"
-#import "PanDelegate.h"
 #import "WGViewControllerLayer_private.h"
 #import "WGComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
 #import "PanDelegateFixed.h"
+#import "PinchDelegateFixed.h"
 #import "WGSphericalEarthWithTexGroup_private.h"
 #import "WGQuadEarthWithMBTiles_private.h"
 #import "WGQuadEarthWithRemoteTiles_private.h"
@@ -59,7 +59,7 @@ using namespace WhirlyGlobe;
     NSMutableArray *userLayers;
 
     // Gesture recognizers
-    WhirlyGlobePinchDelegate *pinchDelegate;
+    WGPinchDelegateFixed *pinchDelegate;
     PanDelegateFixed *panDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;    
@@ -518,7 +518,7 @@ using namespace WhirlyGlobe;
     if (pinchGesture)
     {
         if (!pinchDelegate)
-            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
     } else {
         if (pinchDelegate)
         {
@@ -580,6 +580,29 @@ using namespace WhirlyGlobe;
 - (void)setHeight:(float)height
 {
     globeView.heightAboveGlobe = height;
+}
+
+- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
+{
+    if (pinchDelegate)
+    {
+        *minHeight = pinchDelegate.minHeight;
+        *maxHeight = pinchDelegate.maxHeight;
+    }
+}
+
+/// Set the min and max heights above the globe for zooming
+- (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight
+{
+    if (pinchDelegate)
+    {
+        pinchDelegate.minHeight = minHeight;
+        pinchDelegate.maxHeight = maxHeight;
+        if (globeView.heightAboveGlobe < minHeight)
+            globeView.heightAboveGlobe = minHeight;
+        if (globeView.heightAboveGlobe > maxHeight)
+            globeView.heightAboveGlobe = maxHeight;
+    }
 }
 
 #pragma mark - Interaction
