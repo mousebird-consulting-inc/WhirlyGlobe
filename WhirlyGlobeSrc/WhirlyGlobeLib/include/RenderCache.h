@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/19/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ bool RenderCacheExists(NSString *baseName);
 class RenderCacheWriter
 {
 public:
+    /// Construct with the file name we're writing to.
     RenderCacheWriter(NSString *fileName);
     ~RenderCacheWriter();
     
@@ -71,6 +72,7 @@ protected:
 class RenderCacheReader
 {
 public:
+    /// Construct with the file name we're reading from.
     RenderCacheReader(NSString *fileName);
     ~RenderCacheReader();
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,14 +53,14 @@ public:
     OpenGLMemManager();
     ~OpenGLMemManager();
     
-    // Pick a buffer ID off the list or ask OpenGL for one
+    /// Pick a buffer ID off the list or ask OpenGL for one
     GLuint getBufferID();
-    // Toss the given buffer ID back on the list for reuse
+    /// Toss the given buffer ID back on the list for reuse
     void removeBufferID(GLuint bufID);
 
-    // Pick a texture ID off the list or ask OpenGL for one
+    /// Pick a texture ID off the list or ask OpenGL for one
     GLuint getTexID();
-    // Toss the given texture ID back on the list for reuse
+    /// Toss the given texture ID back on the list for reuse
     void removeTexID(GLuint texID);
         
 protected:
@@ -311,7 +311,7 @@ public:
     /// Reserve extra space for colors
     void reserveNumColors(int numColors) { colors.reserve(colors.size()+numColors); }
 	
-	// Widen a line and turn it into a rectangle of the given width
+	/// Widen a line and turn it into a rectangle of the given width
 	void addRect(const Point3f &l0, const Vector3f &ln0, const Point3f &l1, const Vector3f &ln1,float width);
     
     /// Set the active transform matrix
@@ -366,7 +366,7 @@ protected:
 	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer;
 };
     
-// Reference counted version of BasicDrawable
+/// Reference counted version of BasicDrawable
 typedef boost::shared_ptr<BasicDrawable> BasicDrawableRef;
 
 /// Ask the renderer to change a drawable's color

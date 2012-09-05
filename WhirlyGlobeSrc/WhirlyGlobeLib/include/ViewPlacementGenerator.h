@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/25/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ namespace WhirlyKit
 
 #define kViewPlacementGeneratorShared "SharedViewPlacementGenerator"
   
-/** The View Placement Generator moves UIViews around accordingly to locations in geographic.
+/** The View Placement Generator moves UIViews around accordingly to locations in geographic coordinates.
+    You'll need to both add the UIView here and add it underneath the OpenGL view.
  */
 class ViewPlacementGenerator : public WhirlyKit::Generator
 {

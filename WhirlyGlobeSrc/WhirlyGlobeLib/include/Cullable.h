@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,14 +48,15 @@ protected:
     int numCullables;
 };
     
-// Number of "corners" we used to define things in world space
+/// Number of "corners" we used to define things in world space.
 #define WhirlyKitCullableCorners 8
+/// Number of normals we'll consider for backface culling calculations.
 #define WhirlyKitCullableCornerNorms 4
 
 /** This is a representation of cullable geometry.  It has
     geometry/direction info and a list of associated
     Drawables.
-    Cullables are always rectangles in local space.
+    Cullables are always cubes in local space.
     In general, users shouldn't use these.  Your drawables
      will be sorted into them behind the scenes.
  */

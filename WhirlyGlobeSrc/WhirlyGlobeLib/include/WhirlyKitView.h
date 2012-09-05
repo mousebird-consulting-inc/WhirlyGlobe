@@ -26,7 +26,7 @@
 
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and WhirlyMap.  It contains the general purpose
-    methods and parameters related to the view matrix used for display.
+    methods and parameters related to the model and view matrices used for display.
  */
 @interface WhirlyKitView : NSObject
 {
@@ -38,6 +38,7 @@
     /// The last time the position was changed
     CFTimeInterval lastChangedTime;
     
+    /// Coordinate system we're working in for the view
     WhirlyKit::CoordSystem *coordSystem;
 }
 

@@ -1,9 +1,9 @@
 /*
- *  FlatMath.h
+ *  SphericalMercator.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/19/12.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 namespace WhirlyKit 
 {
 
-    /** The Mercator Projection, bane of cartographers everywhere.
+/** The Mercator Projection, bane of cartographers everywhere.
  It stretches out the world in a familiar way, making the US
  look almost as big as our collective ego.  And Greenland.  For some reason.
  */
@@ -45,6 +45,7 @@ public:
     /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
     Point3f geocentricishToLocal(Point3f);
     
+    /// This is a flat system
     bool isFlat() { return true; }
     
 protected:

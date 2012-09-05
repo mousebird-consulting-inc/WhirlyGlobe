@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,8 +33,7 @@
 namespace WhirlyKit
 {
 
-/** Sub Texture
-    These are used to index from an image into a larger texture atlases.
+/** Sub Textures are used to index from an image into a larger texture atlas.
     We need to combine images together for efficiency's sake.  This lets us
     pretend we're dealing with individual textures.  You can use their IDs
     in place of texture IDs for most of the layers.
@@ -46,10 +45,10 @@ public:
     /// Set up the transform from destination texture coordinates
     void setFromTex(const TexCoord &texOrg,const TexCoord &texDest);
     
-    // Convert the texture coordinate to the destination texture
+    /// Convert the texture coordinate to the destination texture
     TexCoord processTexCoord(const TexCoord &);
     
-    // Convert a list of texture coordinates to the dest texture
+    /// Convert a list of texture coordinates to the dest texture
     void processTexCoords(std::vector<TexCoord> &);
     
     /// Sort operator
@@ -64,7 +63,7 @@ public:
     
 }
 
-/** A Texture Atlas is an object used to consolidate textures
+/** A Texture Atlas is used to consolidate textures
     for performance.  OpenGL doesn't like having a lot of little
     textures and would much prefer one big one.  This is how we do
     that.
@@ -109,8 +108,7 @@ public:
 
 @end
 
-/** Texture Atlas Builder
-    This object is used to build up a list of texture atlases which will be used to
+/** The Texture Atlas Builder is used to build up a list of texture atlases which will be used to
     speed up rendering related to textures.  You give this object UIImages
     and it will sort them into appropriate texture atlases.  In return you get an
     ID which you can use to uniquely identify your texture subset and a mapping into

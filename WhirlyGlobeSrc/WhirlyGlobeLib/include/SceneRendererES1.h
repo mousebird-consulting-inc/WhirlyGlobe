@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ protected:
 @class WhirlyKitSceneRendererES1;
 /// @endcond
 
-/** Renderer Frame Info
+/** Renderer Frame Info.
     Data about the current frame, passed around by the renderer.
  */
 @interface WhirlyKitRendererFrameInfo : NSObject

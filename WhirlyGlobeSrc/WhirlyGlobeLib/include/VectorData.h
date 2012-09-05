@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -100,6 +100,7 @@ public:
     /// Sudivide to the given tolerance (in degrees)
     void subdivide(float tolerance);
         
+    /// Bounding box in geographic coordinates.
 	GeoMbr geoMbr;
 	std::vector<VectorRing> loops;
     
@@ -139,7 +140,10 @@ public:
     static VectorPointsRef createPoints();
     ~VectorPoints();
     
+    /// Return the bounding box
     virtual GeoMbr calcGeoMbr();
+    
+    /// Calculate the bounding box from data
     void initGeoMbr();
 
 	GeoMbr geoMbr;
@@ -149,16 +153,15 @@ protected:
     VectorPoints();
 };
     
-/// Just a set of strings
+/// A set of strings
 typedef std::set<std::string> StringSet;
     
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
 
-/** Vector Reader
-   Base class for loading a vector data file.
-   Fill this into hand data over to whomever wants it.
+/** Base class for loading a vector data file.
+    Fill this into hand data over to whomever wants it.
  */
 class VectorReader
 {

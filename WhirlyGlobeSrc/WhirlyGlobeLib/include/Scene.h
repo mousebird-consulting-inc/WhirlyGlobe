@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,14 +43,14 @@ class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 
 /// Request that the renderer add the given texture.
-/// This will make it available for use by its ID
+/// This will make it available for use, referenced by ID.
 class AddTextureReq : public ChangeRequest
 {
 public:
-    /// Construct with a texture
-    /// You are not responsible for deleteing the texture after this
+    /// Construct with a texture.
+    /// You are not responsible for deleting the texture after this.
 	AddTextureReq(Texture *tex) : tex(tex) { }
-    /// If the texture hasn't been added to the renderer, clean it up
+    /// If the texture hasn't been added to the renderer, clean it up.
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
 
 	/// Add to the renderer.  Never call this.
@@ -151,7 +151,7 @@ protected:
 };
     
 /// This class give us a virtual destructor to make use of
-///  when we're deleting random objects at the end of the layer thread
+///  when we're deleting random objects at the end of the layer thread.
 class DelayedDeletable
 {
 public:
@@ -161,7 +161,7 @@ public:
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
-/** Scene is the top level scene object for WhirlyKit.
+/** This is the top level scene object for WhirlyKit.
     It keeps track of the drawables by sorting them into
      cullables and it handles the change requests, which
      consist of pretty much everything that can happen.
@@ -173,7 +173,7 @@ public:
 	/// Construct with the depth of the cullable quad tree,
     ///  the coordinate system we're using, and the MBR of the
     ///  top level.
-    /// The earth will be recursively divided into a quad tree of depth.
+    /// The earth will be recursively divided into a quad tree of given depth.
 	Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth);
 	virtual ~Scene();
     
@@ -200,7 +200,6 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
-	// Note: Should give this a time limit
 	void processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer);
     
     /// True if there are pending updates
@@ -231,7 +230,7 @@ public:
     /// Get the screen space generator (be careful).
     ScreenSpaceGenerator *getScreenSpaceGenerator() { return ssGen; }
     
-    /// Get the UIView placement generator.  Only use it in the main thread.
+    /// Get the UIView placement generator.  Only use this in the main thread.
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
     /// Add an active model.  Only call this on the main thread.
