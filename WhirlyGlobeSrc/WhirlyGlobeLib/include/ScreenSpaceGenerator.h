@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/12.
- *  Copyright 2011 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2012 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ public:
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
-    // A simple geometric representation used in shapes
-    // We do it this way so we can have multiple 
+    /// A simple geometric representation used in shapes
+    /// We do it this way so we can have multiple 
     class SimpleGeometry
     {
     public:

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -49,9 +49,8 @@ class Identifiable
 {
 public:
 	/// Construct with a new ID
-	// Note: This will probably work with multiple threads
 	Identifiable();
-    // Construct with an existing ID
+    /// Construct with an existing ID.  Used for searching mostly.
     Identifiable(SimpleIdentity oldId) : myId(oldId) { }
 	virtual ~Identifiable() { }
 	

@@ -47,6 +47,7 @@ public:
     {
     public:
         Identifier() { }
+        /// Construct with the cell coordinates and leve.
         Identifier(int x,int y,int level) : x(x), y(y), level(level) { }
         
         /// Comparison based on x,y,level.  Used for sorting

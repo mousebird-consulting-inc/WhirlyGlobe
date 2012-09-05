@@ -1,9 +1,9 @@
 /*
- *  WhirlyGlobeEAGLView .h
+ *  WhirlyGlobeEAGLView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/5/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,14 +29,16 @@
  */
 @interface WhirlyKitEAGLView  : UIView 
 {
-    // We're only expecting this to be set once
+    /// We're only expecting this to be set once
 	id <WhirlyKitESRenderer> renderer;
 
-    // This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
+    /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 	NSInteger frameInterval;
+    /// True if we've got a displayLink turned on to animate.
     BOOL animating;
     CADisplayLink *displayLink;
-    /// Set this false if you don't want the doubling for the retina display
+    /// Set this false if you don't want the doubling for the retina display.
+    /// True by default.
     BOOL useRetina;
 }
 
@@ -45,9 +47,9 @@
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
 @property (nonatomic, assign) BOOL useRetina;
 
-/// Start the animation.  Typically right before we're displayed
+/// Start animating.  Typically right before we're displayed
 - (void) startAnimation;
-/// Stop the animation.  It can be restarted or destroyed after this.
+/// Stop animating.  It can be restarted or destroyed after this.
 - (void) stopAnimation;
 
 /// Draw into the actual view

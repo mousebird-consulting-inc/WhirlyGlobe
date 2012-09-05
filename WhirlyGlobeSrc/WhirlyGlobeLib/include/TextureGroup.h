@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 #import <OpenGLES/ES1/glext.h>
 #import "WhirlyVector.h"
 
-/** The Texture Group is used to represent a lage image
+/** The Texture Group is used to represent a large image
     that's been broken into several pieces to aid in loading
     and get around the 1k x 1k (or 2k x 2k) limit in OpenGL.
 	File name: base_XxY.ext

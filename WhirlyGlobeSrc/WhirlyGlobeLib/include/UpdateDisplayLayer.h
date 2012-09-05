@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@
     /// Last view state we were given
     WhirlyGlobeViewState *viewState;
     
+    /// The data source that will be called when the viewer moves sufficiently.
     NSObject<WhirlyGlobeUpdateDataSource> *dataSource;
 }
 

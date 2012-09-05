@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 /** The Plate Careee just unrolls lat/lon in radians and
     represents the map as a flat non-projection of that.
-    Technically, this is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
+    This is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
 class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
 {
@@ -74,7 +74,7 @@ protected:
     float converge;
 };
 
-// Note: Entirely bogus
+/// A representative earth radius value.  We use this for scaling, not accurate geolocation.
 static const float EarthRadius = 6371000;
 
 }
