@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/10/11.
- *  Copyright 2011 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2012 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ public:
     virtual ~Generator() { }
 
     /// Generate drawables in one of two lists for the renderer.
-    /// World drawables are drawn in 3D, screen drawables are drawn in 2D, after the 3D.
-    /// The renderer deletes the drawables at the end of the frame
+    /// World drawables are drawn in 3D, then screen drawables are drawn in 2D.
+    /// The renderer deletes the drawables at the end of the frame.
     virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
                                    std::vector<DrawableRef> &worldDrawables,std::vector<DrawableRef> &screenDrawables) { };
     
@@ -55,7 +55,7 @@ public:
 
 /** The Generator Change Request is the base class for communication
     with a specific generator.  You override this with your own specific
-    request and it'll be delivered to the generate your request.
+    request and it'll be delivered to the generator you request.
   */
 class GeneratorChangeRequest : public ChangeRequest
 {
@@ -64,14 +64,14 @@ public:
     GeneratorChangeRequest(SimpleIdentity genId) : genId(genId) { }
     GeneratorChangeRequest() { }
 
-    /// Run the generator request.  Don't override this one
+    /// Run the generator request.  Don't override this one.
     void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
 
     /// Override this method to do whatever you want to do to the generator
     virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *drawGen) = 0;
     
 protected:
-    /// Generator that we're going to modify
+    /// Generator that we're going to modify.
     SimpleIdentity genId;
 };
     

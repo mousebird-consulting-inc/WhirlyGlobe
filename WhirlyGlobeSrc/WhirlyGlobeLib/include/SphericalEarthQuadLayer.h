@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +36,11 @@
 {
 }
 
+/// Set the draw priority for geometry this layer produces.
+/// This is how you resolve ordering in a non-z-buffered renderer.
 @property (nonatomic,assign) int drawPriority;
+/// Set the draw offset for geometry this layer produces.
+/// This is how you resolve ordering in a z-buffered renderer.
 @property (nonatomic,assign) int drawOffset;
 /// Turns edge matching logic on or off for the associated tile loader
 @property (nonatomic,assign) bool ignoreEdgeMatching;

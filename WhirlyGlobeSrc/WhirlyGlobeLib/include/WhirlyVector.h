@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -135,8 +135,8 @@ protected:
 	Point2f pt_ll,pt_ur;
 };
 	
-/** Geographic MBR.
-    Coordinates are restricted to [-180,-90]->[+180,+90]
+/** Geographic bounding rectangle.
+    Coordinates are restricted to [-180,-90]->[+180,+90], but in radians.
   */
 class GeoMbr
 {

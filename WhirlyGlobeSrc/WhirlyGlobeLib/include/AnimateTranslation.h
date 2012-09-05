@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@
 #import "WhirlyGeometry.h"
 #import "WhirlyMapView.h"
 
-/** Animate View Translation is a 
- */
+/// WhirlyMap translation from one location to another.
 @interface AnimateViewTranslation : NSObject<WhirlyMapAnimationDelegate>
 {
     CFTimeInterval startDate,endDate;

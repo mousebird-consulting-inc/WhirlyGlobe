@@ -117,9 +117,9 @@
 		2B40429415F6BA3500937923 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2B40429515F6BA3500937923 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		2B40429C15F6BEEE00937923 /* InteractionLayer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = InteractionLayer.h; sourceTree = "<group>"; };
-		2B40429D15F6BEEE00937923 /* InteractionLayer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = InteractionLayer.mm; sourceTree = "<group>"; };
-		2B40429E15F6BEF800937923 /* WhirlyGlobeAppViewController.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = WhirlyGlobeAppViewController.h; sourceTree = "<group>"; };
-		2B40429F15F6BEF800937923 /* WhirlyGlobeAppViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = WhirlyGlobeAppViewController.mm; sourceTree = "<group>"; };
+		2B40429D15F6BEEE00937923 /* InteractionLayer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = InteractionLayer.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B40429E15F6BEF800937923 /* WhirlyGlobeAppViewController.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyGlobeAppViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B40429F15F6BEF800937923 /* WhirlyGlobeAppViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyGlobeAppViewController.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B4042A015F6BF8000937923 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
 		2B4042B115F6C0EF00937923 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2B4042B315F6C0F700937923 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
@@ -197,8 +197,8 @@
 		2B4043A015F6C20000937923 /* oceans.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = oceans.sqlite; sourceTree = "<group>"; };
 		2B4043A115F6C20000937923 /* regions.mbr */ = {isa = PBXFileReference; lastKnownFileType = file; path = regions.mbr; sourceTree = "<group>"; };
 		2B4043A215F6C20000937923 /* regions.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = regions.sqlite; sourceTree = "<group>"; };
-		2B40449815F6C29300937923 /* PanDelegateFixed.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = PanDelegateFixed.h; sourceTree = "<group>"; };
-		2B40449915F6C29300937923 /* PanDelegateFixed.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = PanDelegateFixed.mm; sourceTree = "<group>"; };
+		2B40449815F6C29300937923 /* PanDelegateFixed.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegateFixed.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B40449915F6C29300937923 /* PanDelegateFixed.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegateFixed.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -691,6 +691,7 @@
 				2B40429B15F6BA3500937923 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

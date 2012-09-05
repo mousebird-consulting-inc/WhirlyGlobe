@@ -1,9 +1,9 @@
 //
-//  Tesselator.cpp
+//  Tesselator.mm
 //  WhirlyGlobeApp
 //
 //  Created by Stephen Gifford on 7/17/11.
-//  Copyright 2011 mousebird consulting. All rights reserved.
+//  Copyright 2011-2012 mousebird consulting. All rights reserved.
 //
 
 #import <list>

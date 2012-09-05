@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/10/11.
- *  Copyright 2011 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2012 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,8 +29,7 @@
 #import "DrawCost.h"
 #import "ParticleGenerator.h"
 
-/** Particle System
-    Representation of a single particle system.
+/** Representation of a single particle system.
     We give it a geographic location and a normal (in 3-space).
     The rest of the info is in the dictionary.
  */
