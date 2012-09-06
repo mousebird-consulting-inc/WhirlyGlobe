@@ -10,7 +10,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Whirlyglobe by mousebird</title>
+    <title>WhirlyGlobe by mousebird consulting</title>
   </head>
 
   <body>
@@ -18,41 +18,56 @@
       <div class="inner">
 
         <header>
-          <h1>Whirlyglobe</h1>
-          <h2>WhirlyGlobe Development</h2>
+          <h1>WhirlyGlobe 2.0</h1>
         </header>
 
+		<img src="images/github%20banner.png" height="383" width="620" border="0"/>
+		<hr>
+
         <section id="downloads" class="clearfix">
-          <a href="https://github.com/mousebird/WhirlyGlobe/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
-          <a href="https://github.com/mousebird/WhirlyGlobe/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/downloads/mousebird/WhirlyGlobe/WhirlyGlobeComponentDistribution_1_0.zip" id="download-zip" class="button"><span>Component .zip</span></a>
+          <a href="https://github.com/downloads/mousebird/WhirlyGlobe/WhirlyGlobeComponentDistribution_1_0.zip" id="download-zip" class="button"><span>API 2.0 .zip</span></a>
           <a href="https://github.com/mousebird/WhirlyGlobe" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
         <hr>
 
         <section id="main_content">
-          <p>There are two main parts to WhirlyGlobe, (1) the main WhirlyGlobe API, (2) WhirlyGlobe Component.  The latter is built on top of the former, as you might expect</p>
+<h2>WhirlyGlobe Component</h2>
+<p>The WhirlyGlobe Component is a framework you can use to put an interactive 3D globe in your app.  You can provide base imagery, including networked tile data sets, labels, vectors, or even overlay UIView's.</p>
 
-<p>You probably want the Component.  It's a framework that lets you add an interactive 3D globe to your iPad or iPhone app.  The interface is entirely Objective-C and it's pretty easy to use.</p>
+<iframe width="640" height="360" src="http://www.youtube.com/embed/Q4drO9R6gm4?feature=player_embedded" frameborder="0" allowfullscreen></iframe>
 
-<p>To get the WhirlyGlobe Component, just head on over to the downloads area and grab the latest:
-<a href="https://github.com/mousebird/WhirlyGlobe/downloads">https://github.com/mousebird/WhirlyGlobe/downloads</a></p>
+<p></p>
 
-<p>If you want to know more about the WhirlyGlobe Component, check out the announcement:
-<a href="http://mousebirdconsulting.blogspot.com/2012/08/whirlyglobe-component-announcement.html">http://mousebirdconsulting.blogspot.com/2012/08/whirlyglobe-component-announcement.html</a></p>
+<p>The Component is entirely Objective-C and we've precompiled it so you can drop it directly into your app and go.  For instructions on how to use it, please read the <a href="http://mousebirdconsulting.blogspot.com/2012/08/whirlyglobe-component-announcement.html" title="WhirlyGlobe Component Announcement">announcement</a>
+.</p>
 
-<p>If you need to dig a bit deeper then take a look at the WhirlyGlobe API.  Just clone the repository and use the master branch.  You'll need a whole mess of support libraries as well.  Look at the notes file under WhirlyGlobeLib for details.</p>
+<p>To download the current <a href="https://github.com/downloads/mousebird/WhirlyGlobe/WhirlyGlobeComponentDistribution_1_0.zip" title="WhirlyGlobe Component Release">release version</a>
+  of the WhirlyGlobe component, click the link above.<p>
 
-<p>The old WhirlyGlobe 1.2 repo can be found on google code:
-<a href="https://code.google.com/p/whirlyglobe/">https://code.google.com/p/whirlyglobe/</a></p>
 
-<h2>What is WhirlyGlobe?</h2>
+<h2>WhirlyGlobe API</h2>
 
-<p>WhirlyGlobe is a self contained 3D earth display view suitable for use in iPhone and iPad applications. The globe is rendered in OpenGL ES with a pageable quad tree texture and support for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.</p>
-        </section>
+<p>Where the Component is meant for simplicity, the API exposes it all in glorious detail.  WhirlyGlobe is built with a combination of C++ and Objective-C.  It pulls in a variety of open source projects, including <a href="http://www.boost.org/" title="Boost Home Page">Boost</a>, <a href="http://www.angusj.com/delphi/clipper.php" title="Clipper Home Page">Clipper</a> and <a href="http://eigen.tuxfamily.org/index.php?title=Main_Page" title="Eigen Home Page">Eigen</a>.  It makes heavy use of the Standard Template Library.  It's tricky if you're not familiar with Objective-C++.</p>
+
+<p>If you can handle it, it's very powerful.  WhirlyGlobe is built on a simple rendering engine that lives on the main thread.  You add your content through a variety of data control layers which live in a separate thread.  It's smart about data management and getting smarter all the time.</p>
+
+<p>For a full list of features, check out the WhirlyGlobe 2.0 announcement and look at the WhirlyGlobe App in the app store.</p>
+
+<p>To get started with the WhirlyGlobe API... well first reconsider using the Component.  It's much easier.  But if you're determined, clone the WhirlyGlobe repository and use the master branch.  Check the README for dependencies, of which there are several, and get started.</p>
+
+<h2>Background</h2>
+
+<p>WhirlyGlobe is wholly owned by <a href="http://mousebirdconsulting.com" title="mousebird home page">mousebird consulting</a> and distributed under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html" title="Apache 2.0 license">Apache 2.0</a> license.  WhirlyGlobe is free, but we make money from consulting.  If you're doing something commercial, consider us in your development plans.</p>
+  
+<p>We're adding features all the time.  To keep track of what's going on, follow our <a href="http://mousebirdconsulting.blogspot.com" title="mousebird blog">blog</a>.</p>
+
+
+
 
         <footer>
-          Whirlyglobe is maintained by <a href="https://github.com/mousebird">mousebird</a><br>
+          WhirlyGlobe is maintained by <a href="https://github.com/mousebird">mousebird</a><br>
           This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
         </footer>
 
