@@ -93,6 +93,11 @@
 		2B40448915F6C20000937923 /* regions.mbr in Resources */ = {isa = PBXBuildFile; fileRef = 2B4043A115F6C20000937923 /* regions.mbr */; };
 		2B40448A15F6C20000937923 /* regions.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B4043A215F6C20000937923 /* regions.sqlite */; };
 		2B40449A15F6C2AE00937923 /* PanDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40449915F6C29300937923 /* PanDelegateFixed.mm */; };
+		2B40461B15F951FC00937923 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B40461A15F951FC00937923 /* Default-Portrait~ipad.png */; };
+		2B40461C15F9520A00937923 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B40461815F951F400937923 /* Default.png */; };
+		2B40461E15F9524A00937923 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B40461D15F9524A00937923 /* Icon.png */; };
+		2B40462015F9525100937923 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B40461F15F9525100937923 /* Icon@2x.png */; };
+		2B40462215F9525C00937923 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B40462115F9525B00937923 /* Icon-72.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,10 +115,10 @@
 		2B40428515F6BA3500937923 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B40428715F6BA3500937923 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		2B40428915F6BA3500937923 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		2B40428D15F6BA3500937923 /* WhirlyGlobeApp-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WhirlyGlobeApp-Info.plist"; sourceTree = "<group>"; };
+		2B40428D15F6BA3500937923 /* WhirlyGlobe-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WhirlyGlobe-Info.plist"; sourceTree = "<group>"; };
 		2B40428F15F6BA3500937923 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		2B40429115F6BA3500937923 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		2B40429315F6BA3500937923 /* WhirlyGlobeApp-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeApp-Prefix.pch"; sourceTree = "<group>"; };
+		2B40429315F6BA3500937923 /* WhirlyGlobe-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobe-Prefix.pch"; sourceTree = "<group>"; };
 		2B40429415F6BA3500937923 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		2B40429515F6BA3500937923 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		2B40429C15F6BEEE00937923 /* InteractionLayer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; path = InteractionLayer.h; sourceTree = "<group>"; };
@@ -199,6 +204,11 @@
 		2B4043A215F6C20000937923 /* regions.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = regions.sqlite; sourceTree = "<group>"; };
 		2B40449815F6C29300937923 /* PanDelegateFixed.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegateFixed.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B40449915F6C29300937923 /* PanDelegateFixed.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PanDelegateFixed.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B40461815F951F400937923 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		2B40461A15F951FC00937923 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
+		2B40461D15F9524A00937923 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		2B40461F15F9525100937923 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
+		2B40462115F9525B00937923 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +232,11 @@
 		2B40427615F6BA3500937923 = {
 			isa = PBXGroup;
 			children = (
+				2B40462115F9525B00937923 /* Icon-72.png */,
+				2B40461F15F9525100937923 /* Icon@2x.png */,
+				2B40461D15F9524A00937923 /* Icon.png */,
+				2B40461A15F951FC00937923 /* Default-Portrait~ipad.png */,
+				2B40461815F951F400937923 /* Default.png */,
 				2B4042B515F6C0FF00937923 /* QuartzCore.framework */,
 				2B4042B315F6C0F700937923 /* libsqlite3.dylib */,
 				2B4042B115F6C0EF00937923 /* OpenGLES.framework */,
@@ -270,10 +285,10 @@
 		2B40428C15F6BA3500937923 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				2B40428D15F6BA3500937923 /* WhirlyGlobeApp-Info.plist */,
+				2B40428D15F6BA3500937923 /* WhirlyGlobe-Info.plist */,
 				2B40428E15F6BA3500937923 /* InfoPlist.strings */,
 				2B40429115F6BA3500937923 /* main.m */,
-				2B40429315F6BA3500937923 /* WhirlyGlobeApp-Prefix.pch */,
+				2B40429315F6BA3500937923 /* WhirlyGlobe-Prefix.pch */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -417,9 +432,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2B40428015F6BA3500937923 /* WhirlyGlobeApp */ = {
+		2B40428015F6BA3500937923 /* WhirlyGlobe */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2B40429915F6BA3500937923 /* Build configuration list for PBXNativeTarget "WhirlyGlobeApp" */;
+			buildConfigurationList = 2B40429915F6BA3500937923 /* Build configuration list for PBXNativeTarget "WhirlyGlobe" */;
 			buildPhases = (
 				2B40427D15F6BA3500937923 /* Sources */,
 				2B40427E15F6BA3500937923 /* Frameworks */,
@@ -429,7 +444,7 @@
 			);
 			dependencies = (
 			);
-			name = WhirlyGlobeApp;
+			name = WhirlyGlobe;
 			productName = WhirlyGlobeApp;
 			productReference = 2B40428115F6BA3500937923 /* WhirlyGlobeApp.app */;
 			productType = "com.apple.product-type.application";
@@ -443,7 +458,7 @@
 				LastUpgradeCheck = 0440;
 				ORGANIZATIONNAME = "mousebird consulting";
 			};
-			buildConfigurationList = 2B40427B15F6BA3500937923 /* Build configuration list for PBXProject "WhirlyGlobeApp" */;
+			buildConfigurationList = 2B40427B15F6BA3500937923 /* Build configuration list for PBXProject "WhirlyGlobe" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -461,7 +476,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				2B40428015F6BA3500937923 /* WhirlyGlobeApp */,
+				2B40428015F6BA3500937923 /* WhirlyGlobe */,
 			);
 		};
 /* End PBXProject section */
@@ -555,6 +570,11 @@
 				2B40448815F6C20000937923 /* oceans.sqlite in Resources */,
 				2B40448915F6C20000937923 /* regions.mbr in Resources */,
 				2B40448A15F6C20000937923 /* regions.sqlite in Resources */,
+				2B40461B15F951FC00937923 /* Default-Portrait~ipad.png in Resources */,
+				2B40461C15F9520A00937923 /* Default.png in Resources */,
+				2B40461E15F9524A00937923 /* Icon.png in Resources */,
+				2B40462015F9525100937923 /* Icon@2x.png in Resources */,
+				2B40462215F9525C00937923 /* Icon-72.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,6 +652,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -642,15 +663,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "WhirlyGlobeApp/WhirlyGlobeApp-Prefix.pch";
+				GCC_PREFIX_HEADER = "WhirlyGlobeApp/WhirlyGlobe-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0/,
 					"../../../utilities/eigen-eigen-3.0.1/",
 				);
-				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobeApp-Info.plist";
+				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobe-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-all_load";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = WhirlyGlobe;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -658,16 +680,19 @@
 		2B40429B15F6BA3500937923 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "WhirlyGlobeApp/WhirlyGlobeApp-Prefix.pch";
+				GCC_PREFIX_HEADER = "WhirlyGlobeApp/WhirlyGlobe-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0/,
 					"../../../utilities/eigen-eigen-3.0.1/",
 				);
-				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobeApp-Info.plist";
+				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobe-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				OTHER_LDFLAGS = "-all_load";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = WhirlyGlobe;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -675,7 +700,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2B40427B15F6BA3500937923 /* Build configuration list for PBXProject "WhirlyGlobeApp" */ = {
+		2B40427B15F6BA3500937923 /* Build configuration list for PBXProject "WhirlyGlobe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2B40429715F6BA3500937923 /* Debug */,
@@ -684,7 +709,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2B40429915F6BA3500937923 /* Build configuration list for PBXNativeTarget "WhirlyGlobeApp" */ = {
+		2B40429915F6BA3500937923 /* Build configuration list for PBXNativeTarget "WhirlyGlobe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2B40429A15F6BA3500937923 /* Debug */,
