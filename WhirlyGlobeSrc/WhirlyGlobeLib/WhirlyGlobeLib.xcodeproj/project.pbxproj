@@ -7,105 +7,38 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B03701414C9FA9000A51AC4 /* AnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03701214C9FA9000A51AC4 /* AnimateTranslateMomentum.h */; };
-		2B03701514C9FA9000A51AC4 /* AnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03701314C9FA9000A51AC4 /* AnimateTranslation.h */; };
 		2B03701914C9FDDE00A51AC4 /* AnimateTranslateMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701714C9FDDE00A51AC4 /* AnimateTranslateMomentum.mm */; };
 		2B03701A14C9FDDE00A51AC4 /* AnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701814C9FDDE00A51AC4 /* AnimateTranslation.mm */; };
 		2B03702014CA01C600A51AC4 /* MapTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701F14CA01C600A51AC4 /* MapTapDelegate.mm */; };
-		2B03702214CA02A900A51AC4 /* MapTapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B03702114CA02A900A51AC4 /* MapTapDelegate.h */; };
-		2B076B32133951DE009D931D /* LongPressDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B076B31133951DE009D931D /* LongPressDelegate.h */; };
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
-		2B194425138B0BC100E8FA42 /* AnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B194424138B0BC100E8FA42 /* AnimateRotation.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
-		2B194430138C717500E8FA42 /* AnimateViewMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
-		2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
-		2B2C1DB91458A3D500B5D61D /* SelectionLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */; };
 		2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */; };
-		2B3009BE1427959000B1C69E /* RenderCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3009BD1427959000B1C69E /* RenderCache.h */; };
 		2B3009C91427C19900B1C69E /* RenderCache.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3009C71427C19900B1C69E /* RenderCache.mm */; };
-		2B35A8511337CC2F0047C705 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35A8501337CC2F0047C705 /* GLUtils.h */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
-		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
-		2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */; };
-		2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FE112DE23BA00778431 /* WhirlyVector.h */; };
-		2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A36E412E63F9500698DA1 /* WhirlyGeometry.h */; };
-		2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABB9812FA14300049D73C /* GlobeMath.h */; };
-		2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */; };
-		2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */; };
-		2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */; };
-		2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B38909F12DF8786006FC3A1 /* ESRenderer.h */; };
-		2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */; };
-		2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDB12DE23BA00778431 /* EAGLView.h */; };
-		2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE5412E4F44900415490 /* PinchDelegate.h */; };
-		2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */; };
-		2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3A341E12E605C800698DA1 /* PanDelegate.h */; };
-		2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC33112FB754D0049D73C /* TapMessage.h */; };
-		2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAC2F512FB6E570049D73C /* TapDelegate.h */; };
-		2B3A0D51133405780085EF43 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD0E68613254D7300CD95A8 /* VectorData.h */; };
-		2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9E712F8CD440049D73C /* ShapeReader.h */; };
-		2B3A0D53133405780085EF43 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F07E130098E6001F33CD /* Identifiable.h */; };
-		2B3A0D54133405780085EF43 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F08613009AC3001F33CD /* Texture.h */; };
-		2B3A0D55133405780085EF43 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAA912F8E0850049D73C /* Drawable.h */; };
-		2B3A0D56133405780085EF43 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCABAAB12F8E0920049D73C /* Cullable.h */; };
-		2B3A0D57133405780085EF43 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDC12DE23BA00778431 /* Scene.h */; };
-		2B3A0D58133405780085EF43 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B389AA112E112D9006FC3A1 /* GlobeView.h */; };
-		2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDE12DE23BA00778431 /* TextureGroup.h */; };
-		2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9BF12F8A3860049D73C /* LayerThread.h */; };
-		2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCAB9A912F897E20049D73C /* DataLayer.h */; };
-		2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */; };
-		2B3A0D5D133405780085EF43 /* GridLines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951C7D12EFA262005003AE /* GridLines.h */; };
-		2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D9812F09F31005003AE /* VectorLayer.h */; };
-		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
-		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
 		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
-		2B4504AD14BBAC0100C99306 /* WhirlyMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */; };
-		2B4504B014BBAD0B00C99306 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504AF14BBAD0B00C99306 /* WhirlyKitView.h */; };
-		2B4504B214BBB40D00C99306 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504B114BBB40D00C99306 /* CoordSystem.h */; };
-		2B4504B414BBBC6600C99306 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504B314BBBC6600C99306 /* FlatMath.h */; };
 		2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */; };
 		2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B814BCC29D00C99306 /* FlatMath.mm */; };
 		2B4504BB14BCC60F00C99306 /* WhirlyMapView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504BA14BCC60F00C99306 /* WhirlyMapView.mm */; };
-		2B4504DF14BD119300C99306 /* PinchDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504DE14BD119300C99306 /* PinchDelegateMap.h */; };
 		2B4504E114BD126400C99306 /* PinchDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504E014BD126400C99306 /* PinchDelegateMap.mm */; };
 		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
-		2B58C6851443C03F00EEF3C3 /* ParticleSystemLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */; };
 		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
-		2B58C695144543DB00EEF3C3 /* Generator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C694144543DB00EEF3C3 /* Generator.h */; };
-		2B58C6B91445FDAB00EEF3C3 /* ParticleGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */; };
 		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
-		2B5E6365151C072F0007904C /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5E6364151C072F0007904C /* GlobeScene.h */; };
 		2B5E63D9152283B20007904C /* Scene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5E63D8152283B20007904C /* Scene.mm */; };
-		2B5FA418155DD7A100232E18 /* NetworkTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B5FA417155DD7A100232E18 /* NetworkTileQuadSource.h */; };
 		2B5FA41B155DD84A00232E18 /* NetworkTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */; };
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
-		2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B65F90B137DBEE4004326A9 /* sqlhelpers.h */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
-		2B66298113417DF700A78F16 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B66298013417DF700A78F16 /* TextureAtlas.h */; };
 		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
-		2B6B3396147B5DE900771FEF /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6B3395147B5DE900771FEF /* MarkerGenerator.h */; };
-		2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B774CCC1546589300BA79E4 /* MBTileQuadSource.h */; };
 		2B774CD0154659A800BA79E4 /* MBTileQuadSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B774CCF154659A800BA79E4 /* MBTileQuadSource.mm */; };
 		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
-		2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87302A154B535500AFEE25 /* TileQuadLoader.h */; };
 		2B87302D154B54B500AFEE25 /* TileQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87302C154B54B500AFEE25 /* TileQuadLoader.mm */; };
-		2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8D92C8137C958000015833 /* VectorDatabase.h */; };
-		2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92105314BD1A8100653536 /* PanDelegateMap.h */; };
-		2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B93C81514522DE600D768BA /* MarkerLayer.h */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
-		2BA2BB77153E08F800DAB382 /* Quadtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB76153E08F800DAB382 /* Quadtree.h */; };
-		2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */; };
-		2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */; };
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
-		2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2BBA0153E192F00DAB382 /* GlobeQuadDisplayLayer.h */; };
 		2BA2BBA4153E195200DAB382 /* GlobeQuadDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BBA3153E195200DAB382 /* GlobeQuadDisplayLayer.mm */; };
-		2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
-		2BACE0621581010F00E3793D /* SphericalEarthQuadLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BACE0601581010F00E3793D /* SphericalEarthQuadLayer.h */; };
-		2BACE0631581010F00E3793D /* SceneGraphGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BACE0611581010F00E3793D /* SceneGraphGenerator.h */; };
 		2BACE0671581017800E3793D /* SphericalEarthQuadLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BACE0651581017800E3793D /* SphericalEarthQuadLayer.mm */; };
 		2BACE0681581017800E3793D /* SceneGraphGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BACE0661581017800E3793D /* SceneGraphGenerator.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -139,21 +72,14 @@
 		2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951C8D12EFA567005003AE /* GridLines.mm */; };
 		2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9A12F0A087005003AE /* VectorLayer.mm */; };
 		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
-		2BEFDE91149963A800C63326 /* LoftLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE90149963A800C63326 /* LoftLayer.h */; };
 		2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE921499643000C63326 /* LoftLayer.mm */; };
-		2BEFDE97149966D400C63326 /* GridClipper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE95149966D400C63326 /* GridClipper.h */; };
-		2BEFDE98149966D400C63326 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEFDE96149966D400C63326 /* Tesselator.h */; };
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
 		2BEFDEA214997C0400C63326 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDEA114997C0400C63326 /* clipper.cpp */; };
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
-		2BF401C015C0B49500B5BFD9 /* UpdateDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF401BE15C0B49500B5BFD9 /* UpdateDisplayLayer.h */; };
-		2BF401C115C0B49500B5BFD9 /* ViewPlacementGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */; };
-		2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF74358155D7C4C000499DD /* NSString+Stuff.h */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		2BFBF15D14BF64100020FE6B /* PanDelegateMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFBF15C14BF64100020FE6B /* PanDelegateMap.mm */; };
-		2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFC34D513CBF9F500403799 /* DrawCost.h */; };
 		2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC34DA13CBFA9A00403799 /* DrawCost.mm */; };
 /* End PBXBuildFile section */
 
@@ -849,80 +775,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */,
-				2B3A0D43133405780085EF43 /* WhirlyVector.h in Headers */,
-				2B3A0D44133405780085EF43 /* WhirlyGeometry.h in Headers */,
-				2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */,
-				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
-				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
-				2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */,
-				2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */,
-				2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */,
-				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
-				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
-				2B3A0D4D133405780085EF43 /* SwipeDelegate.h in Headers */,
-				2B3A0D4E133405780085EF43 /* PanDelegate.h in Headers */,
-				2B3A0D4F133405780085EF43 /* TapMessage.h in Headers */,
-				2B3A0D50133405780085EF43 /* TapDelegate.h in Headers */,
-				2B3A0D51133405780085EF43 /* VectorData.h in Headers */,
-				2B3A0D52133405780085EF43 /* ShapeReader.h in Headers */,
-				2B3A0D53133405780085EF43 /* Identifiable.h in Headers */,
-				2B3A0D54133405780085EF43 /* Texture.h in Headers */,
-				2B3A0D55133405780085EF43 /* Drawable.h in Headers */,
-				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
-				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
-				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
-				2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */,
-				2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */,
-				2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */,
-				2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */,
-				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
-				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
-				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
-				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
-				2B35A8511337CC2F0047C705 /* GLUtils.h in Headers */,
-				2B076B32133951DE009D931D /* LongPressDelegate.h in Headers */,
-				2B66298113417DF700A78F16 /* TextureAtlas.h in Headers */,
-				2B8D92C9137C958000015833 /* VectorDatabase.h in Headers */,
-				2B65F90C137DBEE4004326A9 /* sqlhelpers.h in Headers */,
-				2B194425138B0BC100E8FA42 /* AnimateRotation.h in Headers */,
-				2B194430138C717500E8FA42 /* AnimateViewMomentum.h in Headers */,
-				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
-				2BFC34D713CBF9F500403799 /* DrawCost.h in Headers */,
-				2B3009BE1427959000B1C69E /* RenderCache.h in Headers */,
-				2B58C6851443C03F00EEF3C3 /* ParticleSystemLayer.h in Headers */,
-				2B58C695144543DB00EEF3C3 /* Generator.h in Headers */,
-				2B58C6B91445FDAB00EEF3C3 /* ParticleGenerator.h in Headers */,
-				2B93C81614522DE700D768BA /* MarkerLayer.h in Headers */,
-				2B2C1DB91458A3D500B5D61D /* SelectionLayer.h in Headers */,
-				2B6B3396147B5DE900771FEF /* MarkerGenerator.h in Headers */,
-				2BEFDE91149963A800C63326 /* LoftLayer.h in Headers */,
-				2BEFDE97149966D400C63326 /* GridClipper.h in Headers */,
-				2BEFDE98149966D400C63326 /* Tesselator.h in Headers */,
-				2B4504AD14BBAC0100C99306 /* WhirlyMapView.h in Headers */,
-				2B4504B014BBAD0B00C99306 /* WhirlyKitView.h in Headers */,
-				2B4504B214BBB40D00C99306 /* CoordSystem.h in Headers */,
-				2B4504B414BBBC6600C99306 /* FlatMath.h in Headers */,
-				2B4504DF14BD119300C99306 /* PinchDelegateMap.h in Headers */,
-				2B92105414BD1A8100653536 /* PanDelegateMap.h in Headers */,
-				2B03701414C9FA9000A51AC4 /* AnimateTranslateMomentum.h in Headers */,
-				2B03701514C9FA9000A51AC4 /* AnimateTranslation.h in Headers */,
-				2B03702214CA02A900A51AC4 /* MapTapDelegate.h in Headers */,
-				2B5E6365151C072F0007904C /* GlobeScene.h in Headers */,
-				2BA2BB77153E08F800DAB382 /* Quadtree.h in Headers */,
-				2BA2BB85153E0BC900DAB382 /* LayerViewWatcher.h in Headers */,
-				2BA2BB87153E0C6300DAB382 /* GlobeLayerViewWatcher.h in Headers */,
-				2BA2BBA1153E192F00DAB382 /* GlobeQuadDisplayLayer.h in Headers */,
-				2BA8FFDD1540E21500AEA53C /* SphericalMercator.h in Headers */,
-				2B774CCD1546589300BA79E4 /* MBTileQuadSource.h in Headers */,
-				2B87302B154B535500AFEE25 /* TileQuadLoader.h in Headers */,
-				2B2A25891559B3C000137807 /* ScreenSpaceGenerator.h in Headers */,
-				2BF74359155D7C4C000499DD /* NSString+Stuff.h in Headers */,
-				2B5FA418155DD7A100232E18 /* NetworkTileQuadSource.h in Headers */,
-				2BACE0621581010F00E3793D /* SphericalEarthQuadLayer.h in Headers */,
-				2BACE0631581010F00E3793D /* SceneGraphGenerator.h in Headers */,
-				2BF401C015C0B49500B5BFD9 /* UpdateDisplayLayer.h in Headers */,
-				2BF401C115C0B49500B5BFD9 /* ViewPlacementGenerator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1131,6 +983,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -1158,6 +1011,7 @@
 					"-all_load",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
