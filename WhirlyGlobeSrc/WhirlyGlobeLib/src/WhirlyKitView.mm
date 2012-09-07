@@ -30,6 +30,7 @@ using namespace Eigen;
 @synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @synthesize coordSystem;
 @synthesize lastChangedTime;
+@synthesize continuousZoom;
 
 - (id)init
 {
@@ -40,6 +41,7 @@ using namespace Eigen;
 		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
 		farPlane = 2.6;
         lastChangedTime = CFAbsoluteTimeGetCurrent();
+        continuousZoom = false;
     }
     
     return self;
