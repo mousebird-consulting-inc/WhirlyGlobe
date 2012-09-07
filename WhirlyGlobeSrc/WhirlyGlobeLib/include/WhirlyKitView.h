@@ -40,11 +40,15 @@
     
     /// Coordinate system we're working in for the view
     WhirlyKit::CoordSystem *coordSystem;
+    
+    /// If set, we'll scale the near and far clipping planes as we get closer
+    bool continuousZoom;
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic,readonly) CFTimeInterval lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
+@property (nonatomic,assign) bool continuousZoom;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

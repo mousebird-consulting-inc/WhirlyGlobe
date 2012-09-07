@@ -26,6 +26,18 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+@interface WhirlyGlobeView()
+{
+    // These are all for continuous zoom mode
+    float absoluteMinHeight;
+    float heightInflection;
+    float defaultNearPlane;
+    float absoluteMinNearPlane;
+    float defaultFarPlane;
+    float absoluteMinFarPlane;
+}
+@end
+
 @implementation WhirlyGlobeView
 
 @synthesize heightAboveGlobe;
@@ -37,9 +49,16 @@ using namespace Eigen;
 {
 	if ((self = [super init]))
 	{
-		heightAboveGlobe = 1.1;
 		rotQuat = Eigen::AngleAxisf(0.0f,Vector3f(0.0f,0.0f,1.0f));
         coordSystem = new GeoCoordSystem();
+        defaultNearPlane = nearPlane;
+        defaultFarPlane = farPlane;
+        // This will get you down to r17 in the usual tile sets
+        absoluteMinNearPlane = 0.00001;
+        absoluteMinFarPlane = 0.001;
+        absoluteMinHeight = 0.00005;
+        heightInflection = 0.0011;
+		self.heightAboveGlobe = 1.1;
 	}
 	
 	return self;
@@ -63,7 +82,10 @@ using namespace Eigen;
 	
 - (float)minHeightAboveGlobe
 {
-	return 1.3*nearPlane;
+    if (continuousZoom)
+        return absoluteMinHeight;
+    else
+        return 1.01*nearPlane;
 }
 
 - (float)heightAboveSurface
@@ -73,7 +95,7 @@ using namespace Eigen;
 	
 - (float)maxHeightAboveGlobe
 {
-	return (farPlane - 1.0);
+    return (farPlane - 1.0);
 }
 	
 - (float)calcEarthZOffset
@@ -95,9 +117,26 @@ using namespace Eigen;
 {
 	float minH = [self minHeightAboveGlobe];
 	heightAboveGlobe = std::max(newH,minH);
-
+    
 	float maxH = [self maxHeightAboveGlobe];
 	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
+
+    // If we get down below the inflection point we'll start messing
+    //  with the field of view.  Not ideal, but simple.
+    if (continuousZoom)
+    {
+        if (heightAboveGlobe < heightInflection)
+        {
+            float t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+//            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+        } else {
+            nearPlane = defaultNearPlane;
+//            farPlane = defaultFarPlane;
+        }
+		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    }
+        
 
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     

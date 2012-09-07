@@ -160,6 +160,7 @@ using namespace WhirlyGlobe;
     
 	// Need an empty scene and view    
 	globeView = [[WhirlyGlobeView alloc] init];
+    globeView.continuousZoom = true;
     globeScene = new WhirlyGlobe::GlobeScene(globeView.coordSystem,4);
     sceneRenderer.theView = globeView;
     
