@@ -1,5 +1,5 @@
 /*
- *  MapTapDelegate.mm
+ *  MaplyTapDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -18,17 +18,17 @@
  *
  */
 
-#import "MapTapDelegate.h"
+#import "MaplyTapDelegate.h"
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
 
-@implementation WhirlyMapTapDelegate
+@implementation MaplyTapDelegate
 
-- (id)initWithMapView:(WhirlyMapView *)inView
+- (id)initWithMapView:(MaplyView *)inView
 {
     self = [super init];
     if (self)
@@ -39,9 +39,9 @@ using namespace WhirlyKit;
     return self;
 }
 
-+ (WhirlyMapTapDelegate *)tapDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
++ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
-	WhirlyMapTapDelegate *tapDelegate = [[WhirlyMapTapDelegate alloc] initWithMapView:mapView];
+	MaplyTapDelegate *tapDelegate = [[MaplyTapDelegate alloc] initWithMapView:mapView];
 	[view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
 	return tapDelegate;
 }

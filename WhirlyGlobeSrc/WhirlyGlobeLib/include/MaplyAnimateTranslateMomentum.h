@@ -1,5 +1,5 @@
 /*
- *  AnimateTranslateMomentum.h
+ *  MaplyAnimateTranslateMomentum.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -19,14 +19,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 
-/** Animate Translate Momentum is a WhirlyMap animation delegate
+/** Animate Translate Momentum is a Maply animation delegate
     that will animate from a starting point forward in time with
     an acceleration.  We use this to simulate momentum.  Giving it
     a negative acceleration will slow it down.
   */
-@interface AnimateTranslateMomentum : NSObject<WhirlyMapAnimationDelegate>
+@interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
 {
     float velocity,acceleration;
     Eigen::Vector3f dir;
@@ -36,6 +36,6 @@
 }
 
 /// Initialize with a velocity and negative acceleration (to slow down)
-- (id)initWithView:(WhirlyMapView *)globeView velocity:(float)velocity accel:(float)acceleration dir:(Eigen::Vector3f)dir;
+- (id)initWithView:(MaplyView *)globeView velocity:(float)velocity accel:(float)acceleration dir:(Eigen::Vector3f)dir;
 
 @end

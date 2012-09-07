@@ -1,5 +1,5 @@
 /*
- *  AnimateTranslateMomentum.h
+ *  MaplyAnimateTranslateMomentum.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -18,14 +18,14 @@
  *
  */
 
-#import "AnimateTranslateMomentum.h"
+#import "MaplyAnimateTranslateMomentum.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation AnimateTranslateMomentum
+@implementation MaplyAnimateTranslateMomentum
 
-- (id)initWithView:(WhirlyMapView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir
+- (id)initWithView:(MaplyView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir
 {
     if ((self = [super init]))
     {
@@ -54,7 +54,7 @@ using namespace WhirlyKit;
 
 
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyMapView *)mapView
+- (void)updateView:(MaplyView *)mapView
 {
     if (startDate == 0.0)
         return;

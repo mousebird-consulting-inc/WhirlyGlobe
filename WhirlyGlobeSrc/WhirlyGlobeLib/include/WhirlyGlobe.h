@@ -60,7 +60,7 @@
 #import "RenderCache.h"
 #import "FlatMath.h"
 #import "SphericalMercator.h"
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 #import "PinchDelegateMap.h"
 #import "PanDelegateMap.h"
 #import "AnimateTranslation.h"

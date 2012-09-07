@@ -1,5 +1,5 @@
 /*
- *  MapTapDelegate.h
+ *  MaplyTapDelegate.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -20,18 +20,18 @@
 
 #import <UIKit/UIKit.h>
 #import "WhirlyVector.h"
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 #import "TapMessage.h"
 
-/** WhirlyMap tap gesture delegate responds to a tap
+/** Maply tap gesture delegate responds to a tap
  by sending out a notification.
  */
-@interface WhirlyMapTapDelegate : NSObject <UIGestureRecognizerDelegate>
+@interface MaplyTapDelegate : NSObject <UIGestureRecognizerDelegate>
 {
-    WhirlyMapView *mapView;
+    MaplyView *mapView;
 }
 
 /// Create a tap gesture recognizer and a delegate, then wire them up to the given UIView
-+ (WhirlyMapTapDelegate *)tapDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView;
++ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
 @end

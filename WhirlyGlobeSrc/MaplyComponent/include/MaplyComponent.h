@@ -1,8 +1,8 @@
 /*
- *  WGViewTracker.h
- *  WhirlyGlobeComponent
+ *  MaplyComponent.h
+ *  MaplyComponent
  *
- *  Created by Steve Gifford on 7/26/12.
+ *  Created by Steve Gifford on 9/6/12.
  *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,22 +18,4 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "WGCoordinate.h"
-
-/** The View Tracker keeps track of a UIView and a corresponding geographic
-    location.  We'll use this to place the view on the screen according to
-    the location.
- */
-@interface WGViewTracker : NSObject
-{
-    /// The view we want to place
-    UIView *view;
-    /// Where we want to place it
-    WGCoordinate loc;
-}
-
-@property (nonatomic,strong) UIView *view;
-@property (nonatomic,assign) WGCoordinate loc;
-
-@end
+#import <MaplyViewController.h>
