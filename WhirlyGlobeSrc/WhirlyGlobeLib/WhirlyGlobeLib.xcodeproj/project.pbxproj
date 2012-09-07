@@ -58,6 +58,9 @@
 		2B3A0D5D133405780085EF43 /* GridLines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951C7D12EFA262005003AE /* GridLines.h */; };
 		2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D9812F09F31005003AE /* VectorLayer.h */; };
 		2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1F06813007031001F33CD /* LabelLayer.h */; };
+		2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467715F9B4CB00937923 /* ActiveModel.h */; };
+		2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40467A15F9B4D300937923 /* GeometryLayer.h */; };
+		2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40467C15F9B4F400937923 /* GeometryLayer.mm */; };
 		2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B44187713A2D9BA00514EDE /* RotateDelegate.h */; };
 		2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */; };
 		2B4504AD14BBAC0100C99306 /* WhirlyMapView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */; };
@@ -193,6 +196,9 @@
 		2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B3C81C113301EE30029DEF2 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
+		2B40467715F9B4CB00937923 /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveModel.h; sourceTree = "<group>"; };
+		2B40467A15F9B4D300937923 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
+		2B40467C15F9B4F400937923 /* GeometryLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeometryLayer.mm; sourceTree = "<group>"; };
 		2B44187713A2D9BA00514EDE /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
 		2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = RotateDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B4504AC14BBAC0100C99306 /* WhirlyMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyMapView.h; sourceTree = "<group>"; };
@@ -529,6 +535,7 @@
 				2B5FA41A155DD84A00232E18 /* NetworkTileQuadSource.mm */,
 				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
+				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -606,6 +613,8 @@
 				2B66298013417DF700A78F16 /* TextureAtlas.h */,
 				2BFC34D513CBF9F500403799 /* DrawCost.h */,
 				2B3009BD1427959000B1C69E /* RenderCache.h */,
+				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
+				2B40467715F9B4CB00937923 /* ActiveModel.h */,
 			);
 			name = scene;
 			sourceTree = "<group>";
@@ -923,6 +932,8 @@
 				2BACE0631581010F00E3793D /* SceneGraphGenerator.h in Headers */,
 				2BF401C015C0B49500B5BFD9 /* UpdateDisplayLayer.h in Headers */,
 				2BF401C115C0B49500B5BFD9 /* ViewPlacementGenerator.h in Headers */,
+				2B40467815F9B4CB00937923 /* ActiveModel.h in Headers */,
+				2B40467B15F9B4D300937923 /* GeometryLayer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1052,6 +1063,7 @@
 				2BACE0681581017800E3793D /* SceneGraphGenerator.mm in Sources */,
 				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,
 				2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */,
+				2B40467D15F9B4F400937923 /* GeometryLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
