@@ -1,5 +1,5 @@
 /*
- *  WhirlyMapView.h
+ *  MaplyView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
@@ -23,29 +23,29 @@
 #import "WhirlyKitView.h"
 
 /// @cond
-@class WhirlyMapView;
+@class MaplyView;
 /// @endcond
 
 /// Animation callback
-@protocol WhirlyMapAnimationDelegate
-- (void)updateView:(WhirlyMapView *)mapView;
+@protocol MaplyAnimationDelegate
+- (void)updateView:(MaplyView *)mapView;
 @end
 
 /** Parameters associated with viewing the map.
     Modify the location to change the current view location.
     Set the delegate to smoothly change location over time.
  */
-@interface WhirlyMapView : WhirlyKitView
+@interface MaplyView : WhirlyKitView
 {
     /// Viewer location
     WhirlyKit::Point3f loc;
     
     /// Used to update position based on time (or whatever)
-    NSObject<WhirlyMapAnimationDelegate> * __weak delegate;
+    NSObject<MaplyAnimationDelegate> * __weak delegate;
 }
 
 @property(nonatomic,assign) WhirlyKit::Point3f loc;
-@property(nonatomic,weak) NSObject<WhirlyMapAnimationDelegate> *delegate;
+@property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
 - (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)coordSys;

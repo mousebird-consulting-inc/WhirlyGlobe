@@ -1,5 +1,5 @@
 /*
- *  PinchDelegateMap.h
+ *  MaplyPinchDelegateMap.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
@@ -18,11 +18,11 @@
  *
  */
 
-#import "PinchDelegateMap.h"
+#import "MaplyPinchDelegate.h"
 
-@implementation WhirlyMapPinchDelegate
+@implementation MaplyPinchDelegate
 
-- (id)initWithMapView:(WhirlyMapView *)inView
+- (id)initWithMapView:(MaplyView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -33,9 +33,9 @@
 	return self;
 }
 
-+ (WhirlyMapPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
-    WhirlyMapPinchDelegate *pinchDelegate = [[WhirlyMapPinchDelegate alloc] initWithMapView:mapView];
+    MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
     pinchRecog.delegate = pinchDelegate;
 	[view addGestureRecognizer:pinchRecog];

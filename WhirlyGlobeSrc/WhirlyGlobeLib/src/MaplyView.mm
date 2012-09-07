@@ -1,5 +1,5 @@
 /*
- *  WhirlyMapView.h
+ *  MaplyView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
@@ -18,12 +18,12 @@
  *
  */
 
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation WhirlyMapView
+@implementation MaplyView
 
 @synthesize loc;
 @synthesize delegate;

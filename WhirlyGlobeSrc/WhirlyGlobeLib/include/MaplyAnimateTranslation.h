@@ -1,5 +1,5 @@
 /*
- *  AnimateTranslation.h
+ *  MaplyAnimateTranslation.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -21,10 +21,10 @@
 #import <UIKit/UIKit.h>
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 
-/// WhirlyMap translation from one location to another.
-@interface AnimateViewTranslation : NSObject<WhirlyMapAnimationDelegate>
+/// Maply translation from one location to another.
+@interface MaplyAnimateViewTranslation : NSObject<MaplyAnimationDelegate>
 {
     CFTimeInterval startDate,endDate;
     WhirlyKit::Point3f startLoc,endLoc;
@@ -41,6 +41,6 @@
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(WhirlyMapView *)globeView translate:(WhirlyKit::Point3f &)newLoc howLong:(float)howLong;
+- (id)initWithView:(MaplyView *)globeView translate:(WhirlyKit::Point3f &)newLoc howLong:(float)howLong;
 
 @end
