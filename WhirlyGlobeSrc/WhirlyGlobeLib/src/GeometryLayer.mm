@@ -393,7 +393,7 @@ static unsigned short CacheFileVersion = 1;
             throw 1;
         for (unsigned int ii=0;ii<textures.size();ii++)
         {
-            Texture *tex = textures[ii];
+//            Texture *tex = textures[ii];
 //            if (!tex->writeToFile(fp))
 //                throw 1;
         }

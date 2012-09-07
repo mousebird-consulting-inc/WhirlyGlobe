@@ -1,5 +1,5 @@
 /*
- *  PinchDelegateMap.h
+ *  MaplyPanDelegateMap.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
@@ -19,16 +19,23 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "WhirlyMapView.h"
+#import "MaplyView.h"
 
-@interface WhirlyMapPinchDelegate : NSObject <UIGestureRecognizerDelegate>
+@interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
 {
-    /// If we're zooming, where we started
-    float startZ;
-    WhirlyMapView *mapView;
+    MaplyView *mapView;
+    /// Set if we're panning
+    BOOL panning;
+    /// View transform when we started
+    Eigen::Matrix4f startTransform;
+    /// Where we first touched the plane
+    WhirlyKit::Point3f startOnPlane;
+    /// Viewer location when we started panning
+    WhirlyKit::Point3f startLoc;
+    CGPoint lastTouch;
 }
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (WhirlyMapPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView;
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
 @end

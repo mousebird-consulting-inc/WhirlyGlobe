@@ -1,5 +1,5 @@
 /*
- *  PanDelegateMap.mm
+ *  MaplyPanDelegateMap.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
@@ -20,20 +20,20 @@
 
 #import "EAGLView.h"
 #import "SceneRendererES1.h"
-#import "PanDelegateMap.h"
-#import "AnimateTranslateMomentum.h"
+#import "MaplyPanDelegate.h"
+#import "MaplyAnimateTranslateMomentum.h"
 
 using namespace WhirlyKit;
 
-@interface WhirlyMapPanDelegate()
+@interface MaplyPanDelegate()
 {
-    AnimateTranslateMomentum *translateDelegate;
+    MaplyAnimateTranslateMomentum *translateDelegate;
 }
 @end
 
-@implementation WhirlyMapPanDelegate
+@implementation MaplyPanDelegate
 
-- (id)initWithMapView:(WhirlyMapView *)inView
+- (id)initWithMapView:(MaplyView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -43,9 +43,9 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyMapPanDelegate *)panDelegateForView:(UIView *)view mapView:(WhirlyMapView *)mapView
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
-	WhirlyMapPanDelegate *panDelegate = [[WhirlyMapPanDelegate alloc] initWithMapView:mapView];
+	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
 	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
 	return panDelegate;
 }
@@ -127,7 +127,7 @@ using namespace WhirlyKit;
                 float drag = -1.5;
 
                 // Kick off a little movement at the end   
-                translateDelegate = [[AnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
+                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
                 mapView.delegate = translateDelegate;
                 
                 panning = NO;

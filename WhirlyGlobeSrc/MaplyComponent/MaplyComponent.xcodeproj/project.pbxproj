@@ -1,0 +1,300 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2B40464115F965E300937923 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B40464015F965E300937923 /* Foundation.framework */; };
+		2B40465715F9662000937923 /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B40465615F9661D00937923 /* libWhirlyGlobeLib.a */; };
+		2B40466715F96F1F00937923 /* MaplyViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466615F96F1F00937923 /* MaplyViewController.mm */; };
+		2B40466C15F9700A00937923 /* MaplyQuadEarthWithMBTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466A15F9700900937923 /* MaplyQuadEarthWithMBTiles.mm */; };
+		2B40466D15F9700A00937923 /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466B15F9700900937923 /* MaplyViewControllerLayer.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2B40465515F9661D00937923 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2B40464E15F9661C00937923 /* WhirlyGlobeLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2BDC4ABB133404BB00E25283;
+			remoteInfo = WhirlyGlobeLib;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2B40463B15F965E300937923 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		2B40463D15F965E300937923 /* libMaplyComponent.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMaplyComponent.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B40464015F965E300937923 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		2B40464415F965E300937923 /* MaplyComponent-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaplyComponent-Prefix.pch"; sourceTree = "<group>"; };
+		2B40464E15F9661C00937923 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
+		2B40466415F96F1500937923 /* MaplyComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyComponent.h; path = include/MaplyComponent.h; sourceTree = SOURCE_ROOT; };
+		2B40466515F96F1500937923 /* MaplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewController.h; path = include/MaplyViewController.h; sourceTree = SOURCE_ROOT; };
+		2B40466615F96F1F00937923 /* MaplyViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyViewController.mm; path = src/MaplyViewController.mm; sourceTree = SOURCE_ROOT; };
+		2B40466815F96FA500937923 /* MaplyQuadEarthWithMBTiles_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadEarthWithMBTiles_private.h; path = include/private/MaplyQuadEarthWithMBTiles_private.h; sourceTree = SOURCE_ROOT; };
+		2B40466915F96FA500937923 /* MaplyViewControllerLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewControllerLayer_private.h; path = include/private/MaplyViewControllerLayer_private.h; sourceTree = SOURCE_ROOT; };
+		2B40466A15F9700900937923 /* MaplyQuadEarthWithMBTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyQuadEarthWithMBTiles.mm; path = src/MaplyQuadEarthWithMBTiles.mm; sourceTree = SOURCE_ROOT; };
+		2B40466B15F9700900937923 /* MaplyViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyViewControllerLayer.mm; path = src/MaplyViewControllerLayer.mm; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2B40463A15F965E300937923 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B40465715F9662000937923 /* libWhirlyGlobeLib.a in Frameworks */,
+				2B40464115F965E300937923 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2B40463215F965E300937923 = {
+			isa = PBXGroup;
+			children = (
+				2B40464215F965E300937923 /* MaplyComponent */,
+				2B40463F15F965E300937923 /* Frameworks */,
+				2B40463E15F965E300937923 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2B40463E15F965E300937923 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B40463D15F965E300937923 /* libMaplyComponent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B40463F15F965E300937923 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B40464E15F9661C00937923 /* WhirlyGlobeLib.xcodeproj */,
+				2B40464015F965E300937923 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2B40464215F965E300937923 /* MaplyComponent */ = {
+			isa = PBXGroup;
+			children = (
+				2B40466415F96F1500937923 /* MaplyComponent.h */,
+				2B40466515F96F1500937923 /* MaplyViewController.h */,
+				2B40466615F96F1F00937923 /* MaplyViewController.mm */,
+				2B40464315F965E300937923 /* Supporting Files */,
+				2B40466315F96CA900937923 /* layer wrappers */,
+			);
+			path = MaplyComponent;
+			sourceTree = "<group>";
+		};
+		2B40464315F965E300937923 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				2B40464415F965E300937923 /* MaplyComponent-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		2B40464F15F9661C00937923 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B40465615F9661D00937923 /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B40466315F96CA900937923 /* layer wrappers */ = {
+			isa = PBXGroup;
+			children = (
+				2B40466915F96FA500937923 /* MaplyViewControllerLayer_private.h */,
+				2B40466B15F9700900937923 /* MaplyViewControllerLayer.mm */,
+				2B40466815F96FA500937923 /* MaplyQuadEarthWithMBTiles_private.h */,
+				2B40466A15F9700900937923 /* MaplyQuadEarthWithMBTiles.mm */,
+			);
+			name = "layer wrappers";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2B40463C15F965E300937923 /* MaplyComponent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2B40464B15F965E300937923 /* Build configuration list for PBXNativeTarget "MaplyComponent" */;
+			buildPhases = (
+				2B40463915F965E300937923 /* Sources */,
+				2B40463A15F965E300937923 /* Frameworks */,
+				2B40463B15F965E300937923 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MaplyComponent;
+			productName = MaplyComponent;
+			productReference = 2B40463D15F965E300937923 /* libMaplyComponent.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2B40463415F965E300937923 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0440;
+				ORGANIZATIONNAME = "mousebird consulting";
+			};
+			buildConfigurationList = 2B40463715F965E300937923 /* Build configuration list for PBXProject "MaplyComponent" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2B40463215F965E300937923;
+			productRefGroup = 2B40463E15F965E300937923 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2B40464F15F9661C00937923 /* Products */;
+					ProjectRef = 2B40464E15F9661C00937923 /* WhirlyGlobeLib.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				2B40463C15F965E300937923 /* MaplyComponent */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2B40465615F9661D00937923 /* libWhirlyGlobeLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWhirlyGlobeLib.a;
+			remoteRef = 2B40465515F9661D00937923 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B40463915F965E300937923 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2B40466715F96F1F00937923 /* MaplyViewController.mm in Sources */,
+				2B40466C15F9700A00937923 /* MaplyQuadEarthWithMBTiles.mm in Sources */,
+				2B40466D15F9700A00937923 /* MaplyViewControllerLayer.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2B40464915F965E300937923 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		2B40464A15F965E300937923 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2B40464C15F965E300937923 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/MaplyComponent.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MaplyComponent/MaplyComponent-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		2B40464D15F965E300937923 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DSTROOT = /tmp/MaplyComponent.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MaplyComponent/MaplyComponent-Prefix.pch";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2B40463715F965E300937923 /* Build configuration list for PBXProject "MaplyComponent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B40464915F965E300937923 /* Debug */,
+				2B40464A15F965E300937923 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2B40464B15F965E300937923 /* Build configuration list for PBXNativeTarget "MaplyComponent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2B40464C15F965E300937923 /* Debug */,
+				2B40464D15F965E300937923 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2B40463415F965E300937923 /* Project object */;
+}

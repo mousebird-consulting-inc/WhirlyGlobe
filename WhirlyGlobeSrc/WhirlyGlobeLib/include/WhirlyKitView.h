@@ -25,7 +25,7 @@
 #import "CoordSystem.h"
 
 /** Whirly Kit View is the base class for the views
-    used in WhirlyGlobe and WhirlyMap.  It contains the general purpose
+    used in WhirlyGlobe and Maply.  It contains the general purpose
     methods and parameters related to the model and view matrices used for display.
  */
 @interface WhirlyKitView : NSObject

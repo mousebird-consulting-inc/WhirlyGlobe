@@ -1,5 +1,5 @@
 /*
- *  AnimateTranslation.mm
+ *  MaplyAnimateTranslation.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -18,19 +18,19 @@
  *
  */
 
-#import "AnimateTranslation.h"
+#import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
-@implementation AnimateViewTranslation
+@implementation MaplyAnimateViewTranslation
 
 @synthesize startDate;
 @synthesize endDate;
 @synthesize startLoc;
 @synthesize endLoc;
 
-- (id)initWithView:(WhirlyMapView *)globeView translate:(Point3f &)newLoc howLong:(float)howLong
+- (id)initWithView:(MaplyView *)globeView translate:(Point3f &)newLoc howLong:(float)howLong
 {
     self = [super init];
     
@@ -46,7 +46,7 @@ using namespace Eigen;
 }
 
 
-- (void)updateView:(WhirlyMapView *)mapView
+- (void)updateView:(MaplyView *)mapView
 {
     if (startDate == 0.0)
         return;
