@@ -28,11 +28,15 @@
 namespace WhirlyKit
 {
     
-Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth)
-    : coordSystem(coordSystem)
+Scene::Scene()
 {
-    cullTree = new CullTree(coordSystem,localMbr,depth);
-
+}
+    
+void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
+{
+    coordAdapter = adapter;
+    cullTree = new CullTree(adapter,localMbr,depth);
+    
     // Also toss in a screen space generator to share amongst the layers
     ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
@@ -43,7 +47,7 @@ Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth
     
     activeModels = [NSMutableArray array];
     
-    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&changeRequestLock,NULL);        
 }
 
 Scene::~Scene()

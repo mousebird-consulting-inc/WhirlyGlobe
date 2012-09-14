@@ -97,7 +97,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 /// Pass in an array of 3 point3f structures for the points and
 ///  normals.  The corners are returned in counter-clockwise order.
 /// This is used for label selection
-- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordSystem:(WhirlyKit::CoordSystem *)coordSys;
+- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 @end
 

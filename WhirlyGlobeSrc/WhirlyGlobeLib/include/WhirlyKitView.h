@@ -24,6 +24,16 @@
 #import "WhirlyKitView.h"
 #import "CoordSystem.h"
 
+/// @cond
+@class WhirlyKitView;
+/// @endcond
+
+/// Watcher Callback
+@protocol WhirlyKitViewWatcherDelegate
+/// Called when the view changes position
+- (void)viewUpdated:(WhirlyKitView *)view;
+@end
+
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and Maply.  It contains the general purpose
     methods and parameters related to the model and view matrices used for display.
@@ -37,18 +47,22 @@
 	
     /// The last time the position was changed
     CFTimeInterval lastChangedTime;
-    
-    /// Coordinate system we're working in for the view
-    WhirlyKit::CoordSystem *coordSystem;
+
+    /// Display adapter and coordinate system we're working in
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
     /// If set, we'll scale the near and far clipping planes as we get closer
     bool continuousZoom;
+
+    /// Called when positions are updated
+    NSObject<WhirlyKitViewWatcherDelegate> * __weak watchDelegate;
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic,readonly) CFTimeInterval lastChangedTime;
-@property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
+@property (nonatomic,readonly) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 @property (nonatomic,assign) bool continuousZoom;
+@property (nonatomic,weak) NSObject<WhirlyKitViewWatcherDelegate> *watchDelegate;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
@@ -77,4 +91,3 @@
 - (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
 @end
-

@@ -55,18 +55,21 @@ Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo)
     
     return coord;    
 }
-
-/// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
-Point3f SphericalMercatorCoordSystem::localToGeocentricish(Point3f pt)
+    
+/// Convert from the local coordinate system to geocentric
+Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt)
 {
-    return GeoCoordSystem::LocalToGeocentricish(localToGeographic(pt));
+    GeoCoord geoCoord = localToGeographic(localPt);
+    return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
+}
+    
+/// Convert from display coordinates to geocentric
+Point3f SphericalMercatorCoordSystem::geocentricToLocal(Point3f geocPt)
+{
+    Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());    
 }
 
-/// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
-Point3f SphericalMercatorCoordSystem::geocentricishToLocal(Point3f pt)
-{
-    Point3f coord = GeoCoordSystem::GeocentricishToLocal(pt);
-    return geographicToLocal(GeoCoord(coord.x(),coord.y()));
-}
 
 }

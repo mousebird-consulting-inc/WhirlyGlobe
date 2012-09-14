@@ -58,7 +58,7 @@ void ViewPlacementGenerator::removeView(UIView *view)
 // Work through the list of views, moving things around and/or hiding as needed
 void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables)
 {
-    CoordSystem *coordSys = frameInfo.scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = frameInfo.scene->getCoordAdapter();
     
     // Note: Make this work for generic 3D views
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
@@ -90,7 +90,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         if (!hidden)
         {
             // Note: Calculate this ahead of time
-            Point3f worldLoc = coordSys->localToGeocentricish(coordSys->geographicToLocal(viewInst.loc));
+            Point3f worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(viewInst.loc));
             
             // Note: Copied from the ScreenSpaceGenerator.  Still dumb here.
             Point3f testPts[2];

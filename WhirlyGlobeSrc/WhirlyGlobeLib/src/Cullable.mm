@@ -24,10 +24,10 @@
 namespace WhirlyKit
 {
     
-CullTree::CullTree(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth,int maxDrawPerNode)
-    : coordSystem(coordSystem), depth(depth), numCullables(0), maxDrawPerNode(maxDrawPerNode)
+CullTree::CullTree(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth,int maxDrawPerNode)
+    : coordAdapter(coordAdapter), depth(depth), numCullables(0), maxDrawPerNode(maxDrawPerNode)
 {
-    topCullable = new Cullable(coordSystem,localMbr,depth);
+    topCullable = new Cullable(coordAdapter,localMbr,depth);
 }
     
 CullTree::~CullTree()
@@ -35,7 +35,7 @@ CullTree::~CullTree()
     delete topCullable;
 }
     
-Cullable::Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth)
+Cullable::Cullable(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth)
     : localMbr(localMbr)
 {
     height = depth;
@@ -45,18 +45,18 @@ Cullable::Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth)
     
     // Put together the extreme points
     Point3f pts[8];
-    pts[0] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ll().y(),0.0));
-    pts[1] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ll().y(),0.0));
-    pts[2] = coordSystem->localToGeocentricish(Point3f(localMbr.ur().x(),localMbr.ur().y(),0.0));
-    pts[3] = coordSystem->localToGeocentricish(Point3f(localMbr.ll().x(),localMbr.ur().y(),0.0));
+    pts[0] = coordAdapter->localToDisplay(Point3f(localMbr.ll().x(),localMbr.ll().y(),0.0));
+    pts[1] = coordAdapter->localToDisplay(Point3f(localMbr.ur().x(),localMbr.ll().y(),0.0));
+    pts[2] = coordAdapter->localToDisplay(Point3f(localMbr.ur().x(),localMbr.ur().y(),0.0));
+    pts[3] = coordAdapter->localToDisplay(Point3f(localMbr.ll().x(),localMbr.ur().y(),0.0));
     Point2f halfBot = (localMbr.ll() + Point2f(localMbr.ur().x(),localMbr.ll().y()))/2.0;
-    pts[4] = coordSystem->localToGeocentricish(Point3f(halfBot.x(),halfBot.y(),0.0));
+    pts[4] = coordAdapter->localToDisplay(Point3f(halfBot.x(),halfBot.y(),0.0));
     Point2f halfTop = (Point2f(localMbr.ll().x(),localMbr.ur().y()) + localMbr.ur())/2.0;
-    pts[5] = coordSystem->localToGeocentricish(Point3f(halfTop.x(),halfTop.y(),0.0));
+    pts[5] = coordAdapter->localToDisplay(Point3f(halfTop.x(),halfTop.y(),0.0));
     Point2f halfLeft = (localMbr.ll() + Point2f(localMbr.ll().x(),localMbr.ur().y()))/2.0;
-    pts[6] = coordSystem->localToGeocentricish(Point3f(halfLeft.x(),halfLeft.y(),0.0));
+    pts[6] = coordAdapter->localToDisplay(Point3f(halfLeft.x(),halfLeft.y(),0.0));
     Point2f halfRight = (Point2f(localMbr.ur().x(),localMbr.ll().y()) + localMbr.ur())/2.0;
-    pts[7] = coordSystem->localToGeocentricish(Point3f(halfRight.x(),halfRight.y(),0.0));
+    pts[7] = coordAdapter->localToDisplay(Point3f(halfRight.x(),halfRight.y(),0.0));
     
     // Now get the bounding box in 3-space
     Point3f minPt,maxPt;
@@ -114,7 +114,7 @@ Cullable *Cullable::getOrAddChild(int which, CullTree *cullTree)
     if (children[which])
         return children[which];
     
-    children[which] = new Cullable(cullTree->coordSystem,childMbr[which],height-1);
+    children[which] = new Cullable(cullTree->coordAdapter,childMbr[which],height-1);
     cullTree->numCullables++;
     
     return children[which];

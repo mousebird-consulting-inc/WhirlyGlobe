@@ -8,10 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		2B40464115F965E300937923 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B40464015F965E300937923 /* Foundation.framework */; };
-		2B40465715F9662000937923 /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B40465615F9661D00937923 /* libWhirlyGlobeLib.a */; };
 		2B40466715F96F1F00937923 /* MaplyViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466615F96F1F00937923 /* MaplyViewController.mm */; };
 		2B40466C15F9700A00937923 /* MaplyQuadEarthWithMBTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466A15F9700900937923 /* MaplyQuadEarthWithMBTiles.mm */; };
 		2B40466D15F9700A00937923 /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40466B15F9700900937923 /* MaplyViewControllerLayer.mm */; };
+		2B7EF30715FAB4AC00D4079F /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B40465615F9661D00937923 /* libWhirlyGlobeLib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,7 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B40465715F9662000937923 /* libWhirlyGlobeLib.a in Frameworks */,
+				2B7EF30715FAB4AC00D4079F /* libWhirlyGlobeLib.a in Frameworks */,
 				2B40464115F965E300937923 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -256,6 +256,11 @@
 				DSTROOT = /tmp/MaplyComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MaplyComponent/MaplyComponent-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../WhirlyGlobeLib/include/,
+					../../../utilities/boost_1_45_0/,
+					"../../../utilities/eigen-eigen-3.0.1/",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -268,6 +273,11 @@
 				DSTROOT = /tmp/MaplyComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MaplyComponent/MaplyComponent-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../WhirlyGlobeLib/include/,
+					../../../utilities/boost_1_45_0/,
+					"../../../utilities/eigen-eigen-3.0.1/",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -293,6 +303,7 @@
 				2B40464D15F965E300937923 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

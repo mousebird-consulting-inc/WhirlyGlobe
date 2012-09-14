@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011 mousebird consulting
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@ using namespace WhirlyGlobe;
     theClearColor = [UIColor blackColor];
     [sceneRenderer setClearColor:theClearColor];
 	glView.renderer = sceneRenderer;
-	glView.frameInterval = 2;  // 60 fps
+	glView.frameInterval = 2;  // 30 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
@@ -161,7 +161,7 @@ using namespace WhirlyGlobe;
 	// Need an empty scene and view    
 	globeView = [[WhirlyGlobeView alloc] init];
     globeView.continuousZoom = true;
-    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordSystem,4);
+    globeScene = new WhirlyGlobe::GlobeScene(4);
     sceneRenderer.theView = globeView;
     
     // Need a layer thread to manage the layers

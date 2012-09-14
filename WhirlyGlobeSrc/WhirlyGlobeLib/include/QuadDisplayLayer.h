@@ -1,5 +1,5 @@
 /*
- *  GlobeQuadDisplayLayer.h
+ *  QuadDisplayLayer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
@@ -22,7 +22,7 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "TextureGroup.h"
-#import "GlobeScene.h"
+#import "Scene.h"
 #import "DataLayer.h"
 #import "RenderCache.h"
 #import "LayerThread.h"
@@ -32,23 +32,23 @@
 #import "SceneRendererES1.h"
 
 /// @cond
-@class WhirlyGlobeQuadDisplayLayer;
+@class WhirlyKitQuadDisplayLayer;
 /// @endcond
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 /// Quad tree Nodeinfo structures sorted by importance
 typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;    
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *coordSys,WhirlyKit::Mbr nodeMbr);
+float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr);
 }
 
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
  */
-@protocol WhirlyGlobeQuadDataStructure <NSObject>
+@protocol WhirlyKitQuadDataStructure <NSObject>
 
 /// Return the coordinate system we're working in
 - (WhirlyKit::CoordSystem *)coordSystem;
@@ -67,7 +67,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyGlobeViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;
@@ -78,37 +78,37 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     notified when the quad layer is adding and removing tiles.
     Presumably you'll want to add or remove geometry as well.
  */
-@protocol WhirlyGlobeQuadLoader <NSObject>
+@protocol WhirlyKitQuadLoader <NSObject>
 
 /// Called when the layer first starts up.  Keep this around if you need it.
-- (void)setQuadLayer:(WhirlyGlobeQuadDisplayLayer *)layer;
+- (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer;
 
 /// The quad layer uses this to see if a loader is capable of loading
 ///  another tile.  Use this to track simultaneous loads
 - (bool)isReady;
 
 /// Called right before we start a series of updates
-- (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer;
+- (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer;
 
 /// Called right after we finish a series of updates
-- (void)quadDisplayLayerEndUpdates:(WhirlyGlobeQuadDisplayLayer *)layer;
+- (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer;
 
 /// The quad tree wants to load the given tile.
 /// Call the layer back when the tile is loaded.
 /// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
 
 /// Quad tree wants to unload the given tile immediately.
 /// This is in the layer thread.
-- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
 
 /// The layer is checking to see if it's allowed to traverse below the given tile.
 /// If the loader is still trying to load that given tile (or has some other information about it),
 ///  then return false.  If the tile is loaded and the children may be valid, return true.
-- (bool)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
 
 /// Called when the layer is about to shut down.  Clear out any drawables and caches.
-- (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
 @end
 
@@ -116,19 +116,18 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
  */
-@interface WhirlyGlobeQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
+@interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
 {
     /// Layer thread we're attached to
     WhirlyKitLayerThread * __weak layerThread;
     
     /// Scene we're modifying
-	WhirlyGlobe::GlobeScene *scene;
+    WhirlyKit::Scene *scene;
     
     /// The renderer we need for frame sizes
     WhirlyKitSceneRendererES1 * __weak renderer;
         
     /// Coordinate system we're working in for tiling
-    /// The visual output is on the globe
     WhirlyKit::CoordSystem *coordSys;
     
     /// Valid bounding box in local coordinates (coordSys)
@@ -141,7 +140,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     WhirlyKit::Quadtree *quadtree;
         
     /// Nodes being evaluated for loading
-    WhirlyGlobe::QuadNodeInfoSet nodesForEval;
+    WhirlyKit::QuadNodeInfoSet nodesForEval;
 
     /// Maximum number of tiles loaded in at once
     int maxTiles;
@@ -164,18 +163,18 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     bool debugMode;    
 
     /// State of the view the last time we were called
-    WhirlyGlobeViewState *viewState;
+    WhirlyKitViewState *viewState;
 
     /// Data source for the quad tree structure
-    NSObject<WhirlyGlobeQuadDataStructure> *dataStructure;
+    NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 
     /// Loader that may be creating and deleting data as the quad tiles load
     ///  and unload.
-    NSObject<WhirlyGlobeQuadLoader> *loader; 
+    NSObject<WhirlyKitQuadLoader> *loader;
 }
 
 @property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
-@property (nonatomic,readonly) WhirlyGlobe::GlobeScene *scene;
+@property (nonatomic,readonly) WhirlyKit::Scene *scene;
 @property (nonatomic,readonly) WhirlyKit::Quadtree *quadtree;
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
@@ -185,19 +184,19 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 @property (nonatomic,assign) bool debugMode;
 @property (nonatomic,assign) bool drawEmpty;
 @property (nonatomic,assign) float viewUpdatePeriod;
-@property (nonatomic,strong,readonly) NSObject<WhirlyGlobeQuadDataStructure> *dataStructure;
-@property (nonatomic,strong,readonly) NSObject<WhirlyGlobeQuadLoader> *loader;
+@property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+@property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 
 /// Construct with a renderer and data source for the tiles
-- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataStructure> *)dataSource loader:(NSObject<WhirlyGlobeQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES1 *)renderer;
 
 /// A loader calls this after successfully loading a tile.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
 
 /// Loader calls this after a failed tile load.
 /// Must be called in the layer thread.
-- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;

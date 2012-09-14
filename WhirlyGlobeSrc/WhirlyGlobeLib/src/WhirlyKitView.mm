@@ -28,9 +28,10 @@ using namespace Eigen;
 @implementation WhirlyKitView
 
 @synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@synthesize coordSystem;
+@synthesize coordAdapter;
 @synthesize lastChangedTime;
 @synthesize continuousZoom;
+@synthesize watchDelegate;
 
 - (id)init
 {

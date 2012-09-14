@@ -34,25 +34,53 @@ public:
     GeoCoord localToGeographic(Point3f);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
-    
-    /// Convert from the local coordinate system to display coordinates (geocentric-ish)
-    Point3f localToGeocentricish(Point3f);
-    
-    /// Static so other coordinate systems can use it
-    static Point3f LocalToGeocentricish(Point3f);
-    static Point3f LocalToGeocentricish(GeoCoord);
 
-    /// Convert from display coordinates to the local coordinate system
-    Point3f geocentricishToLocal(Point3f);
+    /// Convert from local coordinates to WGS84 geocentric
+    Point3f localToGeocentric(Point3f);
+    /// Static version for convenience
+    static Point3f LocalToGeocentric(Point3f);
+    /// Convert from WGS84 geocentric to local coordinates
+    Point3f geocentricToLocal(Point3f);
+    /// Static version for convenience
+    static Point3f GeocentricToLocal(Point3f);
     
-    /// Static so other coordinate systems can use it
-    static Point3f GeocentricishToLocal(Point3f);
-    static GeoCoord GeocentricishToGeoCoord(Point3f);
     /// Convenience routine to convert a whole MBR to local coordinates
     static Mbr GeographicMbrToLocal(GeoMbr);
+};
 
-    /// Not flat
+/** The Fake Geocentric Display Adapter is used by WhirlyGlobe to represent
+    a scene that's nominally in lat/lon + elevation but displayed in a fake
+    geocentric.  Fake geocentric is just a projection onto a sphere of radius 1.0.
+    This is the one used by WhirlyGlobe, unless you're doing something trikcy.
+    Maply uses flat coordinte systems.
+ */
+class FakeGeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
+{
+public:
+    FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys) { }
+    virtual ~FakeGeocentricDisplayAdapter() { }
+
+    /// Convert from geographic+height to fake display geocentric
+    virtual Point3f localToDisplay(Point3f);
+    /// Static version
+    static Point3f LocalToDisplay(Point3f);
+
+    /// Convert from fake display geocentric to geographic+height
+    virtual Point3f displayToLocal(Point3f);
+    /// Static version
+    static Point3f DisplayToLocal(Point3f);
+    
+    /// Return a normal for the given point
+    virtual Point3f normalForLocal(Point3f);
+    
+    /// Get a reference to the coordinate system
+    virtual CoordSystem *getCoordSystem() { return &geoCoordSys; }
+    
+    /// This system is round
     bool isFlat() { return false; }
+    
+protected:
+    GeoCoordSystem geoCoordSys;
 };
 
 }

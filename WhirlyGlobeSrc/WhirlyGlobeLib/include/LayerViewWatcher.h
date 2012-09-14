@@ -23,13 +23,14 @@
 
 /// @cond
 @class WhirlyKitLayerThread;
+@class WhirlyKitViewState;
 /// @endcond
 
 /** The layer view watcher is a base class.  We subclass it for specific
     view types, such as globe and map.  Each of the subclasses determines
     the criteria for watcher updates.
  */
-@interface WhirlyKitLayerViewWatcher : NSObject
+@interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
 {
     /// Layer we're attached to
     WhirlyKitLayerThread *layerThread;
@@ -40,9 +41,51 @@
     
     /// When the last update was run
     NSTimeInterval lastUpdate;
+
+    /// You should know the type here.  A globe or a map view state.
+    WhirlyKitViewState *lastViewState;
+    
+    /// The sublcass of WhirlyKitViewState we'll use
+    Class viewStateClass;
 }
 
 /// Initialize with a view and layer thread
 - (id)initWithView:(WhirlyKitView *)view thread:(WhirlyKitLayerThread *)layerThread;
+
+/// Add the given target/selector combo as a watcher.
+/// Will get called at most the given frequency.
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime;
+
+/// Remove the given target/selector combo
+- (void)removeWatcherTarget:(id)target selector:(SEL)selector;
+
+@end
+
+/** Representation of the view state.  This is the base
+ class for specific view state info for the various view
+ types.
+ */
+@interface WhirlyKitViewState : NSObject
+{
+@public
+    Eigen::Matrix4f modelMatrix;
+	float fieldOfView;
+	float imagePlaneSize;
+	float nearPlane;
+	float farPlane;
+    WhirlyKit::Point3f eyeVec;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+}
+
+/// Called by the subclasses
+- (id)initWithView:(WhirlyKitView *)view;
+
+/// Calculate the viewing frustum (which is also the image plane)
+/// Need the framebuffer size in pixels as input
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
+
+/// From a world location (3D), figure out the projection to the screen
+///  Returns a point within the frame
+- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 @end

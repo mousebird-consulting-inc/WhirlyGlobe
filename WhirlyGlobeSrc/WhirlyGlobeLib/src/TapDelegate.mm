@@ -72,7 +72,7 @@ using namespace WhirlyKit;
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
 		[msg setWorldLoc:hit];
-        Point3f localCoord = GeoCoordSystem::GeocentricishToLocal(hit);
+        Point3f localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		
