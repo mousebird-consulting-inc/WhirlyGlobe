@@ -40,14 +40,11 @@ public:
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     
-    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
-    Point3f localToGeocentricish(Point3f);    
-    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
-    Point3f geocentricishToLocal(Point3f);
-    
-    /// This is a flat system
-    bool isFlat() { return true; }
-    
+    /// Convert from the local coordinate system to geocentric
+    Point3f localToGeocentric(Point3f);
+    /// Convert from display coordinates to geocentric
+    Point3f geocentricToLocal(Point3f);
+        
 protected:
     float originLon;
 };

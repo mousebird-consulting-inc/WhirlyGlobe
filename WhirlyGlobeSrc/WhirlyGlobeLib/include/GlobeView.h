@@ -33,12 +33,6 @@
 - (void)updateView:(WhirlyGlobeView *)globeView;
 @end
 
-/// Watcher Callback
-@protocol WhirlyGlobeViewWatcherDelegate
-/// Called when the view changes position
-- (void)viewUpdated:(WhirlyGlobeView *)globeView;
-@end
-
 /** Parameters associated with viewing the globe.
     Modify the rotation quaternion to change the current
     view location.  Set the delegate to smoothly change
@@ -53,16 +47,12 @@
 	float heightAboveGlobe;
 
     /// Used to update position based on time (or whatever other factor you like)
-    NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;
-    
-    /// Called when positions are updated
-    NSObject<WhirlyGlobeViewWatcherDelegate> * __weak watchDelegate;
+    NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;    
 }
 
 @property (nonatomic,assign) float heightAboveGlobe;
 @property (nonatomic,assign) Eigen::Quaternionf rotQuat;
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
-@property (nonatomic,weak) NSObject<WhirlyGlobeViewWatcherDelegate> *watchDelegate;
 
 /// Return min/max valid heights above globe
 - (float)minHeightAboveGlobe;

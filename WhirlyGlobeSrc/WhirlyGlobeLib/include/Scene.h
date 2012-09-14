@@ -170,15 +170,11 @@ class Scene : public DelayedDeletable
 {
 	friend class ChangeRequest;
 public:
-	/// Construct with the depth of the cullable quad tree,
-    ///  the coordinate system we're using, and the MBR of the
-    ///  top level.
-    /// The earth will be recursively divided into a quad tree of given depth.
-	Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth);
 	virtual ~Scene();
     
-    /// Return the coordinate system we're working in
-    WhirlyKit::CoordSystem *getCoordSystem() { return coordSystem; }
+    /// Return the coordinate system adapter we're using.
+    /// You can get the coordinate system we're using from that.
+    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter() { return coordAdapter; }
     
     /// Full set of Generators
     const GeneratorSet *getGenerators() { return &generators; }
@@ -246,9 +242,10 @@ public:
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
 	
-public:	    
-    /// Coordinate system 
-    WhirlyKit::CoordSystem *coordSystem;
+public:
+    /// The coordinate system display adapter converts from the local space
+    ///  to display coordinates.
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
     /// Look for a Draw Generator by ID
     Generator *getGenerator(SimpleIdentity genId);
@@ -296,6 +293,17 @@ public:
     
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
+    
+protected:
+    /// Only the subclasses are allowed to create these
+    Scene();
+
+	/// Construct with the depth of the cullable quad tree,
+    ///  the coordinate system we're using, and the MBR of the
+    ///  top level.
+    /// The earth will be recursively divided into a quad tree of given depth.
+    /// Init call used by the base class to set things up
+    void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
 };
 	
 }

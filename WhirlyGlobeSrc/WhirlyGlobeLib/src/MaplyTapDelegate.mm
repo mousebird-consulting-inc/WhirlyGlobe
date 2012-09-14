@@ -58,6 +58,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+    CoordSystemDisplayAdapter *coordAdapter = mapView.coordAdapter;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     // Just figure out where we tapped
@@ -70,7 +71,8 @@ using namespace WhirlyKit;
         [msg setTouchLoc:touchLoc];
         [msg setView:tap.view];
 		[msg setWorldLoc:hit];
-		[msg setWhereGeo:GeoCoordSystem::GeocentricishToGeoCoord(hit)];
+        Point3f localPt = coordAdapter->displayToLocal(hit);
+		[msg setWhereGeo:coordAdapter->getCoordSystem()->localToGeographic(localPt)];
         msg.heightAboveSurface = hit.z();
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];

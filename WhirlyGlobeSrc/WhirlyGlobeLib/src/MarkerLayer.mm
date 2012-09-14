@@ -219,7 +219,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 {
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
 
-    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fade = markerInfo.fade;
     markerRep->setId(markerInfo.markerId);
@@ -283,7 +283,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
         float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
         
-        norm = GeoCoordSystem::LocalToGeocentricish(marker.loc);
+        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
+        norm = coordAdapter->normalForLocal(localPt);
         
         if (markerInfo.screenObject)
         {
@@ -292,7 +293,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             pts[2] = Point3f(width2,height2,0.0);
             pts[3] = Point3f(-width2,height2,0.0);
         } else {            
-            Point3f center = norm;
+            Point3f center = coordAdapter->localToDisplay(localPt);
             Vector3f up(0,0,1);
             Point3f horiz = up.cross(norm).normalized();
             Point3f vert = norm.cross(horiz).normalized();;        
@@ -396,7 +397,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                     draw->addNormal(norm);
                     draw->addTexCoord(texCoord[ii]);
                     Mbr localMbr = draw->getLocalMbr();
-                    Point3f localLoc = coordSys->geographicToLocal(marker.loc);
+                    Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
                     draw->setLocalMbr(localMbr);
                 }

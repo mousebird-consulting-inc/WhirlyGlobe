@@ -35,14 +35,11 @@ public:
     GeoCoord localToGeographic(Point3f);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
-    
-    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
-    Point3f localToGeocentricish(Point3f);    
-    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
-    Point3f geocentricishToLocal(Point3f);
-    
-    /// Working in a flat space
-    bool isFlat() { return true; }
+
+    /// Convert from local coordinates to WGS84 geocentric
+    Point3f localToGeocentric(Point3f);
+    /// Convert from WGS84 geocentric to local coordinates
+    Point3f geocentricToLocal(Point3f);
 };
     
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
@@ -58,22 +55,19 @@ public:
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
     
-    /// Convert from the local coordinate system to spherical display (WhirlyGlobe) coordinates (geocentric-ish)
-    Point3f localToGeocentricish(Point3f);    
-    /// Convert from spherical (WhirlyGlobe) display coordinates to the local coordinate system
-    Point3f geocentricishToLocal(Point3f);
+    /// Convert from local coordinates to WGS84 geocentric
+    Point3f localToGeocentric(Point3f);
+    /// Convert from WGS84 geocentric to local coordinates
+    Point3f geocentricToLocal(Point3f);
     
     /// Return the origin
     GeoCoord getOrigin() const;
-    
-    /// Working in a flat space
-    bool isFlat() { return true; }        
     
 protected:
     GeoCoord origin;
     float converge;
 };
-
+    
 /// A representative earth radius value.  We use this for scaling, not accurate geolocation.
 static const float EarthRadius = 6371000;
 

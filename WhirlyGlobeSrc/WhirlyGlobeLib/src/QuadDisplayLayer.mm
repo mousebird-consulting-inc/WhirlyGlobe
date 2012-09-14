@@ -1,5 +1,5 @@
 /*
- *  GlobeQuadDisplayLayer.mm
+ *  QuadDisplayLayer.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeQuadDisplayLayer.h"
+#import "QuadDisplayLayer.h"
 #import "GlobeMath.h"
 #import "GlobeLayerViewWatcher.h"
 #import "UIImage+Stuff.h"
@@ -26,12 +26,11 @@
 
 using namespace Eigen;
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
 // Calculate the importance for the given texel
-static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,Point3f pt,Point2f pixSize,Point2f frameSize,WhirlyKit::CoordSystem *coordSys)
+static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f pt,Point2f pixSize,Point2f frameSize,CoordSystem *srcSystem,CoordSystem *destSystem,CoordSystemDisplayAdapter *coordAdapter)
 {
     Point3f pts[4];
     pts[0] = pt + Point3f(-pixSize.x()/2.0,-pixSize.y()/2.0,0.0);
@@ -45,7 +44,7 @@ static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,Point
     bool forwardFacing = false;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        pts3d[ii] = coordSys->localToGeocentricish(pts[ii]);
+        pts3d[ii] = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, destSystem, pts[ii]));
         
         // Check the normal (point in this case) against the eye vec
         if (pts3d[ii].dot(eyeVec) > 0.0)
@@ -77,8 +76,9 @@ static float calcImportance(WhirlyGlobeViewState *viewState,Point3f eyeVec,Point
 
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *coordSys,Mbr nodeMbr)
+float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
 {
+    WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
     Point3f testPoints[5];
     testPoints[0] = Point3f(nodeMbr.ll().x(),nodeMbr.ll().y(),0.0);
@@ -91,7 +91,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     Mbr mbrOnScreen;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point3f pt3d = coordSys->localToGeocentricish(testPoints[ii]);
+        Point3f pt3d = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, displaySystem, testPoints[ii]));
         
         CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
         mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
@@ -103,7 +103,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     float maxImport = 0.0;
     for (unsigned int ii=0;ii<5;ii++)
     {
-        float thisImport = calcImportance(viewState,eyeVec,testPoints[ii],pixSize,frameSize,coordSys);
+        float thisImport = calcImportance(viewState,eyeVec,testPoints[ii],pixSize,frameSize,srcSystem,displaySystem,coordAdapter);
         maxImport = std::max(thisImport,maxImport);
     }
     
@@ -112,7 +112,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     
 }
 
-@implementation WhirlyGlobeQuadDisplayLayer
+@implementation WhirlyKitQuadDisplayLayer
 
 @synthesize layerThread;
 @synthesize scene;
@@ -128,7 +128,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 @synthesize loader;
 @synthesize viewUpdatePeriod;
 
-- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyGlobeQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
 {
     self = [super init];
     if (self)
@@ -160,13 +160,13 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     if (quadtree)
         delete quadtree;
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     layerThread = inLayerThread;
-	scene = (GlobeScene *)inScene;
+	scene = inScene;
         
     // We want view updates, but only 1s in frequency
     if (layerThread.viewWatcher)
@@ -190,7 +190,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 
 // Called every so often by the view watcher
 // It's here that we evaluate what to load
-- (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
+- (void)viewUpdate:(WhirlyKitViewState *)inViewState
 {
     if (!scene)
     {
@@ -315,7 +315,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 
 // This is called by the loader when it finished loading a tile
 // Once loaded we can try the children
-- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
     // Note: Need to check that we still care about this load
     
@@ -338,7 +338,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 
 // Tile failed to load.
 // At the moment we don't care, but we won't look at the children
-- (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
+- (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
     
 }

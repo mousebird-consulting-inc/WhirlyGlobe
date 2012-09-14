@@ -22,7 +22,7 @@
 #import <set>
 
 /// @cond
-@class WhirlyGlobeViewState;
+@class WhirlyKitViewState;
 @protocol WhirlyKitQuadTreeImportanceDelegate;
 /// @endcond
 

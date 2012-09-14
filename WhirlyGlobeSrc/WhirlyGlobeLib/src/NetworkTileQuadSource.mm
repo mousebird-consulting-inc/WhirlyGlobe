@@ -24,7 +24,7 @@
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@implementation WhirlyGlobeNetworkTileQuadSource
+@implementation WhirlyKitNetworkTileQuadSource
 
 @synthesize numSimultaneous;
 @synthesize cacheDir;
@@ -102,14 +102,14 @@ using namespace WhirlyGlobe;
     maxZoom = zoom;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
     
     // For the rest, 
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
 }
 
 - (int)maxSimultaneousFetches
@@ -118,7 +118,7 @@ using namespace WhirlyGlobe;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
 {
     int y = ((int)(1<<level)-row)-1;
     
@@ -169,7 +169,7 @@ using namespace WhirlyGlobe;
 // We're in the layer thread here
 - (void)tileUpdate:(NSArray *)args
 {
-    WhirlyGlobeQuadTileLoader *loader = [args objectAtIndex:0];
+    WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
     int level = [[args objectAtIndex:2] intValue];
     int x = [[args objectAtIndex:3] intValue];

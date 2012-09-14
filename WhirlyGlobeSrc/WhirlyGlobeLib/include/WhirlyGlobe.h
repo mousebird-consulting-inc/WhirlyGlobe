@@ -65,7 +65,7 @@
 #import "MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyTapDelegate.h"
-#import "GlobeQuadDisplayLayer.h"
+#import "QuadDisplayLayer.h"
 #import "GlobeLayerViewWatcher.h"
 #import "MBTileQuadSource.h"
 #import "TileQuadLoader.h"
@@ -76,3 +76,5 @@
 #import "GeometryLayer.h"
 #import "ViewPlacementGenerator.h"
 #import "ActiveModel.h"
+#import "MaplyScene.h"
+

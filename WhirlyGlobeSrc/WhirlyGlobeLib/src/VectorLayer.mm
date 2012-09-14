@@ -131,8 +131,8 @@ public:
     }
         
     void addPoints(VectorRing &pts,bool closed)
-    {          
-//        CoordSystem *coordSys = scene->getCoordSystem();
+    {
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -162,8 +162,9 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-            Point3f pt = norm;
+            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+            Point3f norm = coordAdapter->normalForLocal(localPt);
+            Point3f pt = coordAdapter->localToDisplay(localPt);
             
             // Add to drawable
             // Depending on the type, we do this differently
@@ -252,9 +253,11 @@ public:
     }
     
     void addPoints(VectorRing &inRing)
-    {          
+    {
         if (inRing.size() < 3)
             return;
+        
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
         std::vector<VectorRing> rings;
         TesselateRing(inRing,rings);
@@ -293,8 +296,9 @@ public:
                 // Convert to real world coordinates and offset from the globe
                 Point2f &geoPt = pts[jj];
                 GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-                Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-                Point3f pt = norm;
+                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+                Point3f norm = coordAdapter->normalForLocal(localPt);
+                Point3f pt = coordAdapter->localToDisplay(localPt);
                 
                 drawable->addPoint(pt);
                 drawable->addNormal(norm);

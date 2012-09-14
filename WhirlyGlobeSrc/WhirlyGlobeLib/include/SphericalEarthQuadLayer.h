@@ -21,7 +21,6 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "TextureGroup.h"
-#import "GlobeScene.h"
 #import "DataLayer.h"
 #import "RenderCache.h"
 #import "LayerThread.h"
@@ -32,7 +31,7 @@
     a simple hierarchy of images that covers the whole earth.
     This replaces SphericalEarthLayer with its paging version.
  */
-@interface WhirlyGlobeSphericalEarthQuadLayer : WhirlyGlobeQuadDisplayLayer
+@interface WhirlyKitSphericalEarthQuadLayer : WhirlyKitQuadDisplayLayer
 {
 }
 

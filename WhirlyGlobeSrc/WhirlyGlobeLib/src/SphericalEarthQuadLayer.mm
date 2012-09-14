@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 // Describes the structure of the image database
-@interface WholeEarthStructure : NSObject<WhirlyGlobeQuadDataStructure>
+@interface WholeEarthStructure : NSObject<WhirlyKitQuadDataStructure>
 {
     GeoCoordSystem coordSystem;
     int maxZoom;
@@ -81,12 +81,12 @@ using namespace WhirlyGlobe;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyGlobeViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr);
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -97,7 +97,7 @@ using namespace WhirlyGlobe;
 @end
 
 // Data source that serves individual images as requested
-@interface ImageDataSource : NSObject<WhirlyGlobeQuadTileImageDataSource>
+@interface ImageDataSource : NSObject<WhirlyKitQuadTileImageDataSource>
 {
     NSString *basePath,*ext,*baseName;
     int maxZoom,pixelsSquare,borderPixels;
@@ -143,7 +143,7 @@ using namespace WhirlyGlobe;
     return 1;
 }
 
-- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
 {
     NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",baseName,level,col,row,ext];
 	if (self.basePath)
@@ -159,15 +159,15 @@ using namespace WhirlyGlobe;
 @end
 
 
-@interface WhirlyGlobeSphericalEarthQuadLayer()
+@interface WhirlyKitSphericalEarthQuadLayer()
 {
     WholeEarthStructure *earthDataStructure;
     ImageDataSource *imageDataSource;
-    WhirlyGlobeQuadTileLoader *quadTileLoader;
+    WhirlyKitQuadTileLoader *quadTileLoader;
 }
 @end
 
-@implementation WhirlyGlobeSphericalEarthQuadLayer
+@implementation WhirlyKitSphericalEarthQuadLayer
 
 - (int)drawPriority
 {
@@ -210,7 +210,7 @@ using namespace WhirlyGlobe;
     WholeEarthStructure *theStructure = [[WholeEarthStructure alloc] initWithPixelsSquare:theDataSource.pixelsSquare maxZoom:theDataSource.maxZoom];
     
     // This handles the geometry and loading
-    WhirlyGlobeQuadTileLoader *theLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:theDataSource];
+    WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];
     if (self)
