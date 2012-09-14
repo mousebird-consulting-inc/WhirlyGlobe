@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeQuadDisplayLayer.h"
+#import "QuadDisplayLayer.h"
 #import "SphericalMercator.h"
 #import "TileQuadLoader.h"
 
@@ -26,7 +26,7 @@
     This implements a tile source for the standard http level/x/y
     image hiearachy.
  */
-@interface WhirlyGlobeNetworkTileQuadSource : NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource>
+@interface WhirlyKitNetworkTileQuadSource : NSObject<WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 {
     /// Where we're fetching from
     NSString *baseURL;

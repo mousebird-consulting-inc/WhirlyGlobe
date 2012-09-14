@@ -265,7 +265,7 @@ public:
     // Add a triangle, keeping track of limits
     void addLoftTriangle(Point2f verts[3])
     {
-        CoordSystem *coordSys = scene->getCoordSystem();
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         setupDrawable(3);
         
         int startVert = drawable->getNumPoints();
@@ -274,11 +274,12 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = verts[ii];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
+            Point3f localPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoord));
+            Point3f norm = coordAdapter->normalForLocal(localPt);
             Point3f pt1 = norm * (1.0 + polyInfo->height);
             
             drawable->addPoint(pt1);
-            if (coordSys->isFlat())
+            if (coordAdapter->isFlat())
                 norm = Point3f(0,0,1);
             drawable->addNormal(norm);
         }
@@ -308,7 +309,7 @@ public:
     
     void addSkirtPoints(VectorRing &pts)
     {            
-//        CoordSystem *coordSys = scene->getCoordSystem();
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -321,8 +322,9 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-            Point3f pt0 = norm;
+            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+            Point3f norm = coordAdapter->normalForLocal(localPt);
+            Point3f pt0 = coordAdapter->localToDisplay(localPt);
             Point3f pt1 = pt0 + norm * polyInfo->height;
                         
             // Add to drawable
@@ -508,7 +510,7 @@ protected:
 // Generate drawables for a lofted poly
 - (void)runAddPoly:(LoftedPolyInfo *)polyInfo
 {
-    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
     sceneRep->setId(polyInfo->sceneRepId);
     sceneRep->fade = polyInfo.fade;
@@ -533,7 +535,7 @@ protected:
                     
                     sceneRep->shapeMbr.addGeoCoords(ring);
                     
-                    if (coordSys->isFlat())
+                    if (coordAdapter->isFlat())
                     {
                         // No grid to worry about, just tesselate
                         TesselateRing(ring, sceneRep->triMesh);

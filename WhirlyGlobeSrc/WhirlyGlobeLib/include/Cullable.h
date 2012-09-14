@@ -34,14 +34,14 @@ class CullTree
 { 
     friend class Cullable;
 public:
-    CullTree(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth,int maxDrawPerNode = 8);
+    CullTree(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth,int maxDrawPerNode = 8);
     ~CullTree();
     
     Cullable *getTopCullable() { return topCullable; }
     int getCount() { return numCullables; }
     
 protected:
-    CoordSystem *coordSystem;
+    CoordSystemDisplayAdapter *coordAdapter;
     Cullable *topCullable;
     int depth;
     int maxDrawPerNode;
@@ -64,7 +64,7 @@ class Cullable : public Identifiable
 {
 public:
     /// Construct recursively down to the given depth
-	Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth);
+	Cullable(CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth);
     ~Cullable();
 	
 	/// Add the given drawable to our set or the appropriate children

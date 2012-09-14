@@ -412,12 +412,12 @@ static const float ScreenOverlap = 0.1;
 
 - (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
-    CoordSystem *coordSys = globeView.coordSystem;
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Check the four corners of the cullable to see if they're pointed away
     // But just for the globe case
     bool inView = false;
-    if (coordSys->isFlat() || isTopLevel)
+    if (coordAdapter->isFlat() || isTopLevel)
     {
         inView = true;
     } else {

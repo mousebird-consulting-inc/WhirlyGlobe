@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeQuadDisplayLayer.h"
+#import "QuadDisplayLayer.h"
 #import "SphericalMercator.h"
 #import "TileQuadLoader.h"
 
@@ -27,7 +27,7 @@
     Initialize with an archive, hand it a quad display layer and it'll
     page.
  */
-@interface WhirlyMBTileQuadSource : NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource>
+@interface WhirlyKitMBTileQuadSource : NSObject<WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 {
     /// The SQLite database we're looking at
     sqlite3 *sqlDb;

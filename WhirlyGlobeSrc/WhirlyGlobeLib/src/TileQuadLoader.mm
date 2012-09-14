@@ -26,19 +26,18 @@
 
 using namespace Eigen;
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-@interface WhirlyGlobeQuadTileLoader()
+@interface WhirlyKitQuadTileLoader()
 {
     int sphereTessX,sphereTessY;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKit::Scene *)scene;
 @end
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 LoadedTile::LoadedTile()
@@ -69,7 +68,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     BasicDrawable *draw = NULL;
     Texture *tex = NULL;
@@ -97,7 +96,7 @@ void LoadedTile::addToScene(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDis
 }
 
 // Clean out the geometry and texture associated with the given tile
-void LoadedTile::clearContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,GlobeScene *scene,std::vector<ChangeRequest *> &changeRequests)
+void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<ChangeRequest *> &changeRequests)
 {
     if (drawId != EmptyIdentity)
     {
@@ -117,13 +116,13 @@ void LoadedTile::clearContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuad
 }
 
 // Make sure a given tile overlaps the real world
-bool isValidTile(WhirlyGlobeQuadDisplayLayer *layer,Mbr theMbr)
+bool isValidTile(WhirlyKitQuadDisplayLayer *layer,Mbr theMbr)
 {    
     return (theMbr.overlaps(layer.mbr));
 }
 
 // Update based on what children are doing
-void LoadedTile::updateContents(WhirlyGlobeQuadTileLoader *loader,WhirlyGlobeQuadDisplayLayer *layer,Quadtree *tree,std::vector<ChangeRequest *> &changeRequests)
+void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Quadtree *tree,std::vector<ChangeRequest *> &changeRequests)
 {
     //    NSLog(@"Updating children for node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
     
@@ -249,7 +248,7 @@ void LoadedTile::Print(Quadtree *tree)
     
 }
 
-@implementation WhirlyGlobeQuadTileLoader
+@implementation WhirlyKitQuadTileLoader
 
 @synthesize drawOffset;
 @synthesize drawPriority;
@@ -258,7 +257,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize quadLayer;
 @synthesize ignoreEdgeMatching;
 
-- (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)inDataSource;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
     self = [super init];
     if (self)
@@ -292,13 +291,13 @@ void LoadedTile::Print(Quadtree *tree)
     [self clear];
 }
 
-- (void)setQuadLayer:(WhirlyGlobeQuadDisplayLayer *)layer
+- (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
     quadLayer = layer;
     sphereTessX = sphereTessY = 10;
 }
 
-- (void)shutdownLayer:(WhirlyGlobeQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
     [self flushUpdates:layer.scene];
     
@@ -308,7 +307,7 @@ void LoadedTile::Print(Quadtree *tree)
          it != tileSet.end(); ++it)
     {
         LoadedTile *tile = *it;
-        tile->clearContents(self,layer,(WhirlyGlobe::GlobeScene *)scene,theChangeRequests);
+        tile->clearContents(self,layer,scene,theChangeRequests);
     }
     
     scene->addChangeRequests(theChangeRequests);
@@ -351,7 +350,7 @@ static const float SkirtFactor = 0.95;
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyGlobeQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -395,6 +394,8 @@ static const float SkirtFactor = 0.95;
     Point2f chunkLL = theMbr.ll();
     Point2f chunkUR = theMbr.ur();
     CoordSystem *coordSys = layer.coordSys;
+    CoordSystemDisplayAdapter *coordAdapter = layer.scene->getCoordAdapter();
+    CoordSystem *sceneCoordSys = coordAdapter->getCoordSystem();
     GeoCoord geoLL(coordSys->localToGeographic(Point3f(chunkLL.x(),chunkLL.y(),0.0)));
     GeoCoord geoUR(coordSys->localToGeographic(Point3f(chunkUR.x(),chunkUR.y(),0.0)));
     
@@ -447,9 +448,10 @@ static const float SkirtFactor = 0.95;
             for (unsigned int iy=0;iy<sphereTessY;iy++)
                 for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
-                    Point3f org3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
-                    Point3f ptA_3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
-                    Point3f ptB_3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0));
+                    
+                    Point3f org3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    Point3f ptA_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    Point3f ptB_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                     
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
                     
@@ -475,7 +477,7 @@ static const float SkirtFactor = 0.95;
             for (unsigned int iy=0;iy<sphereTessY+1;iy++)
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
-                    Point3f loc3D = coordSys->localToGeocentricish(Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0));
+                    Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
                     
                     // Do the texture coordinate seperately
@@ -571,7 +573,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // Make all the various parents update their child geometry
-- (void)refreshParents:(WhirlyGlobeQuadDisplayLayer *)layer
+- (void)refreshParents:(WhirlyKitQuadDisplayLayer *)layer
 {
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
@@ -607,7 +609,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // Ask the data source to start loading the image for this tile
-- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     // Build the new tile
     LoadedTile *newTile = new LoadedTile();
@@ -620,7 +622,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // Check if we're in the process of loading the given tile
-- (bool)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     LoadedTile *tile = [self getTile:tileInfo.ident];
     if (!tile)
@@ -631,7 +633,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // When the data source loads the image, we'll get called here
-- (void)dataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
 {
     // Look for the tile
     // If it's not here, just drop this on the floor
@@ -665,12 +667,12 @@ static const float SkirtFactor = 0.95;
 }
 
 // We'll get this before a series of unloads
-- (void)quadDisplayLayerStartUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
+- (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
     [self flushUpdates:layer.scene];
 }
 
-- (void)quadDisplayLayer:(WhirlyGlobeQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     // Get rid of an old tile
     LoadedTile dummyTile;
@@ -699,7 +701,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // Thus ends the unloads.  Now we can update parents
-- (void)quadDisplayLayerEndUpdates:(WhirlyGlobeQuadDisplayLayer *)layer
+- (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
     [self refreshParents:layer];
     

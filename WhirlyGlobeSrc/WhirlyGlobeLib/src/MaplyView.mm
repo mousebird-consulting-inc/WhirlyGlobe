@@ -28,11 +28,11 @@ using namespace WhirlyKit;
 @synthesize loc;
 @synthesize delegate;
 
-- (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)inCoordSys
+- (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     if (self = [super init])
     {
-        coordSystem = inCoordSys;
+        coordAdapter = inCoordAdapter;
         loc = Point3f(0,0,4);
         farPlane = 10.0;
     }

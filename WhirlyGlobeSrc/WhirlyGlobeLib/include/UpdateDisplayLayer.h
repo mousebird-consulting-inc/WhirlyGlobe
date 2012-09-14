@@ -30,6 +30,7 @@
 #import "sqlhelpers.h"
 #import "Quadtree.h"
 #import "SceneRendererES1.h"
+#import "GlobeLayerViewWatcher.h"
 
 /// Fill in this protocol to be called 
 @protocol WhirlyGlobeUpdateDataSource <NSObject>

@@ -99,18 +99,18 @@ typedef enum {Middle,Left,Right} LabelJustify;
 }
 
 // Calculate the corners in this order:  (ll,lr,ur,ul)
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordSystem:(CoordSystem *)coordSys
+- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
 {
-    *norm = GeoCoordSystem::LocalToGeocentricish(loc);
-    Point3f center = *norm;
+    Point3f center = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(loc));
     Point3f up(0,0,1);
     Point3f horiz,vert;
-    if (coordSys->isFlat())
+    if (coordAdapter->isFlat())
     {
         *norm = up;
         horiz = Point3f(1,0,0);
         vert = Point3f(0,1,0);
     } else {
+        *norm = center;
         horiz = up.cross(*norm).normalized();
         vert = norm->cross(horiz).normalized();;
     }
@@ -197,7 +197,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     iconPts[3] = ll + iconSize*vert;
 }
 
-- (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordSystem:(CoordSystem *)coordSys
+- (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
 {
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:self.text] desc:topDesc];
     
@@ -226,7 +226,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
     float iconSize = (iconTexture==EmptyIdentity ? 0.f : 2*height2);
 
     Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordSystem:coordSys];
+    [self calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
     
     // If we have an icon, we need slightly different corners
     if (iconTexture)
@@ -461,7 +461,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 - (void)runAddLabels:(LabelInfo *)labelInfo
 {
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // This lets us set up textures here
     [EAGLContext setCurrentContext:layerThread.glContext];
@@ -619,7 +619,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             if (label.isSelectable && label.selectID != EmptyIdentity)
                 screenShape->setId(label.selectID);
             labelRep->screenIDs.insert(screenShape->getId());
-            screenShape->worldLoc = scene->coordSystem->localToGeocentricish(scene->coordSystem->geographicToLocal(label.loc));
+            screenShape->worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
             ScreenSpaceGenerator::SimpleGeometry smGeom;
             for (unsigned int ii=0;ii<4;ii++)
             {
@@ -652,7 +652,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
             Point3f ll;
             
-            [label calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts norm:&norm iconCorners:iconPts coordSystem:scene->getCoordSystem()];
+            [label calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts norm:&norm iconCorners:iconPts coordAdapter:coordAdapter];
                         
             // Add to the drawable we found (corresponding to a texture atlas)
             int vOff = drawable->getNumPoints();
@@ -663,7 +663,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                 drawable->addNormal(norm);
                 drawable->addTexCoord(texCoord[ii]);
                 Mbr localMbr = drawable->getLocalMbr();
-                Point3f localLoc = coordSys->geographicToLocal(label.loc);
+                Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(label.loc);
                 localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
                 drawable->setLocalMbr(localMbr);
             }
@@ -773,7 +773,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
                     iconDrawable->addNormal(norm);
                     iconDrawable->addTexCoord(texCoord[ii]);
                     Mbr localMbr = iconDrawable->getLocalMbr();
-                    Point3f localLoc = coordSys->geographicToLocal(label.loc);
+                    Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(label.loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
                     iconDrawable->setLocalMbr(localMbr);
                 }

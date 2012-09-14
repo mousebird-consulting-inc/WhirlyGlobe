@@ -58,6 +58,7 @@ using namespace WhirlyGlobe;
 // Generate grid lines covering the earth model
 - (void)process:(id)sender
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 	GeoCoord geoIncr(2*M_PI/numX,M_PI/numY);
 	GeoCoord geoLL(-M_PI + chunkX*geoIncr.x(),-M_PI/2.0 + chunkY*geoIncr.y());
 	GeoMbr geoMbr(geoLL,geoLL+geoIncr);
@@ -78,10 +79,10 @@ using namespace WhirlyGlobe;
 			// Start out with the points in 3-space
 			// Note: Duplicating work
 			Point3f norms[4],pts[4];
-			norms[0] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(x*GridCellSize,y*GridCellSize));
-			norms[1] = GeoCoordSystem::LocalToGeocentricish(GeoCoord((x+1)*GridCellSize,y*GridCellSize));
-			norms[2] = GeoCoordSystem::LocalToGeocentricish(GeoCoord((x+1)*GridCellSize,GridCellSize*(y+1)));
-			norms[3] = GeoCoordSystem::LocalToGeocentricish(GeoCoord(GridCellSize*x,GridCellSize*(y+1)));
+			norms[0] = coordAdapter->localToDisplay(Point3f(x*GridCellSize,y*GridCellSize,0.0));
+			norms[1] = coordAdapter->localToDisplay(Point3f((x+1)*GridCellSize,y*GridCellSize,0.0));
+			norms[2] = coordAdapter->localToDisplay(Point3f((x+1)*GridCellSize,GridCellSize*(y+1),0.0));
+			norms[3] = coordAdapter->localToDisplay(Point3f(GridCellSize*x,GridCellSize*(y+1),0.0));
 			
 			// Nudge them out a little bit
 			for (unsigned int ii=0;ii<4;ii++)

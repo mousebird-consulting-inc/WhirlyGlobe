@@ -42,7 +42,6 @@ using namespace Eigen;
 
 @synthesize heightAboveGlobe;
 @synthesize delegate;
-@synthesize watchDelegate;
 @synthesize rotQuat;
 
 - (id)init
@@ -50,7 +49,7 @@ using namespace Eigen;
 	if ((self = [super init]))
 	{
 		rotQuat = Eigen::AngleAxisf(0.0f,Vector3f(0.0f,0.0f,1.0f));
-        coordSystem = new GeoCoordSystem();
+        coordAdapter = new FakeGeocentricDisplayAdapter();
         defaultNearPlane = nearPlane;
         defaultFarPlane = farPlane;
         // This will get you down to r17 in the usual tile sets
@@ -66,9 +65,9 @@ using namespace Eigen;
 
 - (void)dealloc
 {
-    if (coordSystem)
-        delete coordSystem;
-    coordSystem = NULL;
+    if (coordAdapter)
+        delete coordAdapter;
+    coordAdapter = nil;
 }
 
 // Set the new rotation, but also keep track of when we did it
@@ -256,7 +255,7 @@ using namespace Eigen;
 //  and return it.  Doesn't actually do anything yet.
 - (Eigen::Quaternionf) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3f worldLoc = GeoCoordSystem::LocalToGeocentricish(worldCoord);
+    Point3f worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3f curUp = [self currentUp];

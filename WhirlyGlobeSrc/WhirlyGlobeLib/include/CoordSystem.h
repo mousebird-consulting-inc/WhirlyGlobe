@@ -50,14 +50,43 @@ public:
     /// Convert from lat/lon t the local coordinate system
     virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
 
-    /// Convert from the local coordinate system to display coordinates (geocentric-ish)
-    virtual WhirlyKit::Point3f localToGeocentricish(WhirlyKit::Point3f) = 0;    
-    /// Convert from display coordinates to the local coordinate system
-    virtual WhirlyKit::Point3f geocentricishToLocal(WhirlyKit::Point3f) = 0;
-        
-    /// Return true if this is a relatively flat coordinate system.
-    /// False for geographic.
+    /// Convert from the local coordinate system to geocentric
+    virtual WhirlyKit::Point3f localToGeocentric(WhirlyKit::Point3f) = 0;
+    /// Convert from display coordinates to geocentric
+    virtual WhirlyKit::Point3f geocentricToLocal(WhirlyKit::Point3f) = 0;
+};
+    
+/// Convert a point from one coordinate system to another
+Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord);
+    
+/** The Coordinate System Display Adapter handles the task of
+    converting coordinates in the native system to data values we
+    can display.
+ */
+class CoordSystemDisplayAdapter
+{
+public:
+    CoordSystemDisplayAdapter(CoordSystem *coordSys) : coordSys(coordSys) { }
+    virtual ~CoordSystemDisplayAdapter() { }
+    
+    /// Convert from the system's local coordinates to display coordinates
+    virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
+    
+    /// Convert from display coordinates to the local system's coordinates
+    virtual WhirlyKit::Point3f displayToLocal(WhirlyKit::Point3f) = 0;
+    
+    /// For flat systems the normal is Z up.  For the globe, it's based on the location.
+    virtual Point3f normalForLocal(Point3f) = 0;
+
+    /// Get a reference to the coordinate system
+    virtual CoordSystem *getCoordSystem() = 0;
+
+    /// Return true if this is a projected coordinate system.
+    /// False for others, like geographic.
     virtual bool isFlat() = 0;
+    
+protected:
+    CoordSystem *coordSys;
 };
 
 }
