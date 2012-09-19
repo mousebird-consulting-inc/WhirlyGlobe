@@ -543,6 +543,7 @@ static const float ScreenOverlap = 0.1;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
 
+    // Note: Upgrade this to handle the map view
     Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
     if (globeView)
     {
@@ -639,7 +640,15 @@ static const float ScreenOverlap = 0.1;
         int drawablesConsidered = 0;
 		std::set<DrawableRef> toDraw;
         CullTree *cullTree = scene->getCullTree();
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        if (globeView)
+        {
+            [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        } else {
+            // Non-globe views aren't doing culling at the moment
+            Cullable *cullable = cullTree->getTopCullable();
+            toDraw.insert(cullable->childDrawables.begin(),cullable->childDrawables.end());
+            drawablesConsidered = toDraw.size();
+        }
 		        
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;

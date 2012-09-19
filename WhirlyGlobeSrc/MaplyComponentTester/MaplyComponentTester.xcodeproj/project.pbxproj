@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B61D81F1607C77A007888CF /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D81C1607C775007888CF /* libWhirlyGlobe-MaplyComponent.a */; };
+		2B61D8211607C822007888CF /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D8201607C822007888CF /* OpenGLES.framework */; };
+		2B61D8231607C838007888CF /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D8221607C838007888CF /* libsqlite3.dylib */; };
+		2B61D8251607C841007888CF /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D8241607C841007888CF /* libstdc++.dylib */; };
+		2B61D8271607C84A007888CF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D8261607C84A007888CF /* QuartzCore.framework */; };
 		2B7EF2C915FAB04200D4079F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7EF2C815FAB04200D4079F /* UIKit.framework */; };
 		2B7EF2CB15FAB04200D4079F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7EF2CA15FAB04200D4079F /* Foundation.framework */; };
 		2B7EF2CD15FAB04200D4079F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7EF2CC15FAB04200D4079F /* CoreGraphics.framework */; };
@@ -15,21 +20,27 @@
 		2B7EF2D915FAB04200D4079F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF2D815FAB04200D4079F /* AppDelegate.m */; };
 		2B7EF2F515FAB35F00D4079F /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF2F415FAB35F00D4079F /* StartupViewController.m */; };
 		2B7EF2FA15FAB3F200D4079F /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF2F915FAB3F200D4079F /* TestViewController.m */; };
-		2B7EF32015FF999200D4079F /* libMaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7EF30415FAB49A00D4079F /* libMaplyComponent.a */; };
-		2B7EF32215FF999200D4079F /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B7EF32115FF999200D4079F /* libWhirlyGlobeLib.a */; };
+		2BE4384F1607CC4800A81959 /* geography-class.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BE4384E1607CC4800A81959 /* geography-class.mbtiles */; };
+		2BE8844D160939A900E92A0A /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE43885160936A300A81959 /* ConfigViewController.m */; };
+		2BE8844E160939D400E92A0A /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE43886160936A300A81959 /* ConfigViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2B7EF30315FAB49A00D4079F /* PBXContainerItemProxy */ = {
+		2B61D81B1607C775007888CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 2B7EF2FB15FAB49900D4079F /* MaplyComponent.xcodeproj */;
+			containerPortal = 2B61D8101607C775007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 2B40463D15F965E300937923;
-			remoteInfo = MaplyComponent;
+			remoteGlobalIDString = 2B11E0DB15B4C030007AAE3F;
+			remoteInfo = "WhirlyGlobe-MaplyComponent";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B61D8101607C775007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
+		2B61D8201607C822007888CF /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		2B61D8221607C838007888CF /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		2B61D8241607C841007888CF /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
+		2B61D8261607C84A007888CF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2B7EF2C415FAB04200D4079F /* MaplyComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MaplyComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B7EF2C815FAB04200D4079F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B7EF2CA15FAB04200D4079F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -44,8 +55,10 @@
 		2B7EF2F415FAB35F00D4079F /* StartupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartupViewController.m; sourceTree = "<group>"; };
 		2B7EF2F815FAB3F200D4079F /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
 		2B7EF2F915FAB3F200D4079F /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
-		2B7EF2FB15FAB49900D4079F /* MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = MaplyComponent.xcodeproj; path = ../MaplyComponent/MaplyComponent.xcodeproj; sourceTree = "<group>"; };
-		2B7EF32115FF999200D4079F /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../WhirlyGlobeLib/build/Debug-iphoneos/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
+		2BE4384E1607CC4800A81959 /* geography-class.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = "geography-class.mbtiles"; sourceTree = "<group>"; };
+		2BE43884160936A300A81959 /* ConfigViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
+		2BE43885160936A300A81959 /* ConfigViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
+		2BE43886160936A300A81959 /* ConfigViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,8 +66,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B7EF32215FF999200D4079F /* libWhirlyGlobeLib.a in Frameworks */,
-				2B7EF32015FF999200D4079F /* libMaplyComponent.a in Frameworks */,
+				2B61D8271607C84A007888CF /* QuartzCore.framework in Frameworks */,
+				2B61D8251607C841007888CF /* libstdc++.dylib in Frameworks */,
+				2B61D8231607C838007888CF /* libsqlite3.dylib in Frameworks */,
+				2B61D8211607C822007888CF /* OpenGLES.framework in Frameworks */,
+				2B61D81F1607C77A007888CF /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
 				2B7EF2C915FAB04200D4079F /* UIKit.framework in Frameworks */,
 				2B7EF2CB15FAB04200D4079F /* Foundation.framework in Frameworks */,
 				2B7EF2CD15FAB04200D4079F /* CoreGraphics.framework in Frameworks */,
@@ -64,10 +80,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B61D8111607C775007888CF /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2B61D81C1607C775007888CF /* libWhirlyGlobe-MaplyComponent.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2B7EF2B915FAB04200D4079F = {
 			isa = PBXGroup;
 			children = (
-				2B7EF32115FF999200D4079F /* libWhirlyGlobeLib.a */,
+				2B61D8261607C84A007888CF /* QuartzCore.framework */,
+				2B61D8241607C841007888CF /* libstdc++.dylib */,
+				2B61D8221607C838007888CF /* libsqlite3.dylib */,
+				2B61D8201607C822007888CF /* OpenGLES.framework */,
 				2B7EF2CE15FAB04200D4079F /* MaplyComponentTester */,
 				2B7EF2C715FAB04200D4079F /* Frameworks */,
 				2B7EF2C515FAB04200D4079F /* Products */,
@@ -85,7 +112,7 @@
 		2B7EF2C715FAB04200D4079F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2B7EF2FB15FAB49900D4079F /* MaplyComponent.xcodeproj */,
+				2B61D8101607C775007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */,
 				2B7EF2C815FAB04200D4079F /* UIKit.framework */,
 				2B7EF2CA15FAB04200D4079F /* Foundation.framework */,
 				2B7EF2CC15FAB04200D4079F /* CoreGraphics.framework */,
@@ -102,6 +129,10 @@
 				2B7EF2F415FAB35F00D4079F /* StartupViewController.m */,
 				2B7EF2F815FAB3F200D4079F /* TestViewController.h */,
 				2B7EF2F915FAB3F200D4079F /* TestViewController.m */,
+				2BE43884160936A300A81959 /* ConfigViewController.h */,
+				2BE43885160936A300A81959 /* ConfigViewController.m */,
+				2BE43886160936A300A81959 /* ConfigViewController.xib */,
+				2BE4384C1607CC2600A81959 /* resources */,
 				2B7EF2CF15FAB04200D4079F /* Supporting Files */,
 			);
 			path = MaplyComponentTester;
@@ -118,12 +149,22 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		2B7EF2FC15FAB49900D4079F /* Products */ = {
+		2BE4384C1607CC2600A81959 /* resources */ = {
 			isa = PBXGroup;
 			children = (
-				2B7EF30415FAB49A00D4079F /* libMaplyComponent.a */,
+				2BE4384D1607CC4800A81959 /* MBTiles */,
 			);
-			name = Products;
+			name = resources;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		2BE4384D1607CC4800A81959 /* MBTiles */ = {
+			isa = PBXGroup;
+			children = (
+				2BE4384E1607CC4800A81959 /* geography-class.mbtiles */,
+			);
+			name = MBTiles;
+			path = resources/MBTiles;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,8 +208,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2B7EF2FC15FAB49900D4079F /* Products */;
-					ProjectRef = 2B7EF2FB15FAB49900D4079F /* MaplyComponent.xcodeproj */;
+					ProductGroup = 2B61D8111607C775007888CF /* Products */;
+					ProjectRef = 2B61D8101607C775007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -179,11 +220,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2B7EF30415FAB49A00D4079F /* libMaplyComponent.a */ = {
+		2B61D81C1607C775007888CF /* libWhirlyGlobe-MaplyComponent.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libMaplyComponent.a;
-			remoteRef = 2B7EF30315FAB49A00D4079F /* PBXContainerItemProxy */;
+			path = "libWhirlyGlobe-MaplyComponent.a";
+			remoteRef = 2B61D81B1607C775007888CF /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -193,7 +234,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BE8844E160939D400E92A0A /* ConfigViewController.xib in Resources */,
 				2B7EF2D315FAB04200D4079F /* InfoPlist.strings in Resources */,
+				2BE4384F1607CC4800A81959 /* geography-class.mbtiles in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,6 +247,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BE8844D160939A900E92A0A /* ConfigViewController.m in Sources */,
 				2B7EF2D515FAB04200D4079F /* main.m in Sources */,
 				2B7EF2D915FAB04200D4079F /* AppDelegate.m in Sources */,
 				2B7EF2F515FAB35F00D4079F /* StartupViewController.m in Sources */,
@@ -281,12 +325,13 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MaplyComponentTester/MaplyComponentTester-Prefix.pch";
-				HEADER_SEARCH_PATHS = ../MaplyComponent/include/;
+				HEADER_SEARCH_PATHS = "../WhirlyGlobe-MaplyComponent/include/";
 				INFOPLIST_FILE = "MaplyComponentTester/MaplyComponentTester-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../WhirlyGlobeLib/build/Debug-iphoneos\"",
 				);
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -297,12 +342,13 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MaplyComponentTester/MaplyComponentTester-Prefix.pch";
-				HEADER_SEARCH_PATHS = ../MaplyComponent/include/;
+				HEADER_SEARCH_PATHS = "../WhirlyGlobe-MaplyComponent/include/";
 				INFOPLIST_FILE = "MaplyComponentTester/MaplyComponentTester-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../WhirlyGlobeLib/build/Debug-iphoneos\"",
 				);
+				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

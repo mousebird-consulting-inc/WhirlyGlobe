@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B61D7871603F5A2007888CF /* libWhirlyGlobeComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D7841603F596007888CF /* libWhirlyGlobeComponent.a */; };
+		2B61D8091607C491007888CF /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D8061607C48C007888CF /* libWhirlyGlobe-MaplyComponent.a */; };
 		2B8AA35C15CB3F1000499C98 /* ABW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B8AA26315CB3F1000499C98 /* ABW.geojson */; };
 		2B8AA35D15CB3F1000499C98 /* AFG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B8AA26415CB3F1000499C98 /* AFG.geojson */; };
 		2B8AA35E15CB3F1000499C98 /* AGO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B8AA26515CB3F1000499C98 /* AGO.geojson */; };
@@ -288,17 +288,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2B61D7831603F596007888CF /* PBXContainerItemProxy */ = {
+		2B61D8051607C48C007888CF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 2B61D7781603F595007888CF /* WhirlyGlobeComponent.xcodeproj */;
+			containerPortal = 2B61D7FA1607C48B007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 2B11E0DB15B4C030007AAE3F;
-			remoteInfo = WhirlyGlobeComponent;
+			remoteInfo = "WhirlyGlobe-MaplyComponent";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2B61D7781603F595007888CF /* WhirlyGlobeComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeComponent.xcodeproj; path = ../WhirlyGlobeComponent/WhirlyGlobeComponent.xcodeproj; sourceTree = "<group>"; };
+		2B61D7FA1607C48B007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2B8AA26315CB3F1000499C98 /* ABW.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ABW.geojson; sourceTree = "<group>"; };
 		2B8AA26415CB3F1000499C98 /* AFG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AFG.geojson; sourceTree = "<group>"; };
 		2B8AA26515CB3F1000499C98 /* AGO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AGO.geojson; sourceTree = "<group>"; };
@@ -590,7 +590,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B61D7871603F5A2007888CF /* libWhirlyGlobeComponent.a in Frameworks */,
+				2B61D8091607C491007888CF /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
 				2BE849AE15BDF7B6006CFD3F /* OpenGLES.framework in Frameworks */,
 				2BE849AC15BDF7AF006CFD3F /* QuartzCore.framework in Frameworks */,
 				2BE849AA15BDF7AB006CFD3F /* libsqlite3.dylib in Frameworks */,
@@ -604,10 +604,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		2B61D7791603F595007888CF /* Products */ = {
+		2B61D7FB1607C48B007888CF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2B61D7841603F596007888CF /* libWhirlyGlobeComponent.a */,
+				2B61D8061607C48C007888CF /* libWhirlyGlobe-MaplyComponent.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -872,7 +872,7 @@
 		2BE8496215BDE270006CFD3F = {
 			isa = PBXGroup;
 			children = (
-				2B61D7781603F595007888CF /* WhirlyGlobeComponent.xcodeproj */,
+				2B61D7FA1607C48B007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */,
 				2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */,
 				2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */,
 				2BE849A915BDF7AB006CFD3F /* libsqlite3.dylib */,
@@ -1010,8 +1010,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2B61D7791603F595007888CF /* Products */;
-					ProjectRef = 2B61D7781603F595007888CF /* WhirlyGlobeComponent.xcodeproj */;
+					ProductGroup = 2B61D7FB1607C48B007888CF /* Products */;
+					ProjectRef = 2B61D7FA1607C48B007888CF /* WhirlyGlobe-MaplyComponent.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1022,11 +1022,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2B61D7841603F596007888CF /* libWhirlyGlobeComponent.a */ = {
+		2B61D8061607C48C007888CF /* libWhirlyGlobe-MaplyComponent.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libWhirlyGlobeComponent.a;
-			remoteRef = 2B61D7831603F596007888CF /* PBXContainerItemProxy */;
+			path = "libWhirlyGlobe-MaplyComponent.a";
+			remoteRef = 2B61D8051607C48C007888CF /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1385,7 +1385,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
-				HEADER_SEARCH_PATHS = ../WhirlyGlobeComponent/include/;
+				HEADER_SEARCH_PATHS = "../WhirlyGlobe-MaplyComponent/include/";
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-all_load";
@@ -1399,7 +1399,7 @@
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
-				HEADER_SEARCH_PATHS = ../WhirlyGlobeComponent/include/;
+				HEADER_SEARCH_PATHS = "../WhirlyGlobe-MaplyComponent/include/";
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = "-all_load";

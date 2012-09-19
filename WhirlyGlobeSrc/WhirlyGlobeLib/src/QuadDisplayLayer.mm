@@ -47,8 +47,9 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
         pts3d[ii] = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, destSystem, pts[ii]));
         
         // Check the normal (point in this case) against the eye vec
-        if (pts3d[ii].dot(eyeVec) > 0.0)
-            forwardFacing = true;
+        if (!coordAdapter->isFlat())
+            if (pts3d[ii].dot(eyeVec) > 0.0)
+                forwardFacing = true;
         
         CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
         screenPts[ii] = Point2f(screenPt.x,screenPt.y);
@@ -56,7 +57,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
     
     // Look at area on the screen
     float area = 0.0;
-    if (forwardFacing)
+    if (forwardFacing || coordAdapter->isFlat())
     {
         Point2f ac = screenPts[2]-screenPts[0];
         Point2f bd = screenPts[3]-screenPts[1];
@@ -81,10 +82,10 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
     Point3f testPoints[5];
-    testPoints[0] = Point3f(nodeMbr.ll().x(),nodeMbr.ll().y(),0.0);
-    testPoints[1] = Point3f(nodeMbr.ur().x(),nodeMbr.ll().y(),0.0);
-    testPoints[2] = Point3f(nodeMbr.ur().x(),nodeMbr.ur().y(),0.0);
-    testPoints[3] = Point3f(nodeMbr.ll().x(),nodeMbr.ur().y(),0.0);
+    testPoints[0] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
+    testPoints[1] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
+    testPoints[2] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
+    testPoints[3] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
     testPoints[4] = (testPoints[0]+testPoints[2])/2.0;
     
     // Let's make sure we at least overlap the screen

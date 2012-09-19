@@ -98,6 +98,13 @@ Mbr GeoCoordSystem::GeographicMbrToLocal(GeoMbr geoMbr)
     
     return localMbr;
 }
+
+bool GeoCoordSystem::isSameAs(CoordSystem *coordSys)
+{
+    GeoCoordSystem *other = dynamic_cast<GeoCoordSystem *>(coordSys);
+    return (other != NULL);
+}
+
     
 Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f geoPt)
 {

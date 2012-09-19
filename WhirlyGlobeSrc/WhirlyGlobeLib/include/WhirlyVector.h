@@ -57,6 +57,7 @@ public:
 	float lat() const { return y(); }
 	float &lat() { return y(); }
 	GeoCoord operator + (const GeoCoord &that) { return GeoCoord(x()+that.x(),y()+that.y()); }
+    bool operator == (const GeoCoord &that) { return x() == that.x() && y() == that.y(); }
     
     /// Create a geo coordinate using degrees intead of radians.
     /// Note the order of the arguments

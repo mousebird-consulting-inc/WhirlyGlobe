@@ -27,6 +27,10 @@ namespace WhirlyKit
 
 Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord)
 {
+    // Easy if the coordinate systems are the same
+    if (inSystem->isSameAs(outSystem))
+        return inCoord;
+    
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
     Point3f geoCPt = inSystem->localToGeocentric(inCoord);
     Point3f outPt = outSystem->geocentricToLocal(geoCPt);

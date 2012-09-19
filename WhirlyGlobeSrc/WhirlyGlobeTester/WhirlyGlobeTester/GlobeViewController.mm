@@ -130,7 +130,7 @@ using namespace WhirlyGlobe;
 	
 	// Set up a texture group for the world texture
     if (UseMBTiles)
-        mbTiles = [[WhirlyMBTileQuadSource alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"blue-marble-topo-jan" ofType:@"mbtiles"]];
+        mbTiles = [[WhirlyKitMBTileQuadSource alloc] initWithPath:[[NSBundle mainBundle] pathForResource:@"blue-marble-topo-jan" ofType:@"mbtiles"]];
     
     // Set up a network tile set
     if (UseStamenTiles)
@@ -142,7 +142,7 @@ using namespace WhirlyGlobe;
 //        netTiles.maxZoom = 14;
 //        netTiles.numSimultaneous = 8;
 //        netTiles.cacheDir = [NSString stringWithFormat:@"%@/osm_tiles/",cacheDir];
-        netTiles = [[WhirlyGlobeNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
+        netTiles = [[WhirlyKitNetworkTileQuadSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png"];
         netTiles.minZoom = 0;
         netTiles.maxZoom = 12;
         netTiles.numSimultaneous = 8;
@@ -162,7 +162,7 @@ using namespace WhirlyGlobe;
     
 	// Need an empty scene and view    
 	theView = [[WhirlyGlobeView alloc] init];
-    theScene = new WhirlyGlobe::GlobeScene(theView.coordSystem,4);
+    theScene = new WhirlyGlobe::GlobeScene(4);
     sceneRenderer.theView = theView;
 	
 	// Need a layer thread to manage the layers
@@ -171,9 +171,9 @@ using namespace WhirlyGlobe;
 	// Earth layer on the bottom
     if (UseMBTiles || UseStamenTiles)
     {
-        NSObject<WhirlyGlobeQuadDataStructure,WhirlyGlobeQuadTileImageDataSource> *dataSource = (UseMBTiles ? mbTiles : netTiles);
-        tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:dataSource];
-        quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:sceneRenderer];
+        NSObject<WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource> *dataSource = (UseMBTiles ? mbTiles : netTiles);
+        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
+        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:sceneRenderer];
 //        quadLayer.lineMode = true;
 //        quadLayer.debugMode = true;
         [layerThread addLayer:quadLayer];

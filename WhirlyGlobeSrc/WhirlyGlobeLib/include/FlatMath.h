@@ -40,6 +40,9 @@ public:
     Point3f localToGeocentric(Point3f);
     /// Convert from WGS84 geocentric to local coordinates
     Point3f geocentricToLocal(Point3f);
+        
+    /// Return true if the other coordinate system is also Plate Carree
+    bool isSameAs(CoordSystem *coordSys);
 };
     
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
@@ -60,6 +63,9 @@ public:
     /// Convert from WGS84 geocentric to local coordinates
     Point3f geocentricToLocal(Point3f);
     
+    /// Return true if the other coordinate system is Flat Earth with the same origin
+    bool isSameAs(CoordSystem *coordSys);
+
     /// Return the origin
     GeoCoord getOrigin() const;
     
