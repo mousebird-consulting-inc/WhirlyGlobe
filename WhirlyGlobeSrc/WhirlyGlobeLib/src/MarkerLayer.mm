@@ -295,8 +295,15 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         } else {            
             Point3f center = coordAdapter->localToDisplay(localPt);
             Vector3f up(0,0,1);
-            Point3f horiz = up.cross(norm).normalized();
-            Point3f vert = norm.cross(horiz).normalized();;        
+            Point3f horiz,vert;
+            if (coordAdapter->isFlat())
+            {
+                horiz = Point3f(1,0,0);
+                vert = Point3f(0,1,0);
+            } else {
+                horiz = up.cross(norm).normalized();
+                vert = norm.cross(horiz).normalized();;
+            }
             
             Point3f ll = center - width2*horiz - height2*vert;
             pts[0] = ll;
@@ -352,7 +359,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
                 if (marker.isSelectable && marker.selectID != EmptyIdentity)
                     shape->setId(marker.selectID);
-                shape->worldLoc = norm;
+                shape->worldLoc = coordAdapter->localToDisplay(localPt);
                 if (marker.lockRotation)
                 {
                     shape->useRotation = true;

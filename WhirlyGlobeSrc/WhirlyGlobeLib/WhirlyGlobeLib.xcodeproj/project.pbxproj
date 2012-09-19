@@ -756,7 +756,6 @@
 		2B4504B514BCB6AF00C99306 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
-				2BCAC33112FB754D0049D73C /* TapMessage.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1312,6 +1311,7 @@
 				2B076B31133951DE009D931D /* LongPressDelegate.h */,
 				2B44187713A2D9BA00514EDE /* RotateDelegate.h */,
 				2BCAC2F512FB6E570049D73C /* TapDelegate.h */,
+				2BCAC33112FB754D0049D73C /* TapMessage.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";

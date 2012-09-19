@@ -74,7 +74,7 @@
 /** From a world location in 3D, figure the projection to the screen.
     Returns a point within the frame.
   */
-- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point2f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /// Set the location we're looking from
 - (void)setLoc:(WhirlyKit::Point3f)newLoc;

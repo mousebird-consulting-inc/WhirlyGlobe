@@ -106,9 +106,9 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const Point2f &)worldLoc2d transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromPlane:(const Point3f &)inWorldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
-    Point3f worldLoc(worldLoc2d.x(),worldLoc2d.y(),0.0);
+    Point3f worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
     // Run the model point through the model transform (presumably what they passed in)
     Eigen::Matrix4f modelTrans = *transform;
