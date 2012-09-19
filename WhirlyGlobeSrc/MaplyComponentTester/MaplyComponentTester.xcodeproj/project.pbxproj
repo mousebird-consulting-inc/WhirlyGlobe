@@ -23,6 +23,268 @@
 		2BE4384F1607CC4800A81959 /* geography-class.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BE4384E1607CC4800A81959 /* geography-class.mbtiles */; };
 		2BE8844D160939A900E92A0A /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE43885160936A300A81959 /* ConfigViewController.m */; };
 		2BE8844E160939D400E92A0A /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE43886160936A300A81959 /* ConfigViewController.xib */; };
+		2BE8858D160A5F1F00E92A0A /* ABW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88494160A5F1F00E92A0A /* ABW.geojson */; };
+		2BE8858E160A5F1F00E92A0A /* AFG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88495160A5F1F00E92A0A /* AFG.geojson */; };
+		2BE8858F160A5F1F00E92A0A /* AGO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88496160A5F1F00E92A0A /* AGO.geojson */; };
+		2BE88590160A5F1F00E92A0A /* AIA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88497160A5F1F00E92A0A /* AIA.geojson */; };
+		2BE88591160A5F1F00E92A0A /* ALA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88498160A5F1F00E92A0A /* ALA.geojson */; };
+		2BE88592160A5F1F00E92A0A /* ALB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88499160A5F1F00E92A0A /* ALB.geojson */; };
+		2BE88593160A5F1F00E92A0A /* AND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849A160A5F1F00E92A0A /* AND.geojson */; };
+		2BE88594160A5F1F00E92A0A /* ARE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849B160A5F1F00E92A0A /* ARE.geojson */; };
+		2BE88595160A5F1F00E92A0A /* ARG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849C160A5F1F00E92A0A /* ARG.geojson */; };
+		2BE88596160A5F1F00E92A0A /* ARM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849D160A5F1F00E92A0A /* ARM.geojson */; };
+		2BE88597160A5F1F00E92A0A /* ASM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849E160A5F1F00E92A0A /* ASM.geojson */; };
+		2BE88598160A5F1F00E92A0A /* ATA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8849F160A5F1F00E92A0A /* ATA.geojson */; };
+		2BE88599160A5F1F00E92A0A /* ATF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A0160A5F1F00E92A0A /* ATF.geojson */; };
+		2BE8859A160A5F1F00E92A0A /* ATG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A1160A5F1F00E92A0A /* ATG.geojson */; };
+		2BE8859B160A5F1F00E92A0A /* AUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A2160A5F1F00E92A0A /* AUS.geojson */; };
+		2BE8859C160A5F1F00E92A0A /* AUT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A3160A5F1F00E92A0A /* AUT.geojson */; };
+		2BE8859D160A5F1F00E92A0A /* AZE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A4160A5F1F00E92A0A /* AZE.geojson */; };
+		2BE8859E160A5F1F00E92A0A /* BDI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A5160A5F1F00E92A0A /* BDI.geojson */; };
+		2BE8859F160A5F1F00E92A0A /* BEL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A6160A5F1F00E92A0A /* BEL.geojson */; };
+		2BE885A0160A5F1F00E92A0A /* BEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A7160A5F1F00E92A0A /* BEN.geojson */; };
+		2BE885A1160A5F1F00E92A0A /* BES.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A8160A5F1F00E92A0A /* BES.geojson */; };
+		2BE885A2160A5F1F00E92A0A /* BFA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884A9160A5F1F00E92A0A /* BFA.geojson */; };
+		2BE885A3160A5F1F00E92A0A /* BGD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AA160A5F1F00E92A0A /* BGD.geojson */; };
+		2BE885A4160A5F1F00E92A0A /* BGR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AB160A5F1F00E92A0A /* BGR.geojson */; };
+		2BE885A5160A5F1F00E92A0A /* BHR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AC160A5F1F00E92A0A /* BHR.geojson */; };
+		2BE885A6160A5F1F00E92A0A /* BHS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AD160A5F1F00E92A0A /* BHS.geojson */; };
+		2BE885A7160A5F1F00E92A0A /* BIH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AE160A5F1F00E92A0A /* BIH.geojson */; };
+		2BE885A8160A5F1F00E92A0A /* BLM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884AF160A5F1F00E92A0A /* BLM.geojson */; };
+		2BE885A9160A5F1F00E92A0A /* BLR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B0160A5F1F00E92A0A /* BLR.geojson */; };
+		2BE885AA160A5F1F00E92A0A /* BLZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B1160A5F1F00E92A0A /* BLZ.geojson */; };
+		2BE885AB160A5F1F00E92A0A /* BMU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B2160A5F1F00E92A0A /* BMU.geojson */; };
+		2BE885AC160A5F1F00E92A0A /* BOL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B3160A5F1F00E92A0A /* BOL.geojson */; };
+		2BE885AD160A5F1F00E92A0A /* BRA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B4160A5F1F00E92A0A /* BRA.geojson */; };
+		2BE885AE160A5F1F00E92A0A /* BRB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B5160A5F1F00E92A0A /* BRB.geojson */; };
+		2BE885AF160A5F1F00E92A0A /* BRN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B6160A5F1F00E92A0A /* BRN.geojson */; };
+		2BE885B0160A5F1F00E92A0A /* BTN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B7160A5F1F00E92A0A /* BTN.geojson */; };
+		2BE885B1160A5F1F00E92A0A /* BVT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B8160A5F1F00E92A0A /* BVT.geojson */; };
+		2BE885B2160A5F1F00E92A0A /* BWA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884B9160A5F1F00E92A0A /* BWA.geojson */; };
+		2BE885B3160A5F1F00E92A0A /* CAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BA160A5F1F00E92A0A /* CAF.geojson */; };
+		2BE885B4160A5F1F00E92A0A /* CAN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BB160A5F1F00E92A0A /* CAN.geojson */; };
+		2BE885B5160A5F1F00E92A0A /* CCK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BC160A5F1F00E92A0A /* CCK.geojson */; };
+		2BE885B6160A5F1F00E92A0A /* CHE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BD160A5F1F00E92A0A /* CHE.geojson */; };
+		2BE885B7160A5F1F00E92A0A /* CHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BE160A5F1F00E92A0A /* CHL.geojson */; };
+		2BE885B8160A5F1F00E92A0A /* CHN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884BF160A5F1F00E92A0A /* CHN.geojson */; };
+		2BE885B9160A5F1F00E92A0A /* CIV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C0160A5F1F00E92A0A /* CIV.geojson */; };
+		2BE885BA160A5F1F00E92A0A /* CMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C1160A5F1F00E92A0A /* CMR.geojson */; };
+		2BE885BB160A5F1F00E92A0A /* COD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C2160A5F1F00E92A0A /* COD.geojson */; };
+		2BE885BC160A5F1F00E92A0A /* COG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C3160A5F1F00E92A0A /* COG.geojson */; };
+		2BE885BD160A5F1F00E92A0A /* COK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C4160A5F1F00E92A0A /* COK.geojson */; };
+		2BE885BE160A5F1F00E92A0A /* COL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C5160A5F1F00E92A0A /* COL.geojson */; };
+		2BE885BF160A5F1F00E92A0A /* COM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C6160A5F1F00E92A0A /* COM.geojson */; };
+		2BE885C0160A5F1F00E92A0A /* CPV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C7160A5F1F00E92A0A /* CPV.geojson */; };
+		2BE885C1160A5F1F00E92A0A /* CRI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C8160A5F1F00E92A0A /* CRI.geojson */; };
+		2BE885C2160A5F1F00E92A0A /* CUB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884C9160A5F1F00E92A0A /* CUB.geojson */; };
+		2BE885C3160A5F1F00E92A0A /* CUW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CA160A5F1F00E92A0A /* CUW.geojson */; };
+		2BE885C4160A5F1F00E92A0A /* CXR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CB160A5F1F00E92A0A /* CXR.geojson */; };
+		2BE885C5160A5F1F00E92A0A /* CYM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CC160A5F1F00E92A0A /* CYM.geojson */; };
+		2BE885C6160A5F1F00E92A0A /* CYP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CD160A5F1F00E92A0A /* CYP.geojson */; };
+		2BE885C7160A5F1F00E92A0A /* CZE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CE160A5F1F00E92A0A /* CZE.geojson */; };
+		2BE885C8160A5F1F00E92A0A /* DEU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884CF160A5F1F00E92A0A /* DEU.geojson */; };
+		2BE885C9160A5F1F00E92A0A /* DJI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D0160A5F1F00E92A0A /* DJI.geojson */; };
+		2BE885CA160A5F1F00E92A0A /* DMA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D1160A5F1F00E92A0A /* DMA.geojson */; };
+		2BE885CB160A5F1F00E92A0A /* DNK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D2160A5F1F00E92A0A /* DNK.geojson */; };
+		2BE885CC160A5F1F00E92A0A /* DOM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D3160A5F1F00E92A0A /* DOM.geojson */; };
+		2BE885CD160A5F1F00E92A0A /* DZA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D4160A5F1F00E92A0A /* DZA.geojson */; };
+		2BE885CE160A5F1F00E92A0A /* ECU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D5160A5F1F00E92A0A /* ECU.geojson */; };
+		2BE885CF160A5F1F00E92A0A /* EGY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D6160A5F1F00E92A0A /* EGY.geojson */; };
+		2BE885D0160A5F1F00E92A0A /* ERI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D7160A5F1F00E92A0A /* ERI.geojson */; };
+		2BE885D1160A5F1F00E92A0A /* ESH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D8160A5F1F00E92A0A /* ESH.geojson */; };
+		2BE885D2160A5F1F00E92A0A /* ESP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884D9160A5F1F00E92A0A /* ESP.geojson */; };
+		2BE885D3160A5F1F00E92A0A /* EST.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DA160A5F1F00E92A0A /* EST.geojson */; };
+		2BE885D4160A5F1F00E92A0A /* ETH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DB160A5F1F00E92A0A /* ETH.geojson */; };
+		2BE885D5160A5F1F00E92A0A /* FIN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DC160A5F1F00E92A0A /* FIN.geojson */; };
+		2BE885D6160A5F1F00E92A0A /* FJI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DD160A5F1F00E92A0A /* FJI.geojson */; };
+		2BE885D7160A5F1F00E92A0A /* FLK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DE160A5F1F00E92A0A /* FLK.geojson */; };
+		2BE885D8160A5F1F00E92A0A /* FRA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884DF160A5F1F00E92A0A /* FRA.geojson */; };
+		2BE885D9160A5F1F00E92A0A /* FRO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E0160A5F1F00E92A0A /* FRO.geojson */; };
+		2BE885DA160A5F1F00E92A0A /* FSM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E1160A5F1F00E92A0A /* FSM.geojson */; };
+		2BE885DB160A5F1F00E92A0A /* GAB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E2160A5F1F00E92A0A /* GAB.geojson */; };
+		2BE885DC160A5F1F00E92A0A /* GBR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E3160A5F1F00E92A0A /* GBR.geojson */; };
+		2BE885DD160A5F1F00E92A0A /* GEO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E4160A5F1F00E92A0A /* GEO.geojson */; };
+		2BE885DE160A5F1F00E92A0A /* GGY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E5160A5F1F00E92A0A /* GGY.geojson */; };
+		2BE885DF160A5F1F00E92A0A /* GHA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E6160A5F1F00E92A0A /* GHA.geojson */; };
+		2BE885E0160A5F1F00E92A0A /* GIB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E7160A5F1F00E92A0A /* GIB.geojson */; };
+		2BE885E1160A5F1F00E92A0A /* GIN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E8160A5F1F00E92A0A /* GIN.geojson */; };
+		2BE885E2160A5F1F00E92A0A /* GLP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884E9160A5F1F00E92A0A /* GLP.geojson */; };
+		2BE885E3160A5F1F00E92A0A /* GMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884EA160A5F1F00E92A0A /* GMB.geojson */; };
+		2BE885E4160A5F1F00E92A0A /* GNB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884EB160A5F1F00E92A0A /* GNB.geojson */; };
+		2BE885E5160A5F1F00E92A0A /* GNQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884EC160A5F1F00E92A0A /* GNQ.geojson */; };
+		2BE885E6160A5F1F00E92A0A /* GRC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884ED160A5F1F00E92A0A /* GRC.geojson */; };
+		2BE885E7160A5F1F00E92A0A /* GRD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884EE160A5F1F00E92A0A /* GRD.geojson */; };
+		2BE885E8160A5F1F00E92A0A /* GRL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884EF160A5F1F00E92A0A /* GRL.geojson */; };
+		2BE885E9160A5F1F00E92A0A /* GTM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F0160A5F1F00E92A0A /* GTM.geojson */; };
+		2BE885EA160A5F1F00E92A0A /* GUF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F1160A5F1F00E92A0A /* GUF.geojson */; };
+		2BE885EB160A5F1F00E92A0A /* GUM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F2160A5F1F00E92A0A /* GUM.geojson */; };
+		2BE885EC160A5F1F00E92A0A /* GUY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F3160A5F1F00E92A0A /* GUY.geojson */; };
+		2BE885ED160A5F1F00E92A0A /* HKG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F4160A5F1F00E92A0A /* HKG.geojson */; };
+		2BE885EE160A5F1F00E92A0A /* HMD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F5160A5F1F00E92A0A /* HMD.geojson */; };
+		2BE885EF160A5F1F00E92A0A /* HND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F6160A5F1F00E92A0A /* HND.geojson */; };
+		2BE885F0160A5F1F00E92A0A /* HRV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F7160A5F1F00E92A0A /* HRV.geojson */; };
+		2BE885F1160A5F1F00E92A0A /* HTI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F8160A5F1F00E92A0A /* HTI.geojson */; };
+		2BE885F2160A5F1F00E92A0A /* HUN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884F9160A5F1F00E92A0A /* HUN.geojson */; };
+		2BE885F3160A5F1F00E92A0A /* IDN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FA160A5F1F00E92A0A /* IDN.geojson */; };
+		2BE885F4160A5F1F00E92A0A /* IMN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FB160A5F1F00E92A0A /* IMN.geojson */; };
+		2BE885F5160A5F1F00E92A0A /* IND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FC160A5F1F00E92A0A /* IND.geojson */; };
+		2BE885F6160A5F1F00E92A0A /* IOT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FD160A5F1F00E92A0A /* IOT.geojson */; };
+		2BE885F7160A5F1F00E92A0A /* IRL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FE160A5F1F00E92A0A /* IRL.geojson */; };
+		2BE885F8160A5F1F00E92A0A /* IRN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE884FF160A5F1F00E92A0A /* IRN.geojson */; };
+		2BE885F9160A5F1F00E92A0A /* IRQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88500160A5F1F00E92A0A /* IRQ.geojson */; };
+		2BE885FA160A5F1F00E92A0A /* ISL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88501160A5F1F00E92A0A /* ISL.geojson */; };
+		2BE885FB160A5F1F00E92A0A /* ISR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88502160A5F1F00E92A0A /* ISR.geojson */; };
+		2BE885FC160A5F1F00E92A0A /* ITA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88503160A5F1F00E92A0A /* ITA.geojson */; };
+		2BE885FD160A5F1F00E92A0A /* JAM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88504160A5F1F00E92A0A /* JAM.geojson */; };
+		2BE885FE160A5F1F00E92A0A /* JEY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88505160A5F1F00E92A0A /* JEY.geojson */; };
+		2BE885FF160A5F1F00E92A0A /* JOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88506160A5F1F00E92A0A /* JOR.geojson */; };
+		2BE88600160A5F1F00E92A0A /* JPN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88507160A5F1F00E92A0A /* JPN.geojson */; };
+		2BE88601160A5F1F00E92A0A /* KAZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88508160A5F1F00E92A0A /* KAZ.geojson */; };
+		2BE88602160A5F1F00E92A0A /* KEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88509160A5F1F00E92A0A /* KEN.geojson */; };
+		2BE88603160A5F1F00E92A0A /* KGZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850A160A5F1F00E92A0A /* KGZ.geojson */; };
+		2BE88604160A5F1F00E92A0A /* KHM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850B160A5F1F00E92A0A /* KHM.geojson */; };
+		2BE88605160A5F1F00E92A0A /* KIR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850C160A5F1F00E92A0A /* KIR.geojson */; };
+		2BE88606160A5F1F00E92A0A /* KNA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850D160A5F1F00E92A0A /* KNA.geojson */; };
+		2BE88607160A5F1F00E92A0A /* KOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850E160A5F1F00E92A0A /* KOR.geojson */; };
+		2BE88608160A5F1F00E92A0A /* KWT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8850F160A5F1F00E92A0A /* KWT.geojson */; };
+		2BE88609160A5F1F00E92A0A /* LAO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88510160A5F1F00E92A0A /* LAO.geojson */; };
+		2BE8860A160A5F1F00E92A0A /* LBN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88511160A5F1F00E92A0A /* LBN.geojson */; };
+		2BE8860B160A5F1F00E92A0A /* LBR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88512160A5F1F00E92A0A /* LBR.geojson */; };
+		2BE8860C160A5F1F00E92A0A /* LBY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88513160A5F1F00E92A0A /* LBY.geojson */; };
+		2BE8860D160A5F1F00E92A0A /* LCA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88514160A5F1F00E92A0A /* LCA.geojson */; };
+		2BE8860E160A5F1F00E92A0A /* LIE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88515160A5F1F00E92A0A /* LIE.geojson */; };
+		2BE8860F160A5F1F00E92A0A /* LKA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88516160A5F1F00E92A0A /* LKA.geojson */; };
+		2BE88610160A5F1F00E92A0A /* LSO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88517160A5F1F00E92A0A /* LSO.geojson */; };
+		2BE88611160A5F1F00E92A0A /* LTU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88518160A5F1F00E92A0A /* LTU.geojson */; };
+		2BE88612160A5F1F00E92A0A /* LUX.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88519160A5F1F00E92A0A /* LUX.geojson */; };
+		2BE88613160A5F1F00E92A0A /* LVA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851A160A5F1F00E92A0A /* LVA.geojson */; };
+		2BE88614160A5F1F00E92A0A /* MAC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851B160A5F1F00E92A0A /* MAC.geojson */; };
+		2BE88615160A5F1F00E92A0A /* MAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851C160A5F1F00E92A0A /* MAF.geojson */; };
+		2BE88616160A5F1F00E92A0A /* MAR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851D160A5F1F00E92A0A /* MAR.geojson */; };
+		2BE88617160A5F1F00E92A0A /* MCO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851E160A5F1F00E92A0A /* MCO.geojson */; };
+		2BE88618160A5F1F00E92A0A /* MDA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8851F160A5F1F00E92A0A /* MDA.geojson */; };
+		2BE88619160A5F1F00E92A0A /* MDG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88520160A5F1F00E92A0A /* MDG.geojson */; };
+		2BE8861A160A5F1F00E92A0A /* MDV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88521160A5F1F00E92A0A /* MDV.geojson */; };
+		2BE8861B160A5F1F00E92A0A /* MEX.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88522160A5F1F00E92A0A /* MEX.geojson */; };
+		2BE8861C160A5F1F00E92A0A /* MHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88523160A5F1F00E92A0A /* MHL.geojson */; };
+		2BE8861D160A5F1F00E92A0A /* MKD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88524160A5F1F00E92A0A /* MKD.geojson */; };
+		2BE8861E160A5F1F00E92A0A /* MLI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88525160A5F1F00E92A0A /* MLI.geojson */; };
+		2BE8861F160A5F1F00E92A0A /* MLT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88526160A5F1F00E92A0A /* MLT.geojson */; };
+		2BE88620160A5F1F00E92A0A /* MMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88527160A5F1F00E92A0A /* MMR.geojson */; };
+		2BE88621160A5F1F00E92A0A /* MNE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88528160A5F1F00E92A0A /* MNE.geojson */; };
+		2BE88622160A5F1F00E92A0A /* MNG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88529160A5F1F00E92A0A /* MNG.geojson */; };
+		2BE88623160A5F1F00E92A0A /* MNP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852A160A5F1F00E92A0A /* MNP.geojson */; };
+		2BE88624160A5F1F00E92A0A /* MOZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852B160A5F1F00E92A0A /* MOZ.geojson */; };
+		2BE88625160A5F1F00E92A0A /* MRT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852C160A5F1F00E92A0A /* MRT.geojson */; };
+		2BE88626160A5F1F00E92A0A /* MSR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852D160A5F1F00E92A0A /* MSR.geojson */; };
+		2BE88627160A5F1F00E92A0A /* MTQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852E160A5F1F00E92A0A /* MTQ.geojson */; };
+		2BE88628160A5F1F00E92A0A /* MUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8852F160A5F1F00E92A0A /* MUS.geojson */; };
+		2BE88629160A5F1F00E92A0A /* MWI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88530160A5F1F00E92A0A /* MWI.geojson */; };
+		2BE8862A160A5F1F00E92A0A /* MYS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88531160A5F1F00E92A0A /* MYS.geojson */; };
+		2BE8862B160A5F1F00E92A0A /* MYT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88532160A5F1F00E92A0A /* MYT.geojson */; };
+		2BE8862C160A5F1F00E92A0A /* NAM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88533160A5F1F00E92A0A /* NAM.geojson */; };
+		2BE8862D160A5F1F00E92A0A /* NCL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88534160A5F1F00E92A0A /* NCL.geojson */; };
+		2BE8862E160A5F1F00E92A0A /* NER.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88535160A5F1F00E92A0A /* NER.geojson */; };
+		2BE8862F160A5F1F00E92A0A /* NFK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88536160A5F1F00E92A0A /* NFK.geojson */; };
+		2BE88630160A5F1F00E92A0A /* NGA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88537160A5F1F00E92A0A /* NGA.geojson */; };
+		2BE88631160A5F1F00E92A0A /* NIC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88538160A5F1F00E92A0A /* NIC.geojson */; };
+		2BE88632160A5F1F00E92A0A /* NIU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88539160A5F1F00E92A0A /* NIU.geojson */; };
+		2BE88633160A5F1F00E92A0A /* NLD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853A160A5F1F00E92A0A /* NLD.geojson */; };
+		2BE88634160A5F1F00E92A0A /* NOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853B160A5F1F00E92A0A /* NOR.geojson */; };
+		2BE88635160A5F1F00E92A0A /* NPL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853C160A5F1F00E92A0A /* NPL.geojson */; };
+		2BE88636160A5F1F00E92A0A /* NRU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853D160A5F1F00E92A0A /* NRU.geojson */; };
+		2BE88637160A5F1F00E92A0A /* NZL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853E160A5F1F00E92A0A /* NZL.geojson */; };
+		2BE88638160A5F1F00E92A0A /* OMN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8853F160A5F1F00E92A0A /* OMN.geojson */; };
+		2BE88639160A5F1F00E92A0A /* PAK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88540160A5F1F00E92A0A /* PAK.geojson */; };
+		2BE8863A160A5F1F00E92A0A /* PAN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88541160A5F1F00E92A0A /* PAN.geojson */; };
+		2BE8863B160A5F1F00E92A0A /* PCN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88542160A5F1F00E92A0A /* PCN.geojson */; };
+		2BE8863C160A5F1F00E92A0A /* PER.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88543160A5F1F00E92A0A /* PER.geojson */; };
+		2BE8863D160A5F1F00E92A0A /* PHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88544160A5F1F00E92A0A /* PHL.geojson */; };
+		2BE8863E160A5F1F00E92A0A /* PLW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88545160A5F1F00E92A0A /* PLW.geojson */; };
+		2BE8863F160A5F1F00E92A0A /* PNG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88546160A5F1F00E92A0A /* PNG.geojson */; };
+		2BE88640160A5F1F00E92A0A /* POL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88547160A5F1F00E92A0A /* POL.geojson */; };
+		2BE88641160A5F1F00E92A0A /* PRI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88548160A5F1F00E92A0A /* PRI.geojson */; };
+		2BE88642160A5F1F00E92A0A /* PRK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88549160A5F1F00E92A0A /* PRK.geojson */; };
+		2BE88643160A5F1F00E92A0A /* PRT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854A160A5F1F00E92A0A /* PRT.geojson */; };
+		2BE88644160A5F1F00E92A0A /* PRY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854B160A5F1F00E92A0A /* PRY.geojson */; };
+		2BE88645160A5F1F00E92A0A /* PSE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854C160A5F1F00E92A0A /* PSE.geojson */; };
+		2BE88646160A5F1F00E92A0A /* PYF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854D160A5F1F00E92A0A /* PYF.geojson */; };
+		2BE88647160A5F1F00E92A0A /* QAT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854E160A5F1F00E92A0A /* QAT.geojson */; };
+		2BE88648160A5F1F00E92A0A /* REU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8854F160A5F1F00E92A0A /* REU.geojson */; };
+		2BE88649160A5F1F00E92A0A /* ROU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88550160A5F1F00E92A0A /* ROU.geojson */; };
+		2BE8864A160A5F1F00E92A0A /* RUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88551160A5F1F00E92A0A /* RUS.geojson */; };
+		2BE8864B160A5F1F00E92A0A /* RWA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88552160A5F1F00E92A0A /* RWA.geojson */; };
+		2BE8864C160A5F1F00E92A0A /* SAU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88553160A5F1F00E92A0A /* SAU.geojson */; };
+		2BE8864D160A5F1F00E92A0A /* SDN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88554160A5F1F00E92A0A /* SDN.geojson */; };
+		2BE8864E160A5F1F00E92A0A /* SEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88555160A5F1F00E92A0A /* SEN.geojson */; };
+		2BE8864F160A5F1F00E92A0A /* SGP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88556160A5F1F00E92A0A /* SGP.geojson */; };
+		2BE88650160A5F1F00E92A0A /* SGS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88557160A5F1F00E92A0A /* SGS.geojson */; };
+		2BE88651160A5F1F00E92A0A /* SHN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88558160A5F1F00E92A0A /* SHN.geojson */; };
+		2BE88652160A5F1F00E92A0A /* SJM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88559160A5F1F00E92A0A /* SJM.geojson */; };
+		2BE88653160A5F1F00E92A0A /* SLB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855A160A5F1F00E92A0A /* SLB.geojson */; };
+		2BE88654160A5F1F00E92A0A /* SLE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855B160A5F1F00E92A0A /* SLE.geojson */; };
+		2BE88655160A5F1F00E92A0A /* SLV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855C160A5F1F00E92A0A /* SLV.geojson */; };
+		2BE88656160A5F1F00E92A0A /* SMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855D160A5F1F00E92A0A /* SMR.geojson */; };
+		2BE88657160A5F1F00E92A0A /* SOM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855E160A5F1F00E92A0A /* SOM.geojson */; };
+		2BE88658160A5F1F00E92A0A /* SPM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8855F160A5F1F00E92A0A /* SPM.geojson */; };
+		2BE88659160A5F1F00E92A0A /* SRB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88560160A5F1F00E92A0A /* SRB.geojson */; };
+		2BE8865A160A5F1F00E92A0A /* SSD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88561160A5F1F00E92A0A /* SSD.geojson */; };
+		2BE8865B160A5F1F00E92A0A /* STP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88562160A5F1F00E92A0A /* STP.geojson */; };
+		2BE8865C160A5F1F00E92A0A /* SUR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88563160A5F1F00E92A0A /* SUR.geojson */; };
+		2BE8865D160A5F1F00E92A0A /* SVK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88564160A5F1F00E92A0A /* SVK.geojson */; };
+		2BE8865E160A5F1F00E92A0A /* SVN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88565160A5F1F00E92A0A /* SVN.geojson */; };
+		2BE8865F160A5F1F00E92A0A /* SWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88566160A5F1F00E92A0A /* SWE.geojson */; };
+		2BE88660160A5F1F00E92A0A /* SWZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88567160A5F1F00E92A0A /* SWZ.geojson */; };
+		2BE88661160A5F1F00E92A0A /* SXM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88568160A5F1F00E92A0A /* SXM.geojson */; };
+		2BE88662160A5F1F00E92A0A /* SYC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88569160A5F1F00E92A0A /* SYC.geojson */; };
+		2BE88663160A5F1F00E92A0A /* SYR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856A160A5F1F00E92A0A /* SYR.geojson */; };
+		2BE88664160A5F1F00E92A0A /* TCA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856B160A5F1F00E92A0A /* TCA.geojson */; };
+		2BE88665160A5F1F00E92A0A /* TCD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856C160A5F1F00E92A0A /* TCD.geojson */; };
+		2BE88666160A5F1F00E92A0A /* TGO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856D160A5F1F00E92A0A /* TGO.geojson */; };
+		2BE88667160A5F1F00E92A0A /* THA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856E160A5F1F00E92A0A /* THA.geojson */; };
+		2BE88668160A5F1F00E92A0A /* TJK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8856F160A5F1F00E92A0A /* TJK.geojson */; };
+		2BE88669160A5F1F00E92A0A /* TKL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88570160A5F1F00E92A0A /* TKL.geojson */; };
+		2BE8866A160A5F1F00E92A0A /* TKM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88571160A5F1F00E92A0A /* TKM.geojson */; };
+		2BE8866B160A5F1F00E92A0A /* TLS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88572160A5F1F00E92A0A /* TLS.geojson */; };
+		2BE8866C160A5F1F00E92A0A /* TON.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88573160A5F1F00E92A0A /* TON.geojson */; };
+		2BE8866D160A5F1F00E92A0A /* TTO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88574160A5F1F00E92A0A /* TTO.geojson */; };
+		2BE8866E160A5F1F00E92A0A /* TUN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88575160A5F1F00E92A0A /* TUN.geojson */; };
+		2BE8866F160A5F1F00E92A0A /* TUR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88576160A5F1F00E92A0A /* TUR.geojson */; };
+		2BE88670160A5F1F00E92A0A /* TUV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88577160A5F1F00E92A0A /* TUV.geojson */; };
+		2BE88671160A5F1F00E92A0A /* TWN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88578160A5F1F00E92A0A /* TWN.geojson */; };
+		2BE88672160A5F1F00E92A0A /* TZA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88579160A5F1F00E92A0A /* TZA.geojson */; };
+		2BE88673160A5F1F00E92A0A /* UGA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857A160A5F1F00E92A0A /* UGA.geojson */; };
+		2BE88674160A5F1F00E92A0A /* UKR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857B160A5F1F00E92A0A /* UKR.geojson */; };
+		2BE88675160A5F1F00E92A0A /* UMI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857C160A5F1F00E92A0A /* UMI.geojson */; };
+		2BE88676160A5F1F00E92A0A /* URY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857D160A5F1F00E92A0A /* URY.geojson */; };
+		2BE88677160A5F1F00E92A0A /* USA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857E160A5F1F00E92A0A /* USA.geojson */; };
+		2BE88678160A5F1F00E92A0A /* UZB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8857F160A5F1F00E92A0A /* UZB.geojson */; };
+		2BE88679160A5F1F00E92A0A /* VAT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88580160A5F1F00E92A0A /* VAT.geojson */; };
+		2BE8867A160A5F1F00E92A0A /* VCT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88581160A5F1F00E92A0A /* VCT.geojson */; };
+		2BE8867B160A5F1F00E92A0A /* VEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88582160A5F1F00E92A0A /* VEN.geojson */; };
+		2BE8867C160A5F1F00E92A0A /* VGB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88583160A5F1F00E92A0A /* VGB.geojson */; };
+		2BE8867D160A5F1F00E92A0A /* VIR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88584160A5F1F00E92A0A /* VIR.geojson */; };
+		2BE8867E160A5F1F00E92A0A /* VNM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88585160A5F1F00E92A0A /* VNM.geojson */; };
+		2BE8867F160A5F1F00E92A0A /* VUT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88586160A5F1F00E92A0A /* VUT.geojson */; };
+		2BE88680160A5F1F00E92A0A /* WLF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88587160A5F1F00E92A0A /* WLF.geojson */; };
+		2BE88681160A5F1F00E92A0A /* WSM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88588160A5F1F00E92A0A /* WSM.geojson */; };
+		2BE88682160A5F1F00E92A0A /* YEM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88589160A5F1F00E92A0A /* YEM.geojson */; };
+		2BE88683160A5F1F00E92A0A /* ZAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8858A160A5F1F00E92A0A /* ZAF.geojson */; };
+		2BE88684160A5F1F00E92A0A /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8858B160A5F1F00E92A0A /* ZMB.geojson */; };
+		2BE88685160A5F1F00E92A0A /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8858C160A5F1F00E92A0A /* ZWE.geojson */; };
+		2BE88687160A5F2A00E92A0A /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88686160A5F2A00E92A0A /* Star.png */; };
+		2BE88689160A5F3300E92A0A /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88688160A5F3300E92A0A /* map_pin.png */; };
+		2BE88696160A5F4400E92A0A /* lowres_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8868B160A5F4400E92A0A /* lowres_wtb_0x0.pvrtc */; };
+		2BE88697160A5F4400E92A0A /* lowres_wtb_0x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8868C160A5F4400E92A0A /* lowres_wtb_0x1.pvrtc */; };
+		2BE88698160A5F4400E92A0A /* lowres_wtb_1x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8868D160A5F4400E92A0A /* lowres_wtb_1x0.pvrtc */; };
+		2BE88699160A5F4400E92A0A /* lowres_wtb_1x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8868E160A5F4400E92A0A /* lowres_wtb_1x1.pvrtc */; };
+		2BE8869A160A5F4400E92A0A /* lowres_wtb_2x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE8868F160A5F4400E92A0A /* lowres_wtb_2x0.pvrtc */; };
+		2BE8869B160A5F4400E92A0A /* lowres_wtb_2x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88690160A5F4400E92A0A /* lowres_wtb_2x1.pvrtc */; };
+		2BE8869C160A5F4400E92A0A /* lowres_wtb_3x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88691160A5F4400E92A0A /* lowres_wtb_3x0.pvrtc */; };
+		2BE8869D160A5F4400E92A0A /* lowres_wtb_3x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88692160A5F4400E92A0A /* lowres_wtb_3x1.pvrtc */; };
+		2BE8869E160A5F4400E92A0A /* lowres_wtb_4x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88693160A5F4400E92A0A /* lowres_wtb_4x0.pvrtc */; };
+		2BE8869F160A5F4400E92A0A /* lowres_wtb_4x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88694160A5F4400E92A0A /* lowres_wtb_4x1.pvrtc */; };
+		2BE886A0160A5F4400E92A0A /* lowres_wtb_info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2BE88695160A5F4400E92A0A /* lowres_wtb_info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +321,268 @@
 		2BE43884160936A300A81959 /* ConfigViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
 		2BE43885160936A300A81959 /* ConfigViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
 		2BE43886160936A300A81959 /* ConfigViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
+		2BE88494160A5F1F00E92A0A /* ABW.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ABW.geojson; sourceTree = "<group>"; };
+		2BE88495160A5F1F00E92A0A /* AFG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AFG.geojson; sourceTree = "<group>"; };
+		2BE88496160A5F1F00E92A0A /* AGO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AGO.geojson; sourceTree = "<group>"; };
+		2BE88497160A5F1F00E92A0A /* AIA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AIA.geojson; sourceTree = "<group>"; };
+		2BE88498160A5F1F00E92A0A /* ALA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ALA.geojson; sourceTree = "<group>"; };
+		2BE88499160A5F1F00E92A0A /* ALB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ALB.geojson; sourceTree = "<group>"; };
+		2BE8849A160A5F1F00E92A0A /* AND.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AND.geojson; sourceTree = "<group>"; };
+		2BE8849B160A5F1F00E92A0A /* ARE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ARE.geojson; sourceTree = "<group>"; };
+		2BE8849C160A5F1F00E92A0A /* ARG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ARG.geojson; sourceTree = "<group>"; };
+		2BE8849D160A5F1F00E92A0A /* ARM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ARM.geojson; sourceTree = "<group>"; };
+		2BE8849E160A5F1F00E92A0A /* ASM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ASM.geojson; sourceTree = "<group>"; };
+		2BE8849F160A5F1F00E92A0A /* ATA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ATA.geojson; sourceTree = "<group>"; };
+		2BE884A0160A5F1F00E92A0A /* ATF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ATF.geojson; sourceTree = "<group>"; };
+		2BE884A1160A5F1F00E92A0A /* ATG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ATG.geojson; sourceTree = "<group>"; };
+		2BE884A2160A5F1F00E92A0A /* AUS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AUS.geojson; sourceTree = "<group>"; };
+		2BE884A3160A5F1F00E92A0A /* AUT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AUT.geojson; sourceTree = "<group>"; };
+		2BE884A4160A5F1F00E92A0A /* AZE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AZE.geojson; sourceTree = "<group>"; };
+		2BE884A5160A5F1F00E92A0A /* BDI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BDI.geojson; sourceTree = "<group>"; };
+		2BE884A6160A5F1F00E92A0A /* BEL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BEL.geojson; sourceTree = "<group>"; };
+		2BE884A7160A5F1F00E92A0A /* BEN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BEN.geojson; sourceTree = "<group>"; };
+		2BE884A8160A5F1F00E92A0A /* BES.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BES.geojson; sourceTree = "<group>"; };
+		2BE884A9160A5F1F00E92A0A /* BFA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BFA.geojson; sourceTree = "<group>"; };
+		2BE884AA160A5F1F00E92A0A /* BGD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BGD.geojson; sourceTree = "<group>"; };
+		2BE884AB160A5F1F00E92A0A /* BGR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BGR.geojson; sourceTree = "<group>"; };
+		2BE884AC160A5F1F00E92A0A /* BHR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BHR.geojson; sourceTree = "<group>"; };
+		2BE884AD160A5F1F00E92A0A /* BHS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BHS.geojson; sourceTree = "<group>"; };
+		2BE884AE160A5F1F00E92A0A /* BIH.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BIH.geojson; sourceTree = "<group>"; };
+		2BE884AF160A5F1F00E92A0A /* BLM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BLM.geojson; sourceTree = "<group>"; };
+		2BE884B0160A5F1F00E92A0A /* BLR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BLR.geojson; sourceTree = "<group>"; };
+		2BE884B1160A5F1F00E92A0A /* BLZ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BLZ.geojson; sourceTree = "<group>"; };
+		2BE884B2160A5F1F00E92A0A /* BMU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BMU.geojson; sourceTree = "<group>"; };
+		2BE884B3160A5F1F00E92A0A /* BOL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BOL.geojson; sourceTree = "<group>"; };
+		2BE884B4160A5F1F00E92A0A /* BRA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BRA.geojson; sourceTree = "<group>"; };
+		2BE884B5160A5F1F00E92A0A /* BRB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BRB.geojson; sourceTree = "<group>"; };
+		2BE884B6160A5F1F00E92A0A /* BRN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BRN.geojson; sourceTree = "<group>"; };
+		2BE884B7160A5F1F00E92A0A /* BTN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BTN.geojson; sourceTree = "<group>"; };
+		2BE884B8160A5F1F00E92A0A /* BVT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BVT.geojson; sourceTree = "<group>"; };
+		2BE884B9160A5F1F00E92A0A /* BWA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BWA.geojson; sourceTree = "<group>"; };
+		2BE884BA160A5F1F00E92A0A /* CAF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CAF.geojson; sourceTree = "<group>"; };
+		2BE884BB160A5F1F00E92A0A /* CAN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CAN.geojson; sourceTree = "<group>"; };
+		2BE884BC160A5F1F00E92A0A /* CCK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CCK.geojson; sourceTree = "<group>"; };
+		2BE884BD160A5F1F00E92A0A /* CHE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CHE.geojson; sourceTree = "<group>"; };
+		2BE884BE160A5F1F00E92A0A /* CHL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CHL.geojson; sourceTree = "<group>"; };
+		2BE884BF160A5F1F00E92A0A /* CHN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CHN.geojson; sourceTree = "<group>"; };
+		2BE884C0160A5F1F00E92A0A /* CIV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIV.geojson; sourceTree = "<group>"; };
+		2BE884C1160A5F1F00E92A0A /* CMR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMR.geojson; sourceTree = "<group>"; };
+		2BE884C2160A5F1F00E92A0A /* COD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COD.geojson; sourceTree = "<group>"; };
+		2BE884C3160A5F1F00E92A0A /* COG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COG.geojson; sourceTree = "<group>"; };
+		2BE884C4160A5F1F00E92A0A /* COK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COK.geojson; sourceTree = "<group>"; };
+		2BE884C5160A5F1F00E92A0A /* COL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COL.geojson; sourceTree = "<group>"; };
+		2BE884C6160A5F1F00E92A0A /* COM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = COM.geojson; sourceTree = "<group>"; };
+		2BE884C7160A5F1F00E92A0A /* CPV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CPV.geojson; sourceTree = "<group>"; };
+		2BE884C8160A5F1F00E92A0A /* CRI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CRI.geojson; sourceTree = "<group>"; };
+		2BE884C9160A5F1F00E92A0A /* CUB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CUB.geojson; sourceTree = "<group>"; };
+		2BE884CA160A5F1F00E92A0A /* CUW.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CUW.geojson; sourceTree = "<group>"; };
+		2BE884CB160A5F1F00E92A0A /* CXR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CXR.geojson; sourceTree = "<group>"; };
+		2BE884CC160A5F1F00E92A0A /* CYM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CYM.geojson; sourceTree = "<group>"; };
+		2BE884CD160A5F1F00E92A0A /* CYP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CYP.geojson; sourceTree = "<group>"; };
+		2BE884CE160A5F1F00E92A0A /* CZE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CZE.geojson; sourceTree = "<group>"; };
+		2BE884CF160A5F1F00E92A0A /* DEU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DEU.geojson; sourceTree = "<group>"; };
+		2BE884D0160A5F1F00E92A0A /* DJI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DJI.geojson; sourceTree = "<group>"; };
+		2BE884D1160A5F1F00E92A0A /* DMA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DMA.geojson; sourceTree = "<group>"; };
+		2BE884D2160A5F1F00E92A0A /* DNK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DNK.geojson; sourceTree = "<group>"; };
+		2BE884D3160A5F1F00E92A0A /* DOM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DOM.geojson; sourceTree = "<group>"; };
+		2BE884D4160A5F1F00E92A0A /* DZA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DZA.geojson; sourceTree = "<group>"; };
+		2BE884D5160A5F1F00E92A0A /* ECU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ECU.geojson; sourceTree = "<group>"; };
+		2BE884D6160A5F1F00E92A0A /* EGY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EGY.geojson; sourceTree = "<group>"; };
+		2BE884D7160A5F1F00E92A0A /* ERI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ERI.geojson; sourceTree = "<group>"; };
+		2BE884D8160A5F1F00E92A0A /* ESH.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ESH.geojson; sourceTree = "<group>"; };
+		2BE884D9160A5F1F00E92A0A /* ESP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ESP.geojson; sourceTree = "<group>"; };
+		2BE884DA160A5F1F00E92A0A /* EST.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EST.geojson; sourceTree = "<group>"; };
+		2BE884DB160A5F1F00E92A0A /* ETH.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ETH.geojson; sourceTree = "<group>"; };
+		2BE884DC160A5F1F00E92A0A /* FIN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FIN.geojson; sourceTree = "<group>"; };
+		2BE884DD160A5F1F00E92A0A /* FJI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FJI.geojson; sourceTree = "<group>"; };
+		2BE884DE160A5F1F00E92A0A /* FLK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FLK.geojson; sourceTree = "<group>"; };
+		2BE884DF160A5F1F00E92A0A /* FRA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FRA.geojson; sourceTree = "<group>"; };
+		2BE884E0160A5F1F00E92A0A /* FRO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FRO.geojson; sourceTree = "<group>"; };
+		2BE884E1160A5F1F00E92A0A /* FSM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FSM.geojson; sourceTree = "<group>"; };
+		2BE884E2160A5F1F00E92A0A /* GAB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GAB.geojson; sourceTree = "<group>"; };
+		2BE884E3160A5F1F00E92A0A /* GBR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GBR.geojson; sourceTree = "<group>"; };
+		2BE884E4160A5F1F00E92A0A /* GEO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GEO.geojson; sourceTree = "<group>"; };
+		2BE884E5160A5F1F00E92A0A /* GGY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GGY.geojson; sourceTree = "<group>"; };
+		2BE884E6160A5F1F00E92A0A /* GHA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GHA.geojson; sourceTree = "<group>"; };
+		2BE884E7160A5F1F00E92A0A /* GIB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GIB.geojson; sourceTree = "<group>"; };
+		2BE884E8160A5F1F00E92A0A /* GIN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GIN.geojson; sourceTree = "<group>"; };
+		2BE884E9160A5F1F00E92A0A /* GLP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GLP.geojson; sourceTree = "<group>"; };
+		2BE884EA160A5F1F00E92A0A /* GMB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GMB.geojson; sourceTree = "<group>"; };
+		2BE884EB160A5F1F00E92A0A /* GNB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNB.geojson; sourceTree = "<group>"; };
+		2BE884EC160A5F1F00E92A0A /* GNQ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNQ.geojson; sourceTree = "<group>"; };
+		2BE884ED160A5F1F00E92A0A /* GRC.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GRC.geojson; sourceTree = "<group>"; };
+		2BE884EE160A5F1F00E92A0A /* GRD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GRD.geojson; sourceTree = "<group>"; };
+		2BE884EF160A5F1F00E92A0A /* GRL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GRL.geojson; sourceTree = "<group>"; };
+		2BE884F0160A5F1F00E92A0A /* GTM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GTM.geojson; sourceTree = "<group>"; };
+		2BE884F1160A5F1F00E92A0A /* GUF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GUF.geojson; sourceTree = "<group>"; };
+		2BE884F2160A5F1F00E92A0A /* GUM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GUM.geojson; sourceTree = "<group>"; };
+		2BE884F3160A5F1F00E92A0A /* GUY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GUY.geojson; sourceTree = "<group>"; };
+		2BE884F4160A5F1F00E92A0A /* HKG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HKG.geojson; sourceTree = "<group>"; };
+		2BE884F5160A5F1F00E92A0A /* HMD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HMD.geojson; sourceTree = "<group>"; };
+		2BE884F6160A5F1F00E92A0A /* HND.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HND.geojson; sourceTree = "<group>"; };
+		2BE884F7160A5F1F00E92A0A /* HRV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HRV.geojson; sourceTree = "<group>"; };
+		2BE884F8160A5F1F00E92A0A /* HTI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HTI.geojson; sourceTree = "<group>"; };
+		2BE884F9160A5F1F00E92A0A /* HUN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = HUN.geojson; sourceTree = "<group>"; };
+		2BE884FA160A5F1F00E92A0A /* IDN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IDN.geojson; sourceTree = "<group>"; };
+		2BE884FB160A5F1F00E92A0A /* IMN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IMN.geojson; sourceTree = "<group>"; };
+		2BE884FC160A5F1F00E92A0A /* IND.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IND.geojson; sourceTree = "<group>"; };
+		2BE884FD160A5F1F00E92A0A /* IOT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IOT.geojson; sourceTree = "<group>"; };
+		2BE884FE160A5F1F00E92A0A /* IRL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRL.geojson; sourceTree = "<group>"; };
+		2BE884FF160A5F1F00E92A0A /* IRN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRN.geojson; sourceTree = "<group>"; };
+		2BE88500160A5F1F00E92A0A /* IRQ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IRQ.geojson; sourceTree = "<group>"; };
+		2BE88501160A5F1F00E92A0A /* ISL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ISL.geojson; sourceTree = "<group>"; };
+		2BE88502160A5F1F00E92A0A /* ISR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ISR.geojson; sourceTree = "<group>"; };
+		2BE88503160A5F1F00E92A0A /* ITA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ITA.geojson; sourceTree = "<group>"; };
+		2BE88504160A5F1F00E92A0A /* JAM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JAM.geojson; sourceTree = "<group>"; };
+		2BE88505160A5F1F00E92A0A /* JEY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JEY.geojson; sourceTree = "<group>"; };
+		2BE88506160A5F1F00E92A0A /* JOR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JOR.geojson; sourceTree = "<group>"; };
+		2BE88507160A5F1F00E92A0A /* JPN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = JPN.geojson; sourceTree = "<group>"; };
+		2BE88508160A5F1F00E92A0A /* KAZ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KAZ.geojson; sourceTree = "<group>"; };
+		2BE88509160A5F1F00E92A0A /* KEN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KEN.geojson; sourceTree = "<group>"; };
+		2BE8850A160A5F1F00E92A0A /* KGZ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KGZ.geojson; sourceTree = "<group>"; };
+		2BE8850B160A5F1F00E92A0A /* KHM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KHM.geojson; sourceTree = "<group>"; };
+		2BE8850C160A5F1F00E92A0A /* KIR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KIR.geojson; sourceTree = "<group>"; };
+		2BE8850D160A5F1F00E92A0A /* KNA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KNA.geojson; sourceTree = "<group>"; };
+		2BE8850E160A5F1F00E92A0A /* KOR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KOR.geojson; sourceTree = "<group>"; };
+		2BE8850F160A5F1F00E92A0A /* KWT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = KWT.geojson; sourceTree = "<group>"; };
+		2BE88510160A5F1F00E92A0A /* LAO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LAO.geojson; sourceTree = "<group>"; };
+		2BE88511160A5F1F00E92A0A /* LBN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LBN.geojson; sourceTree = "<group>"; };
+		2BE88512160A5F1F00E92A0A /* LBR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LBR.geojson; sourceTree = "<group>"; };
+		2BE88513160A5F1F00E92A0A /* LBY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LBY.geojson; sourceTree = "<group>"; };
+		2BE88514160A5F1F00E92A0A /* LCA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LCA.geojson; sourceTree = "<group>"; };
+		2BE88515160A5F1F00E92A0A /* LIE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LIE.geojson; sourceTree = "<group>"; };
+		2BE88516160A5F1F00E92A0A /* LKA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LKA.geojson; sourceTree = "<group>"; };
+		2BE88517160A5F1F00E92A0A /* LSO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LSO.geojson; sourceTree = "<group>"; };
+		2BE88518160A5F1F00E92A0A /* LTU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LTU.geojson; sourceTree = "<group>"; };
+		2BE88519160A5F1F00E92A0A /* LUX.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LUX.geojson; sourceTree = "<group>"; };
+		2BE8851A160A5F1F00E92A0A /* LVA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LVA.geojson; sourceTree = "<group>"; };
+		2BE8851B160A5F1F00E92A0A /* MAC.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MAC.geojson; sourceTree = "<group>"; };
+		2BE8851C160A5F1F00E92A0A /* MAF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MAF.geojson; sourceTree = "<group>"; };
+		2BE8851D160A5F1F00E92A0A /* MAR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MAR.geojson; sourceTree = "<group>"; };
+		2BE8851E160A5F1F00E92A0A /* MCO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MCO.geojson; sourceTree = "<group>"; };
+		2BE8851F160A5F1F00E92A0A /* MDA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MDA.geojson; sourceTree = "<group>"; };
+		2BE88520160A5F1F00E92A0A /* MDG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MDG.geojson; sourceTree = "<group>"; };
+		2BE88521160A5F1F00E92A0A /* MDV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MDV.geojson; sourceTree = "<group>"; };
+		2BE88522160A5F1F00E92A0A /* MEX.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MEX.geojson; sourceTree = "<group>"; };
+		2BE88523160A5F1F00E92A0A /* MHL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MHL.geojson; sourceTree = "<group>"; };
+		2BE88524160A5F1F00E92A0A /* MKD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MKD.geojson; sourceTree = "<group>"; };
+		2BE88525160A5F1F00E92A0A /* MLI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MLI.geojson; sourceTree = "<group>"; };
+		2BE88526160A5F1F00E92A0A /* MLT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MLT.geojson; sourceTree = "<group>"; };
+		2BE88527160A5F1F00E92A0A /* MMR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MMR.geojson; sourceTree = "<group>"; };
+		2BE88528160A5F1F00E92A0A /* MNE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MNE.geojson; sourceTree = "<group>"; };
+		2BE88529160A5F1F00E92A0A /* MNG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MNG.geojson; sourceTree = "<group>"; };
+		2BE8852A160A5F1F00E92A0A /* MNP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MNP.geojson; sourceTree = "<group>"; };
+		2BE8852B160A5F1F00E92A0A /* MOZ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MOZ.geojson; sourceTree = "<group>"; };
+		2BE8852C160A5F1F00E92A0A /* MRT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MRT.geojson; sourceTree = "<group>"; };
+		2BE8852D160A5F1F00E92A0A /* MSR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MSR.geojson; sourceTree = "<group>"; };
+		2BE8852E160A5F1F00E92A0A /* MTQ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MTQ.geojson; sourceTree = "<group>"; };
+		2BE8852F160A5F1F00E92A0A /* MUS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MUS.geojson; sourceTree = "<group>"; };
+		2BE88530160A5F1F00E92A0A /* MWI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MWI.geojson; sourceTree = "<group>"; };
+		2BE88531160A5F1F00E92A0A /* MYS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MYS.geojson; sourceTree = "<group>"; };
+		2BE88532160A5F1F00E92A0A /* MYT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MYT.geojson; sourceTree = "<group>"; };
+		2BE88533160A5F1F00E92A0A /* NAM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NAM.geojson; sourceTree = "<group>"; };
+		2BE88534160A5F1F00E92A0A /* NCL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NCL.geojson; sourceTree = "<group>"; };
+		2BE88535160A5F1F00E92A0A /* NER.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NER.geojson; sourceTree = "<group>"; };
+		2BE88536160A5F1F00E92A0A /* NFK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NFK.geojson; sourceTree = "<group>"; };
+		2BE88537160A5F1F00E92A0A /* NGA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NGA.geojson; sourceTree = "<group>"; };
+		2BE88538160A5F1F00E92A0A /* NIC.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NIC.geojson; sourceTree = "<group>"; };
+		2BE88539160A5F1F00E92A0A /* NIU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NIU.geojson; sourceTree = "<group>"; };
+		2BE8853A160A5F1F00E92A0A /* NLD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NLD.geojson; sourceTree = "<group>"; };
+		2BE8853B160A5F1F00E92A0A /* NOR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NOR.geojson; sourceTree = "<group>"; };
+		2BE8853C160A5F1F00E92A0A /* NPL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NPL.geojson; sourceTree = "<group>"; };
+		2BE8853D160A5F1F00E92A0A /* NRU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NRU.geojson; sourceTree = "<group>"; };
+		2BE8853E160A5F1F00E92A0A /* NZL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NZL.geojson; sourceTree = "<group>"; };
+		2BE8853F160A5F1F00E92A0A /* OMN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OMN.geojson; sourceTree = "<group>"; };
+		2BE88540160A5F1F00E92A0A /* PAK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PAK.geojson; sourceTree = "<group>"; };
+		2BE88541160A5F1F00E92A0A /* PAN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PAN.geojson; sourceTree = "<group>"; };
+		2BE88542160A5F1F00E92A0A /* PCN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PCN.geojson; sourceTree = "<group>"; };
+		2BE88543160A5F1F00E92A0A /* PER.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PER.geojson; sourceTree = "<group>"; };
+		2BE88544160A5F1F00E92A0A /* PHL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PHL.geojson; sourceTree = "<group>"; };
+		2BE88545160A5F1F00E92A0A /* PLW.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PLW.geojson; sourceTree = "<group>"; };
+		2BE88546160A5F1F00E92A0A /* PNG.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PNG.geojson; sourceTree = "<group>"; };
+		2BE88547160A5F1F00E92A0A /* POL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = POL.geojson; sourceTree = "<group>"; };
+		2BE88548160A5F1F00E92A0A /* PRI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PRI.geojson; sourceTree = "<group>"; };
+		2BE88549160A5F1F00E92A0A /* PRK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PRK.geojson; sourceTree = "<group>"; };
+		2BE8854A160A5F1F00E92A0A /* PRT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PRT.geojson; sourceTree = "<group>"; };
+		2BE8854B160A5F1F00E92A0A /* PRY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PRY.geojson; sourceTree = "<group>"; };
+		2BE8854C160A5F1F00E92A0A /* PSE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PSE.geojson; sourceTree = "<group>"; };
+		2BE8854D160A5F1F00E92A0A /* PYF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PYF.geojson; sourceTree = "<group>"; };
+		2BE8854E160A5F1F00E92A0A /* QAT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = QAT.geojson; sourceTree = "<group>"; };
+		2BE8854F160A5F1F00E92A0A /* REU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = REU.geojson; sourceTree = "<group>"; };
+		2BE88550160A5F1F00E92A0A /* ROU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ROU.geojson; sourceTree = "<group>"; };
+		2BE88551160A5F1F00E92A0A /* RUS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RUS.geojson; sourceTree = "<group>"; };
+		2BE88552160A5F1F00E92A0A /* RWA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RWA.geojson; sourceTree = "<group>"; };
+		2BE88553160A5F1F00E92A0A /* SAU.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SAU.geojson; sourceTree = "<group>"; };
+		2BE88554160A5F1F00E92A0A /* SDN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SDN.geojson; sourceTree = "<group>"; };
+		2BE88555160A5F1F00E92A0A /* SEN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SEN.geojson; sourceTree = "<group>"; };
+		2BE88556160A5F1F00E92A0A /* SGP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SGP.geojson; sourceTree = "<group>"; };
+		2BE88557160A5F1F00E92A0A /* SGS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SGS.geojson; sourceTree = "<group>"; };
+		2BE88558160A5F1F00E92A0A /* SHN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SHN.geojson; sourceTree = "<group>"; };
+		2BE88559160A5F1F00E92A0A /* SJM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SJM.geojson; sourceTree = "<group>"; };
+		2BE8855A160A5F1F00E92A0A /* SLB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SLB.geojson; sourceTree = "<group>"; };
+		2BE8855B160A5F1F00E92A0A /* SLE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SLE.geojson; sourceTree = "<group>"; };
+		2BE8855C160A5F1F00E92A0A /* SLV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SLV.geojson; sourceTree = "<group>"; };
+		2BE8855D160A5F1F00E92A0A /* SMR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SMR.geojson; sourceTree = "<group>"; };
+		2BE8855E160A5F1F00E92A0A /* SOM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SOM.geojson; sourceTree = "<group>"; };
+		2BE8855F160A5F1F00E92A0A /* SPM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SPM.geojson; sourceTree = "<group>"; };
+		2BE88560160A5F1F00E92A0A /* SRB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SRB.geojson; sourceTree = "<group>"; };
+		2BE88561160A5F1F00E92A0A /* SSD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SSD.geojson; sourceTree = "<group>"; };
+		2BE88562160A5F1F00E92A0A /* STP.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = STP.geojson; sourceTree = "<group>"; };
+		2BE88563160A5F1F00E92A0A /* SUR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SUR.geojson; sourceTree = "<group>"; };
+		2BE88564160A5F1F00E92A0A /* SVK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SVK.geojson; sourceTree = "<group>"; };
+		2BE88565160A5F1F00E92A0A /* SVN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SVN.geojson; sourceTree = "<group>"; };
+		2BE88566160A5F1F00E92A0A /* SWE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SWE.geojson; sourceTree = "<group>"; };
+		2BE88567160A5F1F00E92A0A /* SWZ.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SWZ.geojson; sourceTree = "<group>"; };
+		2BE88568160A5F1F00E92A0A /* SXM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SXM.geojson; sourceTree = "<group>"; };
+		2BE88569160A5F1F00E92A0A /* SYC.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SYC.geojson; sourceTree = "<group>"; };
+		2BE8856A160A5F1F00E92A0A /* SYR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SYR.geojson; sourceTree = "<group>"; };
+		2BE8856B160A5F1F00E92A0A /* TCA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TCA.geojson; sourceTree = "<group>"; };
+		2BE8856C160A5F1F00E92A0A /* TCD.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TCD.geojson; sourceTree = "<group>"; };
+		2BE8856D160A5F1F00E92A0A /* TGO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TGO.geojson; sourceTree = "<group>"; };
+		2BE8856E160A5F1F00E92A0A /* THA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = THA.geojson; sourceTree = "<group>"; };
+		2BE8856F160A5F1F00E92A0A /* TJK.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TJK.geojson; sourceTree = "<group>"; };
+		2BE88570160A5F1F00E92A0A /* TKL.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TKL.geojson; sourceTree = "<group>"; };
+		2BE88571160A5F1F00E92A0A /* TKM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TKM.geojson; sourceTree = "<group>"; };
+		2BE88572160A5F1F00E92A0A /* TLS.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TLS.geojson; sourceTree = "<group>"; };
+		2BE88573160A5F1F00E92A0A /* TON.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TON.geojson; sourceTree = "<group>"; };
+		2BE88574160A5F1F00E92A0A /* TTO.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TTO.geojson; sourceTree = "<group>"; };
+		2BE88575160A5F1F00E92A0A /* TUN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TUN.geojson; sourceTree = "<group>"; };
+		2BE88576160A5F1F00E92A0A /* TUR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TUR.geojson; sourceTree = "<group>"; };
+		2BE88577160A5F1F00E92A0A /* TUV.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TUV.geojson; sourceTree = "<group>"; };
+		2BE88578160A5F1F00E92A0A /* TWN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TWN.geojson; sourceTree = "<group>"; };
+		2BE88579160A5F1F00E92A0A /* TZA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TZA.geojson; sourceTree = "<group>"; };
+		2BE8857A160A5F1F00E92A0A /* UGA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UGA.geojson; sourceTree = "<group>"; };
+		2BE8857B160A5F1F00E92A0A /* UKR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UKR.geojson; sourceTree = "<group>"; };
+		2BE8857C160A5F1F00E92A0A /* UMI.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UMI.geojson; sourceTree = "<group>"; };
+		2BE8857D160A5F1F00E92A0A /* URY.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = URY.geojson; sourceTree = "<group>"; };
+		2BE8857E160A5F1F00E92A0A /* USA.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = USA.geojson; sourceTree = "<group>"; };
+		2BE8857F160A5F1F00E92A0A /* UZB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = UZB.geojson; sourceTree = "<group>"; };
+		2BE88580160A5F1F00E92A0A /* VAT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VAT.geojson; sourceTree = "<group>"; };
+		2BE88581160A5F1F00E92A0A /* VCT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VCT.geojson; sourceTree = "<group>"; };
+		2BE88582160A5F1F00E92A0A /* VEN.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VEN.geojson; sourceTree = "<group>"; };
+		2BE88583160A5F1F00E92A0A /* VGB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VGB.geojson; sourceTree = "<group>"; };
+		2BE88584160A5F1F00E92A0A /* VIR.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VIR.geojson; sourceTree = "<group>"; };
+		2BE88585160A5F1F00E92A0A /* VNM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VNM.geojson; sourceTree = "<group>"; };
+		2BE88586160A5F1F00E92A0A /* VUT.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = VUT.geojson; sourceTree = "<group>"; };
+		2BE88587160A5F1F00E92A0A /* WLF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WLF.geojson; sourceTree = "<group>"; };
+		2BE88588160A5F1F00E92A0A /* WSM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = WSM.geojson; sourceTree = "<group>"; };
+		2BE88589160A5F1F00E92A0A /* YEM.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = YEM.geojson; sourceTree = "<group>"; };
+		2BE8858A160A5F1F00E92A0A /* ZAF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZAF.geojson; sourceTree = "<group>"; };
+		2BE8858B160A5F1F00E92A0A /* ZMB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZMB.geojson; sourceTree = "<group>"; };
+		2BE8858C160A5F1F00E92A0A /* ZWE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZWE.geojson; sourceTree = "<group>"; };
+		2BE88686160A5F2A00E92A0A /* Star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Star.png; path = resources/Star.png; sourceTree = "<group>"; };
+		2BE88688160A5F3300E92A0A /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = "<group>"; };
+		2BE8868B160A5F4400E92A0A /* lowres_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x0.pvrtc; sourceTree = "<group>"; };
+		2BE8868C160A5F4400E92A0A /* lowres_wtb_0x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x1.pvrtc; sourceTree = "<group>"; };
+		2BE8868D160A5F4400E92A0A /* lowres_wtb_1x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_1x0.pvrtc; sourceTree = "<group>"; };
+		2BE8868E160A5F4400E92A0A /* lowres_wtb_1x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_1x1.pvrtc; sourceTree = "<group>"; };
+		2BE8868F160A5F4400E92A0A /* lowres_wtb_2x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_2x0.pvrtc; sourceTree = "<group>"; };
+		2BE88690160A5F4400E92A0A /* lowres_wtb_2x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_2x1.pvrtc; sourceTree = "<group>"; };
+		2BE88691160A5F4400E92A0A /* lowres_wtb_3x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_3x0.pvrtc; sourceTree = "<group>"; };
+		2BE88692160A5F4400E92A0A /* lowres_wtb_3x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_3x1.pvrtc; sourceTree = "<group>"; };
+		2BE88693160A5F4400E92A0A /* lowres_wtb_4x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_4x0.pvrtc; sourceTree = "<group>"; };
+		2BE88694160A5F4400E92A0A /* lowres_wtb_4x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_4x1.pvrtc; sourceTree = "<group>"; };
+		2BE88695160A5F4400E92A0A /* lowres_wtb_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = lowres_wtb_info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +676,10 @@
 		2BE4384C1607CC2600A81959 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BE88688160A5F3300E92A0A /* map_pin.png */,
+				2BE88686160A5F2A00E92A0A /* Star.png */,
+				2BE88493160A5F1F00E92A0A /* country_json_50m */,
+				2BE8868A160A5F4400E92A0A /* lowres_wtb */,
 				2BE4384D1607CC4800A81959 /* MBTiles */,
 			);
 			name = resources;
@@ -165,6 +693,282 @@
 			);
 			name = MBTiles;
 			path = resources/MBTiles;
+			sourceTree = "<group>";
+		};
+		2BE88493160A5F1F00E92A0A /* country_json_50m */ = {
+			isa = PBXGroup;
+			children = (
+				2BE88494160A5F1F00E92A0A /* ABW.geojson */,
+				2BE88495160A5F1F00E92A0A /* AFG.geojson */,
+				2BE88496160A5F1F00E92A0A /* AGO.geojson */,
+				2BE88497160A5F1F00E92A0A /* AIA.geojson */,
+				2BE88498160A5F1F00E92A0A /* ALA.geojson */,
+				2BE88499160A5F1F00E92A0A /* ALB.geojson */,
+				2BE8849A160A5F1F00E92A0A /* AND.geojson */,
+				2BE8849B160A5F1F00E92A0A /* ARE.geojson */,
+				2BE8849C160A5F1F00E92A0A /* ARG.geojson */,
+				2BE8849D160A5F1F00E92A0A /* ARM.geojson */,
+				2BE8849E160A5F1F00E92A0A /* ASM.geojson */,
+				2BE8849F160A5F1F00E92A0A /* ATA.geojson */,
+				2BE884A0160A5F1F00E92A0A /* ATF.geojson */,
+				2BE884A1160A5F1F00E92A0A /* ATG.geojson */,
+				2BE884A2160A5F1F00E92A0A /* AUS.geojson */,
+				2BE884A3160A5F1F00E92A0A /* AUT.geojson */,
+				2BE884A4160A5F1F00E92A0A /* AZE.geojson */,
+				2BE884A5160A5F1F00E92A0A /* BDI.geojson */,
+				2BE884A6160A5F1F00E92A0A /* BEL.geojson */,
+				2BE884A7160A5F1F00E92A0A /* BEN.geojson */,
+				2BE884A8160A5F1F00E92A0A /* BES.geojson */,
+				2BE884A9160A5F1F00E92A0A /* BFA.geojson */,
+				2BE884AA160A5F1F00E92A0A /* BGD.geojson */,
+				2BE884AB160A5F1F00E92A0A /* BGR.geojson */,
+				2BE884AC160A5F1F00E92A0A /* BHR.geojson */,
+				2BE884AD160A5F1F00E92A0A /* BHS.geojson */,
+				2BE884AE160A5F1F00E92A0A /* BIH.geojson */,
+				2BE884AF160A5F1F00E92A0A /* BLM.geojson */,
+				2BE884B0160A5F1F00E92A0A /* BLR.geojson */,
+				2BE884B1160A5F1F00E92A0A /* BLZ.geojson */,
+				2BE884B2160A5F1F00E92A0A /* BMU.geojson */,
+				2BE884B3160A5F1F00E92A0A /* BOL.geojson */,
+				2BE884B4160A5F1F00E92A0A /* BRA.geojson */,
+				2BE884B5160A5F1F00E92A0A /* BRB.geojson */,
+				2BE884B6160A5F1F00E92A0A /* BRN.geojson */,
+				2BE884B7160A5F1F00E92A0A /* BTN.geojson */,
+				2BE884B8160A5F1F00E92A0A /* BVT.geojson */,
+				2BE884B9160A5F1F00E92A0A /* BWA.geojson */,
+				2BE884BA160A5F1F00E92A0A /* CAF.geojson */,
+				2BE884BB160A5F1F00E92A0A /* CAN.geojson */,
+				2BE884BC160A5F1F00E92A0A /* CCK.geojson */,
+				2BE884BD160A5F1F00E92A0A /* CHE.geojson */,
+				2BE884BE160A5F1F00E92A0A /* CHL.geojson */,
+				2BE884BF160A5F1F00E92A0A /* CHN.geojson */,
+				2BE884C0160A5F1F00E92A0A /* CIV.geojson */,
+				2BE884C1160A5F1F00E92A0A /* CMR.geojson */,
+				2BE884C2160A5F1F00E92A0A /* COD.geojson */,
+				2BE884C3160A5F1F00E92A0A /* COG.geojson */,
+				2BE884C4160A5F1F00E92A0A /* COK.geojson */,
+				2BE884C5160A5F1F00E92A0A /* COL.geojson */,
+				2BE884C6160A5F1F00E92A0A /* COM.geojson */,
+				2BE884C7160A5F1F00E92A0A /* CPV.geojson */,
+				2BE884C8160A5F1F00E92A0A /* CRI.geojson */,
+				2BE884C9160A5F1F00E92A0A /* CUB.geojson */,
+				2BE884CA160A5F1F00E92A0A /* CUW.geojson */,
+				2BE884CB160A5F1F00E92A0A /* CXR.geojson */,
+				2BE884CC160A5F1F00E92A0A /* CYM.geojson */,
+				2BE884CD160A5F1F00E92A0A /* CYP.geojson */,
+				2BE884CE160A5F1F00E92A0A /* CZE.geojson */,
+				2BE884CF160A5F1F00E92A0A /* DEU.geojson */,
+				2BE884D0160A5F1F00E92A0A /* DJI.geojson */,
+				2BE884D1160A5F1F00E92A0A /* DMA.geojson */,
+				2BE884D2160A5F1F00E92A0A /* DNK.geojson */,
+				2BE884D3160A5F1F00E92A0A /* DOM.geojson */,
+				2BE884D4160A5F1F00E92A0A /* DZA.geojson */,
+				2BE884D5160A5F1F00E92A0A /* ECU.geojson */,
+				2BE884D6160A5F1F00E92A0A /* EGY.geojson */,
+				2BE884D7160A5F1F00E92A0A /* ERI.geojson */,
+				2BE884D8160A5F1F00E92A0A /* ESH.geojson */,
+				2BE884D9160A5F1F00E92A0A /* ESP.geojson */,
+				2BE884DA160A5F1F00E92A0A /* EST.geojson */,
+				2BE884DB160A5F1F00E92A0A /* ETH.geojson */,
+				2BE884DC160A5F1F00E92A0A /* FIN.geojson */,
+				2BE884DD160A5F1F00E92A0A /* FJI.geojson */,
+				2BE884DE160A5F1F00E92A0A /* FLK.geojson */,
+				2BE884DF160A5F1F00E92A0A /* FRA.geojson */,
+				2BE884E0160A5F1F00E92A0A /* FRO.geojson */,
+				2BE884E1160A5F1F00E92A0A /* FSM.geojson */,
+				2BE884E2160A5F1F00E92A0A /* GAB.geojson */,
+				2BE884E3160A5F1F00E92A0A /* GBR.geojson */,
+				2BE884E4160A5F1F00E92A0A /* GEO.geojson */,
+				2BE884E5160A5F1F00E92A0A /* GGY.geojson */,
+				2BE884E6160A5F1F00E92A0A /* GHA.geojson */,
+				2BE884E7160A5F1F00E92A0A /* GIB.geojson */,
+				2BE884E8160A5F1F00E92A0A /* GIN.geojson */,
+				2BE884E9160A5F1F00E92A0A /* GLP.geojson */,
+				2BE884EA160A5F1F00E92A0A /* GMB.geojson */,
+				2BE884EB160A5F1F00E92A0A /* GNB.geojson */,
+				2BE884EC160A5F1F00E92A0A /* GNQ.geojson */,
+				2BE884ED160A5F1F00E92A0A /* GRC.geojson */,
+				2BE884EE160A5F1F00E92A0A /* GRD.geojson */,
+				2BE884EF160A5F1F00E92A0A /* GRL.geojson */,
+				2BE884F0160A5F1F00E92A0A /* GTM.geojson */,
+				2BE884F1160A5F1F00E92A0A /* GUF.geojson */,
+				2BE884F2160A5F1F00E92A0A /* GUM.geojson */,
+				2BE884F3160A5F1F00E92A0A /* GUY.geojson */,
+				2BE884F4160A5F1F00E92A0A /* HKG.geojson */,
+				2BE884F5160A5F1F00E92A0A /* HMD.geojson */,
+				2BE884F6160A5F1F00E92A0A /* HND.geojson */,
+				2BE884F7160A5F1F00E92A0A /* HRV.geojson */,
+				2BE884F8160A5F1F00E92A0A /* HTI.geojson */,
+				2BE884F9160A5F1F00E92A0A /* HUN.geojson */,
+				2BE884FA160A5F1F00E92A0A /* IDN.geojson */,
+				2BE884FB160A5F1F00E92A0A /* IMN.geojson */,
+				2BE884FC160A5F1F00E92A0A /* IND.geojson */,
+				2BE884FD160A5F1F00E92A0A /* IOT.geojson */,
+				2BE884FE160A5F1F00E92A0A /* IRL.geojson */,
+				2BE884FF160A5F1F00E92A0A /* IRN.geojson */,
+				2BE88500160A5F1F00E92A0A /* IRQ.geojson */,
+				2BE88501160A5F1F00E92A0A /* ISL.geojson */,
+				2BE88502160A5F1F00E92A0A /* ISR.geojson */,
+				2BE88503160A5F1F00E92A0A /* ITA.geojson */,
+				2BE88504160A5F1F00E92A0A /* JAM.geojson */,
+				2BE88505160A5F1F00E92A0A /* JEY.geojson */,
+				2BE88506160A5F1F00E92A0A /* JOR.geojson */,
+				2BE88507160A5F1F00E92A0A /* JPN.geojson */,
+				2BE88508160A5F1F00E92A0A /* KAZ.geojson */,
+				2BE88509160A5F1F00E92A0A /* KEN.geojson */,
+				2BE8850A160A5F1F00E92A0A /* KGZ.geojson */,
+				2BE8850B160A5F1F00E92A0A /* KHM.geojson */,
+				2BE8850C160A5F1F00E92A0A /* KIR.geojson */,
+				2BE8850D160A5F1F00E92A0A /* KNA.geojson */,
+				2BE8850E160A5F1F00E92A0A /* KOR.geojson */,
+				2BE8850F160A5F1F00E92A0A /* KWT.geojson */,
+				2BE88510160A5F1F00E92A0A /* LAO.geojson */,
+				2BE88511160A5F1F00E92A0A /* LBN.geojson */,
+				2BE88512160A5F1F00E92A0A /* LBR.geojson */,
+				2BE88513160A5F1F00E92A0A /* LBY.geojson */,
+				2BE88514160A5F1F00E92A0A /* LCA.geojson */,
+				2BE88515160A5F1F00E92A0A /* LIE.geojson */,
+				2BE88516160A5F1F00E92A0A /* LKA.geojson */,
+				2BE88517160A5F1F00E92A0A /* LSO.geojson */,
+				2BE88518160A5F1F00E92A0A /* LTU.geojson */,
+				2BE88519160A5F1F00E92A0A /* LUX.geojson */,
+				2BE8851A160A5F1F00E92A0A /* LVA.geojson */,
+				2BE8851B160A5F1F00E92A0A /* MAC.geojson */,
+				2BE8851C160A5F1F00E92A0A /* MAF.geojson */,
+				2BE8851D160A5F1F00E92A0A /* MAR.geojson */,
+				2BE8851E160A5F1F00E92A0A /* MCO.geojson */,
+				2BE8851F160A5F1F00E92A0A /* MDA.geojson */,
+				2BE88520160A5F1F00E92A0A /* MDG.geojson */,
+				2BE88521160A5F1F00E92A0A /* MDV.geojson */,
+				2BE88522160A5F1F00E92A0A /* MEX.geojson */,
+				2BE88523160A5F1F00E92A0A /* MHL.geojson */,
+				2BE88524160A5F1F00E92A0A /* MKD.geojson */,
+				2BE88525160A5F1F00E92A0A /* MLI.geojson */,
+				2BE88526160A5F1F00E92A0A /* MLT.geojson */,
+				2BE88527160A5F1F00E92A0A /* MMR.geojson */,
+				2BE88528160A5F1F00E92A0A /* MNE.geojson */,
+				2BE88529160A5F1F00E92A0A /* MNG.geojson */,
+				2BE8852A160A5F1F00E92A0A /* MNP.geojson */,
+				2BE8852B160A5F1F00E92A0A /* MOZ.geojson */,
+				2BE8852C160A5F1F00E92A0A /* MRT.geojson */,
+				2BE8852D160A5F1F00E92A0A /* MSR.geojson */,
+				2BE8852E160A5F1F00E92A0A /* MTQ.geojson */,
+				2BE8852F160A5F1F00E92A0A /* MUS.geojson */,
+				2BE88530160A5F1F00E92A0A /* MWI.geojson */,
+				2BE88531160A5F1F00E92A0A /* MYS.geojson */,
+				2BE88532160A5F1F00E92A0A /* MYT.geojson */,
+				2BE88533160A5F1F00E92A0A /* NAM.geojson */,
+				2BE88534160A5F1F00E92A0A /* NCL.geojson */,
+				2BE88535160A5F1F00E92A0A /* NER.geojson */,
+				2BE88536160A5F1F00E92A0A /* NFK.geojson */,
+				2BE88537160A5F1F00E92A0A /* NGA.geojson */,
+				2BE88538160A5F1F00E92A0A /* NIC.geojson */,
+				2BE88539160A5F1F00E92A0A /* NIU.geojson */,
+				2BE8853A160A5F1F00E92A0A /* NLD.geojson */,
+				2BE8853B160A5F1F00E92A0A /* NOR.geojson */,
+				2BE8853C160A5F1F00E92A0A /* NPL.geojson */,
+				2BE8853D160A5F1F00E92A0A /* NRU.geojson */,
+				2BE8853E160A5F1F00E92A0A /* NZL.geojson */,
+				2BE8853F160A5F1F00E92A0A /* OMN.geojson */,
+				2BE88540160A5F1F00E92A0A /* PAK.geojson */,
+				2BE88541160A5F1F00E92A0A /* PAN.geojson */,
+				2BE88542160A5F1F00E92A0A /* PCN.geojson */,
+				2BE88543160A5F1F00E92A0A /* PER.geojson */,
+				2BE88544160A5F1F00E92A0A /* PHL.geojson */,
+				2BE88545160A5F1F00E92A0A /* PLW.geojson */,
+				2BE88546160A5F1F00E92A0A /* PNG.geojson */,
+				2BE88547160A5F1F00E92A0A /* POL.geojson */,
+				2BE88548160A5F1F00E92A0A /* PRI.geojson */,
+				2BE88549160A5F1F00E92A0A /* PRK.geojson */,
+				2BE8854A160A5F1F00E92A0A /* PRT.geojson */,
+				2BE8854B160A5F1F00E92A0A /* PRY.geojson */,
+				2BE8854C160A5F1F00E92A0A /* PSE.geojson */,
+				2BE8854D160A5F1F00E92A0A /* PYF.geojson */,
+				2BE8854E160A5F1F00E92A0A /* QAT.geojson */,
+				2BE8854F160A5F1F00E92A0A /* REU.geojson */,
+				2BE88550160A5F1F00E92A0A /* ROU.geojson */,
+				2BE88551160A5F1F00E92A0A /* RUS.geojson */,
+				2BE88552160A5F1F00E92A0A /* RWA.geojson */,
+				2BE88553160A5F1F00E92A0A /* SAU.geojson */,
+				2BE88554160A5F1F00E92A0A /* SDN.geojson */,
+				2BE88555160A5F1F00E92A0A /* SEN.geojson */,
+				2BE88556160A5F1F00E92A0A /* SGP.geojson */,
+				2BE88557160A5F1F00E92A0A /* SGS.geojson */,
+				2BE88558160A5F1F00E92A0A /* SHN.geojson */,
+				2BE88559160A5F1F00E92A0A /* SJM.geojson */,
+				2BE8855A160A5F1F00E92A0A /* SLB.geojson */,
+				2BE8855B160A5F1F00E92A0A /* SLE.geojson */,
+				2BE8855C160A5F1F00E92A0A /* SLV.geojson */,
+				2BE8855D160A5F1F00E92A0A /* SMR.geojson */,
+				2BE8855E160A5F1F00E92A0A /* SOM.geojson */,
+				2BE8855F160A5F1F00E92A0A /* SPM.geojson */,
+				2BE88560160A5F1F00E92A0A /* SRB.geojson */,
+				2BE88561160A5F1F00E92A0A /* SSD.geojson */,
+				2BE88562160A5F1F00E92A0A /* STP.geojson */,
+				2BE88563160A5F1F00E92A0A /* SUR.geojson */,
+				2BE88564160A5F1F00E92A0A /* SVK.geojson */,
+				2BE88565160A5F1F00E92A0A /* SVN.geojson */,
+				2BE88566160A5F1F00E92A0A /* SWE.geojson */,
+				2BE88567160A5F1F00E92A0A /* SWZ.geojson */,
+				2BE88568160A5F1F00E92A0A /* SXM.geojson */,
+				2BE88569160A5F1F00E92A0A /* SYC.geojson */,
+				2BE8856A160A5F1F00E92A0A /* SYR.geojson */,
+				2BE8856B160A5F1F00E92A0A /* TCA.geojson */,
+				2BE8856C160A5F1F00E92A0A /* TCD.geojson */,
+				2BE8856D160A5F1F00E92A0A /* TGO.geojson */,
+				2BE8856E160A5F1F00E92A0A /* THA.geojson */,
+				2BE8856F160A5F1F00E92A0A /* TJK.geojson */,
+				2BE88570160A5F1F00E92A0A /* TKL.geojson */,
+				2BE88571160A5F1F00E92A0A /* TKM.geojson */,
+				2BE88572160A5F1F00E92A0A /* TLS.geojson */,
+				2BE88573160A5F1F00E92A0A /* TON.geojson */,
+				2BE88574160A5F1F00E92A0A /* TTO.geojson */,
+				2BE88575160A5F1F00E92A0A /* TUN.geojson */,
+				2BE88576160A5F1F00E92A0A /* TUR.geojson */,
+				2BE88577160A5F1F00E92A0A /* TUV.geojson */,
+				2BE88578160A5F1F00E92A0A /* TWN.geojson */,
+				2BE88579160A5F1F00E92A0A /* TZA.geojson */,
+				2BE8857A160A5F1F00E92A0A /* UGA.geojson */,
+				2BE8857B160A5F1F00E92A0A /* UKR.geojson */,
+				2BE8857C160A5F1F00E92A0A /* UMI.geojson */,
+				2BE8857D160A5F1F00E92A0A /* URY.geojson */,
+				2BE8857E160A5F1F00E92A0A /* USA.geojson */,
+				2BE8857F160A5F1F00E92A0A /* UZB.geojson */,
+				2BE88580160A5F1F00E92A0A /* VAT.geojson */,
+				2BE88581160A5F1F00E92A0A /* VCT.geojson */,
+				2BE88582160A5F1F00E92A0A /* VEN.geojson */,
+				2BE88583160A5F1F00E92A0A /* VGB.geojson */,
+				2BE88584160A5F1F00E92A0A /* VIR.geojson */,
+				2BE88585160A5F1F00E92A0A /* VNM.geojson */,
+				2BE88586160A5F1F00E92A0A /* VUT.geojson */,
+				2BE88587160A5F1F00E92A0A /* WLF.geojson */,
+				2BE88588160A5F1F00E92A0A /* WSM.geojson */,
+				2BE88589160A5F1F00E92A0A /* YEM.geojson */,
+				2BE8858A160A5F1F00E92A0A /* ZAF.geojson */,
+				2BE8858B160A5F1F00E92A0A /* ZMB.geojson */,
+				2BE8858C160A5F1F00E92A0A /* ZWE.geojson */,
+			);
+			name = country_json_50m;
+			path = resources/country_json_50m;
+			sourceTree = "<group>";
+		};
+		2BE8868A160A5F4400E92A0A /* lowres_wtb */ = {
+			isa = PBXGroup;
+			children = (
+				2BE8868B160A5F4400E92A0A /* lowres_wtb_0x0.pvrtc */,
+				2BE8868C160A5F4400E92A0A /* lowres_wtb_0x1.pvrtc */,
+				2BE8868D160A5F4400E92A0A /* lowres_wtb_1x0.pvrtc */,
+				2BE8868E160A5F4400E92A0A /* lowres_wtb_1x1.pvrtc */,
+				2BE8868F160A5F4400E92A0A /* lowres_wtb_2x0.pvrtc */,
+				2BE88690160A5F4400E92A0A /* lowres_wtb_2x1.pvrtc */,
+				2BE88691160A5F4400E92A0A /* lowres_wtb_3x0.pvrtc */,
+				2BE88692160A5F4400E92A0A /* lowres_wtb_3x1.pvrtc */,
+				2BE88693160A5F4400E92A0A /* lowres_wtb_4x0.pvrtc */,
+				2BE88694160A5F4400E92A0A /* lowres_wtb_4x1.pvrtc */,
+				2BE88695160A5F4400E92A0A /* lowres_wtb_info.plist */,
+			);
+			name = lowres_wtb;
+			path = resources/lowres_wtb;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -237,6 +1041,268 @@
 				2BE8844E160939D400E92A0A /* ConfigViewController.xib in Resources */,
 				2B7EF2D315FAB04200D4079F /* InfoPlist.strings in Resources */,
 				2BE4384F1607CC4800A81959 /* geography-class.mbtiles in Resources */,
+				2BE8858D160A5F1F00E92A0A /* ABW.geojson in Resources */,
+				2BE8858E160A5F1F00E92A0A /* AFG.geojson in Resources */,
+				2BE8858F160A5F1F00E92A0A /* AGO.geojson in Resources */,
+				2BE88590160A5F1F00E92A0A /* AIA.geojson in Resources */,
+				2BE88591160A5F1F00E92A0A /* ALA.geojson in Resources */,
+				2BE88592160A5F1F00E92A0A /* ALB.geojson in Resources */,
+				2BE88593160A5F1F00E92A0A /* AND.geojson in Resources */,
+				2BE88594160A5F1F00E92A0A /* ARE.geojson in Resources */,
+				2BE88595160A5F1F00E92A0A /* ARG.geojson in Resources */,
+				2BE88596160A5F1F00E92A0A /* ARM.geojson in Resources */,
+				2BE88597160A5F1F00E92A0A /* ASM.geojson in Resources */,
+				2BE88598160A5F1F00E92A0A /* ATA.geojson in Resources */,
+				2BE88599160A5F1F00E92A0A /* ATF.geojson in Resources */,
+				2BE8859A160A5F1F00E92A0A /* ATG.geojson in Resources */,
+				2BE8859B160A5F1F00E92A0A /* AUS.geojson in Resources */,
+				2BE8859C160A5F1F00E92A0A /* AUT.geojson in Resources */,
+				2BE8859D160A5F1F00E92A0A /* AZE.geojson in Resources */,
+				2BE8859E160A5F1F00E92A0A /* BDI.geojson in Resources */,
+				2BE8859F160A5F1F00E92A0A /* BEL.geojson in Resources */,
+				2BE885A0160A5F1F00E92A0A /* BEN.geojson in Resources */,
+				2BE885A1160A5F1F00E92A0A /* BES.geojson in Resources */,
+				2BE885A2160A5F1F00E92A0A /* BFA.geojson in Resources */,
+				2BE885A3160A5F1F00E92A0A /* BGD.geojson in Resources */,
+				2BE885A4160A5F1F00E92A0A /* BGR.geojson in Resources */,
+				2BE885A5160A5F1F00E92A0A /* BHR.geojson in Resources */,
+				2BE885A6160A5F1F00E92A0A /* BHS.geojson in Resources */,
+				2BE885A7160A5F1F00E92A0A /* BIH.geojson in Resources */,
+				2BE885A8160A5F1F00E92A0A /* BLM.geojson in Resources */,
+				2BE885A9160A5F1F00E92A0A /* BLR.geojson in Resources */,
+				2BE885AA160A5F1F00E92A0A /* BLZ.geojson in Resources */,
+				2BE885AB160A5F1F00E92A0A /* BMU.geojson in Resources */,
+				2BE885AC160A5F1F00E92A0A /* BOL.geojson in Resources */,
+				2BE885AD160A5F1F00E92A0A /* BRA.geojson in Resources */,
+				2BE885AE160A5F1F00E92A0A /* BRB.geojson in Resources */,
+				2BE885AF160A5F1F00E92A0A /* BRN.geojson in Resources */,
+				2BE885B0160A5F1F00E92A0A /* BTN.geojson in Resources */,
+				2BE885B1160A5F1F00E92A0A /* BVT.geojson in Resources */,
+				2BE885B2160A5F1F00E92A0A /* BWA.geojson in Resources */,
+				2BE885B3160A5F1F00E92A0A /* CAF.geojson in Resources */,
+				2BE885B4160A5F1F00E92A0A /* CAN.geojson in Resources */,
+				2BE885B5160A5F1F00E92A0A /* CCK.geojson in Resources */,
+				2BE885B6160A5F1F00E92A0A /* CHE.geojson in Resources */,
+				2BE885B7160A5F1F00E92A0A /* CHL.geojson in Resources */,
+				2BE885B8160A5F1F00E92A0A /* CHN.geojson in Resources */,
+				2BE885B9160A5F1F00E92A0A /* CIV.geojson in Resources */,
+				2BE885BA160A5F1F00E92A0A /* CMR.geojson in Resources */,
+				2BE885BB160A5F1F00E92A0A /* COD.geojson in Resources */,
+				2BE885BC160A5F1F00E92A0A /* COG.geojson in Resources */,
+				2BE885BD160A5F1F00E92A0A /* COK.geojson in Resources */,
+				2BE885BE160A5F1F00E92A0A /* COL.geojson in Resources */,
+				2BE885BF160A5F1F00E92A0A /* COM.geojson in Resources */,
+				2BE885C0160A5F1F00E92A0A /* CPV.geojson in Resources */,
+				2BE885C1160A5F1F00E92A0A /* CRI.geojson in Resources */,
+				2BE885C2160A5F1F00E92A0A /* CUB.geojson in Resources */,
+				2BE885C3160A5F1F00E92A0A /* CUW.geojson in Resources */,
+				2BE885C4160A5F1F00E92A0A /* CXR.geojson in Resources */,
+				2BE885C5160A5F1F00E92A0A /* CYM.geojson in Resources */,
+				2BE885C6160A5F1F00E92A0A /* CYP.geojson in Resources */,
+				2BE885C7160A5F1F00E92A0A /* CZE.geojson in Resources */,
+				2BE885C8160A5F1F00E92A0A /* DEU.geojson in Resources */,
+				2BE885C9160A5F1F00E92A0A /* DJI.geojson in Resources */,
+				2BE885CA160A5F1F00E92A0A /* DMA.geojson in Resources */,
+				2BE885CB160A5F1F00E92A0A /* DNK.geojson in Resources */,
+				2BE885CC160A5F1F00E92A0A /* DOM.geojson in Resources */,
+				2BE885CD160A5F1F00E92A0A /* DZA.geojson in Resources */,
+				2BE885CE160A5F1F00E92A0A /* ECU.geojson in Resources */,
+				2BE885CF160A5F1F00E92A0A /* EGY.geojson in Resources */,
+				2BE885D0160A5F1F00E92A0A /* ERI.geojson in Resources */,
+				2BE885D1160A5F1F00E92A0A /* ESH.geojson in Resources */,
+				2BE885D2160A5F1F00E92A0A /* ESP.geojson in Resources */,
+				2BE885D3160A5F1F00E92A0A /* EST.geojson in Resources */,
+				2BE885D4160A5F1F00E92A0A /* ETH.geojson in Resources */,
+				2BE885D5160A5F1F00E92A0A /* FIN.geojson in Resources */,
+				2BE885D6160A5F1F00E92A0A /* FJI.geojson in Resources */,
+				2BE885D7160A5F1F00E92A0A /* FLK.geojson in Resources */,
+				2BE885D8160A5F1F00E92A0A /* FRA.geojson in Resources */,
+				2BE885D9160A5F1F00E92A0A /* FRO.geojson in Resources */,
+				2BE885DA160A5F1F00E92A0A /* FSM.geojson in Resources */,
+				2BE885DB160A5F1F00E92A0A /* GAB.geojson in Resources */,
+				2BE885DC160A5F1F00E92A0A /* GBR.geojson in Resources */,
+				2BE885DD160A5F1F00E92A0A /* GEO.geojson in Resources */,
+				2BE885DE160A5F1F00E92A0A /* GGY.geojson in Resources */,
+				2BE885DF160A5F1F00E92A0A /* GHA.geojson in Resources */,
+				2BE885E0160A5F1F00E92A0A /* GIB.geojson in Resources */,
+				2BE885E1160A5F1F00E92A0A /* GIN.geojson in Resources */,
+				2BE885E2160A5F1F00E92A0A /* GLP.geojson in Resources */,
+				2BE885E3160A5F1F00E92A0A /* GMB.geojson in Resources */,
+				2BE885E4160A5F1F00E92A0A /* GNB.geojson in Resources */,
+				2BE885E5160A5F1F00E92A0A /* GNQ.geojson in Resources */,
+				2BE885E6160A5F1F00E92A0A /* GRC.geojson in Resources */,
+				2BE885E7160A5F1F00E92A0A /* GRD.geojson in Resources */,
+				2BE885E8160A5F1F00E92A0A /* GRL.geojson in Resources */,
+				2BE885E9160A5F1F00E92A0A /* GTM.geojson in Resources */,
+				2BE885EA160A5F1F00E92A0A /* GUF.geojson in Resources */,
+				2BE885EB160A5F1F00E92A0A /* GUM.geojson in Resources */,
+				2BE885EC160A5F1F00E92A0A /* GUY.geojson in Resources */,
+				2BE885ED160A5F1F00E92A0A /* HKG.geojson in Resources */,
+				2BE885EE160A5F1F00E92A0A /* HMD.geojson in Resources */,
+				2BE885EF160A5F1F00E92A0A /* HND.geojson in Resources */,
+				2BE885F0160A5F1F00E92A0A /* HRV.geojson in Resources */,
+				2BE885F1160A5F1F00E92A0A /* HTI.geojson in Resources */,
+				2BE885F2160A5F1F00E92A0A /* HUN.geojson in Resources */,
+				2BE885F3160A5F1F00E92A0A /* IDN.geojson in Resources */,
+				2BE885F4160A5F1F00E92A0A /* IMN.geojson in Resources */,
+				2BE885F5160A5F1F00E92A0A /* IND.geojson in Resources */,
+				2BE885F6160A5F1F00E92A0A /* IOT.geojson in Resources */,
+				2BE885F7160A5F1F00E92A0A /* IRL.geojson in Resources */,
+				2BE885F8160A5F1F00E92A0A /* IRN.geojson in Resources */,
+				2BE885F9160A5F1F00E92A0A /* IRQ.geojson in Resources */,
+				2BE885FA160A5F1F00E92A0A /* ISL.geojson in Resources */,
+				2BE885FB160A5F1F00E92A0A /* ISR.geojson in Resources */,
+				2BE885FC160A5F1F00E92A0A /* ITA.geojson in Resources */,
+				2BE885FD160A5F1F00E92A0A /* JAM.geojson in Resources */,
+				2BE885FE160A5F1F00E92A0A /* JEY.geojson in Resources */,
+				2BE885FF160A5F1F00E92A0A /* JOR.geojson in Resources */,
+				2BE88600160A5F1F00E92A0A /* JPN.geojson in Resources */,
+				2BE88601160A5F1F00E92A0A /* KAZ.geojson in Resources */,
+				2BE88602160A5F1F00E92A0A /* KEN.geojson in Resources */,
+				2BE88603160A5F1F00E92A0A /* KGZ.geojson in Resources */,
+				2BE88604160A5F1F00E92A0A /* KHM.geojson in Resources */,
+				2BE88605160A5F1F00E92A0A /* KIR.geojson in Resources */,
+				2BE88606160A5F1F00E92A0A /* KNA.geojson in Resources */,
+				2BE88607160A5F1F00E92A0A /* KOR.geojson in Resources */,
+				2BE88608160A5F1F00E92A0A /* KWT.geojson in Resources */,
+				2BE88609160A5F1F00E92A0A /* LAO.geojson in Resources */,
+				2BE8860A160A5F1F00E92A0A /* LBN.geojson in Resources */,
+				2BE8860B160A5F1F00E92A0A /* LBR.geojson in Resources */,
+				2BE8860C160A5F1F00E92A0A /* LBY.geojson in Resources */,
+				2BE8860D160A5F1F00E92A0A /* LCA.geojson in Resources */,
+				2BE8860E160A5F1F00E92A0A /* LIE.geojson in Resources */,
+				2BE8860F160A5F1F00E92A0A /* LKA.geojson in Resources */,
+				2BE88610160A5F1F00E92A0A /* LSO.geojson in Resources */,
+				2BE88611160A5F1F00E92A0A /* LTU.geojson in Resources */,
+				2BE88612160A5F1F00E92A0A /* LUX.geojson in Resources */,
+				2BE88613160A5F1F00E92A0A /* LVA.geojson in Resources */,
+				2BE88614160A5F1F00E92A0A /* MAC.geojson in Resources */,
+				2BE88615160A5F1F00E92A0A /* MAF.geojson in Resources */,
+				2BE88616160A5F1F00E92A0A /* MAR.geojson in Resources */,
+				2BE88617160A5F1F00E92A0A /* MCO.geojson in Resources */,
+				2BE88618160A5F1F00E92A0A /* MDA.geojson in Resources */,
+				2BE88619160A5F1F00E92A0A /* MDG.geojson in Resources */,
+				2BE8861A160A5F1F00E92A0A /* MDV.geojson in Resources */,
+				2BE8861B160A5F1F00E92A0A /* MEX.geojson in Resources */,
+				2BE8861C160A5F1F00E92A0A /* MHL.geojson in Resources */,
+				2BE8861D160A5F1F00E92A0A /* MKD.geojson in Resources */,
+				2BE8861E160A5F1F00E92A0A /* MLI.geojson in Resources */,
+				2BE8861F160A5F1F00E92A0A /* MLT.geojson in Resources */,
+				2BE88620160A5F1F00E92A0A /* MMR.geojson in Resources */,
+				2BE88621160A5F1F00E92A0A /* MNE.geojson in Resources */,
+				2BE88622160A5F1F00E92A0A /* MNG.geojson in Resources */,
+				2BE88623160A5F1F00E92A0A /* MNP.geojson in Resources */,
+				2BE88624160A5F1F00E92A0A /* MOZ.geojson in Resources */,
+				2BE88625160A5F1F00E92A0A /* MRT.geojson in Resources */,
+				2BE88626160A5F1F00E92A0A /* MSR.geojson in Resources */,
+				2BE88627160A5F1F00E92A0A /* MTQ.geojson in Resources */,
+				2BE88628160A5F1F00E92A0A /* MUS.geojson in Resources */,
+				2BE88629160A5F1F00E92A0A /* MWI.geojson in Resources */,
+				2BE8862A160A5F1F00E92A0A /* MYS.geojson in Resources */,
+				2BE8862B160A5F1F00E92A0A /* MYT.geojson in Resources */,
+				2BE8862C160A5F1F00E92A0A /* NAM.geojson in Resources */,
+				2BE8862D160A5F1F00E92A0A /* NCL.geojson in Resources */,
+				2BE8862E160A5F1F00E92A0A /* NER.geojson in Resources */,
+				2BE8862F160A5F1F00E92A0A /* NFK.geojson in Resources */,
+				2BE88630160A5F1F00E92A0A /* NGA.geojson in Resources */,
+				2BE88631160A5F1F00E92A0A /* NIC.geojson in Resources */,
+				2BE88632160A5F1F00E92A0A /* NIU.geojson in Resources */,
+				2BE88633160A5F1F00E92A0A /* NLD.geojson in Resources */,
+				2BE88634160A5F1F00E92A0A /* NOR.geojson in Resources */,
+				2BE88635160A5F1F00E92A0A /* NPL.geojson in Resources */,
+				2BE88636160A5F1F00E92A0A /* NRU.geojson in Resources */,
+				2BE88637160A5F1F00E92A0A /* NZL.geojson in Resources */,
+				2BE88638160A5F1F00E92A0A /* OMN.geojson in Resources */,
+				2BE88639160A5F1F00E92A0A /* PAK.geojson in Resources */,
+				2BE8863A160A5F1F00E92A0A /* PAN.geojson in Resources */,
+				2BE8863B160A5F1F00E92A0A /* PCN.geojson in Resources */,
+				2BE8863C160A5F1F00E92A0A /* PER.geojson in Resources */,
+				2BE8863D160A5F1F00E92A0A /* PHL.geojson in Resources */,
+				2BE8863E160A5F1F00E92A0A /* PLW.geojson in Resources */,
+				2BE8863F160A5F1F00E92A0A /* PNG.geojson in Resources */,
+				2BE88640160A5F1F00E92A0A /* POL.geojson in Resources */,
+				2BE88641160A5F1F00E92A0A /* PRI.geojson in Resources */,
+				2BE88642160A5F1F00E92A0A /* PRK.geojson in Resources */,
+				2BE88643160A5F1F00E92A0A /* PRT.geojson in Resources */,
+				2BE88644160A5F1F00E92A0A /* PRY.geojson in Resources */,
+				2BE88645160A5F1F00E92A0A /* PSE.geojson in Resources */,
+				2BE88646160A5F1F00E92A0A /* PYF.geojson in Resources */,
+				2BE88647160A5F1F00E92A0A /* QAT.geojson in Resources */,
+				2BE88648160A5F1F00E92A0A /* REU.geojson in Resources */,
+				2BE88649160A5F1F00E92A0A /* ROU.geojson in Resources */,
+				2BE8864A160A5F1F00E92A0A /* RUS.geojson in Resources */,
+				2BE8864B160A5F1F00E92A0A /* RWA.geojson in Resources */,
+				2BE8864C160A5F1F00E92A0A /* SAU.geojson in Resources */,
+				2BE8864D160A5F1F00E92A0A /* SDN.geojson in Resources */,
+				2BE8864E160A5F1F00E92A0A /* SEN.geojson in Resources */,
+				2BE8864F160A5F1F00E92A0A /* SGP.geojson in Resources */,
+				2BE88650160A5F1F00E92A0A /* SGS.geojson in Resources */,
+				2BE88651160A5F1F00E92A0A /* SHN.geojson in Resources */,
+				2BE88652160A5F1F00E92A0A /* SJM.geojson in Resources */,
+				2BE88653160A5F1F00E92A0A /* SLB.geojson in Resources */,
+				2BE88654160A5F1F00E92A0A /* SLE.geojson in Resources */,
+				2BE88655160A5F1F00E92A0A /* SLV.geojson in Resources */,
+				2BE88656160A5F1F00E92A0A /* SMR.geojson in Resources */,
+				2BE88657160A5F1F00E92A0A /* SOM.geojson in Resources */,
+				2BE88658160A5F1F00E92A0A /* SPM.geojson in Resources */,
+				2BE88659160A5F1F00E92A0A /* SRB.geojson in Resources */,
+				2BE8865A160A5F1F00E92A0A /* SSD.geojson in Resources */,
+				2BE8865B160A5F1F00E92A0A /* STP.geojson in Resources */,
+				2BE8865C160A5F1F00E92A0A /* SUR.geojson in Resources */,
+				2BE8865D160A5F1F00E92A0A /* SVK.geojson in Resources */,
+				2BE8865E160A5F1F00E92A0A /* SVN.geojson in Resources */,
+				2BE8865F160A5F1F00E92A0A /* SWE.geojson in Resources */,
+				2BE88660160A5F1F00E92A0A /* SWZ.geojson in Resources */,
+				2BE88661160A5F1F00E92A0A /* SXM.geojson in Resources */,
+				2BE88662160A5F1F00E92A0A /* SYC.geojson in Resources */,
+				2BE88663160A5F1F00E92A0A /* SYR.geojson in Resources */,
+				2BE88664160A5F1F00E92A0A /* TCA.geojson in Resources */,
+				2BE88665160A5F1F00E92A0A /* TCD.geojson in Resources */,
+				2BE88666160A5F1F00E92A0A /* TGO.geojson in Resources */,
+				2BE88667160A5F1F00E92A0A /* THA.geojson in Resources */,
+				2BE88668160A5F1F00E92A0A /* TJK.geojson in Resources */,
+				2BE88669160A5F1F00E92A0A /* TKL.geojson in Resources */,
+				2BE8866A160A5F1F00E92A0A /* TKM.geojson in Resources */,
+				2BE8866B160A5F1F00E92A0A /* TLS.geojson in Resources */,
+				2BE8866C160A5F1F00E92A0A /* TON.geojson in Resources */,
+				2BE8866D160A5F1F00E92A0A /* TTO.geojson in Resources */,
+				2BE8866E160A5F1F00E92A0A /* TUN.geojson in Resources */,
+				2BE8866F160A5F1F00E92A0A /* TUR.geojson in Resources */,
+				2BE88670160A5F1F00E92A0A /* TUV.geojson in Resources */,
+				2BE88671160A5F1F00E92A0A /* TWN.geojson in Resources */,
+				2BE88672160A5F1F00E92A0A /* TZA.geojson in Resources */,
+				2BE88673160A5F1F00E92A0A /* UGA.geojson in Resources */,
+				2BE88674160A5F1F00E92A0A /* UKR.geojson in Resources */,
+				2BE88675160A5F1F00E92A0A /* UMI.geojson in Resources */,
+				2BE88676160A5F1F00E92A0A /* URY.geojson in Resources */,
+				2BE88677160A5F1F00E92A0A /* USA.geojson in Resources */,
+				2BE88678160A5F1F00E92A0A /* UZB.geojson in Resources */,
+				2BE88679160A5F1F00E92A0A /* VAT.geojson in Resources */,
+				2BE8867A160A5F1F00E92A0A /* VCT.geojson in Resources */,
+				2BE8867B160A5F1F00E92A0A /* VEN.geojson in Resources */,
+				2BE8867C160A5F1F00E92A0A /* VGB.geojson in Resources */,
+				2BE8867D160A5F1F00E92A0A /* VIR.geojson in Resources */,
+				2BE8867E160A5F1F00E92A0A /* VNM.geojson in Resources */,
+				2BE8867F160A5F1F00E92A0A /* VUT.geojson in Resources */,
+				2BE88680160A5F1F00E92A0A /* WLF.geojson in Resources */,
+				2BE88681160A5F1F00E92A0A /* WSM.geojson in Resources */,
+				2BE88682160A5F1F00E92A0A /* YEM.geojson in Resources */,
+				2BE88683160A5F1F00E92A0A /* ZAF.geojson in Resources */,
+				2BE88684160A5F1F00E92A0A /* ZMB.geojson in Resources */,
+				2BE88685160A5F1F00E92A0A /* ZWE.geojson in Resources */,
+				2BE88687160A5F2A00E92A0A /* Star.png in Resources */,
+				2BE88689160A5F3300E92A0A /* map_pin.png in Resources */,
+				2BE88696160A5F4400E92A0A /* lowres_wtb_0x0.pvrtc in Resources */,
+				2BE88697160A5F4400E92A0A /* lowres_wtb_0x1.pvrtc in Resources */,
+				2BE88698160A5F4400E92A0A /* lowres_wtb_1x0.pvrtc in Resources */,
+				2BE88699160A5F4400E92A0A /* lowres_wtb_1x1.pvrtc in Resources */,
+				2BE8869A160A5F4400E92A0A /* lowres_wtb_2x0.pvrtc in Resources */,
+				2BE8869B160A5F4400E92A0A /* lowres_wtb_2x1.pvrtc in Resources */,
+				2BE8869C160A5F4400E92A0A /* lowres_wtb_3x0.pvrtc in Resources */,
+				2BE8869D160A5F4400E92A0A /* lowres_wtb_3x1.pvrtc in Resources */,
+				2BE8869E160A5F4400E92A0A /* lowres_wtb_4x0.pvrtc in Resources */,
+				2BE8869F160A5F4400E92A0A /* lowres_wtb_4x1.pvrtc in Resources */,
+				2BE886A0160A5F4400E92A0A /* lowres_wtb_info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
