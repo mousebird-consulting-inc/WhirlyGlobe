@@ -70,6 +70,62 @@ Point3f SphericalMercatorCoordSystem::geocentricToLocal(Point3f geocPt)
     Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
     return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());    
 }
+    
+bool SphericalMercatorCoordSystem::isSameAs(CoordSystem *coordSys)
+{
+    SphericalMercatorCoordSystem *other = dynamic_cast<SphericalMercatorCoordSystem *>(coordSys);
+    
+    if (!other)
+        return false;
+    
+    return other->originLon == originLon;
+}
 
+
+SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR)
+    : CoordSystemDisplayAdapter(&smCoordSys), smCoordSys(originLon)
+{
+    Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
+    Point3f ur3d = smCoordSys.geographicToLocal(geoUR);
+    ll.x() = ll3d.x();  ll.y() = ll3d.y();
+    ur.x() = ur3d.x();  ur.y() = ll3d.y();
+    
+    org = (ll+ur)/2.0;
+}
+    
+/// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
+bool SphericalMercatorDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
+{
+    outLL.x() = ll.x();  outLL.y() = ll.y();  outLL.z() = 0.0;
+    outUR.x() = ur.x();  outUR.y() = ur.y();  outUR.z() = 0.0;
+    
+    return true;
+}
+
+/// Convert from the system's local coordinates to display coordinates
+WhirlyKit::Point3f SphericalMercatorDisplayAdapter::localToDisplay(WhirlyKit::Point3f localPt)
+{
+    Point3f dispPt = localPt-Point3f(org.x(),org.y(),0.0);
+    return dispPt;
+}
+
+/// Convert from display coordinates to the local system's coordinates
+WhirlyKit::Point3f SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt)
+{
+    Point3f localPt = dispPt+Point3f(org.x(),org.y(),0.0);
+    return localPt;
+}
+
+/// For flat systems the normal is Z up.  For the globe, it's based on the location.
+Point3f SphericalMercatorDisplayAdapter::normalForLocal(Point3f)
+{
+    return Point3f(0,0,1);
+}
+
+/// Get a reference to the coordinate system
+CoordSystem *SphericalMercatorDisplayAdapter::getCoordSystem()
+{
+    return &smCoordSys;
+}
 
 }

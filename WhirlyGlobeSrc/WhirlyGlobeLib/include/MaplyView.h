@@ -44,7 +44,7 @@
     NSObject<MaplyAnimationDelegate> * __weak delegate;
 }
 
-@property(nonatomic,assign) WhirlyKit::Point3f loc;
+@property(nonatomic,readonly) WhirlyKit::Point3f loc;
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
@@ -75,5 +75,8 @@
     Returns a point within the frame.
   */
 - (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point2f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+
+/// Set the location we're looking from
+- (void)setLoc:(WhirlyKit::Point3f)newLoc;
 
 @end

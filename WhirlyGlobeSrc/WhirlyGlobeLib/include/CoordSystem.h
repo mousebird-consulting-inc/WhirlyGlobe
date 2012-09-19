@@ -54,6 +54,9 @@ public:
     virtual WhirlyKit::Point3f localToGeocentric(WhirlyKit::Point3f) = 0;
     /// Convert from display coordinates to geocentric
     virtual WhirlyKit::Point3f geocentricToLocal(WhirlyKit::Point3f) = 0;
+    
+    /// Return true if the given coordinate system is the same as the one passed in
+    virtual bool isSameAs(CoordSystem *coordSys) { return false; }
 };
     
 /// Convert a point from one coordinate system to another
@@ -69,6 +72,11 @@ public:
     CoordSystemDisplayAdapter(CoordSystem *coordSys) : coordSys(coordSys) { }
     virtual ~CoordSystemDisplayAdapter() { }
     
+    /// If the subclass can support a bounding box, this returns true
+    ///  and the bounds.  Z values are ignored for now.
+    /// If the subclass can't support bounds (e.g. a globe), you get false back.
+    virtual bool getBounds(Point3f &ll,Point3f &ur) = 0;
+
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
     

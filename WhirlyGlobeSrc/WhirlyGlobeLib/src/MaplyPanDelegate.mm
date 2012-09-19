@@ -107,6 +107,9 @@ using namespace WhirlyKit;
         case UIGestureRecognizerStateEnded:
             if (panning)
             {
+                panning = NO;
+                break;
+                
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
                 CGPoint touch0 = lastTouch;

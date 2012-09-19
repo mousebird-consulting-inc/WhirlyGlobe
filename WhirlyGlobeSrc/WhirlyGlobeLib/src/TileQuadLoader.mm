@@ -479,6 +479,7 @@ static const float SkirtFactor = 0.95;
                 {
                     Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
+                    loc3D.z() = 0.0;
                     
                     // Do the texture coordinate seperately
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
@@ -506,7 +507,7 @@ static const float SkirtFactor = 0.95;
                 }
             }
             
-            if (!ignoreEdgeMatching)
+            if (!ignoreEdgeMatching && !coordAdapter->isFlat())
             {
                 // Bottom skirt
                 std::vector<Point3f> skirtLocs;

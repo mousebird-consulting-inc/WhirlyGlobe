@@ -49,16 +49,16 @@ static const bool UseStamenTiles = false;
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
 	WhirlyKitTextureGroup *texGroup;
-    WhirlyGlobeQuadTileLoader *tileLoader;
-    WhirlyMBTileQuadSource *mbTiles;
-    WhirlyGlobeNetworkTileQuadSource *netTiles;
+    WhirlyKitQuadTileLoader *tileLoader;
+    WhirlyKitMBTileQuadSource *mbTiles;
+    WhirlyKitNetworkTileQuadSource *netTiles;
     
 	// Thread used to control Whirly Globe layers
 	WhirlyKitLayerThread *layerThread;
 	
 	// Data layers, readers, and loaders
 	WhirlyGlobeSphericalEarthLayer *earthLayer;
-    WhirlyGlobeQuadDisplayLayer *quadLayer;
+    WhirlyKitQuadDisplayLayer *quadLayer;
 	WhirlyKitVectorLayer *vectorLayer;
 	WhirlyKitLabelLayer *labelLayer;
     WhirlyKitParticleSystemLayer *particleSystemLayer;

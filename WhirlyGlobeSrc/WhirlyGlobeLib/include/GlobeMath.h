@@ -46,6 +46,9 @@ public:
     
     /// Convenience routine to convert a whole MBR to local coordinates
     static Mbr GeographicMbrToLocal(GeoMbr);
+
+    /// Return true if the other coordinate system is also Geographic
+    bool isSameAs(CoordSystem *coordSys);
 };
 
 /** The Fake Geocentric Display Adapter is used by WhirlyGlobe to represent
@@ -60,6 +63,9 @@ public:
     FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys) { }
     virtual ~FakeGeocentricDisplayAdapter() { }
 
+    /// There are no bounds in fake geocentric since it's not a flat system
+    virtual bool getBounds(Point3f &ll,Point3f &ur) { return false; }
+    
     /// Convert from geographic+height to fake display geocentric
     virtual Point3f localToDisplay(Point3f);
     /// Static version

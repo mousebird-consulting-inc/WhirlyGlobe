@@ -20,6 +20,8 @@
 
 #import "MaplyPinchDelegate.h"
 
+using namespace WhirlyKit;
+
 @implementation MaplyPinchDelegate
 
 - (id)initWithMapView:(MaplyView *)inView
@@ -61,7 +63,10 @@
 			startZ = mapView.loc.z();
 			break;
 		case UIGestureRecognizerStateChanged:
-            mapView.loc.z() = startZ/pinch.scale;
+        {
+            Point3f curLoc = mapView.loc;
+            [mapView setLoc:Point3f(curLoc.x(),curLoc.y(),startZ/pinch.scale)];
+        }
 			break;
         default:
             break;

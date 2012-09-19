@@ -126,9 +126,11 @@ using namespace WhirlyKit;
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
-    
-    // For the rest, 
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+
+    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+//    if (import != 0.0)
+//        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
+    return import;
 }
 
 // Just one fetch at a time
