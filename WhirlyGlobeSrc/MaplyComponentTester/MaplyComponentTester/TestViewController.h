@@ -27,7 +27,7 @@ typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRem
 /** The Test View Controller brings up a maply component
     and allows the user to interact with it.
  */
-@interface TestViewController : UIViewController
+@interface TestViewController : UIViewController <MaplyViewControllerDelegate,UIPopoverControllerDelegate>
 {
     MaplyViewController *mapViewC;
 }

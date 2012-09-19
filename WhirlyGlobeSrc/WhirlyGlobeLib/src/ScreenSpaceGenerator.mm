@@ -21,6 +21,7 @@
 #import "ScreenSpaceGenerator.h"
 #import "SceneRendererES1.h"
 #import "GlobeView.h"
+#import "MaplyView.h"
 
 using namespace Eigen;
 
@@ -58,55 +59,61 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     // If it's pointed away from the user, don't bother
 //    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
 //        return;
-
-    // Run the world location through the projection matrix to see if its behind the globe
-    // Note: Turned off.  Doesn't work yet.
-#if 1
-    Point3f testPts[2];
-    testPts[0] = shape->worldLoc;
-    testPts[1] = shape->worldLoc*1.5;
-    for (unsigned int ii=0;ii<2;ii++)
-    {
-        Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-        modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-        Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-//        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-        testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
-    }
-    Vector3f testDir = testPts[1] - testPts[0];
-    testDir.normalize();
-    
-//    Vector3f eyePt0(0,0,0);
-//    Vector3f eyePt1(0,0,1);
-//    Vector4f projSpacePt0 = frameInfo.projMat * Vector4f(eyePt0.x(),eyePt0.y(),eyePt0.z(),1.0);
-//    projSpacePt0.x() /= projSpacePt0.w();  projSpacePt0.y() /= projSpacePt0.w();  projSpacePt0.z() /= projSpacePt0.w();  projSpacePt0.w() = 1.0;
-//    Vector4f projSpacePt1 = frameInfo.projMat * Vector4f(eyePt1.x(),eyePt1.y(),eyePt1.z(),1.0);
-//    projSpacePt1.x() /= projSpacePt1.w();  projSpacePt1.y() /= projSpacePt1.w();  projSpacePt1.z() /= projSpacePt1.w();  projSpacePt1.w() = 1.0;
-//    Vector3f eyeDir = eyePt1 - eyePt0;
-    
-//    NSLog(@"testDir = (%f,%f,%f)",testDir.x(),testDir.y(),testDir.z());
-//    NSLog(@"eyeDir = (%f,%f,%f)",eyeDir.x(),eyeDir.y(),eyeDir.z());
-    
-//    float dot = eyeDir.dot(testDir);
-    
-//    if (testDir.z() > 0.0)
-//        return;
-    
-    // Note: This is so dumb it hurts.  Figure out why the math is broken.
-    if (testDir.z() > -0.33)
-        return;
-#endif
-    
-    // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-        return;
     
     // Project the world location to the screen
     CGPoint screenPt;
     Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
-    screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)]; 
+
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    if ([globeView isKindOfClass:[WhirlyGlobeView class]])
+    {
+        // Run the world location through the projection matrix to see if its behind the globe
+#if 1
+        Point3f testPts[2];
+        testPts[0] = shape->worldLoc;
+        testPts[1] = shape->worldLoc*1.5;
+        for (unsigned int ii=0;ii<2;ii++)
+        {
+            Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
+            modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
+            Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
+            //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
+            testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
+        }
+        Vector3f testDir = testPts[1] - testPts[0];
+        testDir.normalize();
         
+        //    Vector3f eyePt0(0,0,0);
+        //    Vector3f eyePt1(0,0,1);
+        //    Vector4f projSpacePt0 = frameInfo.projMat * Vector4f(eyePt0.x(),eyePt0.y(),eyePt0.z(),1.0);
+        //    projSpacePt0.x() /= projSpacePt0.w();  projSpacePt0.y() /= projSpacePt0.w();  projSpacePt0.z() /= projSpacePt0.w();  projSpacePt0.w() = 1.0;
+        //    Vector4f projSpacePt1 = frameInfo.projMat * Vector4f(eyePt1.x(),eyePt1.y(),eyePt1.z(),1.0);
+        //    projSpacePt1.x() /= projSpacePt1.w();  projSpacePt1.y() /= projSpacePt1.w();  projSpacePt1.z() /= projSpacePt1.w();  projSpacePt1.w() = 1.0;
+        //    Vector3f eyeDir = eyePt1 - eyePt0;
+        
+        //    NSLog(@"testDir = (%f,%f,%f)",testDir.x(),testDir.y(),testDir.z());
+        //    NSLog(@"eyeDir = (%f,%f,%f)",eyeDir.x(),eyeDir.y(),eyeDir.z());
+        
+        //    float dot = eyeDir.dot(testDir);
+        
+        //    if (testDir.z() > 0.0)
+        //        return;
+        
+        // Note: This is so dumb it hurts.  Figure out why the math is broken.
+        if (testDir.z() > -0.33)
+            return;
+#endif
+
+        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+    } else {
+        MaplyView *mapView = (MaplyView *)frameInfo.theView;
+        if ([mapView isKindOfClass:[MaplyView class]])
+            screenPt = [mapView pointOnScreenFromPlane:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        else
+            // No idea what this could be
+            return;
+    }
+            
     // Note: This check is too simple
     if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())

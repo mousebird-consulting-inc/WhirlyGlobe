@@ -18,21 +18,87 @@
  *
  */
 
+#import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
 #import "ConfigViewController.h"
 
-@interface TestViewController()<UIPopoverControllerDelegate>
-@end
+// Simple representation of locations and name for testing
+typedef struct
+{
+    char name[20];
+    float lat,lon;
+} LocationInfo;
 
-@implementation TestViewController
+// Some random locations for testing.
+// If we've missed your home, it's because we think you suck.
+static const int NumLocations = 30;
+LocationInfo locations[NumLocations] =
+{
+    {"Kansas City",39.1, -94.58},
+    {"Washington, DC",38.895111,-77.036667},
+    {"Manila",14.583333,120.966667},
+    {"Moscow",55.75, 37.616667},
+    {"London",51.507222, -0.1275},
+    {"Caracas",10.5, -66.916667},
+    {"Lagos",6.453056, 3.395833},
+    {"Sydney",-33.859972, 151.211111},
+    {"Seattle",47.609722, -122.333056},
+    {"Tokyo",35.689506, 139.6917},
+    {"McMurdo Station",-77.85, 166.666667},
+    {"Tehran",35.696111, 51.423056},
+    {"Santiago",-33.45, -70.666667},
+    {"Pretoria",-25.746111, 28.188056},
+    {"Perth",-31.952222, 115.858889},
+    {"Beijing",39.913889, 116.391667},
+    {"New Delhi",28.613889, 77.208889},
+    {"San Francisco",37.7793, -122.4192},
+    {"Pittsburgh",40.441667, -80},
+    {"Freetown",8.484444, -13.234444},
+    {"Windhoek",-22.57, 17.083611},
+    {"Buenos Aires",-34.6, -58.383333},
+    {"Zhengzhou",34.766667, 113.65},
+    {"Bergen",60.389444, 5.33},
+    {"Glasgow",55.858, -4.259},
+    {"Bogota",4.598056, -74.075833},
+    {"Haifa",32.816667, 34.983333},
+    {"Puerto Williams",-54.933333, -67.616667},
+    {"Panama City",8.983333, -79.516667},
+    {"Niihau",21.9, -160.166667}
+};
+
+@interface TestViewController()<UIPopoverControllerDelegate>
 {
     // The configuration view comes up when the user taps outside the globe
     ConfigViewController *configViewC;
     UIPopoverController *popControl;
-
+    
     // The image layer we'll start with
     MaplyTestBaseLayer startupLayer;
+    
+    // These represent a group of objects we've added to the globe.
+    // This is how we track them for removal
+    MaplyComponentObject *screenMarkersObj;
+    MaplyComponentObject *markersObj;
+    MaplyComponentObject *screenLabelsObj;
+    MaplyComponentObject *labelsObj;
+    NSArray *vecObjects;
 }
+
+// These routine add objects to the globe based on locations and/or labels in the
+//  locations passed in.  There's on locations array (for simplicity), so we just
+//  pass in a stride and an offset so we're not putting two different objects in
+//  the same place.
+- (void)addMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+
+// Change what we're showing based on the Configuration
+- (void)changeMapContents;
+
+@end
+
+@implementation TestViewController
 
 - (id)initWithBaseLayer:(MaplyTestBaseLayer)baseLayer
 {
@@ -70,14 +136,38 @@
     mapViewC.view.frame = self.view.bounds;
     [self addChildViewController:mapViewC];
     
+    // Set the background color for the globe
+    mapViewC.clearColor = [UIColor blackColor];
+    
+    // Start up over San Francisco
+    [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+    
+    // Zoom in a bit
+    mapViewC.height = 0.8;
+    
     // For network paging layers, where we'll store temp files
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+
+    // We'll pick default colors for the labels
+    UIColor *screenLabelColor = [UIColor whiteColor];
+    UIColor *screenLabelBackColor = [UIColor clearColor];
+    UIColor *labelColor = [UIColor whiteColor];
+    UIColor *labelBackColor = [UIColor clearColor];
+    // And for the vectors to stand out
+    UIColor *vecColor = [UIColor whiteColor];
+    float vecWidth = 1.0;
 
     switch (startupLayer)
     {
         case GeographyClassMBTilesLocal:
             // This is the Geography Class MBTiles data set from MapBox
             [mapViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
             break;
         case StamenWatercolorRemote:
         {
@@ -87,6 +177,12 @@
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
             [mapViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:2 maxZoom:10];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
         }
             break;
         case OpenStreetmapRemote:
@@ -96,15 +192,41 @@
             NSError *error = nil;
             [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
             [mapViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:17];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
         }
-            break;            
+            break;
         default:
             break;
     }
     
+    // Set up some defaults for display
+    NSDictionary *screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     screenLabelColor,kWGTextColor,
+                                     screenLabelBackColor,kWGBackgroundColor,
+                                     nil];
+    [mapViewC setScreenLabelDesc:screenLabelDesc];
+    NSDictionary *labelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                               labelColor,kWGTextColor,
+                               labelBackColor,kWGBackgroundColor,
+                               nil];
+    [mapViewC setLabelDesc:labelDesc];
+    NSDictionary *vectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+                                vecColor,kWGColor,
+                                [NSNumber numberWithFloat:vecWidth],kWGVecWidth,
+                                nil];
+    [mapViewC setVectorDesc:vectorDesc];
+    
     // Toss a button into the corner to bring up configuration
     UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(configAction:)];
     self.navigationItem.rightBarButtonItem = barButton;
+    
+    // Bring up things based on what's turned on
+    [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
 }
 
 - (void)viewDidUnload
@@ -132,6 +254,223 @@
     popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
     popControl.delegate = self;
     [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];    
+}
+
+#pragma mark - Data Display
+
+// Add screen (2D) markers at all our locations
+- (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    CGSize size = CGSizeMake(20, 20);
+    UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
+    
+    NSMutableArray *markers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.image = pinImage;
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.size = size;
+        [markers addObject:marker];
+    }
+    
+    screenMarkersObj = [mapViewC addScreenMarkers:markers];
+}
+
+// Add 3D markers
+- (void)addMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    CGSize size = CGSizeMake(0.05, 0.05);
+    UIImage *startImage = [UIImage imageNamed:@"Star"];
+    
+    NSMutableArray *markers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyMarker *marker = [[MaplyMarker alloc] init];
+        marker.image = startImage;
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.size = size;
+        [markers addObject:marker];
+    }
+    
+    markersObj = [mapViewC addMarkers:markers];
+}
+
+// Add screen (2D) labels
+- (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    CGSize size = CGSizeMake(0, 20);
+    
+    NSMutableArray *labels = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        label.size = size;
+        label.text = [NSString stringWithFormat:@"%s",location->name];
+        [labels addObject:label];
+    }
+    
+    screenLabelsObj = [mapViewC addScreenLabels:labels];
+}
+
+// Add 3D labels
+- (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    CGSize size = CGSizeMake(0, 0.05);
+    
+    NSMutableArray *labels = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyLabel *label = [[MaplyLabel alloc] init];
+        label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        label.size = size;
+        label.text = [NSString stringWithFormat:@"%s",location->name];
+        [labels addObject:label];
+    }
+    
+    labelsObj = [mapViewC addLabels:labels];
+}
+
+// Add country outlines.  Pass in the names of the geoJSON files
+- (void)addCountries:(NSArray *)names stride:(int)stride
+{
+    // Parsing the JSON can take a while, so let's hand that over to another queue
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0),
+                   ^{
+                       NSMutableArray *locVecObjects = [NSMutableArray array];
+                       
+                       int ii = 0;
+                       for (NSString *name in names)
+                       {
+                           if (ii % stride == 0)
+                           {
+                               NSString *fileName = [[NSBundle mainBundle] pathForResource:name ofType:@"geojson"];
+                               if (fileName)
+                               {
+                                   NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
+                                   if (jsonData)
+                                   {
+                                       MaplyVectorObject *mplyVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
+                                       MaplyComponentObject *compObj = [mapViewC addVectors:[NSArray arrayWithObject:mplyVecObj]];
+                                       if (compObj)
+                                           [locVecObjects addObject:compObj];
+                                   }
+                               }
+                           }
+                           ii++;
+                           
+                           // Keep track of the created objects
+                           // Note: You could lose track of the objects if you turn the countries on/off quickly
+                           dispatch_async(dispatch_get_main_queue(),
+                                          ^{
+                                              vecObjects = locVecObjects;
+                                          });
+                       }
+                   }
+                   );
+}
+
+// Look at the configuration controller and decide what to turn off or on
+- (void)changeMapContents
+{
+    if (configViewC.label2DSwitch.on)
+    {
+        if (!screenLabelsObj)
+            [self addScreenLabels:locations len:NumLocations stride:4 offset:0];
+    } else {
+        if (screenLabelsObj)
+        {
+            [mapViewC removeObject:screenLabelsObj];
+            screenLabelsObj = nil;
+        }
+    }
+    
+    if (configViewC.label3DSwitch.on)
+    {
+        if (!labelsObj)
+            [self addLabels:locations len:NumLocations stride:4 offset:1];
+    } else {
+        if (labelsObj)
+        {
+            [mapViewC removeObject:labelsObj];
+            labelsObj = nil;
+        }
+    }
+    
+    if (configViewC.marker2DSwitch.on)
+    {
+        if (!screenMarkersObj)
+            [self addScreenMarkers:locations len:NumLocations stride:4 offset:2];
+    } else {
+        if (screenMarkersObj)
+        {
+            [mapViewC removeObject:screenMarkersObj];
+            screenMarkersObj = nil;
+        }
+    }
+    
+    if (configViewC.marker3DSwitch.on)
+    {
+        if (!markersObj)
+            [self addMarkers:locations len:NumLocations stride:4 offset:3];
+    } else {
+        if (markersObj)
+        {
+            [mapViewC removeObject:markersObj];
+            markersObj = nil;
+        }
+    }
+    
+    if (configViewC.countrySwitch.on)
+    {
+        // Countries we have geoJSON for
+        NSArray *countryArray = [NSArray arrayWithObjects:
+                                 @"ABW", @"AFG", @"AGO", @"AIA", @"ALA", @"ALB", @"AND", @"ARE", @"ARG", @"ARM", @"ASM", @"ATA", @"ATF", @"ATG", @"AUS", @"AUT",
+                                 @"AZE", @"BDI", @"BEL", @"BEN", @"BES", @"BFA", @"BGD", @"BGR", @"BHR", @"BHS", @"BIH", @"BLM", @"BLR", @"BLZ", @"BMU", @"BOL",
+                                 @"BRA", @"BRB", @"BRN", @"BTN", @"BVT", @"BWA", @"CAF", @"CAN", @"CCK", @"CHE", @"CHL", @"CHN", @"CIV", @"CMR", @"COD", @"COG",
+                                 @"COK", @"COL", @"COM", @"CPV", @"CRI", @"CUB", @"CUW", @"CXR", @"CYM", @"CYP", @"CZE", @"DEU", @"DJI", @"DMA", @"DNK", @"DOM",
+                                 @"DZA", @"ECU", @"EGY", @"ERI", @"ESH", @"ESP", @"EST", @"ETH", @"FIN", @"FJI", @"FLK", @"FRA", @"FRO", @"FSM", @"GAB", @"GBR",
+                                 @"GEO", @"GGY", @"GHA", @"GIB", @"GIN", @"GLP", @"GMB", @"GNB", @"GNQ", @"GRC", @"GRD", @"GRL", @"GTM", @"GUF", @"GUM", @"GUY",
+                                 @"HKG", @"HMD", @"HND", @"HRV", @"HTI", @"HUN", @"IDN", @"IMN", @"IND", @"IOT", @"IRL", @"IRN", @"IRQ", @"ISL", @"ISR", @"ITA",
+                                 @"JAM", @"JEY", @"JOR", @"JPN", @"KAZ", @"KEN", @"KGZ", @"KHM", @"KIR", @"KNA", @"KOR", @"KWT", @"LAO", @"LBN", @"LBR", @"LBY",
+                                 @"LCA", @"LIE", @"LKA", @"LSO", @"LTU", @"LUX", @"LVA", @"MAC", @"MAF", @"MAR", @"MCO", @"MDA", @"MDG", @"MDV", @"MEX", @"MHL",
+                                 @"MKD", @"MLI", @"MLT", @"MMR", @"MNE", @"MNG", @"MNP", @"MOZ", @"MRT", @"MSR", @"MTQ", @"MUS", @"MWI", @"MYS", @"MYT", @"NAM",
+                                 @"NCL", @"NER", @"NFK", @"NGA", @"NIC", @"NIU", @"NLD", @"NOR", @"NPL", @"NRU", @"NZL", @"OMN", @"PAK", @"PAN", @"PCN", @"PER",
+                                 @"PHL", @"PLW", @"PNG", @"POL", @"PRI", @"PRK", @"PRT", @"PRY", @"PSE", @"PYF", @"QAT", @"REU", @"ROU", @"RUS", @"RWA", @"SAU",
+                                 @"SDN", @"SEN", @"SGP", @"SGS", @"SHN", @"SJM", @"SLB", @"SLE", @"SLV", @"SMR", @"SOM", @"SPM", @"SRB", @"SSD", @"STP", @"SUR",
+                                 @"SVK", @"SVN", @"SWE", @"SWZ", @"SXM", @"SYC", @"SYR", @"TCA", @"TCD", @"TGO", @"THA", @"TJK", @"TKL", @"TKM", @"TLS", @"TON",
+                                 @"TTO", @"TUN", @"TUR", @"TUV", @"TWN", @"TZA", @"UGA", @"UKR", @"UMI", @"URY", @"USA", @"UZB", @"VAT", @"VCT", @"VEN", @"VGB",
+                                 @"VIR", @"VNM", @"VUT", @"WLF", @"WSM", @"YEM", @"ZAF", @"ZMB", @"ZWE", nil];
+        
+        if (!vecObjects)
+            [self addCountries:countryArray stride:1];
+    } else {
+        if (vecObjects)
+        {
+            [mapViewC removeObjects:vecObjects];
+            vecObjects = nil;
+        }
+    }
+    
+    mapViewC.pinchGesture = configViewC.pinchSwitch.on;
+    mapViewC.rotateGesture = configViewC.rotateSwitch.on;
+    
+    // Update rendering hints
+    NSMutableDictionary *hintDict = [NSMutableDictionary dictionary];
+    [hintDict setObject:[NSNumber numberWithBool:configViewC.zBufferSwitch.on] forKey:kWGRenderHintZBuffer];
+    [mapViewC setHints:hintDict];
+}
+
+#pragma mark - Popover Delegate
+
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+{
+    [self changeMapContents];
 }
 
 @end

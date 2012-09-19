@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="8.00">
 	<data>
-		<int key="IBDocument.SystemTarget">1280</int>
+		<int key="IBDocument.SystemTarget">1296</int>
 		<string key="IBDocument.SystemVersion">11E53</string>
 		<string key="IBDocument.InterfaceBuilderVersion">2549</string>
 		<string key="IBDocument.AppKitVersion">1138.47</string>
@@ -262,7 +262,7 @@
 								<string key="NSFrame">{{87, 15}, {293, 21}}</string>
 								<reference key="NSSuperview" ref="825116703"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
+								<reference key="NSNextKeyView" ref="451821486"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -340,7 +340,6 @@
 								<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
-								<bool key="IBUIOn">YES</bool>
 							</object>
 						</array>
 						<string key="NSFrame">{{20, 280}, {728, 44}}</string>
@@ -417,6 +416,7 @@
 								<string key="NSFrame">{{87, 15}, {293, 21}}</string>
 								<reference key="NSSuperview" ref="20799677"/>
 								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -789,12 +789,10 @@
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="countrySwitch">UISwitch</string>
-						<string key="cullingSwitch">UISwitch</string>
 						<string key="label2DSwitch">UISwitch</string>
 						<string key="label3DSwitch">UISwitch</string>
 						<string key="marker2DSwitch">UISwitch</string>
 						<string key="marker3DSwitch">UISwitch</string>
-						<string key="northUpSwitch">UISwitch</string>
 						<string key="pinchSwitch">UISwitch</string>
 						<string key="rotateSwitch">UISwitch</string>
 						<string key="zBufferSwitch">UISwitch</string>
@@ -802,10 +800,6 @@
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="countrySwitch">
 							<string key="name">countrySwitch</string>
-							<string key="candidateClassName">UISwitch</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="cullingSwitch">
-							<string key="name">cullingSwitch</string>
 							<string key="candidateClassName">UISwitch</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="label2DSwitch">
@@ -822,10 +816,6 @@
 						</object>
 						<object class="IBToOneOutletInfo" key="marker3DSwitch">
 							<string key="name">marker3DSwitch</string>
-							<string key="candidateClassName">UISwitch</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="northUpSwitch">
-							<string key="name">northUpSwitch</string>
 							<string key="candidateClassName">UISwitch</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="pinchSwitch">
@@ -850,6 +840,10 @@
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBIPadFramework</string>
+		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDependencyDefaults">
+			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaTouchPlugin.iPhoneOS</string>
+			<real value="1296" key="NS.object.0"/>
+		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<string key="IBCocoaTouchPluginVersion">1498</string>
