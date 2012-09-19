@@ -22,7 +22,7 @@
 #import "MaplyComponent.h"
 
 // Various base layers we can start with
-typedef enum {GeographyClassMBTilesLocal,MaxMaplyBaseLayers} MaplyTestBaseLayer;
+typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MaxMaplyBaseLayers} MaplyTestBaseLayer;
 
 /** The Test View Controller brings up a maply component
     and allows the user to interact with it.

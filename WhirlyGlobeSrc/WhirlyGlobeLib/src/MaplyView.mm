@@ -72,6 +72,13 @@ using namespace WhirlyKit;
     return loc.z();
 }
 
+- (void)setLoc:(WhirlyKit::Point3f)newLoc
+{
+    loc = newLoc;
+    if (watchDelegate)
+        [watchDelegate viewUpdated:self];
+}
+
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
 {
     // Back Project the screen point into model space

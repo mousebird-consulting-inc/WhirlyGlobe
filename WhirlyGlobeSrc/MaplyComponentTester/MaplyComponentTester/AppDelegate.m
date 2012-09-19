@@ -19,14 +19,22 @@
  */
 
 #import "AppDelegate.h"
+#import "StartupViewController.h"
 
 @implementation AppDelegate
+{
+    UINavigationController *navC;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
+    
+    StartupViewController *startViewC = [[StartupViewController alloc] init];
+    navC = [[UINavigationController alloc] initWithRootViewController:startViewC];
+    self.window.rootViewController = navC;
+    
     [self.window makeKeyAndVisible];
     return YES;
 }

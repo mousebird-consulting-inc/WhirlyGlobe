@@ -85,6 +85,12 @@
         case GeographyClassMBTilesLocal:
             cell.textLabel.text = @"Geography Class - MapBox Tiles - Local";
             break;
+        case StamenWatercolorRemote:
+            cell.textLabel.text = @"Stamen WaterColor - Remote";
+            break;
+        case OpenStreetmapRemote:
+            cell.textLabel.text = @"OpenStreetMap - Remote";
+            break;        
         default:
             break;
     }

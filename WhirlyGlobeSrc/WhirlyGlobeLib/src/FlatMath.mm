@@ -44,6 +44,14 @@ Point3f PlateCarreeCoordSystem::geocentricToLocal(Point3f geocPt)
 {
     return GeoCoordSystem::GeocentricToLocal(geocPt);
 }
+    
+bool PlateCarreeCoordSystem::isSameAs(CoordSystem *coordSys)
+{
+    PlateCarreeCoordSystem *other = dynamic_cast<PlateCarreeCoordSystem *>(coordSys);
+    
+    return (other != NULL);
+}
+
         
 FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin)
     : origin(origin)
@@ -114,6 +122,15 @@ Point3f FlatEarthCoordSystem::geocentricToLocal(Point3f geocPt)
     return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());
 }
 
+bool FlatEarthCoordSystem::isSameAs(CoordSystem *coordSys)
+{
+    FlatEarthCoordSystem *other = dynamic_cast<FlatEarthCoordSystem *>(coordSys);
+    
+    if (!other)
+        return false;
+    
+    return other->origin == origin;
+}
     
 GeoCoord FlatEarthCoordSystem::getOrigin() const
 {
