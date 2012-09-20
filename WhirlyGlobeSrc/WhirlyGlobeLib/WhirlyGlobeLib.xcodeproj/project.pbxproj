@@ -276,6 +276,8 @@
 		2BDC4ADE133404D400E25283 /* GridLines.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951C8D12EFA567005003AE /* GridLines.mm */; };
 		2BDC4ADF133404D400E25283 /* VectorLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9A12F0A087005003AE /* VectorLayer.mm */; };
 		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
+		2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */; };
+		2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */; };
 		2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE921499643000C63326 /* LoftLayer.mm */; };
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
@@ -591,6 +593,8 @@
 		2BE6EE5612E4F48800415490 /* PinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = PinchDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = SwipeDelegate.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SwipeDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
+		2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
 		2BEFDE90149963A800C63326 /* LoftLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftLayer.h; sourceTree = "<group>"; };
 		2BEFDE921499643000C63326 /* LoftLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftLayer.mm; sourceTree = "<group>"; };
 		2BEFDE95149966D400C63326 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridClipper.h; sourceTree = "<group>"; };
@@ -956,6 +960,7 @@
 				2B03701214C9FA9000A51AC4 /* MaplyAnimateTranslateMomentum.h */,
 				2B92105314BD1A8100653536 /* MaplyPanDelegate.h */,
 				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
+				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
 			);
 			name = interaction;
@@ -1326,6 +1331,7 @@
 				2BCAC33312FB77FB0049D73C /* TapMessage.mm */,
 				2B076B33133952C5009D931D /* LongPressDelegate.mm */,
 				2B44187B13A2DA3C00514EDE /* RotateDelegate.mm */,
+				2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */,
 				2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */,
 				2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */,
 				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
@@ -1398,6 +1404,7 @@
 				2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */,
 				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
+				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1682,6 +1689,7 @@
 				2B7EF5201603E0AF00D4079F /* NetworkTileQuadSource.mm in Sources */,
 				2B7EF5211603E0AF00D4079F /* SphericalEarthQuadLayer.mm in Sources */,
 				2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */,
+				2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

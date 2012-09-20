@@ -23,6 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
+#import "MaplyView.h"
 
 using namespace WhirlyKit;
 
@@ -143,11 +144,14 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
     
-    WhirlyGlobeView *globeView = nil;
-    if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)theView;
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)theView;
+    if (![theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = nil;
+    MaplyView *mapView = (MaplyView *)theView;
+    if (![theView isKindOfClass:[MaplyView class]])
+        mapView = nil;
     
-    if (!globeView)
+    if (!globeView && !mapView)
         return EmptyIdentity;
     
     // First we need to know where the things wound up, 2D wise
@@ -213,7 +217,10 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
                     for (unsigned int ii=0;ii<4;ii++)
                     {
                         CGPoint screenPt;
-                        screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                        if (globeView)
+                            screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                        else
+                            screenPt = [mapView pointOnScreenFromPlane:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     

@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
     {
-		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
+        MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:tap.view];
 		[msg setWorldLoc:hit];
@@ -75,7 +75,7 @@ using namespace WhirlyKit;
 		[msg setWhereGeo:coordAdapter->getCoordSystem()->localToGeographic(localPt)];
         msg.heightAboveSurface = hit.z();
 		
-		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
+		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:MaplyTapMsg object:msg]];
     } else {
         // Not expecting this case
     }

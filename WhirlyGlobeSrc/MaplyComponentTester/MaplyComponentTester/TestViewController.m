@@ -82,6 +82,9 @@ LocationInfo locations[NumLocations] =
     MaplyComponentObject *screenLabelsObj;
     MaplyComponentObject *labelsObj;
     NSArray *vecObjects;
+
+    // The view we're using to track a selected object
+    MaplyViewTracker *selectedViewTrack;
 }
 
 // These routine add objects to the globe based on locations and/or labels in the
@@ -139,6 +142,9 @@ LocationInfo locations[NumLocations] =
     // Set the background color for the globe
     mapViewC.clearColor = [UIColor blackColor];
     
+    // This will get us taps and such
+    mapViewC.delegate = self;
+
     // Start up over San Francisco
     [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     
@@ -464,6 +470,97 @@ LocationInfo locations[NumLocations] =
     NSMutableDictionary *hintDict = [NSMutableDictionary dictionary];
     [hintDict setObject:[NSNumber numberWithBool:configViewC.zBufferSwitch.on] forKey:kWGRenderHintZBuffer];
     [mapViewC setHints:hintDict];
+}
+
+#pragma mark - Whirly Globe Delegate
+
+// Build a simple selection view to draw over top of the globe
+- (UIView *)makeSelectionView:(NSString *)msg
+{
+    float fontSize = 32.0;
+    float marginX = 32.0;
+    
+    // Make a label and stick it in as a view to track
+    // We put it in a top level view so we can center it
+    UIView *topView = [[UIView alloc] initWithFrame:CGRectZero];
+    topView.alpha = 0.8;
+    UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
+    [topView addSubview:backView];
+    topView.clipsToBounds = NO;
+    UILabel *testLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    [backView addSubview:testLabel];
+    testLabel.font = [UIFont systemFontOfSize:fontSize];
+    testLabel.textColor = [UIColor whiteColor];
+    testLabel.backgroundColor = [UIColor clearColor];
+    testLabel.text = msg;
+    CGSize textSize = [testLabel.text sizeWithFont:testLabel.font];
+    testLabel.frame = CGRectMake(marginX/2.0,0,textSize.width,textSize.height);
+    testLabel.opaque = NO;
+    backView.layer.cornerRadius = 5.0;
+    backView.backgroundColor = [UIColor colorWithRed:0.0 green:102/255.0 blue:204/255.0 alpha:1.0];
+    backView.frame = CGRectMake(-(textSize.width)/2.0,-(textSize.height)/2.0,textSize.width+marginX,textSize.height);
+    
+    return topView;
+}
+
+// User selected something
+- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj
+{
+    // If we've currently got a selected view, get rid of it
+    if (selectedViewTrack)
+    {
+        [mapViewC removeViewTrackForView:selectedViewTrack.view];
+        selectedViewTrack = nil;
+    }
+    
+    MaplyCoordinate loc;
+    NSString *msg = nil;
+    
+    if ([selectedObj isKindOfClass:[MaplyMarker class]])
+    {
+        MaplyMarker *marker = (MaplyMarker *)selectedObj;
+        loc = marker.loc;
+        msg = [NSString stringWithFormat:@"Marker: Unknown"];
+    } else if ([selectedObj isKindOfClass:[MaplyScreenMarker class]])
+    {
+        MaplyScreenMarker *screenMarker = (MaplyScreenMarker *)selectedObj;
+        loc = screenMarker.loc;
+        msg = [NSString stringWithFormat:@"Screen Marker: Unknown"];
+    } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
+    {
+        MaplyLabel *label = (MaplyLabel *)selectedObj;
+        loc = label.loc;
+        msg = [NSString stringWithFormat:@"Label: %@",label.text];
+    } else if ([selectedObj isKindOfClass:[MaplyScreenLabel class]])
+    {
+        MaplyScreenLabel *screenLabel = (MaplyScreenLabel *)selectedObj;
+        loc = screenLabel.loc;
+        msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.text];
+    } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
+    {
+        MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
+        loc = [vecObj largestLoopCenter];
+        msg = [NSString stringWithFormat:@"Vector"];
+    } else
+        // Don't know what it is
+        return;
+    
+    // Build the selection view and hand it over to the globe to track
+    selectedViewTrack = [[MaplyViewTracker alloc] init];
+    selectedViewTrack.loc = loc;
+    selectedViewTrack.view = [self makeSelectionView:msg];
+    [mapViewC addViewTracker:selectedViewTrack];
+}
+
+// User didn't select anything, but did tap
+- (void)maplyViewController:(MaplyViewController *)theMapViewC didTapAt:(MaplyCoordinate)coord
+{
+    // Just clear the selection
+    if (selectedViewTrack)
+    {
+        [theMapViewC removeViewTrackForView:selectedViewTrack.view];
+        selectedViewTrack = nil;
+    }
 }
 
 #pragma mark - Popover Delegate
