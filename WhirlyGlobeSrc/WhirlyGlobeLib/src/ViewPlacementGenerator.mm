@@ -19,6 +19,7 @@
  */
 
 #import "ViewPlacementGenerator.h"
+#import "MaplyView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -63,6 +64,11 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     // Note: Make this work for generic 3D views
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
     if (![globeView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = nil;
+    MaplyView *mapView = (MaplyView *)frameInfo.theView;
+    if (![mapView isKindOfClass:[MaplyView class]])
+        mapView = nil;
+    if (!globeView && !mapView)
         return;
 
     // Overall extents we'll look at.  Everything else is tossed.
@@ -92,34 +98,40 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             // Note: Calculate this ahead of time
             Point3f worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(viewInst.loc));
             
-            // Note: Copied from the ScreenSpaceGenerator.  Still dumb here.
-            Point3f testPts[2];
-            testPts[0] = worldLoc;
-            testPts[1] = worldLoc*1.5;
-            for (unsigned int ii=0;ii<2;ii++)
+            // Check that it's not behind the globe
+            if (globeView)
             {
-                Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-                modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-                Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-                //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-                testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
+                // Note: Copied from the ScreenSpaceGenerator.  Still dumb here.
+                Point3f testPts[2];
+                testPts[0] = worldLoc;
+                testPts[1] = worldLoc*1.5;
+                for (unsigned int ii=0;ii<2;ii++)
+                {
+                    Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
+                    modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
+                    Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
+                    //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
+                    testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
+                }
+                Vector3f testDir = testPts[1] - testPts[0];
+                testDir.normalize();
+
+                // Note: This is so dumb it hurts.  Figure out why the math is broken.
+                if (testDir.z() > -0.33)
+                    hidden = YES;
+                    // If it's pointed away from the user, don't bother
+                    //            if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
+                    //                hidden = YES;
             }
-            Vector3f testDir = testPts[1] - testPts[0];
-            testDir.normalize();
-
-            // Note: This is so dumb it hurts.  Figure out why the math is broken.
-            if (testDir.z() > -0.33)
-                hidden = YES;
-
-            // If it's pointed away from the user, don't bother
-//            if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
-//                hidden = YES;
 
             if (!hidden)
             {
                 // Project the world location to the screen
                 Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
-                screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)]; 
+                if (globeView)
+                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                else
+                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
                 
                 // Note: This check is too simple
                 if (!hidden &&
