@@ -77,4 +77,4 @@
 #import "ViewPlacementGenerator.h"
 #import "ActiveModel.h"
 #import "MaplyScene.h"
-
+#import "ShapeLayer.h"

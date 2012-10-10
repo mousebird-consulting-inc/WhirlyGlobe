@@ -45,6 +45,8 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     drawPriority = 0;
     useRotation = false;
     rotation = 0.0;
+    offset.x() = 0.0;
+    offset.y() = 0.0;
 }
 
 // Calculate its position and add this feature to the appropriate drawable
@@ -118,6 +120,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
+    
+    screenPt.x += shape->offset.x();
+    screenPt.y += shape->offset.y();
     
     // It survived, so add it to the list if someone else needs to know where they wound up
     ProjectedPoint projPt;

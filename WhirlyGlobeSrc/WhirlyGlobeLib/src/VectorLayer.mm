@@ -44,6 +44,7 @@ using namespace WhirlyKit;
     float                       fade;
     float                       lineWidth;
     BOOL                        filled;
+    float                       sample;
     NSString                    *cacheName;
     SimpleIdentity              replaceVecID;
 }
@@ -104,6 +105,7 @@ using namespace WhirlyKit;
     fade = [dict floatForKey:@"fade" default:0.0];
     lineWidth = [dict floatForKey:@"width" default:1.0];
     filled = [dict boolForKey:@"filled" default:false];
+    sample = [dict floatForKey:@"sample" default:false];
 }
 
 @end
@@ -443,9 +445,16 @@ protected:
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    VectorRing &ring = theAreal->loops[ri];					
+                    VectorRing &ring = theAreal->loops[ri];
 
-                    drawBuild.addPoints(ring,true);
+                    // Break the edges around the globe (presumably)
+                    if (vecInfo->sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(ring, newPts, false, vecInfo->sample);
+                        drawBuild.addPoints(newPts,true);
+                    } else
+                        drawBuild.addPoints(ring,true);
                 }
             }
         } else {
@@ -457,7 +466,13 @@ protected:
             } else {
                 if (theLinear.get())
                 {
-                    drawBuild.addPoints(theLinear->pts,false);
+                    if (vecInfo->sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo->sample);
+                        drawBuild.addPoints(newPts,false);
+                    } else
+                        drawBuild.addPoints(theLinear->pts,false);
                 } else {
                     VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
                     if (thePoints.get())

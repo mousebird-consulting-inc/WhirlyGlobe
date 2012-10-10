@@ -82,7 +82,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @synthesize iconTexture;
 @synthesize isSelectable;
 @synthesize selectID;
-
+@synthesize screenOffset;
 
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
@@ -611,6 +611,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             screenShape->drawPriority = labelInfo.drawPriority;
             screenShape->minVis = labelInfo.minVis;
             screenShape->maxVis = labelInfo.maxVis;
+            screenShape->offset.x() = label.screenOffset.width;
+            screenShape->offset.y() = label.screenOffset.height;
             if (labelInfo.fade > 0.0)
             {
                 screenShape->fadeDown = curTime;

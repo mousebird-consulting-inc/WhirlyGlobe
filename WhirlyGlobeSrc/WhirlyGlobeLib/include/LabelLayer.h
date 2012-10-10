@@ -75,10 +75,13 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
     ///  depending on the justification
     WhirlyKit::GeoCoord loc;
     /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, and icon supported
+    ///  for just this label.  Only width, height, icon, text color, and
+    ///  background color supported.
     NSDictionary *desc;
     /// If non-zero, this is the texture to use as an icon
-    WhirlyKit::SimpleIdentity iconTexture;  
+    WhirlyKit::SimpleIdentity iconTexture;
+    /// If set, this moves the label if displayed in screen (2D) mode
+    CGSize screenOffset;
 }
 
 @property (nonatomic,assign) bool isSelectable;
@@ -87,6 +90,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 @property (nonatomic,retain) NSDictionary *desc;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
+@property (nonatomic,assign) CGSize screenOffset;
 
 /// This is used to sort out width and height from the defaults.  Pass
 ///  in the value of one and zero for the other and it will fill in the
