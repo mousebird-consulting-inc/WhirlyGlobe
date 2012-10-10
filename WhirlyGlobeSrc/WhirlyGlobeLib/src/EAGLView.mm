@@ -49,7 +49,8 @@
 		
 		animating = FALSE;
 		frameInterval = 1;
-        useRetina = TRUE;
+        // Note: Need to fix this
+//        self.useRetina = TRUE;
     }
     
     return self;

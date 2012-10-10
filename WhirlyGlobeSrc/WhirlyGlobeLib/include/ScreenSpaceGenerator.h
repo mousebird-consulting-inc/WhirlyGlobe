@@ -70,12 +70,14 @@ public:
 
         /// Center location
         Point3f worldLoc;
+        /// If true we'll use the rotation.  If not, we won't.
         bool useRotation;
         /// Rotation clockwise from north
         float rotation;
         NSTimeInterval fadeUp,fadeDown;
         int drawPriority;
         float minVis,maxVis;
+        Point2f offset;
         
         /// List of geometry we'll transform to the destination
         std::vector<SimpleGeometry> geom;
