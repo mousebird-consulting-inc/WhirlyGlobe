@@ -245,6 +245,8 @@
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
 		2BACE0681581017800E3793D /* SceneGraphGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BACE0661581017800E3793D /* SceneGraphGenerator.mm */; };
+		2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD1158C1615979300A4BF5D /* ShapeLayer.h */; };
+		2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD1158F161597A600A4BF5D /* ShapeLayer.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -585,6 +587,8 @@
 		2BCAC33312FB77FB0049D73C /* TapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = TapMessage.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BD0E68613254D7300CD95A8 /* VectorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = VectorData.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BD0E69213254DF700CD95A8 /* VectorData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = VectorData.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2BD1158C1615979300A4BF5D /* ShapeLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeLayer.h; sourceTree = "<group>"; };
+		2BD1158F161597A600A4BF5D /* ShapeLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeLayer.mm; sourceTree = "<group>"; };
 		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1006,6 +1010,7 @@
 				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
 				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
+				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -1038,6 +1043,7 @@
 				2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */,
 				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
 				2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */,
+				2BD1158F161597A600A4BF5D /* ShapeLayer.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -1405,6 +1411,7 @@
 				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
+				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1434,7 +1441,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0450;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1690,6 +1697,7 @@
 				2B7EF5211603E0AF00D4079F /* SphericalEarthQuadLayer.mm in Sources */,
 				2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */,
 				2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */,
+				2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
