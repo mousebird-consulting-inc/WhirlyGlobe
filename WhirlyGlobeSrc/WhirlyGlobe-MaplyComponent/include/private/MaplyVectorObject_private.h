@@ -29,3 +29,10 @@
 @property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
 
 @end
+
+@interface MaplyVectorDatabase()
+{
+    
+}
+
+@end

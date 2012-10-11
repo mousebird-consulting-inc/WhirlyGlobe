@@ -165,7 +165,7 @@ using namespace WhirlyGlobe;
     return ctr;
 }
 
-- (MaplyCoordinate)largestLoopCenter
+- (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
     // Find the loop with the larest area
     float bigArea = -1.0;
@@ -186,6 +186,9 @@ using namespace WhirlyGlobe;
             }
         }
     }
+    
+    if (bigArea < 0.0)
+        return false;
 
     MaplyCoordinate ctr;
     ctr.x = 0;  ctr.y = 0;
@@ -195,9 +198,12 @@ using namespace WhirlyGlobe;
         mbr.addPoints(*bigLoop);
         ctr.x = (mbr.ll().x() + mbr.ur().x())/2.0;
         ctr.y = (mbr.ll().y() + mbr.ur().y())/2.0;
+        *center = ctr;
+        ll->x = mbr.ll().x();  ll->y = mbr.ll().y();
+        ur->x = mbr.ur().x();  ur->y = mbr.ur().y();
     }
 
-    return ctr;
+    return true;
 }
 
 - (NSArray *)splitVectors
@@ -213,6 +219,58 @@ using namespace WhirlyGlobe;
     }
     
     return vecs;
+}
+
+
+@end
+
+@implementation MaplyVectorDatabase
+{
+    VectorDatabase *vectorDb;
+}
+
+- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    vectorDb = inVectorDb;
+    
+    return self;
+}
+
+/// Construct from a shapefile in the bundle
++ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
+{
+    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
+    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+    
+    return [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+}
+
+/// Return vectors that match the given SQL query
+- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    vectorDb->getMatchingVectors(sqlQuery, vecObj.shapes);
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
+}
+
+/// Search for all the areals that surround the given point (in geographic)
+- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    vectorDb->findArealsForPoint(GeoCoord(coord.x,coord.y), vecObj.shapes);
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
 }
 
 

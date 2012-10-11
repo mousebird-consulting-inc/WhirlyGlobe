@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import <MaplyCoordinate.h>
 
-/** WhirlyGlobe Component Vector Object.
+/** Maply Component Vector Object.
     This can represent one or more vector features parsed out of GeoJSON.
   */
 @interface MaplyVectorObject : NSObject
@@ -51,8 +51,9 @@
 /// Calculate and return the center of the whole object
 - (MaplyCoordinate)center;
 
-/// Calculate and return the center of the single largest loop
-- (MaplyCoordinate)largestLoopCenter;
+/// Calculate the center and extents of the largest loop.
+/// Returns false if there was no loop
+- (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 
 /// Vector objects can encapsulate multiple objects since they're read from GeoJSON.
 /// This splits any multiples into single objects.
@@ -61,3 +62,20 @@
 @end
 
 typedef MaplyVectorObject WGVectorObject;
+
+
+/** Maply Vector Database.  This object encapsulates a simple database of vector features,
+    possibly a Shapefile.
+ */
+@interface MaplyVectorDatabase : NSObject
+
+/// Return vectors that match the given SQL query
+- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery;
+
+/// Search for all the areals that surround the given point (in geographic)
+- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord;
+
+/// Construct from a shapefile in the bundle
++ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName;
+
+@end
