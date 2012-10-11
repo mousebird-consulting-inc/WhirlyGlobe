@@ -69,8 +69,9 @@ using namespace WhirlyKit;
     
     float dot = p0.dot(p1);
     Point3f cross = p0.cross(p1);
-    float mag = cross.norm();
-    
+//    float mag = cross.norm();
+
+    // Note: Atan2 is the correct way, but it's not working right here
 //    return atan2f(dot, mag);
     return acosf(dot);
 }

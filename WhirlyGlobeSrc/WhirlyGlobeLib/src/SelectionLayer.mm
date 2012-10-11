@@ -161,7 +161,11 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     // Work through the 2D rectangles
     for (unsigned int ii=0;ii<projPts.size();ii++)
     {
-        ScreenSpaceGenerator::ProjectedPoint &projPt = projPts[ii];
+        ScreenSpaceGenerator::ProjectedPoint projPt = projPts[ii];
+        // If we're on a retina display, we need to scale accordingly
+        projPt.screenLoc.x() /= view.contentScaleFactor;
+        projPt.screenLoc.y() /= view.contentScaleFactor;
+        
         // Look for the corresponding selectable
         RectSelectable2DSet::iterator it = rect2Dselectables.find(RectSelectable2D(projPt.shapeID));
         if (it != rect2Dselectables.end())
