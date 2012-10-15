@@ -33,3 +33,9 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
 #if __cplusplus
 }
 #endif
+
+typedef struct
+{
+    float x,y,z;
+} MaplyCoordinate3d;
+

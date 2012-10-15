@@ -27,5 +27,17 @@
 @synthesize text;
 @synthesize iconImage;
 @synthesize color;
+@synthesize selectable;
+
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    selectable = true;
+    
+    return self;
+}
 
 @end

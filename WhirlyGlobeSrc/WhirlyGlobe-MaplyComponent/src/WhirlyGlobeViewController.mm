@@ -636,6 +636,15 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
+{
+    MaplyCoordinate3d displayCoord;
+    Point3f pt = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
+    return displayCoord;
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time
