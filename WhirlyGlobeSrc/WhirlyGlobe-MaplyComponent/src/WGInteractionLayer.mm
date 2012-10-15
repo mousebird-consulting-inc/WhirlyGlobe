@@ -182,12 +182,16 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
-        wgMarker.isSelectable = true;
-        wgMarker.selectID = Identifiable::genId();
+        if (marker.selectable)
+        {
+            wgMarker.isSelectable = true;
+            wgMarker.selectID = Identifiable::genId();
+        }
         
         [wgMarkers addObject:wgMarker];
         
-        selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+        if (marker.selectable)
+            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
     }
 
     // Set up a description and create the markers in the marker layer
@@ -231,12 +235,16 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
-        wgMarker.isSelectable = true;
-        wgMarker.selectID = Identifiable::genId();
+        if (marker.selectable)
+        {
+            wgMarker.isSelectable = true;
+            wgMarker.selectID = Identifiable::genId();
+        }
         
         [wgMarkers addObject:wgMarker];
-        
-        selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+
+        if (marker.selectable)
+            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
     }
     
     // Set up a description and create the markers in the marker layer
@@ -283,15 +291,19 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
-        wgLabel.isSelectable = true;
         wgLabel.screenOffset = label.offset;
-        wgLabel.selectID = Identifiable::genId();
+        if (label.selectable)
+        {
+            wgLabel.isSelectable = true;
+            wgLabel.selectID = Identifiable::genId();
+        }
         if ([desc count] > 0)
             wgLabel.desc = desc;
         
         [wgLabels addObject:wgLabel];
-        
-        selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+
+        if (label.selectable)
+            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
     }
     
     // Set up a description and create the markers in the marker layer
@@ -340,13 +352,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
-        wgLabel.isSelectable = true;
-        wgLabel.selectID = Identifiable::genId();
+        if (label.selectable)
+        {
+            wgLabel.isSelectable = true;
+            wgLabel.selectID = Identifiable::genId();
+        }
         wgLabel.desc = desc;
         
         [wgLabels addObject:wgLabel];
         
-        selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+        if (label.selectable)
+            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
     }
     
     // Set up a description and create the markers in the marker layer
@@ -494,7 +510,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // Remove data associated with a user object
 - (void)removeObject:(WGComponentObject *)userObj
 {
-    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:[NSArray arrayWithObject:userObj] waitUntilDone:NO];
+    if (userObj != nil)
+        [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:[NSArray arrayWithObject:userObj] waitUntilDone:NO];
 }
 
 // Remove a group of objects at once

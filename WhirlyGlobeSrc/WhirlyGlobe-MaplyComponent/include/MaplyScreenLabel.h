@@ -38,6 +38,8 @@
     CGSize offset;
     /// If set, this color overrides the default
     UIColor *color;
+    /// If set, this label can be selected.  On by default.
+    bool selectable;
 }
 
 @property (nonatomic,assign) MaplyCoordinate loc;
@@ -46,6 +48,7 @@
 @property (nonatomic,strong) UIImage *iconImage;
 @property (nonatomic,assign) CGSize offset;
 @property (nonatomic,strong) UIColor *color;
+@property (nonatomic,assign) bool selectable;
 
 @end
 

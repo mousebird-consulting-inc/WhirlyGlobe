@@ -32,11 +32,14 @@
     CGSize size;
     /// If set, this is the image to use for the marker
     UIImage *image;
+    /// If set, this marker can be selected.  On by default.
+    bool selectable;
 }
 
 @property (nonatomic,assign) MaplyCoordinate loc;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) UIImage *image;
+@property (nonatomic,assign) bool selectable;
 
 @end
 

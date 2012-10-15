@@ -169,4 +169,7 @@
 /// Remove an array of data objects
 - (void)removeObjects:(NSArray *)theObjs;
 
+/// This utility routine will convert a lat/lon (in radians) to display coordinates
+- (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord;
+
 @end

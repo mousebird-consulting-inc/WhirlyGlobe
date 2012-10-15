@@ -25,5 +25,17 @@
 @synthesize loc;
 @synthesize size;
 @synthesize image;
+@synthesize selectable;
+
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    selectable = true;
+    
+    return self;
+}
 
 @end
