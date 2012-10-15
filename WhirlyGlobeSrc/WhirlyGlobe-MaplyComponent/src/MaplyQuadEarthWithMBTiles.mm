@@ -40,6 +40,7 @@
         }
         dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
         tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
+        tileLoader.coverPoles = true;
         quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
         tileLoader.ignoreEdgeMatching = !edges;
         [layerThread addLayer:quadLayer];

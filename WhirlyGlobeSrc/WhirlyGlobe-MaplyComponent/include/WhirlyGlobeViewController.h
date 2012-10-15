@@ -151,6 +151,10 @@
 /// Add one or more vectors
 - (WGComponentObject *)addVectors:(NSArray *)vectors;
 
+/// Change the representation for the given vector object(s).
+/// Only a few things are changeable, such as color
+- (void)changeVector:(WGComponentObject *)compObj desc:(NSDictionary *)desc;
+
 /// Add visual defaults for the shapes
 - (void)setShapeDesc:(NSDictionary *)desc;
 
