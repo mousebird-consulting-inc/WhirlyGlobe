@@ -415,11 +415,30 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually do the vector change
+// Called in the layer thread
+- (void)changeVectorLayerThread:(NSArray *)argArray
+{
+    WGComponentObject *vecObj = [argArray objectAtIndex:0];
+    NSDictionary *desc = [argArray objectAtIndex:1];
 
+    for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
+         it != vecObj.vectorIDs.end(); ++it)
+        [vectorLayer changeVector:*it desc:desc];
+}
+
+// Change vector representation
+- (void)changeVectors:(WGComponentObject *)vecObj desc:(NSDictionary *)desc
+{
+    NSArray *argArray = [NSArray arrayWithObjects:vecObj, desc, nil];
+    
+    [self performSelector:@selector(changeVectorLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+}
 
 // Called in the layer thread
 - (void)addShapesLayerThread:(NSArray *)argArray
 {
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     WGComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
@@ -443,6 +462,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newSphere.loc.lon() = sphere.center.x;
             newSphere.loc.lat() = sphere.center.y;
             newSphere.radius = sphere.radius;
+            newSphere.height = sphere.height;
             [ourShapes addObject:newSphere];
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
@@ -460,6 +480,21 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,globeView.coordAdapter);
             lin.lineWidth = gc.lineWidth;
             [ourShapes addObject:lin];
+        } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
+        {
+            MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
+            WhirlyKitShapeLinear *newLin = [[WhirlyKitShapeLinear alloc] init];
+            MaplyCoordinate3d *coords = NULL;
+            int numCoords = [lin getCoords:&coords];
+            for (unsigned int ii=0;ii<numCoords;ii++)
+            {
+                MaplyCoordinate3d &coord = coords[ii];
+                Point3f pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(coord.x,coord.y)));
+                pt *= (1.0+coord.z);
+                newLin.pts.push_back(pt);
+            }
+            newLin.lineWidth = lin.lineWidth;
+            [ourShapes addObject:newLin];
         }
     }
 
@@ -532,13 +567,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         {
             for (WGVectorObject *vecObj in userObj.vectors)
             {
-                WGCoordinate coord;
-                coord.x = pt.x();
-                coord.y = pt.y();
-                if ([vecObj pointInAreal:coord])
+                if (vecObj.selectable)
                 {
-                    selObj = vecObj;
-                    break;
+                    // Note: Take visibility into account too
+                    WGCoordinate coord;
+                    coord.x = pt.x();
+                    coord.y = pt.y();
+                    if ([vecObj pointInAreal:coord])
+                    {
+                        selObj = vecObj;
+                        break;
+                    }
                 }
             }
         }

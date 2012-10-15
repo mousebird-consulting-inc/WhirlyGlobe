@@ -49,10 +49,13 @@ typedef MaplyShapeCircle WGShapeCircle;
     MaplyCoordinate center;
     /// Radius in display units (1.0 is the size of the earth)
     float radius;
+    /// Offset from the globe (in display units)
+    float height;
 }
 
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
+@property (nonatomic,assign) float height;
 
 @end
 
@@ -98,5 +101,30 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 
 /// Return the angle between the two points in radians
 - (float)calcAngleBetween;
+
+@end
+
+/** A linear feature that's offset from the globe.
+    The feature can be arbitrarily large.  The first two
+    values of each coordinate are lon/lat and the third
+    is a Z offset in display units.
+  */
+@interface MaplyShapeLinear : NSObject
+{
+    /// Number of coordinates to display in linear
+    int numCoords;
+    /// Coordinates we'll display for the linear (lon,lat,Z in display units)
+    MaplyCoordinate3d *coords;
+    /// Line width in pixels
+    float lineWidth;
+}
+
+@property (nonatomic,assign) float lineWidth;
+
+/// Initialize with the coordinate data (will be copied in)
+- (id)initWithCoords:(MaplyCoordinate3d *)coords numCoords:(int)numCoords;
+
+/// Return the coordinates
+- (int)getCoords:(MaplyCoordinate3d **)retCoords;
 
 @end

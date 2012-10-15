@@ -89,6 +89,9 @@
 // Add vectors
 - (WGComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
 
+// Change vector representation
+- (void)changeVectors:(WGComponentObject *)vecObj desc:(NSDictionary *)desc;
+
 // Add shapes
 - (WGComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 

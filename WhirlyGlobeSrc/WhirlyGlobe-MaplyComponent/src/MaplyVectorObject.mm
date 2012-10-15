@@ -28,6 +28,7 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyVectorObject
 
+@synthesize selectable;
 @synthesize shapes;
 
 /// Parse vector data from geoJSON.  Returns one object to represent
@@ -63,6 +64,17 @@ using namespace WhirlyGlobe;
         (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
 }
 
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    selectable = true;
+    
+    return self;
+}
+
 /// Construct with a single point
 - (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
@@ -74,6 +86,8 @@ using namespace WhirlyGlobe;
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
         pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         shapes.insert(pts);
+        
+        selectable = true;
     }
     
     return self;
@@ -91,6 +105,8 @@ using namespace WhirlyGlobe;
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         shapes.insert(lin);
+        
+        selectable = true;
     }
     
     return self;
@@ -110,6 +126,8 @@ using namespace WhirlyGlobe;
         areal->loops.push_back(pts);
         areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         shapes.insert(areal);
+        
+        selectable = true;
     }
     
     return self;
