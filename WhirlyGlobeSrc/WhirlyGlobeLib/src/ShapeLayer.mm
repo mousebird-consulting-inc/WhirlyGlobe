@@ -212,6 +212,19 @@ public:
         flush();
     }
     
+    void setupNewDrawable()
+    {
+        
+        drawable = new BasicDrawable();
+        drawMbr.reset();
+        drawable->setType(GL_TRIANGLES);
+        // Adjust according to the vector info
+        drawable->setDrawOffset(shapeInfo.drawOffset);
+        drawable->setColor([shapeInfo.color asRGBAColor]);
+        drawable->setDrawPriority(shapeInfo.drawPriority);
+        drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);        
+    }
+    
     // Add a triangle with normals
     void addTriangle(Point3f p0,Point3f n0,Point3f p1,Point3f n1,Point3f p2,Point3f n2,Mbr shapeMbr)
     {
@@ -223,16 +236,11 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable();
-            drawMbr.reset();
-            drawable->setType(GL_TRIANGLES);
-            // Adjust according to the vector info
-            drawable->setDrawOffset(shapeInfo.drawOffset);
-            drawable->setColor([shapeInfo.color asRGBAColor]);
-            drawable->setDrawPriority(shapeInfo.drawPriority);
-            drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
+            setupNewDrawable();
         }
-        drawable->setLocalMbr(shapeMbr);
+        Mbr mbr = drawable->getLocalMbr();
+        mbr.expand(shapeMbr);
+        drawable->setLocalMbr(mbr);
         int baseVert = drawable->getNumPoints();
         drawable->addPoint(p0);
         drawable->addNormal(n0);
@@ -243,6 +251,34 @@ public:
         
         drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
         drawMbr.expand(shapeMbr);
+    }
+    
+    // Add a group of pre-build triangles
+    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<BasicDrawable::Triangle> &tris)
+    {
+        if (!drawable ||
+            (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
+            (drawable->getNumTris()+tris.size() > MaxDrawableTriangles))
+        {
+            if (drawable)
+                flush();
+            
+            setupNewDrawable();
+        }
+
+        int baseVert = drawable->getNumPoints();
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            drawable->addPoint(pts[ii]);
+            drawable->addNormal(norms[ii]);
+        }
+        for (unsigned int ii=0;ii<tris.size();ii++)
+        {
+            BasicDrawable::Triangle tri = tris[ii];
+            for (unsigned int jj=0;jj<3;jj++)
+                tri.verts[jj] += baseVert;
+            drawable->addTriangle(tri);
+        }
     }
     
     // Add a convex outline, triangulated
@@ -363,7 +399,66 @@ static int CircleSamples = 20;
 @implementation WhirlyKitSphere
 
 @synthesize loc;
+@synthesize height;
 @synthesize radius;
+
+// Note: We could make these parameters
+static const float SphereTessX = 10;
+static const float SphereTessY = 10;
+
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene
+{
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+
+    // Get the location in display coordinates
+    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
+    Point3f dispPt = coordAdapter->localToDisplay(localPt);
+    Point3f norm = coordAdapter->normalForLocal(localPt);
+    
+    // Run it up a bit by the height
+    dispPt = dispPt + norm*height;
+    
+    // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
+    // Note: Replace this with something less lame
+    std::vector<Point3f> locs,norms;
+    locs.reserve((SphereTessX+1)*(SphereTessX+1));
+    norms.reserve((SphereTessX+1)*(SphereTessY+1));
+    Point2f geoIncr(2*M_PI/SphereTessX,M_PI/SphereTessY);
+    for (unsigned int iy=0;iy<SphereTessY+1;iy++)
+        for (unsigned int ix=0;ix<SphereTessX+1;ix++)
+        {
+            GeoCoord geoLoc(-M_PI+ix*geoIncr.x(),-M_PI/2.0 + iy*geoIncr.y());
+			if (geoLoc.x() < -M_PI)  geoLoc.x() = -M_PI;
+			if (geoLoc.x() > M_PI) geoLoc.x() = M_PI;
+			if (geoLoc.y() < -M_PI/2.0)  geoLoc.y() = -M_PI/2.0;
+			if (geoLoc.y() > M_PI/2.0) geoLoc.y() = M_PI/2.0;
+            
+            Point3f spherePt = coordAdapter->localToDisplay(Point3f(geoLoc.lon(),geoLoc.lat(),0.0));
+            Point3f thisPt = dispPt + spherePt * radius;
+            
+            norms.push_back(spherePt);
+            locs.push_back(thisPt);
+        }
+    
+    // Two triangles per cell
+    std::vector<BasicDrawable::Triangle> tris;
+    tris.reserve(2*SphereTessX*SphereTessY);
+    for (unsigned int iy=0;iy<SphereTessY;iy++)
+        for (unsigned int ix=0;ix<SphereTessX;ix++)
+        {
+			BasicDrawable::Triangle triA,triB;
+			triA.verts[0] = iy*(SphereTessX+1)+ix;
+			triA.verts[1] = iy*(SphereTessX+1)+(ix+1);
+			triA.verts[2] = (iy+1)*(SphereTessX+1)+(ix+1);
+			triB.verts[0] = triA.verts[0];
+			triB.verts[1] = triA.verts[2];
+			triB.verts[2] = (iy+1)*(SphereTessX+1)+ix;
+            tris.push_back(triA);
+            tris.push_back(triB);
+        }
+    
+    triBuilder->addTriangles(locs,norms,tris);
+}
 
 @end
 

@@ -34,6 +34,7 @@ using namespace WhirlyKit;
 
 @synthesize center;
 @synthesize radius;
+@synthesize height;
 
 @end
 
@@ -68,12 +69,45 @@ using namespace WhirlyKit;
     Point3f p1 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(endPt.x,endPt.y,0.0));
     
     float dot = p0.dot(p1);
-    Point3f cross = p0.cross(p1);
+//    Point3f cross = p0.cross(p1);
 //    float mag = cross.norm();
 
     // Note: Atan2 is the correct way, but it's not working right here
 //    return atan2f(dot, mag);
     return acosf(dot);
+}
+
+@end
+
+@implementation MaplyShapeLinear
+
+@synthesize lineWidth;
+
+- (id)initWithCoords:(MaplyCoordinate3d *)inCoords numCoords:(int)inNumCoords
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    numCoords = inNumCoords;
+    coords = (MaplyCoordinate3d *)malloc(sizeof(MaplyCoordinate3d)*inNumCoords);
+    for (unsigned int ii=0;ii<numCoords;ii++)
+        coords[ii] = inCoords[ii];
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    if (coords)
+        free(coords);
+    coords = NULL;
+}
+
+- (int)getCoords:(MaplyCoordinate3d **)retCoords
+{
+    *retCoords = coords;
+    return numCoords;
 }
 
 @end

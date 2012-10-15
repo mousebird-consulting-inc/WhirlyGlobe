@@ -471,6 +471,11 @@ using namespace WhirlyGlobe;
     return [interactLayer addVectors:vectors desc:vectorDesc];
 }
 
+- (void)changeVector:(WGComponentObject *)compObj desc:(NSDictionary *)desc
+{
+    [interactLayer changeVectors:compObj desc:desc];
+}
+
 /// Add one or more shapes
 - (WGComponentObject *)addShapes:(NSArray *)shapes
 {
