@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Mauritius", "SOV_A3": "MUS", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Mauritius", "ADM0_A3": "MUS", "GEOU_DIF": 0.0, "GEOUNIT": "Mauritius", "GU_A3": "MUS", "SU_DIF": 0.0, "SUBUNIT": "Mauritius", "SU_A3": "MUS", "NAME": "Mauritius", "ABBREV": "Mus.", "POSTAL": "MU", "NAME_FORMA": "Republic of Mauritius", "TERR_": "", "NAME_SORT": "Mauritius", "MAP_COLOR": 7.0, "POP_EST": 1284264.0, "GDP_MD_EST": 15270.0, "FIPS_10_": "MP", "ISO_A2": "MU", "ISO_A3": "MUS", "ISO_N3": 480.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 57.651293, -20.484899 ], [ 57.524789, -20.513218 ], [ 57.383299, -20.503709 ], [ 57.328315, -20.450018 ], [ 57.31767, -20.427642 ], [ 57.365109, -20.406454 ], [ 57.362111, -20.337621 ], [ 57.385779, -20.228584 ], [ 57.416062, -20.183832 ], [ 57.486445, -20.143938 ], [ 57.515074, -20.055985 ], [ 57.575742, -19.997177 ], [ 57.656564, -19.989942 ], [ 57.737179, -20.098463 ], [ 57.791956, -20.212564 ], [ 57.780691, -20.326976 ], [ 57.724983, -20.368834 ], [ 57.70669, -20.434876 ], [ 57.651293, -20.484899 ] ] ] } }
+
+]
+}

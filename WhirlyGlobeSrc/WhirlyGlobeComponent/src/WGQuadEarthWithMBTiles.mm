@@ -28,6 +28,7 @@
         }
         dataSource = [[WhirlyMBTileQuadSource alloc] initWithPath:infoPath];
         tileLoader = [[WhirlyGlobeQuadTileLoader alloc] initWithDataSource:dataSource];
+        tileLoader.coverPoles = true;
         quadLayer = [[WhirlyGlobeQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
         tileLoader.ignoreEdgeMatching = !edges;
         [layerThread addLayer:quadLayer];

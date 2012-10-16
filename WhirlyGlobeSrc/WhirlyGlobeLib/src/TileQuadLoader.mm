@@ -257,6 +257,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize hasAlpha;
 @synthesize quadLayer;
 @synthesize ignoreEdgeMatching;
+@synthesize coverPoles;
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)inDataSource;
 {
@@ -542,6 +543,47 @@ static const float SkirtFactor = 0.95;
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
                 [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
+            }
+            
+            if (coverPoles)
+            {
+                // If we're at the top, toss in a few more triangles to represent that
+                int maxY = 1 << nodeInfo->ident.level;
+                if (nodeInfo->ident.y == maxY-1)
+                {
+                    Point3f northPt(0,0,1.0);
+                    chunk->addPoint(northPt);
+                    chunk->addTexCoord(TexCoord(0.5,0.0));
+                    chunk->addNormal(Point3f(0,0,1.0));
+                    int northVert = chunk->getNumPoints()-1;
+                    int iy = sphereTessY-1;
+                    for (unsigned int ix=0;ix<sphereTessX;ix++)
+                    {
+                        BasicDrawable::Triangle tri;
+                        tri.verts[0] = iy*(sphereTessX+1)+ix;
+                        tri.verts[1] = iy*(sphereTessX+1)+(ix+1);
+                        tri.verts[2] = northVert;
+                        chunk->addTriangle(tri);
+                    }
+                }
+                
+                if (nodeInfo->ident.y == 0)
+                {
+                    Point3f southPt(0,0,-1.0);
+                    chunk->addPoint(southPt);
+                    chunk->addTexCoord(TexCoord(0.5,1.0));
+                    chunk->addNormal(Point3f(0,0,-1.0));
+                    int southVert = chunk->getNumPoints()-1;
+                    int iy = 0;
+                    for (unsigned int ix=0;ix<sphereTessX;ix++)
+                    {
+                        BasicDrawable::Triangle tri;
+                        tri.verts[0] = southVert;
+                        tri.verts[2] = iy*(sphereTessX+1)+ix;
+                        tri.verts[1] = iy*(sphereTessX+1)+(ix+1);
+                        chunk->addTriangle(tri);
+                    }                    
+                }
             }
             
             if (tex && *tex)

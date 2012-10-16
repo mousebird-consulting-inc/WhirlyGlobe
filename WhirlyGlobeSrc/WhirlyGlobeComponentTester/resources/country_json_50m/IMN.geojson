@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Isle of Man", "ADM0_A3": "IMN", "GEOU_DIF": 0.0, "GEOUNIT": "Isle of Man", "GU_A3": "IMN", "SU_DIF": 0.0, "SUBUNIT": "Isle of Man", "SU_A3": "IMN", "NAME": "Isle of Man", "ABBREV": "IoMan", "POSTAL": "IM", "NAME_FORMA": "", "TERR_": "Crown dependency of U.K.", "NAME_SORT": "Isle of Man", "MAP_COLOR": 3.0, "POP_EST": 76512.0, "GDP_MD_EST": 2719.0, "FIPS_10_": "IM", "ISO_A2": "IM", "ISO_A3": "IMN", "ISO_N3": 833.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -4.412051, 54.185375 ], [ -4.614286, 54.058716 ], [ -4.696064, 54.081428 ], [ -4.765776, 54.069413 ], [ -4.785335, 54.073031 ], [ -4.745545, 54.118816 ], [ -4.698726, 54.224908 ], [ -4.614829, 54.26692 ], [ -4.50866, 54.376707 ], [ -4.424737, 54.40717 ], [ -4.39554, 54.402933 ], [ -4.377195, 54.392598 ], [ -4.337998, 54.269091 ], [ -4.392285, 54.225373 ], [ -4.412051, 54.185375 ] ] ] } }
+
+]
+}

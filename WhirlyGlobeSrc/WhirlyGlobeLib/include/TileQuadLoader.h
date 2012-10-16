@@ -149,6 +149,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     /// If set, we'll ignore edge matching.
     /// This can work if you're zoomed in close
     bool ignoreEdgeMatching;
+    
+    /// If set, we'll fill in the poles for a projection that doesn't go all the way up or down
+    bool coverPoles;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -157,6 +160,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 @property (nonatomic,assign) bool hasAlpha;
 @property (nonatomic,weak) WhirlyGlobeQuadDisplayLayer *quadLayer;
 @property (nonatomic,assign) bool ignoreEdgeMatching;
+@property (nonatomic,assign) bool coverPoles;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyGlobeQuadTileImageDataSource> *)imageSource;
