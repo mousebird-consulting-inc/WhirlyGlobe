@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Singapore", "SOV_A3": "SGP", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Singapore", "ADM0_A3": "SGP", "GEOU_DIF": 0.0, "GEOUNIT": "Singapore", "GU_A3": "SGP", "SU_DIF": 0.0, "SUBUNIT": "Singapore", "SU_A3": "SGP", "NAME": "Singapore", "ABBREV": "Sing.", "POSTAL": "SG", "NAME_FORMA": "Republic of Singapore", "TERR_": "", "NAME_SORT": "Singapore", "MAP_COLOR": 3.0, "POP_EST": 4657542.0, "GDP_MD_EST": 237300.0, "FIPS_10_": "SN", "ISO_A2": "SG", "ISO_A3": "SGP", "ISO_N3": 702.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 103.969706, 1.331444 ], [ 103.819948, 1.265401 ], [ 103.650139, 1.325552 ], [ 103.705329, 1.423428 ], [ 103.817984, 1.447095 ], [ 103.909038, 1.415986 ], [ 103.960817, 1.392215 ], [ 103.996371, 1.36524 ], [ 103.969706, 1.331444 ] ] ] } }
+
+]
+}

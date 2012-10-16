@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United States of America", "SOV_A3": "US1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "American Samoa", "ADM0_A3": "ASM", "GEOU_DIF": 0.0, "GEOUNIT": "American Samoa", "GU_A3": "ASM", "SU_DIF": 0.0, "SUBUNIT": "American Samoa", "SU_A3": "ASM", "NAME": "American Samoa", "ABBREV": "Am. Samoa", "POSTAL": "AS", "NAME_FORMA": "Territory of American Samoa", "TERR_": "U.S.A.", "NAME_SORT": "American Samoa", "MAP_COLOR": 1.0, "POP_EST": 65628.0, "GDP_MD_EST": 575.3, "FIPS_10_": "AQ", "ISO_A2": "AS", "ISO_A3": "ASM", "ISO_N3": 16.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -170.726292, -14.351217 ], [ -170.769261, -14.359795 ], [ -170.820524, -14.312149 ], [ -170.72084, -14.275976 ], [ -170.68914, -14.257476 ], [ -170.56811, -14.266777 ], [ -170.640457, -14.28228 ], [ -170.726292, -14.351217 ] ] ] } }
+
+]
+}
