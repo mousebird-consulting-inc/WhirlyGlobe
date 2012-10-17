@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "China", "SOV_A3": "CH1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Macau S.A.R", "ADM0_A3": "MAC", "GEOU_DIF": 0.0, "GEOUNIT": "Macau S.A.R", "GU_A3": "MAC", "SU_DIF": 0.0, "SUBUNIT": "Macau S.A.R", "SU_A3": "MAC", "NAME": "Macau", "ABBREV": "Mac.", "POSTAL": "MO", "NAME_FORMA": "Macau Special Administrative Region", "TERR_": "China", "NAME_SORT": "Macau S.A.R", "MAP_COLOR": 3.0, "POP_EST": 559846.0, "GDP_MD_EST": 18140.0, "FIPS_10_": "MC", "ISO_A2": "MO", "ISO_A3": "MAC", "ISO_N3": 446.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 113.478893, 22.195545 ], [ 113.481063, 22.217456 ], [ 113.494189, 22.241537 ], [ 113.527055, 22.245929 ], [ 113.548139, 22.222623 ], [ 113.545504, 22.221486 ], [ 113.49884, 22.201668 ], [ 113.484164, 22.197767 ], [ 113.478893, 22.195545 ] ] ] } }
+
+]
+}
