@@ -633,6 +633,7 @@ static const float SphereTessY = 10;
 - (void)runAddShapes:(ShapeInfo *)shapeInfo
 {
     ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo.shapeId);
+    sceneRep->fade = shapeInfo.fade;
 
     std::vector<ChangeRequest *> changeRequests;
     ShapeDrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,shapeInfo);
