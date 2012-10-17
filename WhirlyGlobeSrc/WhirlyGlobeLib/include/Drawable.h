@@ -268,6 +268,9 @@ public:
 
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
+    
+    /// Return a given point
+    Point3f getPoint(int which) { if (which >= points.size()) return Point3f(0,0,0);  return points[which]; }
 
     /// Add a texture coordinate.
 	void addTexCoord(TexCoord coord) { texCoords.push_back(coord); }
@@ -277,6 +280,9 @@ public:
 
     /// Add a normal
 	void addNormal(Point3f norm) { norms.push_back(norm); }
+    
+    /// Return a given normal
+    Point3f getNormal(int which) { if (which <= norms.size()) return Point3f(0,0,1);  return norms[which]; }
 
     /// Add a triangle.  Should point to the vertex IDs.
 	void addTriangle(Triangle tri) { tris.push_back(tri); }
