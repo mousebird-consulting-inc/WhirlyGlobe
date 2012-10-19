@@ -25,6 +25,9 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyMBTileQuadSource
+{
+    bool tilesStyles;
+}
 
 - (id)initWithPath:(NSString *)path
 {
@@ -76,7 +79,12 @@ using namespace WhirlyGlobe;
             maxZoom = [readStmt3.getString() intValue];
                 
         // Note: We could load something and calculate this, but I don't want to slow us down here
-        pixelsPerTile = 256;        
+        pixelsPerTile = 256;
+        
+        // See if there's a tiles table or it's the older(?) style
+        sqlhelpers::StatementRead testStmt(sqlDb,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
+        if (testStmt.stepRow())
+            tilesStyles = true;
     }
     
     return self;
@@ -143,13 +151,20 @@ using namespace WhirlyGlobe;
 {
     NSData *imageData = nil;
     
-    sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_id from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
-    if (readStmt.stepRow())
+    if (tilesStyles)
     {
-        NSString *tile_id = readStmt.getString();
-        sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
-        if (readStmt2.stepRow())
-            imageData = readStmt2.getBlob();
+        sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
+        if (readStmt.stepRow())
+            imageData = readStmt.getBlob();
+    } else {
+        sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_id from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
+        if (readStmt.stepRow())
+        {
+            NSString *tile_id = readStmt.getString();
+            sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
+            if (readStmt2.stepRow())
+                imageData = readStmt2.getBlob();
+        }
     }
     
 //    if (!imageData)
