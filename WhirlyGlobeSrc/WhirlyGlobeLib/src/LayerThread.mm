@@ -55,7 +55,9 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
+    // Note: It's not clear why we'd do this here.
+    //       What run loop would it be referring to?
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
 }
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer

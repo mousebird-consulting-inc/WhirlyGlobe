@@ -235,6 +235,7 @@ public:
 		
 		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         
+        EAGLContext *oldContext = [EAGLContext currentContext];
         if (!context || ![EAGLContext setCurrentContext:context])
 		{
             return nil;
@@ -261,6 +262,8 @@ public:
         
         // Off by default.  Because duh.
         depthBufferOffForAlpha = false;
+       
+         [EAGLContext setCurrentContext:oldContext];
 	}
 	
 	return self;
@@ -268,6 +271,8 @@ public:
 
 - (void) dealloc
 {
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
 	[EAGLContext setCurrentContext:context];
 	
 	if (defaultFramebuffer)
@@ -288,8 +293,9 @@ public:
 		depthRenderbuffer = 0;
 	}
 	
+	if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
 	context = nil;
-	
 }
 
 // We'll take the maximum requested time
@@ -300,12 +306,14 @@ public:
 
 - (void)useContext
 {
-	if (context)
+	if (context && [EAGLContext currentContext] != context)
 		[EAGLContext setCurrentContext:context];
 }
 
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
 {	
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
     [EAGLContext setCurrentContext:context];
 
 	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
@@ -321,6 +329,8 @@ public:
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));		
+        if (oldContext != context)
+            [EAGLContext setCurrentContext:oldContext];
 		return NO;
 	}
 	
@@ -329,6 +339,8 @@ public:
 	
     lastDraw = 0;
 	
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
 	return YES;
 }
 
@@ -514,6 +526,8 @@ static const float ScreenOverlap = 0.1;
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
     [EAGLContext setCurrentContext:context];
     
     // Deal with any lighting changes
@@ -812,6 +826,9 @@ static const float ScreenOverlap = 0.1;
         perfTimer.log();
         perfTimer.clear();
 	}
+    
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
 }
 
 @end

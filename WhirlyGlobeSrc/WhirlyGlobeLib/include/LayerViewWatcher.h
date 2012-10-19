@@ -33,9 +33,9 @@
 @interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
 {
     /// Layer we're attached to
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     /// The view we're following for upates
-    WhirlyKitView *view;
+    WhirlyKitView * __weak view;
     /// Watchers we'll call back for updates
     NSMutableArray *watchers;
     

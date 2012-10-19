@@ -196,6 +196,11 @@ void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, s
         outDrawables.push_back(DrawableRef(it->second));
 }
 
+void MarkerGenerator::dumpStats()
+{
+    NSLog(@"Marker Generator: %ld markers",markers.size());
+}
+
 MarkerGeneratorAddRequest::MarkerGeneratorAddRequest(SimpleIdentity genId,MarkerGenerator::Marker *marker)
     : GeneratorChangeRequest(genId)
 {   

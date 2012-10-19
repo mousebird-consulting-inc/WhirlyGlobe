@@ -46,8 +46,9 @@ public:
 	Texture(NSData *texData,bool isPVRTC);
 	/// Construct with a file name and extension
 	Texture(NSString *baseName,NSString *ext);
-	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side
-	Texture(UIImage *inImage);
+	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
+    /// If it's not we'll round up or down, depending on the flag
+	Texture(UIImage *inImage,bool roundUp=true);
     /// Construct from a FILE, presumably because it was cached
     Texture(FILE *fp);
 	

@@ -28,6 +28,7 @@
 @synthesize iconImage;
 @synthesize color;
 @synthesize selectable;
+@synthesize justify;
 
 - (id)init
 {
