@@ -650,6 +650,14 @@ using namespace WhirlyGlobe;
     return displayCoord;
 }
 
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+{
+    Point3f pt = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    Eigen::Matrix4f modelTrans = [globeView calcModelMatrix];
+    return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time
