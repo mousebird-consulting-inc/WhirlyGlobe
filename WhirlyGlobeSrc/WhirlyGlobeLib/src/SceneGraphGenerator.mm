@@ -180,8 +180,15 @@ void SceneGraphGenerator::removeSceneFragment(SimpleIdentity nodeID)
         traverseRemNodeIDs(groupRef);        
         topNodes.erase(groupRef);
         
-    } else
-        NSLog(@"SceneGraphGenerator: Got invalid remove node request: %lu",nodeID);
+    }
+//    else
+//        NSLog(@"SceneGraphGenerator: Got invalid remove node request: %lu",nodeID);
+}
+    
+void SceneGraphGenerator::dumpStats()
+{
+    NSLog(@"SceneGraph Generator: %ld top level nodes",topNodes.size());
+    NSLog(@"SceneGraph Generator: %ld indexed nodes",allNodes.size());
 }
     
 SceneGraphGeneratorAddRequest::SceneGraphGeneratorAddRequest(SimpleIdentity genID,SimpleIdentity attachID,SceneGraphNodeRef node)

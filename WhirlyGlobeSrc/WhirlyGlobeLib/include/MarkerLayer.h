@@ -41,6 +41,7 @@ static const int MaxMarkerDrawableTris=1<<15/3;
 namespace WhirlyKit
 {
 
+/// Marker representation.
 /// Used internally to track marker resources
 class MarkerSceneRep : public Identifiable
 {

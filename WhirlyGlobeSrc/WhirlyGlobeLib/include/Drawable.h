@@ -44,6 +44,11 @@ namespace WhirlyKit
 	
 class Scene;
 
+/// We'll only keep this many buffers or textures around for reuse
+#define WhirlyKitOpenGLMemCacheMax 32
+/// Number of buffers we allocate at once
+#define WhirlyKitOpenGLMemCacheAllocUnit 8
+
 /// Used to manage OpenGL buffer IDs and such.
 /// They're expensive to create and delete, so we try to do it
 ///  outside the renderer.
@@ -62,6 +67,15 @@ public:
     GLuint getTexID();
     /// Toss the given texture ID back on the list for reuse
     void removeTexID(GLuint texID);
+        
+    /// Clear out any and all buffer IDs that we may have sitting around
+    void clearBufferIDs();
+    
+    /// Clear out any and all texture IDs that we have sitting around
+    void clearTextureIDs();
+    
+    /// Print out stats about what's in the cache
+    void dumpStats();
         
 protected:
     pthread_mutex_t idLock;

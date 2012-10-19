@@ -40,6 +40,9 @@ public:
     Cullable *getTopCullable() { return topCullable; }
     int getCount() { return numCullables; }
     
+    /// Print stats out to the log
+    void dumpStats();
+    
 protected:
     CoordSystemDisplayAdapter *coordAdapter;
     Cullable *topCullable;
@@ -91,6 +94,9 @@ public:
     
     /// Get the bounding box for this cullable
 	Mbr getMbr() const { return localMbr; }
+        
+    /// Count the number of nodes at and below this level
+    int countNodes() const;
         
 public:	
     Cullable *getOrAddChild(int which,CullTree *tree);

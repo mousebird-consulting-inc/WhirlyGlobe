@@ -79,6 +79,9 @@ public:
     /// Return a marker.  Only used by the change request objects.
     Marker *getMarker(SimpleIdentity markerId);
     
+    /// Dump out stats for debugging
+    void dumpStats();
+    
 protected:
     typedef std::set<Marker *,IdentifiableSorter> MarkerSet;
     MarkerSet markers;

@@ -355,6 +355,14 @@ ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleId
     return NULL;
 }
 
+void ScreenSpaceGenerator::dumpStats()
+{
+    pthread_mutex_lock(&projectedPtsLock);
+    NSLog(@"ScreenSpace Generator: %ld shapes",convexShapes.size());
+    NSLog(@"ScreenSpace Generator: %ld projected points",projectedPoints.size());
+    pthread_mutex_unlock(&projectedPtsLock);
+}
+
 
 ScreenSpaceGeneratorAddRequest::ScreenSpaceGeneratorAddRequest(SimpleIdentity genID,ScreenSpaceGenerator::ConvexShape *shape)
     : GeneratorChangeRequest(genID)
