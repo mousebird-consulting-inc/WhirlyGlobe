@@ -36,6 +36,7 @@
         return nil;
     
     selectable = true;
+    justify = MaplyLabelJustiyMiddle;
     
     return self;
 }

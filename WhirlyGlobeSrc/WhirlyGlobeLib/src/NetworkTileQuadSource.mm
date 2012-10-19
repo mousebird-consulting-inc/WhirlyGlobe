@@ -40,8 +40,8 @@ using namespace WhirlyGlobe;
         
         coordSys = new SphericalMercatorCoordSystem();
 
-        GeoCoord ll = GeoCoord::CoordFromDegrees(-180,-85);
-        GeoCoord ur = GeoCoord::CoordFromDegrees( 180, 85);
+        GeoCoord ll = GeoCoord::CoordFromDegrees(-180,-85.05113);
+        GeoCoord ur = GeoCoord::CoordFromDegrees( 180, 85.05113);
         Point3f ll3d = coordSys->geographicToLocal(ll);
         Point3f ur3d = coordSys->geographicToLocal(ur);
         mbr.ll() = Point2f(ll3d.x(),ll3d.y());
