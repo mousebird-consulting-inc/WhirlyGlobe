@@ -109,6 +109,9 @@ public:
     /// This will lock, make a copy and unlock so go wild.
     void getProjectedPoints(std::vector<ProjectedPoint> &projPoints);
     
+    /// Print stats for debugging
+    void dumpStats();
+    
 protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;

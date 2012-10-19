@@ -242,6 +242,10 @@ public:
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
 	
+    /// Dump out stats on what is currently in the scene.
+    /// Use this sparingly, as it writes to the log.
+    void dumpStats();
+	
 public:
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.

@@ -24,6 +24,6 @@
 @interface UIImage(Stuff)
 
 /// Pull the raw data, width, and height out of a UIImage
--(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height;
+-(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp;
 
 @end
