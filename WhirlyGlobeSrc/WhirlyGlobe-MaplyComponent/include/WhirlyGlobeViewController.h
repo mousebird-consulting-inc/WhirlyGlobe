@@ -176,4 +176,7 @@
 /// This utility routine will convert a lat/lon (in radians) to display coordinates
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord;
 
+/// This utility routine returns the on screen location for a coordinate in lat/lon
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
 @end

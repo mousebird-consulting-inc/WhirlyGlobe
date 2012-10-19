@@ -336,7 +336,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     // Convert to WG markers
     NSMutableArray *wgLabels = [NSMutableArray array];
-    for (WGScreenLabel *label in labels)
+    for (WGLabel *label in labels)
     {
         WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
@@ -356,6 +356,18 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         {
             wgLabel.isSelectable = true;
             wgLabel.selectID = Identifiable::genId();
+        }
+        switch (label.justify)
+        {
+            case MaplyLabelJustifyLeft:
+                [desc setObject:@"left" forKey:@"justify"];
+                break;
+            case MaplyLabelJustiyMiddle:
+                [desc setObject:@"middle" forKey:@"justify"];
+                break;
+            case MaplyLabelJustifyRight:
+                [desc setObject:@"right" forKey:@"justify"];
+                break;
         }
         wgLabel.desc = desc;
         
@@ -430,6 +442,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // Change vector representation
 - (void)changeVectors:(WGComponentObject *)vecObj desc:(NSDictionary *)desc
 {
+    if (!vecObj)
+        return;
+    
+    if (!desc)
+        desc = [NSDictionary dictionary];
     NSArray *argArray = [NSArray arrayWithObjects:vecObj, desc, nil];
     
     [self performSelector:@selector(changeVectorLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];

@@ -216,9 +216,16 @@ using namespace WhirlyGlobe;
         mbr.addPoints(*bigLoop);
         ctr.x = (mbr.ll().x() + mbr.ur().x())/2.0;
         ctr.y = (mbr.ll().y() + mbr.ur().y())/2.0;
-        *center = ctr;
-        ll->x = mbr.ll().x();  ll->y = mbr.ll().y();
-        ur->x = mbr.ur().x();  ur->y = mbr.ur().y();
+        if (center)
+            *center = ctr;
+        if (ll)
+        {
+            ll->x = mbr.ll().x();  ll->y = mbr.ll().y();
+        }
+        if (ur)
+        {
+            ur->x = mbr.ur().x();  ur->y = mbr.ur().y();
+        }
     }
 
     return true;

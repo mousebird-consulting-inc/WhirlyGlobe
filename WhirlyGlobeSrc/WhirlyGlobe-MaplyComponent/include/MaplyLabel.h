@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
+typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustiyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
+
 /** Screen Space (2D) Label.
  Set this is up and hand it over to the WhirlyGlobeViewController for display.
  */
@@ -38,6 +40,8 @@
     UIColor *color;
     /// If set, this label can be selected.  On by default.
     bool selectable;
+    /// Text justification
+    MaplyLabelJustify justify;
 }
 
 @property (nonatomic,assign) MaplyCoordinate loc;
@@ -46,6 +50,7 @@
 @property (nonatomic,strong) UIImage *iconImage;
 @property (nonatomic,strong) UIColor *color;
 @property (nonatomic,assign) bool selectable;
+@property (nonatomic,assign) MaplyLabelJustify justify;
 
 @end
 
