@@ -285,6 +285,7 @@
 		2BE849CE15BDFB40006CFD3F /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */; };
 		2BE849D015BE01EE006CFD3F /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CF15BE01EE006CFD3F /* map_pin.png */; };
 		2BFDBA981632115600BB61E6 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BFDBA951632110D00BB61E6 /* libWhirlyGlobe-MaplyComponent.a */; };
+		2BFDBA9A16321E1D00BB61E6 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFDBA9916321E1D00BB61E6 /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -583,6 +584,7 @@
 		2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 		2BE849CF15BE01EE006CFD3F /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = SOURCE_ROOT; };
 		2BFDBA891632110D00BB61E6 /* WhirlyGlobe-MaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "WhirlyGlobe-MaplyComponent.xcodeproj"; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj"; sourceTree = "<group>"; };
+		2BFDBA9916321E1D00BB61E6 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -864,6 +866,7 @@
 		2BE8496215BDE270006CFD3F = {
 			isa = PBXGroup;
 			children = (
+				2BFDBA9916321E1D00BB61E6 /* Default-568h@2x.png */,
 				2BFDBA891632110D00BB61E6 /* WhirlyGlobe-MaplyComponent.xcodeproj */,
 				2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */,
 				2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */,
@@ -1301,6 +1304,7 @@
 				2B157D021631FD1A000BA3AD /* ZAF.geojson in Resources */,
 				2B157D031631FD1A000BA3AD /* ZMB.geojson in Resources */,
 				2B157D041631FD1A000BA3AD /* ZWE.geojson in Resources */,
+				2BFDBA9A16321E1D00BB61E6 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
