@@ -68,7 +68,7 @@
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer;
 
 /// Add a C++ object to be deleted after the thread has stopped
-/// Always clal this from the main thread before you cancel the layer thread
+/// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing;
 
 /// Add an Objective C object to release after the thread has stopped

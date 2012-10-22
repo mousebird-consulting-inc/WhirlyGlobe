@@ -285,6 +285,7 @@
 		2BE849CD15BDFB40006CFD3F /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE849CB15BDFB40006CFD3F /* ConfigViewController.m */; };
 		2BE849CE15BDFB40006CFD3F /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */; };
 		2BE849D015BE01EE006CFD3F /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BE849CF15BE01EE006CFD3F /* map_pin.png */; };
+		2BFDBAD61635AE1A00BB61E6 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFDBAD51635AE1A00BB61E6 /* Default-568h@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -583,6 +584,7 @@
 		2BE849CB15BDFB40006CFD3F /* ConfigViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
 		2BE849CC15BDFB40006CFD3F /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 		2BE849CF15BE01EE006CFD3F /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = resources/map_pin.png; sourceTree = SOURCE_ROOT; };
+		2BFDBAD51635AE1A00BB61E6 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -864,6 +866,7 @@
 		2BE8496215BDE270006CFD3F = {
 			isa = PBXGroup;
 			children = (
+				2BFDBAD51635AE1A00BB61E6 /* Default-568h@2x.png */,
 				2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */,
 				2BE849AB15BDF7AF006CFD3F /* QuartzCore.framework */,
 				2BE849A915BDF7AB006CFD3F /* libsqlite3.dylib */,
@@ -1301,6 +1304,7 @@
 				2B157D021631FD1A000BA3AD /* ZAF.geojson in Resources */,
 				2B157D031631FD1A000BA3AD /* ZMB.geojson in Resources */,
 				2B157D041631FD1A000BA3AD /* ZWE.geojson in Resources */,
+				2BFDBAD61635AE1A00BB61E6 /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

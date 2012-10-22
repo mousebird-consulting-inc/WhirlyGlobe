@@ -65,15 +65,15 @@ Texture::Texture(NSString *baseName,NSString *ext)
             if (!image)
                 return;
         }
-		texData = [image rawDataRetWidth:&width height:&height];
+		texData = [image rawDataRetWidth:&width height:&height roundUp:true];
 	}
 }
 
 // Construct with a UIImage
-Texture::Texture(UIImage *inImage)
+Texture::Texture(UIImage *inImage,bool roundUp)
     : glId(0), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false)
 {
-	texData = [inImage rawDataRetWidth:&width height:&height];
+	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
 
 Texture::~Texture()

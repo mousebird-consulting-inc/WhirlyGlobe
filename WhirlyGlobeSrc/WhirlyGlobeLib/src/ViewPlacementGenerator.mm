@@ -138,4 +138,9 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     }
 }
 
+void ViewPlacementGenerator::dumpStats()
+{
+    NSLog(@"ViewPlacement Generator: %ld",viewInstanceSet.size());
+}
+
 }
