@@ -82,6 +82,9 @@
         case OpenStreetmapRemote:
             cell.textLabel.text = @"OpenStreetMap - Remote";
             break;
+        case ArgyleTilesRemote:
+            cell.textLabel.text = @"Argyle Tiles - Remote";
+            break;
         default:
             break;
     }
