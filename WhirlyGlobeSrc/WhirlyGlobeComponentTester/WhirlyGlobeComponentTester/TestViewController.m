@@ -196,6 +196,20 @@ LocationInfo locations[NumLocations] =
             vecColor = [UIColor brownColor];
             vecWidth = 2.0;
         }
+        case ArgyleTilesRemote:
+        {
+            // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
+            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/argyle/",cacheDir];
+            NSError *error = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+            [globeViewC addQuadEarthLayerWithRemoteSource:@"http://temp1.argyl.es/whirly-demo/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:12];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
+        }
             break;
         default:
             break;
