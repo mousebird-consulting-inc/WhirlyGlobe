@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 /** The Plate Careee just unrolls lat/lon in radians and
     represents the map as a flat non-projection of that.
-    This is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
+    Technically, this is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
 class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
 {

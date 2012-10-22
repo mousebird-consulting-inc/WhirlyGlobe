@@ -253,6 +253,7 @@ void LoadedTile::Print(Quadtree *tree)
 
 @synthesize drawOffset;
 @synthesize drawPriority;
+@synthesize minVis,maxVis;
 @synthesize color;
 @synthesize hasAlpha;
 @synthesize quadLayer;
@@ -271,6 +272,8 @@ void LoadedTile::Print(Quadtree *tree)
         hasAlpha = false;
         numFetches = 0;
         ignoreEdgeMatching = false;
+        minVis = DrawVisibleInvalid;
+        maxVis = DrawVisibleInvalid;
     }
     
     return self;
@@ -416,7 +419,9 @@ static const float SkirtFactor = 0.95;
                 {
                     // Create the texture and set it up in OpenGL
                      newTex = new Texture(texImage);
-                }
+                    newTex->setUsesMipmaps(false);
+                } else
+                    NSLog(@"TileQuadLoader was handed a bad image of size: %d",[imageData length]);
             }
             
             if (newTex)
@@ -435,6 +440,7 @@ static const float SkirtFactor = 0.95;
         BasicDrawable *chunk = new BasicDrawable((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
         chunk->setDrawOffset(drawOffset);
         chunk->setDrawPriority(drawPriority);
+        chunk->setVisibleRange(minVis, maxVis);
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));

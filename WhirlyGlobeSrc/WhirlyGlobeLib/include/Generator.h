@@ -51,6 +51,9 @@ public:
     
     /// An optional name used to identify the generator
     std::string name;
+    
+    /// Full this in to dump states when the scene dumps its stats
+    virtual void dumpStats() { };
 };
 
 /** The Generator Change Request is the base class for communication

@@ -196,6 +196,7 @@ LocationInfo locations[NumLocations] =
             vecColor = [UIColor brownColor];
             vecWidth = 2.0;
         }
+            break;
         case ArgyleTilesRemote:
         {
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)

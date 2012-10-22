@@ -77,6 +77,10 @@ public:
 
     /// Rather than generate drawables here, we update our locations
     void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);        
+            
+    /// Print out stats for debugging
+    void dumpStats();
+            
 protected:
     std::set<ViewInstance> viewInstanceSet;
 };

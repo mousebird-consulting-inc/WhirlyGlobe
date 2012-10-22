@@ -96,6 +96,9 @@ public:
     /// Generate the drawables for the given frame
     void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<WhirlyKit::DrawableRef> &drawables,std::vector<WhirlyKit::DrawableRef> &screenDrawables); 
     
+    /// Print out stats for debugging
+    void dumpStats();
+    
 protected:
     // Recursive traversal for a scenegraph node
     void traverseNode(WhirlyKitRendererFrameInfo *frameInfo,WhirlyKit::Point3f localPt,SceneGraphNodeRef node,std::set<SceneGraphNodeRef> &siblingNodes,std::vector<WhirlyKit::DrawableRef> &drawables);
