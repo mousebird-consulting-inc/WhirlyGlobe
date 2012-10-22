@@ -140,8 +140,16 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
         mbr = [dataStructure validExtents];
         minZoom = [dataStructure minZoom];
         maxZoom = [dataStructure maxZoom];
-        maxTiles = 400;
-        minImportance = 1.0;
+        if ([UIScreen mainScreen].scale > 1.0)
+        {
+            // For retina displays, we'll allow more tiles, but not quite that much resolution
+            maxTiles = 400;
+            minImportance = 2.0;
+        } else {
+            // Maximum for older displays
+            maxTiles = 100;
+            minImportance = 1.0;
+        }
         viewUpdatePeriod = 1.0;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
