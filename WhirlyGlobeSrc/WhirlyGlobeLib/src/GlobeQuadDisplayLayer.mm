@@ -140,7 +140,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
         mbr = [dataStructure validExtents];
         minZoom = [dataStructure minZoom];
         maxZoom = [dataStructure maxZoom];
-        maxTiles = 100;
+        maxTiles = 400;
         minImportance = 1.0;
         viewUpdatePeriod = 1.0;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
@@ -194,9 +194,10 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
 {
     if (!scene)
     {
-        NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after begin shutdown.");
+        NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being shutdown.");
         return;
     }
+//    NSLog(@"View state: (%f,%f,%f), height = %f",inViewState.eyePos.x(),inViewState.eyePos.y(),inViewState.eyePos.z(),inViewState->heightAboveGlobe);
     
     viewState = inViewState;
     nodesForEval.clear();
@@ -329,18 +330,20 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
         std::vector<Quadtree::NodeInfo> childNodes;
         quadtree->generateChildren(tileIdent, childNodes);
         nodesForEval.insert(childNodes.begin(),childNodes.end());
-        
-        // Make sure we actually evaluate them
-        [NSObject cancelPreviousPerformRequestsWithTarget:self];
-        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
+
+    // Make sure we actually evaluate them
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
 // Tile failed to load.
 // At the moment we don't care, but we won't look at the children
 - (void)loader:(NSObject<WhirlyGlobeQuadLoader> *)loader tileDidNotLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
-    
+    // Might get stuck here
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];    
 }
 
 // Clear out all the existing tiles and start over
@@ -353,7 +356,7 @@ float ScreenImportance(WhirlyGlobeViewState * __unsafe_unretained viewState,Whir
     }
     
     // Clean out anything we might be currently evaluating
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     nodesForEval.clear();
 
     // Remove nodes until we run out

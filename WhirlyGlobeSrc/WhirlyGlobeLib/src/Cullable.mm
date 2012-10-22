@@ -35,6 +35,12 @@ CullTree::~CullTree()
     delete topCullable;
 }
     
+void CullTree::dumpStats()
+{
+    NSLog(@"CullTree: %d nodes",topCullable->countNodes());
+}
+
+    
 Cullable::Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth)
     : localMbr(localMbr)
 {
@@ -224,6 +230,16 @@ void Cullable::remDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
                 children[ii] = NULL;
             }
     }
+}
+
+int Cullable::countNodes() const
+{
+    int count = 1;
+    for (unsigned int ii=0;ii<4;ii++)
+        if (children[ii])
+            count += children[ii]->countNodes();
+    
+    return count;
 }
 
 }

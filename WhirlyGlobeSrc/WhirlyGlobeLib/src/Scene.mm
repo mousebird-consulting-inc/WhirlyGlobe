@@ -226,6 +226,20 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
     return screenSpaceGeneratorID;
 }
 
+void Scene::dumpStats()
+{
+    NSLog(@"Scene: %ld drawables",drawables.size());
+    NSLog(@"Scene: %d active models",[activeModels count]);
+    NSLog(@"Scene: %ld generators",generators.size());
+    NSLog(@"Scene: %ld textures",textures.size());
+    NSLog(@"Scene: %ld sub textures",subTextureMap.size());
+    cullTree->dumpStats();
+    memManager.dumpStats();
+    for (GeneratorSet::iterator it = generators.begin();
+         it != generators.end(); ++it)
+        (*it)->dumpStats();
+}
+
 
 void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
 {

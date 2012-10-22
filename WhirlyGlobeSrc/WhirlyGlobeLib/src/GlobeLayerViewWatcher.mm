@@ -132,6 +132,7 @@ using namespace WhirlyKit;
     if (self)
     {
         inView.watchDelegate = self;
+        lastViewState = [[WhirlyGlobeViewState alloc] initWithView:(WhirlyGlobeView *)view];
     }
     
     return self;
@@ -145,12 +146,6 @@ using namespace WhirlyKit;
     watch->minTime = minTime;
     [watchers addObject:watch];
     
-    if (!lastViewState)
-    {
-        WhirlyGlobeViewState *viewState = [[WhirlyGlobeViewState alloc] initWithView:(WhirlyGlobeView *)view];
-        lastViewState = viewState;        
-    }
-    
     // Make sure it gets a starting update
     // The trick here is we need to let the main thread finish setting up first
     [self performSelectorOnMainThread:@selector(updateSingleWatcherDelay:) withObject:watch waitUntilDone:NO];
@@ -162,7 +157,10 @@ using namespace WhirlyKit;
     LocalWatcher *toRemove = [[LocalWatcher alloc] init];
     toRemove->target = target;
     toRemove->selector = selector;
-    [self performSelector:@selector(removeWatcherTargetLayer:) onThread:layerThread withObject:toRemove waitUntilDone:YES];    
+    if ([NSThread currentThread] == layerThread)
+        [self removeWatcherTargetLayer:toRemove];
+    else
+        [self performSelector:@selector(removeWatcherTargetLayer:) onThread:layerThread withObject:toRemove waitUntilDone:NO];
 }
 
 - (void)removeWatcherTargetLayer:(LocalWatcher *)toRemove
@@ -180,7 +178,7 @@ using namespace WhirlyKit;
     
     if (found)
     {
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(updateSingleWatcher:) object:found];
+        [layerThread.runLoop cancelPerformSelector:@selector(updateSingleWatcher:) target:self argument:found];
         [watchers removeObject:found];
     }    
 }
@@ -189,9 +187,17 @@ using namespace WhirlyKit;
 - (void)viewUpdated:(WhirlyGlobeView *)inGlobeView
 {
     WhirlyGlobeViewState *viewState = [[WhirlyGlobeViewState alloc] initWithView:inGlobeView];
-    lastViewState = viewState;
-    [self performSelector:@selector(viewUpdateLayerThread:) onThread:layerThread withObject:viewState waitUntilDone:NO];
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sweepLaggards:) object:nil];
+    [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
+    [self performSelector:@selector(kickoffViewUpdated:) onThread:layerThread withObject:viewState waitUntilDone:NO];
+}
+
+// This is called in the layer thread
+// We kick off the update here
+- (void)kickoffViewUpdated:(WhirlyGlobeViewState *)newViewState;
+{
+    lastViewState = newViewState;
+    [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
+    [self viewUpdateLayerThread:lastViewState];
     lastUpdate = [[NSDate date] timeIntervalSinceReferenceDate];
 }
 
@@ -206,7 +212,16 @@ using namespace WhirlyKit;
 // Called in the layer thread
 - (void)updateSingleWatcher:(LocalWatcher *)watch
 {
-    [watch->target performSelector:watch->selector onThread:layerThread withObject:lastViewState waitUntilDone:NO];
+    // Note: This should never, ever happen
+    // Make sure the thing we're watching is still valid
+    if (![watchers containsObject:watch])
+    {
+        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
+        return;
+    }
+    
+    [watch->target performSelector:watch->selector withObject:lastViewState];
+//    [layerThread.runLoop performSelector:watch->selector target:watch->target argument:lastViewState order:0 modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
     watch->lastUpdated = lastUpdate;
 }
 
@@ -231,6 +246,7 @@ using namespace WhirlyKit;
     
     // Sweep up the laggard watchers
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sweepLaggards:) object:nil];
+//    [layerThread.runLoop cancelPerformSelector:@selector(sweepLaggards:) target:self argument:nil];
     if (minNextUpdate < 100.0)
     {
         [self performSelector:@selector(sweepLaggards:) withObject:nil afterDelay:minNextUpdate];

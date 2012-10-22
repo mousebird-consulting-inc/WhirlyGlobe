@@ -19,19 +19,44 @@
  */
 
 #import "UIImage+Stuff.h"
+#import "WhirlyGeometry.h"
 
+using namespace WhirlyKit;
 
 @implementation UIImage(Stuff)
 
--(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height
+-(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp
 {
 	CGImageRef cgImage = self.CGImage;
 	*width = CGImageGetWidth(cgImage);
 	*height = CGImageGetHeight(cgImage);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 	
+    // If we're not rounding up, round down
+    if (!roundUp)
+    {
+        unsigned int upWidth = NextPowOf2(*width);
+        unsigned int upHeight = NextPowOf2(*height);
+
+        if (upWidth > *width && upWidth > 4)
+            upWidth /= 2;
+        if (upHeight > *height && upHeight > 4)
+            upHeight /= 2;
+
+        *width = upWidth;
+        *height = upHeight;
+    }
+
+    // Note: Make this optional
+#if 0
+    if (*width > 512)
+        *width = 512;
+    if (*height > 512)
+        *height = 512;
+#endif
+	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
-	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], (*width), (*height), 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
 //	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);
 	CGContextDrawImage(theContext, CGRectMake(0.0, 0.0, (CGFloat)(*width), (CGFloat)(*height)), cgImage);
 	CGContextRelease(theContext);
