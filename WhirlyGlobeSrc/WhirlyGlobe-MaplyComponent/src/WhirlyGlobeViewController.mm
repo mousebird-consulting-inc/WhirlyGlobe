@@ -39,7 +39,7 @@ using namespace WhirlyGlobe;
 @implementation WhirlyGlobeViewController
 {    
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES1 *sceneRenderer;
+    WhirlyKitSceneRendererES *sceneRenderer;
     
     WhirlyGlobe::GlobeScene *globeScene;
     WhirlyGlobeView *globeView;
