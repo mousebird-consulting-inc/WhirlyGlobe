@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
     
-void GeneratorChangeRequest::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void GeneratorChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     Generator *theGenerator = scene->getGenerator(genId);
 	if (theGenerator)

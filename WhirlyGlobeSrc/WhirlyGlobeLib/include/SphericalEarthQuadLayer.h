@@ -45,6 +45,6 @@
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Initialize with name of the plist the defines the image data set
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end

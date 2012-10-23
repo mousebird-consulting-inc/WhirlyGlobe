@@ -22,7 +22,7 @@
 #import "Drawable.h"
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 using namespace WhirlyGlobe;
 
@@ -177,7 +177,7 @@ Drawable::~Drawable()
 {
 }
 	
-void DrawableChangeRequest::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
 	DrawableRef theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
@@ -283,7 +283,7 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
 }
 
 // If we're fading in or out, update the rendering window
-void BasicDrawable::updateRenderer(NSObject<WhirlyKitESRenderer> *renderer)
+void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
     [renderer setRenderUntil:fadeUp];
     [renderer setRenderUntil:fadeDown];
@@ -872,7 +872,7 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	color[3] = inColor.a;
 }
 	
-void ColorChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void ColorChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
 	basicDrawable->setColor(color);
@@ -884,7 +884,7 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 	
 }
 	
-void OnOffChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
 	basicDrawable->setOnOff(newOnOff);
@@ -895,7 +895,7 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 {
 }
     
-void VisibilityChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setVisibleRange(minVis,maxVis);
@@ -907,7 +907,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp
     
 }
     
-void FadeChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
@@ -923,7 +923,7 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity 
 {
 }
 
-void DrawTexChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setTexId(newTexId);
@@ -934,7 +934,7 @@ TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matri
 {
 }
 
-void TransformChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void TransformChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDraw = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
@@ -946,7 +946,7 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 {
 }
 
-void DrawPriorityChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setDrawPriority(drawPriority);
@@ -957,7 +957,7 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 {
 }
 
-void LineWidthChangeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw)
+void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     basicDrawable->setLineWidth(lineWidth);

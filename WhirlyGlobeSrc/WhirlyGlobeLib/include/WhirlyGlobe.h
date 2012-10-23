@@ -33,6 +33,7 @@
 #import "NSString+Stuff.h"
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
+#import "SceneRendererES.h"
 #import "SceneRendererES1.h"
 #import "EAGLView.h"
 #import "PinchDelegate.h"
