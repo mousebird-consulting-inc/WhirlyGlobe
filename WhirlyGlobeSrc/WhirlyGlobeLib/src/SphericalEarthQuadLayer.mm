@@ -199,7 +199,7 @@ using namespace WhirlyGlobe;
     quadTileLoader.ignoreEdgeMatching = ignoreEdgeMatching;
 }
 
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES1 *)inRenderer
+- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
     // Data source serves the tiles
     ImageDataSource *theDataSource = [[ImageDataSource alloc] initWithInfo:infoName];

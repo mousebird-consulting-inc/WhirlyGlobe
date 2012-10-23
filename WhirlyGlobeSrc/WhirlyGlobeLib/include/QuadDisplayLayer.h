@@ -29,7 +29,7 @@
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
 #import "Quadtree.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 /// @cond
 @class WhirlyKitQuadDisplayLayer;
@@ -125,7 +125,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
     WhirlyKit::Scene *scene;
     
     /// The renderer we need for frame sizes
-    WhirlyKitSceneRendererES1 * __weak renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
         
     /// Coordinate system we're working in for tiling
     WhirlyKit::CoordSystem *coordSys;
@@ -188,7 +188,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 
 /// Construct with a renderer and data source for the tiles
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// A loader calls this after successfully loading a tile.
 /// Must be called in the layer thread.

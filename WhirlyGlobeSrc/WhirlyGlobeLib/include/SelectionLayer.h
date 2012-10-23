@@ -25,7 +25,7 @@
 #import "Drawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 namespace WhirlyKit
 {
@@ -87,7 +87,7 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
     /// The scene we're working with
     WhirlyKit::Scene * scene;
     /// The renderer has screen size information
-    WhirlyKitSceneRendererES1 * __weak renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
     /// Layer thread we're associated with
     WhirlyKitLayerThread * __weak layerThread;
     /// The selectable objects themselves
@@ -96,7 +96,7 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
