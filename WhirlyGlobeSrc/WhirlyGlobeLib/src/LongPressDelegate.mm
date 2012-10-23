@@ -20,7 +20,7 @@
 
 #import "LongPressDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
@@ -56,7 +56,7 @@ using namespace WhirlyKit;
 {
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
