@@ -27,7 +27,7 @@
     WhirlyKitMBTileQuadSource *dataSource;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES1 *)renderer mbTiles:(NSString *)mbName handleEdges:(bool)edges
+- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbName handleEdges:(bool)edges
 {
     self = [super init];
     if (self)
