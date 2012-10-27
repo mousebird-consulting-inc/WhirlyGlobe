@@ -19,7 +19,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
+
+using namespace WhirlyKit;
 
 // Kind of panning we're in the middle of
 typedef enum {PanNone,PanFree,PanSuspended} PanningType;
@@ -42,7 +44,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     // Used to keep track of what sort of rotation we're doing
     PanningType panType;
 	// The view transform when we started
-	Eigen::Affine3f startTransform;
+	Eigen::Matrix4f startTransform;
 	// Where we first touched the sphere
 	Point3f startOnSphere;
 	// Rotation when we started
@@ -52,6 +54,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     Eigen::Quaternionf spinQuat;
     NSDate *spinDate;
     CGPoint lastTouch;
+    AnimateViewMomentum *animateMomentum;
 }
 
 + (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

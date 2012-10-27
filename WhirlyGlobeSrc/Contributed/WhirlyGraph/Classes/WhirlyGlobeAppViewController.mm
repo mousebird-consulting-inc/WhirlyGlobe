@@ -33,8 +33,8 @@
 using namespace WhirlyGlobe;
 
 @interface WhirlyGlobeAppViewController()
-@property (nonatomic,retain) EAGLView *glView;
-@property (nonatomic,retain) SceneRendererES1 *sceneRenderer;
+@property (nonatomic,retain) WhirlyKitEAGLView *glView;
+@property (nonatomic,retain) WhirlyKitSceneRendererES1 *sceneRenderer;
 @property (nonatomic,retain) UILabel *fpsLabel,*drawLabel;
 @property (nonatomic,retain) WhirlyGlobePinchDelegate *pinchDelegate;
 @property (nonatomic,retain) WhirlyGlobeSwipeDelegate *swipeDelegate;
@@ -43,12 +43,12 @@ using namespace WhirlyGlobe;
 @property (nonatomic,retain) WhirlyGlobeTapDelegate *tapDelegate;
 @property (nonatomic,retain) WhirlyGlobeLongPressDelegate *pressDelegate;
 @property (nonatomic,retain) WhirlyGlobeView *theView;
-@property (nonatomic,retain) TextureGroup *texGroup;
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) SphericalEarthLayer *earthLayer;
-@property (nonatomic,retain) VectorLayer *vectorLayer;
-@property (nonatomic,retain) LabelLayer *labelLayer;
-@property (nonatomic,retain) WGLoftLayer *loftLayer;
+@property (nonatomic,retain) WhirlyKitTextureGroup *texGroup;
+@property (nonatomic,retain) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,retain) WhirlyGlobeSphericalEarthLayer *earthLayer;
+@property (nonatomic,retain) WhirlyKitVectorLayer *vectorLayer;
+@property (nonatomic,retain) WhirlyKitLabelLayer *labelLayer;
+@property (nonatomic,retain) WhirlyGlobeLoftLayer *loftLayer;
 @property (nonatomic,retain) InteractionLayer *interactLayer;
 
 - (void)labelUpdate:(NSObject *)sender;
@@ -152,8 +152,8 @@ using namespace WhirlyGlobe;
     [super viewDidLoad];
 	
 	// Set up an OpenGL ES view and renderer
-	self.glView = [[[EAGLView alloc] init] autorelease];
-	self.sceneRenderer = [[[SceneRendererES1 alloc] init] autorelease];
+	self.glView = [[[WhirlyKitEAGLView alloc] init] autorelease];
+	self.sceneRenderer = [[[WhirlyKitSceneRendererES1 alloc] init] autorelease];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
     [self.mainView insertSubview:glView atIndex:0];
@@ -183,48 +183,45 @@ using namespace WhirlyGlobe;
 	[sceneRenderer useContext];
 	
 	// Set up a texture group for the world texture
-	self.texGroup = [[[TextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]] autorelease];
+	self.texGroup = [[[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]] autorelease];
 
 	// Need an empty scene and view
-	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY);
+//	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY);
+	theScene = new WhirlyGlobe::GlobeScene(&geoCoordSystem,1);
 	self.theView = [[[WhirlyGlobeView alloc] init] autorelease];
 	
 	// Need a layer thread to manage the layers
-	self.layerThread = [[[WhirlyGlobeLayerThread alloc] initWithScene:theScene] autorelease];
+//	self.layerThread = [[[WhirlyKitLayerThread alloc] initWithScene:theScene] autorelease];
+	self.layerThread = [[WhirlyKitLayerThread alloc] initWithScene:theScene view:theView renderer:sceneRenderer];
 	
 	// Earth layer on the bottom
-	self.earthLayer = [[[SphericalEarthLayer alloc] initWithTexGroup:texGroup] autorelease];
+	self.earthLayer = [[[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup] autorelease];
 	[self.layerThread addLayer:earthLayer];
 
 	// Set up the vector layer where all our outlines will go
-	self.vectorLayer = [[[VectorLayer alloc] init] autorelease];
+	self.vectorLayer = [[[WhirlyKitVectorLayer alloc] init] autorelease];
 	[self.layerThread addLayer:vectorLayer];
 
 	// General purpose label layer.
-	self.labelLayer = [[[LabelLayer alloc] init] autorelease];
+	self.labelLayer = [[[WhirlyKitLabelLayer alloc] init] autorelease];
 	[self.layerThread addLayer:labelLayer];
     
     // Lofted polygon layer
-    self.loftLayer = [[[WGLoftLayer alloc] init] autorelease];
+    self.loftLayer = [[[WhirlyGlobeLoftLayer alloc] init] autorelease];
     self.loftLayer.gridSize = [self.earthLayer smallestTesselation];
     self.loftLayer.useCache = YES;
     [self.layerThread addLayer:loftLayer];
 
 	// The interaction layer will handle label and geometry creation when something is tapped
     // Data is divided by countries, oceans, and regions (e.g. states/provinces)
-	self.interactLayer = [[[InteractionLayer alloc] initWithVectorLayer:self.vectorLayer labelLayer:labelLayer loftLayer:loftLayer
-                                                              globeView:self.theView
-                                                           countryShape:[[NSBundle mainBundle] pathForResource:@"50m_admin_0_map_subunits" ofType:@"shp"]
-                                                             oceanShape:[[NSBundle mainBundle] pathForResource:@"10m_geography_marine_polys" ofType:@"shp"]
-                                                            regionShape:nil]
-                          autorelease]; 
+    self.interactLayer = [[[InteractionLayer alloc] initWithVectorLayer:self.vectorLayer labelLayer:labelLayer loftLayer:loftLayer globeView:self.theView countryShape:[[NSBundle mainBundle] pathForResource:@"50m_admin_0_map_subunits" ofType:@"shp"] oceanShape:[[NSBundle mainBundle] pathForResource:@"10m_geography_marine_polys" ofType:@"shp"] regionShape:nil] autorelease];
     self.interactLayer.maxEdgeLen = [self.earthLayer smallestTesselation]/10.0;
 	[self.layerThread addLayer:interactLayer];
 			
 	// Give the renderer what it needs
 	sceneRenderer.scene = theScene;
-	sceneRenderer.view = theView;
-    sceneRenderer.delegate = self;
+	sceneRenderer.theView = theView;
+//    sceneRenderer.delegate = self;
 	
 	// Wire up the gesture recognizers
 	self.pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
@@ -246,7 +243,7 @@ using namespace WhirlyGlobe;
 
 // Scene renderer delegate call
 // We're overriding the lighting setup in the renderer
-- (void)lightingSetup:(SceneRendererES1 *)sceneRenderer
+- (void)lightingSetup:(WhirlyKitSceneRendererES1 *)sceneRenderer
 {
     const GLfloat			lightAmbient[] = {0.5, 0.5, 0.5, 1.0};
     const GLfloat			lightDiffuse[] = {0.6, 0.6, 0.6, 1.0};

@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 @synthesize viewWatcher;
 @synthesize glContext;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyGlobeView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
 {
 	if ((self = [super init]))
 	{

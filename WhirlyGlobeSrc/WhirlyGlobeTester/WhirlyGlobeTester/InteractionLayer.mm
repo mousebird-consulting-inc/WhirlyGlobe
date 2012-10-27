@@ -155,12 +155,12 @@ using namespace WhirlyGlobe;
     bool hit = false;
     if (labelSelectIDs.find(objectId) != labelSelectIDs.end())
     {
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Label %d",objectId] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Label %ld",objectId] waitUntilDone:NO];
         hit = true;
     }
     if (markerSelectIDs.find(objectId) != markerSelectIDs.end())
     {
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Marker %d",objectId] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Marker %ld",objectId] waitUntilDone:NO];
         hit = true;
     }
     
@@ -201,7 +201,7 @@ using namespace WhirlyGlobe;
     }
     
     if (!hit)
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Nothing",objectId] waitUntilDone:NO];        
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Nothing %ld",objectId] waitUntilDone:NO];        
 }
 
 #pragma mark -

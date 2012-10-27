@@ -9,11 +9,10 @@
 #import "InteractionLayer.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @interface InteractionLayer()
-@property (nonatomic,assign) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) WhirlyMapView *theView;
+@property (nonatomic,assign) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,retain) WhirlyGlobeView *theView;
 @property (nonatomic,retain) NSString *countrySetName;
 
 @end
@@ -27,7 +26,7 @@ using namespace WhirlyGlobe;
 @synthesize theView;
 @synthesize countrySetName;
 
-- (id)initWithMapView:(WhirlyMapView *)mapView
+- (id)initWithGlobeView:(WhirlyGlobeView *)mapView
 {
     self = [super init];
     if (self)
@@ -37,6 +36,11 @@ using namespace WhirlyGlobe;
     }
     
     return self;
+}
+
+- (void)shutdown
+{
+    // Note: Not handling correctly
 }
 
 - (void)dealloc
@@ -58,7 +62,7 @@ using namespace WhirlyGlobe;
 }
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)inScene
 {
     self.layerThread = inThread;
     scene = inScene;
@@ -68,7 +72,7 @@ using namespace WhirlyGlobe;
     NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
     NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
     self.countrySetName = @"countries50m";
-    NSString *countryShape = [[NSBundle mainBundle] pathForResource:@"ne_50m_admin_0_countries" ofType:@"shp"];
+    NSString *countryShape = [[NSBundle mainBundle] pathForResource:@"50m_admin_0_countries" ofType:@"shp"];
     countryDb = new VectorDatabase(bundleDir,docDir,countrySetName,new ShapeReader(countryShape),NULL,true);
     
     [self performSelector:@selector(addCountries:) withObject:nil afterDelay:0.0];
@@ -127,7 +131,7 @@ static int MapColors[NumMapColors] = {0xB26A14,0x865D2C,0x754207,0xD99748,0xD9A8
             shapes.insert(shape);
             
             // And build a label.  We'll add these as a group below
-            WhirlyGlobeSingleLabel *label = [[[WhirlyGlobeSingleLabel alloc] init] autorelease];
+            WhirlyKitSingleLabel *label = [[[WhirlyKitSingleLabel alloc] init] autorelease];
             label.isSelectable = YES;
             label.selectID = Identifiable::genId();
             label.text = name;
@@ -167,11 +171,16 @@ static int MapColors[NumMapColors] = {0xB26A14,0x865D2C,0x754207,0xD99748,0xD9A8
 // We're in the layer thread here
 - (void)tapSelectorLayerThread:(WhirlyGlobeTapMessage *)msg
 {
-    // Animate to a new location
-    Point3f newLoc = msg.worldLoc;
-    newLoc.z() = [theView loc].z();
-    AnimateViewTranslation *trans = [[[AnimateViewTranslation alloc] initWithView:theView translate:newLoc howLong:1.0] autorelease];
-    theView.delegate = trans;
+    // If we were rotating from one point to another, stop
+    [theView cancelAnimation];
+    
+    // Construct a quaternion to rotate from where we are to where
+    //  the user tapped
+    Eigen::Quaternionf newRotQuat = [theView makeRotationToGeoCoord:msg.whereGeo keepNorthUp:YES];
+    
+    // Rotate to the given position over 1s
+    animateRotation = [[AnimateViewRotation alloc] initWithView:theView rot:newRotQuat howLong:1.0];
+    theView.delegate = animateRotation;
 }
 
 @end

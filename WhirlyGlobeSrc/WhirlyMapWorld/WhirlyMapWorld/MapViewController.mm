@@ -9,17 +9,17 @@
 #import "MapViewController.h"
 
 @interface MapViewController()
-@property (nonatomic,retain) WhirlyGlobeEAGLView *glView;
-@property (nonatomic,retain) WhirlyGlobeSceneRendererES1 *sceneRenderer;
-@property (nonatomic,retain) WhirlyMapView *theView;
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) WhirlyGlobeVectorLayer *vectorLayer;
-@property (nonatomic,retain) WhirlyGlobeLabelLayer *labelLayer;
+@property (nonatomic,retain) WhirlyKitEAGLView *glView;
+@property (nonatomic,retain) WhirlyKitSceneRendererES1 *sceneRenderer;
+@property (nonatomic,retain) WhirlyGlobeView *theView;
+@property (nonatomic,retain) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,retain) WhirlyKitVectorLayer *vectorLayer;
+@property (nonatomic,retain) WhirlyKitLabelLayer *labelLayer;
 @property (nonatomic,retain) WhirlyGlobeLoftLayer *loftLayer;
 @property (nonatomic,retain) InteractionLayer *interactLayer;
-@property (nonatomic,retain) WhirlyMapPinchDelegate *pinchDelegate;
-@property (nonatomic,retain) WhirlyMapPanDelegate *panDelegate;
-@property (nonatomic,retain) WhirlyMapTapDelegate *tapDelegate;
+@property (nonatomic,retain) WhirlyGlobePinchDelegate *pinchDelegate;
+@property (nonatomic,retain) WhirlyGlobePanDelegate *panDelegate;
+@property (nonatomic,retain) WhirlyGlobeTapDelegate *tapDelegate;
 @end
 
 @implementation MapViewController
@@ -104,8 +104,8 @@
     self.title = @"World Map";
     
 	// Set up an OpenGL ES view and renderer
-	self.glView = [[[WhirlyGlobeEAGLView alloc] init] autorelease];
-	self.sceneRenderer = [[[WhirlyGlobeSceneRendererES1 alloc] init] autorelease];
+	self.glView = [[[WhirlyKitEAGLView alloc] init] autorelease];
+	self.sceneRenderer = [[[WhirlyKitSceneRendererES1 alloc] init] autorelease];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
@@ -120,21 +120,22 @@
     
     // Need a coordinate system to describe the space we're working in
 //    coordSys = new WhirlyMap::FlatCoordSystem();
-    coordSys = new WhirlyMap::MercatorCoordSystem();
+//    coordSys = new WhirlyMap::MercatorCoordSystem();
 
 	// Need an empty scene and view
-	theScene = new WhirlyGlobe::GlobeScene(6,3,coordSys);
-	self.theView = [[[WhirlyMapView alloc] initWithCoordSystem:coordSys] autorelease];
+//	theScene = new WhirlyGlobe::GlobeScene(6,3,coordSys);
+    theScene = new WhirlyGlobe::GlobeScene(&geoCoordSystem,1);
+	self.theView = [[[WhirlyGlobeView alloc] init] autorelease];
 	
 	// Need a layer thread to manage the layers
-	self.layerThread = [[[WhirlyGlobeLayerThread alloc] initWithScene:theScene] autorelease];
+	self.layerThread = [[[WhirlyKitLayerThread alloc] initWithScene:theScene view:theView renderer:sceneRenderer] autorelease];
 
 	// Set up the vector layer where all our outlines will go
-	self.vectorLayer = [[[WhirlyGlobeVectorLayer alloc] init] autorelease];
+	self.vectorLayer = [[[WhirlyKitVectorLayer alloc] init] autorelease];
 	[self.layerThread addLayer:vectorLayer];
     
 	// General purpose label layer.
-	self.labelLayer = [[[WhirlyGlobeLabelLayer alloc] init] autorelease];
+	self.labelLayer = [[[WhirlyKitLabelLayer alloc] init] autorelease];
 	[self.layerThread addLayer:labelLayer];
     
     // Loft layer, used for triangulated polygons
@@ -143,7 +144,7 @@
     [self.layerThread addLayer:loftLayer];
     
     // Our local interaction and data layer
-    self.interactLayer = [[[InteractionLayer alloc] initWithMapView:self.theView] autorelease];
+    self.interactLayer = [[[InteractionLayer alloc] initWithGlobeView:theView] autorelease];
     [self.layerThread addLayer:interactLayer];
     interactLayer.labelLayer = labelLayer;
     interactLayer.vectorLayer = vectorLayer;
@@ -154,9 +155,9 @@
 	sceneRenderer.theView = theView;
     
     // Set up the gesture delegates
-    self.pinchDelegate = [WhirlyMapPinchDelegate pinchDelegateForView:glView mapView:theView];
-    self.panDelegate = [WhirlyMapPanDelegate panDelegateForView:glView mapView:theView];
-    self.tapDelegate = [WhirlyMapTapDelegate tapDelegateForView:glView mapView:theView];
+    self.pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
+    self.panDelegate = [WhirlyGlobePanDelegate panDelegateForView:glView globeView:theView];
+    self.tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:theView];
 
 	// Kick off the layer thread
 	// This will start loading things

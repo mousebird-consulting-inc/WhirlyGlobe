@@ -9,7 +9,7 @@
 
 #import <UIKit/UIKit.h>
 #import "sqlite3.h"
-#import <WhirlyGlobe/sqlhelpers.h>
+#import "sqlhelpers.h"
 
 @interface DBWrapper : NSObject {
 @private

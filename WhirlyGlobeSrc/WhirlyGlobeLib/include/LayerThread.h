@@ -59,7 +59,7 @@
 @property (nonatomic,readonly) EAGLContext *glContext;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyGlobeView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

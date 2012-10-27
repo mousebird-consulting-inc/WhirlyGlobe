@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Pitcairn Islands", "ADM0_A3": "PCN", "GEOU_DIF": 0.0, "GEOUNIT": "Pitcairn Islands", "GU_A3": "PCN", "SU_DIF": 0.0, "SUBUNIT": "Pitcairn Islands", "SU_A3": "PCN", "NAME": "Pitcairn Is.", "ABBREV": "Pit. Is.", "POSTAL": "PN", "NAME_FORMA": "Pitcairn, Henderson, Ducie and Oeno Islands", "TERR_": "U.K.", "NAME_SORT": "Pitcairn Islands", "MAP_COLOR": 3.0, "POP_EST": 48.0, "GDP_MD_EST": 0.0, "FIPS_10_": "PC", "ISO_A2": "PN", "ISO_A3": "PCN", "ISO_N3": 612.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -128.290097, -24.397374 ], [ -128.300018, -24.412566 ], [ -128.320637, -24.399699 ], [ -128.342186, -24.370709 ], [ -128.350196, -24.340271 ], [ -128.330146, -24.323218 ], [ -128.303636, -24.333553 ], [ -128.290794, -24.364662 ], [ -128.290097, -24.397374 ] ] ] } }
-
-]
-}

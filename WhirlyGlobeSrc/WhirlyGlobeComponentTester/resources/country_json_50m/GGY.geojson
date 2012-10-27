@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 4, "LabelRank": 4, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Guernsey", "ADM0_A3": "GGY", "GEOU_DIF": 0.0, "GEOUNIT": "Guernsey", "GU_A3": "GGY", "SU_DIF": 0.0, "SUBUNIT": "Guernsey", "SU_A3": "GGY", "NAME": "Guernsey", "ABBREV": "Guern.", "POSTAL": "GG", "NAME_FORMA": "Bailiwick of Guernsey", "TERR_": "Crown dependency of U.K.", "NAME_SORT": "Guernsey", "MAP_COLOR": 3.0, "POP_EST": 65870.0, "GDP_MD_EST": 2742.0, "FIPS_10_": "GK", "ISO_A2": "GG", "ISO_A3": "GGY", "ISO_N3": 831.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -2.512322, 49.494524 ], [ -2.547384, 49.428715 ], [ -2.639007, 49.450935 ], [ -2.646138, 49.468221 ], [ -2.542191, 49.506591 ], [ -2.520926, 49.506281 ], [ -2.512322, 49.494524 ] ] ] } }
-
-]
-}
