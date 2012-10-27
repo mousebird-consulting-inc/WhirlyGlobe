@@ -32,6 +32,7 @@ ShapeReader::ShapeReader(NSString *fileName)
 	if (!shp)
 		return;
 	dbf = DBFOpen(cFile, "rb");
+    encoding = NSWindowsCP1251StringEncoding;
 	where = 0;	
 	SHPGetInfo((SHPInfo *)shp, &numEntity, &shapeType, minBound, maxBound);
 }
@@ -171,7 +172,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
 					case FTString:
 					{
 						const char *str = DBFReadStringAttribute(dbfHandle, vecIndex, ii);
-                        NSString *newStr = [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
+                        NSString *newStr = [NSString stringWithCString:str encoding:encoding];
                         if (newStr)
                             [attrDict setObject:newStr forKey:attrTitleStr];
                         //						[attrDict setObject:[NSString stringWithFormat:@"%s",str] forKey:attrTitleStr];
