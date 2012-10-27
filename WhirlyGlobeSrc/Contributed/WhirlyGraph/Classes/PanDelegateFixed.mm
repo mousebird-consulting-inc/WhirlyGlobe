@@ -66,7 +66,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES1 *)sceneRender glView:(EAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = [view calcModelMatrix];
@@ -75,7 +75,7 @@ using namespace WhirlyGlobe;
     startPoint = [pan locationOfTouch:0 inView:glView];
     self.spinDate = [NSDate date];
     lastTouch = [pan locationOfTouch:0 inView:glView];
-    if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
+    if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
                             frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&startOnSphere])
         // We'll start out letting them play with box axes
         panType = PanFree;                
@@ -87,8 +87,8 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	EAGLView *glView = (EAGLView *)pan.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
     
     // Put ourselves on hold for more than one touch
     if ([pan numberOfTouches] > 1)
@@ -230,7 +230,8 @@ using namespace WhirlyGlobe;
             drag *= scale/(MaxAngularVelocity-MinAngularVelocity);
             
             // Keep going in that direction for a while
-            view.delegate = [[[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector] autorelease];
+            animateMomentum = [[[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector] autorelease];
+            view.delegate = animateMomentum;
         }
 			break;
         default:

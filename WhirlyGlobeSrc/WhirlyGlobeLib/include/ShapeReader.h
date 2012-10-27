@@ -50,6 +50,9 @@ public:
     /// Fetch an object by the index
     virtual VectorShapeRef getObjectByIndex(unsigned int vecIndex,const StringSet *filter);
     
+    // Charset encoding
+    NSStringEncoding encoding;
+    
 protected:
 	void *shp;
 	void *dbf;

@@ -7,31 +7,32 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
-@interface InteractionLayer : NSObject <WhirlyGlobeLayer>
+@interface InteractionLayer : NSObject <WhirlyKitLayer>
 {
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	WhirlyGlobe::GlobeScene *scene;
-	WhirlyMapView *theView;
+	WhirlyGlobeView *theView;
     
-	WhirlyGlobeVectorLayer *vectorLayer;
-	WhirlyGlobeLabelLayer *labelLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
     WhirlyGlobeLoftLayer *loftLayer;
     
-    WhirlyGlobe::VectorDatabase *countryDb;  // Country outlines
+    WhirlyKit::VectorDatabase *countryDb;  // Country outlines
     
     NSString *countrySetName;
+    AnimateViewRotation *animateRotation;
 }
 
 // Initialize with a map view.  All the rest is optional.
-- (id)initWithMapView:(WhirlyMapView *)mapView;
+- (id)initWithGlobeView:(WhirlyGlobeView *)mapView;
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
-@property (nonatomic,assign) WhirlyGlobeVectorLayer *vectorLayer;
-@property (nonatomic,assign) WhirlyGlobeLabelLayer *labelLayer;
+@property (nonatomic,assign) WhirlyKitVectorLayer *vectorLayer;
+@property (nonatomic,assign) WhirlyKitLabelLayer *labelLayer;
 @property (nonatomic,assign) WhirlyGlobeLoftLayer *loftLayer;
 
 @end

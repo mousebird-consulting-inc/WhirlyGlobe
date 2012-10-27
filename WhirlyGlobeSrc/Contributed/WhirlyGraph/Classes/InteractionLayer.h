@@ -20,9 +20,9 @@
 
 #import <list>
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
-typedef std::set<WhirlyGlobe::SimpleIdentity> SimpleIDSet;
+typedef std::set<WhirlyKit::SimpleIdentity> SimpleIDSet;
 
 typedef enum {FeatRepCountry,FeatRepOcean} FeatureRepType;
 
@@ -40,16 +40,16 @@ public:
     NSString *name;                  // Feature name
     NSString *iso3;                  // ISO3 code
     FeatureRepType featType;            // What this is
-    WhirlyGlobe::ShapeSet outlines;  // Areal feature outline (may be more than one)
-    WhirlyGlobe::SimpleIdentity outlineRep;  // ID for the outline in the vector layer
-    WhirlyGlobe::SimpleIdentity labelId;  // ID of label in label layer
+    WhirlyKit::ShapeSet outlines;  // Areal feature outline (may be more than one)
+    WhirlyKit::SimpleIdentity outlineRep;  // ID for the outline in the vector layer
+    WhirlyKit::SimpleIdentity labelId;  // ID of label in label layer
     float midPoint;  // Distance where we switch from the low res to high res representation
     // Sub-features, such as states
-    WhirlyGlobe::ShapeSet subOutlines;            // IDs in the regionDB
-    WhirlyGlobe::SimpleIdentity subOutlinesRep;  // Represented with a single entity in the vector layer
-    WhirlyGlobe::SimpleIdentity subLabels;       // ID for all the sub outline labels together
+    WhirlyKit::ShapeSet subOutlines;            // IDs in the regionDB
+    WhirlyKit::SimpleIdentity subOutlinesRep;  // Represented with a single entity in the vector layer
+    WhirlyKit::SimpleIdentity subLabels;       // ID for all the sub outline labels together
     // Lofted polygons representation
-    WhirlyGlobe::SimpleIdentity loftedPolyRep;
+    WhirlyKit::SimpleIdentity loftedPolyRep;
 };
 
 /* Country Select Message
@@ -60,11 +60,11 @@ public:
 @interface CountrySelectMsg : NSObject
 {
     NSString *country;
-    TapMessage *tap;  // The tap that cause the select
+    WhirlyGlobeTapMessage *tap;  // The tap that cause the select
 }
 
 @property (nonatomic,retain) NSString *country;
-@property (nonatomic,retain) TapMessage *tap;
+@property (nonatomic,retain) WhirlyGlobeTapMessage *tap;
 
 @end
 
@@ -77,23 +77,23 @@ static const unsigned int MaxFeatureReps = 15;
     This handles user interaction (taps) and manipulates data in the
     vector and label layers accordingly.
  */
-@interface InteractionLayer : NSObject <WhirlyGlobeLayer>
+@interface InteractionLayer : NSObject <WhirlyKitLayer>
 {
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	WhirlyGlobe::GlobeScene *scene;
 	WhirlyGlobeView *globeView;
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
-    WGLoftLayer *loftLayer;
+	WhirlyKitVectorLayer *WhirlyKitVectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
+    WhirlyGlobeLoftLayer *loftLayer;
     
     NSDictionary *countryDesc;  // Visual representation for countries and their labels
     NSDictionary *oceanDesc;    // Visual representation for oceans and their labels
     NSDictionary *regionDesc;   // Visual representation for regions (states/provinces) and labels
 
     // Databases that live on top of the shape files (for fast access)
-    WhirlyGlobe::VectorDatabase *countryDb;
-    WhirlyGlobe::VectorDatabase *oceanDb;
-    WhirlyGlobe::VectorDatabase *regionDb;
+    WhirlyKit::VectorDatabase *countryDb;
+    WhirlyKit::VectorDatabase *oceanDb;
+    WhirlyKit::VectorDatabase *regionDb;
     
     FeatureRepList featureReps;   // Countries we're currently representing
     
@@ -111,11 +111,11 @@ static const unsigned int MaxFeatureReps = 15;
 @property (nonatomic,retain) NSString *displayField;
 
 // Need a pointer to the vector layer to start with
-- (id)initWithVectorLayer:(VectorLayer *)layer labelLayer:(LabelLayer *)labelLayer loftLayer:(WGLoftLayer *)loftLayer
-                globeView:(WhirlyGlobeView *)globeView countryShape:(NSString *)countryShape oceanShape:(NSString *)oceanShape 
-              regionShape:(NSString *)regionShape;
+- (id)initWithVectorLayer:(WhirlyKitVectorLayer *)inVecLayer labelLayer:(WhirlyKitLabelLayer *)inLabelLayer loftLayer:(WhirlyGlobeLoftLayer *)inLoftLayer
+                globeView:(WhirlyGlobeView *)inGlobeView
+             countryShape:(NSString *)countryShape oceanShape:(NSString *)oceanShape regionShape:(NSString *)regionShape;
 
 // Called in the layer thread
-- (void)startWithThread:(WhirlyGlobeLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
+- (void)startWithThread:(WhirlyKitLayerThread *)inThread scene:(WhirlyGlobe::GlobeScene *)scene;
 
 @end

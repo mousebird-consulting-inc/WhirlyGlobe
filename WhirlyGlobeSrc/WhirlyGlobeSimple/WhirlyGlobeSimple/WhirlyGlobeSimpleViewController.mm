@@ -20,19 +20,19 @@
 
 #import "WhirlyGlobeSimpleViewController.h"
 
-using namespace WhirlyGlobe;
+using namespace WhirlyKit;
 
 @interface WhirlyGlobeSimpleViewController()
-@property (nonatomic,retain) EAGLView *glView;
-@property (nonatomic,retain) SceneRendererES1 *sceneRenderer;
+@property (nonatomic,retain) WhirlyKitEAGLView *glView;
+@property (nonatomic,retain) WhirlyKitSceneRendererES1 *sceneRenderer;
 @property (nonatomic,retain) WhirlyGlobeView *theView;
-@property (nonatomic,retain) TextureGroup *texGroup;
-@property (nonatomic,retain) WhirlyGlobeLayerThread *layerThread;
-@property (nonatomic,retain) SphericalEarthLayer *earthLayer;
-@property (nonatomic,retain) VectorLayer *vectorLayer;
-@property (nonatomic,retain) LabelLayer *labelLayer;
-@property (nonatomic,retain) ParticleSystemLayer *particleSystemLayer;
-@property (nonatomic,retain) WGMarkerLayer *markerLayer;
+@property (nonatomic,retain) WhirlyKitTextureGroup *texGroup;
+@property (nonatomic,retain) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,retain) WhirlyGlobeSphericalEarthLayer *earthLayer;
+@property (nonatomic,retain) WhirlyKitVectorLayer *vectorLayer;
+@property (nonatomic,retain) WhirlyKitLabelLayer *labelLayer;
+@property (nonatomic,retain) WhirlyKitParticleSystemLayer *particleSystemLayer;
+@property (nonatomic,retain) WhirlyKitMarkerLayer *markerLayer;
 @property (nonatomic,retain) WhirlyGlobePinchDelegate *pinchDelegate;
 @property (nonatomic,retain) WhirlyGlobePanDelegate *panDelegate;
 @property (nonatomic,retain) WhirlyGlobeTapDelegate *tapDelegate;
@@ -121,8 +121,8 @@ using namespace WhirlyGlobe;
     [super viewDidLoad];
 
 	// Set up an OpenGL ES view and renderer
-	self.glView = [[[EAGLView alloc] init] autorelease];
-	self.sceneRenderer = [[[SceneRendererES1 alloc] init] autorelease];
+	self.glView = [[[WhirlyKitEAGLView alloc] init] autorelease];
+	self.sceneRenderer = [[[WhirlyKitSceneRendererES1 alloc] init] autorelease];
 	glView.renderer = sceneRenderer;
 	glView.frameInterval = 2;  // 60 fps
 	[self.view addSubview:glView];
@@ -136,38 +136,39 @@ using namespace WhirlyGlobe;
 	[sceneRenderer useContext];
 	
 	// Set up a texture group for the world texture
-	self.texGroup = [[[TextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"lowres_wtb_info" ofType:@"plist"]] autorelease];
+	self.texGroup = [[[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"lowres_wtb_info" ofType:@"plist"]] autorelease];
     
 	// Need an empty scene and view
-	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY);
+//	theScene = new WhirlyGlobe::GlobeScene(4*texGroup.numX,4*texGroup.numY);
+	theScene = new WhirlyGlobe::GlobeScene(&geoCoordSystem,1);
 	self.theView = [[[WhirlyGlobeView alloc] init] autorelease];
 	
 	// Need a layer thread to manage the layers
-	self.layerThread = [[[WhirlyGlobeLayerThread alloc] initWithScene:theScene] autorelease];
+	self.layerThread = [[[WhirlyKitLayerThread alloc] initWithScene:theScene view:theView renderer:sceneRenderer] autorelease];
 	
 	// Earth layer on the bottom
-	self.earthLayer = [[[SphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil] autorelease];
+	self.earthLayer = [[[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup cacheName:nil] autorelease];
 	[self.layerThread addLayer:earthLayer];
     
 	// Set up the vector layer where all our outlines will go
-	self.vectorLayer = [[[VectorLayer alloc] init] autorelease];
+	self.vectorLayer = [[[WhirlyKitVectorLayer alloc] init] autorelease];
 	[self.layerThread addLayer:vectorLayer];
     
 	// General purpose label layer.
-	self.labelLayer = [[[LabelLayer alloc] init] autorelease];
+	self.labelLayer = [[[WhirlyKitLabelLayer alloc] init] autorelease];
 	[self.layerThread addLayer:labelLayer];
     
     // Particle System layer
-    self.particleSystemLayer = [[[ParticleSystemLayer alloc] init] autorelease];
+    self.particleSystemLayer = [[[WhirlyKitParticleSystemLayer alloc] init] autorelease];
     [self.layerThread addLayer:particleSystemLayer];
     
     // Marker layer
-    self.markerLayer = [[[WGMarkerLayer alloc] init] autorelease];
+    self.markerLayer = [[[WhirlyKitMarkerLayer alloc] init] autorelease];
     [self.layerThread addLayer:markerLayer];
             
 	// Give the renderer what it needs
 	sceneRenderer.scene = theScene;
-	sceneRenderer.view = theView;
+	sceneRenderer.theView = theView;
 	
 	// Wire up the gesture recognizers
 	self.pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:theView];
@@ -231,17 +232,17 @@ using namespace WhirlyGlobe;
     // Build up a list of individual labels
     NSMutableArray *labels = [[[NSMutableArray alloc] init] autorelease];
 
-    SingleLabel *sfLabel = [[[SingleLabel alloc] init] autorelease];
+    WhirlyKitSingleLabel *sfLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
     sfLabel.text = @"San Francisco";
     [sfLabel setLoc:GeoCoord::CoordFromDegrees(-122.283,37.7166)];
     [labels addObject:sfLabel];
 
-    SingleLabel *nyLabel = [[[SingleLabel alloc] init] autorelease];
+    WhirlyKitSingleLabel *nyLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
     nyLabel.text = @"New York";
     [nyLabel setLoc:GeoCoord::CoordFromDegrees(-74,40.716667)];
     [labels addObject:nyLabel];
 
-    SingleLabel *romeLabel = [[[SingleLabel alloc] init] autorelease];
+    WhirlyKitSingleLabel *romeLabel = [[[WhirlyKitSingleLabel alloc] init] autorelease];
     romeLabel.text = @"Rome";
     [romeLabel setLoc:GeoCoord::CoordFromDegrees(12.5, 41.9)];
     [labels addObject:romeLabel];
@@ -264,10 +265,10 @@ using namespace WhirlyGlobe;
      nil];
     
     // Add a single particle system
-    ParticleSystem *particleSystem = [[[ParticleSystem alloc] init] autorelease];
+    WhirlyKitParticleSystem *particleSystem = [[[WhirlyKitParticleSystem alloc] init] autorelease];
     GeoCoord washDc = GeoCoord::CoordFromDegrees(-77.036667,38.895111);
     [particleSystem setLoc:washDc];
-    [particleSystem setNorm:PointFromGeo(washDc)];
+    [particleSystem setNorm:GeoCoordSystem::LocalToGeocentricish(washDc)];
     
     [self.particleSystemLayer addParticleSystem:particleSystem desc:partDesc];
 }
@@ -282,7 +283,7 @@ using namespace WhirlyGlobe;
     
     // Add a stamp at Paris, FR
     GeoCoord paris = GeoCoord::CoordFromDegrees(2.350833, 48.856667);
-    WGMarker *parisMarker = [[[WGMarker alloc] init] autorelease];
+    WhirlyKitMarker *parisMarker = [[[WhirlyKitMarker alloc] init] autorelease];
     [parisMarker setLoc:paris];
     parisMarker.width = 0.01;    parisMarker.height = 0.01;
     [self.markerLayer addMarker:parisMarker desc:markerDesc];

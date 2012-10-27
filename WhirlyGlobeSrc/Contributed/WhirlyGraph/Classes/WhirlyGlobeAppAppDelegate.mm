@@ -34,6 +34,7 @@
 {
     // Add the view controller's view to the window and display.
     [self.window addSubview:viewController.view];
+    self.window.rootViewController = viewController;
     [self.window makeKeyAndVisible];
 }
 
@@ -41,7 +42,10 @@
     
     // Override point for customization after application launch.
 	
-	[self performSelectorOnMainThread:@selector(postLaunch:) withObject:nil waitUntilDone:NO];
+//	[self performSelectorOnMainThread:@selector(postLaunch:) withObject:nil waitUntilDone:NO];
+    [self.window addSubview:viewController.view];
+    self.window.rootViewController = viewController;
+    [self.window makeKeyAndVisible];
 
     return YES;
 }

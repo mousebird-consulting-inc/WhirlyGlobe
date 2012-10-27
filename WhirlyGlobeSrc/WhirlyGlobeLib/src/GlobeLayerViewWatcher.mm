@@ -219,8 +219,10 @@ using namespace WhirlyKit;
         NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
         return;
     }
-    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     [watch->target performSelector:watch->selector withObject:lastViewState];
+#pragma clang diagnostic pop
 //    [layerThread.runLoop performSelector:watch->selector target:watch->target argument:lastViewState order:0 modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
     watch->lastUpdated = lastUpdate;
 }

@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 #import "InteractionLayer.h"
 #import "PanDelegateFixed.h"
 #import "WebViewController.h"
@@ -32,10 +32,10 @@ static const float FPSUpdateInterval = 4.0;
 	View controller that pops up a Whirly Globe view.
  */
 @interface WhirlyGlobeAppViewController : UIViewController <UIPopoverControllerDelegate, 
-        OptionsViewControllerDelegate, SceneRendererDelegate>
+        OptionsViewControllerDelegate>
 {
-	EAGLView *glView;
-	SceneRendererES1 *sceneRenderer;
+	WhirlyKitEAGLView *glView;
+	WhirlyKitSceneRendererES1 *sceneRenderer;
 	
 	UILabel *fpsLabel;
 	UILabel *drawLabel;
@@ -51,16 +51,16 @@ static const float FPSUpdateInterval = 4.0;
 	// Scene, view, and associated data created when controller is up
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
-	TextureGroup *texGroup;
+	WhirlyKitTextureGroup *texGroup;
 	
 	// Thread used to control Whirly Globe layers
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	
 	// Data layers, readers, and loaders
-	SphericalEarthLayer *earthLayer;
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
-    WGLoftLayer *loftLayer;
+	WhirlyGlobeSphericalEarthLayer *earthLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
+    WhirlyGlobeLoftLayer *loftLayer;
 	InteractionLayer *interactLayer;
     
     UIPopoverController *popOverController;	
@@ -74,7 +74,7 @@ static const float FPSUpdateInterval = 4.0;
     IBOutlet UIButton *buttonOpenPopOver; // we are using a UIButton without a bar so it is cleaner and we can focus on the globe.
         
     OptionsViewController *optionsViewController;
-
+    WhirlyKit::GeoCoordSystem geoCoordSystem;
 }
 
 @property (nonatomic, retain) IBOutlet UIView *mainView;

@@ -19,28 +19,28 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
+#import "WhirlyGlobe.h"
 
 
 @interface WhirlyGlobeSimpleViewController : UIViewController 
 {
-	EAGLView *glView;
-	SceneRendererES1 *sceneRenderer;
+	WhirlyKitEAGLView *glView;
+	WhirlyKitSceneRendererES1 *sceneRenderer;
         
    	// Scene, view, and associated data created when controller is up
 	WhirlyGlobe::GlobeScene *theScene;
 	WhirlyGlobeView *theView;
-	TextureGroup *texGroup;
+	WhirlyKitTextureGroup *texGroup;
  
 	// Thread used to control Whirly Globe layers
-	WhirlyGlobeLayerThread *layerThread;
+	WhirlyKitLayerThread *layerThread;
 	
 	// Data layers, readers, and loaders
-	SphericalEarthLayer *earthLayer;
-	VectorLayer *vectorLayer;
-	LabelLayer *labelLayer;
-    ParticleSystemLayer *particleSystemLayer;
-    WGMarkerLayer *markerLayer;
+	WhirlyGlobeSphericalEarthLayer *earthLayer;
+	WhirlyKitVectorLayer *vectorLayer;
+	WhirlyKitLabelLayer *labelLayer;
+    WhirlyKitParticleSystemLayer *particleSystemLayer;
+    WhirlyKitMarkerLayer *markerLayer;
 
     // Gesture recognizer delegates
     WhirlyGlobePinchDelegate *pinchDelegate;
@@ -48,6 +48,7 @@
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeLongPressDelegate *longPressDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
+    WhirlyKit::GeoCoordSystem geoCoordSystem;
 }
 
 @end
