@@ -1,3 +1,8 @@
 .DS_Store
 xcuserdata
 project.xcworkspace
+utilities/shapelib
+resources/bluemarblembtiles
+utilities/clipper
+utilities/boost
+utilities/eigen
