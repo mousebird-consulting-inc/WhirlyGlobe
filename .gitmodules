@@ -7,3 +7,12 @@
 [submodule "resources/wg-resources"]
 	path = resources/wg-resources
 	url = git@github.com:iNiKe/wg-resources.git
+[submodule "utilities/shapelib"]
+	path = utilities/shapelib
+	url = git@github.com:iNiKe/shapelib.git
+[submodule "utilities/clipper"]
+	path = utilities/clipper
+	url = git@github.com:iNiKe/clipper.git
+[submodule "resources/bluemarblembtiles"]
+	path = resources/bluemarblembtiles
+	url = git@github.com:iNiKe/bluemarblembtiles.git
