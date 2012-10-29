@@ -670,7 +670,7 @@ using namespace WhirlyGlobe;
     //  the user tapped
     Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
     
-    // Rotate to the given position over 1s
+    // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
     globeView.delegate = animateRotation;        
 }
@@ -679,6 +679,48 @@ using namespace WhirlyGlobe;
 - (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
 {
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:howLong];
+}
+
+// Figure out how to get the geolocation to the given point on the screen
+- (void)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+{
+    [globeView cancelAnimation];
+    
+    // Figure out where that points lands on the globe
+    Eigen::Matrix4f modelTrans = [globeView calcModelMatrix];
+    Point3f whereLoc;
+    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc])
+    {
+        CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
+        Vector3f destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+        Eigen::Quaternionf endRot;
+        endRot = QuatFromTwoVectors(destPt, whereLoc);
+        Eigen::Quaternionf curRotQuat = globeView.rotQuat;
+        Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
+        
+        if (panDelegate.northUp)
+        {
+            // We'd like to keep the north pole pointed up
+            // So we look at where the north pole is going
+            Vector3f northPole = (newRotQuat * Vector3f(0,0,1)).normalized();
+            if (northPole.y() != 0.0)
+            {
+                // Then rotate it back on to the YZ axis
+                // This will keep it upward
+                float ang = atanf(northPole.x()/northPole.y());
+                // However, the pole might be down now
+                // If so, rotate it back up
+                if (northPole.y() < 0.0)
+                    ang += M_PI;
+                Eigen::AngleAxisf upRot(ang,destPt);
+                newRotQuat = newRotQuat * upRot;
+            }
+        }
+        
+        // Rotate to the given position over time
+        animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+        globeView.delegate = animateRotation;
+    }
 }
 
 // External facing set position

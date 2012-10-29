@@ -25,6 +25,9 @@ using namespace Eigen;
 
 @implementation AnimateViewMomentum
 
+@synthesize velocity;
+@synthesize acceleration;
+
 - (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
 {
     if ((self = [super init]))
