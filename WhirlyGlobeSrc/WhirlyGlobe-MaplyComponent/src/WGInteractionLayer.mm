@@ -134,6 +134,16 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     autoRotateInterval = inAutoRotateInterval;
     autoRotateDegrees = inAutoRotateDegrees;
+    if (autoSpinner)
+    {
+        if (autoRotateInterval == 0.0 || autoRotateDegrees == 0)
+        {
+            [globeView cancelAnimation];
+            autoSpinner = nil;
+        } else
+            // Update the spin
+            autoSpinner.velocity = autoRotateDegrees / 180.0 * M_PI;
+    }
 }
 
 // Try to auto-spin every so often
