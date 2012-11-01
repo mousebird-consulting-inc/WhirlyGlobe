@@ -28,7 +28,9 @@
 // Update the frame rate display this often
 static const float FPSUpdateInterval = 4.0;
 
-static const bool UseMBTiles = true;
+// Note: You need the mbtiles archive if you're going to turn this on.
+//       I've moved it out of the source tree since it's so big.
+static const bool UseMBTiles = false;
 static const bool UseStamenTiles = false;
 
 /** Globe View Controller
