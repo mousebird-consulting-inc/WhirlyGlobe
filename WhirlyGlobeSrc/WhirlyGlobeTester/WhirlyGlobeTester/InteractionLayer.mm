@@ -201,7 +201,7 @@ using namespace WhirlyGlobe;
     }
     
     if (!hit)
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Nothing",objectId] waitUntilDone:NO];        
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:@"Nothing" waitUntilDone:NO];
 }
 
 #pragma mark -
