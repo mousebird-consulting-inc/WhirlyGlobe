@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Bermuda", "ADM0_A3": "BMU", "GEOU_DIF": 0.0, "GEOUNIT": "Bermuda", "GU_A3": "BMU", "SU_DIF": 0.0, "SUBUNIT": "Bermuda", "SU_A3": "BMU", "NAME": "Bermuda", "ABBREV": "Berm.", "POSTAL": "BM", "NAME_FORMA": "", "TERR_": "U.K.", "NAME_SORT": "Bermuda", "MAP_COLOR": 3.0, "POP_EST": 67837.0, "GDP_MD_EST": 4500.0, "FIPS_10_": "BD", "ISO_A2": "BM", "ISO_A3": "BMU", "ISO_N3": 60.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -64.730255, 32.293456 ], [ -64.820146, 32.259633 ], [ -64.845054, 32.262295 ], [ -64.862857, 32.27387 ], [ -64.771183, 32.307692 ], [ -64.69465, 32.386912 ], [ -64.668321, 32.381926 ], [ -64.730255, 32.293456 ] ] ] } }
-
-]
-}

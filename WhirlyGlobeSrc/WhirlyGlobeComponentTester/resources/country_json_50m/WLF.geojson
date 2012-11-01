@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "France", "SOV_A3": "FR1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Wallis and Futuna", "ADM0_A3": "WLF", "GEOU_DIF": 0.0, "GEOUNIT": "Wallis and Futuna", "GU_A3": "WLF", "SU_DIF": 0.0, "SUBUNIT": "Wallis and Futuna", "SU_A3": "WLF", "NAME": "Wallis and Futuna", "ABBREV": "Wlf.", "POSTAL": "WF", "NAME_FORMA": "Territory of the Wallis and Futuna Islands", "TERR_": "Fr.", "NAME_SORT": "Wallis and Futuna", "MAP_COLOR": 11.0, "POP_EST": 15289.0, "GDP_MD_EST": 60.0, "FIPS_10_": "WF", "ISO_A2": "WF", "ISO_A3": "WLF", "ISO_N3": 876.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -178.046672, -14.318351 ], [ -178.103309, -14.324913 ], [ -178.158603, -14.311891 ], [ -178.194389, -14.255512 ], [ -178.178008, -14.231586 ], [ -178.142247, -14.242593 ], [ -178.105015, -14.284192 ], [ -178.043675, -14.303209 ], [ -178.046672, -14.318351 ] ] ], [ [ [ -176.160585, -13.332778 ], [ -176.17689, -13.340942 ], [ -176.195364, -13.301668 ], [ -176.1712, -13.242551 ], [ -176.147951, -13.221673 ], [ -176.12805, -13.268182 ], [ -176.160585, -13.332778 ] ] ] ] } }
-
-]
-}

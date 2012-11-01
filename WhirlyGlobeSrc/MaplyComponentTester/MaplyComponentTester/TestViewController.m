@@ -539,7 +539,7 @@ LocationInfo locations[NumLocations] =
     } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
-        loc = [vecObj largestLoopCenter];
+        [vecObj largestLoopCenter:&loc mbrLL:nil mbrUR:nil];
         msg = [NSString stringWithFormat:@"Vector"];
     } else
         // Don't know what it is

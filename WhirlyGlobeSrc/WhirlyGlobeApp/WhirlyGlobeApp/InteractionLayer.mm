@@ -200,6 +200,8 @@ FeatureRep::~FeatureRep()
     double width=0.0,height=0.0;    
     VectorRing *largeLoop = NULL;
     float largeArea = 0.0;
+    
+    CoordSystemDisplayAdapter *adapter = globeView.coordAdapter;
 
     // Work through all the areals that make up the country
     // We get disconnected loops (think Alaska)
@@ -229,8 +231,8 @@ FeatureRep::~FeatureRep()
     if (largeLoop)
     {
         GeoMbr ringMbr(*largeLoop);
-        Point3f pt0 = GeoCoordSystem::LocalToGeocentricish(ringMbr.ll());
-        Point3f pt1 = GeoCoordSystem::LocalToGeocentricish(ringMbr.lr());
+        Point3f pt0 = adapter->localToDisplay(Point3f(ringMbr.ll().x(),ringMbr.ll().y(),0.0));
+        Point3f pt1 = adapter->localToDisplay(Point3f(ringMbr.lr().x(),ringMbr.lr().y(),0.0));
         width = (pt1-pt0).norm() * 0.5;
         // Don't let the width get too crazy
         width = std::min(width,0.5);

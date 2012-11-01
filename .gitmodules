@@ -10,3 +10,9 @@
 [submodule "third-party/eigen"]
 	path = third-party/eigen
 	url = https://github.com/mousebird/eigen.git
+[submodule "resources"]
+	path = resources
+	url = https://github.com/mousebird/wg-resources.git
+[submodule "third-party/proj-4"]
+	path = third-party/proj-4
+	url = https://github.com/mousebird/proj-4.git

@@ -22,8 +22,6 @@
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe/WhirlyGlobe.h>
 
-typedef std::set<WhirlyGlobe::SimpleIdentity> SimpleIDSet;
-
 typedef enum {FeatRepCountry,FeatRepOcean} FeatureRepType;
 
 // Set this to have the model rotate to the currently selected country
