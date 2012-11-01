@@ -7,6 +7,7 @@
  */
 
 #import "OptionsViewController.h"
+#import "sqlhelpers.h"
 
 @implementation DBWrapper
 
