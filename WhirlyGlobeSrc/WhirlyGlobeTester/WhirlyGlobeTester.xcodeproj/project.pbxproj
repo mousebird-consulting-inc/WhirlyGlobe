@@ -55,7 +55,6 @@
 		2B0C686216433A69008AA2FE /* big_wtb_9x2.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C683916433A69008AA2FE /* big_wtb_9x2.pvrtc */; };
 		2B0C686316433A69008AA2FE /* big_wtb_9x3.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C683A16433A69008AA2FE /* big_wtb_9x3.pvrtc */; };
 		2B0C686416433A69008AA2FE /* big_wtb_info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C683B16433A69008AA2FE /* big_wtb_info.plist */; };
-		2B0C686616433B68008AA2FE /* blue-marble-topo-jan.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C686516433B68008AA2FE /* blue-marble-topo-jan.mbtiles */; };
 		2B0C686C16433B91008AA2FE /* 50m_populated_places_simple.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C686816433B91008AA2FE /* 50m_populated_places_simple.dbf */; };
 		2B0C686D16433B91008AA2FE /* 50m_populated_places_simple.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C686916433B91008AA2FE /* 50m_populated_places_simple.prj */; };
 		2B0C686E16433B91008AA2FE /* 50m_populated_places_simple.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2B0C686A16433B91008AA2FE /* 50m_populated_places_simple.shp */; };
@@ -170,7 +169,6 @@
 		2B0C683916433A69008AA2FE /* big_wtb_9x2.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_wtb_9x2.pvrtc; sourceTree = "<group>"; };
 		2B0C683A16433A69008AA2FE /* big_wtb_9x3.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = big_wtb_9x3.pvrtc; sourceTree = "<group>"; };
 		2B0C683B16433A69008AA2FE /* big_wtb_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = big_wtb_info.plist; sourceTree = "<group>"; };
-		2B0C686516433B68008AA2FE /* blue-marble-topo-jan.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "blue-marble-topo-jan.mbtiles"; path = "../../../resources/base_maps/blue-marble-topo-jan.mbtiles"; sourceTree = "<group>"; };
 		2B0C686816433B91008AA2FE /* 50m_populated_places_simple.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; path = 50m_populated_places_simple.dbf; sourceTree = "<group>"; };
 		2B0C686916433B91008AA2FE /* 50m_populated_places_simple.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = 50m_populated_places_simple.prj; sourceTree = "<group>"; };
 		2B0C686A16433B91008AA2FE /* 50m_populated_places_simple.shp */ = {isa = PBXFileReference; lastKnownFileType = file; path = 50m_populated_places_simple.shp; sourceTree = "<group>"; };
@@ -258,7 +256,6 @@
 			isa = PBXGroup;
 			children = (
 				2B0C688516433BD7008AA2FE /* vectors */,
-				2B0C686516433B68008AA2FE /* blue-marble-topo-jan.mbtiles */,
 				2B0C681216433A69008AA2FE /* big_wtb */,
 				2B0C680516433A5A008AA2FE /* whirlyglobetester-loftcache */,
 			);
@@ -635,7 +632,6 @@
 				2B0C686216433A69008AA2FE /* big_wtb_9x2.pvrtc in Resources */,
 				2B0C686316433A69008AA2FE /* big_wtb_9x3.pvrtc in Resources */,
 				2B0C686416433A69008AA2FE /* big_wtb_info.plist in Resources */,
-				2B0C686616433B68008AA2FE /* blue-marble-topo-jan.mbtiles in Resources */,
 				2B0C686C16433B91008AA2FE /* 50m_populated_places_simple.dbf in Resources */,
 				2B0C686D16433B91008AA2FE /* 50m_populated_places_simple.prj in Resources */,
 				2B0C686E16433B91008AA2FE /* 50m_populated_places_simple.shp in Resources */,
