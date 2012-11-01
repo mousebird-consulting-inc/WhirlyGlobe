@@ -505,8 +505,9 @@
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					../../../utilities/boost_1_45_0,
-					"../../../utilities/eigen-eigen-3.1.1",
+					"../../third-party/boost/",
+					"../../third-party/eigen/",
+					"../../third-party/proj-4/src/",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -525,8 +526,9 @@
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					../../../utilities/boost_1_45_0,
-					"../../../utilities/eigen-eigen-3.1.1",
+					"../../third-party/boost/",
+					"../../third-party/eigen/",
+					"../../third-party/proj-4/src/",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",

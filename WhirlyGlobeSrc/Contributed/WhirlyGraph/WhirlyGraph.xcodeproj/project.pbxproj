@@ -97,10 +97,10 @@
 		2B76E33C13DF3F3C006C2B59 /* USA.loftcache in Resources */ = {isa = PBXBuildFile; fileRef = 2B76E30713DF3F3C006C2B59 /* USA.loftcache */; };
 		2B76E33D13DF3F3C006C2B59 /* VEN.loftcache in Resources */ = {isa = PBXBuildFile; fileRef = 2B76E30813DF3F3C006C2B59 /* VEN.loftcache */; };
 		2B76E33E13DF3F3C006C2B59 /* VNM.loftcache in Resources */ = {isa = PBXBuildFile; fileRef = 2B76E30913DF3F3C006C2B59 /* VNM.loftcache */; };
-		2B9DA16F1407536900B9C0E7 /* WhirlyGlobe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B9DA16E1407536900B9C0E7 /* WhirlyGlobe.framework */; };
 		2BC5402112DE281D00778431 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC5402012DE281D00778431 /* OpenGLES.framework */; };
 		2BC5402C12DE283F00778431 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC5402B12DE283F00778431 /* QuartzCore.framework */; };
 		2BCAC48112FBCAEB0049D73C /* InteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCAC48012FBCAEB0049D73C /* InteractionLayer.mm */; };
+		2BD4D1E216431561004C8F67 /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BD4D1E11643155C004C8F67 /* libWhirlyGlobeLib.a */; };
 		2BEADF2312E7697A00E684C1 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BEADF1D12E7697A00E684C1 /* Icon-72.png */; };
 		2BEADF2412E7697A00E684C1 /* Icon-Small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BEADF1E12E7697A00E684C1 /* Icon-Small-50.png */; };
 		2BEADF2512E7697A00E684C1 /* Icon-Small.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BEADF1F12E7697A00E684C1 /* Icon-Small.png */; };
@@ -155,6 +155,16 @@
 		730F551613D627B400EAC8BA /* actonline.gif in Resources */ = {isa = PBXBuildFile; fileRef = 730F551513D627B400EAC8BA /* actonline.gif */; };
 		730F551813D634B900EAC8BA /* linkedin-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 730F551713D634B900EAC8BA /* linkedin-icon.png */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2BD4D1E01643155C004C8F67 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2BD4D1D91643155C004C8F67 /* WhirlyGlobeLib.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2BDC4ABB133404BB00E25283;
+			remoteInfo = WhirlyGlobeLib;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -254,11 +264,11 @@
 		2B76E30713DF3F3C006C2B59 /* USA.loftcache */ = {isa = PBXFileReference; lastKnownFileType = file; name = USA.loftcache; path = "resources/mesh cache/USA.loftcache"; sourceTree = "<group>"; };
 		2B76E30813DF3F3C006C2B59 /* VEN.loftcache */ = {isa = PBXFileReference; lastKnownFileType = file; name = VEN.loftcache; path = "resources/mesh cache/VEN.loftcache"; sourceTree = "<group>"; };
 		2B76E30913DF3F3C006C2B59 /* VNM.loftcache */ = {isa = PBXFileReference; lastKnownFileType = file; name = VNM.loftcache; path = "resources/mesh cache/VNM.loftcache"; sourceTree = "<group>"; };
-		2B9DA16E1407536900B9C0E7 /* WhirlyGlobe.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WhirlyGlobe.framework; path = ../../WhirlyGlobeLib/WhirlyGlobe.framework; sourceTree = "<group>"; };
 		2BC5402012DE281D00778431 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2BC5402B12DE283F00778431 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2BCAC47F12FBCAEB0049D73C /* InteractionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InteractionLayer.h; sourceTree = "<group>"; };
 		2BCAC48012FBCAEB0049D73C /* InteractionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InteractionLayer.mm; sourceTree = "<group>"; };
+		2BD4D1D91643155C004C8F67 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
 		2BEADF1D12E7697A00E684C1 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-72.png"; path = "resources/Icon-72.png"; sourceTree = "<group>"; };
 		2BEADF1E12E7697A00E684C1 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small-50.png"; path = "resources/Icon-Small-50.png"; sourceTree = "<group>"; };
 		2BEADF1F12E7697A00E684C1 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Small.png"; path = "resources/Icon-Small.png"; sourceTree = "<group>"; };
@@ -321,7 +331,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B9DA16F1407536900B9C0E7 /* WhirlyGlobe.framework in Frameworks */,
+				2BD4D1E216431561004C8F67 /* libWhirlyGlobeLib.a in Frameworks */,
 				2B25B93F13D2A68A00892DD0 /* AudioToolbox.framework in Frameworks */,
 				2B316A91137DF0DF0077E08E /* libsqlite3.dylib in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
@@ -365,7 +375,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				2B9DA16E1407536900B9C0E7 /* WhirlyGlobe.framework */,
+				2BD4D1D91643155C004C8F67 /* WhirlyGlobeLib.xcodeproj */,
 				2B25B93E13D2A68A00892DD0 /* AudioToolbox.framework */,
 				2B25B93C13D2A67700892DD0 /* CoreAudio.framework */,
 				2B19444D1390638000E8FA42 /* Default.png */,
@@ -556,6 +566,14 @@
 			name = shapefiles;
 			sourceTree = "<group>";
 		};
+		2BD4D1DA1643155C004C8F67 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2BD4D1E11643155C004C8F67 /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2BEADF1C12E7696600E684C1 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
@@ -619,12 +637,28 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 2BD4D1DA1643155C004C8F67 /* Products */;
+					ProjectRef = 2BD4D1D91643155C004C8F67 /* WhirlyGlobeLib.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* WhirlyGraph */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		2BD4D1E11643155C004C8F67 /* libWhirlyGlobeLib.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libWhirlyGlobeLib.a;
+			remoteRef = 2BD4D1E01643155C004C8F67 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		1D60588D0D05DD3D006BFB54 /* Resources */ = {

@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 4.0, "TYPE": "Overlay", "ADMIN": "British Indian Ocean Territory", "ADM0_A3": "IOT", "GEOU_DIF": 0.0, "GEOUNIT": "British Indian Ocean Territory", "GU_A3": "IOT", "SU_DIF": 1.0, "SUBUNIT": "Diego Garcia Naval Support Facility", "SU_A3": "IOD", "NAME": "Diego Garcia NSF", "ABBREV": "Dieg. G.", "POSTAL": "DG", "NAME_FORMA": "", "TERR_": "Leased to U.S.A. from U.K.", "NAME_SORT": "Diego Garcia Naval Support Facility", "MAP_COLOR": 3.0, "POP_EST": 4000.0, "GDP_MD_EST": -99.0, "FIPS_10_": "-99", "ISO_A2": "-99", "ISO_A3": "-99", "ISO_N3": -99.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 72.491937, -7.377482 ], [ 72.468786, -7.41717 ], [ 72.429099, -7.43536 ], [ 72.407601, -7.334487 ], [ 72.349724, -7.263381 ], [ 72.372875, -7.263381 ], [ 72.427445, -7.299761 ], [ 72.447289, -7.395672 ], [ 72.467133, -7.36756 ], [ 72.462172, -7.337795 ], [ 72.473747, -7.309683 ], [ 72.465479, -7.278263 ], [ 72.435713, -7.230308 ], [ 72.445635, -7.220386 ], [ 72.493591, -7.261727 ], [ 72.498552, -7.2948 ], [ 72.491937, -7.377482 ] ] ] } }
-
-]
-}
