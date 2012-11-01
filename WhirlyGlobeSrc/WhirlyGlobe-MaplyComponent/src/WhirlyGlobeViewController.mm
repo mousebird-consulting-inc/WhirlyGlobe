@@ -282,6 +282,16 @@ using namespace WhirlyGlobe;
 	[super viewDidUnload];
 }
 
+- (void)startAnimation
+{
+    [glView startAnimation];
+}
+
+- (void)stopAnimation
+{
+    [glView stopAnimation];
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
 	[glView startAnimation];

@@ -183,4 +183,10 @@
 /// This utility routine returns the on screen location for a coordinate in lat/lon
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
+/// Start animation (only if it's been paused)
+- (void)startAnimation;
+
+/// Pause animation (probably because we're going into the background)
+- (void)stopAnimation;
+
 @end
