@@ -506,7 +506,7 @@
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0,
-					"../../../utilities/eigen-eigen-3.0.1",
+					"../../../utilities/eigen-eigen-3.1.1",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -526,7 +526,7 @@
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0,
-					"../../../utilities/eigen-eigen-3.0.1",
+					"../../../utilities/eigen-eigen-3.1.1",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
