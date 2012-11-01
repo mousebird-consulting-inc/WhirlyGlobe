@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Turks and Caicos Islands", "ADM0_A3": "TCA", "GEOU_DIF": 0.0, "GEOUNIT": "Turks and Caicos Islands", "GU_A3": "TCA", "SU_DIF": 0.0, "SUBUNIT": "Turks and Caicos Islands", "SU_A3": "TCA", "NAME": "Turks and Caicos Is.", "ABBREV": "T.C. Is.", "POSTAL": "TC", "NAME_FORMA": "", "TERR_": "U.K.", "NAME_SORT": "Turks and Caicos Islands", "MAP_COLOR": 3.0, "POP_EST": 22942.0, "GDP_MD_EST": 216.0, "FIPS_10_": "TK", "ISO_A2": "TC", "ISO_A3": "TCA", "ISO_N3": 796.0 }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ -72.332815, 21.85138 ], [ -72.218635, 21.796293 ], [ -72.149828, 21.804483 ], [ -72.144325, 21.792727 ], [ -72.181558, 21.78004 ], [ -72.190678, 21.769783 ], [ -72.300904, 21.755236 ], [ -72.33545, 21.758 ], [ -72.342375, 21.795311 ], [ -72.332815, 21.85138 ] ] ], [ [ [ -71.661408, 21.765235 ], [ -71.665388, 21.751696 ], [ -71.721767, 21.790246 ], [ -71.830416, 21.790608 ], [ -71.84765, 21.843473 ], [ -71.806128, 21.852103 ], [ -71.668333, 21.833448 ], [ -71.636914, 21.787559 ], [ -71.661408, 21.765235 ] ] ], [ [ [ -71.879948, 21.840424 ], [ -71.897466, 21.829856 ], [ -71.955499, 21.864402 ], [ -71.963793, 21.892023 ], [ -71.984515, 21.893418 ], [ -72.019061, 21.918275 ], [ -72.010638, 21.950443 ], [ -71.931573, 21.95189 ], [ -71.899611, 21.86249 ], [ -71.879948, 21.840424 ] ] ] ] } }
-
-]
-}

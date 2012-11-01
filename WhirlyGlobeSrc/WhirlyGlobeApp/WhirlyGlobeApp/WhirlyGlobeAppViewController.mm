@@ -110,7 +110,7 @@ using namespace WhirlyGlobe;
 	texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:[[NSBundle mainBundle] pathForResource:@"big_wtb_info" ofType:@"plist"]];
 
 	// Need an empty scene and view
-	theScene = new WhirlyGlobe::GlobeScene(&geoCoordSystem,1);
+	theScene = new WhirlyGlobe::GlobeScene(1);
 	theView = [[WhirlyGlobeView alloc] init];
 	
 	// Need a layer thread to manage the layers

@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Montserrat", "ADM0_A3": "MSR", "GEOU_DIF": 0.0, "GEOUNIT": "Montserrat", "GU_A3": "MSR", "SU_DIF": 0.0, "SUBUNIT": "Montserrat", "SU_A3": "MSR", "NAME": "Montserrat", "ABBREV": "Monts.", "POSTAL": "MS", "NAME_FORMA": "", "TERR_": "U.K.", "NAME_SORT": "Montserrat", "MAP_COLOR": 3.0, "POP_EST": 5097.0, "GDP_MD_EST": 29.0, "FIPS_10_": "MH", "ISO_A2": "MS", "ISO_A3": "MSR", "ISO_N3": 500.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -62.148449, 16.740322 ], [ -62.154263, 16.681204 ], [ -62.221623, 16.699498 ], [ -62.22307, 16.751588 ], [ -62.191341, 16.804401 ], [ -62.175786, 16.809569 ], [ -62.148449, 16.740322 ] ] ] } }
-
-]
-}
