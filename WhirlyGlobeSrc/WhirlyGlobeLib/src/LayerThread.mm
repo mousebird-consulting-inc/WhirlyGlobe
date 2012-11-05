@@ -46,7 +46,7 @@ using namespace WhirlyKit;
             if (dynamic_cast<Maply::MapScene *>(scene))
                 viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
         
-        glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:renderer.context.sharegroup];
+        glContext = [[EAGLContext alloc] initWithAPI:renderer.context.API sharegroup:renderer.context.sharegroup];
         thingsToRelease = [NSMutableArray array];
 	}
 	

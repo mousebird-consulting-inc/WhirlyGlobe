@@ -436,10 +436,18 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 	
 void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
-    if (usingBuffers)
-        drawVBO(frameInfo,scene);
-    else
-        drawReg(frameInfo,scene);
+    if (frameInfo.oglVersion == kEAGLRenderingAPIOpenGLES1)
+    {
+        if (usingBuffers)
+            drawVBO(frameInfo,scene);
+        else
+            drawReg(frameInfo,scene);
+    } else {
+        if (usingBuffers)
+            drawVBO2(frameInfo,scene);
+        else
+            drawReg2(frameInfo,scene);
+    }
 }
     
 // Write this drawable to a cache file
@@ -655,7 +663,7 @@ bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool do
     return true;
 }
 
-// VBO based drawing
+// VBO based drawing, OpenGL 1.1
 void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
 	GLuint textureId = scene->getGLTexture(texId);
@@ -794,8 +802,81 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 	glDisable(GL_LIGHTING);
     CheckGLError("BasicDrawable::drawVBO() glDisable");
 }
+    
+// Draw Vertex Buffer Objects, OpenGL 2.0
+void BasicDrawable::drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
+{
+    GLuint textureId = scene->getGLTexture(texId);
+    
+    // Note: Can't handle no texture case
+    if (textureId == EmptyIdentity)
+        return;
+    
+    // Note: Only doing triangles right now
+    if (type != GL_TRIANGLES)
+        return;
+    
+    // GL Texture ID
+    GLuint glTexID = scene->getGLTexture(texId);
 
-// Non-VBO based drawing
+    OpenGLES2Program *prog = frameInfo.program;
+    
+    // Model/View/Projection matrix
+    const OpenGLESUniform *mvpUni = prog->findUniform("u_mvpMatrix");
+    if (mvpUni)
+    {
+        glUniformMatrix4fv( mvpUni->index, 1, GL_FALSE, (GLfloat *)frameInfo.mvpMat.data());
+        CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
+    }
+    
+    // Texture
+    const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
+    if (texUni)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, glTexID);
+        glUniform1i( texUni->index, 0);
+    }
+    
+    // Vertex array
+    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+    if (vertAttr)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
+        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray ( vertAttr->index );
+        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+    }
+    
+    // Normal array
+    
+    // Texture coordinates
+    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
+    if (texAttr)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
+        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+        glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray ( texAttr->index );
+        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+    }
+    
+    // Draw it
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+    CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+    CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+    // Tear it all down
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+
+// Non-VBO based drawing, OpenGL 1.1
 void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
 	if (type == GL_TRIANGLES)
@@ -861,7 +942,13 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
         glDisableClientState(GL_COLOR_ARRAY);
     
     glDisable(GL_LIGHTING);
-}	
+}
+    
+// Non-VBO drawing, OpenGL 2.0
+void BasicDrawable::drawReg2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
+{
+    // Note: Implement this
+}
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	: DrawableChangeRequest(drawId)

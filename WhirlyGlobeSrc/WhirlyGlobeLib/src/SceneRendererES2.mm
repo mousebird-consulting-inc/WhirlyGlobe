@@ -1,8 +1,8 @@
 /*
- *  SceneRendererES1.mm
+ *  SceneRendererES2.mm
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 1/13/11.
+ *  Created by Steve Gifford on 10/23/12.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,72 +18,153 @@
  *
  */
 
-#import "SceneRendererES1.h"
+#import "SceneRendererES2.h"
 #import "UIColor+Stuff.h"
-//#import <Eigen/OpenGLSupport>
+#import "GLUtils.h"
+
+typedef struct
+{
+    GLfloat   m[4][4];
+} ESMatrix;
+
+void 
+esMatrixLoadIdentity(ESMatrix *result)
+{
+    memset(result, 0x0, sizeof(ESMatrix));
+    result->m[0][0] = 1.0f;
+    result->m[1][1] = 1.0f;
+    result->m[2][2] = 1.0f;
+    result->m[3][3] = 1.0f;
+}
+
+void 
+esMatrixMultiply(ESMatrix *result, ESMatrix *srcA, ESMatrix *srcB)
+{
+    ESMatrix    tmp;
+    int         i;
+    
+	for (i=0; i<4; i++)
+	{
+		tmp.m[i][0] =	(srcA->m[i][0] * srcB->m[0][0]) +
+        (srcA->m[i][1] * srcB->m[1][0]) +
+        (srcA->m[i][2] * srcB->m[2][0]) +
+        (srcA->m[i][3] * srcB->m[3][0]) ;
+        
+		tmp.m[i][1] =	(srcA->m[i][0] * srcB->m[0][1]) +
+        (srcA->m[i][1] * srcB->m[1][1]) +
+        (srcA->m[i][2] * srcB->m[2][1]) +
+        (srcA->m[i][3] * srcB->m[3][1]) ;
+        
+		tmp.m[i][2] =	(srcA->m[i][0] * srcB->m[0][2]) +
+        (srcA->m[i][1] * srcB->m[1][2]) +
+        (srcA->m[i][2] * srcB->m[2][2]) +
+        (srcA->m[i][3] * srcB->m[3][2]) ;
+        
+		tmp.m[i][3] =	(srcA->m[i][0] * srcB->m[0][3]) +
+        (srcA->m[i][1] * srcB->m[1][3]) +
+        (srcA->m[i][2] * srcB->m[2][3]) +
+        (srcA->m[i][3] * srcB->m[3][3]) ;
+	}
+    memcpy(result, &tmp, sizeof(ESMatrix));
+}
+
+void 
+esFrustum(ESMatrix *result, float left, float right, float bottom, float top, float nearZ, float farZ)
+{
+    float       deltaX = right - left;
+    float       deltaY = top - bottom;
+    float       deltaZ = farZ - nearZ;
+    ESMatrix    frust;
+    
+    if ( (nearZ <= 0.0f) || (farZ <= 0.0f) ||
+        (deltaX <= 0.0f) || (deltaY <= 0.0f) || (deltaZ <= 0.0f) )
+        return;
+    
+    frust.m[0][0] = 2.0f * nearZ / deltaX;
+    frust.m[0][1] = frust.m[0][2] = frust.m[0][3] = 0.0f;
+    
+    frust.m[1][1] = 2.0f * nearZ / deltaY;
+    frust.m[1][0] = frust.m[1][2] = frust.m[1][3] = 0.0f;
+    
+    frust.m[2][0] = (right + left) / deltaX;
+    frust.m[2][1] = (top + bottom) / deltaY;
+    frust.m[2][2] = -(nearZ + farZ) / deltaZ;
+    frust.m[2][3] = -1.0f;
+    
+    frust.m[3][2] = -2.0f * nearZ * farZ / deltaZ;
+    frust.m[3][0] = frust.m[3][1] = frust.m[3][3] = 0.0f;
+    
+    esMatrixMultiply(result, &frust, result);
+}
+
+void 
+esPerspective(ESMatrix *result, float fovy, float aspect, float nearZ, float farZ)
+{
+    GLfloat frustumW, frustumH;
+    
+    frustumH = tanf( fovy / 360.0f * M_PI ) * nearZ;
+    frustumW = frustumH * aspect;
+    
+    esFrustum( result, -frustumW, frustumW, -frustumH, frustumH, nearZ, farZ );
+}
 
 using namespace WhirlyKit;
 
-@interface WhirlyKitSceneRendererES1()
-- (void)setupView;
-@end
-
-@implementation WhirlyKitSceneRendererES1
-
-@synthesize delegate;
+@implementation WhirlyKitSceneRendererES2
 
 - (id) init
 {
-    self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES1];
+    self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
     
     return self;
 }
 
-// Set up the various view parameters
-- (void)setupView
+static const char *vertexShader =
+"uniform mat4 u_mvpMatrix;                   \n"
+"attribute vec3 a_position;                  \n"
+"attribute vec2 a_texCoord;                  \n"
+"varying vec2 v_texCoord;                    \n"
+"void main()                                 \n"
+"{                                           \n"
+"   v_texCoord = a_texCoord;                 \n"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
+"}                                           \n"
+;
+static const char *fragmentShader =
+"precision mediump float;                            \n"
+"varying vec2 v_texCoord;                            \n"
+"uniform sampler2D s_baseMap;                        \n"
+"void main()                                         \n"
+"{                                                   \n"
+"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
+"  gl_FragColor = baseColor;                         \n"
+"}                                                   \n"
+;
+
+// When the scene is set, we'll compile our shaders
+- (void)setScene:(WhirlyKit::Scene *)inScene
 {
-    // If the client provided a setupView, use that
-    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(lightingSetup:)])
+    scene = inScene;
+
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
+    
+    OpenGLES2Program *mainShader = new OpenGLES2Program("Default Program",vertexShader,fragmentShader);
+    if (!mainShader->isValid())
     {
-        [delegate lightingSetup:self];
+        NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
     } else {
-        // Otherwise we'll do a default setup
-        // If you make your own, just copy this to start
-        const GLfloat			lightAmbient[] = {0.5, 0.5, 0.5, 1.0};
-        const GLfloat			lightDiffuse[] = {0.6, 0.6, 0.6, 1.0};
-        const GLfloat			matAmbient[] = {0.5, 0.5, 0.5, 1.0};
-        const GLfloat			matDiffuse[] = {1.0, 1.0, 1.0, 1.0};	
-        const GLfloat			matSpecular[] = {1.0, 1.0, 1.0, 1.0};
-        const GLfloat			lightPosition[] = {0.75, 0.5, 1.0, 0.0}; 
-        const GLfloat			lightShininess = 100.0;
-        
-        //Configure OpenGL lighting
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, matAmbient);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, matDiffuse);
-        glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, matSpecular);
-        glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, lightShininess);
-        glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDiffuse);
-        glLightfv(GL_LIGHT0, GL_POSITION, lightPosition); 
-        glShadeModel(GL_SMOOTH);
-        glEnable(GL_COLOR_MATERIAL);
+        scene->setDefaultProgram(mainShader);
     }
 
-	// Set it back to model view
-	glMatrixMode(GL_MODELVIEW);	
-	glEnable(GL_BLEND);	
-    
-	// Set a blending function to use
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
 }
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
     bool ret = [super resizeFromLayer:layer];
-    glMatrixMode(GL_MODELVIEW);
-	[self setupView];
     
     return ret;
 }
@@ -93,6 +174,9 @@ static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
+    if (framebufferWidth <= 0 || framebufferHeight <= 0)
+        return;
+    
 	[theView animate];
     
     // Decide if we even need to draw
@@ -113,62 +197,80 @@ static const float ScreenOverlap = 0.1;
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
-    
-    // Deal with any lighting changes
-    glMatrixMode(GL_MODELVIEW);
-    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(lightingChanged:)] &&
-        [(NSObject *)delegate respondsToSelector:@selector(lightingSetup:)] &&
-        [delegate lightingChanged:self])
-    {
-        [delegate lightingSetup:self];
-    }
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-    glViewport(0, 0, framebufferWidth, framebufferHeight);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-	Point2f frustLL,frustUR;
-	GLfloat near=0,far=0;
-	[theView calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
-	glFrustumf(frustLL.x(),frustUR.x(),frustLL.y(),frustUR.y(),near,far);
-	
-	glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    CheckGLError("SceneRendererES2: setCurrentContext");
     
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
-    
+
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, framebufferWidth, framebufferHeight);
+    CheckGLError("SceneRendererES2: glViewport");
+
+    // Get the model and view matrices
     Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
-    if (globeView)
-    {
-        Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
-        
-        glMultMatrixf(viewTrans.data());
-        glMultMatrixf(modelTrans.data());
-    } else {
-        glMultMatrixf(modelTrans.data());
-    }
+    Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+    
+    // Set up a projection matrix
+    // Borrowed from the "OpenGL ES 2.0 Programming" book
+	Point2f frustLL,frustUR;
+	GLfloat near=0,far=0;
+	[theView calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
+    Eigen::Matrix4f projMat;
+    Point3f delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
+    projMat.setIdentity();
+    projMat(0,0) = 2.0f * near / delta.x();
+    projMat(1,0) = projMat(2,0) = projMat(3,0) = 0.0f;
+
+    projMat(1,1) = 2.0f * near / delta.y();
+    projMat(0,1) = projMat(2,1) = projMat(3,1) = 0.0f;
+
+    projMat(0,2) = (frustUR.x()+frustLL.x()) / delta.x();
+    projMat(1,2) = (frustUR.y()+frustLL.y()) / delta.y();
+    projMat(2,2) = -(near + far ) / delta.z();
+    projMat(3,2) = -1.0f;
+    
+    projMat(2,3) = -2.0f * near * far / delta.z();
+    projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
+    
+//    ESMatrix perspective;
+//    esMatrixLoadIdentity( &perspective );
+//    float aspect = framebufferWidth / (float)framebufferHeight;
+//    esPerspective( &perspective, 60.0f, aspect, near, far );
+//    for (unsigned int ix=0;ix<4;ix++)
+//        for (unsigned int iy=0;iy<4;iy++)
+//            projMat(iy,ix) = perspective.m[ix][iy];
+
+    // Note: This the right order?
+    Eigen::Matrix4f matrixAndViewMat = modelTrans * viewTrans;
+    Eigen::Matrix4f mvpMat = projMat * (modelTrans * viewTrans);
+//    Eigen::Matrix4f mvpMat = projMat;
+    
+    Eigen::Vector4f testPt = mvpMat * Eigen::Vector4f(0,0,0,1);
+    Eigen::Vector4f testPt1 = mvpMat * Eigen::Vector4f(0,0,1.0,1);
     
     if (zBuffer)
     {
         glDepthMask(GL_TRUE);
+        CheckGLError("SceneRendererES2: glDepthMask");
         glEnable(GL_DEPTH_TEST);
+        CheckGLError("SceneRendererES2: glEnable(GL_DEPTH_TEST)");
     } else {
         glDepthMask(GL_FALSE);
+        CheckGLError("SceneRendererES2: glDepthMask");
         glDisable(GL_DEPTH_TEST);
+        CheckGLError("SceneRendererES2: glDisable(GL_DEPTH_TEST)");
     }
     
 	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
+    CheckGLError("SceneRendererES2: glClearColor");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    CheckGLError("SceneRendererES2: glClear");
     
 	glEnable(GL_CULL_FACE);
-    
-    // Call the pre-frame callback
-    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(preFrame:)])
-        [delegate preFrame:self];
+    CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Setup");
@@ -178,18 +280,15 @@ static const float ScreenOverlap = 0.1;
 		numDrawables = 0;
         
         WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
-        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES1;
+        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         frameInfo.sceneRenderer = self;
         frameInfo.theView = theView;
         frameInfo.modelTrans = modelTrans;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
-        Matrix4f projMat;
-        glGetFloatv(GL_PROJECTION_MATRIX,projMat.data());
         frameInfo.projMat = projMat;
-        Matrix4f matrixAndViewMat;
-        glGetFloatv(GL_MODELVIEW_MATRIX,matrixAndViewMat.data());
+        frameInfo.mvpMat = mvpMat;
         frameInfo.viewAndModelMat = matrixAndViewMat;
 		
         if (perfInterval > 0)
@@ -229,16 +328,23 @@ static const float ScreenOverlap = 0.1;
 		Vector4f projB = projMat * test2;
 		Vector3f projA_3(projA.x()/projA.w(),projA.y()/projA.w(),projA.z()/projA.w());
 		Vector3f projB_3(projB.x()/projB.w(),projB.y()/projB.w(),projB.z()/projB.w());
-        
-        // Recursively search for the drawables that overlap the screen
-        Mbr screenMbr;
-        // Stretch the screen MBR a little for safety
-        screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-        screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+
+        // If we're looking at a globe, run the culling
+        std::set<DrawableRef> toDraw;
         int drawablesConsidered = 0;
-		std::set<DrawableRef> toDraw;
         CullTree *cullTree = scene->getCullTree();
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        if (globeView)
+        {
+            // Recursively search for the drawables that overlap the screen
+            Mbr screenMbr;
+            // Stretch the screen MBR a little for safety
+            screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+            screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+            [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        } else {
+            // Otherwise copy it all over
+            // Note: Do this
+        }
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;
@@ -277,6 +383,14 @@ static const float ScreenOverlap = 0.1;
         }
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
         
+        // Note: Just doing the one program at present
+        OpenGLES2Program *defaultProgram = scene->getDefaultProgram();
+        if (defaultProgram)
+        {
+            glUseProgram(defaultProgram->getProgram());
+            frameInfo.program = defaultProgram;
+        }
+        
         if (perfInterval > 0)
         {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
@@ -309,6 +423,8 @@ static const float ScreenOverlap = 0.1;
                 glPushMatrix();
                 glMultMatrixf(thisMat->data());
             }
+            
+            // Draw using the given program
             drawable->draw(frameInfo,scene);
             
             if (thisMat)
@@ -350,15 +466,10 @@ static const float ScreenOverlap = 0.1;
                     NSLog(@"Bad drawable coming from generator.");
             }
             std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,frameInfo));
-            
-            // Set up the matrix
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glOrthof(0, framebufferWidth, framebufferHeight, 0, -1, 1);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadIdentity();
-            // Move things over just a bit to get better sampling
-            glTranslatef(0.375, 0.375, 0);
+
+            //
+            // Note: Set up projection (or lack thereof) for 2D mode
+            //
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -366,7 +477,8 @@ static const float ScreenOverlap = 0.1;
                 
                 if (drawable->isOn(frameInfo))
                 {
-                    drawable->draw(frameInfo,scene);
+                    // Note: Put this back together
+//                    drawable->draw(frameInfo,scene);
                     numDrawables++;
                 }
             }
@@ -381,11 +493,7 @@ static const float ScreenOverlap = 0.1;
     
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
-    
-    // Call the post-frame callback
-    if (delegate && [(NSObject *)delegate respondsToSelector:@selector(postFrame:)])
-        [delegate postFrame:self];
-    
+        
     if (perfInterval > 0)
         perfTimer.stopTiming("Render");
     
