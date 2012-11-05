@@ -77,6 +77,9 @@ public:
  */
 @interface WhirlyKitRendererFrameInfo : NSObject
 {
+    /// Renderer version (e.g. OpenGL ES 1 vs 2)
+    EAGLRenderingAPI oglVersion;
+    
     /// Renderer itself
     WhirlyKitSceneRendererES * __weak sceneRenderer;
     
@@ -90,8 +93,11 @@ public:
     Eigen::Matrix4f projMat;
     
     /// What's currently in the GL model matrix.
-    /// We combine view and model together, however
+    /// We combine view and model together
     Eigen::Matrix4f viewAndModelMat;
+    
+    /// The model, view, and projection matrix all rolled into one
+    Eigen::Matrix4f mvpMat;
     
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
@@ -104,17 +110,23 @@ public:
     
     /// Time at the start of frame
     NSTimeInterval currentTime;
+    
+    /// If using OpenGL ES 2.x, this is the shader
+    WhirlyKit::OpenGLES2Program *program;
 }
 
+@property (nonatomic,assign) EAGLRenderingAPI oglVersion;
 @property (nonatomic,weak) WhirlyKitSceneRendererES *sceneRenderer;
 @property (nonatomic,weak) WhirlyKitView *theView;
 @property (nonatomic,assign) Eigen::Matrix4f modelTrans;
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
+@property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
+@property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 
 @end
 
@@ -208,8 +220,8 @@ public:
 @property (nonatomic,assign) bool sortAlphaToEnd;
 @property (nonatomic,assign) bool depthBufferOffForAlpha;
 
-/// Initialize
-- (id) init;
+/// Initialize with API version
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion;
 
 /// Render to the screen, ideally within the given duration.
 /// The subclasses fill this in
