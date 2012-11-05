@@ -67,6 +67,11 @@ Scene::~Scene()
     activeModels = nil;
     
     subTextureMap.clear();
+
+    // Note: Should be clearing program out of context somewhere
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        delete *it;
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
@@ -244,6 +249,30 @@ void Scene::dumpStats()
         (*it)->dumpStats();
 }
 
+OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
+{
+    OpenGLES2Program dummy(progId);
+    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
+    if (it == glPrograms.end())
+        return NULL;
+    return *it;
+}
+    
+void Scene::addProgram(OpenGLES2Program *prog)
+{
+    glPrograms.insert(prog);
+}
+    
+OpenGLES2Program *Scene::getDefaultProgram()
+{
+    return getProgram(defaultProgramId);
+}
+    
+void Scene::setDefaultProgram(OpenGLES2Program *prog)
+{
+    defaultProgramId = prog->getId();
+    addProgram(prog);
+}
 
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {

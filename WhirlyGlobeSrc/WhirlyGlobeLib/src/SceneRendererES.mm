@@ -20,6 +20,7 @@
 
 #import "SceneRendererES.h"
 #import "UIColor+Stuff.h"
+#import "GLUtils.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -45,15 +46,18 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 
 @implementation WhirlyKitRendererFrameInfo
 
+@synthesize oglVersion;
 @synthesize sceneRenderer;
 @synthesize theView;
 @synthesize modelTrans;
 @synthesize projMat;
+@synthesize mvpMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
 @synthesize eyeVec;
 @synthesize viewAndModelMat;
+@synthesize program;
 
 @end
 
@@ -72,7 +76,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize sortAlphaToEnd;
 @synthesize depthBufferOffForAlpha;
 
-- (id) init
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion
 {
 	if ((self = [super init]))
 	{
@@ -86,7 +90,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
         perfInterval = -1;
         scale = [[UIScreen mainScreen] scale];
 		
-		context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+		context = [[EAGLContext alloc] initWithAPI:apiVersion];
         
         EAGLContext *oldContext = [EAGLContext currentContext];
         if (!context || ![EAGLContext setCurrentContext:context])
@@ -96,16 +100,23 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
         
         // Create default framebuffer object.
         glGenFramebuffers(1, &defaultFramebuffer);
+        CheckGLError("SceneRendererES: glGenFramebuffers");
         glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+        CheckGLError("SceneRendererES: glBindFramebuffer");
         
         // Create color render buffer and allocate backing store.
         glGenRenderbuffers(1, &colorRenderbuffer);
+        CheckGLError("SceneRendererES: glGenRenderbuffers");
         glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+        CheckGLError("SceneRendererES: glBindRenderbuffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
+        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
         
 		// Allocate depth buffer
 		glGenRenderbuffers(1, &depthRenderbuffer);
+        CheckGLError("SceneRendererES: glGenRenderbuffers");
 		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+        CheckGLError("SceneRendererES: glBindRenderbuffer");
         
         // All the animations should work now, except for particle systems
         useViewChanged = true;
@@ -170,23 +181,26 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
         [EAGLContext setCurrentContext:context];
     
 	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
 	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
     
 	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, framebufferWidth, framebufferHeight);
+    CheckGLError("SceneRendererES: glRenderbufferStorage");
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
 	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
 		return NO;
 	}
-	
-    glMatrixMode(GL_MODELVIEW);
-	
+		
     lastDraw = 0;
 	
     if (oldContext != context)

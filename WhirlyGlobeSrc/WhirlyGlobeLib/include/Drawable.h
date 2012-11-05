@@ -135,8 +135,8 @@ public:
 	virtual void teardownGL(OpenGLMemManager *memManage) { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;	
-    
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;
+        
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
@@ -361,6 +361,8 @@ public:
 protected:
 	void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
 	void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    void drawReg2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    void drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
 	
 	bool on;  // If set, draw.  If not, not
     bool usingBuffers;  // If set, we've downloaded the buffers already

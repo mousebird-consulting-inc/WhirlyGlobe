@@ -33,6 +33,7 @@
 #import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
+#import "OpenGLES2Program.h"
 
 /// @cond
 @class WhirlyKitSceneRendererES;
@@ -302,6 +303,20 @@ public:
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
     
+    /// Search for a shader program by ID (our ID, not OpenGL's)
+    OpenGLES2Program *getProgram(SimpleIdentity programId);
+    
+    /// Add a shader to the mix (don't be calling this yourself).
+    /// Scene is responsible for deletion.
+    void addProgram(OpenGLES2Program *);
+    
+    /// One shader will be set up by default for basic drawables
+    OpenGLES2Program *getDefaultProgram();
+    
+    /// Called during initialization after the default shader is created.
+    /// Scene is responsible for deletion
+    void setDefaultProgram(OpenGLES2Program *);
+        
 protected:
     /// Only the subclasses are allowed to create these
     Scene();
@@ -312,6 +327,11 @@ protected:
     /// The earth will be recursively divided into a quad tree of given depth.
     /// Init call used by the base class to set things up
     void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+    
+    /// Keep track of the OpenGL ES 2.0 shader programs here
+    std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
+    /// ID for the default shader
+    SimpleIdentity defaultProgramId;
 };
 	
 }

@@ -144,7 +144,7 @@ using namespace WhirlyGlobe;
     
 	// Set up an OpenGL ES view and renderer
 	glView = [[WhirlyKitEAGLView alloc] init];
-	sceneRenderer = [[WhirlyKitSceneRendererES1 alloc] init];
+	sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
     theClearColor = [UIColor blackColor];
     [sceneRenderer setClearColor:theClearColor];
 	glView.renderer = sceneRenderer;
