@@ -808,16 +808,10 @@ void BasicDrawable::drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     GLuint textureId = scene->getGLTexture(texId);
     
-    // Note: Can't handle no texture case
-    if (textureId == EmptyIdentity)
-        return;
-    
-    // Note: Only doing triangles right now
-    if (type != GL_TRIANGLES)
-        return;
-    
     // GL Texture ID
-    GLuint glTexID = scene->getGLTexture(texId);
+    GLuint glTexID = 0;
+    if (textureId != EmptyIdentity)
+        glTexID = scene->getGLTexture(texId);
 
     OpenGLES2Program *prog = frameInfo.program;
     
@@ -829,13 +823,23 @@ void BasicDrawable::drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
     }
     
-    // Texture
-    const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
-    if (texUni)
+    // Let the shaders know if we even have a texture
+    const OpenGLESUniform *hasTexUni = prog->findUniform("u_hasTexture");
+    if (hasTexUni)
     {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, glTexID);
-        glUniform1i( texUni->index, 0);
+        glUniform1i(hasTexUni->index, (texId != EmptyIdentity));
+    }
+    
+    // Texture
+    if (textureId != EmptyIdentity)
+    {
+        const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
+        if (texUni)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, glTexID);
+            glUniform1i( texUni->index, 0);
+        }
     }
     
     // Vertex array
@@ -853,25 +857,53 @@ void BasicDrawable::drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Texture coordinates
     const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    if (texAttr)
+    if (textureId != EmptyIdentity)
     {
-        glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
-        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-        glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray ( texAttr->index );
-        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+        if (texAttr && glTexID != EmptyIdentity)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, 0);
+            glEnableVertexAttribArray ( texAttr->index );
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+        }
+    }
+
+    // Draw it
+    switch (type)
+    {
+		case GL_TRIANGLES:
+		{
+            // Draw it
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+            glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		}
+			break;
+		case GL_POINTS:
+		case GL_LINES:
+		case GL_LINE_STRIP:
+		case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
+            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
+			glDrawArrays(type, 0, numPoints);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            glLineWidth(1.0);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+			break;
     }
     
-    // Draw it
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
-    CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
-    CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
     // Tear it all down
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (texId != EmptyIdentity)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisableVertexAttribArray(texAttr->index);
+    }
+    if (vertAttr)
+        glDisableVertexAttribArray(vertAttr->index);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

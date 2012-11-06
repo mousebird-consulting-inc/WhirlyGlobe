@@ -22,92 +22,6 @@
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 
-typedef struct
-{
-    GLfloat   m[4][4];
-} ESMatrix;
-
-void 
-esMatrixLoadIdentity(ESMatrix *result)
-{
-    memset(result, 0x0, sizeof(ESMatrix));
-    result->m[0][0] = 1.0f;
-    result->m[1][1] = 1.0f;
-    result->m[2][2] = 1.0f;
-    result->m[3][3] = 1.0f;
-}
-
-void 
-esMatrixMultiply(ESMatrix *result, ESMatrix *srcA, ESMatrix *srcB)
-{
-    ESMatrix    tmp;
-    int         i;
-    
-	for (i=0; i<4; i++)
-	{
-		tmp.m[i][0] =	(srcA->m[i][0] * srcB->m[0][0]) +
-        (srcA->m[i][1] * srcB->m[1][0]) +
-        (srcA->m[i][2] * srcB->m[2][0]) +
-        (srcA->m[i][3] * srcB->m[3][0]) ;
-        
-		tmp.m[i][1] =	(srcA->m[i][0] * srcB->m[0][1]) +
-        (srcA->m[i][1] * srcB->m[1][1]) +
-        (srcA->m[i][2] * srcB->m[2][1]) +
-        (srcA->m[i][3] * srcB->m[3][1]) ;
-        
-		tmp.m[i][2] =	(srcA->m[i][0] * srcB->m[0][2]) +
-        (srcA->m[i][1] * srcB->m[1][2]) +
-        (srcA->m[i][2] * srcB->m[2][2]) +
-        (srcA->m[i][3] * srcB->m[3][2]) ;
-        
-		tmp.m[i][3] =	(srcA->m[i][0] * srcB->m[0][3]) +
-        (srcA->m[i][1] * srcB->m[1][3]) +
-        (srcA->m[i][2] * srcB->m[2][3]) +
-        (srcA->m[i][3] * srcB->m[3][3]) ;
-	}
-    memcpy(result, &tmp, sizeof(ESMatrix));
-}
-
-void 
-esFrustum(ESMatrix *result, float left, float right, float bottom, float top, float nearZ, float farZ)
-{
-    float       deltaX = right - left;
-    float       deltaY = top - bottom;
-    float       deltaZ = farZ - nearZ;
-    ESMatrix    frust;
-    
-    if ( (nearZ <= 0.0f) || (farZ <= 0.0f) ||
-        (deltaX <= 0.0f) || (deltaY <= 0.0f) || (deltaZ <= 0.0f) )
-        return;
-    
-    frust.m[0][0] = 2.0f * nearZ / deltaX;
-    frust.m[0][1] = frust.m[0][2] = frust.m[0][3] = 0.0f;
-    
-    frust.m[1][1] = 2.0f * nearZ / deltaY;
-    frust.m[1][0] = frust.m[1][2] = frust.m[1][3] = 0.0f;
-    
-    frust.m[2][0] = (right + left) / deltaX;
-    frust.m[2][1] = (top + bottom) / deltaY;
-    frust.m[2][2] = -(nearZ + farZ) / deltaZ;
-    frust.m[2][3] = -1.0f;
-    
-    frust.m[3][2] = -2.0f * nearZ * farZ / deltaZ;
-    frust.m[3][0] = frust.m[3][1] = frust.m[3][3] = 0.0f;
-    
-    esMatrixMultiply(result, &frust, result);
-}
-
-void 
-esPerspective(ESMatrix *result, float fovy, float aspect, float nearZ, float farZ)
-{
-    GLfloat frustumW, frustumH;
-    
-    frustumH = tanf( fovy / 360.0f * M_PI ) * nearZ;
-    frustumW = frustumH * aspect;
-    
-    esFrustum( result, -frustumW, frustumW, -frustumH, frustumH, nearZ, farZ );
-}
-
 using namespace WhirlyKit;
 
 @implementation WhirlyKitSceneRendererES2
@@ -132,12 +46,15 @@ static const char *vertexShader =
 ;
 static const char *fragmentShader =
 "precision mediump float;                            \n"
+"uniform bool u_hasTexture;                    \n"
 "varying vec2 v_texCoord;                            \n"
 "uniform sampler2D s_baseMap;                        \n"
 "void main()                                         \n"
 "{                                                   \n"
 "  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
-"  gl_FragColor = baseColor;                         \n"
+"  if (baseColor.a < 0.1)                            \n"
+"      discard;                                      \n"
+"  gl_FragColor = u_hasTexture ? baseColor : vec4(1.0,1.0,1.0,1.0);                         \n"
 "}                                                   \n"
 ;
 
@@ -154,6 +71,7 @@ static const char *fragmentShader =
     if (!mainShader->isValid())
     {
         NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
+        delete mainShader;
     } else {
         scene->setDefaultProgram(mainShader);
     }
@@ -235,21 +153,8 @@ static const float ScreenOverlap = 0.1;
     projMat(2,3) = -2.0f * near * far / delta.z();
     projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
     
-//    ESMatrix perspective;
-//    esMatrixLoadIdentity( &perspective );
-//    float aspect = framebufferWidth / (float)framebufferHeight;
-//    esPerspective( &perspective, 60.0f, aspect, near, far );
-//    for (unsigned int ix=0;ix<4;ix++)
-//        for (unsigned int iy=0;iy<4;iy++)
-//            projMat(iy,ix) = perspective.m[ix][iy];
-
-    // Note: This the right order?
     Eigen::Matrix4f matrixAndViewMat = modelTrans * viewTrans;
-    Eigen::Matrix4f mvpMat = projMat * (modelTrans * viewTrans);
-//    Eigen::Matrix4f mvpMat = projMat;
-    
-    Eigen::Vector4f testPt = mvpMat * Eigen::Vector4f(0,0,0,1);
-    Eigen::Vector4f testPt1 = mvpMat * Eigen::Vector4f(0,0,1.0,1);
+    Eigen::Matrix4f mvpMat = projMat * (matrixAndViewMat);
     
     if (zBuffer)
     {
@@ -382,14 +287,15 @@ static const float ScreenOverlap = 0.1;
                 drawList.push_back(theDrawable);
         }
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
-        
-        // Note: Just doing the one program at present
+
+        // Need a valid OpenGL ES 2.0 program
         OpenGLES2Program *defaultProgram = scene->getDefaultProgram();
         if (defaultProgram)
         {
             glUseProgram(defaultProgram->getProgram());
             frameInfo.program = defaultProgram;
-        }
+        } else
+            return;
         
         if (perfInterval > 0)
         {
