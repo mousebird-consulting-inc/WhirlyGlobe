@@ -29,6 +29,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : defaultProgramId(EmptyIdentity)
 {
 }
     
