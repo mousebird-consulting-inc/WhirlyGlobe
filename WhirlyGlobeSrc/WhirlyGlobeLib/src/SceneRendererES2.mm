@@ -34,27 +34,40 @@ using namespace WhirlyKit;
 }
 
 static const char *vertexShader =
-"uniform mat4 u_mvpMatrix;                   \n"
+"uniform mat4  u_mvpMatrix;                   \n"
+"uniform float u_fade;                        \n"
+"\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec2 a_texCoord;                  \n"
+"attribute vec4 a_color;                     \n"
+"attribute vec3 a_normal;                   \n"
+"\n"
 "varying vec2 v_texCoord;                    \n"
+"varying vec4 v_color;                       \n"
+"\n"
 "void main()                                 \n"
 "{                                           \n"
 "   v_texCoord = a_texCoord;                 \n"
+"   v_color = vec4(a_color.r * u_fade, a_color.g * u_fade, a_color.b * u_fade, a_color.a * u_fade);              \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
+
 static const char *fragmentShader =
 "precision mediump float;                            \n"
-"uniform bool u_hasTexture;                    \n"
-"varying vec2 v_texCoord;                            \n"
+"\n"
 "uniform sampler2D s_baseMap;                        \n"
+"uniform bool  u_hasTexture;                         \n"
+"\n"
+"varying vec2      v_texCoord;                       \n"
+"varying vec4      v_color;                          \n"
+"\n"
 "void main()                                         \n"
 "{                                                   \n"
-"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
+"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 "  if (baseColor.a < 0.1)                            \n"
 "      discard;                                      \n"
-"  gl_FragColor = u_hasTexture ? baseColor : vec4(1.0,1.0,1.0,1.0);                         \n"
+"  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
 
@@ -96,6 +109,11 @@ static const float ScreenOverlap = 0.1;
         return;
     
 	[theView animate];
+
+    // Turn on blending
+    // Note: Only need to do this once
+    glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
     // Decide if we even need to draw
     if (!scene->hasChanges() && ![self viewDidChange])
@@ -293,6 +311,7 @@ static const float ScreenOverlap = 0.1;
         if (defaultProgram)
         {
             glUseProgram(defaultProgram->getProgram());
+            CheckGLError("SceneRendererES2: glUseProgram");
             frameInfo.program = defaultProgram;
         } else
             return;
@@ -320,21 +339,23 @@ static const float ScreenOverlap = 0.1;
             {
                 depthMaskOn = false;
                 glDisable(GL_DEPTH_TEST);
+                CheckGLError("SceneRendererES2: glDisable");
             }
             
             // If it has a transform, apply that
-            const Matrix4f *thisMat = drawable->getMatrix();
-            if (thisMat)
-            {
-                glPushMatrix();
-                glMultMatrixf(thisMat->data());
-            }
+            // Note: Fix this
+//            const Matrix4f *thisMat = drawable->getMatrix();
+//            if (thisMat)
+//            {
+//                glPushMatrix();
+//                glMultMatrixf(thisMat->data());
+//            }
             
             // Draw using the given program
             drawable->draw(frameInfo,scene);
             
-            if (thisMat)
-                glPopMatrix();
+//            if (thisMat)
+//                glPopMatrix();
             
             numDrawables++;
             if (perfInterval > 0)
