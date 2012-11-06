@@ -443,10 +443,7 @@ void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) con
         else
             drawReg(frameInfo,scene);
     } else {
-        if (usingBuffers)
-            drawVBO2(frameInfo,scene);
-        else
-            drawReg2(frameInfo,scene);
+        drawOGL2(frameInfo,scene);
     }
 }
     
@@ -802,111 +799,6 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 	glDisable(GL_LIGHTING);
     CheckGLError("BasicDrawable::drawVBO() glDisable");
 }
-    
-// Draw Vertex Buffer Objects, OpenGL 2.0
-void BasicDrawable::drawVBO2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
-{
-    GLuint textureId = scene->getGLTexture(texId);
-    
-    // GL Texture ID
-    GLuint glTexID = 0;
-    if (textureId != EmptyIdentity)
-        glTexID = scene->getGLTexture(texId);
-
-    OpenGLES2Program *prog = frameInfo.program;
-    
-    // Model/View/Projection matrix
-    const OpenGLESUniform *mvpUni = prog->findUniform("u_mvpMatrix");
-    if (mvpUni)
-    {
-        glUniformMatrix4fv( mvpUni->index, 1, GL_FALSE, (GLfloat *)frameInfo.mvpMat.data());
-        CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
-    }
-    
-    // Let the shaders know if we even have a texture
-    const OpenGLESUniform *hasTexUni = prog->findUniform("u_hasTexture");
-    if (hasTexUni)
-    {
-        glUniform1i(hasTexUni->index, (texId != EmptyIdentity));
-    }
-    
-    // Texture
-    if (textureId != EmptyIdentity)
-    {
-        const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
-        if (texUni)
-        {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, glTexID);
-            glUniform1i( texUni->index, 0);
-        }
-    }
-    
-    // Vertex array
-    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    if (vertAttr)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
-        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray ( vertAttr->index );
-        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-    }
-    
-    // Normal array
-    
-    // Texture coordinates
-    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    if (textureId != EmptyIdentity)
-    {
-        if (texAttr && glTexID != EmptyIdentity)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
-            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, 0);
-            glEnableVertexAttribArray ( texAttr->index );
-            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-        }
-    }
-
-    // Draw it
-    switch (type)
-    {
-		case GL_TRIANGLES:
-		{
-            // Draw it
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
-            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-            glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		}
-			break;
-		case GL_POINTS:
-		case GL_LINES:
-		case GL_LINE_STRIP:
-		case GL_LINE_LOOP:
-            glLineWidth(lineWidth);
-            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
-			glDrawArrays(type, 0, numPoints);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-            glLineWidth(1.0);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-			break;
-    }
-    
-    // Tear it all down
-    if (texId != EmptyIdentity)
-    {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisableVertexAttribArray(texAttr->index);
-    }
-    if (vertAttr)
-        glDisableVertexAttribArray(vertAttr->index);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 
 // Non-VBO based drawing, OpenGL 1.1
 void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
@@ -976,9 +868,220 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
     glDisable(GL_LIGHTING);
 }
     
+// Draw Vertex Buffer Objects, OpenGL 2.0
+void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
+{
+    // Figure out if we're fading in or out
+    float fade = 1.0;
+    if (fadeDown < fadeUp)
+    {
+        // Heading to 1
+        if (frameInfo.currentTime < fadeDown)
+            fade = 0.0;
+        else
+            if (frameInfo.currentTime > fadeUp)
+                fade = 1.0;
+            else
+                fade = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
+    } else {
+        if (fadeUp < fadeDown)
+        {
+            // Heading to 0
+            if (frameInfo.currentTime < fadeUp)
+                fade = 1.0;
+            else
+                if (frameInfo.currentTime > fadeDown)
+                    fade = 0.0;
+                else
+                    fade = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+        }
+    }
+    
+    // GL Texture ID
+    GLuint textureId = scene->getGLTexture(texId);
+    GLuint glTexID = 0;
+    if (textureId != EmptyIdentity)
+        glTexID = scene->getGLTexture(texId);
+    
+    OpenGLES2Program *prog = frameInfo.program;
+    
+    // Model/View/Projection matrix
+    const OpenGLESUniform *mvpUni = prog->findUniform("u_mvpMatrix");
+    if (mvpUni)
+    {
+        glUniformMatrix4fv( mvpUni->index, 1, GL_FALSE, (GLfloat *)frameInfo.mvpMat.data());
+        CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
+    }
+    
+    // Fade is always mixed in
+    const OpenGLESUniform *fadeUni = prog->findUniform("u_fade");
+    if (fadeUni)
+    {
+        glUniform1f(fadeUni->index, fade);
+        CheckGLError("BasicDrawable::drawVBO2() glUniform1f");
+    }
+    
+    // Let the shaders know if we even have a texture
+    const OpenGLESUniform *hasTexUni = prog->findUniform("u_hasTexture");
+    if (hasTexUni)
+    {
+        glUniform1i(hasTexUni->index, (texId != EmptyIdentity));
+        CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
+    }
+    
+    // Texture
+    const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
+    if (glTexID != 0 && texUni)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
+        glBindTexture(GL_TEXTURE_2D, glTexID);
+        CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
+        glUniform1i( texUni->index, 0);
+        CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+    }
+    
+    // Vertex array
+    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+    if (vertAttr)
+    {
+        if (pointBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+            glEnableVertexAttribArray ( vertAttr->index );
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+        } else {
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+            glEnableVertexAttribArray ( vertAttr->index );            
+        }
+    }
+    
+    // Texture coordinates
+    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
+    if (textureId != EmptyIdentity)
+    {
+        if (texAttr && glTexID != EmptyIdentity)
+        {
+            if (texCoordBuffer)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER,texCoordBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                glEnableVertexAttribArray ( texAttr->index );
+                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+            } else {
+                glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, &texCoords[0]);
+                glEnableVertexAttribArray ( texAttr->index );                
+            }
+        }
+    }
+    
+    // Per vertex colors
+    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
+    bool hasColors = (colorBuffer != 0);
+    if (colorAttr)
+    {
+        if (hasColors)
+        {
+            if (colorBuffer)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
+                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                glEnableVertexAttribArray(colorAttr->index);
+                CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+            } else {
+                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, &colors[0]);
+                glEnableVertexAttribArray ( colorAttr->index );                
+            }
+        } else {
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib4f");
+        }
+    }
+    
+    // Per vertex normals
+    const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
+    bool hasNormals = (normBuffer != 0);
+    if (normAttr && hasNormals)
+    {
+        if (hasNormals)
+        {
+            if (normBuffer)
+            {
+                glBindBuffer(GL_ARRAY_BUFFER, normBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                glEnableVertexAttribArray(normAttr->index);
+                CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+            } else {
+                glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &norms[0]);
+                glEnableVertexAttribArray ( normAttr->index );                
+            }
+        } else {
+            glVertexAttrib3f(normAttr->index, 1.0, 1.0, 1.0);
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib3f");            
+        }
+    }
+    
+    // Draw it
+    switch (type)
+    {
+        case GL_TRIANGLES:
+        {
+            if (triBuffer)
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            } else {
+                glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");                
+            }
+        }
+            break;
+        case GL_POINTS:
+        case GL_LINES:
+        case GL_LINE_STRIP:
+        case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
+            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
+            glDrawArrays(type, 0, numPoints);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            glLineWidth(1.0);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            break;
+    }
+    
+    // Tear down the various arrays
+    if (normAttr && hasNormals)
+        glDisableVertexAttribArray(normAttr->index);
+    if (colorAttr && hasColors)
+        glDisableVertexAttribArray(colorAttr->index);
+    if (glTexID != 0 && texUni)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisableVertexAttribArray(texAttr->index);
+    }
+    if (vertAttr)
+        glDisableVertexAttribArray(vertAttr->index);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+#if 0
 // Non-VBO drawing, OpenGL 2.0
 void BasicDrawable::drawReg2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
+    // Note: Debugging
+    return;
+    
     GLuint textureId = scene->getGLTexture(texId);
     
     // GL Texture ID
@@ -1070,6 +1173,7 @@ void BasicDrawable::drawReg2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     if (vertAttr)
         glDisableVertexAttribArray(vertAttr->index);
 }
+#endif
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 	: DrawableChangeRequest(drawId)
