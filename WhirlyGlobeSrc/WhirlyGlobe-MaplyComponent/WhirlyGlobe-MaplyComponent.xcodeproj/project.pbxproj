@@ -509,6 +509,7 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 				);
+				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -530,6 +531,7 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 				);
+				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
