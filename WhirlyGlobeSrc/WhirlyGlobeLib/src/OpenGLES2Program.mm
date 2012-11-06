@@ -108,8 +108,8 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         GLint bufLen;
         thingName[0] = 0;
         glGetActiveUniform(program, ii, 1023, &bufLen, &uni.size, &uni.type, thingName);
-        uni.index = ii;
         uni.name = thingName;
+        uni.index = glGetUniformLocation(program, thingName);
         uniforms.insert(uni);
     }
     
@@ -122,7 +122,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         GLint bufLen;
         thingName[0] = 0;
         glGetActiveAttrib(program, ii, 1023, &bufLen, &attr.size, &attr.type, thingName);
-        attr.index = ii;
+        attr.index = glGetAttribLocation(program, thingName);
         attr.name = thingName;
         attrs.insert(attr);
     }
