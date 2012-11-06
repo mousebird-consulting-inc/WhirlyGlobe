@@ -173,7 +173,7 @@ static const float ScreenOverlap = 0.1;
     CheckGLError("SceneRendererES2: glClearColor");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     CheckGLError("SceneRendererES2: glClear");
-    
+
 	glEnable(GL_CULL_FACE);
     CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
     
@@ -373,9 +373,17 @@ static const float ScreenOverlap = 0.1;
             }
             std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,frameInfo));
 
-            //
-            // Note: Set up projection (or lack thereof) for 2D mode
-            //
+            // Build an orthographic projection
+            // We flip the vertical axis and spread the window out (0,0)->(width,height)
+            Eigen::Matrix4f orthoMat = Matrix4f::Identity();
+            Vector3f delta(framebufferWidth,-framebufferHeight,2.0);
+            orthoMat(0,0) = 2.0f / delta.x();
+            orthoMat(0,3) = -(framebufferWidth) / delta.x();
+            orthoMat(1,1) = 2.0f / delta.y();
+            orthoMat(1,3) = -framebufferHeight / delta.y();
+            orthoMat(2,2) = -2.0f / delta.z();
+            orthoMat(2,3) = 0.0f;            
+            frameInfo.mvpMat = orthoMat;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -383,8 +391,7 @@ static const float ScreenOverlap = 0.1;
                 
                 if (drawable->isOn(frameInfo))
                 {
-                    // Note: Put this back together
-//                    drawable->draw(frameInfo,scene);
+                    drawable->draw(frameInfo,scene);
                     numDrawables++;
                 }
             }

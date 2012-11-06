@@ -979,7 +979,96 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
 // Non-VBO drawing, OpenGL 2.0
 void BasicDrawable::drawReg2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
-    // Note: Implement this
+    GLuint textureId = scene->getGLTexture(texId);
+    
+    // GL Texture ID
+    GLuint glTexID = 0;
+    if (textureId != EmptyIdentity)
+        glTexID = scene->getGLTexture(texId);
+    
+    OpenGLES2Program *prog = frameInfo.program;
+    
+    // Model/View/Projection matrix
+    const OpenGLESUniform *mvpUni = prog->findUniform("u_mvpMatrix");
+    if (mvpUni)
+    {
+        glUniformMatrix4fv( mvpUni->index, 1, GL_FALSE, (GLfloat *)frameInfo.mvpMat.data());
+        CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
+    }
+    
+    // Let the shaders know if we even have a texture
+    const OpenGLESUniform *hasTexUni = prog->findUniform("u_hasTexture");
+    if (hasTexUni)
+    {
+        glUniform1i(hasTexUni->index, (glTexID != 0));
+    }
+    
+    // Texture
+    if (glTexID != 0)
+    {
+        const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
+        if (texUni)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, glTexID);
+            glUniform1i( texUni->index, 0);
+        }
+    }
+    
+    // Vertex array
+    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+    if (vertAttr)
+    {
+        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+        glEnableVertexAttribArray ( vertAttr->index );
+        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+    }
+    
+    // Normal array
+    
+    // Texture coordinates
+    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
+    if (textureId != EmptyIdentity)
+    {
+        if (texAttr && glTexID != EmptyIdentity)
+        {
+            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, &texCoords[0]);
+            glEnableVertexAttribArray ( texAttr->index );
+            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+        }
+    }
+    
+    // Draw it
+    switch (type)
+    {
+		case GL_TRIANGLES:
+		{
+            glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+		}
+			break;
+		case GL_POINTS:
+		case GL_LINES:
+		case GL_LINE_STRIP:
+		case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
+            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
+			glDrawArrays(type, 0, points.size());
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            glLineWidth(1.0);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+			break;
+    }
+    
+    // Tear it all down
+    if (glTexID != 0)
+    {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisableVertexAttribArray(texAttr->index);
+    }
+    if (vertAttr)
+        glDisableVertexAttribArray(vertAttr->index);
 }
 
 ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
