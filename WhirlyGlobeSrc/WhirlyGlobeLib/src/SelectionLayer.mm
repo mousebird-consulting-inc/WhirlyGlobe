@@ -39,7 +39,7 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
 
 @implementation WhirlyKitSelectionLayer
 
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
     self = [super init];
     

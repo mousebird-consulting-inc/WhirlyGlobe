@@ -29,7 +29,7 @@
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
 #import "Quadtree.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 namespace WhirlyKit
 {

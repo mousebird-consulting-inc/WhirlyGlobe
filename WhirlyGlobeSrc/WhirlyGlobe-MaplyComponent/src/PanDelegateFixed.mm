@@ -55,7 +55,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = [view calcModelMatrix];
@@ -77,7 +77,7 @@ using namespace WhirlyGlobe;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     
     // Put ourselves on hold for more than one touch
     if ([pan numberOfTouches] > 1)

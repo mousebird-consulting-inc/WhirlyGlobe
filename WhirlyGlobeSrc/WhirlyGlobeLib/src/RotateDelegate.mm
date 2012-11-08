@@ -21,7 +21,7 @@
 #import "WhirlyVector.h"
 #import "RotateDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 @implementation WhirlyGlobeRotateDelegate
 
@@ -55,7 +55,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the current state as the initial rotation state
-- (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView  *)glView
+- (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(WhirlyKitSceneRendererES *)sceneRender glView:(WhirlyKitEAGLView  *)glView
 {
     startQuat = [globeView rotQuat];
     axis = [globeView currentUp];
@@ -67,7 +67,7 @@ using namespace WhirlyGlobe;
 {
 	UIRotationGestureRecognizer *rotate = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)rotate.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)

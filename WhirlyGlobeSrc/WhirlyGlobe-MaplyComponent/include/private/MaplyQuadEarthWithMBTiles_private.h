@@ -24,7 +24,7 @@
 
 /// Set up a spherical earth layer with an MBTiles archive.
 /// Returns nil on failure.
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES1 *)renderer mbTiles:(NSString *)mbTilesName handleEdges:(bool)edges;
+- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbTilesName handleEdges:(bool)edges;
 
 /// Clean up any and all resources 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

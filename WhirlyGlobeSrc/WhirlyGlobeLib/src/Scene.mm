@@ -29,6 +29,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : defaultProgramId(EmptyIdentity)
 {
 }
     
@@ -67,6 +68,11 @@ Scene::~Scene()
     activeModels = nil;
     
     subTextureMap.clear();
+
+    // Note: Should be clearing program out of context somewhere
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        delete *it;
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
@@ -166,7 +172,7 @@ Texture *Scene::getTexture(SimpleIdentity texId)
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer)
+void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
@@ -244,8 +250,32 @@ void Scene::dumpStats()
         (*it)->dumpStats();
 }
 
+OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
+{
+    OpenGLES2Program dummy(progId);
+    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
+    if (it == glPrograms.end())
+        return NULL;
+    return *it;
+}
+    
+void Scene::addProgram(OpenGLES2Program *prog)
+{
+    glPrograms.insert(prog);
+}
+    
+OpenGLES2Program *Scene::getDefaultProgram()
+{
+    return getProgram(defaultProgramId);
+}
+    
+void Scene::setDefaultProgram(OpenGLES2Program *prog)
+{
+    defaultProgramId = prog->getId();
+    addProgram(prog);
+}
 
-void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
         tex->createInGL(true,scene->getMemManager());
@@ -253,7 +283,7 @@ void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer
     tex = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     Texture dumbTex;
     dumbTex.setId(texture);
@@ -267,7 +297,7 @@ void RemTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer
     }
 }
 
-void AddDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
@@ -281,7 +311,7 @@ void AddDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *rendere
     drawable = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     BasicDrawable *dumbDraw = new BasicDrawable();
     dumbDraw->setId(drawable);
@@ -295,7 +325,7 @@ void RemDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *rendere
     }
 }
 
-void AddGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     // Add the generator
     scene->generators.insert(generator);
@@ -303,7 +333,7 @@ void AddGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *render
     generator = NULL;
 }
 
-void RemGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     Generator dumbGen;
     dumbGen.setId(genId);
@@ -329,7 +359,7 @@ NotificationReq::~NotificationReq()
     noteObj = nil;
 }
 
-void NotificationReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     NSString *theNoteName = noteName;
     NSObject *theNoteObj = noteObj;
