@@ -22,20 +22,42 @@
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyKitSceneRendererES2
 
+@synthesize lights;
+
 - (id) init
 {
     self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
+    lights = [NSMutableArray array];
     
+    // Add a simple default light
+    WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
+    light->pos = Vector3f(0.75, 0.5, -1.0);
+    light->ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
+    light->diffuse = Vector4f(0.3, 0.3, 0.3, 1.0);
+    light->specular = Vector4f(0, 0, 0, 0);
+    [lights addObject:light];
+
     return self;
 }
 
 static const char *vertexShader =
+"struct directional_light {\n"
+"  vec3 direction;\n"
+"  vec3 halfplane;\n"
+"  vec4 ambient;\n"
+"  vec4 diffuse;\n"
+"  vec4 specular;\n"
+"};\n"
+"\n"
 "uniform mat4  u_mvpMatrix;                   \n"
 "uniform float u_fade;                        \n"
+"uniform int u_numLights;                      \n"
+"uniform directional_light light[8];                     \n"
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec2 a_texCoord;                  \n"
@@ -45,10 +67,37 @@ static const char *vertexShader =
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
 "\n"
+"// From OpenGL ES 2.0 Programming Guide\n"
+"vec4 light_calculation(vec3 normal,int which)         \n"
+"{\n"
+"  vec4 computed_color = vec4(0.0,0.0,0.0,0.0);\n"
+"  float ndotl;\n"
+"  float ndoth;\n"
+"  vec3 adjNorm = (u_mvpMatrix * vec4(normal.xyz, 0.0)).xyz;\n"
+"  ndotl = max(0.0, dot(adjNorm, light[which].direction));\n"
+"  ndoth = max(0.0, dot(adjNorm, light[which].halfplane));\n"
+"  computed_color += (light[which].ambient);\n"
+"  computed_color += (ndotl * light[which].diffuse * a_color);\n"
+"  return computed_color;\n"
+"}\n"
+"\n"
 "void main()                                 \n"
 "{                                           \n"
 "   v_texCoord = a_texCoord;                 \n"
-"   v_color = vec4(a_color.r * u_fade, a_color.g * u_fade, a_color.b * u_fade, a_color.a * u_fade);              \n"
+"   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
+"   if (u_numLights > 0)                     \n"
+"   {\n"
+"     for (int ii=0;ii<8;ii++)                 \n"
+"     {\n"
+"        if (ii>=u_numLights)                  \n"
+"           break;                             \n"
+"        v_color += light_calculation(a_normal,ii);   \n"
+"     }\n"
+"     clamp(v_color,0.0,1.0);\n"
+"   } else {\n"
+"     v_color = a_color;\n"
+"   }\n"
+"   v_color *= u_fade;                       \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -213,6 +262,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
         frameInfo.viewAndModelMat = matrixAndViewMat;
+        frameInfo.lights = lights;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -316,6 +366,18 @@ static const float ScreenOverlap = 0.1;
         } else
             return;
         
+        // Set up lights
+        // Note: Should only do this if lights change
+        {
+            int numLights = [lights count];
+            if (numLights > 8) numLights = 8;
+            for (unsigned int ii=0;ii<numLights;ii++)
+                [[lights objectAtIndex:ii] bindToProgram:defaultProgram index:ii];
+            const OpenGLESUniform *lightAttr = defaultProgram->findUniform("u_numLights");
+            if (lightAttr)
+                glUniform1i(lightAttr->index, numLights);
+        }
+        
         if (perfInterval > 0)
         {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
@@ -403,8 +465,10 @@ static const float ScreenOverlap = 0.1;
             orthoMat(1,1) = 2.0f / delta.y();
             orthoMat(1,3) = -framebufferHeight / delta.y();
             orthoMat(2,2) = -2.0f / delta.z();
-            orthoMat(2,3) = 0.0f;            
+            orthoMat(2,3) = 0.0f;
             frameInfo.mvpMat = orthoMat;
+            // Turn off lights
+            frameInfo.lights = nil;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {

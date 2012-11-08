@@ -27,6 +27,7 @@
 #import "Scene.h"
 #import "PerformanceTimer.h"
 #import "Cullable.h"
+#import "Lighting.h"
 
 /// @cond
 @class WhirlyKitSceneRendererES;
@@ -113,6 +114,9 @@ public:
     
     /// If using OpenGL ES 2.x, this is the shader
     WhirlyKit::OpenGLES2Program *program;
+    
+    /// Lights, if applicable
+    NSArray *lights;
 }
 
 @property (nonatomic,assign) EAGLRenderingAPI oglVersion;
@@ -127,6 +131,7 @@ public:
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
+@property (nonatomic,strong) NSArray *lights;
 
 @end
 

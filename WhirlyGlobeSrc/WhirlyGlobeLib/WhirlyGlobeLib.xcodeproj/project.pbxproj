@@ -62,6 +62,8 @@
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
 		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
+		2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7AD8AF1649DD06006C9E75 /* Lighting.h */; };
+		2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AD8B21649DF80006C9E75 /* Lighting.mm */; };
 		2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF31715FF95CF00D4079F /* MaplyScene.h */; };
 		2B7EF31B15FF95E900D4079F /* MaplyScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31A15FF95E900D4079F /* MaplyScene.mm */; };
 		2B7EF31D15FF965400D4079F /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */; };
@@ -359,6 +361,8 @@
 		2B66298013417DF700A78F16 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
 		2B66298213418D9A00A78F16 /* TextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureAtlas.mm; sourceTree = "<group>"; };
 		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
+		2B7AD8AF1649DD06006C9E75 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
 		2B7EF31715FF95CF00D4079F /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
 		2B7EF31A15FF95E900D4079F /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
 		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; };
@@ -706,6 +710,7 @@
 		2B3890A612DF8C8B006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B7AD8AF1649DD06006C9E75 /* Lighting.h */,
 				2B92EF9C163760C300C5165F /* OpenGLES2Program.h */,
 				2B92EF6416370B2000C5165F /* PerformanceTimer.h */,
 				2B92EF6616370B2700C5165F /* SceneRendererES.h */,
@@ -719,6 +724,7 @@
 		2B3890A712DF8C90006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B7AD8B21649DF80006C9E75 /* Lighting.mm */,
 				2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */,
 				2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */,
 				2B92EF6216370B0600C5165F /* SceneRendererES.mm */,
@@ -1436,6 +1442,7 @@
 				2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */,
 				2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */,
 				2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */,
+				2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1726,6 +1733,7 @@
 				2B92EF6316370B0600C5165F /* SceneRendererES.mm in Sources */,
 				2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */,
 				2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */,
+				2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
