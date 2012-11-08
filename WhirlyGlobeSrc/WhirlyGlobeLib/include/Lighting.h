@@ -1,8 +1,8 @@
 /*
- *  SceneRendererES2.h
+ *  Lighting.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 10/23/12.
+ *  Created by Steve Gifford on 11/6/12.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +18,27 @@
  *
  */
 
-#import "SceneRendererES.h"
-#import "Lighting.h"
+#import <Foundation/Foundation.h>
+#import "WhirlyVector.h"
+#import "OpenGLES2Program.h"
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-
-/// @cond
-@class WhirlyKitSceneRendererES1;
-/// @endcond
-
-/** Scene Renderer for OpenGL ES2.
-     This implements the actual rendering.  In theory it's
-     somewhat composable, but in reality not all that much.
-     Just set this up as in the examples and let it run.
- */
-@interface WhirlyKitSceneRendererES2 : WhirlyKitSceneRendererES
+/** This implements a simple directional light source
+  */
+@interface WhirlyKitDirectionalLight : NSObject
 {
-    NSMutableArray *lights;
+@public
+    /// Light position
+    Eigen::Vector3f pos;
+    /// Ambient light color
+    Eigen::Vector4f ambient;
+    /// Diffuse light color
+    Eigen::Vector4f diffuse;
+    /// Specular light color
+    Eigen::Vector4f specular;
 }
 
-@property (nonatomic, strong) NSMutableArray *lights;
+/// Bind this light (given the index) to the program.
+/// Don't call this yourself.
+- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index;
 
 @end
