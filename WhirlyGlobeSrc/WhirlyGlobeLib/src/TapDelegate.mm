@@ -20,7 +20,7 @@
 
 #import "TapDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
@@ -58,7 +58,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere

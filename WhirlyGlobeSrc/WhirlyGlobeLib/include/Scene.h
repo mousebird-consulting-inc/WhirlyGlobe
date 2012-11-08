@@ -33,6 +33,11 @@
 #import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
+#import "OpenGLES2Program.h"
+
+/// @cond
+@class WhirlyKitSceneRendererES;
+/// @endcond
 
 namespace WhirlyKit
 {
@@ -54,7 +59,7 @@ public:
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:
 	Texture *tex;
@@ -68,7 +73,7 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -84,7 +89,7 @@ public:
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);	
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
 	
 protected:
 	Drawable *drawable;
@@ -98,7 +103,7 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -112,7 +117,7 @@ public:
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     Generator *generator;
@@ -126,7 +131,7 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity genId;
@@ -143,7 +148,7 @@ public:
     virtual ~NotificationReq();
     
     /// Send out the notification
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     NSString * __strong noteName;
@@ -196,7 +201,7 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
-	void processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer);
+	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
     
     /// True if there are pending updates
     bool hasChanges();
@@ -298,6 +303,20 @@ public:
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
     
+    /// Search for a shader program by ID (our ID, not OpenGL's)
+    OpenGLES2Program *getProgram(SimpleIdentity programId);
+    
+    /// Add a shader to the mix (don't be calling this yourself).
+    /// Scene is responsible for deletion.
+    void addProgram(OpenGLES2Program *);
+    
+    /// One shader will be set up by default for basic drawables
+    OpenGLES2Program *getDefaultProgram();
+    
+    /// Called during initialization after the default shader is created.
+    /// Scene is responsible for deletion
+    void setDefaultProgram(OpenGLES2Program *);
+        
 protected:
     /// Only the subclasses are allowed to create these
     Scene();
@@ -308,6 +327,11 @@ protected:
     /// The earth will be recursively divided into a quad tree of given depth.
     /// Init call used by the base class to set things up
     void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+    
+    /// Keep track of the OpenGL ES 2.0 shader programs here
+    std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
+    /// ID for the default shader
+    SimpleIdentity defaultProgramId;
 };
 	
 }

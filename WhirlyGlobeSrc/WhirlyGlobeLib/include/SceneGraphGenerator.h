@@ -130,7 +130,7 @@ class SceneGraphGeneratorAddRequest : public WhirlyKit::GeneratorChangeRequest
 public:
     SceneGraphGeneratorAddRequest(SimpleIdentity genID,SimpleIdentity attachID,SceneGraphNodeRef node);
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
 protected:
     SimpleIdentity attachID;
     SceneGraphNodeRef node;
@@ -142,7 +142,7 @@ class SceneGraphGeneratorRemRequest : public GeneratorChangeRequest
 public:
     SceneGraphGeneratorRemRequest(SimpleIdentity genID,SimpleIdentity nodeID);
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
 protected:
     SimpleIdentity nodeID;
 };

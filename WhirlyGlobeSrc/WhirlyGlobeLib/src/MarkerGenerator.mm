@@ -19,7 +19,7 @@
  */
 
 #import "MarkerGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 namespace WhirlyKit
 {
@@ -219,7 +219,7 @@ MarkerGeneratorAddRequest::~MarkerGeneratorAddRequest()
     markers.clear();
 }
     
-void MarkerGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void MarkerGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->addMarkers(markers);
@@ -242,7 +242,7 @@ MarkerGeneratorRemRequest::~MarkerGeneratorRemRequest()
 {    
 }
     
-void MarkerGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->removeMarkers(markerIDs);
@@ -259,7 +259,7 @@ MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,cons
 {    
 }
     
-void MarkerGeneratorFadeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void MarkerGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {    
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     

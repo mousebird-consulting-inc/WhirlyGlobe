@@ -18,126 +18,20 @@
  *
  */
 
-#import "ESRenderer.h"
+#import "SceneRendererES.h"
 
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
-#import "WhirlyKitView.h"
-#import "Scene.h"
-
-namespace WhirlyKit
-{
-    
-/// Simple performance timing class
-class PerformanceTimer
-{
-public:
-    /// Used to track a category of timing
-    class TimeEntry
-    {
-    public:
-        TimeEntry();
-        bool operator < (const TimeEntry &that) const;
-        
-        void addTime(NSTimeInterval dur);
-        
-        std::string name;
-        NSTimeInterval minDur,maxDur,avgDur;
-        int numRuns;
-    };
-    
-    /// Used to track a category of counts
-    class CountEntry
-    {
-    public:
-        CountEntry();
-        bool operator < (const CountEntry &that) const;
-        
-        void addCount(int count);
-        
-        std::string name;
-        int minCount,maxCount,avgCount;
-        int numRuns;
-    };
-
-    /// Start timing the given thing
-    void startTiming(const std::string &);
-    
-    /// Stop timing the given thing and add it to the existing timings
-    void stopTiming(const std::string &);
-    
-    /// Add a count for a particular instance
-    void addCount(const std::string &what,int count);
-    
-    /// Clean out existing timings
-    void clear();
-    
-    /// Write out the timings to NSLog
-    void log();
-    
-protected:
-    std::map<std::string,NSTimeInterval> actives;
-    std::map<std::string,TimeEntry> timeEntries;
-    std::map<std::string,CountEntry> countEntries;
-};
-
-}
 
 /// @cond
 @class WhirlyKitSceneRendererES1;
 /// @endcond
 
-/** Renderer Frame Info.
-    Data about the current frame, passed around by the renderer.
- */
-@interface WhirlyKitRendererFrameInfo : NSObject
-{
-    /// Renderer itself
-    WhirlyKitSceneRendererES1 * __weak sceneRenderer;
-    
-    /// View
-    WhirlyKitView * __weak theView;
-    
-    /// Current model matrix from the view
-    Eigen::Matrix4f modelTrans;
-    
-    /// Current projection matrix
-    Eigen::Matrix4f projMat;
-    
-    /// What's currently in the GL model matrix.
-    /// We combine view and model together, however
-    Eigen::Matrix4f viewAndModelMat;
-    
-    /// Scene itself.  Don't mess with this
-    WhirlyKit::Scene *scene;
-    
-    /// Vector pointing up from the globe describing where the view point is
-    Vector3f eyeVec;
-    
-    /// Expected length of the current frame
-    float frameLen;
-    
-    /// Time at the start of frame
-    NSTimeInterval currentTime;
-}
-
-@property (nonatomic,weak) WhirlyKitSceneRendererES1 *sceneRenderer;
-@property (nonatomic,weak) WhirlyKitView *theView;
-@property (nonatomic,assign) Eigen::Matrix4f modelTrans;
-@property (nonatomic,assign) Eigen::Matrix4f &projMat;
-@property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
-@property (nonatomic,assign) WhirlyKit::Scene *scene;
-@property (nonatomic,assign) float frameLen;
-@property (nonatomic,assign) NSTimeInterval currentTime;
-@property (nonatomic,assign) Vector3f eyeVec;
-
-@end
-
 /** Protocol for the scene render callbacks.
     These are all optional, but if set will be called
      at various points within the rendering process.
  */
-@protocol WhirlyKitSceneRendererDelegate
+@protocol WhirlyKitSceneRendererES1Delegate
 
 @optional
 
@@ -160,115 +54,12 @@ protected:
     somewhat composable, but in reality not all that much.
     Just set this up as in the examples and let it run.
  */
-@interface WhirlyKitSceneRendererES1 : NSObject <WhirlyKitESRenderer>
+@interface WhirlyKitSceneRendererES1 : WhirlyKitSceneRendererES
 {
-    /// Rendering context
-	EAGLContext *context;
-
-    /// Scene we're drawing.  This is set from outside
-	WhirlyKit::Scene *scene;
-    /// The view controls how we're looking at the scene
-	WhirlyKitView * __weak theView;
-    
-    /// Set this to turn z buffering on or off.
-    /// If you turn z buffering off, drawPriority in the drawables is still used
-    bool zBuffer;
-    
-    /// Set this to turn culling on or off.
-    /// By default it's on, so leave it alone unless you know you want it off.
-    bool doCulling;
-
-    /// The pixel width of the CAEAGLLayer.
-    GLint framebufferWidth;
-    /// The pixel height of the CAEAGLLayer.
-    GLint framebufferHeight;
-    
-    /// Scale, to reflect the device's screen
-    float scale;
-
-    /// OpenGL ES Name for the frame buffer
-    GLuint defaultFramebuffer;
-    /// OpenGL ES Name for the color buffer
-    GLuint colorRenderbuffer;
-    /// OpenGL ES Name for the depth buffer
-    GLuint depthRenderbuffer;	
-	
-	/// Statistic: Frames per second
-	float framesPerSec;
-	unsigned int frameCount;
-	NSTimeInterval frameCountStart;
-    /// Period over which we measure performance
-    int perfInterval;
-    WhirlyKit::PerformanceTimer perfTimer;
-	
-	/// Statistic: Number of drawables drawn in last frame
-	unsigned int numDrawables;
-    
     /// Delegate called at specific points in the rendering process
-    NSObject<WhirlyKitSceneRendererDelegate> * __weak delegate;
-
-    /// This is the color used to clear the screen.  Defaults to black
-    WhirlyKit::RGBAColor clearColor;
-    
-    /// Set if we're using the view based change mechanism to tell when to draw.
-    /// This works well for figuring out when the model matrix changes, but
-    ///  not so well with animation such as fades, particles systems and such.
-    bool useViewChanged;
-    
-    /// By default we'll sort all alpha-containing drawables to the end.
-    /// Turn this off to tell the renderer you knew what you're doing and
-    ///  don't mess with my draw priorities.
-    bool sortAlphaToEnd;
-    
-    // If this is set, we'll turn off the depth buffering the first time
-    //  we hit a drawable with alpha.  Off by default (not surprisingly).
-    bool depthBufferOffForAlpha;
-    
-    /// Last time we rendered
-    NSTimeInterval lastDraw;
-    
-    /// Something wants to make sure we render until at least this point.
-    NSTimeInterval renderUntil;
-    
-    // View state from the last render, for comparison
-    Matrix4f modelMat,viewMat;
+    NSObject<WhirlyKitSceneRendererES1Delegate> * __weak delegate;
 }
 
-@property (nonatomic,readonly) EAGLContext *context;
-@property (nonatomic,assign) WhirlyKit::Scene *scene;
-@property (nonatomic,weak) WhirlyKitView *theView;
-@property (nonatomic,assign) bool zBuffer;
-@property (nonatomic,assign) bool doCulling;
-
-@property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;
-@property (nonatomic,readonly) float scale;
-
-@property (nonatomic,readonly) float framesPerSec;
-@property (nonatomic,readonly) unsigned int numDrawables;
-@property (nonatomic,assign) int perfInterval;
-
-@property (nonatomic,assign) bool useViewChanged;
-@property (nonatomic,assign) bool sortAlphaToEnd;
-@property (nonatomic,assign) bool depthBufferOffForAlpha;
-
-@property (nonatomic,weak) NSObject<WhirlyKitSceneRendererDelegate> *delegate;
-
-/// Attempt to render the frame in the time given.
-/// Ignoring the time at the moment.
-- (void) render:(NSTimeInterval)duration;
-
-/// Called when the underlying layer resizes and we need to adjust
-- (BOOL) resizeFromLayer:(CAEAGLLayer *)layer;
-
-/// Use this to set the clear color for the screen.  Defaults to black
-- (void) setClearColor:(UIColor *)color;
-
-/// If you're setting up resources within OpenGL, you need to have that
-///  context active.  Call this to do that.
-- (void)useContext;
-
-/// Call this to force a draw on the next frame.
-/// This turns off the draw optimization, but just for one frame.
-- (void)forceDrawNextFrame;
+@property (nonatomic,weak) NSObject<WhirlyKitSceneRendererES1Delegate> *delegate;
 
 @end

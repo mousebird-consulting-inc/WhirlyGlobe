@@ -571,9 +571,8 @@ static const float SkirtFactor = 0.95;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
                         Point3f pt = chunk->getPoint(iy*(sphereTessX+1)+ix);
-                        Point3f norm = chunk->getNormal(iy*(sphereTessX+1)+ix);
                         chunk->addPoint(pt);
-                        chunk->addNormal(norm);
+                        chunk->addNormal(Point3f(0,0,1.0));
                         chunk->addTexCoord(singleTexCoord);
                     }
 
@@ -598,15 +597,14 @@ static const float SkirtFactor = 0.95;
                     chunk->addNormal(Point3f(0,0,-1.0));
                     int southVert = chunk->getNumPoints()-1;
                     
-                    // A line of point sfor the out ring, which we can copy
+                    // A line of points for the outside ring, which we can copy
                     int startOfLine = chunk->getNumPoints();
                     int iy = 0;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
                         Point3f pt = chunk->getPoint(iy*(sphereTessX+1)+ix);
-                        Point3f norm = chunk->getNormal(iy*(sphereTessX+1)+ix);
                         chunk->addPoint(pt);
-                        chunk->addNormal(norm);
+                        chunk->addNormal(Point3f(0,0,-1.0));
                         chunk->addTexCoord(singleTexCoord);
                     }
                     

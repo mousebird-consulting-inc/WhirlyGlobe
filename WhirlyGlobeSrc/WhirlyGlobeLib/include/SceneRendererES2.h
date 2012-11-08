@@ -1,8 +1,8 @@
 /*
- *  GLUtils.cpp
+ *  SceneRendererES2.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/21/11.
+ *  Created by Steve Gifford on 10/23/12.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,20 +18,26 @@
  *
  */
 
-#import "GLUtils.h"
+#import "SceneRendererES.h"
+#import "Lighting.h"
 
-// Turn this off for a little performance gain
-static bool ErrorsOn = true;
-bool CheckGLError(const char *msg)
+#import <OpenGLES/ES2/gl.h>
+#import <OpenGLES/ES2/glext.h>
+
+/// @cond
+@class WhirlyKitSceneRendererES1;
+/// @endcond
+
+/** Scene Renderer for OpenGL ES2.
+     This implements the actual rendering.  In theory it's
+     somewhat composable, but in reality not all that much.
+     Just set this up as in the examples and let it run.
+ */
+@interface WhirlyKitSceneRendererES2 : WhirlyKitSceneRendererES
 {
-    if (!ErrorsOn)
-        return true;
-    GLenum theError = glGetError();
-    if (theError != GL_NO_ERROR)
-    {
-        NSLog(@"GL Error: %d - %s",theError,msg);
-        return false;
-    }
-    
-    return true;
+    NSMutableArray *lights;
 }
+
+@property (nonatomic, strong) NSMutableArray *lights;
+
+@end

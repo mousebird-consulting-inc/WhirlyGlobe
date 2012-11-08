@@ -19,7 +19,7 @@
  */
 
 #import "SceneGraphGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 
@@ -196,7 +196,7 @@ SceneGraphGeneratorAddRequest::SceneGraphGeneratorAddRequest(SimpleIdentity genI
 {
 }
 
-void SceneGraphGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void SceneGraphGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     
@@ -208,7 +208,7 @@ SceneGraphGeneratorRemRequest::SceneGraphGeneratorRemRequest(SimpleIdentity genI
 {    
 }
 
-void SceneGraphGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void SceneGraphGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     
