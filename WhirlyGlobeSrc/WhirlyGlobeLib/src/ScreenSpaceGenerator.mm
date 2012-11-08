@@ -19,7 +19,7 @@
  */
 
 #import "ScreenSpaceGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeView.h"
 #import "MaplyView.h"
 
@@ -383,7 +383,7 @@ ScreenSpaceGeneratorAddRequest::~ScreenSpaceGeneratorAddRequest()
     shapes.clear();
 }
     
-void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     for (unsigned int ii=0;ii<shapes.size();ii++)
@@ -410,7 +410,7 @@ ScreenSpaceGeneratorRemRequest::~ScreenSpaceGeneratorRemRequest()
 {
 }
     
-void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     screenGen->removeConvexShapes(shapeIDs);
@@ -431,7 +431,7 @@ ScreenSpaceGeneratorFadeRequest::~ScreenSpaceGeneratorFadeRequest()
 {        
 }
     
-void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     

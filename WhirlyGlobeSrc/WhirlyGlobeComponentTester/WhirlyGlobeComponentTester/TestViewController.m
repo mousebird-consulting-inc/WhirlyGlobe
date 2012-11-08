@@ -144,7 +144,7 @@ LocationInfo locations[NumLocations] =
     globeViewC.delegate = self;
     
     // Start up over San Francisco
-    [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+//    [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     
     // Zoom in a bit
     globeViewC.height = 0.8;

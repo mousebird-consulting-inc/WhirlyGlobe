@@ -129,7 +129,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 @synthesize loader;
 @synthesize viewUpdatePeriod;
 
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES1 *)inRenderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
 {
     self = [super init];
     if (self)

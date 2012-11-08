@@ -20,7 +20,7 @@
 
 #import "MaplyTapDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "MaplyView.h"
 #import "GlobeMath.h"
 
@@ -57,7 +57,7 @@ using namespace WhirlyKit;
 {
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     CoordSystemDisplayAdapter *coordAdapter = mapView.coordAdapter;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     

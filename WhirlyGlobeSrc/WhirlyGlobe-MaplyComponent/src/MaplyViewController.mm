@@ -35,7 +35,7 @@ using namespace Maply;
 @implementation MaplyViewController
 {
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES1 *sceneRenderer;
+    WhirlyKitSceneRendererES *sceneRenderer;
     
     // Coordinate system and display adapter
     SphericalMercatorDisplayAdapter *coordAdapter;

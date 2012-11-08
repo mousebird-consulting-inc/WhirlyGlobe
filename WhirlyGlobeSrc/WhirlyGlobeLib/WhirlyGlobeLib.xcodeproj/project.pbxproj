@@ -25,7 +25,6 @@
 		2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDF12DE23BA00778431 /* UIImage+Stuff.h */; };
 		2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81B9132FE72F0029DEF2 /* NSDictionary+Stuff.h */; };
 		2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C81BF13301E860029DEF2 /* UIColor+Stuff.h */; };
-		2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B38909F12DF8786006FC3A1 /* ESRenderer.h */; };
 		2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */; };
 		2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FDB12DE23BA00778431 /* EAGLView.h */; };
 		2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE6EE5412E4F44900415490 /* PinchDelegate.h */; };
@@ -63,6 +62,8 @@
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
 		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
+		2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7AD8AF1649DD06006C9E75 /* Lighting.h */; };
+		2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AD8B21649DF80006C9E75 /* Lighting.mm */; };
 		2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF31715FF95CF00D4079F /* MaplyScene.h */; };
 		2B7EF31B15FF95E900D4079F /* MaplyScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31A15FF95E900D4079F /* MaplyScene.mm */; };
 		2B7EF31D15FF965400D4079F /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */; };
@@ -239,6 +240,14 @@
 		2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF5221603EEFA00D4079F /* MaplyLayerViewWatcher.h */; };
 		2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF5281603F03900D4079F /* MaplyLayerViewWatcher.mm */; };
 		2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B80455714990A1A003FFABE /* MarkerGenerator.mm */; };
+		2B92EF6016370AFF00C5165F /* PerformanceTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */; };
+		2B92EF6316370B0600C5165F /* SceneRendererES.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF6216370B0600C5165F /* SceneRendererES.mm */; };
+		2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF6416370B2000C5165F /* PerformanceTimer.h */; };
+		2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF6616370B2700C5165F /* SceneRendererES.h */; };
+		2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF901637530C00C5165F /* SceneRendererES2.h */; };
+		2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF931637531700C5165F /* SceneRendererES2.mm */; };
+		2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF9C163760C300C5165F /* OpenGLES2Program.h */; };
+		2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
@@ -311,7 +320,6 @@
 		2B3009C71427C19900B1C69E /* RenderCache.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderCache.mm; sourceTree = "<group>"; };
 		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B35A8531337CC5F0047C705 /* GLUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GLUtils.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B38909F12DF8786006FC3A1 /* ESRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESRenderer.h; sourceTree = "<group>"; };
 		2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES1.h; sourceTree = "<group>"; };
 		2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SceneRendererES1.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B389AA112E112D9006FC3A1 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeView.h; sourceTree = "<group>"; };
@@ -353,6 +361,8 @@
 		2B66298013417DF700A78F16 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
 		2B66298213418D9A00A78F16 /* TextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureAtlas.mm; sourceTree = "<group>"; };
 		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
+		2B7AD8AF1649DD06006C9E75 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
 		2B7EF31715FF95CF00D4079F /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
 		2B7EF31A15FF95E900D4079F /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
 		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; };
@@ -531,6 +541,14 @@
 		2B80455714990A1A003FFABE /* MarkerGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerGenerator.mm; sourceTree = "<group>"; };
 		2B8D92C8137C958000015833 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
 		2B92105314BD1A8100653536 /* MaplyPanDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPanDelegate.h; sourceTree = "<group>"; };
+		2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceTimer.mm; sourceTree = "<group>"; };
+		2B92EF6216370B0600C5165F /* SceneRendererES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES.mm; sourceTree = "<group>"; };
+		2B92EF6416370B2000C5165F /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
+		2B92EF6616370B2700C5165F /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES.h; sourceTree = "<group>"; };
+		2B92EF901637530C00C5165F /* SceneRendererES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES2.h; sourceTree = "<group>"; };
+		2B92EF931637531700C5165F /* SceneRendererES2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES2.mm; sourceTree = "<group>"; };
+		2B92EF9C163760C300C5165F /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLES2Program.h; sourceTree = "<group>"; };
+		2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLES2Program.mm; sourceTree = "<group>"; };
 		2B93C81514522DE600D768BA /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
 		2B93C817145232C800D768BA /* MarkerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerLayer.mm; sourceTree = "<group>"; };
 		2B95192E12EF4417005003AE /* WhirlyVector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyVector.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -692,7 +710,12 @@
 		2B3890A612DF8C8B006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B38909F12DF8786006FC3A1 /* ESRenderer.h */,
+				2B7AD8AF1649DD06006C9E75 /* Lighting.h */,
+				2B92EF9C163760C300C5165F /* OpenGLES2Program.h */,
+				2B92EF6416370B2000C5165F /* PerformanceTimer.h */,
+				2B92EF6616370B2700C5165F /* SceneRendererES.h */,
+				2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */,
+				2B92EF901637530C00C5165F /* SceneRendererES2.h */,
 				2BC53FDB12DE23BA00778431 /* EAGLView.h */,
 			);
 			name = rendering;
@@ -701,7 +724,12 @@
 		2B3890A712DF8C90006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B7AD8B21649DF80006C9E75 /* Lighting.mm */,
+				2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */,
+				2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */,
+				2B92EF6216370B0600C5165F /* SceneRendererES.mm */,
 				2B3890A412DF8C73006FC3A1 /* SceneRendererES1.mm */,
+				2B92EF931637531700C5165F /* SceneRendererES2.mm */,
 				2BC53FE912DE23D400778431 /* EAGLView.mm */,
 			);
 			name = rendering;
@@ -1215,7 +1243,6 @@
 		2BCF39E214BB8EF9006B0FC0 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */,
 			);
 			name = rendering;
 			sourceTree = "<group>";
@@ -1370,7 +1397,6 @@
 				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
 				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
 				2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */,
-				2B3A0D49133405780085EF43 /* ESRenderer.h in Headers */,
 				2B3A0D4A133405780085EF43 /* SceneRendererES1.h in Headers */,
 				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
 				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
@@ -1413,6 +1439,11 @@
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
+				2B92EF6516370B2000C5165F /* PerformanceTimer.h in Headers */,
+				2B92EF6716370B2700C5165F /* SceneRendererES.h in Headers */,
+				2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */,
+				2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */,
+				2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1699,6 +1730,11 @@
 				2B7EF5291603F03A00D4079F /* MaplyLayerViewWatcher.mm in Sources */,
 				2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */,
 				2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */,
+				2B92EF6016370AFF00C5165F /* PerformanceTimer.mm in Sources */,
+				2B92EF6316370B0600C5165F /* SceneRendererES.mm in Sources */,
+				2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */,
+				2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */,
+				2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
