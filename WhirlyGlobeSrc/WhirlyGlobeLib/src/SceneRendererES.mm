@@ -58,6 +58,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize eyeVec;
 @synthesize viewAndModelMat;
 @synthesize program;
+@synthesize lights;
 
 @end
 
