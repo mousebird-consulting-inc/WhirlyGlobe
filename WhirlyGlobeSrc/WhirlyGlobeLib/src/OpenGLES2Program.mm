@@ -20,10 +20,155 @@
 
 #import <string>
 #import "OpenGLES2Program.h"
+#import "Lighting.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
     
+OpenGLES2Program::OpenGLES2Program()
+    : lightsLastUpdated(0.0)
+{
+}
+    
+OpenGLES2Program::~OpenGLES2Program()
+{
+    for (std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.begin();
+         it != uniforms.end(); ++it)
+        delete *it;
+    uniforms.clear();
+    for (std::set<OpenGLESAttribute *,AttributeNameSortStruct>::iterator it = attrs.begin();
+         it != attrs.end(); ++it)
+        delete *it;
+    attrs.clear();
+}
+    
+bool OpenGLES2Program::setUniform(const std::string &name,float val)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT)
+        return false;
+    
+    if (uni->isSet && uni->val.fVals[0] == val)
+        return true;
+    
+    glUniform1f(uni->index,val);
+    uni->isSet = true;
+    uni->val.fVals[0] = val;
+    
+    return true;
+}
+
+bool OpenGLES2Program::setUniform(const std::string &name,int val)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
+        return false;
+    
+    if (uni->isSet && uni->val.iVals[0] == val)
+        return true;
+    
+    glUniform1i(uni->index,val);
+    uni->isSet = true;
+    uni->val.iVals[0] = val;
+    
+    return true;
+}
+
+bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f &vec)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT_VEC2)
+        return false;
+    
+    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y())
+        return true;
+    
+    glUniform2f(uni->index, vec.x(), vec.y());
+    uni->isSet = true;
+    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
+    
+    return true;
+}
+
+bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f &vec)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT_VEC3)
+        return false;
+    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() && uni->val.fVals[2] == vec.z())
+        return true;
+    
+    glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
+    uni->isSet = true;
+    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
+    
+    return true;
+}
+    
+
+bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f &vec)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT_VEC4)
+        return false;
+    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+        return true;
+    
+    glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
+    uni->isSet = true;
+    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
+    
+    return true;
+}
+
+bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f &mat)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT_MAT4)
+        return false;
+    
+    if (uni->isSet)
+    {
+        bool equal = true;
+        for (unsigned int ii=0;ii<16;ii++)
+            if (mat.data()[ii] != uni->val.mat[ii])
+            {
+                equal = false;
+                break;
+            }
+        if (equal)
+            return true;
+    }
+    
+    glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
+    uni->isSet = true;
+    for (unsigned int ii=0;ii<16;ii++)
+        uni->val.mat[ii] = mat.data()[ii];
+    
+    return true;
+}
+
 // Helper routine to compile a shader and check return
 bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)
 {
@@ -104,12 +249,12 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     char thingName[1024];
     for (unsigned int ii=0;ii<numUniform;ii++)
     {
-        OpenGLESUniform uni;
+        OpenGLESUniform *uni = new OpenGLESUniform();
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveUniform(program, ii, 1023, &bufLen, &uni.size, &uni.type, thingName);
-        uni.name = thingName;
-        uni.index = glGetUniformLocation(program, thingName);
+        glGetActiveUniform(program, ii, 1023, &bufLen, &uni->size, &uni->type, thingName);
+        uni->name = thingName;
+        uni->index = glGetUniformLocation(program, thingName);
         uniforms.insert(uni);
     }
     
@@ -118,12 +263,12 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numAttr);
     for (unsigned int ii=0;ii<numAttr;ii++)
     {
-        OpenGLESAttribute attr;
+        OpenGLESAttribute *attr = new OpenGLESAttribute();
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveAttrib(program, ii, 1023, &bufLen, &attr.size, &attr.type, thingName);
-        attr.index = glGetAttribLocation(program, thingName);
-        attr.name = thingName;
+        glGetActiveAttrib(program, ii, 1023, &bufLen, &attr->size, &attr->type, thingName);
+        attr->index = glGetAttribLocation(program, thingName);
+        attr->name = thingName;
         attrs.insert(attr);
     }
 }
@@ -157,12 +302,12 @@ bool OpenGLES2Program::isValid()
 }
     
 
-const OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformName)
+OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformName)
 {
     OpenGLESUniform uni(uniformName);
-    std::set<OpenGLESUniform>::iterator it = uniforms.find(uni);
+    std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.find(&uni);
     if (it != uniforms.end())
-        return &(*it);
+        return *it;
     else
         return NULL;
 }
@@ -170,11 +315,37 @@ const OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformN
 const OpenGLESAttribute *OpenGLES2Program::findAttribute(const std::string &attrName)
 {
     OpenGLESAttribute attr(attrName);
-    std::set<OpenGLESAttribute>::iterator it = attrs.find(attr);
+    std::set<OpenGLESAttribute *,AttributeNameSortStruct>::iterator it = attrs.find(&attr);
     if (it != attrs.end())
-        return &(*it);
+        return *it;
     else
         return NULL;
+}
+    
+bool OpenGLES2Program::hasLights()
+{
+    OpenGLESUniform *lightAttr = findUniform("u_numLights");
+    return lightAttr != NULL;
+}
+    
+bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate)
+{
+    if (lightsLastUpdated >= lastUpdate)
+        return true;
+
+    lightsLastUpdated = lastUpdate;
+    int numLights = [lights count];
+    if (numLights > 8) numLights = 8;
+    bool lightsSet = true;
+    for (unsigned int ii=0;ii<numLights;ii++)
+        lightsSet &= [[lights objectAtIndex:ii] bindToProgram:this index:ii];
+    OpenGLESUniform *lightAttr = findUniform("u_numLights");
+    if (lightAttr)
+        glUniform1i(lightAttr->index, numLights);
+    else
+        return false;
+    
+    return lightsSet;
 }
 
 

@@ -34,10 +34,11 @@
      Just set this up as in the examples and let it run.
  */
 @interface WhirlyKitSceneRendererES2 : WhirlyKitSceneRendererES
-{
-    NSMutableArray *lights;
-}
 
-@property (nonatomic, strong) NSMutableArray *lights;
+/// Add a light to the existing set
+- (void)addLight:(WhirlyKitDirectionalLight *)light;
+
+/// Replace all the lights at once. nil turns off lighting
+- (void)replaceLights:(NSArray *)lights;
 
 @end

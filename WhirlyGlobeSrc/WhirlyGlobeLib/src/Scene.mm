@@ -29,7 +29,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
-    : defaultProgramId(EmptyIdentity)
+    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
 }
     
@@ -264,15 +264,29 @@ void Scene::addProgram(OpenGLES2Program *prog)
     glPrograms.insert(prog);
 }
     
-OpenGLES2Program *Scene::getDefaultProgram()
+void Scene::removeProgram(SimpleIdentity progId)
 {
-    return getProgram(defaultProgramId);
+    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
+    for (it = glPrograms.begin();it != glPrograms.end(); ++it)
+        if ((*it)->getId() == progId)
+            break;
+    
+    if (it != glPrograms.end())
+        glPrograms.erase(it);
+}
+
+void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
+{
+    defaultProgramTri = progTri->getId();
+    defaultProgramLine = progLine->getId();
+    addProgram(progTri);
+    addProgram(progLine);
 }
     
-void Scene::setDefaultProgram(OpenGLES2Program *prog)
+void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)
 {
-    defaultProgramId = prog->getId();
-    addProgram(prog);
+    triShader = defaultProgramTri;
+    lineShader = defaultProgramLine;
 }
 
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
@@ -345,6 +359,17 @@ void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
         
         delete theGenerator;
     }
+}
+
+void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->addProgram(program);
+    program = NULL;
+}
+
+void RemProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->removeProgram(programId);
 }
     
 NotificationReq::NotificationReq(NSString *inNoteName,NSObject *inNoteObj)

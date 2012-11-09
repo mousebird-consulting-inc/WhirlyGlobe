@@ -187,6 +187,7 @@ void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *rende
 BasicDrawable::BasicDrawable()
 {
 	on = true;
+    programId = EmptyIdentity;
     usingBuffers = false;
     isAlpha = false;
     drawPriority = 0;
@@ -210,6 +211,7 @@ BasicDrawable::BasicDrawable()
 BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
 {
 	on = true;
+    programId = EmptyIdentity;
     usingBuffers = false;
     isAlpha = false;
     drawPriority = 0;
@@ -287,8 +289,18 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
     [renderer setRenderUntil:fadeUp];
     [renderer setRenderUntil:fadeDown];
+    
+    // Let's also pull the default shaders out if need be
+    if (programId == EmptyIdentity)
+    {
+        SimpleIdentity triShaderId,lineShaderId;
+        renderer.scene->getDefaultProgramIDs(triShaderId,lineShaderId);
+        if (type == GL_LINE_LOOP || type == GL_LINES)
+            programId = lineShaderId;
+        else
+            programId = triShaderId;
+    }
 }
-
     
 // Widen a line and turn it into a rectangle of the given width
 void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3f &l1, const Vector3f &nl1,float width)
@@ -442,9 +454,8 @@ void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) con
             drawVBO(frameInfo,scene);
         else
             drawReg(frameInfo,scene);
-    } else {
+    } else
         drawOGL2(frameInfo,scene);
-    }
 }
     
 // Write this drawable to a cache file
@@ -868,19 +879,45 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) 
     glDisable(GL_LIGHTING);
 }
     
+// The actual render step (for subclassing)
+void BasicDrawable::drawOGL2_render(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
+{
+    // Draw it
+    switch (type)
+    {
+        case GL_TRIANGLES:
+        {
+            if (triBuffer)
+            {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+            } else {
+                glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
+            }
+        }
+            break;
+        case GL_POINTS:
+        case GL_LINES:
+        case GL_LINE_STRIP:
+        case GL_LINE_LOOP:
+            glLineWidth(lineWidth);
+            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
+            glDrawArrays(type, 0, numPoints);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            glLineWidth(1.0);
+            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+            break;
+    }    
+}
+        
 // Draw Vertex Buffer Objects, OpenGL 2.0
 void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const
 {
     OpenGLES2Program *prog = frameInfo.program;
-
-    // Turn lights on or off, accordingly
-    // We'll only do lights for triangles
-    int numLights = [frameInfo.lights count];
-    if (type != GL_TRIANGLES)
-        numLights = 0;
-    const OpenGLESUniform *lightAttr = prog->findUniform("u_numLights");
-    if (lightAttr)
-        glUniform1i(lightAttr->index, numLights);
 
     // Figure out if we're fading in or out
     float fade = 1.0;
@@ -915,28 +952,13 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         glTexID = scene->getGLTexture(texId);
         
     // Model/View/Projection matrix
-    const OpenGLESUniform *mvpUni = prog->findUniform("u_mvpMatrix");
-    if (mvpUni)
-    {
-        glUniformMatrix4fv( mvpUni->index, 1, GL_FALSE, (GLfloat *)frameInfo.mvpMat.data());
-        CheckGLError("BasicDrawable::drawVBO2() glUniformMatrix4fv");
-    }
+    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     
     // Fade is always mixed in
-    const OpenGLESUniform *fadeUni = prog->findUniform("u_fade");
-    if (fadeUni)
-    {
-        glUniform1f(fadeUni->index, fade);
-        CheckGLError("BasicDrawable::drawVBO2() glUniform1f");
-    }
+    prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture
-    const OpenGLESUniform *hasTexUni = prog->findUniform("u_hasTexture");
-    if (hasTexUni)
-    {
-        glUniform1i(hasTexUni->index, (glTexID != 0));
-        CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
-    }
+    prog->setUniform("u_hasTexture", (glTexID != 0));
     
     // Texture
     const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
@@ -946,7 +968,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
         glBindTexture(GL_TEXTURE_2D, glTexID);
         CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-        glUniform1i( texUni->index, 0);
+        prog->setUniform("s_baseMap", 0);
         CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
     }
     
@@ -1036,37 +1058,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib3f");            
         }
     }
-    
-    // Draw it
-    switch (type)
-    {
-        case GL_TRIANGLES:
-        {
-            if (triBuffer)
-            {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
-                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-                glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            } else {
-                glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawElements");                
-            }
-        }
-            break;
-        case GL_POINTS:
-        case GL_LINES:
-        case GL_LINE_STRIP:
-        case GL_LINE_LOOP:
-            glLineWidth(lineWidth);
-            CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
-            glDrawArrays(type, 0, numPoints);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-            glLineWidth(1.0);
-            CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-            break;
-    }
+
+    drawOGL2_render(frameInfo, scene);
     
     // Tear down the various arrays
     if (normAttr && hasNormals)
