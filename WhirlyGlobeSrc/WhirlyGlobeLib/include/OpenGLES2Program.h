@@ -18,10 +18,11 @@
  *
  */
 
+#import <vector>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import "Identifiable.h"
-#import <vector>
+#import "WhirlyVector.h"
 
 namespace WhirlyKit
 {
@@ -30,9 +31,8 @@ namespace WhirlyKit
 class OpenGLESUniform
 {
 public:
-    OpenGLESUniform() : index(0), size(0) { }
+    OpenGLESUniform() : index(0), size(0), isSet(false) { }
     OpenGLESUniform(const std::string &name) : name(name) { }
-    bool operator < (const OpenGLESUniform &that) const { return name < that.name; }
     
     /// Return true if this uniform is an array
     bool isArray() { return size != 0; }
@@ -47,8 +47,25 @@ public:
     GLint size;
     /// Uniform data type
     GLenum type;
-};
         
+    /// Current value (if set)
+    bool isSet;
+    union {
+        int iVals[4];
+        float fVals[4];
+        float mat[16];
+    } val;
+};
+
+// Used for sorting
+typedef struct
+{
+    bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b)
+    {
+        return a->name < b->name;
+    }
+} UniformNameSortStruct;
+
 /// Used to track an attribute (per vertex) within an OpenGL ES 2.0 shader program
 class OpenGLESAttribute
 {
@@ -71,6 +88,16 @@ public:
     /// Attribute data type
     GLenum type;
 };
+        
+// Used for sorting
+typedef struct
+{
+    bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b)
+    {
+        return a->name < b->name;
+    }
+} AttributeNameSortStruct;
+
 
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
     point to it generically.  Otherwise, pretty basic.
@@ -78,6 +105,9 @@ public:
 class OpenGLES2Program : public Identifiable
 {
 public:
+    OpenGLES2Program();
+    virtual ~OpenGLES2Program();
+    
     /// Used only for comparison
     OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId) { }
 
@@ -88,8 +118,24 @@ public:
     bool isValid();
         
     /// Search for the given uniform name and return the info.  NULL on failure.
-    const OpenGLESUniform *findUniform(const std::string &uniformName);
+    OpenGLESUniform *findUniform(const std::string &uniformName);
+
+    /// Set the given uniform to the given value.
+    /// These check the type and cache a value to save on duplicate gl calls
+    bool setUniform(const std::string &name,float val);
+    bool setUniform(const std::string &name,const Eigen::Vector2f &vec);
+    bool setUniform(const std::string &name,const Eigen::Vector3f &vec);
+    bool setUniform(const std::string &name,const Eigen::Vector4f &vec);
+    bool setUniform(const std::string &name,const Eigen::Matrix4f &mat);
+    bool setUniform(const std::string &name,int val);
     
+    /// Check for the specific attribute associated with WhirlyKit lights
+    bool hasLights();
+    
+    /// Set the attributes associated with lighting.
+    /// We'll check their last updated time against ours.
+    bool setLights(NSArray *lights,CFTimeInterval lastUpdated);
+        
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);
     
@@ -107,10 +153,11 @@ protected:
     GLuint program;
     GLuint vertShader;
     GLuint fragShader;
+    CFTimeInterval lightsLastUpdated;
     // Uniforms sorted for fast lookup
-    std::set<OpenGLESUniform> uniforms;
+    std::set<OpenGLESUniform *,UniformNameSortStruct> uniforms;
     // Attributes sorted for fast lookup
-    std::set<OpenGLESAttribute> attrs;
+    std::set<OpenGLESAttribute *,AttributeNameSortStruct> attrs;
 };
 
 }

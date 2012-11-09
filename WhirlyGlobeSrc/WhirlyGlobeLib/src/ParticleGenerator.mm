@@ -166,7 +166,7 @@ void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
     }
     
     // Note: Should shrink the particles vector
-    
+
     // Build a drawable containing all the active particles
     // Note: Should possibly build more than one
     BasicDrawable *draw = NULL;
