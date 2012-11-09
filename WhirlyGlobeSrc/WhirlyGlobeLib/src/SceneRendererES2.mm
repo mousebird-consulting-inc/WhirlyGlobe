@@ -25,6 +25,49 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+namespace WhirlyKit
+{
+
+// Alpha stuff goes at the end
+// Otherwise sort by draw priority
+class DrawListSortStruct2
+{
+public:
+    DrawListSortStruct2(bool useAlpha,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), frameInfo(frameInfo)
+    {
+    }
+    DrawListSortStruct2() { }
+    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), frameInfo(that.frameInfo)
+    {
+    }
+    DrawListSortStruct2 & operator = (const DrawListSortStruct &that)
+    {
+        useAlpha = that.useAlpha;
+        frameInfo = that.frameInfo;
+        return *this;
+    }
+    bool operator()(Drawable *a,Drawable *b)
+    {
+        // We may or may not sort all alpha containing drawables to the end
+        if (useAlpha)
+        {
+            if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
+                return !a->hasAlpha(frameInfo);
+        }
+
+        // If the priority is the same, sort by program ID
+        if (a->getDrawPriority() == b->getDrawPriority())
+            return a->getProgram() < b->getProgram();
+            
+        return a->getDrawPriority() < b->getDrawPriority();
+    }
+    
+    bool useAlpha;
+    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+};
+    
+}
+
 @implementation WhirlyKitSceneRendererES2
 {
     NSMutableArray *lights;
@@ -403,7 +446,7 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,frameInfo));
                 
         if (perfInterval > 0)
         {
@@ -508,7 +551,7 @@ static const float ScreenOverlap = 0.1;
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,frameInfo));
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,frameInfo));
 
             // Build an orthographic projection
             // We flip the vertical axis and spread the window out (0,0)->(width,height)
