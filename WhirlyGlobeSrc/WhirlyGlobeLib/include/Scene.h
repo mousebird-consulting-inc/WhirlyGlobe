@@ -113,7 +113,7 @@ protected:
 class AddGeneratorReq : public ChangeRequest
 {
 public:
-    /// Construct with the generator ID
+    /// Construct with the generator
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
@@ -135,6 +135,35 @@ public:
     
 protected:
     SimpleIdentity genId;
+};
+    
+/// Add an OpenGL ES 2.0 program to the scene for user later
+class AddProgramReq : public ChangeRequest
+{
+public:
+    // Construct with the program to add
+    AddProgramReq(OpenGLES2Program *prog) : program(prog) { }
+    ~AddProgramReq() { if (program) delete program; program = NULL; }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    OpenGLES2Program *program;
+};
+    
+/// Remove an OpenGL ES 2.0 program from the scene
+class RemProgramReq : public ChangeRequest
+{
+public:
+    /// Construct with the program ID
+    RemProgramReq(SimpleIdentity progId) : programId(progId) { }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    SimpleIdentity programId;
 };
     
 /// Send out a notification (on the main thread) when
@@ -310,12 +339,15 @@ public:
     /// Scene is responsible for deletion.
     void addProgram(OpenGLES2Program *);
     
-    /// One shader will be set up by default for basic drawables
-    OpenGLES2Program *getDefaultProgram();
+    /// Remove a program (by ID)
+    void removeProgram(SimpleIdentity programId);
     
     /// Called during initialization after the default shader is created.
     /// Scene is responsible for deletion
-    void setDefaultProgram(OpenGLES2Program *);
+    void setDefaultPrograms(OpenGLES2Program *tri,OpenGLES2Program *line);
+    
+    /// Get the IDs for the default programs
+    void getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader);
         
 protected:
     /// Only the subclasses are allowed to create these
@@ -330,8 +362,8 @@ protected:
     
     /// Keep track of the OpenGL ES 2.0 shader programs here
     std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
-    /// ID for the default shader
-    SimpleIdentity defaultProgramId;
+    /// IDs for the default programs we'll use in drawables that don't have them
+    SimpleIdentity defaultProgramTri,defaultProgramLine;
 };
 	
 }

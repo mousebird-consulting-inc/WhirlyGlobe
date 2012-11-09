@@ -122,6 +122,9 @@ public:
 	
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
+    
+    /// For OpenGLES2, this is the program to use to render this drawable.
+    virtual SimpleIdentity getProgram() const = 0;
 	
 	/// We're allowed to turn drawables off completely
 	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
@@ -204,6 +207,9 @@ public:
     /// You can violate this, but it will reserve space
 	BasicDrawable(unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
+
+    /// For OpenGLES2, this is the program to use to render this drawable.
+    virtual SimpleIdentity getProgram() const { return programId; }
 
 	/// Set up the VBOs
 	virtual void setupGL(float minZres,OpenGLMemManager *memManage);
@@ -359,11 +365,20 @@ public:
     GLuint getPointBuffer() { return pointBuffer; }
 
 protected:
-	void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
-	void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
-    void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+	virtual void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+	virtual void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    /// Override this one if you're doing your own OpenGL ES 2.0 drawing or use it in
+    ///  combination w/ drawOGL2_render
+    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    
+    /// If you're implementing your own subclass you can still use the base functionality
+    ///  from the standard drawOGL2 rather than replacing it all.  Just override this
+    ///  method, do your setup, call the base class render (or not), do your tear down
+    ///  and then return to drawOGL2 which will clean up the default stuff.
+    virtual void drawOGL2_render(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
 	
 	bool on;  // If set, draw.  If not, not
+    SimpleIdentity programId;    // Program to use for rendering
     bool usingBuffers;  // If set, we've downloaded the buffers already
     NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
 	unsigned int drawPriority;  // Used to sort drawables

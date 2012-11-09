@@ -26,8 +26,10 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyKitSceneRendererES2
-
-@synthesize lights;
+{
+    NSMutableArray *lights;
+    CFTimeInterval lightsLastUpdated;
+}
 
 - (id) init
 {
@@ -40,12 +42,12 @@ using namespace WhirlyKit;
     light->ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
     light->diffuse = Vector4f(0.3, 0.3, 0.3, 1.0);
     light->specular = Vector4f(0, 0, 0, 0);
-    [lights addObject:light];
+    [self addLight:light];
 
     return self;
 }
 
-static const char *vertexShader =
+static const char *vertexShaderTri =
 "struct directional_light {\n"
 "  vec3 direction;\n"
 "  vec3 halfplane;\n"
@@ -62,12 +64,12 @@ static const char *vertexShader =
 "attribute vec3 a_position;                  \n"
 "attribute vec2 a_texCoord;                  \n"
 "attribute vec4 a_color;                     \n"
-"attribute vec3 a_normal;                   \n"
+"attribute vec3 a_normal;                    \n"
 "\n"
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
 "\n"
-"// From OpenGL ES 2.0 Programming Guide\n"
+"// From OpenGL ES 2.0 Programming Guide     \n"
 "vec4 light_calculation(vec3 normal,int which)         \n"
 "{\n"
 "  vec4 computed_color = vec4(0.0,0.0,0.0,0.0);\n"
@@ -102,7 +104,7 @@ static const char *vertexShader =
 "}                                           \n"
 ;
 
-static const char *fragmentShader =
+static const char *fragmentShaderTri =
 "precision mediump float;                            \n"
 "\n"
 "uniform sampler2D s_baseMap;                        \n"
@@ -120,6 +122,32 @@ static const char *fragmentShader =
 "}                                                   \n"
 ;
 
+static const char *vertexShaderLine =
+"uniform mat4  u_mvpMatrix;                   \n"
+"\n"
+"attribute vec3 a_position;                  \n"
+"attribute vec4 a_color;                     \n"
+"\n"
+"varying vec4      v_color;                          \n"
+"\n"
+"void main()                                 \n"
+"{                                           \n"
+"   v_color = a_color;                       \n"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
+"}                                           \n"
+;
+
+static const char *fragmentShaderLine =
+"precision mediump float;                            \n"
+"\n"
+"varying vec4      v_color;                          \n"
+"\n"
+"void main()                                         \n"
+"{                                                   \n"
+"  gl_FragColor = v_color;  \n"
+"}                                                   \n"
+;
+
 // When the scene is set, we'll compile our shaders
 - (void)setScene:(WhirlyKit::Scene *)inScene
 {
@@ -129,17 +157,35 @@ static const char *fragmentShader =
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
     
-    OpenGLES2Program *mainShader = new OpenGLES2Program("Default Program",vertexShader,fragmentShader);
-    if (!mainShader->isValid())
+    OpenGLES2Program *triShader = new OpenGLES2Program("Default Triangle Program",vertexShaderTri,fragmentShaderTri);
+    OpenGLES2Program *lineShader = new OpenGLES2Program("Default Line Program",vertexShaderLine,fragmentShaderLine);
+    if (!triShader->isValid() || !lineShader->isValid())
     {
         NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
-        delete mainShader;
+        delete triShader;
+        delete lineShader;
     } else {
-        scene->setDefaultProgram(mainShader);
+        scene->setDefaultPrograms(triShader,lineShader);
     }
 
     if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
+}
+
+/// Add a light to the existing set
+- (void)addLight:(WhirlyKitDirectionalLight *)light
+{
+    if (!lights)
+        lights = [NSMutableArray array];
+    [lights addObject:light];
+    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+}
+
+/// Replace all the lights at once. nil turns off lighting
+- (void)replaceLights:(NSArray *)inLights
+{
+    lights = [NSMutableArray arrayWithArray:inLights];
+    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 }
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
@@ -251,6 +297,9 @@ static const float ScreenOverlap = 0.1;
 	{
 		numDrawables = 0;
         
+        SimpleIdentity defaultTriShader,defaultLineShader;
+        scene->getDefaultProgramIDs(defaultTriShader, defaultLineShader);
+        
         WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         frameInfo.sceneRenderer = self;
@@ -355,29 +404,7 @@ static const float ScreenOverlap = 0.1;
                 drawList.push_back(theDrawable);
         }
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
-
-        // Need a valid OpenGL ES 2.0 program
-        OpenGLES2Program *defaultProgram = scene->getDefaultProgram();
-        if (defaultProgram)
-        {
-            glUseProgram(defaultProgram->getProgram());
-            CheckGLError("SceneRendererES2: glUseProgram");
-            frameInfo.program = defaultProgram;
-        } else
-            return;
-        
-        // Set up lights
-        // Note: Should only do this if lights change
-        {
-            int numLights = [lights count];
-            if (numLights > 8) numLights = 8;
-            for (unsigned int ii=0;ii<numLights;ii++)
-                [[lights objectAtIndex:ii] bindToProgram:defaultProgram index:ii];
-            const OpenGLESUniform *lightAttr = defaultProgram->findUniform("u_numLights");
-            if (lightAttr)
-                glUniform1i(lightAttr->index, numLights);
-        }
-        
+                
         if (perfInterval > 0)
         {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
@@ -389,6 +416,8 @@ static const float ScreenOverlap = 0.1;
         
         if (perfInterval > 0)
             perfTimer.startTiming("Draw Execution");
+        
+        SimpleIdentity curProgramId = EmptyIdentity;
 		
         bool depthMaskOn = zBuffer;
 		for (unsigned int ii=0;ii<drawList.size();ii++)
@@ -405,13 +434,36 @@ static const float ScreenOverlap = 0.1;
             }
             
             // If it has a transform, apply that
-            // Note: Fix this
+            // Note: Put the missing local transform back
 //            const Matrix4f *thisMat = drawable->getMatrix();
 //            if (thisMat)
 //            {
 //                glPushMatrix();
 //                glMultMatrixf(thisMat->data());
 //            }
+            
+            // Figure out the program to use for drawing
+            SimpleIdentity drawProgramId = drawable->getProgram();
+            if (drawProgramId == EmptyIdentity)
+                drawProgramId = defaultTriShader;
+            if (drawProgramId != curProgramId)
+            {
+                curProgramId = drawProgramId;
+                OpenGLES2Program *program = scene->getProgram(drawProgramId);
+                if (program)
+                {
+                    glUseProgram(program->getProgram());
+                    // Assign the lights if we need to
+                    if (program->hasLights() && ([lights count] > 0))
+                        program->setLights(lights, lightsLastUpdated);
+                    // Explicitly turn the lights on
+                    program->setUniform(kWKOGLNumLights, (int)[lights count]);
+
+                    frameInfo.program = program;
+                }
+            }
+            if (drawProgramId == EmptyIdentity)
+                continue;
             
             // Draw using the given program
             drawable->draw(frameInfo,scene);
@@ -444,6 +496,8 @@ static const float ScreenOverlap = 0.1;
         // Now for the 2D display
         if (!screenDrawables.empty())
         {
+            curProgramId = EmptyIdentity;
+            
             glDisable(GL_DEPTH_TEST);
             // Sort by draw priority (and alpha, I guess)
             for (unsigned int ii=0;ii<screenDrawables.size();ii++)
@@ -476,6 +530,23 @@ static const float ScreenOverlap = 0.1;
                 
                 if (drawable->isOn(frameInfo))
                 {
+                    // Figure out the program to use for drawing
+                    SimpleIdentity drawProgramId = drawable->getProgram();
+                    if (drawProgramId == EmptyIdentity)
+                        drawProgramId = defaultTriShader;
+                    if (drawProgramId != curProgramId)
+                    {
+                        curProgramId = drawProgramId;
+                        OpenGLES2Program *program = scene->getProgram(drawProgramId);
+                        if (program)
+                        {
+                            glUseProgram(program->getProgram());
+                            // Explicitly turn the lights off
+                            program->setUniform(kWKOGLNumLights, 0);
+                            frameInfo.program = program;
+                        }
+                    }
+
                     drawable->draw(frameInfo,scene);
                     numDrawables++;
                 }
