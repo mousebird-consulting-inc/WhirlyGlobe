@@ -110,6 +110,12 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 /// Called when the layer is about to shut down.  Clear out any drawables and caches.
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
+@optional
+/// Called right before the view update to determine if we should even be paging
+/// You can use this to temporarily suspend paging.
+/// isInitial is set if this is the first time through
+- (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
+
 @end
 
 
@@ -186,6 +192,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 @property (nonatomic,assign) float viewUpdatePeriod;
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
+@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

@@ -24,6 +24,8 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 
+@class WhirlyKitMaterial;
+
 namespace WhirlyKit
 {
     
@@ -134,7 +136,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    bool setLights(NSArray *lights,CFTimeInterval lastUpdated);
+    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat);
         
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(const std::string &attrName);

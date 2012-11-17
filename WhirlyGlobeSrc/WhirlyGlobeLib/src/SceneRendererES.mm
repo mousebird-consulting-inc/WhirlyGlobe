@@ -66,7 +66,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 
 @synthesize context;
 @synthesize scene,theView;
-@synthesize zBuffer;
+@synthesize zBufferMode;
 @synthesize doCulling;
 @synthesize framebufferWidth,framebufferHeight;
 @synthesize scale;
@@ -85,7 +85,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 		framesPerSec = 0.0;
         numDrawables = 0;
 		frameCountStart = nil;
-        zBuffer = true;
+        zBufferMode = zBufferOn;
         doCulling = true;
         clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
         perfInterval = -1;

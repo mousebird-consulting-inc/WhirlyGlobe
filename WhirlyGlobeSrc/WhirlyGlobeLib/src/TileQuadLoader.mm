@@ -782,4 +782,27 @@ static const float SkirtFactor = 0.95;
     [self flushUpdates:layer.scene];
 }
 
+// We'll try to skip updates 
+- (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial
+{
+    bool doUpdate = true;;
+
+    // Always do at least one
+    if (isInitial)
+        return true;
+
+    // Test against the visibility range
+    if (minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid)
+    {
+        WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
+        if ([globeViewState isKindOfClass:[WhirlyGlobeViewState class]])
+        {
+            if (globeViewState->heightAboveGlobe < minVis || globeViewState->heightAboveGlobe > maxVis)
+                doUpdate = false;
+        }
+    }
+    
+    return doUpdate;
+}
+
 @end

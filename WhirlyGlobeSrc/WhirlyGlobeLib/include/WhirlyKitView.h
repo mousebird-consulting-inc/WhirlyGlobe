@@ -19,6 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <set>
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
@@ -33,6 +34,8 @@
 /// Called when the view changes position
 - (void)viewUpdated:(WhirlyKitView *)view;
 @end
+
+typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewWatcherDelegateSet;
 
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and Maply.  It contains the general purpose
@@ -55,14 +58,13 @@
     bool continuousZoom;
 
     /// Called when positions are updated
-    NSObject<WhirlyKitViewWatcherDelegate> * __weak watchDelegate;
+    WhirlyKitViewWatcherDelegateSet watchDelegates;
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic,readonly) CFTimeInterval lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 @property (nonatomic,assign) bool continuousZoom;
-@property (nonatomic,weak) NSObject<WhirlyKitViewWatcherDelegate> *watchDelegate;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
@@ -89,5 +91,14 @@
 
 /// From a screen point calculate the corresponding point in 3-space
 - (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+
+/// Add a watcher delegate.  Call this on the main thread.
+- (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
+
+/// Remove the given watcher delegate.  Call this on the main thread
+- (void)removeWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
+
+/// Used by subclasses to notify all the watchers of updates
+- (void)runViewUpdates;
 
 @end

@@ -325,7 +325,7 @@ using namespace Maply;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:mapScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:sceneRenderer.zBuffer];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:mapScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
     if (!newLayer)
         return nil;
     newLayer.cacheDir = cacheDir;
@@ -364,7 +364,7 @@ using namespace Maply;
     
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBuffer = zBuffer;
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOff);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }

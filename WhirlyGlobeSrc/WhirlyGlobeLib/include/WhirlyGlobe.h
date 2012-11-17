@@ -73,6 +73,7 @@
 #import "TileQuadLoader.h"
 #import "NetworkTileQuadSource.h"
 #import "SceneGraphGenerator.h"
+#import "SphericalEarthChunkLayer.h"
 #import "SphericalEarthQuadLayer.h"
 #import "UpdateDisplayLayer.h"
 #import "GeometryLayer.h"

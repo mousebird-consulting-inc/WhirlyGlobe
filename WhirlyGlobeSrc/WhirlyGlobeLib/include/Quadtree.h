@@ -126,6 +126,13 @@ public:
     /// Return a vector of all nodes less than the given importance without children
     void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
     
+    /// Update the maximum number of nodes.
+    /// This won't check to see if we already have more than that
+    void setMaxNodes(int newMaxNodes);
+    
+    /// Change the minimum importance value
+    void setMinImportance(float newMinImportance);
+    
     /// Dump out to the log for debugging
     void Print();
     
@@ -146,6 +153,8 @@ protected:
     {
         bool operator() (const Node *a,const Node *b)
         {
+            if (a->nodeInfo.importance == b->nodeInfo.importance)
+                return a < b;
             return a->nodeInfo.importance < b->nodeInfo.importance;
         }
     } NodeSizeSorter;

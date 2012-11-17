@@ -75,8 +75,7 @@ using namespace WhirlyKit;
 - (void)setLoc:(WhirlyKit::Point3f)newLoc
 {
     loc = newLoc;
-    if (watchDelegate)
-        [watchDelegate viewUpdated:self];
+    [self runViewUpdates];
 }
 
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit

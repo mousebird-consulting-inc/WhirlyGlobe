@@ -360,7 +360,7 @@ using namespace WhirlyGlobe;
 
 - (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
-    WGViewControllerLayer *newLayer = (WGViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer mbTiles:name handleEdges:sceneRenderer.zBuffer];
+    WGViewControllerLayer *newLayer = (WGViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
     if (!newLayer)
         return nil;
     
@@ -371,7 +371,7 @@ using namespace WhirlyGlobe;
 
 - (WGViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:sceneRenderer.zBuffer];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:globeScene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
     if (!newLayer)
         return nil;
     newLayer.cacheDir = cacheDir;
@@ -410,7 +410,7 @@ using namespace WhirlyGlobe;
 
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBuffer = zBuffer;
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOff);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }

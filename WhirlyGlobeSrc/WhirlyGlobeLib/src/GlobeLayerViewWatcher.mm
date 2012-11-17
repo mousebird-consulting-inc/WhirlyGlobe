@@ -68,7 +68,7 @@ using namespace WhirlyKit;
     self = [super initWithView:inView thread:inLayerThread];
     if (self)
     {
-        inView.watchDelegate = self;
+        [inView addWatcherDelegate:self];
         viewStateClass = [WhirlyGlobeViewState class];
     }
     
