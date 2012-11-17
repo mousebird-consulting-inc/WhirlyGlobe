@@ -106,7 +106,7 @@ bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    CheckGLError("Texture::createInGL() glBlendFunc()");
+    CheckGLError("Texture::createInGL() glTexParameteri()");
 	
 	// Configure textures
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (wrapU ? GL_REPEAT : GL_CLAMP_TO_EDGE));

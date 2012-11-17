@@ -1011,7 +1011,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Per vertex colors
     const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
-    bool hasColors = (colorBuffer != 0);
+    bool hasColors = (colorBuffer != 0 || !colors.empty());
     if (colorAttr)
     {
         if (hasColors)
@@ -1020,12 +1020,12 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
                 CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, 0);
+                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
                 CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
                 glEnableVertexAttribArray(colorAttr->index);
                 CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
             } else {
-                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, &colors[0]);
+                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, &colors[0]);
                 glEnableVertexAttribArray ( colorAttr->index );                
             }
         } else {
@@ -1036,8 +1036,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // Per vertex normals
     const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
-    bool hasNormals = (normBuffer != 0);
-    if (normAttr && hasNormals)
+    bool hasNormals = (normBuffer != 0 || !norms.empty());
+    if (normAttr)
     {
         if (hasNormals)
         {

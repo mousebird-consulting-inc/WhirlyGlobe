@@ -84,3 +84,30 @@ using namespace WhirlyKit;
 }
 
 @end
+
+@implementation WhirlyKitMaterial
+
+- (id)init
+{
+    self = [super init];
+    
+    ambient = Vector4f(0.5,0.5,0.5,1.0);
+    diffuse = Vector4f(1.0,1.0,1.0,1.0);
+//    specular = Vector4f(1.0,1.0,1.0,1.0);
+//    specularExponent = 100.0;
+    specular = Vector4f(0.0,0.0,0.0,0.0);
+    specularExponent = 1.0;
+    
+    return self;
+}
+
+- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program
+{
+    return program->setUniform("material.ambient", ambient) &&
+           program->setUniform("material.diffuse", diffuse) &&
+           program->setUniform("material.specular", specular) &&
+           program->setUniform("material.specular_exponent", specularExponent);
+}
+
+
+@end

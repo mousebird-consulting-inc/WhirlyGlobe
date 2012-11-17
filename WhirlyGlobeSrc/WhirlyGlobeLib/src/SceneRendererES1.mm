@@ -82,9 +82,17 @@ using namespace WhirlyKit;
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
     bool ret = [super resizeFromLayer:layer];
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
+    
     glMatrixMode(GL_MODELVIEW);
 	[self setupView];
     
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
+
     return ret;
 }
 
@@ -152,13 +160,21 @@ static const float ScreenOverlap = 0.1;
         glMultMatrixf(modelTrans.data());
     }
     
-    if (zBuffer)
+    switch (zBufferMode)
     {
-        glDepthMask(GL_TRUE);
-        glEnable(GL_DEPTH_TEST);
-    } else {
-        glDepthMask(GL_FALSE);
-        glDisable(GL_DEPTH_TEST);
+        case zBufferOn:
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            break;
+        case zBufferOff:
+            glDepthMask(GL_FALSE);
+            glDisable(GL_DEPTH_TEST);
+            break;
+        case zBufferOffUntilLines:
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_ALWAYS);
+            break;
     }
     
 	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
@@ -275,7 +291,8 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,frameInfo));
+        bool sortLinesToEnd = (zBufferMode == zBufferOffUntilLines);
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,sortLinesToEnd,frameInfo));
         
         if (perfInterval > 0)
         {
@@ -289,17 +306,31 @@ static const float ScreenOverlap = 0.1;
         if (perfInterval > 0)
             perfTimer.startTiming("Draw Execution");
 		
-        bool depthMaskOn = zBuffer;
+        bool depthMaskOn = (zBufferMode == zBufferOn);
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			Drawable *drawable = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+            if (depthBufferOffForAlpha)
             {
-                depthMaskOn = false;
-                glDisable(GL_DEPTH_TEST);
+                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                {
+                    depthMaskOn = false;
+                    glDisable(GL_DEPTH_TEST);
+                }
+            }
+            
+            // For this mode we turn the z buffer off until we get our first lines
+            // This assumes we're sorting lines to the end
+            if (zBufferMode == zBufferOffUntilLines)
+            {
+                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP))
+                {
+                    glDepthFunc(GL_LESS);
+                    depthMaskOn = true;
+                }
             }
             
             // If it has a transform, apply that
@@ -349,7 +380,7 @@ static const float ScreenOverlap = 0.1;
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,frameInfo));
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(false,false,frameInfo));
             
             // Set up the matrix
             glMatrixMode(GL_PROJECTION);

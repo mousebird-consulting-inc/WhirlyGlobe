@@ -139,7 +139,10 @@ public:
 
 	/// Set up what you need in the way of context and draw.
 	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;
-        
+    
+    /// Return the type (or an approximation thereof).  We use this for sorting.
+    virtual GLenum getType() const = 0;
+    
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
@@ -210,6 +213,9 @@ public:
 
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const { return programId; }
+
+    /// For OpenGLES2, you can set the program to use in rendering
+    void setProgram(SimpleIdentity progId) { programId = progId; }
 
 	/// Set up the VBOs
 	virtual void setupGL(float minZres,OpenGLMemManager *memManage);

@@ -128,6 +128,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 @synthesize dataStructure;
 @synthesize loader;
 @synthesize viewUpdatePeriod;
+@synthesize renderer;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
 {
@@ -141,7 +142,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         mbr = [dataStructure validExtents];
         minZoom = [dataStructure minZoom];
         maxZoom = [dataStructure maxZoom];
-        maxTiles = 100;
+        maxTiles = 256;
         minImportance = 1.0;
         viewUpdatePeriod = 1.0;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
@@ -162,6 +163,18 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         delete quadtree;
     if (layerThread.viewWatcher)
         [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+}
+
+- (void)setMaxTiles:(int)newMaxTiles
+{
+    maxTiles = newMaxTiles;
+    quadtree->setMaxNodes(newMaxTiles);
+}
+
+- (void)setMinImportance:(float)newMinImportance
+{
+    minImportance = newMinImportance;
+    quadtree->setMinImportance(newMinImportance);
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
@@ -199,6 +212,11 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         return;
     }
     
+    // Check if we should even be doing an update
+    if ([loader respondsToSelector:@selector(shouldUpdate:initial:)])
+        if (![loader shouldUpdate:inViewState initial:(viewState == nil)])
+            return;
+        
     viewState = inViewState;
     nodesForEval.clear();
     quadtree->reevaluateNodes();
@@ -234,9 +252,9 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 {
     bool didSomething = false;
     
-    // Look for a node to remove
+    // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
-    if (quadtree->leastImportantNode(remNodeInfo))
+    while (quadtree->leastImportantNode(remNodeInfo))
     {
         [loader quadDisplayLayerStartUpdates:self];
 
