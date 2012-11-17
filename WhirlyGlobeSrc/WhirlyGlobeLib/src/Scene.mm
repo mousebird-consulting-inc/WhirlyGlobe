@@ -252,6 +252,10 @@ void Scene::dumpStats()
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 {
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
     OpenGLES2Program dummy(progId);
     std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
     if (it == glPrograms.end())
@@ -259,13 +263,35 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
     return *it;
 }
     
+OpenGLES2Program *Scene::getProgram(const std::string &name)
+{
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        if ((*it)->getName() == name)
+            return *it;
+    
+    return NULL;
+}
+
 void Scene::addProgram(OpenGLES2Program *prog)
 {
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+
     glPrograms.insert(prog);
 }
     
 void Scene::removeProgram(SimpleIdentity progId)
 {
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+
     std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
     for (it = glPrograms.begin();it != glPrograms.end(); ++it)
         if ((*it)->getId() == progId)

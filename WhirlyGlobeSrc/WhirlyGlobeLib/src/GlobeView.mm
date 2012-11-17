@@ -75,8 +75,7 @@ using namespace Eigen;
 {
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
-    if (watchDelegate)
-        [watchDelegate viewUpdated:self];
+    [self runViewUpdates];
 }
 	
 - (float)minHeightAboveGlobe
@@ -139,8 +138,7 @@ using namespace Eigen;
 
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     
-    if (watchDelegate)
-        [watchDelegate viewUpdated:self];
+    [self runViewUpdates];
 }
 	
 - (Eigen::Matrix4f)calcModelMatrix

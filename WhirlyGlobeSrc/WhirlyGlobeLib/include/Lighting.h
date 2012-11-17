@@ -44,3 +44,24 @@
 - (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index;
 
 @end
+
+/** This is a simple material definition.
+ */
+@interface WhirlyKitMaterial : NSObject
+{
+@public
+    /// Ambient material color
+    Eigen::Vector4f ambient;
+    /// Diffuse material color
+    Eigen::Vector4f diffuse;
+    /// Specular component of material color
+    Eigen::Vector4f specular;
+    /// Specular exponent used in lighting
+    float specularExponent;
+}
+
+/// Bind this material to a the given problem.
+/// Don't call this yourself.
+- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program;
+
+@end

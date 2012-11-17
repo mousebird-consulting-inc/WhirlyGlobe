@@ -37,40 +37,43 @@ namespace WhirlyKit
 {
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
-class DrawListSortStruct
-{
-public:
-    DrawListSortStruct(bool useAlpha,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), frameInfo(frameInfo)
+    class DrawListSortStruct
     {
-    }
-    ~DrawListSortStruct() { }
-    DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), frameInfo(that.frameInfo)
-    {
-    }
-    DrawListSortStruct & operator = (const DrawListSortStruct &that)
-    {
-        useAlpha = that.useAlpha;
-        frameInfo = that.frameInfo;
-        return *this;
-    }
-    bool operator()(Drawable *a,Drawable *b)
-    {
-        // We may or may not sort all alpha containing drawables to the end
-        if (useAlpha)
+    public:
+        DrawListSortStruct(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
         {
-            if (a->hasAlpha(frameInfo) == b->hasAlpha(frameInfo))
-                return a->getDrawPriority() < b->getDrawPriority();
-                
-                return !a->hasAlpha(frameInfo);
-                } else {
+        }
+        ~DrawListSortStruct() { }
+        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
+        {
+        }
+        DrawListSortStruct & operator = (const DrawListSortStruct &that)
+        {
+            useAlpha = that.useAlpha;
+            useLines= that.useLines;
+            frameInfo = that.frameInfo;
+            return *this;
+        }
+        bool operator()(Drawable *a,Drawable *b)
+        {
+            if (useLines)
+            {
+                bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP);
+                bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP);
+                if (linesA != linesB)
+                    return !linesA;
+            }
+            // We may or may not sort all alpha containing drawables to the end
+            if (useAlpha)
+                if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
+                    return !a->hasAlpha(frameInfo);
                     
-                    return a->getDrawPriority() < b->getDrawPriority();
-                }
-    }
-    
-    bool useAlpha;
-    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
-};
+            return a->getDrawPriority() < b->getDrawPriority();
+        }
+        
+        bool useAlpha,useLines;
+        WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+    };
 }
 
 /** Renderer Frame Info.
@@ -135,6 +138,12 @@ public:
 
 @end
 
+/** We support three different ways of using z buffer.  (1) Regular mode where it's on.
+    (2) Completely off, priority sorting only.  (3) Priority sorting, but lines are sorted to
+    the back, the z buffer is turned on and then they're drawn.
+  */
+typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZBufferMode;
+
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
 @interface WhirlyKitSceneRendererES : NSObject
@@ -147,9 +156,8 @@ public:
     /// The view controls how we're looking at the scene
 	WhirlyKitView * __weak theView;
     
-    /// Set this to turn z buffering on or off.
-    /// If you turn z buffering off, drawPriority in the drawables is still used
-    bool zBuffer;
+    /// Set this mode to modify how Z buffering is used (if at all)
+    WhirlyKitSceneRendererZBufferMode zBufferMode;
     
     /// Set this to turn culling on or off.
     /// By default it's on, so leave it alone unless you know you want it off.
@@ -211,7 +219,7 @@ public:
 @property (nonatomic,readonly) EAGLContext *context;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,weak) WhirlyKitView *theView;
-@property (nonatomic,assign) bool zBuffer;
+@property (nonatomic,assign) WhirlyKitSceneRendererZBufferMode zBufferMode;
 @property (nonatomic,assign) bool doCulling;
 
 @property (nonatomic,readonly) GLint framebufferWidth,framebufferHeight;

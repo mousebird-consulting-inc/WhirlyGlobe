@@ -33,36 +33,38 @@ namespace WhirlyKit
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
     {
     }
     DrawListSortStruct2 & operator = (const DrawListSortStruct &that)
     {
         useAlpha = that.useAlpha;
+        useLines= that.useLines;
         frameInfo = that.frameInfo;
         return *this;
     }
     bool operator()(Drawable *a,Drawable *b)
     {
+        if (useLines)
+        {
+            bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP);
+            bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP);
+            if (linesA != linesB)
+                return !linesA;
+        }
         // We may or may not sort all alpha containing drawables to the end
         if (useAlpha)
-        {
             if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
                 return !a->hasAlpha(frameInfo);
-        }
-
-        // If the priority is the same, sort by program ID
-        if (a->getDrawPriority() == b->getDrawPriority())
-            return a->getProgram() < b->getProgram();
-            
+                
         return a->getDrawPriority() < b->getDrawPriority();
     }
     
-    bool useAlpha;
+    bool useAlpha,useLines;
     WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
     
@@ -72,6 +74,7 @@ public:
 {
     NSMutableArray *lights;
     CFTimeInterval lightsLastUpdated;
+    WhirlyKitMaterial *defaultMat;
 }
 
 - (id) init
@@ -87,6 +90,9 @@ public:
     light->specular = Vector4f(0, 0, 0, 0);
     [self addLight:light];
 
+    // And a basic material
+    [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
+
     return self;
 }
 
@@ -99,10 +105,18 @@ static const char *vertexShaderTri =
 "  vec4 specular;\n"
 "};\n"
 "\n"
+"struct material_properties {\n"
+"  vec4 ambient;\n"
+"  vec4 diffuse;\n"
+"  vec4 specular;\n"
+"  float specular_exponent;\n"
+"};\n"
+"\n"
 "uniform mat4  u_mvpMatrix;                   \n"
 "uniform float u_fade;                        \n"
 "uniform int u_numLights;                      \n"
 "uniform directional_light light[8];                     \n"
+"uniform material_properties material;       \n"
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec2 a_texCoord;                  \n"
@@ -112,37 +126,31 @@ static const char *vertexShaderTri =
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
 "\n"
-"// From OpenGL ES 2.0 Programming Guide     \n"
-"vec4 light_calculation(vec3 normal,int which)         \n"
-"{\n"
-"  vec4 computed_color = vec4(0.0,0.0,0.0,0.0);\n"
-"  float ndotl;\n"
-"  float ndoth;\n"
-"  vec3 adjNorm = (u_mvpMatrix * vec4(normal.xyz, 0.0)).xyz;\n"
-"  ndotl = max(0.0, dot(adjNorm, light[which].direction));\n"
-"  ndoth = max(0.0, dot(adjNorm, light[which].halfplane));\n"
-"  computed_color += (light[which].ambient);\n"
-"  computed_color += (ndotl * light[which].diffuse * a_color);\n"
-"  return computed_color;\n"
-"}\n"
-"\n"
 "void main()                                 \n"
 "{                                           \n"
 "   v_texCoord = a_texCoord;                 \n"
 "   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
 "   if (u_numLights > 0)                     \n"
 "   {\n"
+"     vec3 adjNorm = normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz);\n"
+"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);         \n"
+"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);         \n"
 "     for (int ii=0;ii<8;ii++)                 \n"
 "     {\n"
 "        if (ii>=u_numLights)                  \n"
 "           break;                             \n"
-"        v_color += light_calculation(a_normal,ii);   \n"
+"        float ndotl;\n"
+"        float ndoth;\n"
+"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));\n"
+"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
+"        ambient += light[ii].ambient;\n"
+"        diffuse += ndotl * light[ii].diffuse;\n"
 "     }\n"
-"     clamp(v_color,0.0,1.0);\n"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz + diffuse.xyz * a_color.xyz,a_color.a);\n"
 "   } else {\n"
 "     v_color = a_color;\n"
 "   }\n"
-"   v_color *= u_fade;                       \n"
+"\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -231,6 +239,13 @@ static const char *fragmentShaderLine =
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 }
 
+- (void)setDefaultMaterial:(WhirlyKitMaterial *)mat
+{
+    defaultMat = mat;
+    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+}
+
+
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
     bool ret = [super resizeFromLayer:layer];
@@ -248,11 +263,6 @@ static const float ScreenOverlap = 0.1;
     
 	[theView animate];
 
-    // Turn on blending
-    // Note: Only need to do this once
-    glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     // Decide if we even need to draw
     if (!scene->hasChanges() && ![self viewDidChange])
         return;
@@ -273,6 +283,11 @@ static const float ScreenOverlap = 0.1;
         [EAGLContext setCurrentContext:context];
     CheckGLError("SceneRendererES2: setCurrentContext");
     
+    // Turn on blending
+    // Note: Only need to do this once
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
@@ -309,20 +324,24 @@ static const float ScreenOverlap = 0.1;
     projMat(2,3) = -2.0f * near * far / delta.z();
     projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
     
-    Eigen::Matrix4f matrixAndViewMat = modelTrans * viewTrans;
+    Eigen::Matrix4f matrixAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (matrixAndViewMat);
     
-    if (zBuffer)
+    switch (zBufferMode)
     {
-        glDepthMask(GL_TRUE);
-        CheckGLError("SceneRendererES2: glDepthMask");
-        glEnable(GL_DEPTH_TEST);
-        CheckGLError("SceneRendererES2: glEnable(GL_DEPTH_TEST)");
-    } else {
-        glDepthMask(GL_FALSE);
-        CheckGLError("SceneRendererES2: glDepthMask");
-        glDisable(GL_DEPTH_TEST);
-        CheckGLError("SceneRendererES2: glDisable(GL_DEPTH_TEST)");
+        case zBufferOn:
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            break;
+        case zBufferOff:
+            glDepthMask(GL_FALSE);
+            glDisable(GL_DEPTH_TEST);
+            break;
+        case zBufferOffUntilLines:
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_ALWAYS);
+            break;
     }
     
 	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
@@ -384,16 +403,6 @@ static const float ScreenOverlap = 0.1;
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
         frameInfo.eyeVec = eyeVec3;
 		
-		// Snag the projection matrix so we can use it later
-		Mbr viewMbr(Point2f(-1,-1),Point2f(1,1));
-		
-		Vector4f test1(frustLL.x(),frustLL.y(),near,1.0);
-		Vector4f test2(frustUR.x(),frustUR.y(),near,1.0);
-		Vector4f projA = projMat * test1;
-		Vector4f projB = projMat * test2;
-		Vector3f projA_3(projA.x()/projA.w(),projA.y()/projA.w(),projA.z()/projA.w());
-		Vector3f projB_3(projB.x()/projB.w(),projB.y()/projB.w(),projB.z()/projB.w());
-
         // If we're looking at a globe, run the culling
         std::set<DrawableRef> toDraw;
         int drawablesConsidered = 0;
@@ -446,7 +455,8 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,frameInfo));
+        bool sortLinesToEnd = (zBufferMode == zBufferOffUntilLines);
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,frameInfo));
                 
         if (perfInterval > 0)
         {
@@ -462,18 +472,31 @@ static const float ScreenOverlap = 0.1;
         
         SimpleIdentity curProgramId = EmptyIdentity;
 		
-        bool depthMaskOn = zBuffer;
+        bool depthMaskOn = (zBufferMode == zBufferOn);
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			Drawable *drawable = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+            if (depthBufferOffForAlpha)
             {
-                depthMaskOn = false;
-                glDisable(GL_DEPTH_TEST);
-                CheckGLError("SceneRendererES2: glDisable");
+                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                {
+                    depthMaskOn = false;
+                    glDisable(GL_DEPTH_TEST);
+                }
+            }
+            
+            // For this mode we turn the z buffer off until we get our first lines
+            // This assumes we're sorting lines to the end
+            if (zBufferMode == zBufferOffUntilLines)
+            {
+                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP))
+                {
+                    glDepthFunc(GL_LESS);
+                    depthMaskOn = true;
+                }
             }
             
             // If it has a transform, apply that
@@ -498,7 +521,7 @@ static const float ScreenOverlap = 0.1;
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated);
+                        program->setLights(lights, lightsLastUpdated, defaultMat);
                     // Explicitly turn the lights on
                     program->setUniform(kWKOGLNumLights, (int)[lights count]);
 
@@ -551,7 +574,7 @@ static const float ScreenOverlap = 0.1;
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,frameInfo));
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,frameInfo));
 
             // Build an orthographic projection
             // We flip the vertical axis and spread the window out (0,0)->(width,height)

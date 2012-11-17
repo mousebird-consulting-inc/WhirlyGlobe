@@ -41,4 +41,7 @@
 /// Replace all the lights at once. nil turns off lighting
 - (void)replaceLights:(NSArray *)lights;
 
+/// Set the default material
+- (void)setDefaultMaterial:(WhirlyKitMaterial *)mat;
+
 @end
