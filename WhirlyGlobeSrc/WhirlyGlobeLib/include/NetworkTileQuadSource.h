@@ -45,10 +45,13 @@
     int pixelsPerTile;   
     /// Location of cache, if set
     NSString *cacheDir;
+    // Flip Y coordinate
+    BOOL flipY;
 }
 
 @property (nonatomic,assign) int numSimultaneous;
 @property (nonatomic,retain) NSString *cacheDir;
+@property (nonatomic,assign) BOOL flipY;
 
 /// Initialize with the base URL and image extension (e.g. png, jpg)
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;

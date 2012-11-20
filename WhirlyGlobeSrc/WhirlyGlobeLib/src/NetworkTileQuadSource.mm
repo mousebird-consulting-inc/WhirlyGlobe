@@ -28,6 +28,7 @@ using namespace WhirlyGlobe;
 
 @synthesize numSimultaneous;
 @synthesize cacheDir;
+@synthesize flipY;
 
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt
 {
@@ -50,6 +51,8 @@ using namespace WhirlyGlobe;
         numSimultaneous = 1;
         
         pixelsPerTile = 256;
+
+        flipY = TRUE;
     }
     
     return self;
@@ -119,8 +122,13 @@ using namespace WhirlyGlobe;
 
 // Start loading a given tile
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
-{
-    int y = ((int)(1<<level)-row)-1;
+{ 
+    int y;
+
+    if(flipY)
+      y = ((int)(1<<level)-row)-1;
+    else
+      y = row;
     
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), 
