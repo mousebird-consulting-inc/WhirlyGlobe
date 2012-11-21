@@ -76,13 +76,16 @@ typedef MaplyVectorObject WGVectorObject;
  */
 @interface MaplyVectorDatabase : NSObject
 
+/// Construct from a shapefile in the bundle
++ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName;
+
 /// Return vectors that match the given SQL query
 - (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery;
 
 /// Search for all the areals that surround the given point (in geographic)
 - (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord;
 
-/// Construct from a shapefile in the bundle
-+ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName;
+/// Fetch all the vectors in the database
+- (MaplyVectorObject *)fetchAllVectors;
 
 @end

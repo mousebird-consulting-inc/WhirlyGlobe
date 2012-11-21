@@ -298,5 +298,20 @@ using namespace WhirlyGlobe;
     return vecObj;
 }
 
+- (MaplyVectorObject *)fetchAllVectors
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    int numVecs = vectorDb->numVectors();
+    for (unsigned int ii=0;ii<numVecs;ii++)
+    {
+        VectorShapeRef shapeRef = vectorDb->getVector(ii);
+        vecObj.shapes.insert(shapeRef);
+    }
+    
+    if (vecObj.shapes.empty())
+        return nil;
+    
+    return vecObj;
+}
 
 @end
