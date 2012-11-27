@@ -64,7 +64,7 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
 		float scale = minZres*drawOffset;
 		for (unsigned int ii=0;ii<4;ii++)
 		{
-			Vector3f pt = thePts[ii];
+            Eigen::Vector3f pt = thePts[ii];
 			thePts[ii] = norm * scale + pt;
 		}
     }

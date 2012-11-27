@@ -21,6 +21,8 @@
 #import "ParticleGenerator.h"
 #import "SceneRendererES.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
     

@@ -21,6 +21,7 @@
 #import "GlobeLayerViewWatcher.h"
 #import "LayerThread.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobeViewState

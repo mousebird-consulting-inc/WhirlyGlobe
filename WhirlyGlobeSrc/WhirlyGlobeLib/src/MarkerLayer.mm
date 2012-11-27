@@ -25,6 +25,7 @@
 #import "MarkerGenerator.h"
 #import "ScreenSpaceGenerator.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 namespace WhirlyKit

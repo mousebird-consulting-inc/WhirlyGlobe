@@ -54,7 +54,7 @@ public:
         
         RGBAColor color;
         Point2f loc;
-        Vector3f norm;
+        Eigen::Vector3f norm;
         Point3f pts[4];
         std::vector<std::vector<TexCoord> > texCoords;
         std::vector<SimpleIdentity> texIDs;

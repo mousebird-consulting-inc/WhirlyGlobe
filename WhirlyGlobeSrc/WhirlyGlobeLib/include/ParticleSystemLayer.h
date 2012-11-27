@@ -36,11 +36,11 @@
 @interface WhirlyKitParticleSystem : NSObject
 {
     WhirlyKit::GeoCoord loc;
-    Vector3f norm;
+    Eigen::Vector3f norm;
 }
 
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,assign) Vector3f norm;
+@property (nonatomic,assign) Eigen::Vector3f norm;
 
 @end
 
