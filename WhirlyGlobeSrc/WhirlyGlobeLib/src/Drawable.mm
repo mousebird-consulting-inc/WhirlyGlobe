@@ -204,6 +204,7 @@ BasicDrawable::BasicDrawable()
     numPoints = 0;
     
     pointBuffer = colorBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+    forceZBufferOn = false;
 
     hasMatrix = false;
 }
@@ -226,6 +227,7 @@ BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
 	drawPriority = 0;
 	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
+    forceZBufferOn = false;
 
     numTris = 0;
     numPoints = 0;

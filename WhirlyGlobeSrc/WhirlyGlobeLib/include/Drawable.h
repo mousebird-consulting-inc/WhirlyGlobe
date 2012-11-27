@@ -146,6 +146,9 @@ public:
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
+    /// Used to sort drawables in with the lines in zBufferOffUntilLines mode
+    virtual bool getForceZBufferOn() const { return false; }
+    
     /// Return the Matrix if there is an active one (ideally not)
     virtual const Matrix4f *getMatrix() const { return NULL; }
 
@@ -295,6 +298,12 @@ public:
     /// Return the line width (1.0 is the default)
     float getLineWidth() { return lineWidth; }
 
+    /// Used to sort a Drawable in with the lines in zBufferOffUntilLines mode
+    void setForceZBufferOn(bool val) { forceZBufferOn = val; }
+    
+    /// Check if the force Z buffer on mode is on
+    bool getForceZBufferOn() const { return forceZBufferOn; }
+
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
     
@@ -396,6 +405,8 @@ protected:
 	RGBAColor color;
     float minVisible,maxVisible;
     float lineWidth;
+    // For zBufferOffUntilLines mode we'll sort this with the lines
+    bool forceZBufferOn;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
 	std::vector<Vector3f> points;
