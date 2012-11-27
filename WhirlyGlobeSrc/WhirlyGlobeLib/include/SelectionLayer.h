@@ -45,7 +45,7 @@ public:
     // Used to identify this selectable
     SimpleIdentity selectID;
     Point3f pts[4];  // Geometry
-    Vector3f norm;   // Calculate normal
+    Eigen::Vector3f norm;   // Calculate normal
     float minVis,maxVis;  // Range over which this is visible
 };
 

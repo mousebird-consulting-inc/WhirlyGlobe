@@ -343,8 +343,9 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     scene->addDrawable(drawRef);
         
     // Initialize any OpenGL foo
-    // Note: Make the Z offset a parameter
-    drawable->setupGL([view calcZbufferRes],scene->getMemManager());
+    WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+    setupInfo->minZres = [view calcZbufferRes];
+    drawable->setupGL(setupInfo,scene->getMemManager());
     
     drawable->updateRenderer(renderer);
         
@@ -396,6 +397,12 @@ void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 void RemProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     scene->removeProgram(programId);
+}
+    
+void RemBufferReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->getMemManager()->removeBufferID(bufID);
+    bufID = 0;
 }
     
 NotificationReq::NotificationReq(NSString *inNoteName,NSObject *inNoteObj)

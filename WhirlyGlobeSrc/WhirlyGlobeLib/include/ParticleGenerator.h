@@ -51,7 +51,7 @@ public:
         /// Location, which is updated every frame
         Point3f loc;
         /// Direction the particle is heading
-        Vector3f dir;
+        Eigen::Vector3f dir;
         /// Particle color
         RGBAColor color;
         /// Particle velocity
@@ -77,7 +77,7 @@ public:
         /// Starting location for particles
         Point3f loc;
         /// Axes for the particle system.  Used to orient local math.
-        Vector3f dirN,dirE,dirUp;
+        Eigen::Vector3f dirN,dirE,dirUp;
         /// Randomizable particle length
         float minLength,maxLength;
         /// Number of particles to generate per second, randomized

@@ -629,7 +629,8 @@ static const float SkirtFactor = 0.95;
         // Set up the geometry before we hand it over
         [EAGLContext setCurrentContext:layer.layerThread.glContext];
         // Note: This will work poorly with a draw offset
-        chunk->setupGL(0.0,quadLayer.scene->getMemManager());
+        WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+        chunk->setupGL(setupInfo,quadLayer.scene->getMemManager());
     }    
 }
 

@@ -97,7 +97,7 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 - (bool)isValid;
 
 /// Apply the given tranformation matrix to the geometry (and normals)
-- (void)applyTransform:(Matrix4f &)mat;
+- (void)applyTransform:(Eigen::Matrix4f &)mat;
 
 /// Apply a transform that orients the geometry as if it were a model at the given
 ///  position with its nose pointed along forward.  You can also rotate (clockwise)

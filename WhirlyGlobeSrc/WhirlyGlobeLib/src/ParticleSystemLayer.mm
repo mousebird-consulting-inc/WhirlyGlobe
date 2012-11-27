@@ -23,6 +23,7 @@
 #import "GlobeMath.h"
 #import "UIColor+Stuff.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 #pragma mark - Particle System

@@ -22,6 +22,7 @@
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 // Set up the texture mapping matrix from the destination texture coords

@@ -22,6 +22,7 @@
 #import "UIColor+Stuff.h"
 //#import <Eigen/OpenGLSupport>
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @interface WhirlyKitSceneRendererES1()
@@ -348,9 +349,10 @@ static const float ScreenOverlap = 0.1;
             numDrawables++;
             if (perfInterval > 0)
             {
-                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
-                if (basicDraw)
-                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
+                // Note: Need a more reliable check for outstanding buffer IDs
+//                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
+//                if (basicDraw)
+//                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
             }
 		}
         
