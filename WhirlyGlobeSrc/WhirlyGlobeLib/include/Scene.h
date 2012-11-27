@@ -335,6 +335,9 @@ public:
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);
     
+    /// Search for a shader program by name
+    OpenGLES2Program *getProgram(const std::string &name);
+    
     /// Add a shader to the mix (don't be calling this yourself).
     /// Scene is responsible for deletion.
     void addProgram(OpenGLES2Program *);

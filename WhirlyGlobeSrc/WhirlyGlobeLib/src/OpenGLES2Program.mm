@@ -227,7 +227,15 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
-        NSLog(@"Failed to link shader %s",name.c_str());
+        GLint len;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+        if (len > 0)
+        {
+            GLchar *logStr = (GLchar *)malloc(len);
+            glGetProgramInfoLog(program, len, &len, logStr);
+            NSLog(@"Link error for shader program %s:\n%s",name.c_str(),logStr);
+            free(logStr);
+        }
         cleanUp();
         return;
     }
@@ -328,7 +336,7 @@ bool OpenGLES2Program::hasLights()
     return lightAttr != NULL;
 }
     
-bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate)
+bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat)
 {
     if (lightsLastUpdated >= lastUpdate)
         return true;
@@ -344,6 +352,9 @@ bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate)
         glUniform1i(lightAttr->index, numLights);
     else
         return false;
+    
+    // Bind the material
+    [mat bindToProgram:this];
     
     return lightsSet;
 }
