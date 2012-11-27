@@ -166,6 +166,20 @@ protected:
     SimpleIdentity programId;
 };
     
+/// Remove a GL buffer ID, presumably because we needed other things cleaned up first
+class RemBufferReq : public ChangeRequest
+{
+public:
+    /// Construct with the buffer we want to delete
+    RemBufferReq(GLuint bufID) : bufID(bufID) { }
+    
+    /// Actually run the remove.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    GLuint bufID;
+};
+    
 /// Send out a notification (on the main thread) when
 ///  We get this request.  Used to figure out when something
 ///  has been completely loaded.  Do not overuse.

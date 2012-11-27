@@ -20,6 +20,7 @@
 
 #import "PanDelegateFixed.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 

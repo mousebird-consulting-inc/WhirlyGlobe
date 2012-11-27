@@ -36,21 +36,32 @@
 @class WhirlyKitSceneRendererES;
 /// @endcond
 
-using namespace Eigen;
-
 /// @cond
 @class WhirlyKitRendererFrameInfo;
 /// @endcon
+
+/** This is the configuration info passed to setupGL for each
+    drawable.  Sometimes this will be render thread side, sometimes
+    layer thread side.  The defaults should be valid.
+  */
+@interface WhirlyKitGLSetupInfo : NSObject
+{
+@public
+    /// If we're using drawOffset, this is the units
+    float minZres;
+}
+@end
 
 namespace WhirlyKit
 {
 	
 class Scene;
+    class OpenGLES2Program;
 
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
 /// Number of buffers we allocate at once
-#define WhirlyKitOpenGLMemCacheAllocUnit 8
+#define WhirlyKitOpenGLMemCacheAllocUnit 32
 
 /// Used to manage OpenGL buffer IDs and such.
 /// They're expensive to create and delete, so we try to do it
@@ -62,7 +73,7 @@ public:
     ~OpenGLMemManager();
     
     /// Pick a buffer ID off the list or ask OpenGL for one
-    GLuint getBufferID();
+    GLuint getBufferID(unsigned int size=0,GLenum drawType=GL_STATIC_DRAW);
     /// Toss the given buffer ID back on the list for reuse
     void removeBufferID(GLuint bufID);
 
@@ -79,6 +90,12 @@ public:
     
     /// Print out stats about what's in the cache
     void dumpStats();
+        
+    /// Locks the mutex.  Don't be using this.
+    void lock();
+    
+    /// Unlocks the mutix.  Seriously, not for you.  Don't call this.
+    void unlock();
         
 protected:
     pthread_mutex_t idLock;
@@ -132,13 +149,13 @@ public:
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
 	/// We pass in the minimum Z buffer resolution (for offsets).
-	virtual void setupGL(float minZres,OpenGLMemManager *memManage) { };
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 	
 	/// Clean up any OpenGL objects you may have (e.g. VBOs).
 	virtual void teardownGL(OpenGLMemManager *memManage) { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) = 0;
     
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const = 0;
@@ -146,11 +163,11 @@ public:
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
-    /// Used to sort drawables in with the lines in zBufferOffUntilLines mode
-    virtual bool getForceZBufferOn() const { return false; }
-    
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Matrix4f *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4f *getMatrix() const { return NULL; }
+
+    /// Check if the force Z buffer on mode is on
+    virtual bool getForceZBufferOn() const { return false; }
 
     /// Can this drawable respond to a caching request?
     virtual bool canCache() const = 0;
@@ -178,7 +195,7 @@ class DrawableChangeRequest : public ChangeRequest
 public:
     /// Construct with the ID of the Drawable we'll be changing
 	DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
-	~DrawableChangeRequest() { }
+	virtual ~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -221,13 +238,24 @@ public:
     void setProgram(SimpleIdentity progId) { programId = progId; }
 
 	/// Set up the VBOs
-	virtual void setupGL(float minZres,OpenGLMemManager *memManage);
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
+
+    /// This version can use a shared buffer instead of allocating its own
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager,GLuint sharedBuf,GLuint sharedBufOffset);
 	
 	/// Clean up the VBOs
 	virtual void teardownGL(OpenGLMemManager *memManage);	
 	
+    /// Size of a single vertex used in creating an interleaved buffer.
+    /// Override this if you want to include your own data in the interleaved buffer.
+    virtual GLuint singleVertexSize();
+        
+    /// Called render-thread side to set up a VAO
+    /// Override this to set up
+    virtual void setupVAO(OpenGLES2Program *prog);
+	
 	/// Fill this in to draw the basic drawable
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
 	
 	/// Draw priority
 	virtual unsigned int getDrawPriority() const { return drawPriority; }
@@ -356,13 +384,13 @@ public:
     void reserveNumColors(int numColors) { colors.reserve(colors.size()+numColors); }
 	
 	/// Widen a line and turn it into a rectangle of the given width
-	void addRect(const Point3f &l0, const Vector3f &ln0, const Point3f &l1, const Vector3f &ln1,float width);
+	void addRect(const Point3f &l0, const Eigen::Vector3f &ln0, const Point3f &l1, const Eigen::Vector3f &ln1,float width);
     
     /// Set the active transform matrix
-    void setMatrix(const Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+    void setMatrix(const Eigen::Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
 
     /// Return the active transform matrix, if we have one
-    const Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
+    const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
 
     /// The BasicDrawable can cache
     virtual bool canCache() const { return true; }
@@ -376,21 +404,25 @@ public:
     /// Write this drawable to a cache file;
     virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
     
-    // Return the point buffer ID (for debugging)
-    GLuint getPointBuffer() { return pointBuffer; }
-
 protected:
-	virtual void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
-	virtual void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
-    /// Override this one if you're doing your own OpenGL ES 2.0 drawing or use it in
-    ///  combination w/ drawOGL2_render
-    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    /// OpenGL ES 1.1 drawing routine
+	virtual void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    /// OpenGL ES 1.1 drawing routine
+	virtual void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
-    /// If you're implementing your own subclass you can still use the base functionality
-    ///  from the standard drawOGL2 rather than replacing it all.  Just override this
-    ///  method, do your setup, call the base class render (or not), do your tear down
-    ///  and then return to drawOGL2 which will clean up the default stuff.
-    virtual void drawOGL2_render(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    /// Draw routine for OpenGL 2.0
+    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    /// Add a single point to the GL Buffer.
+    /// Override this to add your own data to interleaved vertex buffers.
+    virtual void addPointToBuffer(unsigned char *basePtr,int which);
+    /// Called while a new VAO is bound.  Set up your VAO-related state here.
+    virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
+    /// Called after the drawable has bound all its various data, but before it actually
+    /// renders.  This is where you would bind your own attributes and uniforms, if you
+    /// haven't already done so in setupAdditionalVAO()
+    virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
+    /// Called at the end of the drawOGL2() call
+    virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
 	
 	bool on;  // If set, draw.  If not, not
     SimpleIdentity programId;    // Program to use for rendering
@@ -409,17 +441,22 @@ protected:
     bool forceZBufferOn;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
-	std::vector<Vector3f> points;
+	std::vector<Eigen::Vector3f> points;
     std::vector<RGBAColor> colors;
-	std::vector<Vector2f> texCoords;
-	std::vector<Vector3f> norms;
+	std::vector<Eigen::Vector2f> texCoords;
+	std::vector<Eigen::Vector3f> norms;
 	std::vector<Triangle> tris;
     
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
-    Matrix4f mat;
+    Eigen::Matrix4f mat;
 	
-	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer;
+    // Size for a single vertex w/ all its data.  Used by shared buffer
+    int vertexSize;
+	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer,sharedBuffer;
+    GLuint vertArrayObj;
+    GLuint sharedBufferOffset;
+    bool sharedBufferIsExternal;
 };
     
 /// Reference counted version of BasicDrawable
@@ -489,12 +526,12 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
-    TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat);
+    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4f *newMat);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    Matrix4f newMat;
+    Eigen::Matrix4f newMat;
 };
     
 /// Change the drawPriority on a drawable

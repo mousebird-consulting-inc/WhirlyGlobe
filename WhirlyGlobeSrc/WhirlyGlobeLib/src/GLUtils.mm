@@ -21,7 +21,11 @@
 #import "GLUtils.h"
 
 // Turn this off for a little performance gain
+#ifdef DEBUG
 static bool ErrorsOn = true;
+#else
+static bool ErrorsOn = false;
+#endif
 bool CheckGLError(const char *msg)
 {
     if (!ErrorsOn)

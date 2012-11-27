@@ -107,7 +107,7 @@ public:
     /// 3D locations (in model space) of the corners
 	Point3f cornerPoints[WhirlyKitCullableCorners];
 	/// Normal vectors (in model space) for the corners
-	Vector3f cornerNorms[WhirlyKitCullableCornerNorms];
+    Eigen::Vector3f cornerNorms[WhirlyKitCullableCornerNorms];
     /// Opposite of depth.  0 means go no lower
     int height;
     /// Local coordinates for bounding box

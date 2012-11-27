@@ -540,9 +540,10 @@ static const float ScreenOverlap = 0.1;
             numDrawables++;
             if (perfInterval > 0)
             {
-                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
-                if (basicDraw)
-                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
+                // Note: Need a better way to track buffer ID growth
+//                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
+//                if (basicDraw)
+//                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
             }
 		}
         
