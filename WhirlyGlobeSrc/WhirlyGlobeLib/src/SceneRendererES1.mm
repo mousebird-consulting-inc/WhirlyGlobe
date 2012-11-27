@@ -326,7 +326,7 @@ static const float ScreenOverlap = 0.1;
             // This assumes we're sorting lines to the end
             if (zBufferMode == zBufferOffUntilLines)
             {
-                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP))
+                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getForceZBufferOn()))
                 {
                     glDepthFunc(GL_LESS);
                     depthMaskOn = true;
