@@ -1,0 +1,53 @@
+
+PODS:
+- WhirlyGlobe-resources/base-maps-big (0.0.1)
+- WhirlyGlobe-resources/base-maps-geography (0.0.1)
+- WhirlyGlobe-resources/base-maps-lowres (0.0.1)
+- WhirlyGlobe-resources/country_json_50m (0.0.1)
+- WhirlyGlobe-resources/databases (0.0.1)
+- WhirlyGlobe-resources/shapefiles-10m (0.0.1)
+- boost/math-includes (1.51.0)
+- boost/numeric-includes (1.51.0)
+- boost/pointer_cast-includes (1.51.0)
+- boost/preprocessor-includes (1.51.0)
+- boost/shared_ptr-includes (1.51.0)
+- clipper (4.8.8)
+- eigen (3.1.1):
+  - boost/numeric-includes
+  - boost/preprocessor-includes
+- proj4 (4.8.0)
+- shapelib (1.3)
+
+DEPENDENCIES:
+- WhirlyGlobe-resources/base-maps-big
+- WhirlyGlobe-resources/base-maps-geography
+- WhirlyGlobe-resources/base-maps-lowres
+- WhirlyGlobe-resources/country_json_50m
+- WhirlyGlobe-resources/databases
+- WhirlyGlobe-resources/shapefiles-10m
+- boost/math-includes
+- boost/pointer_cast-includes
+- boost/shared_ptr-includes
+- clipper (= 4.8.8)
+- eigen
+- proj4
+- shapelib
+
+SPEC CHECKSUMS:
+  WhirlyGlobe-resources/base-maps-big: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  WhirlyGlobe-resources/databases: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  WhirlyGlobe-resources/shapefiles-10m: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  boost/numeric-includes: 999a8fff6ec6d641e9b199e016a0eaf598b9e765
+  boost/pointer_cast-includes: 999a8fff6ec6d641e9b199e016a0eaf598b9e765
+  boost/preprocessor-includes: 999a8fff6ec6d641e9b199e016a0eaf598b9e765
+  boost/shared_ptr-includes: 999a8fff6ec6d641e9b199e016a0eaf598b9e765
+  eigen: ead1b04b11ee0553809aa94fcffeb9f9a025eba1
+  WhirlyGlobe-resources/base-maps-geography: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  WhirlyGlobe-resources/base-maps-lowres: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  WhirlyGlobe-resources/country_json_50m: 563a64c390416aae56b07062a46e2c62a2a8b28a
+  boost/math-includes: 999a8fff6ec6d641e9b199e016a0eaf598b9e765
+  clipper: 7fa5dec94cfb7b5bb096b956fdcdb201a0befc70
+  proj4: 31e895761075ff97252528a8ae2d531763ea3e57
+  shapelib: 62eb0cc4c91bd24a58fe629d26d61cb304cbcadd
+
+COCOAPODS: 0.16.0
