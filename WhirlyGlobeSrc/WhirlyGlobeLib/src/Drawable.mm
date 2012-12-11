@@ -479,9 +479,9 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         // Set up the buffer
         int bufferSize = vertexSize*numVerts;
         if (!tris.empty())
-    {
-            bufferSize += tris.size()*sizeof(Triangle);
-    }
+        {
+                bufferSize += tris.size()*sizeof(Triangle);
+        }
         sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
         sharedBufferOffset = 0;
 	}
@@ -767,11 +767,19 @@ bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool do
     
     return true;
 }
+    
+// Used to pass in buffer offsets
+#define CALCBUFOFF(base,off) ((char *)(base) + (off))
+
 
 // VBO based drawing, OpenGL 1.1
 void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
 	GLuint textureId = scene->getGLTexture(texId);
+    
+    // Note: This is slightly bogus
+    if (!sharedBuffer)
+        return;
 	
 	if (type == GL_TRIANGLES)
 		glEnable(GL_LIGHTING);
@@ -819,7 +827,7 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             {
                 rangeScale = (height-(maxVisible-maxVisibleFadeBand))/maxVisibleFadeBand;
             }
-            }
+        }
 
         float scale = timeScale * rangeScale;
         RGBAColor newColor = color;
@@ -830,45 +838,44 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         glColor4ub(newColor.r, newColor.g, newColor.b, newColor.a);
         CheckGLError("BasicDrawable::drawVBO() glColor4ub");
     }
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-    CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-	glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-	glVertexPointer(3, GL_FLOAT, 0, 0);
-    CheckGLError("BasicDrawable::drawVBO() glVertexPointer");
-
-	glEnableClientState(GL_NORMAL_ARRAY);
-    CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-	glBindBuffer(GL_ARRAY_BUFFER, normBuffer);
-    CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-	glNormalPointer(GL_FLOAT, 0, 0);
-    CheckGLError("BasicDrawable::drawVBO() glNormalPointer");
     
-    if (colorBuffer)
+    if (sharedBuffer)
     {
-        glEnableClientState(GL_COLOR_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
+        CheckGLError("BasicDrawable::drawVBO() shared glBindBuffer");
+        
+        glEnableClientState(GL_VERTEX_ARRAY);
         CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-        glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-        CheckGLError("BasicDrawable::drawVBO() glVertexPointer");        
-    }
-    
-	if (textureId)
-	{
-		glEnable(GL_TEXTURE_2D);
-        CheckGLError("BasicDrawable::drawVBO() glEnable");
-		glBindTexture(GL_TEXTURE_2D, textureId);
-        CheckGLError("BasicDrawable::drawVBO() glBindTexture");
+        glVertexPointer(3, GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
+        CheckGLError("BasicDrawable::drawVBO() glVertexPointer");
+        
+        glEnableClientState(GL_NORMAL_ARRAY);
+        CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
+        glNormalPointer(GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,normBuffer));
+        CheckGLError("BasicDrawable::drawVBO() glNormalPointer");
+        
+        if (colorBuffer)
+        {
+            glEnableClientState(GL_COLOR_ARRAY);
+            CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
+            
+            glColorPointer(4, GL_UNSIGNED_BYTE, vertexSize, CALCBUFOFF(sharedBufferOffset,colorBuffer));
+            CheckGLError("BasicDrawable::drawVBO() glVertexPointer");
+        }
+        
+        if (textureId)
+        {
+            glEnable(GL_TEXTURE_2D);
+            CheckGLError("BasicDrawable::drawVBO() glEnable");
+            glBindTexture(GL_TEXTURE_2D, textureId);
+            CheckGLError("BasicDrawable::drawVBO() glBindTexture");
 
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-		glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
-        CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-		glTexCoordPointer(2, GL_FLOAT, 0, 0);
-        CheckGLError("BasicDrawable::drawVBO() glTexCoordPointer");
-	}
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
+            glTexCoordPointer(2, GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,texCoordBuffer));
+            CheckGLError("BasicDrawable::drawVBO() glTexCoordPointer");
+        }
+    }
     
     if (!textureId && (type == GL_TRIANGLES))
     {
@@ -881,9 +888,9 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 	{
 		case GL_TRIANGLES:
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-			glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+			glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(sharedBufferOffset,triBuffer));
             CheckGLError("BasicDrawable::drawVBO() glDrawElements");
 		}
 			break;
@@ -993,9 +1000,6 @@ void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     glDisable(GL_LIGHTING);
 }
     
-// Used to pass in buffer offsets
-#define CALCBUFOFF(base,off) ((char *)(base) + (off))
-
 // Called once to set up a Vertex Array Object
 void BasicDrawable::setupVAO(OpenGLES2Program *prog)
 {
@@ -1012,7 +1016,7 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
     
     // We're using a single buffer for all of our vertex attributes
     if (sharedBuffer)
-{
+    {
         glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
         CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
     }
@@ -1026,24 +1030,24 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
     
     // Texture coordinates
     if (texAttr && hasTexCoords && texCoordBuffer)
-        {
+    {
         glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,texCoordBuffer));
         glEnableVertexAttribArray ( texAttr->index );
     }
     
     // Per vertex colors
     if (colorAttr && hasColors && colorBuffer)
-            {
+    {
         glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize, CALCBUFOFF(sharedBufferOffset,colorBuffer));
         glEnableVertexAttribArray(colorAttr->index);
-            }
+    }
     
     // Per vertex normals
     if (normAttr && hasNormals && normBuffer)
     {
         glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,normBuffer));
         glEnableVertexAttribArray(normAttr->index);
-        }
+    }
 
     // Bind the element array
     bool boundElements = false;
