@@ -25,6 +25,7 @@
 #import "MaplyLabel.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShape.h"
+#import "MaplySticker.h"
 #import "WGCoordinate.h"
 #import "ImageTexture_private.h"
 
@@ -70,6 +71,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 @synthesize labelLayer;
 @synthesize vectorLayer;
 @synthesize shapeLayer;
+@synthesize chunkLayer;
 @synthesize selectLayer;
 @synthesize glView;
 @synthesize viewController;
@@ -301,6 +303,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
+        if (label.layoutImportance != MAXFLOAT)
+        {
+            [desc setObject:@(YES) forKey:@"layout"];
+            [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
+        }
         wgLabel.screenOffset = label.offset;
         if (label.selectable)
         {
@@ -413,6 +420,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     WGComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
     NSDictionary *inDesc = [argArray objectAtIndex:2];    
+    bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     
     ShapeSet shapes;
     for (WGVectorObject *vecObj in vectors)
@@ -420,8 +428,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
     }
     
+    if (makeVisible)
+    {
     SimpleIdentity vecID = [vectorLayer addVectors:&shapes desc:inDesc];
     compObj.vectorIDs.insert(vecID);
+    }
     
     [userObjects addObject:compObj];
 }
@@ -431,7 +442,18 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     WGComponentObject *compObj = [[WGComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
+    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], nil];
+    [self performSelector:@selector(addVectorsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+// Add vectors that we'll only use for selection
+- (WGComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+    
+    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], nil];
     [self performSelector:@selector(addVectorsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;
@@ -542,6 +564,45 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Called in the layer thread
+- (void)addStickersLayerThread:(NSArray *)argArray
+{
+    NSArray *stickers = argArray[0];
+    WGComponentObject *compObj = argArray[1];
+    NSDictionary *inDesc = argArray[2];
+    
+    for (MaplySticker *sticker in stickers)
+    {
+        SimpleIdentity texId = EmptyIdentity;
+        if (sticker.image)
+            texId = [self addImage:sticker.image];
+        WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
+        GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
+        chunk.mbr = geoMbr;
+        chunk.texId = texId;
+        chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
+        chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
+        chunk.sampleX = [inDesc[@"sampleX"] intValue];
+        chunk.sampleY = [inDesc[@"sampleY"] intValue];
+        chunk.rotation = sticker.rotation;
+        SimpleIdentity chunkId = [chunkLayer addChunk:chunk enable:true];
+        compObj.chunkIDs.insert(chunkId);
+    }
+    
+    [userObjects addObject:compObj];
+}
+
+// Add stickers
+- (WGComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
+{
+    WGComponentObject *compObj = [[WGComponentObject alloc] init];
+
+    NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc]];
+    [self performSelector:@selector(addStickersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
 // Remove the object, but do it on the layer thread
 - (void)removeObjectLayerThread:(NSArray *)userObjs
 {
@@ -563,6 +624,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
                  it != userObj.shapeIDs.end(); ++it)
                 [shapeLayer removeShapes:*it];
+            for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
+                 it != userObj.chunkIDs.end(); ++it)
+                [chunkLayer removeChunk:*it];
             
             [userObjects removeObject:userObj];
         }    
@@ -607,6 +671,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                     }
                 }
             }
+            
+            if (selObj)
+                break;
         }
     }
     

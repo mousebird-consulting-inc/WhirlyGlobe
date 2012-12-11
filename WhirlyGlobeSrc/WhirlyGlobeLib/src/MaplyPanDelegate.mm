@@ -76,7 +76,7 @@ using namespace WhirlyKit;
             [mapView cancelAnimation];
             
             // Save where we touched
-            startTransform = [mapView calcModelMatrix];
+            startTransform = [mapView calcFullMatrix];
             [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:pan.view] transform:&startTransform
                                   frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
                                         hit:&startOnPlane];
@@ -116,7 +116,7 @@ using namespace WhirlyKit;
                 CGPoint touch1 = touch0;  touch1.x += vel.x; touch1.y += vel.y;
                 Point3f model_p0,model_p1;
 
-                Eigen::Matrix4f modelMat = [mapView calcModelMatrix];
+                Eigen::Matrix4f modelMat = [mapView calcFullMatrix];
                 [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0];
                 [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1];
                 

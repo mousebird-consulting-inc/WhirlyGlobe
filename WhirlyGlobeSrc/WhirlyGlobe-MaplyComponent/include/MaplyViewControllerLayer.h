@@ -1,9 +1,9 @@
 /*
- *  MaplyComponent.h
- *  MaplyComponent
+ *  MaplyViewControllerLayer.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Created by Steve Gifford on 10/25/12.
+ *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,10 @@
  *
  */
 
-#import <MaplyCoordinate.h>
-#import <MaplyLabel.h>
-#import <MaplyScreenLabel.h>
-#import <MaplyMarker.h>
-#import <MaplyScreenMarker.h>
-#import <MaplySticker.h>
-#import <MaplyViewTracker.h>
-#import <MaplyViewController.h>
+#import <Foundation/Foundation.h>
+
+/// Used to keep track of resources for a layer the user has asked to be created.
+/// Don't mess with these directly.
+@interface MaplyViewControllerLayer : NSObject
+
+@end

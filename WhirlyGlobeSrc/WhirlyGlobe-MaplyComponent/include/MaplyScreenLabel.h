@@ -40,6 +40,10 @@
     UIColor *color;
     /// If set, this label can be selected.  On by default.
     bool selectable;
+    /// For the label layout engine, this is the importance of this particular
+    ///  label.  It's set to MAXFLOAT by defaut, which means it always shows up.
+    /// Set it to another value to actually be laid out with constraints.
+    float layoutImportance;
 }
 
 @property (nonatomic,assign) MaplyCoordinate loc;
@@ -49,6 +53,7 @@
 @property (nonatomic,assign) CGSize offset;
 @property (nonatomic,strong) UIColor *color;
 @property (nonatomic,assign) bool selectable;
+@property (nonatomic,assign) float layoutImportance;
 
 @end
 

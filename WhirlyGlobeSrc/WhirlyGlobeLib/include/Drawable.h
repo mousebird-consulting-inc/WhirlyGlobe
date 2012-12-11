@@ -312,10 +312,13 @@ public:
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
     ///  the surface of the globe as at 1.0
-    void setVisibleRange(float minVis,float maxVis) { minVisible = minVis;  maxVisible = maxVis; }
+    void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0) { minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
     
-    /// Retrieve the visibile range
+    /// Retrieve the visible range, just min and max
     void getVisibleRange(float &minVis,float &maxVis) { minVis = minVisible;  maxVis = maxVisible; }
+    
+    /// Retrieve the visible range, including bands
+    void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand) { minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
     
     /// Set the fade in and out
     void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp) { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
@@ -436,6 +439,7 @@ protected:
 	SimpleIdentity texId;  // ID for Texture (in scene)
 	RGBAColor color;
     float minVisible,maxVisible;
+    float minVisibleFadeBand,maxVisibleFadeBand;
     float lineWidth;
     // For zBufferOffUntilLines mode we'll sort this with the lines
     bool forceZBufferOn;

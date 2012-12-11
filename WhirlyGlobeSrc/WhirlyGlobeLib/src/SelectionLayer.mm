@@ -139,7 +139,7 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
-    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = [theView calcFullMatrix];
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;

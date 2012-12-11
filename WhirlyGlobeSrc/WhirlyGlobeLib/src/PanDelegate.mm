@@ -69,7 +69,7 @@ using namespace WhirlyKit;
 			[view cancelAnimation];
 
 			// Save the first place we touched
-			startTransform = [view calcModelMatrix];
+			startTransform = [view calcFullMatrix];
 			startQuat = [view rotQuat];
 			panning = NO;
             if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform

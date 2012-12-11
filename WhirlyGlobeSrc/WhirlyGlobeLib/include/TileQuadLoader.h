@@ -143,6 +143,12 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     /// If set, the point at which tile geometry will appear when zoomed in
     float minVis;
     
+    /// If set, the point at which we'll stop doing updates (separate from minVis)
+    float minPageVis;
+    
+    /// If set, the point at which we'll stop doing updates (separate from maxVis)
+    float maxPageVis;
+    
     /// Base color for the drawables created by the layer
     WhirlyKit::RGBAColor color;
     
@@ -163,6 +169,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) float minVis,maxVis;
+@property (nonatomic,assign) float minPageVis,maxPageVis;
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 @property (nonatomic,assign) bool hasAlpha;
 @property (nonatomic,weak) WhirlyKitQuadDisplayLayer *quadLayer;

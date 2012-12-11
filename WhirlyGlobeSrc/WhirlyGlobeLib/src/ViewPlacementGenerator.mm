@@ -127,7 +127,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             if (!hidden)
             {
                 // Project the world location to the screen
-                Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
+                Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
                 if (globeView)
                     screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
                 else

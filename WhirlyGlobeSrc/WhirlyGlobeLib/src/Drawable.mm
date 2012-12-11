@@ -234,6 +234,7 @@ BasicDrawable::BasicDrawable()
 	type = 0;
 	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
+    minVisibleFadeBand = maxVisibleFadeBand = 0.0;
 
     fadeDown = fadeUp = 0.0;
 	color.r = color.g = color.b = color.a = 255;
@@ -269,6 +270,7 @@ BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
 	drawPriority = 0;
 	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
+    minVisibleFadeBand = maxVisibleFadeBand = 0.0;
     forceZBufferOn = false;
 
     numTris = 0;
@@ -325,6 +327,21 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
                 else
                     return true;
         }
+    
+    // Note: Need to move this elsewhere
+    if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
+        [frameInfo.theView isKindOfClass:[WhirlyGlobeView class]])
+    {
+        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+        float height = globeView.heightAboveGlobe;
+        if (height > minVisible && height < minVisible + minVisibleFadeBand)
+        {
+            return true;
+        } else if (height > maxVisible - maxVisibleFadeBand && height < maxVisible)
+        {
+            return true;
+        }
+    }
     
     return false;
 }
@@ -764,30 +781,47 @@ void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 	
     if (!colorBuffer)
     {
-        float scale = 1.0;
+        float timeScale = 1.0;
         if (fadeDown < fadeUp)
         {
             // Heading to 1
             if (frameInfo.currentTime < fadeDown)
-                scale = 0.0;
+                timeScale = 0.0;
             else
                 if (frameInfo.currentTime > fadeUp)
-                    scale = 1.0;
+                    timeScale = 1.0;
                 else
-                    scale = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
+                    timeScale = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
         } else
             if (fadeUp < fadeDown)
             {
                 // Heading to 0
                 if (frameInfo.currentTime < fadeUp)
-                    scale = 1.0;
+                    timeScale = 1.0;
                 else
                     if (frameInfo.currentTime > fadeDown)
-                        scale = 0.0;
+                        timeScale = 0.0;
                     else
-                        scale = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+                        timeScale = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+            }
+        
+        // Note: Need to move this elsewhere
+        float rangeScale = 1.0;
+        if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
+            [frameInfo.theView isKindOfClass:[WhirlyGlobeView class]])
+        {
+            WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+            float height = globeView.heightAboveGlobe;
+            if (height > minVisible && height < minVisible + minVisibleFadeBand)
+            {
+                rangeScale = (height-minVisible)/minVisibleFadeBand;
+            } else if (height > maxVisible - maxVisibleFadeBand && height < maxVisible)
+            {
+                rangeScale = (height-(maxVisible-maxVisibleFadeBand))/maxVisibleFadeBand;
+            }
             }
 
+        float scale = timeScale * rangeScale;
         RGBAColor newColor = color;
         newColor.r = color.r * scale;
         newColor.g = color.g * scale;
