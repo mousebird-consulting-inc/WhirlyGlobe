@@ -29,6 +29,7 @@
 @synthesize offset;
 @synthesize color;
 @synthesize selectable;
+@synthesize layoutImportance;
 
 - (id)init
 {
@@ -37,6 +38,7 @@
         return nil;
     
     selectable = true;
+    layoutImportance = MAXFLOAT;
     
     return self;
 }

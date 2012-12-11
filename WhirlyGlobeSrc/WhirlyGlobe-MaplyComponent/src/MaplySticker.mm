@@ -1,8 +1,8 @@
 /*
- *  MaplyComponent.h
- *  MaplyComponent
+ *  MaplySticker.mm
+ *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 9/6/12.
+ *  Created by Steve Gifford on 11/27/12.
  *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,12 @@
  *
  */
 
-#import <MaplyCoordinate.h>
-#import <MaplyLabel.h>
-#import <MaplyScreenLabel.h>
-#import <MaplyMarker.h>
-#import <MaplyScreenMarker.h>
-#import <MaplySticker.h>
-#import <MaplyViewTracker.h>
-#import <MaplyViewController.h>
+#import "MaplySticker.h"
+
+@implementation MaplySticker
+
+@synthesize ll,ur;
+@synthesize rotation;
+@synthesize image;
+
+@end

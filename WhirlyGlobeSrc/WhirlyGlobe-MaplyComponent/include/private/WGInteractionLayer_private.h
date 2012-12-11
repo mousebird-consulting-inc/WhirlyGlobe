@@ -39,6 +39,7 @@
     WhirlyKitLabelLayer * __weak labelLayer;
     WhirlyKitVectorLayer * __weak vectorLayer;
     WhirlyKitShapeLayer * __weak shapeLayer;
+    WhirlyKitSphericalChunkLayer * __weak chunkLayer;
     WhirlyKitSelectionLayer * __weak selectLayer;
     WhirlyGlobeView * __weak globeView;
     // Note: This is not a good idea
@@ -64,6 +65,7 @@
 @property (nonatomic,weak) WhirlyKitLabelLayer * labelLayer;
 @property (nonatomic,weak) WhirlyKitVectorLayer * vectorLayer;
 @property (nonatomic,weak) WhirlyKitShapeLayer * shapeLayer;
+@property (nonatomic,weak) WhirlyKitSphericalChunkLayer *chunkLayer;
 @property (nonatomic,weak) WhirlyKitSelectionLayer * selectLayer;
 @property (nonatomic,weak) UIView * glView;
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
@@ -89,11 +91,17 @@
 // Add vectors
 - (WGComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
 
+// Add vectors that we'll only use for selection
+- (WGComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+
 // Change vector representation
 - (void)changeVectors:(WGComponentObject *)vecObj desc:(NSDictionary *)desc;
 
 // Add shapes
 - (WGComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
+
+// Add stickers
+- (WGComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
 
 // Remove objects associated with the user object
 - (void)removeObject:(WGComponentObject *)userObj;

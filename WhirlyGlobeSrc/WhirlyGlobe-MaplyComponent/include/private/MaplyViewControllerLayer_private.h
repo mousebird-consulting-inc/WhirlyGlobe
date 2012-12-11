@@ -20,10 +20,11 @@
 
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe.h>
+#import "MaplyViewControllerLayer.h"
 
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
-@interface MaplyViewControllerLayer : NSObject
+@interface MaplyViewControllerLayer()
 
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

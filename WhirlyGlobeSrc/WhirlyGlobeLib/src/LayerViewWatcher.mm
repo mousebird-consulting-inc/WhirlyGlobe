@@ -197,22 +197,26 @@ using namespace WhirlyKit;
         return nil;
     
     modelMatrix = [view calcModelMatrix];
+    viewMatrix = [view calcViewMatrix];
+    fullMatrix = [view calcFullMatrix];
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;
     nearPlane = view.nearPlane;
     farPlane = view.farPlane;
     
     // Need the eye point for backface checking
-    Eigen::Matrix4f modelTransInv = modelMatrix.inverse();
-    Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
+    Eigen::Matrix4f fullMatrixInv = fullMatrix.inverse();
+    Vector4f eyeVec4 = fullMatrixInv * Vector4f(0,0,1,0);
     eyeVec = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    
+    ll.x() = ur.x() = 0.0;
     
     coordAdapter = view.coordAdapter;
     
     return self;
 }
 
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight
 {
 	ll.x() = -imagePlaneSize;
 	ur.x() = imagePlaneSize;
@@ -237,9 +241,8 @@ using namespace WhirlyKit;
     ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame
-    Point2f ll,ur;
-    float near,far;
-    [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
+    if (ll.x() == ur.x())
+        [self calcFrustumWidth:frameSize.x() height:frameSize.y()];
     float u = (ray.x() - ll.x()) / (ur.x() - ll.x());
     float v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
@@ -249,6 +252,22 @@ using namespace WhirlyKit;
     retPt.y = v * frameSize.y();
     
     return retPt;
+}
+
+- (bool)isSameAs:(WhirlyKitViewState *)other
+{
+    if (fieldOfView != other->fieldOfView || imagePlaneSize != other->imagePlaneSize ||
+        nearPlane != other->nearPlane || farPlane != other->farPlane)
+        return false;
+    
+    // Matrix comparison
+    float *floatsA = fullMatrix.data();
+    float *floatsB = other->fullMatrix.data();
+    for (unsigned int ii=0;ii<16;ii++)
+        if (floatsA[ii] != floatsB[ii])
+            return false;
+
+    return true;
 }
 
 @end

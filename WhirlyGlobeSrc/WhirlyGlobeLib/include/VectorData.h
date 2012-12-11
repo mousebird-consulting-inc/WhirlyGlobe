@@ -26,6 +26,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
+#import "CoordSystem.h"
 
 namespace WhirlyKit
 {
@@ -159,6 +160,10 @@ typedef std::set<std::string> StringSet;
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
+
+/// Break any edge that deviates from that the given epsilon from the surface described in
+/// the display adapter;
+void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

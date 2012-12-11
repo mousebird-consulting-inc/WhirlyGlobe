@@ -28,6 +28,7 @@
 #import "TextureAtlas.h"
 #import "DrawCost.h"
 #import "SelectionLayer.h"
+#import "LayoutLayer.h"
 
 namespace WhirlyKit 
 {
@@ -143,6 +144,10 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>justify         [NSString>] middle, left, right
     <item>fade            [NSSTring float]
     <item>screen          [NSNumber bool]  [If true, this is a 2D object, width and height are in screen coordinates]
+    <item>layout          [NSNumber bool]  [If true, pass this off to the layout engine to compete with other labels]
+    <item>layoutImportance [NSNumber float]  [If set and layout is on, this is the importance value used in competition in the layout layer]
+    <item>shadowSize      [NSNumber float]  [If set, we'll draw a background shadow underneath the text of this width]
+    <item>shadowColor     [UIcolor]  [If shadow size is non-zero, this will be the color we draw the shadow in.  Defaults to black.]
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
@@ -156,6 +161,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     /// If set, we register labels as selectable here
     WhirlyKitSelectionLayer * __weak selectLayer;
 
+    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
+    WhirlyKitLayoutLayer * __weak layoutLayer;
+
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepMap labelReps;
     
@@ -164,6 +172,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 
 /// Set this to enable selection for labels
 @property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
+
+/// Set this to use the layout engine for labels so marked
+@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2

@@ -91,7 +91,7 @@ namespace WhirlyKit
     WhirlyKitView * __weak theView;
     
     /// Current model matrix from the view
-    Eigen::Matrix4f modelTrans;
+    Eigen::Matrix4f modelTrans,viewTrans;
     
     /// Current projection matrix
     Eigen::Matrix4f projMat;
@@ -125,7 +125,7 @@ namespace WhirlyKit
 @property (nonatomic,assign) EAGLRenderingAPI oglVersion;
 @property (nonatomic,weak) WhirlyKitSceneRendererES *sceneRenderer;
 @property (nonatomic,weak) WhirlyKitView *theView;
-@property (nonatomic,assign) Eigen::Matrix4f modelTrans;
+@property (nonatomic,assign) Eigen::Matrix4f modelTrans,viewTrans;
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;

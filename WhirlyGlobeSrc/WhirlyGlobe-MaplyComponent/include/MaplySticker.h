@@ -1,8 +1,8 @@
 /*
- *  MaplyComponent.h
- *  MaplyComponent
+ *  MaplySticker.h
+ *  WhirlyGlobeComponent
  *
- *  Created by Steve Gifford on 9/6/12.
+ *  Created by Steve Gifford on 11/27/12.
  *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,24 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
-#import <MaplyLabel.h>
-#import <MaplyScreenLabel.h>
-#import <MaplyMarker.h>
-#import <MaplyScreenMarker.h>
-#import <MaplySticker.h>
-#import <MaplyViewTracker.h>
-#import <MaplyViewController.h>
+
+/** A Maply Sticker is a rectangle that we'll stretch over the given coordinates
+    and then slap an optional image on top of.
+  */
+@interface MaplySticker : NSObject
+{
+    /// Extents of the stick
+    MaplyCoordinate ll,ur;
+    /// Angle of rotation around center
+    float rotation;
+    /// Image to stretch over the sticker
+    UIImage *image;
+}
+
+@property (nonatomic,assign) MaplyCoordinate ll,ur;
+@property (nonatomic,assign) float rotation;
+@property (nonatomic,strong) UIImage *image;
+
+@end

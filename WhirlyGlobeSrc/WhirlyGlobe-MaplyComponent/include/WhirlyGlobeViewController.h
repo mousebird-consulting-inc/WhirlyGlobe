@@ -116,6 +116,9 @@
 /// Set position and height at the same time
 - (void)setPosition:(WGCoordinate)newPos height:(float)height;
 
+/// Get the current position and height
+- (void)getPosition:(WGCoordinate *)pos height:(float *)height;
+
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 
@@ -155,6 +158,9 @@
 /// Add one or more vectors
 - (WGComponentObject *)addVectors:(NSArray *)vectors;
 
+/// Add one or more vectors, but only for selection
+- (WGComponentObject *)addSelectionVectors:(NSArray *)vectors;
+
 /// Change the representation for the given vector object(s).
 /// Only a few things are changeable, such as color
 - (void)changeVector:(WGComponentObject *)compObj desc:(NSDictionary *)desc;
@@ -164,6 +170,12 @@
 
 /// Add one or more shapes
 - (WGComponentObject *)addShapes:(NSArray *)shapes;
+
+/// Add visual defaults for the stickers
+- (void)setStickerDesc:(NSDictionary *)desc;
+
+/// Add one or more stickers
+- (WGComponentObject *)addStickers:(NSArray *)stickers;
 
 /// Add a view to track to a particular location
 - (void)addViewTracker:(WGViewTracker *)viewTrack;
@@ -176,6 +188,12 @@
 
 /// Remove an array of data objects
 - (void)removeObjects:(NSArray *)theObjs;
+
+/// Remove a single layer
+- (void)removeLayer:(WGViewControllerLayer *)layer;
+
+/// Remove all the base layers (e.g map layers)
+- (void)removeAllLayers;
 
 /// This utility routine will convert a lat/lon (in radians) to display coordinates
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord;

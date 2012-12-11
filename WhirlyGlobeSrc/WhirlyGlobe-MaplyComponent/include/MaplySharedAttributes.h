@@ -61,6 +61,10 @@
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
 #define kWGJustify @"justify"
+/// If set, we'll draw a shadow behind each label with this as the stroke size
+#define kWGShadowSize @"shadowSize"
+/// If shadow size is being used, we can control the shadow color like so
+#define kWGShadowColor @"shadowColor"
 
 /// Default draw offset for 3D labels.  This is set to avoid label/marker interference
 #define kWGLabelDrawOffsetDefault 2
@@ -80,4 +84,11 @@
 
 /// If sample is set we'll break the line up before laying it down on the globe
 #define kWGSample @"sample"
+
+/// These are used for stickers
+
+/// Sampling size along one dimension
+#define kWGSampleX @"sampleX"
+/// Sampling size along one dimension
+#define kWGSampleY @"sampleY"
 

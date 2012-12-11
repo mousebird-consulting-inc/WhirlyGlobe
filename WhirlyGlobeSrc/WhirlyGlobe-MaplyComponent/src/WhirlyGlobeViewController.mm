@@ -20,14 +20,7 @@
 
 #import <WhirlyGlobe.h>
 #import "WhirlyGlobeViewController.h"
-#import "MaplyViewControllerLayer_private.h"
-#import "MaplyComponentObject_private.h"
-#import "WGInteractionLayer_private.h"
-#import "PanDelegateFixed.h"
-#import "PinchDelegateFixed.h"
-#import "WGSphericalEarthWithTexGroup_private.h"
-#import "MaplyQuadEarthWithMBTiles_private.h"
-#import "MaplyQuadEarthWithRemoteTiles_private.h"
+#import "WhirlyGlobeViewController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -38,48 +31,6 @@ using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeViewController
 {    
-    WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES *sceneRenderer;
-    
-    WhirlyGlobe::GlobeScene *globeScene;
-    WhirlyGlobeView *globeView;
-    
-    WhirlyKitLayerThread *layerThread;
-    
-    // The standard set of layers we create
-    WhirlyKitMarkerLayer *markerLayer;
-    WhirlyKitLabelLayer *labelLayer;
-    WhirlyKitVectorLayer *vectorLayer;
-    WhirlyKitShapeLayer *shapeLayer;
-    WhirlyKitSelectionLayer *selectLayer;
-    
-    // Our own interaction layer does most of the work
-    WGInteractionLayer *interactLayer;
-    
-    // Layers (and associated data) created for the user
-    NSMutableArray *userLayers;
-
-    // Gesture recognizers
-    WGPinchDelegateFixed *pinchDelegate;
-    PanDelegateFixed *panDelegate;
-    WhirlyGlobeTapDelegate *tapDelegate;
-    WhirlyGlobeRotateDelegate *rotateDelegate;    
-    AnimateViewRotation *animateRotation;
-    
-    // List of views we're tracking for location
-    NSMutableArray *viewTrackers;
-    
-    // If set we'll look for selectables
-    bool selection;
-    
-    // General rendering and other display hints
-    NSDictionary *hints;
-    
-    // Default description dictionaries for the various data types
-    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc;
-    
-    // Clear color we're using
-    UIColor *theClearColor;
 }
 
 @synthesize delegate;
@@ -110,6 +61,8 @@ using namespace WhirlyGlobe;
     labelLayer = nil;
     vectorLayer = nil;
     shapeLayer = nil;
+    chunkLayer = nil;
+    layoutLayer = nil;
     selectLayer = nil;
     
     interactLayer = nil;
@@ -135,6 +88,13 @@ using namespace WhirlyGlobe;
 - (void) dealloc
 {
     [self clear];
+}
+
+// Create the globe view
+- (void) loadSetup_view
+{
+	globeView = [[WhirlyGlobeView alloc] init];
+    globeView.continuousZoom = true;    
 }
 
 // Put together all the random junk we need to draw
@@ -164,8 +124,7 @@ using namespace WhirlyGlobe;
     sceneRenderer.useViewChanged = true;
     
 	// Need an empty scene and view    
-	globeView = [[WhirlyGlobeView alloc] init];
-    globeView.continuousZoom = true;
+    [self loadSetup_view];
     globeScene = new WhirlyGlobe::GlobeScene(4);
     sceneRenderer.theView = globeView;
     
@@ -185,6 +144,11 @@ using namespace WhirlyGlobe;
     shapeLayer.selectLayer = selectLayer;
     [layerThread addLayer:shapeLayer];
 
+    // Set up the chunk layer.  Used for stickers.
+    chunkLayer = [[WhirlyKitSphericalChunkLayer alloc] init];
+    chunkLayer.ignoreEdgeMatching = true;
+    [layerThread addLayer:chunkLayer];
+
 	// General purpose label layer.
 	labelLayer = [[WhirlyKitLabelLayer alloc] init];
     labelLayer.selectLayer = selectLayer;
@@ -195,12 +159,18 @@ using namespace WhirlyGlobe;
     markerLayer.selectLayer = selectLayer;
     [layerThread addLayer:markerLayer];
     
+    // 2D layout engine layer
+    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
+    labelLayer.layoutLayer = layoutLayer;
+    [layerThread addLayer:layoutLayer];
+    
     // Lastly, an interaction layer of our own
     interactLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView];
     interactLayer.vectorLayer = vectorLayer;
     interactLayer.labelLayer = labelLayer;
     interactLayer.markerLayer = markerLayer;
     interactLayer.shapeLayer = shapeLayer;
+    interactLayer.chunkLayer = chunkLayer;
     interactLayer.selectLayer = selectLayer;
     interactLayer.viewController = self;
     interactLayer.glView = glView;
@@ -266,6 +236,8 @@ using namespace WhirlyGlobe;
                                   nil];
     [self setShapeDesc:newShapeDesc];
     
+    [self setStickerDesc:@{}];
+    
     selection = true;
 }
 
@@ -307,7 +279,9 @@ using namespace WhirlyGlobe;
 	[glView stopAnimation];
 
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
 	[super viewWillDisappear:animated];
@@ -450,6 +424,11 @@ using namespace WhirlyGlobe;
     shapeDesc = [self mergeAndCheck:shapeDesc changeDict:desc];
 }
 
+- (void)setStickerDesc:(NSDictionary *)desc
+{
+    stickerDesc = [self mergeAndCheck:stickerDesc changeDict:desc];
+}
+
 #pragma mark - Geometry related methods
 
 /// Add a group of screen (2D) markers
@@ -482,6 +461,11 @@ using namespace WhirlyGlobe;
     return [interactLayer addVectors:vectors desc:vectorDesc];
 }
 
+- (WGComponentObject *)addSelectionVectors:(NSArray *)vectors
+{
+    return [interactLayer addSelectionVectors:vectors desc:vectorDesc];
+}
+
 - (void)changeVector:(WGComponentObject *)compObj desc:(NSDictionary *)desc
 {
     [interactLayer changeVectors:compObj desc:desc];
@@ -491,6 +475,11 @@ using namespace WhirlyGlobe;
 - (WGComponentObject *)addShapes:(NSArray *)shapes
 {
     return [interactLayer addShapes:shapes desc:shapeDesc];
+}
+
+- (WGComponentObject *)addStickers:(NSArray *)stickers
+{
+    return [interactLayer addStickers:stickers desc:stickerDesc];
 }
 
 /// Add a view to track to a particular location
@@ -541,6 +530,33 @@ using namespace WhirlyGlobe;
 - (void)removeObjects:(NSArray *)theObjs
 {
     [interactLayer removeObjects:theObjs];
+}
+
+- (void)removeLayer:(WGViewControllerLayer *)layer
+{
+    bool found = false;
+    for (WGViewControllerLayer *theLayer in userLayers)
+    {
+        if (theLayer == layer)
+        {
+            found = true;
+            break;
+        }
+    }
+    if (!found)
+        return;
+    
+    [layer cleanupLayers:layerThread scene:globeScene];
+    [userLayers removeObject:layer];
+}
+
+- (void)removeAllLayers
+{
+    for (WGViewControllerLayer *theLayer in userLayers)
+    {
+        [theLayer cleanupLayers:layerThread scene:globeScene];
+    }
+    [userLayers removeAllObjects];
 }
 
 #pragma mark - Properties
@@ -665,7 +681,7 @@ using namespace WhirlyGlobe;
 {
     Point3f pt = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4f modelTrans = [globeView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = [globeView calcFullMatrix];
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
@@ -698,7 +714,7 @@ using namespace WhirlyGlobe;
     [globeView cancelAnimation];
     
     // Figure out where that points lands on the globe
-    Eigen::Matrix4f modelTrans = [globeView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = [globeView calcFullMatrix];
     Point3f whereLoc;
     if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc])
     {
@@ -745,6 +761,14 @@ using namespace WhirlyGlobe;
 {
     [self setPosition:newPos];
     globeView.heightAboveGlobe = height;
+}
+
+- (void)getPosition:(WGCoordinate *)pos height:(float *)height
+{
+    *height = globeView.heightAboveGlobe;
+    Point3f localPt = [globeView currentUp];
+    GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
+    pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
 
 // Called back on the main thread after the interaction thread does the selection
