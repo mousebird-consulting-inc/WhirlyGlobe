@@ -63,7 +63,7 @@ using namespace WhirlyKit;
     
     // Just figure out where we tapped
 	Point3f hit;
-    Eigen::Matrix4f theTransform = [mapView calcModelMatrix];
+    Eigen::Matrix4f theTransform = [mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&hit])
     {

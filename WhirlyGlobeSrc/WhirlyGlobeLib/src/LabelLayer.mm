@@ -48,6 +48,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
     UIColor                 *backColor;
     UIFont                  *font;
     bool                    screenObject;
+    bool                    layoutEngine;
+    float                   layoutImportance;
     float                   width,height;
     int                     drawOffset;
     float                   minVis,maxVis;
@@ -56,12 +58,16 @@ typedef enum {Middle,Left,Right} LabelJustify;
     WhirlyKit::SimpleIdentity labelId;
     float                   fade;
     NSString                *cacheName;
+    UIColor                 *shadowColor;
+    float                   shadowSize;
 }
 
 @property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
 @property (nonatomic) UIFont *font;
 @property (nonatomic,assign) bool screenObject;
+@property (nonatomic,assign) bool layoutEngine;
+@property (nonatomic,assign) float layoutImportance;
 @property (nonatomic,assign) float width,height;
 @property (nonatomic,assign) int drawOffset;
 @property (nonatomic,assign) float minVis,maxVis;
@@ -70,6 +76,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @property (nonatomic,readonly) WhirlyKit::SimpleIdentity labelId;
 @property (nonatomic,assign) float fade;
 @property (nonatomic) NSString *cacheName;
+@property (nonatomic,strong) UIColor *shadowColor;
+@property (nonatomic,assign) float shadowSize;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 
@@ -83,6 +91,17 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @synthesize isSelectable;
 @synthesize selectID;
 @synthesize screenOffset;
+
+// Generate a key string to uniquely identify this label for reuse
+- (std::string)keyString
+{
+    std::string theStr = [text asStdString];
+    
+    if (desc)
+        theStr += [[desc description] asStdString];
+    
+    return theStr;
+}
 
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
@@ -253,6 +272,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @synthesize textColor,backColor;
 @synthesize font;
 @synthesize screenObject;
+@synthesize layoutEngine;
+@synthesize layoutImportance;
 @synthesize width,height;
 @synthesize drawOffset;
 @synthesize minVis,maxVis;
@@ -261,6 +282,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @synthesize labelId;
 @synthesize fade;
 @synthesize cacheName;
+@synthesize shadowColor;
+@synthesize shadowSize;
 
 // Parse label info out of a description
 - (void)parseDesc:(NSDictionary *)desc
@@ -269,6 +292,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
     self.backColor = [desc objectForKey:@"backgroundColor" checkType:[UIColor class] default:[UIColor clearColor]];
     self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
     screenObject = [desc boolForKey:@"screen" default:false];
+    layoutEngine = [desc boolForKey:@"layout" default:false];
+    layoutImportance = [desc floatForKey:@"layoutImportance" default:0.0];
     width = [desc floatForKey:@"width" default:0.0];
     height = [desc floatForKey:@"height" default:(screenObject ? 16.0 : 0.001)];
     drawOffset = [desc intForKey:@"drawOffset" default:0];
@@ -276,6 +301,8 @@ typedef enum {Middle,Left,Right} LabelJustify;
     maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     NSString *justifyStr = [desc stringForKey:@"justify" default:@"middle"];
     fade = [desc floatForKey:@"fade" default:0.0];
+    shadowColor = [desc objectForKey:@"shadowColor"];
+    shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     if (![justifyStr compare:@"middle"])
         justify = Middle;
     else {
@@ -325,11 +352,15 @@ typedef enum {Middle,Left,Right} LabelJustify;
     UIColor *theTextColor = self.textColor;
     UIColor *theBackColor = self.backColor;
     UIFont *theFont = self.font;
+    UIColor *theShadowColor = self.shadowColor;
+    float theShadowSize = self.shadowSize;
     if (label.desc)
     {
         theTextColor = [label.desc objectForKey:@"textColor" checkType:[UIColor class] default:theTextColor];
         theBackColor = [label.desc objectForKey:@"backgroundColor" checkType:[UIColor class] default:theBackColor];
         theFont = [label.desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
+        theShadowColor = [label.desc objectForKey:@"shadowColor" checkType:[UIColor class] default:theShadowColor];
+        theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
     }
     
     // Figure out how big this needs to be
@@ -354,6 +385,19 @@ typedef enum {Middle,Left,Right} LabelJustify;
 	CGContextRef ctx = UIGraphicsGetCurrentContext();
 	CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
 	
+    // Do the background shadow, if requested
+    if (theShadowSize > 0.0)
+    {
+        if (!shadowColor)
+            shadowColor = [UIColor blackColor];
+        CGContextSetLineWidth(ctx, theShadowSize);
+        CGContextSetLineJoin(ctx, kCGLineJoinRound);
+        CGContextSetTextDrawingMode(ctx, kCGTextStroke);
+        [theShadowColor setStroke];
+        [label.text drawAtPoint:CGPointMake(0,0) withFont:theFont];
+    }
+
+	CGContextSetTextDrawingMode(ctx, kCGTextFill);
 	[theTextColor setFill];
 	[label.text drawAtPoint:CGPointMake(0,0) withFont:theFont];
 	
@@ -378,6 +422,7 @@ typedef enum {Middle,Left,Right} LabelJustify;
 @implementation WhirlyKitLabelLayer
 
 @synthesize selectLayer;
+@synthesize layoutLayer;
 
 - (id)init
 {
@@ -445,6 +490,9 @@ typedef enum {Middle,Left,Right} LabelJustify;
         
         if (labelRep->selectID != EmptyIdentity && selectLayer)
             [self.selectLayer removeSelectable:labelRep->selectID];
+        
+        if (layoutLayer && !labelRep->screenIDs.empty())
+            [layoutLayer removeLayoutObjects:labelRep->screenIDs];
     }
     scene->addChangeRequests(changeRequests);
     
@@ -454,6 +502,19 @@ typedef enum {Middle,Left,Right} LabelJustify;
 // We use these for labels that have icons
 // Don't want to give them their own separate drawable, obviously
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
+
+// Used to track the rendered image cache
+class RenderedImage
+{
+public:
+    RenderedImage() : image(NULL) { }
+    RenderedImage(const RenderedImage &that) { textSize = that.textSize;  image = that.image; }
+    ~RenderedImage() { }
+    const RenderedImage &operator = (const RenderedImage &that) { textSize = that.textSize;  image = that.image; return *this; }
+    RenderedImage(CGSize textSize,UIImage *image) : textSize(textSize), image(image) { }
+    CGSize textSize;
+    UIImage *image;
+};
 
 // Create the label and keep track of it
 // We're in the layer thread here
@@ -477,6 +538,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     // Screen space objects to create
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenObjects;
     
+    // Objects to pass to the layout engine
+    NSMutableArray *layoutObjects = [NSMutableArray array];;
+    
     // If we're writing out to a cache, set that up as well
     RenderCacheWriter *renderCacheWriter=NULL;
     if (labelInfo.cacheName)
@@ -489,7 +553,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     bool texAtlasOn = [labelInfo.strs count] > 1;
     
     // Keep track of images rendered from text
-    std::map<std::string,UIImage *> renderedImages;
+    std::map<std::string,RenderedImage> renderedImages;
     
     // Work through the labels
     for (WhirlyKitSingleLabel *label in labelInfo.strs)
@@ -500,19 +564,21 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
         // Find the image (if we already rendered it) or create it as needed
         UIImage *textImage = nil;
         std::string labelStr = [label.text asStdString];
+        std::string labelKey = [label keyString];
         bool skipReuse = false;
         if (labelStr.length() != [label.text length])
             skipReuse = true;
-        std::map<std::string,UIImage *>::iterator it = renderedImages.find(labelStr);
+        std::map<std::string,RenderedImage>::iterator it = renderedImages.find(labelKey);
         if (it != renderedImages.end())
         {
-            textImage = it->second;
+            textSize = it->second.textSize;
+            textImage = it->second.image;
         } else {
             textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest];
             if (!textImage)
                 continue;
             if (!skipReuse)
-                renderedImages[labelStr] = textImage;
+                renderedImages[labelKey] = RenderedImage(textSize,textImage);
         }
         
         // Look for a spot in an existing texture atlas
@@ -642,6 +708,29 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             } else
                 smGeom.texID = texAtlas.texId;
             screenShape->geom.push_back(smGeom);
+            
+            // If it's being passed to the layout engine, do that as well
+            if (labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false])
+            {
+                float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:labelInfo.layoutImportance];
+                
+                // Put together the layout info
+                WhirlyKitLayoutObject *layoutObj = [[WhirlyKitLayoutObject alloc] init];
+                layoutObj->tag = label.text;
+                layoutObj->ssID = screenShape->getId();
+                layoutObj->dispLoc = screenShape->worldLoc;
+                layoutObj->size = Point2f(width2*2.0,height2*2.0);
+                // Note: Need to get this working
+                layoutObj->iconSize = Point2f(0.0,0.0);
+                layoutObj->importance = layoutImportance;
+                // Note: Should parse out acceptable placements as well
+                layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
+                [layoutObjects addObject:layoutObj];
+
+                // The shape starts out disabled
+                screenShape->enable = false;
+            } else
+                screenShape->enable = true;
             
             screenObjects.push_back(screenShape);
         } else {
@@ -838,6 +927,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
     // Send the screen objects to the generator
     scene->addChangeRequest(new ScreenSpaceGeneratorAddRequest(screenGenId,screenObjects));
     
+    // And any layout constraints to the layout engine
+    if (layoutLayer && ([layoutObjects count] > 0))
+        [layoutLayer addLayoutObjects:layoutObjects];
+    
     labelReps[labelRep->getId()] = labelRep;
     
     if (renderCacheWriter)
@@ -903,6 +996,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
             
             if (labelRep->selectID != EmptyIdentity && selectLayer)
                 [self.selectLayer removeSelectable:labelRep->selectID];
+            
+            if (layoutLayer && !labelRep->screenIDs.empty())
+                [layoutLayer removeLayoutObjects:labelRep->screenIDs];
             
             labelReps.erase(it);
             delete labelRep;

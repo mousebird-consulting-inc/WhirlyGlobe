@@ -26,6 +26,7 @@
 @synthesize labelIDs;
 @synthesize vectorIDs;
 @synthesize shapeIDs;
+@synthesize chunkIDs;
 @synthesize vectors;
 
 @end

@@ -33,6 +33,7 @@
     WhirlyKit::SimpleIDSet labelIDs;
     WhirlyKit::SimpleIDSet vectorIDs;
     WhirlyKit::SimpleIDSet shapeIDs;
+    WhirlyKit::SimpleIDSet chunkIDs;
     NSArray *vectors;
 }
 
@@ -40,6 +41,7 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &labelIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &vectorIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &shapeIDs;
+@property (nonatomic,assign) WhirlyKit::SimpleIDSet &chunkIDs;
 @property (nonatomic,strong) NSArray *vectors;
 
 @end

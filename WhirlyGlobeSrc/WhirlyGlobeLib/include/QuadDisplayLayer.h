@@ -165,6 +165,10 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
     /// Draw lines instead of polygons, for demonstration.
     bool lineMode;
     
+    /// If set the eval step gets very aggressive about loading tiles.
+    /// This will slow down the layer thread, but makes the quad layer appear faster
+    bool greedyMode;
+    
     /// If set, we print out way too much debugging info.
     bool debugMode;    
 

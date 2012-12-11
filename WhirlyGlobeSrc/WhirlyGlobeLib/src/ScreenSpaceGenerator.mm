@@ -47,13 +47,14 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     rotation = 0.0;
     offset.x() = 0.0;
     offset.y() = 0.0;
+    enable = true;
 }
 
 // Calculate its position and add this feature to the appropriate drawable
 void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
-    if (!(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
+    if (!shape->enable || !(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
           ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
         return;
@@ -64,7 +65,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
+    Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
 
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
     if ([globeView isKindOfClass:[WhirlyGlobeView class]])
@@ -446,6 +447,53 @@ void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRender
             [renderer setRenderUntil:fadeDown];
         }
     }    
+}
+    
+ScreenSpaceGeneratorEnableRequest::ScreenSpaceGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &shapeIDs,bool enable)
+    : GeneratorChangeRequest(genID), enable(enable), shapeIDs(shapeIDs)
+{
+}
+    
+void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+{
+    ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
+    
+    for (unsigned int ii=0;ii<shapeIDs.size();ii++)
+    {
+        ScreenSpaceGenerator::ConvexShape *shape = screenGen->getConvexShape(shapeIDs[ii]);
+        if (shape)
+            shape->enable = enable;
+    }
+}
+    
+ScreenSpaceGeneratorGangChangeRequest::ShapeChange::ShapeChange()
+ : shapeID(EmptyIdentity), enable(false), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
+{
+}
+    
+ScreenSpaceGeneratorGangChangeRequest::ScreenSpaceGeneratorGangChangeRequest(SimpleIdentity genID,const std::vector<ShapeChange> &changes)
+    : GeneratorChangeRequest(genID), changes(changes)
+{
+}
+    
+void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+{
+    ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
+    
+    for (unsigned int ii=0;ii<changes.size();ii++)
+    {
+        ShapeChange &change = changes[ii];
+        ScreenSpaceGenerator::ConvexShape *shape = screenGen->getConvexShape(change.shapeID);
+        if (shape)
+        {
+            shape->fadeUp = change.fadeUp;
+            shape->fadeDown = change.fadeDown;
+            shape->enable = change.enable;
+            shape->offset = change.offset;
+            [renderer setRenderUntil:change.fadeUp];
+            [renderer setRenderUntil:change.fadeDown];
+        }
+    }
 }
     
 }

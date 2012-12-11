@@ -85,6 +85,7 @@ using namespace WhirlyGlobe;
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
         pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        pts->initGeoMbr();
         shapes.insert(pts);
         
         selectable = true;
@@ -104,6 +105,7 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<numCoords;ii++)
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        lin->initGeoMbr();
         shapes.insert(lin);
         
         selectable = true;
@@ -125,6 +127,7 @@ using namespace WhirlyGlobe;
             pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         areal->loops.push_back(pts);
         areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        areal->initGeoMbr();
         shapes.insert(areal);
         
         selectable = true;
@@ -246,6 +249,32 @@ using namespace WhirlyGlobe;
     return vecs;
 }
 
+- (void)subdivideToGlobe:(float)epsilon
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    {
+        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            std::vector<Point2f> outPts;
+            SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
+            lin->pts = outPts;
+        } else {
+            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                {
+                    std::vector<Point2f> outPts;
+                    SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
+                    ar->loops[ii] = outPts;
+                }
+            }
+        }
+    }
+}
 
 @end
 

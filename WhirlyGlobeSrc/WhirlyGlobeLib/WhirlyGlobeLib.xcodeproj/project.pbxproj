@@ -254,6 +254,12 @@
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
 		2BACE0681581017800E3793D /* SceneGraphGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BACE0661581017800E3793D /* SceneGraphGenerator.mm */; };
+		2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */; };
+		2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071811676B5FE00DE387D /* LayoutLayer.h */; };
+		2BB071841676B66300DE387D /* BufferBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071831676B66300DE387D /* BufferBuilder.h */; };
+		2BB071861676B67D00DE387D /* BufferBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071851676B67D00DE387D /* BufferBuilder.mm */; };
+		2BB071891676B69400DE387D /* LayoutLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071871676B69400DE387D /* LayoutLayer.mm */; };
+		2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */; };
 		2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BD1158C1615979300A4BF5D /* ShapeLayer.h */; };
 		2BD11590161597A600A4BF5D /* ShapeLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BD1158F161597A600A4BF5D /* ShapeLayer.mm */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
@@ -570,6 +576,12 @@
 		2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalMercator.mm; sourceTree = "<group>"; };
 		2BACE0611581010F00E3793D /* SceneGraphGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SceneGraphGenerator.h; path = include/SceneGraphGenerator.h; sourceTree = SOURCE_ROOT; };
 		2BACE0661581017800E3793D /* SceneGraphGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneGraphGenerator.mm; sourceTree = "<group>"; };
+		2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkLayer.h; sourceTree = "<group>"; };
+		2BB071811676B5FE00DE387D /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
+		2BB071831676B66300DE387D /* BufferBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferBuilder.h; sourceTree = "<group>"; };
+		2BB071851676B67D00DE387D /* BufferBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BufferBuilder.mm; sourceTree = "<group>"; };
+		2BB071871676B69400DE387D /* LayoutLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutLayer.mm; sourceTree = "<group>"; };
+		2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthChunkLayer.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -1040,6 +1052,8 @@
 				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
 				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
+				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
+				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -1073,6 +1087,8 @@
 				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
 				2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */,
 				2BD1158F161597A600A4BF5D /* ShapeLayer.mm */,
+				2BB071871676B69400DE387D /* LayoutLayer.mm */,
+				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -1143,6 +1159,7 @@
 			children = (
 				2BB1F07E130098E6001F33CD /* Identifiable.h */,
 				2BB1F08613009AC3001F33CD /* Texture.h */,
+				2BB071831676B66300DE387D /* BufferBuilder.h */,
 				2BCABAA912F8E0850049D73C /* Drawable.h */,
 				2B58C694144543DB00EEF3C3 /* Generator.h */,
 				2BCABAAB12F8E0920049D73C /* Cullable.h */,
@@ -1176,6 +1193,7 @@
 				2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */,
 				2BB1F08013009935001F33CD /* Identifiable.mm */,
 				2BB1F08813009B17001F33CD /* Texture.mm */,
+				2BB071851676B67D00DE387D /* BufferBuilder.mm */,
 				2BCABA9912F8DEF40049D73C /* Drawable.mm */,
 				2B58C6921445439700EEF3C3 /* Generator.mm */,
 				2BCABA9C12F8DEFF0049D73C /* Cullable.mm */,
@@ -1444,6 +1462,9 @@
 				2B92EF911637530C00C5165F /* SceneRendererES2.h in Headers */,
 				2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */,
 				2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */,
+				2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */,
+				2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */,
+				2BB071841676B66300DE387D /* BufferBuilder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1735,6 +1756,9 @@
 				2B92EF941637531700C5165F /* SceneRendererES2.mm in Sources */,
 				2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */,
 				2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */,
+				2BB071861676B67D00DE387D /* BufferBuilder.mm in Sources */,
+				2BB071891676B69400DE387D /* LayoutLayer.mm in Sources */,
+				2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

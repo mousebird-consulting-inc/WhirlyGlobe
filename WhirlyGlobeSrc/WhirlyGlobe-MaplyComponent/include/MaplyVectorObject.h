@@ -66,6 +66,10 @@
 /// This splits any multiples into single objects.
 - (NSArray *)splitVectors;
 
+/// This will break up long edges in a vector until they lie flat on a globe to a given
+///  epsilon.  The epislon is in display coordinates (radius = 1.0).
+- (void)subdivideToGlobe:(float)epsilon;
+
 @end
 
 typedef MaplyVectorObject WGVectorObject;
