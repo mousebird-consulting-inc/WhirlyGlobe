@@ -68,12 +68,14 @@
 @interface WhirlyKitViewState : NSObject
 {
 @public
-    Eigen::Matrix4f modelMatrix;
+    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix;
 	float fieldOfView;
 	float imagePlaneSize;
 	float nearPlane;
 	float farPlane;
     WhirlyKit::Point3f eyeVec;
+    WhirlyKit::Point2f ll,ur;
+    float near,far;
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 }
 
@@ -82,10 +84,14 @@
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
+/// This will cache the values in the view state for later use
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight;
 
 /// From a world location (3D), figure out the projection to the screen
 ///  Returns a point within the frame
 - (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+
+/// Compare this view state to the other one.  Returns true if they're identical.
+- (bool)isSameAs:(WhirlyKitViewState *)other;
 
 @end

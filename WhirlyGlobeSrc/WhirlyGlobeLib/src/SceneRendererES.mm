@@ -50,6 +50,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize sceneRenderer;
 @synthesize theView;
 @synthesize modelTrans;
+@synthesize viewTrans;
 @synthesize projMat;
 @synthesize mvpMat;
 @synthesize scene;

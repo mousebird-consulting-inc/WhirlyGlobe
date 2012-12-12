@@ -51,7 +51,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
             if (pts3d[ii].dot(eyeVec) > 0.0)
                 forwardFacing = true;
         
-        CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->modelMatrix frameSize:frameSize];
+        CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->fullMatrix frameSize:frameSize];
         screenPts[ii] = Point2f(screenPt.x,screenPt.y);
     }
     
@@ -94,7 +94,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
     {
         Point3f pt3d = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, displaySystem, testPoints[ii]));
         
-        CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->modelMatrix frameSize:frameSize];
+        CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->fullMatrix frameSize:frameSize];
         mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
@@ -150,6 +150,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         lineMode = false;
         drawEmpty = false;
         debugMode = false;
+        greedyMode = false;
     }
     
     return self;
@@ -277,6 +278,8 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         // Let the loader know we're about to do some updates
         [loader quadDisplayLayerStartUpdates:self];
         
+        while (!nodesForEval.empty())
+        {
         // Grab the first node.
         QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
         nodeIt--;
@@ -317,6 +320,11 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         } else
         {
             //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
+        }
+        
+            // If we're not in greedy mode, we'll just do this once through
+            if (!greedyMode)
+                break;
         }
         
         // Let the loader know we're done with this eval step

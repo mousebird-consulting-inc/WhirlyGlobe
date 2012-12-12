@@ -24,5 +24,6 @@
 #import <MaplyMarker.h>
 #import <MaplyScreenMarker.h>
 #import <MaplyShape.h>
+#import <MaplySticker.h>
 #import <MaplyViewTracker.h>
 #import <WhirlyGlobeViewController.h>

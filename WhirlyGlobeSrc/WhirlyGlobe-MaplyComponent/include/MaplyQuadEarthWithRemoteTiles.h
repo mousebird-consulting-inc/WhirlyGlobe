@@ -18,14 +18,16 @@
  *
  */
 
-#import "MaplyViewControllerLayer_private.h"
-#import "MaplyQuadEarthWithRemoteTiles.h"
+#import "MaplyViewControllerLayer.h"
+#import <WhirlyGlobe.h>
 
-@interface MaplyQuadEarthWithRemoteTiles()
+@interface MaplyQuadEarthWithRemoteTiles : MaplyViewControllerLayer
 
-@property (nonatomic,strong) NSString *cacheDir;
+/// Set up a spherical earth layer with an MBTiles archive.
+/// Returns nil on failure.
+- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges;
 
-/// Clean up any and all resources 
+/// Clean up any and all resources
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 @end

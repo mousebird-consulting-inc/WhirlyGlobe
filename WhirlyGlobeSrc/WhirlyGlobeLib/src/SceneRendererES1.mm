@@ -150,16 +150,11 @@ static const float ScreenOverlap = 0.1;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
     
+    // Put both model and view matrices in place
     Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
-    if (globeView)
-    {
-        Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
-        
-        glMultMatrixf(viewTrans.data());
-        glMultMatrixf(modelTrans.data());
-    } else {
-        glMultMatrixf(modelTrans.data());
-    }
+    Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+    glMultMatrixf(viewTrans.data());
+    glMultMatrixf(modelTrans.data());
     
     switch (zBufferMode)
     {
@@ -199,6 +194,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.sceneRenderer = self;
         frameInfo.theView = theView;
         frameInfo.modelTrans = modelTrans;
+        frameInfo.viewTrans = viewTrans;
         frameInfo.scene = scene;
         frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();

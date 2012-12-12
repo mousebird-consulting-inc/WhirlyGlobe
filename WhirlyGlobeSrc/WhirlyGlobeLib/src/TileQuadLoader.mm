@@ -253,6 +253,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize drawOffset;
 @synthesize drawPriority;
 @synthesize minVis,maxVis;
+@synthesize minPageVis,maxPageVis;
 @synthesize color;
 @synthesize hasAlpha;
 @synthesize quadLayer;
@@ -273,6 +274,8 @@ void LoadedTile::Print(Quadtree *tree)
         ignoreEdgeMatching = false;
         minVis = DrawVisibleInvalid;
         maxVis = DrawVisibleInvalid;
+        minPageVis = DrawVisibleInvalid;
+        maxPageVis = DrawVisibleInvalid;
     }
     
     return self;
@@ -793,12 +796,14 @@ static const float SkirtFactor = 0.95;
         return true;
 
     // Test against the visibility range
-    if (minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid)
+    if ((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) || (minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid))
     {
         WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
         if ([globeViewState isKindOfClass:[WhirlyGlobeViewState class]])
         {
-            if (globeViewState->heightAboveGlobe < minVis || globeViewState->heightAboveGlobe > maxVis)
+            if (((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minVis || globeViewState->heightAboveGlobe > maxVis)))
+                doUpdate = false;
+            if ((minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minPageVis || globeViewState->heightAboveGlobe > maxPageVis))
                 doUpdate = false;
         }
     }

@@ -86,6 +86,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 ///  as a second step from where we are
 - (Eigen::Matrix4f)calcViewMatrix;
 
+/// Return the combination of model and view matrix
+- (Eigen::Matrix4f)calcFullMatrix;
+
 /// Return the nominal height above the surface of the data
 - (float)heightAboveSurface;
 

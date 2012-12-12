@@ -86,6 +86,11 @@ using namespace Eigen;
     return ident;
 }
 
+- (Eigen::Matrix4f)calcFullMatrix
+{
+    return [self calcViewMatrix] * [self calcModelMatrix];
+}
+
 - (float)heightAboveSurface
 {
     return 0.0;
