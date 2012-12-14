@@ -26,7 +26,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 
 // Scale factors for the angular velocity
 // Used with height
-#define MaxAngularVelocity 1500.0
+#define MaxAngularVelocity 750.0
 #define MinAngularVelocity 1.0
 
 // Version of pan delegate specific to this app

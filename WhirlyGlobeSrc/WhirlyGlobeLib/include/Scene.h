@@ -61,6 +61,9 @@ public:
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
+    /// Only use this if you've thought it out
+    Texture *getTex() { return tex; }
+
 protected:
 	Texture *tex;
 };
