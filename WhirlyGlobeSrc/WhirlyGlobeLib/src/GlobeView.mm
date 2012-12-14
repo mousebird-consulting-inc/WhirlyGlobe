@@ -56,7 +56,7 @@ using namespace Eigen;
         absoluteMinNearPlane = 0.00001;
         absoluteMinFarPlane = 0.001;
         absoluteMinHeight = 0.00005;
-        heightInflection = 0.0011;
+        heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
 	}
 	
