@@ -200,12 +200,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// You get the ID identifying the whole group for modification or deletion
 - (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
-/// Add a group of labels and save them to a render cache
-- (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
-
-/// Add a previously cached group of labels all at once
-- (WhirlyKit::SimpleIdentity) addLabelsFromCache:(NSString *)cacheName;
-
 /// Change the display of a given label accordingly to the desc dictionary.
 /// Only minVis and maxVis are supported
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict;
