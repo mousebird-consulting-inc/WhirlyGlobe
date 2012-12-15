@@ -24,12 +24,15 @@ using namespace WhirlyKit;
 
 @implementation MaplyPinchDelegate
 
+@synthesize minZoom,maxZoom;
+
 - (id)initWithMapView:(MaplyView *)inView
 {
 	if ((self = [super init]))
 	{
 		mapView = inView;
 		startZ = 0.0;
+        minZoom = maxZoom = -1.0;
 	}
 	
 	return self;
@@ -61,11 +64,14 @@ using namespace WhirlyKit;
 		case UIGestureRecognizerStateBegan:
 			// Store the starting Z for comparison
 			startZ = mapView.loc.z();
+            [mapView cancelAnimation];
 			break;
 		case UIGestureRecognizerStateChanged:
         {
             Point3f curLoc = mapView.loc;
-            [mapView setLoc:Point3f(curLoc.x(),curLoc.y(),startZ/pinch.scale)];
+            float newZ = startZ/pinch.scale;
+            if (minZoom >= maxZoom || (minZoom < newZ && newZ < maxZoom))
+                [mapView setLoc:Point3f(curLoc.x(),curLoc.y(),newZ)];
         }
 			break;
         default:
