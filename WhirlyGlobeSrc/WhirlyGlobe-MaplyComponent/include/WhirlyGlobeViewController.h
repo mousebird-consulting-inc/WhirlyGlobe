@@ -19,12 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WGCoordinate.h>
-#import "MaplyScreenMarker.h"
-#import "MaplyVectorObject.h"
-#import "MaplyViewTracker.h"
-#import "MaplyComponentObject.h"
-#import "MaplySharedAttributes.h"
+#import "MaplyBaseViewController.h"
 
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;
@@ -59,7 +54,7 @@
     At the very least you'll want a base image layer and then you can put
     markers, labels, and vectors on top of that.
  */
-@interface WhirlyGlobeViewController : UIViewController
+@interface WhirlyGlobeViewController : MaplyBaseViewController
 {
     NSObject<WhirlyGlobeViewControllerDelegate> * __weak delegate;
 }
@@ -79,13 +74,6 @@
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
-/// Set selection support on or off here
-@property(nonatomic,assign) bool selection;
-
-/// Set the globe view's background color.
-/// Black, by default.
-@property (nonatomic,strong) UIColor *clearColor;
-
 /// Get/set the current height above terrain.
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
@@ -100,11 +88,8 @@
 ///  after that interval the given number of degrees per second
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees;
 
-/// Add rendering and other general hints for the globe view controller.
-- (void)setHints:(NSDictionary *)hintsDict;
-
 /// Animate to the given position over the given amount of time
-- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
 
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will just do nothing
@@ -122,89 +107,7 @@
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 
-/// Add a quad tree paged earth layer with MapBox Tiles on top
-- (WGViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name;
-
-/// Add a quad tree paged earth layer with 
-- (WGViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cachdDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
-
-/// Add visual defaults for the screen markers
-- (void)setScreenMarkerDesc:(NSDictionary *)desc;
-
-/// Add a group of screen (2D) markers
-- (WGComponentObject *)addScreenMarkers:(NSArray *)markers;
-
-/// Add visual defaults for the markers
-- (void)setMarkerDesc:(NSDictionary *)desc;
-
-/// Add a group of 3D markers
-- (WGComponentObject *)addMarkers:(NSArray *)markers;
-
-/// Add visual defaults for the screen labels
-- (void)setScreenLabelDesc:(NSDictionary *)desc;
-
-/// Add a group of screen (2D) labels
-- (WGComponentObject *)addScreenLabels:(NSArray *)labels;
-
-/// Add visual defaults for the labels
-- (void)setLabelDesc:(NSDictionary *)desc;
-
-/// Add a group of 3D labels
-- (WGComponentObject *)addLabels:(NSArray *)labels;
-
-/// Add visual defaults for the vectors
-- (void)setVectorDesc:(NSDictionary *)desc;
-
-/// Add one or more vectors
-- (WGComponentObject *)addVectors:(NSArray *)vectors;
-
-/// Add one or more vectors, but only for selection
-- (WGComponentObject *)addSelectionVectors:(NSArray *)vectors;
-
-/// Change the representation for the given vector object(s).
-/// Only a few things are changeable, such as color
-- (void)changeVector:(WGComponentObject *)compObj desc:(NSDictionary *)desc;
-
-/// Add visual defaults for the shapes
-- (void)setShapeDesc:(NSDictionary *)desc;
-
-/// Add one or more shapes
-- (WGComponentObject *)addShapes:(NSArray *)shapes;
-
-/// Add visual defaults for the stickers
-- (void)setStickerDesc:(NSDictionary *)desc;
-
-/// Add one or more stickers
-- (WGComponentObject *)addStickers:(NSArray *)stickers;
-
-/// Add a view to track to a particular location
-- (void)addViewTracker:(WGViewTracker *)viewTrack;
-
-/// Remove the view tracker associated with the given UIView
-- (void)removeViewTrackForView:(UIView *)view;
-
-/// Remove the data associated with an object the user added earlier
-- (void)removeObject:(WGComponentObject *)theObj;
-
-/// Remove an array of data objects
-- (void)removeObjects:(NSArray *)theObjs;
-
-/// Remove a single layer
-- (void)removeLayer:(WGViewControllerLayer *)layer;
-
-/// Remove all the base layers (e.g map layers)
-- (void)removeAllLayers;
-
-/// This utility routine will convert a lat/lon (in radians) to display coordinates
-- (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord;
-
 /// This utility routine returns the on screen location for a coordinate in lat/lon
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
-
-/// Start animation (only if it's been paused)
-- (void)startAnimation;
-
-/// Pause animation (probably because we're going into the background)
-- (void)stopAnimation;
 
 @end
