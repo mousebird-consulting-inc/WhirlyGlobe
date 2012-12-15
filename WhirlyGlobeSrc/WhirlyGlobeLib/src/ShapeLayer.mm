@@ -433,7 +433,7 @@ static const float SphereTessY = 10;
 			if (geoLoc.y() < -M_PI/2.0)  geoLoc.y() = -M_PI/2.0;
 			if (geoLoc.y() > M_PI/2.0) geoLoc.y() = M_PI/2.0;
             
-            Point3f spherePt = coordAdapter->localToDisplay(Point3f(geoLoc.lon(),geoLoc.lat(),0.0));
+            Point3f spherePt = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(geoLoc.lon(),geoLoc.lat(),0.0));
             Point3f thisPt = dispPt + spherePt * radius;
             
             norms.push_back(spherePt);

@@ -66,12 +66,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
     
     if (boost::math::isnan(area))
         area = 0.0;
-    
-    //        if (area > 10000.0)
-    //        {
-    //            NSLog(@"Got one");
-    //        }
-    
+        
     return std::abs(area);
 }
 
