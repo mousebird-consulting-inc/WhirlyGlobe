@@ -56,6 +56,25 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
+- (void)setBounds:(WhirlyKit::Point2f *)inBounds
+{
+    bounds.clear();
+    for (unsigned int ii=0;ii<4;ii++)
+        bounds.push_back(inBounds[ii]);
+}
+
+// Bounds check on a single point
+- (bool)withinBounds:(Point3f &)loc
+{
+    if (bounds.empty())
+        return true;
+    
+    return PointInPolygon(Point2f(loc.x(),loc.y()), bounds);
+}
+
+// How long we'll animate the gesture ending
+static const float AnimLen = 1.0;
+
 // Called for pan actions
 - (void)panAction:(id)sender
 {
@@ -79,7 +98,7 @@ using namespace WhirlyKit;
             startTransform = [mapView calcFullMatrix];
             [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:pan.view] transform:&startTransform
                                   frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
-                                        hit:&startOnPlane];
+                                        hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
             panning = YES;
         }
@@ -96,41 +115,45 @@ using namespace WhirlyKit;
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
                                        frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
-                                             hit:&hit];
+                                            hit:&hit clip:false];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
                 Point3f newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc];
+                
+                // We'll do a hard stop if we're not within the bounds
+                // Note: Should do an intersection instead
+                if ([self withinBounds:newLoc])
+                {
+                    [mapView setLoc:newLoc];
+                }
             }
         }
             break;
         case UIGestureRecognizerStateEnded:
             if (panning)
             {
-                panning = NO;
-                break;
-                
                 // We'll use this to get two points in model space
                 CGPoint vel = [pan velocityInView:glView];
                 CGPoint touch0 = lastTouch;
-                CGPoint touch1 = touch0;  touch1.x += vel.x; touch1.y += vel.y;
+                CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
                 Point3f model_p0,model_p1;
 
                 Eigen::Matrix4f modelMat = [mapView calcFullMatrix];
-                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0];
-                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1];
+                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0 clip:false];
+                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1 clip:false];
                 
                 // This will give us a direction
                 Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
                 dir *= -1.0;
-                float modelVel = dir.norm();
+                float len = dir.norm();
+                float modelVel = len / AnimLen;
                 dir.normalize();
-                
-                // The acceleration (to slow it down)
-                float drag = -1.5;
 
-                // Kick off a little movement at the end   
-                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:drag dir:Point3f(dir.x(),dir.y(),0.0)];
+                // Caluclate the acceleration based on how far we'd like it to go
+                float accel = - modelVel / (AnimLen * AnimLen);
+
+                // Kick off a little movement at the end
+                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds];
                 mapView.delegate = translateDelegate;
                 
                 panning = NO;

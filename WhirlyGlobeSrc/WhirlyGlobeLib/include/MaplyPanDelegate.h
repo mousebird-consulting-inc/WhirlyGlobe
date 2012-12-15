@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <vector>
 #import "MaplyView.h"
 
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
@@ -33,9 +34,14 @@
     /// Viewer location when we started panning
     WhirlyKit::Point3f startLoc;
     CGPoint lastTouch;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
 }
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+
+/// Set the bounding rectangle
+- (void)setBounds:(WhirlyKit::Point2f *)bounds;
 
 @end
