@@ -32,7 +32,7 @@
  */
 @interface MaplyInteractionLayer : MaplyBaseInteractionLayer
 {
-    // The view controller, for various callbacks
+    /// The view controller, for various callbacks
     NSObject<MaplyInteractionLayerDelegate> * __weak viewController;
 }
 

@@ -65,11 +65,17 @@
 /// Height above the plane
 - (float)heightAboveSurface;
 
+/// Minimum valid height above plane
+- (float)minHeightAboveSurface;
+
+/// Maximum valid height above plane
+- (float)maxHeightAboveSurface;
+
 /** Given a location on the screen and the screen size, figure out where we touched
     the plane.  Returns true if we hit and where.
     Returns false if we didn't, which can only happened if we're turned away.
  */
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit clip:(bool)clip;
 
 /** From a world location in 3D, figure the projection to the screen.
     Returns a point within the frame.

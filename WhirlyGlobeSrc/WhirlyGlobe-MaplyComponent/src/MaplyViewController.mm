@@ -63,7 +63,7 @@ using namespace Maply;
 
 - (WhirlyKitView *) loadSetup_view
 {
-    coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord(-180.0,-90.0), GeoCoord(180.0,90.0));
+    coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
     mapView.continuousZoom = true;
 
@@ -92,7 +92,12 @@ using namespace Maply;
     // Wire up the gesture recognizers
     tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
     panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
+    boundLL = MaplyCoordinateMakeWithDegrees(-180.0,-90.0);
+    boundUR = MaplyCoordinateMakeWithDegrees(180.0,90.0);
+    [self setViewExtentsLL:boundLL ur:boundUR];
     pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
+    pinchDelegate.minZoom = [mapView minHeightAboveSurface];
+    pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -120,27 +125,140 @@ using namespace Maply;
 
 #pragma mark - Interaction
 
-// Internal animation handler
-- (void)animateToPoint:(GeoCoord)whereGeo time:(NSTimeInterval)howLong
+/// Return the view extents.  This is the box the view point is allowed to be within.
+- (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    // note: fill this in
+    *ll = boundLL;
+    *ur = boundUR;
+}
+
+/// Set the view extents.  This is the box the view point is allowed to be within.
+- (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
+{
+    CoordSystemDisplayAdapter *adapter = mapView.coordAdapter;
+    CoordSystem *coordSys = adapter->getCoordSystem();
+    boundLL = ll;    boundUR = ur;
+    
+    // Convert the bounds to a rectangle in local coordinates
+    Point3f bounds3d[4];
+    Point2f bounds[4];
+    bounds3d[0] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y)));
+    bounds3d[1] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y)));
+    bounds3d[2] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y)));
+    bounds3d[3] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ur.y)));
+    for (unsigned int ii=0;ii<4;ii++)
+        bounds[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
+    [panDelegate setBounds:bounds];
+}
+
+// Internal animation handler
+- (void)animateToPoint:(Point3f)newLoc time:(NSTimeInterval)howLong
+{
+    [mapView cancelAnimation];
+
+    MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:howLong];
+    curAnimation = animTrans;
+    mapView.delegate = animTrans;
 }
 
 // External facing version of rotateToPoint
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong
 {
-    // Note: fill this in
+    // Snap to the bounds
+    if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
+    if (newPos.y > boundUR.y)  newPos.y = boundUR.y;
+    if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
+    if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
+
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    loc.z() = mapView.loc.z();
+    [self animateToPoint:loc time:howLong];
+}
+
+// This version takes a height as well
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong
+{
+    if (pinchDelegate)
+    {
+        if (newHeight < pinchDelegate.minZoom)
+            newHeight = pinchDelegate.minZoom;
+        if (newHeight > pinchDelegate.maxZoom)
+            newHeight = pinchDelegate.maxZoom;
+    }
+
+    // Snap to the bounds
+    if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
+    if (newPos.y > boundUR.y)  newPos.y = boundUR.y;
+    if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
+    if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
+
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    loc.z() = newHeight;
+    
+    [self animateToPoint:loc time:howLong];
 }
 
 // External facing set position
 - (void)setPosition:(MaplyCoordinate)newPos
 {
-    // Note: fill this in
+    Point3f loc = mapView.loc;
+    [self setPosition:newPos height:loc.z()];
 }
 
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height
 {
-    // Note: fill this in
+    [mapView cancelAnimation];
+    
+    if (pinchDelegate)
+    {
+        if (height < pinchDelegate.minZoom)
+            height = pinchDelegate.minZoom;
+        if (height > pinchDelegate.maxZoom)
+            height = pinchDelegate.maxZoom;
+    }
+    
+    // Snap to the bounds
+    if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
+    if (newPos.y > boundUR.y)  newPos.y = boundUR.y;
+    if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
+    if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
+    
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    loc.z() = height;
+    mapView.loc = loc;
+}
+
+- (void)getPosition:(WGCoordinate *)pos height:(float *)height
+{
+    Point3f loc = mapView.loc;
+    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
+    pos->x = geoCoord.x();  pos->y = geoCoord.y();
+    *height = loc.z();
+}
+
+/// Return the min and max heights above the globe for zooming
+- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
+{
+    if (pinchDelegate)
+    {
+        *minHeight = pinchDelegate.minZoom;
+        *minHeight = pinchDelegate.maxZoom;
+    }
+}
+
+/// Set the min and max heights above the globe for zooming
+- (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight
+{
+    if (pinchDelegate)
+    {
+        pinchDelegate.minZoom = minHeight;
+        pinchDelegate.maxZoom = maxHeight;
+        Point3f loc = mapView.loc;
+        if (mapView.heightAboveSurface < minHeight)
+            mapView.loc = Point3f(loc.x(),loc.y(),minHeight);
+        if (mapView.heightAboveSurface > maxHeight)
+            mapView.loc = Point3f(loc.x(),loc.y(),maxHeight);
+    }
 }
 
 // Called back on the main thread after the interaction thread does the selection
@@ -152,15 +270,15 @@ using namespace Maply;
         if (delegate && [delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
             [delegate maplyViewController:self didSelect:selectedObj];
     } else {
+        MaplyCoordinate coord;
+        coord.x = msg.whereGeo.lon();
+        coord.y = msg.whereGeo.lat();
         // The user didn't select anything, let the delegate know.
         if (delegate && [delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
         {
-            MaplyCoordinate coord;
-            coord.x = msg.whereGeo.lon();
-            coord.y = msg.whereGeo.lat();
             [delegate maplyViewController:self didTapAt:coord];
         }
-        [self animateToPoint:msg.whereGeo time:1.0];
+        [self animateToPosition:coord time:1.0];
     }
 }
 

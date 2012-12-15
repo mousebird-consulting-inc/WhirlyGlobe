@@ -70,13 +70,28 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
+/// Return the view extents.  This is the box the view point is allowed to be within.
+- (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/// Set the view extents.  This is the box the view point is allowed to be within.
+- (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur;
+
 /// Animate to the given position over the given amount of time
-- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
 
 /// Set the view to the given position immediately
-- (void)setPosition:(WGCoordinate)newPos;
+- (void)setPosition:(MaplyCoordinate)newPos;
 
 /// Set position and height at the same time
-- (void)setPosition:(WGCoordinate)newPos height:(float)height;
+- (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
+
+/// Get the current position and height
+- (void)getPosition:(WGCoordinate *)pos height:(float *)height;
+
+/// Return the min and max heights above the globe for zooming
+- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
+
+/// Set the min and max heights above the globe for zooming
+- (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
 
 @end

@@ -24,21 +24,27 @@
 
 @interface MaplyViewController()
 {
-    // Custom map scene
+    /// Custom map scene
     Maply::MapScene *mapScene;
-    // Maply view
+    /// Maply view
     MaplyView *mapView;
 
-    // Coordinate system and display adapter
+    /// Coordinate system and display adapter
     WhirlyKit::SphericalMercatorDisplayAdapter *coordAdapter;
     
-    // Our own interaction layer for adding and removing things
+    /// Our own interaction layer for adding and removing things
     MaplyInteractionLayer *mapInteractLayer;
     
-    // Gesture recognizers
+    /// Gesture recognizers
     MaplyTapDelegate *tapDelegate;
     MaplyPanDelegate *panDelegate;
     MaplyPinchDelegate *pinchDelegate;
+
+    /// Bounding box for the viewer
+    MaplyCoordinate boundLL,boundUR;
+
+    /// Current view animation (kept around so it's not released)
+    NSObject *curAnimation;
 }
 
 @end
