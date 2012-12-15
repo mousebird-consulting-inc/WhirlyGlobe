@@ -21,14 +21,14 @@
 #import <WhirlyGlobe.h>
 
 // Used to map UIImages to Texture IDs
-class ImageTexture
+class MaplyImageTexture
 {
 public:
-    ImageTexture(UIImage *image) : image(image), texID(WhirlyKit::EmptyIdentity) { }
-    ImageTexture(UIImage *image,WhirlyKit::SimpleIdentity texID) : image(image), texID(texID) { }
-    bool operator < (const ImageTexture &that) const { return image < that.image; }
+    MaplyImageTexture(UIImage *image) : image(image), texID(WhirlyKit::EmptyIdentity) { }
+    MaplyImageTexture(UIImage *image,WhirlyKit::SimpleIdentity texID) : image(image), texID(texID) { }
+    bool operator < (const MaplyImageTexture &that) const { return image < that.image; }
 
     UIImage *image;
     WhirlyKit::SimpleIdentity texID;
 };
-typedef std::set<ImageTexture> ImageTextureSet;
+typedef std::set<MaplyImageTexture> MaplyImageTextureSet;
