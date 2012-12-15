@@ -139,8 +139,8 @@ static const float AnimLen = 1.0;
                 Point3f model_p0,model_p1;
 
                 Eigen::Matrix4f modelMat = [mapView calcFullMatrix];
-                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p0 clip:false];
-                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight) hit:&model_p1 clip:false];
+                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p0 clip:false];
+                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p1 clip:false];
                 
                 // This will give us a direction
                 Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
