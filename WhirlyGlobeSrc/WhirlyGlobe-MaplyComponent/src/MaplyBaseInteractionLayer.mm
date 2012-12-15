@@ -39,6 +39,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     Point3f p1 = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
     
     // Note: Dumb approach.  Switch to an adaptive sampling
+    bool isFlat = coordAdapter->isFlat();
     int numSamples = 300;
     for (unsigned int ii=0;ii<=numSamples;ii++)
     {
@@ -46,14 +47,18 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         float t = (ii/(float)numSamples);
         Point3f pt = (p1-p0)*t + p0;
         // This puts us on the surface of the sphere
-        pt.normalize();
+        if (!isFlat)
+            pt.normalize();
         
         // Parabolic curve
         float b = 4*height;
         float a = -b;
         float thisHeight = a*(t*t) + b*t;
         
-        pt *= 1.0+thisHeight;
+        if (isFlat)
+            pt.z() = thisHeight;
+        else
+            pt *= 1.0+thisHeight;
         pts.push_back(pt);
     }
 }
@@ -484,7 +489,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             {
                 MaplyCoordinate3d &coord = coords[ii];
                 Point3f pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(coord.x,coord.y)));
-                pt *= (1.0+coord.z);
+                if (coordAdapter->isFlat())
+                    pt.z() = coord.z;
+                else
+                    pt *= (1.0+coord.z);
                 newLin.pts.push_back(pt);
             }
             newLin.lineWidth = lin.lineWidth;
