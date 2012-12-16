@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyAnimateTranslateMomentum
 
-- (id)initWithView:(MaplyView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir
+- (id)initWithView:(MaplyView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds
 {
     if ((self = [super init]))
     {
@@ -47,6 +47,8 @@ using namespace WhirlyKit;
                 startDate = 0;
         } else
             maxTime = MAXFLOAT;
+        
+        bounds = inBounds;
     }
     
     return self;
@@ -59,7 +61,7 @@ using namespace WhirlyKit;
     if (startDate == 0.0)
         return;
     
-	float sinceStart = CFAbsoluteTime() - startDate;
+	float sinceStart = CFAbsoluteTimeGetCurrent() - startDate;
     
     if (sinceStart > maxTime)
     {
@@ -71,7 +73,9 @@ using namespace WhirlyKit;
     // Calculate the distance
     float dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3f newLoc = org + dir * dist;
-    mapView.loc = newLoc;
+    
+    if (bounds.empty() || PointInPolygon(Point2f(newLoc.x(),newLoc.y()), bounds))
+        mapView.loc = newLoc;
 }
 
 

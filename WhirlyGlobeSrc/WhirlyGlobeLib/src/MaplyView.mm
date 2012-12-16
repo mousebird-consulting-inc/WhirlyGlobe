@@ -72,16 +72,26 @@ using namespace WhirlyKit;
     return loc.z();
 }
 
+- (float)minHeightAboveSurface
+{
+    return nearPlane;
+}
+
+- (float)maxHeightAboveSurface
+{
+    return farPlane;
+}
+
 - (void)setLoc:(WhirlyKit::Point3f)newLoc
 {
     loc = newLoc;
     [self runViewUpdates];
 }
 
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit clip:(bool)clip
 {
     // Back Project the screen point into model space
-    Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+    Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space

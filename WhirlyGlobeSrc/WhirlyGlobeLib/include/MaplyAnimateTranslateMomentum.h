@@ -33,9 +33,10 @@
     float maxTime;
     CFTimeInterval startDate;
     WhirlyKit::Point3f org;
+    std::vector<WhirlyKit::Point2f> bounds;
 }
 
 /// Initialize with a velocity and negative acceleration (to slow down)
-- (id)initWithView:(MaplyView *)globeView velocity:(float)velocity accel:(float)acceleration dir:(Eigen::Vector3f)dir;
+- (id)initWithView:(MaplyView *)globeView velocity:(float)velocity accel:(float)acceleration dir:(Eigen::Vector3f)dir bounds:(std::vector<WhirlyKit::Point2f> &)bounds;
 
 @end
