@@ -22,9 +22,9 @@
 
 @interface MaplyQuadEarthWithMBTiles : MaplyViewControllerLayer
 
-/// Set up a spherical earth layer with an MBTiles archive.
+/// Set up a spherical earth layer with an MBTiles archive from a specified path.
 /// Returns nil on failure.
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbTilesName handleEdges:(bool)edges;
+- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTilesPath:(NSString *)mbTilesPath handleEdges:(bool)edges;
 
 /// Clean up any and all resources 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

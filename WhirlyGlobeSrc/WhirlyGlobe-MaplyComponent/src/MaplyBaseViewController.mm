@@ -267,7 +267,18 @@ using namespace WhirlyKit;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
-    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
+    NSString *infoPath = [[NSBundle mainBundle] pathForResource:name ofType:@"mbtiles"];
+    if (!infoPath)
+    {
+        return nil;
+    }
+
+    return [self addQuadEarthLayerWithMBTilesPath:infoPath];
+}
+
+- (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTilesPath:(NSString *)path
+{
+    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTilesPath:path handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
     if (!newLayer)
         return nil;
     

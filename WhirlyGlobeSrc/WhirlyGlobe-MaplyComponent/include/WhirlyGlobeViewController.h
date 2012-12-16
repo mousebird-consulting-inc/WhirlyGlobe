@@ -104,6 +104,9 @@
 /// Get the current position and height
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height;
 
+/// Set heading about current position
+- (void) setHeading:(CGFloat) rotationHeading position:(WGCoordinate)newPos;
+
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 
