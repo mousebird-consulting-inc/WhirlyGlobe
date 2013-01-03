@@ -76,9 +76,13 @@ LocationInfo locations[NumLocations] =
     // This is how we track them for removal
     WGComponentObject *screenMarkersObj;
     WGComponentObject *markersObj;
+    WGComponentObject *shapeCylObj;
+    WGComponentObject *shapeSphereObj;
+    WGComponentObject *greatCircleObj;
     WGComponentObject *screenLabelsObj;
     WGComponentObject *labelsObj;
     NSArray *vecObjects;
+    WGComponentObject *autoLabels;
     
     // The view we're using to track a selected object
     WGViewTracker *selectedViewTrack;
@@ -335,6 +339,60 @@ LocationInfo locations[NumLocations] =
     labelsObj = [globeViewC addLabels:labels];        
 }
 
+// Add cylinders
+- (void)addShapeCylinders:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *cyls = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyShapeCylinder *cyl = [[MaplyShapeCylinder alloc] init];
+        cyl.baseCenter = WGCoordinateMakeWithDegrees(location->lon, location->lat);
+        cyl.radius = 0.01;
+        cyl.height = 0.06;
+        [cyls addObject:cyl];
+    }
+    
+    shapeCylObj = [globeViewC addShapes:cyls];
+}
+
+// Add spheres
+- (void)addShapeSpheres:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *spheres = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+        sphere.center = WGCoordinateMakeWithDegrees(location->lon, location->lat);
+        sphere.radius = 0.04;
+        [spheres addObject:sphere];
+    }
+
+    shapeSphereObj = [globeViewC addShapes:spheres];
+}
+
+// Add spheres
+- (void)addGreatCircles:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *circles = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *loc0 = &locations[ii];
+        LocationInfo *loc1 = &locations[(ii+1)%len];
+        MaplyShapeGreatCircle *greatCircle = [[MaplyShapeGreatCircle alloc] init];
+        greatCircle.startPt = WGCoordinateMakeWithDegrees(loc0->lon, loc0->lat);
+        greatCircle.endPt = WGCoordinateMakeWithDegrees(loc1->lon, loc1->lat);
+        greatCircle.lineWidth = 6.0;
+        // This limits the height based on the length of the great circle
+        float angle = [greatCircle calcAngleBetween];
+        greatCircle.height = 0.3 * angle / M_PI;
+        [circles addObject:greatCircle];
+    }
+    
+    greatCircleObj = [globeViewC addShapes:circles];
+}
+
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
 {
@@ -342,6 +400,7 @@ LocationInfo locations[NumLocations] =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), 
          ^{
              NSMutableArray *locVecObjects = [NSMutableArray array];
+             NSMutableArray *locAutoLabels = [NSMutableArray array];
              
              int ii = 0;
              for (NSString *name in names)
@@ -356,20 +415,37 @@ LocationInfo locations[NumLocations] =
                          {
                              WGVectorObject *wgVecObj = [WGVectorObject VectorObjectFromGeoJSON:jsonData];
                              WGComponentObject *compObj = [globeViewC addVectors:[NSArray arrayWithObject:wgVecObj]];
+                             WGScreenLabel *screenLabel = [[WGScreenLabel alloc] init];
+                             // Add a label right in the middle
+                             WGCoordinate center;
+                             [wgVecObj largestLoopCenter:&center mbrLL:nil mbrUR:nil];
+                             screenLabel.loc = center;
+                             screenLabel.size = CGSizeMake(0, 20);
+                             screenLabel.layoutImportance = 1.0;
+                             screenLabel.text = [[wgVecObj attributes] objectForKey:@"ADMIN"];
+                             if (screenLabel.text)
+                                 [locAutoLabels addObject:screenLabel];
                              if (compObj)
                                  [locVecObjects addObject:compObj];
                          }
                      }
                  }
                  ii++;
-
-                 // Keep track of the created objects
-                 // Note: You could lose track of the objects if you turn the countries on/off quickly
-                 dispatch_async(dispatch_get_main_queue(),
-                                ^{
-                                    vecObjects = locVecObjects;
-                                });
              }
+             
+             // Keep track of the created objects
+             // Note: You could lose track of the objects if you turn the countries on/off quickly
+             dispatch_async(dispatch_get_main_queue(),
+                            ^{
+                                // Toss in all the labels at once, more efficient
+                                [globeViewC setScreenLabelDesc:@{kWGTextColor: [UIColor whiteColor], kWGBackgroundColor: [UIColor clearColor], kWGShadowSize: @(4.0)}];
+                                WGComponentObject *autoLabelObj = [globeViewC addScreenLabels:locAutoLabels];
+                                [globeViewC setScreenLabelDesc:@{kWGTextColor: [NSNull null], kWGBackgroundColor: [NSNull null], kWGShadowSize: [NSNull null]}];
+
+                                vecObjects = locVecObjects;
+                                autoLabels = autoLabelObj;
+                            });
+
          }
     );
 }
@@ -423,8 +499,56 @@ LocationInfo locations[NumLocations] =
             [globeViewC removeObject:markersObj];
             markersObj = nil;
         }
-    }    
+    }
     
+    if (configViewC.shapeCylSwitch.on)
+    {
+        if (!shapeCylObj)
+        {
+            [globeViewC setShapeDesc:@{kWGColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8]}];
+            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0];
+            [globeViewC setShapeDesc:@{kWGColor : [NSNull null]}];
+        }
+    } else {
+        if (shapeCylObj)
+        {
+            [globeViewC removeObject:shapeCylObj];
+            shapeCylObj = nil;
+        }
+    }
+
+    if (configViewC.shapeSphereSwitch.on)
+    {
+        if (!shapeSphereObj)
+        {
+            [globeViewC setShapeDesc:@{kWGColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8]}];
+            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1];
+            [globeViewC setShapeDesc:@{kWGColor : [NSNull null]}];
+        }
+    } else {
+        if (shapeSphereObj)
+        {
+            [globeViewC removeObject:shapeSphereObj];
+            shapeSphereObj = nil;
+        }
+    }
+
+    if (configViewC.shapeGreatCircleSwitch.on)
+    {
+        if (!greatCircleObj)
+        {
+            [globeViewC setShapeDesc:@{kWGColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0]}];
+            [self addGreatCircles:locations len:NumLocations stride:4 offset:2];
+            [globeViewC setShapeDesc:@{kWGColor : [NSNull null]}];
+        }
+    } else {
+        if (greatCircleObj)
+        {
+            [globeViewC removeObject:greatCircleObj];
+            greatCircleObj = nil;
+        }
+    }
+
     if (configViewC.countrySwitch.on)
     {
         // Countries we have geoJSON for
@@ -453,6 +577,11 @@ LocationInfo locations[NumLocations] =
         {
             [globeViewC removeObjects:vecObjects];
             vecObjects = nil;
+        }
+        if (autoLabels)
+        {
+            [globeViewC removeObject:autoLabels];
+            autoLabels = nil;
         }
     }
     
