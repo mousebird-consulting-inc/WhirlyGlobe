@@ -26,6 +26,8 @@
  */
 @interface MaplyScreenLabel : NSObject
 {
+    /// Put yer user data here
+    NSObject *userObject;
     /// Location in geographic (lat/lon) in radians
     MaplyCoordinate loc;
     /// Size on the screen, in points.  In general, set the height, but not the width.
@@ -46,6 +48,7 @@
     float layoutImportance;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate loc;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) NSString *text;

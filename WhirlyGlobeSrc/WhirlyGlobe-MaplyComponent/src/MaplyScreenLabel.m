@@ -22,6 +22,7 @@
 
 @implementation MaplyScreenLabel
 
+@synthesize userObject;
 @synthesize loc;
 @synthesize size;
 @synthesize text;

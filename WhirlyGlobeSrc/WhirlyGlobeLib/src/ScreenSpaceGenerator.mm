@@ -122,8 +122,10 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
     
-    screenPt.x += shape->offset.x();
-    screenPt.y += shape->offset.y();
+    float resScale = frameInfo.sceneRenderer.scale;
+
+    screenPt.x += shape->offset.x()*resScale;
+    screenPt.y += shape->offset.y()*resScale;
     
     // It survived, so add it to the list if someone else needs to know where they wound up
     ProjectedPoint projPt;
@@ -276,11 +278,18 @@ ScreenSpaceGenerator::~ScreenSpaceGenerator()
         delete *it;
     }
     convexShapes.clear();    
+    activeShapes.clear();
 }
     
 void ScreenSpaceGenerator::addConvexShapes(std::vector<ConvexShape *> inShapes)
 {
     convexShapes.insert(inShapes.begin(),inShapes.end());
+    for (unsigned int ii=0;ii<inShapes.size();ii++)
+    {
+        ConvexShape *shape = inShapes[ii];
+        if (shape->enable)
+            activeShapes.insert(shape);
+    }
 }
 
 void ScreenSpaceGenerator::removeConvexShape(SimpleIdentity shapeID)
@@ -288,10 +297,20 @@ void ScreenSpaceGenerator::removeConvexShape(SimpleIdentity shapeID)
     ConvexShape dummyShape;
     dummyShape.setId(shapeID);
     ConvexShapeSet::iterator it = convexShapes.find(&dummyShape);
+    ConvexShape *theShape = NULL;
     if (it != convexShapes.end())
     {
-        delete *it;
+        theShape = *it;
         convexShapes.erase(it);
+    }
+    if (theShape)
+    {
+        it = activeShapes.find(theShape);
+        if (it != activeShapes.end())
+        {
+            activeShapes.erase(it);
+        }
+        delete theShape;
     }
 }
 
@@ -303,7 +322,7 @@ void ScreenSpaceGenerator::removeConvexShapes(std::vector<SimpleIdentity> &shape
     
 void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
-    if (convexShapes.empty())
+    if (activeShapes.empty())
         return;
     
     // Keep drawables sorted by destination texture ID
@@ -320,8 +339,8 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     std::vector<ProjectedPoint> newProjPts;
     
     // Work through the markers, asking each to generate its content
-    for (ConvexShapeSet::iterator it = convexShapes.begin();
-         it != convexShapes.end(); ++it)
+    for (ConvexShapeSet::iterator it = activeShapes.begin();
+         it != activeShapes.end(); ++it)
     {
         ConvexShape *shape = *it;
         addToDrawables(shape,frameInfo,drawables,frameMbr,newProjPts);
@@ -356,10 +375,23 @@ ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleId
     return NULL;
 }
 
+void ScreenSpaceGenerator::changeEnable(ConvexShape *shape,bool enable)
+{
+    if (shape->enable == enable)
+        return;
+    
+    if (shape->enable)
+        activeShapes.erase(shape);
+    else
+        activeShapes.insert(shape);
+
+    shape->enable = enable;
+}
+
 void ScreenSpaceGenerator::dumpStats()
 {
     pthread_mutex_lock(&projectedPtsLock);
-    NSLog(@"ScreenSpace Generator: %ld shapes",convexShapes.size());
+    NSLog(@"ScreenSpace Generator: %ld shapes, %ld active",convexShapes.size(),activeShapes.size());
     NSLog(@"ScreenSpace Generator: %ld projected points",projectedPoints.size());
     pthread_mutex_unlock(&projectedPtsLock);
 }
@@ -462,7 +494,9 @@ void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRend
     {
         ScreenSpaceGenerator::ConvexShape *shape = screenGen->getConvexShape(shapeIDs[ii]);
         if (shape)
-            shape->enable = enable;
+        {
+            screenGen->changeEnable(shape,enable);
+        }
     }
 }
     
@@ -488,7 +522,7 @@ void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitScene
         {
             shape->fadeUp = change.fadeUp;
             shape->fadeDown = change.fadeDown;
-            shape->enable = change.enable;
+            screenGen->changeEnable(shape,change.enable);
             shape->offset = change.offset;
             [renderer setRenderUntil:change.fadeUp];
             [renderer setRenderUntil:change.fadeDown];

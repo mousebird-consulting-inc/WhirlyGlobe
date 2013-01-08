@@ -68,6 +68,11 @@ void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float
 
 void subdivideToSurfaceRecurse(Point2f p0,Point2f p1,VectorRing &outPts,CoordSystemDisplayAdapter *adapter,float eps)
 {
+    // If the difference is greater than 180, then this is probably crossing the date line
+    //  in which case we'll just leave it alone.
+    if (std::abs(p0.x() - p1.x()) > M_PI)
+        return;
+    
     Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
     Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
     Point2f midPt = (p0+p1)/2.0;
@@ -77,6 +82,7 @@ void subdivideToSurfaceRecurse(Point2f p0,Point2f p1,VectorRing &outPts,CoordSys
     if (dist2 > eps*eps)
     {
         subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps);
+        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
     }
     outPts.push_back(p1);
 }

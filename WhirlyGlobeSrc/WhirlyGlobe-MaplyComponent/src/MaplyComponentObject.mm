@@ -28,5 +28,6 @@
 @synthesize shapeIDs;
 @synthesize chunkIDs;
 @synthesize vectors;
+@synthesize images;
 
 @end

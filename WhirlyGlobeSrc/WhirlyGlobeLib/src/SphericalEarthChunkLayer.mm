@@ -195,11 +195,6 @@ static const float SkirtFactor = 0.95;
     for (WhirlyKitSphericalChunk *chunk in chunkInfo->chunks)
     {
         GeoMbr geoMbr = chunk.mbr;
-        Point3f localLL,localUR;
-        localLL = localSys->geographicToLocal(geoMbr.ll());
-        localUR = localSys->geographicToLocal(geoMbr.ur());
-        Point2f localIncr((localUR.x()-localLL.x())/chunk.sampleX,(localUR.y()-localLL.y())/chunk.sampleY);
-        Point2f texIncr(1.0/chunk.sampleX,1.0/chunk.sampleY);
         
         BasicDrawable *drawable = new BasicDrawable();
         drawable->setType(GL_TRIANGLES);
@@ -213,20 +208,64 @@ static const float SkirtFactor = 0.95;
         std::vector<Point3f> locs((chunk.sampleX+1)*(chunk.sampleY+1));
         std::vector<TexCoord> texCoords((chunk.sampleX+1)*(chunk.sampleY+1));
 
+        Point2f texIncr(1.0/chunk.sampleX,1.0/chunk.sampleY);
+        // Without rotation, we'll just follow the geographic boundaries
+        if (chunk.rotation == 0.0)
+        {
+            Point3f localLL,localUR;
+            localLL = localSys->geographicToLocal(geoMbr.ll());
+            localUR = localSys->geographicToLocal(geoMbr.ur());
+            Point2f localIncr((localUR.x()-localLL.x())/chunk.sampleX,(localUR.y()-localLL.y())/chunk.sampleY);
+            
+            // Vertices
+            for (unsigned int iy=0;iy<chunk.sampleY+1;iy++)
+                for (unsigned int ix=0;ix<chunk.sampleX+1;ix++)
+                {
+                    Point3f loc(localLL.x() + ix * localIncr.x(), localLL.y() + iy * localIncr.y(), 0.0);
+                    Point3f dispLoc = coordAdapter->localToDisplay(loc);
+
+                    locs[iy*(chunk.sampleX+1)+ix] = dispLoc;
+                    TexCoord texCoord(ix * texIncr.x(), 1.0-iy * texIncr.y());
+                    texCoords[iy*(chunk.sampleX+1)+ix] = texCoord;
+                    
+                    drawable->addPoint(dispLoc);
+                    drawable->addTexCoord(texCoord);
+                    drawable->addNormal(dispLoc);
+                }
+        } else {
+            // With rotation, we need to handle this differently
+            // Convert the four corners into place
+            Point3f dispPts[4];
+            dispPts[0] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.ll()));
+            dispPts[1] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.lr()));
+            dispPts[2] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.ur()));
+            dispPts[3] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.ul()));
+            
         // Rotate around the center
-        Point3f center = (localLL+localUR)/2.0;
-        Eigen::Affine3f preTrans(Translation3f(-center));
-        Eigen::Affine3f rot(AngleAxisf(chunk.rotation, Vector3f(0,0,1)));
-        Eigen::Affine3f postTrans(Translation3f(center.x(),center.y(),center.z()));
-        Eigen::Matrix4f mat = postTrans.matrix() * rot.matrix() * preTrans.matrix();
+            Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
+            Eigen::Affine3f rot(AngleAxisf(chunk.rotation,center));
+            Eigen::Matrix4f mat = rot.matrix();
+
+            // Rotate the corners
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                Vector3f &dispPt = dispPts[ii];
+                Vector4f dispPost = mat * Vector4f(dispPt.x(),dispPt.y(),dispPt.z(),1.0);
+                dispPt = Point3f(dispPost.x(),dispPost.y(),dispPost.z());
+            }
+            
+            Point3f vecA = dispPts[1] - dispPts[0];
+            Point3f vecB = dispPts[2] - dispPts[3];
         
         // Vertices
         for (unsigned int iy=0;iy<chunk.sampleY+1;iy++)
             for (unsigned int ix=0;ix<chunk.sampleX+1;ix++)
             {
-                Point3f inLoc(localLL.x() + ix * localIncr.x(), localLL.y() + iy * localIncr.y(), 0.0);
-                Eigen::Vector4f loc = mat * Vector4f(inLoc.x(),inLoc.y(),inLoc.z(),1.0);
-                Point3f dispLoc = coordAdapter->localToDisplay(Point3f(loc.x(),loc.y(),loc.z()));
+                    Point3f ptA = dispPts[0] + ix * vecA / chunk.sampleX;
+                    Point3f ptB = dispPts[3] + ix * vecB / chunk.sampleX;
+                    Point3f dispLoc = ptA + iy * (ptB-ptA) / chunk.sampleY;
+                    if (!coordAdapter->isFlat())
+                        dispLoc.normalize();
 
                 locs[iy*(chunk.sampleX+1)+ix] = dispLoc;
                 TexCoord texCoord(ix * texIncr.x(), 1.0-iy * texIncr.y());
@@ -236,6 +275,9 @@ static const float SkirtFactor = 0.95;
                 drawable->addTexCoord(texCoord);
                 drawable->addNormal(dispLoc);
             }
+        
+            
+        }
         
         // Two triangles per cell
         for (unsigned int iy=0;iy<chunk.sampleY;iy++)

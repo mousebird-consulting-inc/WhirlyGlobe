@@ -111,6 +111,10 @@ public:
     /// Return a convex shape.  Only used by the change request objects.
     ConvexShape *getConvexShape(SimpleIdentity shapeId);
     
+    /// Use this to change the enable (on/off).  We keep a cache of active shapes,
+    ///  so always use this.
+    void changeEnable(ConvexShape *shape,bool enable);
+    
     /// Get the projected points from the last frame.
     /// This will lock, make a copy and unlock so go wild.
     void getProjectedPoints(std::vector<ProjectedPoint> &projPoints);
@@ -121,6 +125,7 @@ public:
 protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
+    ConvexShapeSet activeShapes;
     Point2f margin;
 	pthread_mutex_t projectedPtsLock;
     std::vector<ProjectedPoint> projectedPoints;
