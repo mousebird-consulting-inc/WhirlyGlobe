@@ -109,18 +109,54 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     // Look for an existing one
     MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
     if (it != imageTextures.end())
-        return it->texID;
+    {
+        // Increment the reference count
+        MaplyImageTexture copyTex(*it);
+        copyTex.refCount++;
+        imageTextures.erase(it);
+        imageTextures.insert(copyTex);
+        return copyTex.texID;
+    }
     
     // Add it and download it
     Texture *tex = new Texture(image);
-    //    tex->createInGL(YES, scene->getMemManager());
+    tex->createInGL(YES, scene->getMemManager());
     scene->addChangeRequest(new AddTextureReq(tex));
     
     // Add to our cache
     MaplyImageTexture newTex(image,tex->getId());
+    newTex.refCount = 1;
     imageTextures.insert(newTex);
     
     return newTex.texID;
+}
+
+// Remove an image for the cache, or just decrement its reference count
+- (void)removeImage:(UIImage *)image
+{
+    // Look for an existing one
+    MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
+    if (it != imageTextures.end())
+    {
+        // Decrement the reference count
+        if (it->refCount > 1)
+        {
+            MaplyImageTexture copyTex(*it);
+            copyTex.refCount--;
+            imageTextures.insert(copyTex);
+        } else {
+            // Note: This time is a hack.  Should look at the fade out.
+            [self performSelector:@selector(delayedRemoveTexture:) withObject:@(it->texID) afterDelay:1.0];
+            imageTextures.erase(it);
+        }
+    }
+}
+
+// Remove the given Texture ID after a delay
+// Note: This is a hack to work around fade problems
+- (void)delayedRemoveTexture:(NSNumber *)texID
+{
+    scene->addChangeRequest(new RemTextureReq([texID integerValue]));
 }
 
 // Actually add the markers.
@@ -139,7 +175,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
+        {
             texID = [self addImage:marker.image];
+            compObj.images.insert(marker.image);
+        }
         if (texID != EmptyIdentity)
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
@@ -192,7 +231,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
+        {
             texID = [self addImage:marker.image];
+            compObj.images.insert(marker.image);
+        }
         if (texID != EmptyIdentity)
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
@@ -244,8 +286,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
-        if (label.iconImage)
+        if (label.iconImage) {
             texID = [self addImage:label.iconImage];
+            compObj.images.insert(label.iconImage);
+        }
         wgLabel.iconTexture = texID;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
@@ -310,8 +354,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
-        if (label.iconImage)
+        if (label.iconImage) {
             texID = [self addImage:label.iconImage];
+            compObj.images.insert(label.iconImage);
+        }
         wgLabel.iconTexture = texID;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
@@ -527,8 +573,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     for (MaplySticker *sticker in stickers)
     {
         SimpleIdentity texId = EmptyIdentity;
-        if (sticker.image)
+        if (sticker.image) {
             texId = [self addImage:sticker.image];
+            compObj.images.insert(sticker.image);
+        }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
         GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
         chunk.mbr = geoMbr;
@@ -580,6 +628,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
                  it != userObj.chunkIDs.end(); ++it)
                 [chunkLayer removeChunk:*it];
+            // And associated textures
+            for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
+                [self removeImage:*it];
             
             [userObjects removeObject:userObj];
         }

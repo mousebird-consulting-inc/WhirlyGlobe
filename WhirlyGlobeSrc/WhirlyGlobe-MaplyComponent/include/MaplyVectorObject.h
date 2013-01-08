@@ -26,11 +26,14 @@
   */
 @interface MaplyVectorObject : NSObject
 {
+    /// For user data
+    NSObject *userObject;
     /// Turn this off to make this vector invisible to selection.
     /// On by default.
     bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) bool selectable;
 
 /// Get the attributes.  If it's a multi-object this will just return the first

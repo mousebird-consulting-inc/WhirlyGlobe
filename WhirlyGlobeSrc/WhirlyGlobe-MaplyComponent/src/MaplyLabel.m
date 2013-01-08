@@ -22,6 +22,7 @@
 
 @implementation MaplyLabel
 
+@synthesize userObject;
 @synthesize loc;
 @synthesize size;
 @synthesize text;

@@ -40,6 +40,12 @@
 /// Calculate where the eye is in model coordinates
 - (Eigen::Vector3f)eyePos;
 
+/** Given a location on the screen and the screen size, figure out where we touched the sphere
+ Returns true if we hit and where
+ Returns false if not and the closest point on the sphere
+ */
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
+
 @end
 
 /** The Globe Layer View watcher is a subclass of the layer view

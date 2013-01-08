@@ -74,6 +74,7 @@
 	float nearPlane;
 	float farPlane;
     WhirlyKit::Point3f eyeVec;
+    WhirlyKit::Point3f eyeVecModel;
     WhirlyKit::Point2f ll,ur;
     float near,far;
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
@@ -87,9 +88,12 @@
 /// This will cache the values in the view state for later use
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight;
 
+/// From a screen point calculate the corresponding point in 3-space
+- (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+
 /// From a world location (3D), figure out the projection to the screen
 ///  Returns a point within the frame
-- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /// Compare this view state to the other one.  Returns true if they're identical.
 - (bool)isSameAs:(WhirlyKitViewState *)other;
