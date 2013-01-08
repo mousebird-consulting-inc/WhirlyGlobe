@@ -149,7 +149,7 @@ static const float AnimLen = 1.0;
                 float modelVel = len / AnimLen;
                 dir.normalize();
 
-                // Caluclate the acceleration based on how far we'd like it to go
+                // Calculate the acceleration based on how far we'd like it to go
                 float accel = - modelVel / (AnimLen * AnimLen);
 
                 // Kick off a little movement at the end
