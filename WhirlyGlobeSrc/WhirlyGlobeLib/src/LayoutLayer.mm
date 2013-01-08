@@ -120,6 +120,7 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
     
     currentEnable = newEnable = false;
     offset = Point2f(0.0,0.0);
+    minVis = maxVis = DrawVisibleInvalid;
     changed = true;
     
     return self;
@@ -178,7 +179,10 @@ static const float DelayPeriod = 0.1;
 // We're getting called for absolutely every update here
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
 {
-    if (viewState && [viewState isSameAs:inViewState])
+    if (!scene)
+        return;
+    
+    if (viewState && [inViewState isSameAs:viewState])
         return;
     viewState = inViewState;
     
@@ -198,6 +202,9 @@ static const float DelayPeriod = 0.1;
 // Called after some period to check if we've stopped moving
 - (void)delayCheck
 {
+    if (!viewState)
+        return;
+    
     stopped = true;
 //    NSLog(@"Stopped moving");
     
@@ -239,13 +246,14 @@ static const float DelayPeriod = 0.1;
     scene->addChangeRequest(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes));
 }
 
+// Sort more important things to the front
 typedef struct
 {
     bool operator () (const WhirlyKitLayoutObject *a,const WhirlyKitLayoutObject *b)
     {
         if (a->importance == b->importance)
-            return a < b;
-        return a->importance < b->importance;
+            return a > b;
+        return a->importance > b->importance;
     }
 } WhirlyKitLayoutObjectSorter;
 typedef std::set<WhirlyKitLayoutObject *,WhirlyKitLayoutObjectSorter> WhirlyKitLayoutObjectSet;
@@ -266,9 +274,24 @@ static const float ScreenBuffer = 0.1;
     WhirlyKitLayoutObjectSet layoutObjs;
 
     // Turn everything off and sort by importance
+    WhirlyGlobeViewState *globeViewState = nil;
+    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
+        globeViewState = (WhirlyGlobeViewState *)viewState;
     for (LayoutObjectMap::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
+    {
+        WhirlyKitLayoutObject *obj = it->second;
+        bool use = false;
+        if (globeViewState)
+        {
+            if (obj->minVis == DrawVisibleInvalid || obj->maxVis == DrawVisibleInvalid ||
+                (obj->minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->maxVis))
+                use = true;
+        } else
+            use = true;
+        if (use)
         layoutObjs.insert(it->second);
+    }
     
     // Need to scale for retina displays
     float resScale = renderer.scale;
@@ -280,7 +303,7 @@ static const float ScreenBuffer = 0.1;
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
 
-    Matrix4f modelTrans = viewState->modelMatrix;
+    Matrix4f modelTrans = viewState->fullMatrix;
     for (WhirlyKitLayoutObjectSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
     {
@@ -293,14 +316,14 @@ static const float ScreenBuffer = 0.1;
         if (isActive)
         {
             // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromSphere:layoutObj->dispLoc transform:&modelTrans frameSize:frameBufferSize];
+            CGPoint objPt = [viewState pointOnScreenFromDisplay:layoutObj->dispLoc transform:&modelTrans frameSize:frameBufferSize];
             isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
             // Now for the overlap checks
             if (isActive)
             {
                 // Try the four diffierent orientations
                 bool validOrient = false;
-                Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f(objPt.x+layoutObj->size.x()*resScale,objPt.y+layoutObj->size.y()*resScale));
+                Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f((objPt.x+layoutObj->size.x()*resScale),(objPt.y+layoutObj->size.y()*resScale)));
                 for (unsigned int orient=0;orient<4;orient++)
                 {
                     // May only want to be placed certain ways.  Fair enough.
@@ -312,19 +335,19 @@ static const float ScreenBuffer = 0.1;
                     {
                         // Right
                         case 0:
-                            objOffset = Point2f(0.0,0.0);
+                            objOffset = Point2f(layoutObj->iconSize.x(),0.0);
                             break;
                         // Left
                         case 1:
-                            objOffset = Point2f(-layoutObj->size.x(),0.0);
+                            objOffset = Point2f(-(layoutObj->size.x()+layoutObj->iconSize.x()/2.0),0.0);
                             break;
                         // Above
                         case 2:
-                            objOffset = Point2f(-layoutObj->size.x()/2.0,-layoutObj->size.y());
+                            objOffset = Point2f(-layoutObj->size.x()/2.0,-(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
                             break;
                         // Below
                         case 3:
-                            objOffset = Point2f(-layoutObj->size.x()/2.0,layoutObj->size.y());
+                            objOffset = Point2f(-layoutObj->size.x()/2.0,(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
                             break;
                     }
                     
@@ -344,7 +367,7 @@ static const float ScreenBuffer = 0.1;
         // See if we've changed any of the state
         layoutObj->changed = (layoutObj->currentEnable != isActive);
         if (!layoutObj->changed && layoutObj->newEnable &&
-            layoutObj->offset.x() == objOffset.x() && layoutObj->offset.y() == objOffset.y())
+            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
             layoutObj->changed = true;
         layoutObj->newEnable = isActive;
         layoutObj->offset = objOffset;
@@ -391,7 +414,7 @@ static float const DisappearFade = 0.1;
             {
                 ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
                 change.shapeID = *sit;
-                change.enable = true;
+                change.enable = layoutObj->currentEnable;
                 changes.push_back(change);
             }
             

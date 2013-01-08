@@ -174,20 +174,21 @@ typedef enum {Middle,Left,Right} LabelJustify;
 }
 
 // This version calculates extents for a screen space label
-- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts
+- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(LabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts useIconOffset:(bool)useIconOffset
 {
     Point3f center(0,0,0);
     Point3f ll;
     Point3f horiz = Point3f(1,0,0);
     Point3f vert = Point3f(0,1,0);
     
+    float iconSizeForLabel = (useIconOffset ? iconSize : 0.0);
     switch (justify)
     {
         case Left:
-            ll = center + iconSize * horiz - height2 * vert;
+            ll = center + iconSizeForLabel * horiz - height2 * vert;
             break;
         case Middle:
-            ll = center - (width2 + iconSize/2) * horiz - height2 * vert;
+            ll = center - (width2 + iconSizeForLabel/2) * horiz - height2 * vert;
             break;
         case Right:
             ll = center - 2*width2 * horiz - height2 * vert;
@@ -363,8 +364,15 @@ typedef enum {Middle,Left,Right} LabelJustify;
         theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
     }
     
-    // Figure out how big this needs to be
-    *textSize = [label.text sizeWithFont:font];
+    // Figure out the size of the string
+    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
+    NSInteger strLen = [attrStr length];
+    [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+
+    // Figure out how big this needs to be]
+    *textSize = [attrStr size];
+    textSize->width += theShadowSize;
+    
     if (textSize->width == 0 || textSize->height == 0)
         return nil;
     
@@ -388,18 +396,18 @@ typedef enum {Middle,Left,Right} LabelJustify;
     // Do the background shadow, if requested
     if (theShadowSize > 0.0)
     {
-        if (!shadowColor)
-            shadowColor = [UIColor blackColor];
+        if (!theShadowColor)
+            theShadowColor = [UIColor blackColor];
         CGContextSetLineWidth(ctx, theShadowSize);
         CGContextSetLineJoin(ctx, kCGLineJoinRound);
         CGContextSetTextDrawingMode(ctx, kCGTextStroke);
-        [theShadowColor setStroke];
-        [label.text drawAtPoint:CGPointMake(0,0) withFont:theFont];
+        [attrStr addAttribute:NSForegroundColorAttributeName value:theShadowColor range:NSMakeRange(0, strLen)];
+        [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
     }
 
 	CGContextSetTextDrawingMode(ctx, kCGTextFill);
-	[theTextColor setFill];
-	[label.text drawAtPoint:CGPointMake(0,0) withFont:theFont];
+    [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
+    [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
 	
 	// Grab the image and shut things down
 	UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();	
@@ -583,8 +591,12 @@ public:
         Point3f norm;
         Point3f pts[4],iconPts[4];
         ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
+        WhirlyKitLayoutObject *layoutObj = nil;
         if (labelInfo.screenObject)
         {
+            // Set if we're letting the layout engine control placement
+            bool layoutEngine = (labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false]);
+            
             // Texture coordinates are a little odd because text might not take up the whole texture
             TexCoord texCoord[4];
             texCoord[0].u() = texOrg.u();  texCoord[0].v() = texDest.v();
@@ -592,8 +604,7 @@ public:
             texCoord[2].u() = texDest.u();  texCoord[2].v() = texOrg.v();
             texCoord[3].u() = texOrg.u();  texCoord[3].v() = texOrg.v();
             
-            
-            [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts iconCorners:iconPts];
+            [label calcScreenExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:pts iconCorners:iconPts useIconOffset:(layoutEngine == false)];
             screenShape = new ScreenSpaceGenerator::ConvexShape();
             screenShape->drawPriority = labelInfo.drawPriority;
             screenShape->minVis = labelInfo.minVis;
@@ -630,19 +641,20 @@ public:
             screenShape->geom.push_back(smGeom);
             
             // If it's being passed to the layout engine, do that as well
-            if (labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false])
+            if (layoutEngine)
             {
                 float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:labelInfo.layoutImportance];
                 
                 // Put together the layout info
-                WhirlyKitLayoutObject *layoutObj = [[WhirlyKitLayoutObject alloc] init];
+                layoutObj = [[WhirlyKitLayoutObject alloc] init];
                 layoutObj->tag = label.text;
                 layoutObj->ssID = screenShape->getId();
                 layoutObj->dispLoc = screenShape->worldLoc;
                 layoutObj->size = Point2f(width2*2.0,height2*2.0);
-                // Note: Need to get this working
-                layoutObj->iconSize = Point2f(0.0,0.0);
+                layoutObj->iconSize = Point2f(iconSize,iconSize);
                 layoutObj->importance = layoutImportance;
+                layoutObj->minVis = labelInfo.minVis;
+                layoutObj->maxVis = labelInfo.maxVis;
                 // Note: Should parse out acceptable placements as well
                 layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
                 [layoutObjects addObject:layoutObj];
@@ -751,7 +763,21 @@ public:
                     iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y()));
                     iconGeom.texCoords.push_back(texCoord[ii]);
                 }
-                screenShape->geom.push_back(iconGeom);
+                // For layout objects, we'll put the icons on their own
+                if (layoutObj)
+                {
+                    ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
+                    SimpleIdentity iconId = iconScreenShape->getId();
+                    *iconScreenShape = *screenShape;
+                    iconScreenShape->setId(iconId);
+                    iconScreenShape->geom.clear();
+                    iconScreenShape->geom.push_back(iconGeom);
+                    screenObjects.push_back(iconScreenShape);
+                    labelRep->screenIDs.insert(iconScreenShape->getId());
+                    layoutObj->auxIDs.insert(iconScreenShape->getId());
+                } else {
+                    screenShape->geom.push_back(iconGeom);
+                }
             } else {
                 // Try to add this to an existing drawable
                 IconDrawables::iterator it = iconDrawables.find(subTex.texId);

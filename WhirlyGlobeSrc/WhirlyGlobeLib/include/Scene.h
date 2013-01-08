@@ -333,6 +333,7 @@ public:
 	/// This can be accessed in multiple threads, so we lock it
 	std::vector<ChangeRequest *> changeRequests;
     
+    pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;

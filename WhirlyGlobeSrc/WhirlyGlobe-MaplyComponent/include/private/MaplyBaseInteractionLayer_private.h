@@ -104,6 +104,9 @@
 // An internal routine to add an image to our local UIImage/ID cache
 - (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image;
 
+// Remove the texture associated with an image  or just decrement its reference count
+- (void)removeImage:(UIImage *)image;
+
 // Do a point in poly check for vectors we're representing
 - (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;
 

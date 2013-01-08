@@ -26,6 +26,8 @@
  */
 @interface MaplyMarker : NSObject
 {
+    /// For user data
+    NSObject *userObject;    
     /// Location in geographic (lat/lon) in radians
     MaplyCoordinate loc;
     /// Size in 3D.  Remember that the earth is radius = 1.0.
@@ -36,6 +38,7 @@
     bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate loc;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) UIImage *image;
