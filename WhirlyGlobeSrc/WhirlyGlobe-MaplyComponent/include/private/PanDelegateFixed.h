@@ -21,38 +21,9 @@
 #import <Foundation/Foundation.h>
 #import "WhirlyGlobe.h"
 
-// Kind of panning we're in the middle of
-typedef enum {PanNone,PanFree,PanSuspended} PanningType;
-
-// Scale factors for the angular velocity
-// Used with height
-#define MaxAngularVelocity 750.0
-#define MinAngularVelocity 1.0
-
 // Version of pan delegate specific to this app
 // The pan delegate handles panning and rotates the globe accordingly
 @interface PanDelegateFixed : NSObject<UIGestureRecognizerDelegate> 
-{
-    WhirlyGlobeView * __weak view;
-    UITouch *startTouch;  // The touch we're following
-    CGPoint startPoint;
-    // Used to keep track of what sort of rotation we're doing
-    PanningType panType;
-	// The view transform when we started
-	Eigen::Matrix4f startTransform;
-	// Where we first touched the sphere
-    WhirlyKit::Point3f startOnSphere;
-	// Rotation when we started
-	Eigen::Quaternionf startQuat;
-
-    // Last sample for spinning
-    Eigen::Quaternionf spinQuat;
-    CFTimeInterval spinDate;
-    CGPoint lastTouch;
-    AnimateViewMomentum *viewAnimation;
-    
-    bool northUp;
-}
 
 @property(nonatomic,assign) bool northUp;
 
