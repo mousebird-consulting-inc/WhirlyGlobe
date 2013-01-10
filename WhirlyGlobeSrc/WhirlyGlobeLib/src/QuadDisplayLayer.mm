@@ -164,7 +164,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         maxZoom = [dataStructure maxZoom];
         maxTiles = 256;
         minImportance = 1.0;
-        viewUpdatePeriod = 1.0;
+        viewUpdatePeriod = 0.1;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
         lineMode = false;

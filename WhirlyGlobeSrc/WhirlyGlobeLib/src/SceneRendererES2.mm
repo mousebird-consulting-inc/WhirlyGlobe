@@ -85,8 +85,8 @@ public:
     // Add a simple default light
     WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
     light->pos = Vector3f(0.75, 0.5, -1.0);
-    light->ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
-    light->diffuse = Vector4f(0.3, 0.3, 0.3, 1.0);
+    light->ambient = Vector4f(0.7, 0.7, 0.7, 1.0);
+    light->diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
     light->specular = Vector4f(0, 0, 0, 0);
     [self addLight:light];
 
@@ -146,7 +146,7 @@ static const char *vertexShaderTri =
 "        ambient += light[ii].ambient;\n"
 "        diffuse += ndotl * light[ii].diffuse;\n"
 "     }\n"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz + diffuse.xyz * a_color.xyz,a_color.a);\n"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a);\n"
 "   } else {\n"
 "     v_color = a_color;\n"
 "   }\n"
@@ -208,15 +208,21 @@ static const char *fragmentShaderLine =
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
     
-    OpenGLES2Program *triShader = new OpenGLES2Program("Default Triangle Program",vertexShaderTri,fragmentShaderTri);
-    OpenGLES2Program *lineShader = new OpenGLES2Program("Default Line Program",vertexShaderLine,fragmentShaderLine);
-    if (!triShader->isValid() || !lineShader->isValid())
+    // Provider default shader programs if we don't already have them
+    SimpleIdentity triShaderID,lineShaderID;
+    scene->getDefaultProgramIDs(triShaderID, lineShaderID);
+    if (triShaderID == EmptyIdentity || lineShaderID == EmptyIdentity)
     {
-        NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
-        delete triShader;
-        delete lineShader;
-    } else {
-        scene->setDefaultPrograms(triShader,lineShader);
+        OpenGLES2Program *triShader = new OpenGLES2Program("Default Triangle Program",vertexShaderTri,fragmentShaderTri);
+        OpenGLES2Program *lineShader = new OpenGLES2Program("Default Line Program",vertexShaderLine,fragmentShaderLine);
+        if (!triShader->isValid() || !lineShader->isValid())
+        {
+            NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
+            delete triShader;
+            delete lineShader;
+        } else {
+            scene->setDefaultPrograms(triShader,lineShader);
+        }
     }
 
     if (oldContext != context)
@@ -407,18 +413,12 @@ static const float ScreenOverlap = 0.1;
         std::set<DrawableRef> toDraw;
         int drawablesConsidered = 0;
         CullTree *cullTree = scene->getCullTree();
-        if (globeView)
-        {
-            // Recursively search for the drawables that overlap the screen
-            Mbr screenMbr;
-            // Stretch the screen MBR a little for safety
-            screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-            screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-            [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
-        } else {
-            // Otherwise copy it all over
-            // Note: Do this
-        }
+        // Recursively search for the drawables that overlap the screen
+        Mbr screenMbr;
+        // Stretch the screen MBR a little for safety
+        screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+        screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;

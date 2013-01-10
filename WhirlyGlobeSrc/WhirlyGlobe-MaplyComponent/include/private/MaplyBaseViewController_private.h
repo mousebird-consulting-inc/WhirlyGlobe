@@ -34,7 +34,7 @@
 {
 @public
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES1 *sceneRenderer;
+    WhirlyKitSceneRendererES *sceneRenderer;
     
     WhirlyKitLayerThread *layerThread;
 
@@ -87,6 +87,10 @@
 
 /// For loading the Maply or Globe view.  The subclasses call this, but you shouldn't
 - (WhirlyKit::Scene *) loadSetup_scene;
+
+/// Override this to set up the default lighting scheme (e.g. the shaders).
+/// The base class provides an adequate default
+- (void) loadSetup_lighting;
 
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
