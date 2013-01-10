@@ -290,7 +290,7 @@ static const float ScreenBuffer = 0.1;
         } else
             use = true;
         if (use)
-        layoutObjs.insert(it->second);
+            layoutObjs.insert(it->second);
     }
     
     // Need to scale for retina displays
@@ -311,7 +311,9 @@ static const float ScreenBuffer = 0.1;
 
         // Start with a back face check
         // Note: Doesn't take projection into account, but close enough
-        bool isActive = layoutObj->dispLoc.dot(viewState->eyeVec) > 0.0;
+        bool isActive = true;
+        if (globeViewState)
+            isActive = layoutObj->dispLoc.dot(viewState->eyeVec) > 0.0;
         Point2f objOffset(0.0,0.0);
         if (isActive)
         {

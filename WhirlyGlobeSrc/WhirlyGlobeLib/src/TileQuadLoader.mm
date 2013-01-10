@@ -494,7 +494,10 @@ static const float SkirtFactor = 0.95;
                     
                     chunk->addPoint(loc3D);
                     chunk->addTexCoord(texCoord);
-                    chunk->addNormal(loc3D);
+                    if (coordAdapter->isFlat())
+                        chunk->addNormal(coordAdapter->normalForLocal(loc3D));
+                    else
+                        chunk->addNormal(loc3D);
                 }
             
             // Two triangles per cell

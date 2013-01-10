@@ -1230,8 +1230,10 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
+                glLineWidth(lineWidth);
                 glDrawArrays(type, 0, numPoints);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");                
+                glLineWidth(1.0);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
         }
         glBindVertexArrayOES(0);

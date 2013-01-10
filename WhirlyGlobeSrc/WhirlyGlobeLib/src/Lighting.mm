@@ -91,7 +91,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     
-    ambient = Vector4f(0.5,0.5,0.5,1.0);
+    ambient = Vector4f(1.0,1.0,1.0,1.0);
     diffuse = Vector4f(1.0,1.0,1.0,1.0);
 //    specular = Vector4f(1.0,1.0,1.0,1.0);
 //    specularExponent = 100.0;
