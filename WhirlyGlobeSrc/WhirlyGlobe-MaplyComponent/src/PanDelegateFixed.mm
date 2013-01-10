@@ -24,7 +24,32 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
+// Kind of panning we're in the middle of
+typedef enum {PanNone,PanFree,PanSuspended} PanningType;
+
 @implementation PanDelegateFixed
+{
+    WhirlyGlobeView * __weak view;
+    UITouch *startTouch;  // The touch we're following
+    CGPoint startPoint;
+    // Used to keep track of what sort of rotation we're doing
+    PanningType panType;
+	// The view transform when we started
+	Eigen::Matrix4f startTransform;
+	// Where we first touched the sphere
+    WhirlyKit::Point3f startOnSphere;
+	// Rotation when we started
+	Eigen::Quaternionf startQuat;
+    
+    // Last sample for spinning
+    Eigen::Quaternionf spinQuat;
+    CFTimeInterval spinDate;
+    CGPoint lastTouch;
+    AnimateViewMomentum *viewAnimation;
+    
+    bool northUp;
+    bool runEndMomentum;
+}
 
 @synthesize northUp;
 
@@ -34,6 +59,7 @@ using namespace WhirlyGlobe;
 	{
 		view = inView;
         panType = PanNone;
+        runEndMomentum = true;
 	}
 	
 	return self;
@@ -73,6 +99,24 @@ using namespace WhirlyGlobe;
         panType = PanNone;
 }
 
+// How long we let the momentum run at the end of a pan
+static const float MomentumAnimLen = 1.0;
+
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+{
+    // Back Project the screen point into model space
+    Point3f screenPt = [view pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
+        
+    screenPt.normalize();
+    if (screenPt.z() == 0.0)
+        return false;
+    float t = - view.heightAboveGlobe / screenPt.z();
+    
+    *hit = screenPt * t;
+    
+    return true;
+}
+
 // Called for pan actions
 - (void)panAction:(id)sender
 {
@@ -84,6 +128,7 @@ using namespace WhirlyGlobe;
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
+        runEndMomentum = false;
         return;
     }
 	    
@@ -92,6 +137,7 @@ using namespace WhirlyGlobe;
 		case UIGestureRecognizerStateBegan:
 		{
 			[view cancelAnimation];
+            runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
 		}
@@ -105,6 +151,9 @@ using namespace WhirlyGlobe;
                 // We were suspended, probably because the user dropped another finger
                 // So now restart the process
                 [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+
+                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                lastTouch = touchPt;
             }
 			if (panType != PanNone)
 			{
@@ -160,68 +209,53 @@ using namespace WhirlyGlobe;
             break;
 		case UIGestureRecognizerStateEnded:
         {
-            //  The value we calculated is related to what we want, but it isn't quite what we want
-            //   so we scale here and feel dirty.
-            float heightScale = (view.heightAboveGlobe-[view minHeightAboveGlobe])/([view maxHeightAboveGlobe]-[view minHeightAboveGlobe]);
-            float scale = heightScale*(MaxAngularVelocity-MinAngularVelocity)+MinAngularVelocity;
-            // Note: This constant is a hack
-
-            // We'll use this to get two points in model space
-            CGPoint vel = [pan velocityInView:pan.view];
-            CGPoint touch0 = lastTouch;
-            
-            Point3f p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
-            Point2f touch1(touch0.x+vel.x,touch0.y+vel.y);
-            Point3f p1 = [view pointUnproject:touch1 width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
-            
-            // Now unproject them back to the canonical model
-            Eigen::Matrix4f modelMat = [view calcFullMatrix].inverse();
-            Vector4f model_p0 = modelMat * Vector4f(p0.x(),p0.y(),p0.z(),1.0);
-            Vector4f model_p1 = modelMat * Vector4f(p1.x(),p1.y(),p1.z(),1.0);
-            model_p0.x() /= model_p0.w();  model_p0.y() /= model_p0.w();  model_p0.z() /= model_p0.w();
-            model_p1.x() /= model_p1.w();  model_p1.y() /= model_p1.w();  model_p1.z() /= model_p1.w();
-            
-            // The acceleration (to slow it down)
-            float drag = -1.5,dot,ang;
-
-            // Now for the direction
-            Vector3f upVector(0,0,1);
-            if (northUp)
+            if (panType == PanFree && runEndMomentum)
             {
-                // In this case we just care about movement in X and Y                
-                // The angle between them, ignoring z, is what we're after
-                model_p0.z() = 0;  model_p0.w() = 0;
-                model_p1.z() = 0;  model_p1.w() = 0;
-                model_p0.normalize();
-                model_p1.normalize();
+                // We'll use this to get two points in model space
+                CGPoint vel = [pan velocityInView:glView];
+                CGPoint touch0 = lastTouch;
+                CGPoint touch1 = touch0;  touch1.x += MomentumAnimLen*vel.x; touch1.y += MomentumAnimLen*vel.y;
+                Point3f p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
+                Point3f p1 = [view pointUnproject:Point2f(touch1.x,touch1.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
+                Eigen::Matrix4f modelMat = [view calcFullMatrix];
+                Eigen::Matrix4f invModelMat = modelMat.inverse();
+                Vector4f model_p0 = invModelMat * Vector4f(p0.x(),p0.y(),p0.z(),1.0);
+                Vector4f model_p1 = invModelMat * Vector4f(p1.x(),p1.y(),p1.z(),1.0);
+                model_p0.x() /= model_p0.w();  model_p0.y() /= model_p0.w();  model_p0.z() /= model_p0.w();
+                model_p1.x() /= model_p1.w();  model_p1.y() /= model_p1.w();  model_p1.z() /= model_p1.w();
                 
-                dot = model_p0.dot(model_p1);
-                ang = acosf(dot);
-
-                // Rotate around the Z axis (model space)
-                Vector3f cross = Vector3f(model_p0.x(),model_p0.y(),0.0).cross(Vector3f(model_p1.x(),model_p1.y(),0.0));
-                if (cross.z() < 0)
+                Point3f hit0,hit1;
+                Point2f frameSize(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor);
+                if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize hit:&hit0] &&
+                    [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize hit:&hit1])
                 {
-                    ang *= -1;
-                    drag *= -1;
-                }
-            } else {
-                // In this case we consider the full angle between the points
-                model_p0.normalize();  model_p1.normalize();
-                
-                // Rotate around whatever axis makes sense based on the two touches
-                Vector3f cross = Vector3f(model_p0.x(),model_p0.y(),model_p0.z()).cross(Vector3f(model_p1.x(),model_p1.y(),model_p1.z()));
-                upVector = cross.normalized();
+                    
+                    float len = (hit1-hit0).norm();
+                    float modelVel = len / MomentumAnimLen;
+                    float angVel = modelVel;
+                    
+                    // Rotate around whatever axis makes sense based on the two touches
+                    // Note: No longer taking NorthUp into account
+                    model_p0.normalize();  model_p1.normalize();
+                    Vector3f cross = Vector3f(model_p0.x(),model_p0.y(),model_p0.z()).cross(Vector3f(model_p1.x(),model_p1.y(),model_p1.z()));
+                    Vector3f upVector = cross.normalized();
 
-                dot = model_p0.dot(model_p1);
-                ang = acosf(dot);                
+                    // If we're doing north up, just rotate around the Z axis
+                    if (northUp) {
+                        Vector3f oldUpVector = upVector;
+                        upVector = Vector3f(0,0,(oldUpVector.z() > 0.0 ? 1 : -1));
+                        angVel *= upVector.dot(oldUpVector);
+                    }
+
+                    // Calculate the acceleration based on how far we'd like it to go
+                    float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
+                    
+                    // Keep going in that direction for a while
+                    viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
+                    view.delegate = viewAnimation;
+                }
+               
             }
-            ang *= scale;
-            drag *= scale/(MaxAngularVelocity-MinAngularVelocity);
-            
-            // Keep going in that direction for a while
-            viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:ang accel:drag axis:upVector];
-            view.delegate = viewAnimation;
         }
 			break;
         default:
