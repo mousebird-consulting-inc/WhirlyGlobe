@@ -28,6 +28,7 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyVectorObject
 
+@synthesize userObject;
 @synthesize selectable;
 @synthesize shapes;
 
@@ -35,6 +36,8 @@ using namespace WhirlyGlobe;
 //   the whole thing, which might include multiple different vectors.
 + (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
 {
+    if([geoJSON length])
+    {
     NSError *error = nil;
     NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
     if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
@@ -45,7 +48,9 @@ using namespace WhirlyGlobe;
     if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
         return nil;
 
-    return vecObj;
+      return vecObj;
+    }
+    return nil;
 }
 
 - (NSDictionary *)attributes

@@ -22,6 +22,7 @@
 
 @implementation MaplyMarker
 
+@synthesize userObject;
 @synthesize loc;
 @synthesize size;
 @synthesize image;

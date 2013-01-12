@@ -1,8 +1,8 @@
 /*
- *  WGLabel.m
- *  WhirlyGlobeComponent
+ *  ViewController.h
+ *  NaturalEarthData
  *
- *  Created by Steve Gifford on 7/24/12.
+ *  Created by Steve Gifford on 12/23/12.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,29 +18,8 @@
  *
  */
 
-#import "MaplyLabel.h"
+#import <UIKit/UIKit.h>
 
-@implementation MaplyLabel
-
-@synthesize userObject;
-@synthesize loc;
-@synthesize size;
-@synthesize text;
-@synthesize iconImage;
-@synthesize color;
-@synthesize selectable;
-@synthesize justify;
-
-- (id)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    selectable = true;
-    justify = MaplyLabelJustiyMiddle;
-    
-    return self;
-}
+@interface ViewController : UIViewController
 
 @end

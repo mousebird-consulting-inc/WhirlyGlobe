@@ -21,6 +21,7 @@
 #import "QuadDisplayLayer.h"
 #import "GlobeMath.h"
 #import "GlobeLayerViewWatcher.h"
+#import "MaplyLayerViewWatcher.h"
 #import "UIImage+Stuff.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 
@@ -51,7 +52,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
             if (pts3d[ii].dot(eyeVec) > 0.0)
                 forwardFacing = true;
         
-        CGPoint screenPt = [viewState pointOnScreenFromSphere:pts3d[ii] transform:&viewState->fullMatrix frameSize:frameSize];
+        CGPoint screenPt = [viewState pointOnScreenFromDisplay:pts3d[ii] transform:&viewState->fullMatrix frameSize:frameSize];
         screenPts[ii] = Point2f(screenPt.x,screenPt.y);
     }
     
@@ -76,28 +77,52 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 {
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
-    Point3f testPoints[5];
+    Point3f testPoints[6];
+    int numTestPoints = 0;
     testPoints[0] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
     testPoints[1] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
     testPoints[2] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
     testPoints[3] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
     testPoints[4] = (testPoints[0]+testPoints[2])/2.0;
+    numTestPoints = 5;
     
     // Let's make sure we at least overlap the screen
+    // Note: Need to fix this for Maply
     Mbr mbrOnScreen;
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3f pt3d = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, displaySystem, testPoints[ii]));
         
-        CGPoint screenPt = [viewState pointOnScreenFromSphere:pt3d transform:&viewState->fullMatrix frameSize:frameSize];
+        CGPoint screenPt = [viewState pointOnScreenFromDisplay:pt3d transform:&viewState->fullMatrix frameSize:frameSize];
         mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
     if (!mbrOnScreen.overlaps(frameMbr))
         return 0.0;
     
+#if 0
+    // Figure out the intersection of the projection and the screen MBR
+    // We'll take the middle, project that back and toss that in as a test point
+    Mbr screenIntersect = mbrOnScreen.intersect(frameMbr);
+    Point2f intersectMid = screenIntersect.mid();
+    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
+    {
+        WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
+        Point3f dispPt;
+        if ([globeViewState pointOnSphereFromScreen:CGPointMake(intersectMid.x(), intersectMid.y()) transform:&viewState->fullMatrix frameSize:frameSize hit:&dispPt])
+        {
+            Point3f localPt = coordAdapter->displayToLocal(dispPt);
+            if (nodeMbr.inside(Point2f(localPt.x(),localPt.y())))
+            {
+                testPoints[numTestPoints++] = coordAdapter->displayToLocal(dispPt);
+                numTestPoints++;
+            }
+        }
+    }
+#endif
+    
     float maxImport = 0.0;
-    for (unsigned int ii=0;ii<5;ii++)
+    for (unsigned int ii=0;ii<numTestPoints;ii++)
     {
         float thisImport = calcImportance(viewState,eyeVec,testPoints[ii],pixSize,frameSize,srcSystem,displaySystem,coordAdapter);
         maxImport = std::max(thisImport,maxImport);
@@ -139,7 +164,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         maxZoom = [dataStructure maxZoom];
         maxTiles = 256;
         minImportance = 1.0;
-        viewUpdatePeriod = 1.0;
+        viewUpdatePeriod = 0.1;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
         lineMode = false;
@@ -226,6 +251,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         }
         
 //    NSLog(@"View update called: (eye) = (%f,%f,%f), nodesForEval = %lu",eyeVec3.x(),eyeVec3.y(),eyeVec3.z(),nodesForEval.size());
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 
@@ -353,7 +379,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         nodesForEval.insert(childNodes.begin(),childNodes.end());
         
         // Make sure we actually evaluate them
-        [NSObject cancelPreviousPerformRequestsWithTarget:self];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
 }
@@ -375,7 +401,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
     }
     
     // Clean out anything we might be currently evaluating
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     nodesForEval.clear();
 
     // Remove nodes until we run out

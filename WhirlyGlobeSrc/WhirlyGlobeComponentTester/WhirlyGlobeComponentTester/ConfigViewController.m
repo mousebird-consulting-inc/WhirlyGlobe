@@ -30,6 +30,9 @@
 @synthesize label3DSwitch;
 @synthesize marker2DSwitch;
 @synthesize marker3DSwitch;
+@synthesize shapeCylSwitch;
+@synthesize shapeSphereSwitch;
+@synthesize shapeGreatCircleSwitch;
 @synthesize northUpSwitch;
 @synthesize zBufferSwitch;
 @synthesize cullingSwitch;

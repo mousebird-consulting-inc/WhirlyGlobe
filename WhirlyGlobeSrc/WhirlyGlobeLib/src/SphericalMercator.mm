@@ -30,7 +30,7 @@ SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(float originLon)
 }
 
 // Keep things right below/above the poles
-const float PoleLimit = DegToRad(85.05113);
+const float PoleLimit = DegToRad(85.05112878);
     
 /// Convert from the local coordinate system to lat/lon
 GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3f pt)

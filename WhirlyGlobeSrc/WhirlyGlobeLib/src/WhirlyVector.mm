@@ -100,6 +100,17 @@ void Mbr::asPoints(std::vector<Point2f> &pts) const
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
 	
+Mbr Mbr::intersect(const Mbr &that) const
+{
+    Mbr out;
+    out.ll().x() = std::max(ll().x(),that.ll().x());
+    out.ll().y() = std::max(ll().y(),that.ll().y());
+    out.ur().x() = std::min(ur().x(),that.ur().x());
+    out.ur().y() = std::min(ur().y(),that.ur().y());
+        
+    return out;
+}
+	
 GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
 	: pt_ll(-1000,-1000), pt_ur(-1000,-1000)
 {

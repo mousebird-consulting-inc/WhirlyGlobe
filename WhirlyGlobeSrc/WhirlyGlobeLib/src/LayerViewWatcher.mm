@@ -208,6 +208,10 @@ using namespace WhirlyKit;
     Eigen::Matrix4f fullMatrixInv = fullMatrix.inverse();
     Vector4f eyeVec4 = fullMatrixInv * Vector4f(0,0,1,0);
     eyeVec = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    // Also a version for the model matrix (e.g. just location, not direction)
+    Eigen::Matrix4f modelMatInv = modelMatrix.inverse();
+    eyeVec4 = modelMatInv * Vector4f(0,0,1,0);
+    eyeVecModel = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());    
     
     ll.x() = ur.x() = 0.0;
     
@@ -227,7 +231,30 @@ using namespace WhirlyKit;
 	far = farPlane;
 }
 
-- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
+- (Point3f)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
+{
+    if (ll.x() == ur.x())
+        [self calcFrustumWidth:frameWidth height:frameHeight];
+	
+	// Calculate a parameteric value and flip the y/v
+	float u = screenPt.x() / frameWidth;
+    if (clip)
+    {
+        u = std::max(0.0f,u);	u = std::min(1.0f,u);
+    }
+	float v = screenPt.y() / frameHeight;
+    if (clip)
+    {
+        v = std::max(0.0f,v);	v = std::min(1.0f,v);
+    }
+	v = 1.0 - v;
+	
+	// Now come up with a point in 3 space between ll and ur
+	Point2f mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+	return Point3f(mid.x(),mid.y(),-near);
+}
+
+- (CGPoint)pointOnScreenFromDisplay:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
     Eigen::Matrix4f modelTrans = *transform;
@@ -248,8 +275,12 @@ using namespace WhirlyKit;
     v = 1.0 - v;
     
     CGPoint retPt;
-    retPt.x = u * frameSize.x();
-    retPt.y = v * frameSize.y();
+    if (ray.z() < 0.0)
+    {
+       retPt.x = u * frameSize.x();
+       retPt.y = v * frameSize.y();
+    } else
+        retPt = CGPointMake(-100000, -100000);
     
     return retPt;
 }

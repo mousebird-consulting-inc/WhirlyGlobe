@@ -22,6 +22,11 @@
 #define kWGRenderHintZBuffer @"zbuffer"
 /// Use this hint to turn culling optimization on or off.  Pass in an NSNumber boolean.
 #define kWGRenderHintCulling @"culling"
+/// This is an NSNumber specifying the WhirlyKitSceneRenderer to use (1 or 2).  Default is 2
+#define kWGRendererOpenGLVersion @"sceneRendererVersion"
+/// These are options for lighting modes, basically different default shader programs.  Only works with OpenGL ES 2.0 mode.
+/// Accepted values are: none,regular
+#define kWGRendererLightingMode @"rendererLightingMode"
 
 /// These are used for all object descriptions.
 

@@ -53,6 +53,10 @@
     WhirlyKit::Point2f size;
     /// If we're hovering around an icon, this is its size in pixels.  Zero means its just us.
     WhirlyKit::Point2f iconSize;
+    /// Minimum visiblity
+    float minVis;
+    /// Maximum visibility
+    float maxVis;
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,

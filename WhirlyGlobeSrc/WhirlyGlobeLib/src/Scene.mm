@@ -49,6 +49,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     activeModels = [NSMutableArray array];
     
     pthread_mutex_init(&changeRequestLock,NULL);        
+    pthread_mutex_init(&subTexLock, NULL);
 }
 
 Scene::~Scene()
@@ -60,6 +61,7 @@ Scene::~Scene()
         delete *it;
     
     pthread_mutex_destroy(&changeRequestLock);
+    pthread_mutex_destroy(&subTexLock);
     
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];
@@ -205,18 +207,23 @@ bool Scene::hasChanges()
 // Add a single sub texture map
 void Scene::addSubTexture(const SubTexture &subTex)
 {
+    pthread_mutex_lock(&subTexLock);
     subTextureMap.insert(subTex);
+    pthread_mutex_unlock(&subTexLock);
 }
 
 // Add a whole group of sub textures maps
 void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
 {
+    pthread_mutex_lock(&subTexLock);
     subTextureMap.insert(subTexes.begin(),subTexes.end());
+    pthread_mutex_unlock(&subTexLock);
 }
 
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 {
+    pthread_mutex_lock(&subTexLock);
     SubTexture dumbTex;
     dumbTex.setId(subTexId);
     SubTextureSet::iterator it = subTextureMap.find(dumbTex);
@@ -225,9 +232,11 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
         SubTexture passTex;
         passTex.trans = passTex.trans.Identity();
         passTex.texId = subTexId;
+        pthread_mutex_unlock(&subTexLock);
         return passTex;
     }
     
+    pthread_mutex_unlock(&subTexLock);
     return *it;
 }
         
