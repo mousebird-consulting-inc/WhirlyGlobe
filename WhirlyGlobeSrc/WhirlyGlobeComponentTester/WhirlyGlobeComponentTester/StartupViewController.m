@@ -94,6 +94,15 @@
         case OpenStreetmapRemote:
             cell.textLabel.text = @"OpenStreetMap - Remote";
             break;
+        case MapBoxTilesSat1:
+            cell.textLabel.text = @"MapBox Tiles Satellite - Remote";
+            break;
+        case MapBoxTilesTerrain1:
+            cell.textLabel.text = @"MapBox Tiles Terrain - Remote";
+            break;
+        case MapBoxTilesRegular1:
+            cell.textLabel.text = @"MapBox Tiles Regular - Remote";
+            break;
         default:
             break;
     }
