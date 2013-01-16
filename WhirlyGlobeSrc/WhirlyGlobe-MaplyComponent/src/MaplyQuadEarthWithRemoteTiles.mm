@@ -24,7 +24,7 @@
 {
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
-    WhirlyKitNetworkTileQuadSource *dataSource;
+    WhirlyKitNetworkTileQuadSourceBase *dataSource;
 }
 
 - (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges
@@ -32,15 +32,36 @@
     self = [super init];
     if (self)
     {
-        dataSource = [[WhirlyKitNetworkTileQuadSource alloc] initWithBaseURL:baseURL ext:ext];
-        dataSource.minZoom = minZoom;
-        dataSource.maxZoom = maxZoom;
-        // Note: Should make this flextible
+        WhirlyKitNetworkTileQuadSource *theDataSource = [[WhirlyKitNetworkTileQuadSource alloc] initWithBaseURL:baseURL ext:ext];
+        dataSource = theDataSource;
+        theDataSource.minZoom = minZoom;
+        theDataSource.maxZoom = maxZoom;
+        // Note: Should make this flexible
         dataSource.numSimultaneous = 8;
-        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
+        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
         tileLoader.ignoreEdgeMatching = !edges;
         tileLoader.coverPoles = true;
-        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
+        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
+        [layerThread addLayer:quadLayer];
+    }
+    
+    return self;
+}
+
+- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer tilespec:(NSDictionary *)jsonDict handleEdges:(bool)edges
+{
+    self = [super init];
+    if (self)
+    {
+        WhirlyKitNetworkTileSpecQuadSource *theDataSource = [[WhirlyKitNetworkTileSpecQuadSource alloc] initWithTileSpec:jsonDict];
+        if (!theDataSource)
+            return nil;
+        dataSource = theDataSource;
+        theDataSource.numSimultaneous = 8;
+        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+        tileLoader.ignoreEdgeMatching = !edges;
+        tileLoader.coverPoles = true;
+        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
         [layerThread addLayer:quadLayer];
     }
     
