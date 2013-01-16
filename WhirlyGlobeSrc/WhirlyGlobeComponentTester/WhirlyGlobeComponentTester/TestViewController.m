@@ -20,6 +20,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
+#import "AFJSONRequestOperation.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -165,6 +166,9 @@ LocationInfo locations[NumLocations] =
     UIColor *vecColor = [UIColor whiteColor];
     float vecWidth = 1.0;
 
+    NSString *jsonTileSpec = nil;
+    NSString *thisCacheDir = nil;
+    
     // Set up the base layer
     switch (startupLayer)
     {
@@ -186,9 +190,7 @@ LocationInfo locations[NumLocations] =
         {
             // These are the Stamen Watercolor tiles.
             // They're beautiful, but the server isn't so great.
-            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+            thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
             [globeViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:2 maxZoom:10];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
@@ -201,10 +203,44 @@ LocationInfo locations[NumLocations] =
         case OpenStreetmapRemote:
         {
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
-            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+            thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
             [globeViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:17];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
+        }
+            break;
+        case MapBoxTilesSat1:
+        {
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zga3rxng.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
+        }
+            break;
+        case MapBoxTilesTerrain1:
+        {
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
+        }
+            break;
+        case MapBoxTilesRegular1:
+        {
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
@@ -215,6 +251,34 @@ LocationInfo locations[NumLocations] =
             break;
         default:
             break;
+    }
+    
+    // Fill out the cache dir if there is one
+    if (thisCacheDir)
+    {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];        
+    }
+    
+    // If we're fetching one of the JSON tile specs, kick that off
+    if (jsonTileSpec)
+    {
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+        
+        AFJSONRequestOperation *operation =
+        [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+        {
+            // Add a quad earth paging layer based on the tile spec we just fetched
+            [globeViewC addQuadEarthLayerWithRemoteSource:JSON cache:thisCacheDir];
+        }
+                                                        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+        {
+            NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+        }
+         ];
+        
+        [operation start];
     }
     
     // Set up some defaults for display

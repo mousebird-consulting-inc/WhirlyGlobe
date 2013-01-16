@@ -396,6 +396,17 @@ static const char *fragmentShaderNoLightLine =
     return newLayer;
 }
 
+- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir
+{
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer tilespec:jsonDict handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
+    if (!newLayer)
+        return nil;
+    newLayer.cacheDir = cacheDir;
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls

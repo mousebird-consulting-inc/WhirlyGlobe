@@ -23,9 +23,13 @@
 
 @interface MaplyQuadEarthWithRemoteTiles : MaplyViewControllerLayer
 
-/// Set up a spherical earth layer with an MBTiles archive.
+/// Set up a spherical earth layer with a remote set of tiles.
 /// Returns nil on failure.
 - (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges;
+
+/// Set up a spherical earth layer with a remote set of tiles defined by the tilespec
+///  in JSON (that's been parsed into an NSDictionary).
+- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer tilespec:(NSDictionary *)jsonDict handleEdges:(bool)edges;
 
 /// Clean up any and all resources
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
