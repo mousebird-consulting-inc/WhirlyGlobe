@@ -46,8 +46,11 @@
 /// Add a quad tree paged earth layer with MapBox Tiles on top
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name;
 
-/// Add a quad tree paged earth layer with
+/// Add a quad tree paged earth layer from the remote source with the given attributes
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cachdDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
+
+/// Add a quad tree paged earth layer as defined by a JSON description.  cacheDir is where we'll cache local files.
+- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir;
 
 /// Add visual defaults for the screen markers
 - (void)setScreenMarkerDesc:(NSDictionary *)desc;

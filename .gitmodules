@@ -16,3 +16,6 @@
 [submodule "third-party/proj-4"]
 	path = third-party/proj-4
 	url = https://github.com/mousebird/proj-4.git
+[submodule "third-party/AFNetworking"]
+	path = third-party/AFNetworking
+	url = https://github.com/AFNetworking/AFNetworking
