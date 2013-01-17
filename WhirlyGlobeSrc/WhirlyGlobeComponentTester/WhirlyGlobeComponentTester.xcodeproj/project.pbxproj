@@ -17,6 +17,10 @@
 		2B8C0F8716A666AF00413D29 /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8C0F7C16A666AF00413D29 /* AFURLConnectionOperation.m */; };
 		2B8C0F8816A666AF00413D29 /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8C0F7E16A666AF00413D29 /* AFXMLRequestOperation.m */; };
 		2B8C0F8916A666AF00413D29 /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B8C0F8016A666AF00413D29 /* UIImageView+AFNetworking.m */; };
+		2B8C0FAB16A7918C00413D29 /* Icon-iPad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B8C0FAA16A7918C00413D29 /* Icon-iPad@2x.png */; };
+		2B8C0FAD16A791BF00413D29 /* icon-iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B8C0FAC16A791BF00413D29 /* icon-iPad.png */; };
+		2B8C0FAF16A7922300413D29 /* icon-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B8C0FAE16A7922300413D29 /* icon-iPhone@2x.png */; };
+		2B8C0FB116A7924600413D29 /* icon-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B8C0FB016A7924600413D29 /* icon-iPhone.png */; };
 		2BB9E02315BFA57600F1DDD8 /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB9E02215BFA57600F1DDD8 /* Star.png */; };
 		2BD4C9681642FF88004C8F67 /* lowres_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4C95D1642FF88004C8F67 /* lowres_wtb_0x0.pvrtc */; };
 		2BD4C9691642FF88004C8F67 /* lowres_wtb_0x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4C95E1642FF88004C8F67 /* lowres_wtb_0x1.pvrtc */; };
@@ -328,6 +332,10 @@
 		2B8C0F7E16A666AF00413D29 /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFXMLRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFXMLRequestOperation.m"; sourceTree = "<group>"; };
 		2B8C0F7F16A666AF00413D29 /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+AFNetworking.h"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
 		2B8C0F8016A666AF00413D29 /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+AFNetworking.m"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
+		2B8C0FAA16A7918C00413D29 /* Icon-iPad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-iPad@2x.png"; path = "../Icon-iPad@2x.png"; sourceTree = "<group>"; };
+		2B8C0FAC16A791BF00413D29 /* icon-iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-iPad.png"; path = "../icon-iPad.png"; sourceTree = "<group>"; };
+		2B8C0FAE16A7922300413D29 /* icon-iPhone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-iPhone@2x.png"; path = "../icon-iPhone@2x.png"; sourceTree = "<group>"; };
+		2B8C0FB016A7924600413D29 /* icon-iPhone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon-iPhone.png"; path = "../icon-iPhone.png"; sourceTree = "<group>"; };
 		2BB9E02215BFA57600F1DDD8 /* Star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Star.png; path = resources/Star.png; sourceTree = SOURCE_ROOT; };
 		2BD4C95D1642FF88004C8F67 /* lowres_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x0.pvrtc; sourceTree = "<group>"; };
 		2BD4C95E1642FF88004C8F67 /* lowres_wtb_0x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x1.pvrtc; sourceTree = "<group>"; };
@@ -1020,6 +1028,10 @@
 		2BE849AF15BDF8B9006CFD3F /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B8C0FB016A7924600413D29 /* icon-iPhone.png */,
+				2B8C0FAE16A7922300413D29 /* icon-iPhone@2x.png */,
+				2B8C0FAC16A791BF00413D29 /* icon-iPad.png */,
+				2B8C0FAA16A7918C00413D29 /* Icon-iPad@2x.png */,
 				2BD4C9731642FF8D004C8F67 /* shared resources */,
 				2BB9E02215BFA57600F1DDD8 /* Star.png */,
 				2BE849CF15BE01EE006CFD3F /* map_pin.png */,
@@ -1359,6 +1371,10 @@
 				2BD4CB651642FFA8004C8F67 /* ZMB.geojson in Resources */,
 				2BD4CB661642FFA8004C8F67 /* ZWE.geojson in Resources */,
 				2BD4CB681642FFBC004C8F67 /* geography-class.mbtiles in Resources */,
+				2B8C0FAB16A7918C00413D29 /* Icon-iPad@2x.png in Resources */,
+				2B8C0FAD16A791BF00413D29 /* icon-iPad.png in Resources */,
+				2B8C0FAF16A7922300413D29 /* icon-iPhone@2x.png in Resources */,
+				2B8C0FB116A7924600413D29 /* icon-iPhone.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
