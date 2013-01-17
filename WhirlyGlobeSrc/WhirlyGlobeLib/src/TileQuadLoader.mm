@@ -32,7 +32,7 @@ using namespace WhirlyKit;
     int sphereTessX,sphereTessY;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKit::Scene *)scene;
 @end
@@ -45,11 +45,13 @@ LoadedTile::LoadedTile()
     isOn = false;
     isLoading = false;
     drawId = EmptyIdentity;
+    skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childIsOn[ii] = false;
-        childDrawIds[ii] = false;
+        childDrawIds[ii] = EmptyIdentity;
+        childSkirtDrawIds[ii] = EmptyIdentity;
     }
 }
     
@@ -59,11 +61,13 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     isOn = false;
     isLoading = false;
     drawId = EmptyIdentity;
+    skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childIsOn[ii] = false;
-        childDrawIds[ii] = false;
+        childDrawIds[ii] = EmptyIdentity;
+        childSkirtDrawIds[ii] = EmptyIdentity;
     }    
 }
 
@@ -71,9 +75,11 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     BasicDrawable *draw = NULL;
+    BasicDrawable *skirtDraw = NULL;
     Texture *tex = NULL;
-    [loader buildTile:&nodeInfo draw:&draw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:imageData pvrtcSize:pvrtcSize];
+    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:imageData pvrtcSize:pvrtcSize];
     drawId = draw->getId();
+    skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
     if (tex)
         texId = tex->getId();
     else
@@ -83,13 +89,16 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     // Texture first, then drawable
     if (tex)
         changeRequests.push_back(new AddTextureReq(tex));
-    changeRequests.push_back(new AddDrawableReq(draw));    
+    changeRequests.push_back(new AddDrawableReq(draw));
+    if (skirtDraw)
+        changeRequests.push_back(new AddDrawableReq(skirtDraw));
     
     // Just in case, we don't have any child drawables here
     for (unsigned int ii=0;ii<4;ii++)
     {
         childIsOn[ii] = false;
         childDrawIds[ii] = EmptyIdentity;
+        childSkirtDrawIds[ii] = EmptyIdentity;
     }
     
     isOn = true;
@@ -103,16 +112,23 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
         changeRequests.push_back(new RemDrawableReq(drawId));
         drawId = EmptyIdentity;
     }
+    if (skirtDrawId != EmptyIdentity)
+    {
+        changeRequests.push_back(new RemDrawableReq(skirtDrawId));
+        skirtDrawId = EmptyIdentity;
+    }
     if (texId != EmptyIdentity)
     {
         changeRequests.push_back(new RemTextureReq(texId));
         texId = EmptyIdentity;
     }
     for (unsigned int ii=0;ii<4;ii++)
+    {
         if (childDrawIds[ii] != EmptyIdentity)
-        {
             changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
-        }
+        if (childSkirtDrawIds[ii] != EmptyIdentity)
+            changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+    }
 }
 
 // Make sure a given tile overlaps the real world
@@ -149,7 +165,10 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                     {
 //                        changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
                         changeRequests.push_back(new RemDrawableReq(childDrawIds[whichChild]));
+                        if (childSkirtDrawIds[whichChild])
+                            changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[whichChild]));
                         childDrawIds[whichChild] = EmptyIdentity;
+                        childSkirtDrawIds[whichChild] = EmptyIdentity;
                         childIsOn[whichChild] = false;
                     }
                     
@@ -167,11 +186,20 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                             if (isValidTile(layer,childInfo.mbr))
                             {
                                 BasicDrawable *childDraw = NULL;
-                                [loader buildTile:&childInfo draw:&childDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
+                                BasicDrawable *childSkirtDraw = NULL;
+                                [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
                                 childDrawIds[whichChild] = childDraw->getId();
+                                if (childSkirtDraw)
+                                    childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
                                 if (!layer.lineMode && texId)
+                                {
                                     childDraw->setTexId(texId);
+                                    if (childSkirtDraw)
+                                        childSkirtDraw->setTexId(texId);
+                                }
                                 changeRequests.push_back(new AddDrawableReq(childDraw));
+                                if (childSkirtDraw)
+                                    changeRequests.push_back(new AddDrawableReq(childSkirtDraw));
                                 childIsOn[whichChild] = true;
                             }
                         } else {
@@ -179,6 +207,8 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                             if (!childIsOn[whichChild])
                             {
                                 changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
+                                if (childSkirtDrawIds[whichChild])
+                                    changeRequests.push_back(new OnOffChangeRequest(childSkirtDrawIds[whichChild], true));
                                 childIsOn[whichChild] = true;
                             }
                         }
@@ -197,12 +227,22 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             if (drawId == EmptyIdentity)
             {
                 BasicDrawable *draw = NULL;
-                [loader buildTile:&nodeInfo draw:&draw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
+                BasicDrawable *skirtDraw = NULL;
+                [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
                 draw->setTexId(texId);
                 drawId = draw->getId();
                 changeRequests.push_back(new AddDrawableReq(draw));
-            } else
+                if (skirtDraw)
+                {
+                    skirtDraw->setTexId(texId);
+                    changeRequests.push_back(new AddDrawableReq(skirtDraw));
+                    skirtDrawId = skirtDraw->getId();
+                }
+            } else {
                 changeRequests.push_back(new OnOffChangeRequest(drawId,true));
+                if (skirtDrawId)
+                    changeRequests.push_back(new OnOffChangeRequest(skirtDrawId,true));
+            }
             isOn = true;
         }
         
@@ -214,7 +254,10 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             {
 //                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
                 changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+                if (childSkirtDrawIds[ii] != EmptyIdentity)
+                    changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
                 childDrawIds[ii] = EmptyIdentity;
+                childSkirtDrawIds[ii] = EmptyIdentity;
                 childIsOn[ii] = false;
             }
         }
@@ -224,7 +267,10 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
 //            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
             changeRequests.push_back(new RemDrawableReq(drawId));
+            if (skirtDrawId != EmptyIdentity)
+                changeRequests.push_back(new RemDrawableReq(skirtDrawId));
             drawId = EmptyIdentity;
+            skirtDrawId = EmptyIdentity;
             isOn = false;
         }
     }
@@ -357,7 +403,7 @@ static const float SkirtFactor = 0.95;
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -517,8 +563,20 @@ static const float SkirtFactor = 0.95;
                 }
             }
             
-            if (!ignoreEdgeMatching && !coordAdapter->isFlat())
+            if (!ignoreEdgeMatching && !coordAdapter->isFlat() && skirtDraw)
             {
+                // We'll set up and fill in the drawable
+                BasicDrawable *skirtChunk = new BasicDrawable();
+                skirtChunk->setDrawOffset(drawOffset);
+                skirtChunk->setDrawPriority(drawPriority);
+                skirtChunk->setVisibleRange(minVis, maxVis);
+                skirtChunk->setAlpha(hasAlpha);
+                skirtChunk->setColor(color);
+                skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+                skirtChunk->setType(GL_TRIANGLES);
+                // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
+                skirtChunk->setForceZBufferOn(true);
+                
                 // Bottom skirt
                 std::vector<Point3f> skirtLocs;
                 std::vector<TexCoord> skirtTexCoords;
@@ -527,7 +585,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[ix]);
                     skirtTexCoords.push_back(texCoords[ix]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
                 // Top skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -536,7 +594,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
                     skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
                 // Left skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -545,7 +603,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
                 // right skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -554,7 +612,11 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
-                [self buildSkirt:chunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
+                
+                if (tex && *tex)
+                    skirtChunk->setTexId((*tex)->getId());
+                *skirtDraw = skirtChunk;
             }
             
             if (coverPoles && !coordAdapter->isFlat())
