@@ -200,6 +200,7 @@ static const char *fragmentShaderNoLightLine =
             sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
             break;
     }
+    sceneRenderer.zBufferMode = zBufferOffUntilLines;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
 	[sceneRenderer useContext];
@@ -286,7 +287,6 @@ static const char *fragmentShaderNoLightLine =
     
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithBool:YES], kWGRenderHintZBuffer,
                               nil];
     [self setHints:newHints];
     
@@ -327,7 +327,7 @@ static const char *fragmentShaderNoLightLine =
                                   nil];
     [self setShapeDesc:newShapeDesc];
     
-    [self setStickerDesc:@{}];
+    [self setStickerDesc:@{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)}];
     
     selection = true;
     
@@ -412,7 +412,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
-    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
+    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
     if (!newLayer)
         return nil;
     
@@ -423,7 +423,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
     if (!newLayer)
         return nil;
     newLayer.cacheDir = cacheDir;
@@ -434,7 +434,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer tilespec:jsonDict handleEdges:(sceneRenderer.zBufferMode == zBufferOn)];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer tilespec:jsonDict handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
     if (!newLayer)
         return nil;
     newLayer.cacheDir = cacheDir;
@@ -473,7 +473,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOff);
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOffUntilLines : zBufferOff);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }

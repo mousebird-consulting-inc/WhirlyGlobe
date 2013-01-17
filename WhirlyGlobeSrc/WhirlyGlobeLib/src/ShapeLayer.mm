@@ -120,6 +120,7 @@ public:
             drawable->setLineWidth(lineWidth);
             drawable->setDrawPriority(shapeInfo.drawPriority);
             drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
+            drawable->setForceZBufferOn(true);
         }
         drawMbr.expand(mbr);
         
@@ -222,7 +223,8 @@ public:
         drawable->setDrawOffset(shapeInfo.drawOffset);
         drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setDrawPriority(shapeInfo.drawPriority);
-        drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);        
+        drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
+        drawable->setForceZBufferOn(true);
     }
     
     // Add a triangle with normals

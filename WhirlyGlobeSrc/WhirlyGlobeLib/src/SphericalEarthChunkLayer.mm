@@ -351,8 +351,9 @@ static const float SkirtFactor = 0.95;
         }
         
         [EAGLContext setCurrentContext:layerThread.glContext];
-        // Note: If we wanted an offset, this is bad
         WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+        // Note: This is a giant hack
+        setupInfo->minZres = 0.0001;
         drawable->setupGL(setupInfo, scene->getMemManager());
         
         chunkRep->drawIDs.insert(drawable->getId());

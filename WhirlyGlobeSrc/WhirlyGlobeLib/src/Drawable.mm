@@ -248,6 +248,7 @@ BasicDrawable::BasicDrawable()
     vertexSize = 0;
     vertArrayObj = 0;
     sharedBufferIsExternal = false;
+    forceZBufferOn = false;
 
     hasMatrix = false;
 }

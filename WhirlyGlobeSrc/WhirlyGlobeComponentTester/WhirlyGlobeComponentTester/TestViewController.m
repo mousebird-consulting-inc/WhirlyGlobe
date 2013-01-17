@@ -82,6 +82,7 @@ LocationInfo locations[NumLocations] =
     WGComponentObject *greatCircleObj;
     WGComponentObject *screenLabelsObj;
     WGComponentObject *labelsObj;
+    WGComponentObject *stickersObj;
     NSArray *vecObjects;
     WGComponentObject *autoLabels;
     
@@ -97,6 +98,7 @@ LocationInfo locations[NumLocations] =
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 - (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 - (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 
 // Change what we're showing based on the Configuration
 - (void)changeGlobeContents;
@@ -457,6 +459,27 @@ LocationInfo locations[NumLocations] =
     greatCircleObj = [globeViewC addShapes:circles];
 }
 
+- (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    UIImage *startImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+    
+    NSMutableArray *stickers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplySticker *sticker = [[MaplySticker alloc] init];
+        // Stickers are sized in geographic (because they're for KML ground overlays).  Bleah.
+        sticker.ll = WGCoordinateMakeWithDegrees(location->lon, location->lat);
+        sticker.ur = WGCoordinateMakeWithDegrees(location->lon+10.0, location->lat+10.0);
+        sticker.image = startImage;
+        // And a random rotation
+        sticker.rotation = 2*M_PI * drand48();
+        [stickers addObject:sticker];
+    }
+    
+    stickersObj = [globeViewC addStickers:stickers];
+}
+
 // Add country outlines.  Pass in the names of the geoJSON files
 - (void)addCountries:(NSArray *)names stride:(int)stride
 {
@@ -551,8 +574,8 @@ LocationInfo locations[NumLocations] =
             [globeViewC removeObject:screenMarkersObj];
             screenMarkersObj = nil;
         }
-    }    
-
+    }
+    
     if (configViewC.marker3DSwitch.on)
     {
         if (!markersObj)
@@ -564,7 +587,19 @@ LocationInfo locations[NumLocations] =
             markersObj = nil;
         }
     }
-    
+
+    if (configViewC.stickerSwitch.on)
+    {
+        if (!stickersObj)
+            [self addStickers:locations len:NumLocations stride:4 offset:2];
+    } else {
+        if (stickersObj)
+        {
+            [globeViewC removeObject:stickersObj];
+            stickersObj = nil;
+        }
+    }
+
     if (configViewC.shapeCylSwitch.on)
     {
         if (!shapeCylObj)

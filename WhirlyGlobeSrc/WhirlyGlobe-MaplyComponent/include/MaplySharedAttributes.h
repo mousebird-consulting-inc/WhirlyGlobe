@@ -50,6 +50,10 @@
 #define kWGVectorDrawOffsetDefault 3
 #define kWGVectorDrawPriorityDefault 3
 
+/// Default draw offset for stickers
+#define kWGStickerDrawOffsetDefault 2
+#define kWGStickerDrawPriorityDefault 2
+
 /// These are used just for the screen and regular labels
 
 /// Color of the text being rendered.  Takes a UIColor.

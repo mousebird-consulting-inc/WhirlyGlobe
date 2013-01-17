@@ -182,7 +182,7 @@ static const float DelayPeriod = 0.1;
     if (!scene)
         return;
     
-    if (viewState && [inViewState isSameAs:viewState])
+    if (viewState && [viewState isKindOfClass:[WhirlyKitViewState class]] && [inViewState isSameAs:viewState])
         return;
     viewState = inViewState;
     
