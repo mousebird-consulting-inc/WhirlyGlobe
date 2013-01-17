@@ -29,6 +29,8 @@ using namespace WhirlyKit;
 
 - (void) clear
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
+
     [glView stopAnimation];
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -372,6 +374,40 @@ static const char *fragmentShaderNoLightLine =
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
+}
+
+static const float PerfOutputDelay = 15.0;
+
+- (void)setPerformanceOutput:(bool)performanceOutput
+{
+    if (perfOutput == performanceOutput)
+        return;
+    
+    perfOutput = performanceOutput;
+    if (perfOutput)
+    {
+        sceneRenderer.perfInterval = 100;
+        [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];
+    } else {
+        sceneRenderer.perfInterval = 0;
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
+    }
+}
+
+// Run every so often to dump out stats
+- (void)periodicPerfOutput
+{
+    if (!scene)
+        return;
+    
+    scene->dumpStats();
+    
+    [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
+}
+
+- (bool)performanceOutput
+{
+    return perfOutput;
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
