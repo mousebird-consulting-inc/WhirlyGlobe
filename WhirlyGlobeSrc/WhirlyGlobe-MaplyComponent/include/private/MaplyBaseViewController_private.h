@@ -73,6 +73,9 @@
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
     WhirlyKitView *visualView;
+    
+    /// Set if we're doing performance output
+    bool perfOutput;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

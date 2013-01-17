@@ -39,6 +39,7 @@
 @synthesize pinchSwitch;
 @synthesize rotateSwitch;
 @synthesize countrySwitch;
+@synthesize perfSwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

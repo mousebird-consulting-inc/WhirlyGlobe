@@ -649,6 +649,8 @@ LocationInfo locations[NumLocations] =
         }
     }
     
+    globeViewC.performanceOutput = configViewC.perfSwitch.on;
+    
     globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
     globeViewC.pinchGesture = configViewC.pinchSwitch.on;
     globeViewC.rotateGesture = configViewC.rotateSwitch.on;
