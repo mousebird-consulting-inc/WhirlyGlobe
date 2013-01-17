@@ -27,6 +27,7 @@
     IBOutlet UISwitch *label3DSwitch;
     IBOutlet UISwitch *marker2DSwitch;
     IBOutlet UISwitch *marker3DSwitch;
+    IBOutlet UISwitch *stickerSwitch;
     IBOutlet UISwitch *shapeCylSwitch;
     IBOutlet UISwitch *shapeSphereSwitch;
     IBOutlet UISwitch *shapeGreatCircleSwitch;
@@ -43,6 +44,7 @@
 @property (nonatomic,readonly) UISwitch *label3DSwitch;
 @property (nonatomic,readonly) UISwitch *marker2DSwitch;
 @property (nonatomic,readonly) UISwitch *marker3DSwitch;
+@property (nonatomic,readonly) UISwitch *stickerSwitch;
 @property (nonatomic,readonly) UISwitch *shapeCylSwitch;
 @property (nonatomic,readonly) UISwitch *shapeSphereSwitch;
 @property (nonatomic,readonly) UISwitch *shapeGreatCircleSwitch;

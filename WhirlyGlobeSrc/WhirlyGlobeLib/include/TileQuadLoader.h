@@ -72,6 +72,8 @@ public:
     bool isLoading;
     // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
+    // Optional ID for the skirts
+    WhirlyKit::SimpleIdentity skirtDrawId;
     // Texture ID for the parent tile
     WhirlyKit::SimpleIdentity texId;
     
@@ -79,6 +81,7 @@ public:
     bool childIsOn[4];
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
+    WhirlyKit::SimpleIdentity childSkirtDrawIds[4];
 };
 
 /// This is a comparison operator for sorting loaded tile pointers by
