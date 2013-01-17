@@ -365,7 +365,7 @@
 								<string key="NSFrame">{{87, 15}, {293, 21}}</string>
 								<reference key="NSSuperview" ref="1050804388"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
+								<reference key="NSNextKeyView" ref="468476528"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -494,7 +494,6 @@
 								<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
-								<bool key="IBUIOn">YES</bool>
 							</object>
 						</array>
 						<string key="NSFrame">{{20, 436}, {728, 44}}</string>
@@ -675,6 +674,7 @@
 								<string key="NSFrame">{{87, 15}, {293, 21}}</string>
 								<reference key="NSSuperview" ref="20799677"/>
 								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="275195578"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
 								<bool key="IBUIOpaque">NO</bool>
 								<bool key="IBUIClipsSubviews">YES</bool>
@@ -701,12 +701,64 @@
 								<string key="targetRuntimeIdentifier">IBIPadFramework</string>
 								<int key="IBUIContentHorizontalAlignment">0</int>
 								<int key="IBUIContentVerticalAlignment">0</int>
+								<bool key="IBUIOn">YES</bool>
 							</object>
 						</array>
 						<string key="NSFrame">{{20, 644}, {728, 44}}</string>
 						<reference key="NSSuperview" ref="766721923"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="906054528"/>
+						<string key="NSReuseIdentifierKey">_NS:9</string>
+						<object class="NSColor" key="IBUIBackgroundColor">
+							<int key="NSColorSpace">3</int>
+							<bytes key="NSWhite">MQA</bytes>
+							<reference key="NSCustomColorSpace" ref="756101154"/>
+						</object>
+						<string key="targetRuntimeIdentifier">IBIPadFramework</string>
+					</object>
+					<object class="IBUIView" id="275195578">
+						<reference key="NSNextResponder" ref="766721923"/>
+						<int key="NSvFlags">292</int>
+						<array class="NSMutableArray" key="NSSubviews">
+							<object class="IBUILabel" id="47642318">
+								<reference key="NSNextResponder" ref="275195578"/>
+								<int key="NSvFlags">292</int>
+								<string key="NSFrame">{{87, 15}, {293, 21}}</string>
+								<reference key="NSSuperview" ref="275195578"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
+								<string key="NSReuseIdentifierKey">_NS:9</string>
+								<bool key="IBUIOpaque">NO</bool>
+								<bool key="IBUIClipsSubviews">YES</bool>
+								<int key="IBUIContentMode">7</int>
+								<bool key="IBUIUserInteractionEnabled">NO</bool>
+								<string key="targetRuntimeIdentifier">IBIPadFramework</string>
+								<string key="IBUIText">Performance Output</string>
+								<reference key="IBUITextColor" ref="577150056"/>
+								<nil key="IBUIHighlightedColor"/>
+								<int key="IBUIBaselineAdjustment">0</int>
+								<float key="IBUIMinimumFontSize">10</float>
+								<reference key="IBUIFontDescription" ref="416685013"/>
+								<reference key="IBUIFont" ref="233197275"/>
+							</object>
+							<object class="IBUISwitch" id="338655268">
+								<reference key="NSNextResponder" ref="275195578"/>
+								<int key="NSvFlags">292</int>
+								<string key="NSFrame">{{-15, 9}, {94, 27}}</string>
+								<reference key="NSSuperview" ref="275195578"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="47642318"/>
+								<string key="NSReuseIdentifierKey">_NS:9</string>
+								<bool key="IBUIOpaque">NO</bool>
+								<string key="targetRuntimeIdentifier">IBIPadFramework</string>
+								<int key="IBUIContentHorizontalAlignment">0</int>
+								<int key="IBUIContentVerticalAlignment">0</int>
+							</object>
+						</array>
+						<string key="NSFrame">{{20, 696}, {728, 44}}</string>
+						<reference key="NSSuperview" ref="766721923"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView" ref="338655268"/>
 						<string key="NSReuseIdentifierKey">_NS:9</string>
 						<object class="NSColor" key="IBUIBackgroundColor">
 							<int key="NSColorSpace">3</int>
@@ -846,6 +898,14 @@
 					</object>
 					<int key="connectionID">69</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBCocoaTouchOutletConnection" key="connection">
+						<string key="label">perfSwitch</string>
+						<reference key="source" ref="841351856"/>
+						<reference key="destination" ref="338655268"/>
+					</object>
+					<int key="connectionID">80</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -883,6 +943,7 @@
 							<reference ref="412218325"/>
 							<reference ref="652179264"/>
 							<reference ref="98094175"/>
+							<reference ref="275195578"/>
 						</array>
 						<reference key="parent" ref="0"/>
 					</object>
@@ -1146,6 +1207,27 @@
 						<reference key="object" ref="857355736"/>
 						<reference key="parent" ref="412218325"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">77</int>
+						<reference key="object" ref="275195578"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="47642318"/>
+							<reference ref="338655268"/>
+						</array>
+						<reference key="parent" ref="766721923"/>
+						<string key="objectName">Perf Output View</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">78</int>
+						<reference key="object" ref="47642318"/>
+						<reference key="parent" ref="275195578"/>
+						<string key="objectName">Label - Performance Output</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">79</int>
+						<reference key="object" ref="338655268"/>
+						<reference key="parent" ref="275195578"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -1192,13 +1274,16 @@
 				<string key="63.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="64.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="65.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+				<string key="77.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+				<string key="78.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
+				<string key="79.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				<string key="9.IBPluginDependency">com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">76</int>
+			<int key="maxID">80</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1206,7 +1291,6 @@
 					<string key="className">ConfigViewController</string>
 					<string key="superclassName">UIViewController</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
-						<string key="autoLabelSwitch">UISwitch</string>
 						<string key="countrySwitch">UISwitch</string>
 						<string key="cullingSwitch">UISwitch</string>
 						<string key="label2DSwitch">UISwitch</string>
@@ -1214,6 +1298,7 @@
 						<string key="marker2DSwitch">UISwitch</string>
 						<string key="marker3DSwitch">UISwitch</string>
 						<string key="northUpSwitch">UISwitch</string>
+						<string key="perfSwitch">UISwitch</string>
 						<string key="pinchSwitch">UISwitch</string>
 						<string key="rotateSwitch">UISwitch</string>
 						<string key="shapeCylSwitch">UISwitch</string>
@@ -1222,10 +1307,6 @@
 						<string key="zBufferSwitch">UISwitch</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<object class="IBToOneOutletInfo" key="autoLabelSwitch">
-							<string key="name">autoLabelSwitch</string>
-							<string key="candidateClassName">UISwitch</string>
-						</object>
 						<object class="IBToOneOutletInfo" key="countrySwitch">
 							<string key="name">countrySwitch</string>
 							<string key="candidateClassName">UISwitch</string>
@@ -1252,6 +1333,10 @@
 						</object>
 						<object class="IBToOneOutletInfo" key="northUpSwitch">
 							<string key="name">northUpSwitch</string>
+							<string key="candidateClassName">UISwitch</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="perfSwitch">
+							<string key="name">perfSwitch</string>
 							<string key="candidateClassName">UISwitch</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="pinchSwitch">
