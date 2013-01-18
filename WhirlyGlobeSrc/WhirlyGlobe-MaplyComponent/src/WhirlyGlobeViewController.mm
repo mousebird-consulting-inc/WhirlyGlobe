@@ -91,7 +91,7 @@ using namespace WhirlyGlobe;
     // These will activate the appropriate gesture
     self.pinchGesture = true;
     self.rotateGesture = true;
-    
+        
     selection = true;
 }
 

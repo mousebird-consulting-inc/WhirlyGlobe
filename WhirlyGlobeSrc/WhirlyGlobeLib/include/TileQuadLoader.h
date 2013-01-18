@@ -72,6 +72,8 @@ public:
     bool isLoading;
     // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
+    // Optional ID for the skirts
+    WhirlyKit::SimpleIdentity skirtDrawId;
     // Texture ID for the parent tile
     WhirlyKit::SimpleIdentity texId;
     
@@ -79,6 +81,7 @@ public:
     bool childIsOn[4];
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
+    WhirlyKit::SimpleIdentity childSkirtDrawIds[4];
 };
 
 /// This is a comparison operator for sorting loaded tile pointers by
@@ -185,6 +188,6 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// When a data source has finished its fetch for a given image, it calls
 ///  this method to hand that back to the quad tile loader
 /// If this isn't called in the layer thread, it will switch over to that thread first.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
 
 @end

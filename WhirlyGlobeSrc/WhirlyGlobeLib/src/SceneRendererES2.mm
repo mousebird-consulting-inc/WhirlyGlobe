@@ -51,8 +51,8 @@ public:
     {
         if (useLines)
         {
-            bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP);
-            bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP);
+            bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || a->getForceZBufferOn();
+            bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || b->getForceZBufferOn();
             if (linesA != linesB)
                 return !linesA;
         }
@@ -167,8 +167,8 @@ static const char *fragmentShaderTri =
 "void main()                                         \n"
 "{                                                   \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  if (baseColor.a < 0.1)                            \n"
-"      discard;                                      \n"
+//"  if (baseColor.a < 0.1)                            \n"
+//"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
@@ -276,7 +276,7 @@ static const float ScreenOverlap = 0.1;
     lastDraw = CFAbsoluteTimeGetCurrent();
     
     if (perfInterval > 0)
-        perfTimer.startTiming("Render");
+        perfTimer.startTiming("aaRender");
     
 	if (frameCountStart)
 		frameCountStart = CFAbsoluteTimeGetCurrent();
@@ -479,7 +479,7 @@ static const float ScreenOverlap = 0.1;
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthBufferOffForAlpha)
+            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffUntilLines))
             {
                 if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
@@ -627,11 +627,17 @@ static const float ScreenOverlap = 0.1;
             perfTimer.stopTiming("Generators - Draw 2D");
     }
     
+    if (perfInterval > 0)
+        perfTimer.startTiming("Present Renderbuffer");
+    
     glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     [context presentRenderbuffer:GL_RENDERBUFFER];
-        
+
     if (perfInterval > 0)
-        perfTimer.stopTiming("Render");
+        perfTimer.stopTiming("Present Renderbuffer");
+    
+    if (perfInterval > 0)
+        perfTimer.stopTiming("aaRender");
     
 	// Update the frames per sec
 	if (perfInterval > 0 && frameCount++ > perfInterval)

@@ -30,6 +30,7 @@
 @synthesize label3DSwitch;
 @synthesize marker2DSwitch;
 @synthesize marker3DSwitch;
+@synthesize stickerSwitch;
 @synthesize shapeCylSwitch;
 @synthesize shapeSphereSwitch;
 @synthesize shapeGreatCircleSwitch;
@@ -39,6 +40,7 @@
 @synthesize pinchSwitch;
 @synthesize rotateSwitch;
 @synthesize countrySwitch;
+@synthesize perfSwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {

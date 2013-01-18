@@ -131,4 +131,7 @@
 /// Pause animation (probably because we're going into the background)
 - (void)stopAnimation;
 
+/// Turn on/off performance output (goes to the log periodically)
+@property (nonatomic,assign) bool performanceOutput;
+
 @end

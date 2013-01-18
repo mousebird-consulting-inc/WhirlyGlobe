@@ -73,7 +73,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
 
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
 {
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
@@ -164,7 +164,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
         maxZoom = [dataStructure maxZoom];
         maxTiles = 256;
         minImportance = 1.0;
-        viewUpdatePeriod = 0.25;
+        viewUpdatePeriod = 0.1;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
         lineMode = false;
