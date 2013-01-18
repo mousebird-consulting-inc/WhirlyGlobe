@@ -1111,9 +1111,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // GL Texture ID
-    GLuint textureId = scene->getGLTexture(texId);
     GLuint glTexID = 0;
-    if (textureId != EmptyIdentity)
+    if (texId != EmptyIdentity)
         glTexID = scene->getGLTexture(texId);
         
     // Model/View/Projection matrix

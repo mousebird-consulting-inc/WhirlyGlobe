@@ -286,6 +286,10 @@
 		2BD4CB651642FFA8004C8F67 /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4CA6C1642FFA8004C8F67 /* ZMB.geojson */; };
 		2BD4CB661642FFA8004C8F67 /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4CA6D1642FFA8004C8F67 /* ZWE.geojson */; };
 		2BD4CB681642FFBC004C8F67 /* geography-class.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4CB671642FFBC004C8F67 /* geography-class.mbtiles */; };
+		2BDD631A16A897B100682678 /* Default-Landscape@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BDD631916A897B100682678 /* Default-Landscape@2x~ipad.png */; };
+		2BDD631C16A897EE00682678 /* Default-Landscape~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BDD631B16A897EE00682678 /* Default-Landscape~ipad.png */; };
+		2BDD631E16A8983500682678 /* Default-Portrait@2x~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BDD631D16A8983500682678 /* Default-Portrait@2x~ipad.png */; };
+		2BDD632016A8985100682678 /* Default-Portrait~ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BDD631F16A8985100682678 /* Default-Portrait~ipad.png */; };
 		2BE8497215BDE270006CFD3F /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497115BDE270006CFD3F /* UIKit.framework */; };
 		2BE8497415BDE270006CFD3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497315BDE270006CFD3F /* Foundation.framework */; };
 		2BE8497615BDE270006CFD3F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE8497515BDE270006CFD3F /* CoreGraphics.framework */; };
@@ -604,6 +608,10 @@
 		2BD4CA6C1642FFA8004C8F67 /* ZMB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZMB.geojson; sourceTree = "<group>"; };
 		2BD4CA6D1642FFA8004C8F67 /* ZWE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZWE.geojson; sourceTree = "<group>"; };
 		2BD4CB671642FFBC004C8F67 /* geography-class.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = "geography-class.mbtiles"; path = "../../../resources/base_maps/geography-class.mbtiles"; sourceTree = "<group>"; };
+		2BDD631916A897B100682678 /* Default-Landscape@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x~ipad.png"; sourceTree = "<group>"; };
+		2BDD631B16A897EE00682678 /* Default-Landscape~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape~ipad.png"; sourceTree = "<group>"; };
+		2BDD631D16A8983500682678 /* Default-Portrait@2x~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x~ipad.png"; sourceTree = "<group>"; };
+		2BDD631F16A8985100682678 /* Default-Portrait~ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait~ipad.png"; sourceTree = "<group>"; };
 		2BE8496D15BDE270006CFD3F /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE8497115BDE270006CFD3F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2BE8497315BDE270006CFD3F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -973,6 +981,10 @@
 		2BE8496215BDE270006CFD3F = {
 			isa = PBXGroup;
 			children = (
+				2BDD631F16A8985100682678 /* Default-Portrait~ipad.png */,
+				2BDD631D16A8983500682678 /* Default-Portrait@2x~ipad.png */,
+				2BDD631B16A897EE00682678 /* Default-Landscape~ipad.png */,
+				2BDD631916A897B100682678 /* Default-Landscape@2x~ipad.png */,
 				2B0A4DCF167BFFD0000D5786 /* WhirlyGlobe-MaplyComponent.xcodeproj */,
 				2BFDBA9916321E1D00BB61E6 /* Default-568h@2x.png */,
 				2BE849AD15BDF7B5006CFD3F /* OpenGLES.framework */,
@@ -1387,6 +1399,10 @@
 				2B8C0FAF16A7922300413D29 /* icon-iPhone@2x.png in Resources */,
 				2B8C0FB116A7924600413D29 /* icon-iPhone.png in Resources */,
 				2B8C0FB316A794C000413D29 /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */,
+				2BDD631A16A897B100682678 /* Default-Landscape@2x~ipad.png in Resources */,
+				2BDD631C16A897EE00682678 /* Default-Landscape~ipad.png in Resources */,
+				2BDD631E16A8983500682678 /* Default-Portrait@2x~ipad.png in Resources */,
+				2BDD632016A8985100682678 /* Default-Portrait~ipad.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1460,7 +1476,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -1469,6 +1485,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -1489,6 +1506,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1507,6 +1525,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-all_load";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 2;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

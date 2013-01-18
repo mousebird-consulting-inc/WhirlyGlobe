@@ -259,6 +259,7 @@ using namespace WhirlyGlobe;
 	Texture *tex = new Texture([texGroup generateFileNameX:chunkX y:chunkY],texGroup.ext);
     tex->setWidth(texGroup.pixelsSquare);
     tex->setHeight(texGroup.pixelsSquare);
+//    tex->createInGL(true, scene->getMemManager());
 	changeRequests.push_back(new AddTextureReq(tex));
     texIDs.push_back(tex->getId());
 	chunk->setTexId(tex->getId());
@@ -288,16 +289,17 @@ using namespace WhirlyGlobe;
 	}
 	
 	// Schedule the next chunk
-	if (chunkY < yDim)
+	if (chunkY < yDim) {
 		[self performSelector:@selector(process:) withObject:nil afterDelay:0.0];
-	else {
+	} else {
         if (cacheWriter)
             delete cacheWriter;
         cacheWriter = NULL;
 
         // If we're done, have the renderer send out a notification.
         // Odds are it's still processing the data right now
-        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self));	}
+        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self));
+    }
 
 }
 
