@@ -81,7 +81,7 @@ using namespace WhirlyGlobe;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;

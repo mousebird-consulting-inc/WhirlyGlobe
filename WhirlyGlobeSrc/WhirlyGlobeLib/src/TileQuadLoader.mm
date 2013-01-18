@@ -776,7 +776,7 @@ static const float SkirtFactor = 0.95;
 }
 
 // When the data source loads the image, we'll get called here
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
 {
     // Look for the tile
     // If it's not here, just drop this on the floor

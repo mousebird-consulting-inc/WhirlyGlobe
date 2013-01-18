@@ -188,6 +188,6 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// When a data source has finished its fetch for a given image, it calls
 ///  this method to hand that back to the quad tile loader
 /// If this isn't called in the layer thread, it will switch over to that thread first.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> * __unsafe_unretained)dataSource loadedImage:(NSData * __unsafe_unretained)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
 
 @end
