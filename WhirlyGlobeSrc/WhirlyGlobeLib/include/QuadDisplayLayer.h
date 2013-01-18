@@ -42,7 +42,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr);
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr);
 }
 
 /** Quad tree based data structure.  Fill this in to provide structure and
@@ -67,7 +67,7 @@ float ScreenImportance(WhirlyKitViewState * __unsafe_unretained viewState,Whirly
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __unsafe_unretained) viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;

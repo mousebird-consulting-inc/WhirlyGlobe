@@ -191,7 +191,7 @@ protected:
     int maxNodes;
     float minImportance;
     /// Used to calculate importance for a particular 
-    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __unsafe_unretained importDelegate;
+    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __weak importDelegate;
     
     // All nodes, sorted by ID
     NodesByIdentType nodesByIdent;
