@@ -177,6 +177,12 @@ LocationInfo locations[NumLocations] =
         case BlueMarbleSingleResLocal:
             // This is the static image set, included with the app, built with ImageChopper
             [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor brownColor];
+            vecWidth = 2.0;
             break;
         case GeographyClassMBTilesLocal:
             // This is the Geography Class MBTiles data set from MapBox
