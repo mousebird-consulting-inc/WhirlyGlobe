@@ -164,13 +164,15 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
     
     // Get us view updates, but we'll filter them
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0];
+        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0];
 }
 
 - (void)shutdown
 {
     scene = NULL;
     layoutObjects.clear();
+    if (layerThread.viewWatcher)
+        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
 }
 
 // How long we'll wait to see if the user has stopped twitching

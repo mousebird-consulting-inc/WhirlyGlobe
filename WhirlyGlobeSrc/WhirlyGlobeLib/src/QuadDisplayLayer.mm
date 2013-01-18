@@ -178,12 +178,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)dealloc
 {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self];
-
     if (quadtree)
         delete quadtree;
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
 }
 
 - (void)setMaxTiles:(int)newMaxTiles
@@ -212,8 +208,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
-    if (layerThread.viewWatcher)
+    if (layerThread.viewWatcher) {
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    }
     
     [dataStructure shutdown];
     dataStructure = nil;
