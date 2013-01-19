@@ -423,7 +423,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTilesPath:(NSString *)path
 {
-    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
+    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTilesPath:path handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
     if (!newLayer)
         return nil;
     
