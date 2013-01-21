@@ -45,7 +45,7 @@
         tileLoader.ignoreEdgeMatching = !edges;
         [layerThread addLayer:quadLayer];
 
-        tileLoader.drawPriority = [layerThread activeLayers] - 1;
+        tileLoader.drawPriority = 1;
     }
     
     return self;
