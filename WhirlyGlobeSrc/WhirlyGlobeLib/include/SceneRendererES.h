@@ -58,8 +58,8 @@ namespace WhirlyKit
         {
             if (useLines)
             {
-                bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP);
-                bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP);
+                bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || (a->getType() == GL_POINTS) || a->getForceZBufferOn();
+                bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || (b->getType() == GL_POINTS) || b->getForceZBufferOn();
                 if (linesA != linesB)
                     return !linesA;
             }
