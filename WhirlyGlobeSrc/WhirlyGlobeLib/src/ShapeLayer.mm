@@ -354,6 +354,7 @@ static int CircleSamples = 20;
 
 @synthesize loc;
 @synthesize radius;
+@synthesize height;
 
 // Build the geometry for a circle in display space
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
@@ -362,6 +363,7 @@ static int CircleSamples = 20;
     
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
+    dispPt += coordAdapter->normalForLocal(localPt) * height;
     Point3f norm = coordAdapter->normalForLocal(localPt);
     
     // Construct a set of axes to build the circle around

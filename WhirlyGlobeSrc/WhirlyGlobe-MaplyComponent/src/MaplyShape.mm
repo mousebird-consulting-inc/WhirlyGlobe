@@ -27,6 +27,7 @@ using namespace WhirlyKit;
 
 @synthesize center;
 @synthesize radius;
+@synthesize height;
 
 @end
 

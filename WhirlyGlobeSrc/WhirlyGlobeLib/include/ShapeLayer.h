@@ -77,10 +77,13 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     WhirlyKit::GeoCoord loc;
     /// Radius is in display units
     float radius;
+    /// An offset from the globe in display units (radius of the globe = 1.0)
+    float height;
 }
 
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
 @property (nonatomic,assign) float radius;
+@property (nonatomic,assign) float height;
 
 @end
 

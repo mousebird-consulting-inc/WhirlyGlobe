@@ -37,9 +37,17 @@ T RadToDeg(T rad) { return rad / (T)M_PI * 180.0; }
 namespace WhirlyKit
 {
 
+/// This class give us a virtual destructor to make use of
+///  when we're deleting random objects at the end of the layer thread.
+class DelayedDeletable
+{
+public:
+    virtual ~DelayedDeletable() { }
+};
+
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
-class CoordSystem
+class CoordSystem : public DelayedDeletable
 {
 public:
     CoordSystem() { }
@@ -66,7 +74,7 @@ Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f 
     converting coordinates in the native system to data values we
     can display.
  */
-class CoordSystemDisplayAdapter
+class CoordSystemDisplayAdapter : public DelayedDeletable
 {
 public:
     CoordSystemDisplayAdapter(CoordSystem *coordSys) : coordSys(coordSys) { }
