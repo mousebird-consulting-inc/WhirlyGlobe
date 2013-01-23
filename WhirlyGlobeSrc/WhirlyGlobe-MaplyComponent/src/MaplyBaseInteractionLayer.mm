@@ -40,7 +40,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     // Note: Dumb approach.  Switch to an adaptive sampling
     bool isFlat = coordAdapter->isFlat();
-    int numSamples = 300;
+    int numSamples = 100;
     for (unsigned int ii=0;ii<=numSamples;ii++)
     {
         // Sample the point
@@ -100,6 +100,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     layerThread = nil;
     scene = NULL;
     imageTextures.clear();
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
 // Add an image to the cache, or find an existing one
@@ -500,6 +501,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newCircle.loc.lon() = circle.center.x;
             newCircle.loc.lat() = circle.center.y;
             newCircle.radius = circle.radius;
+            newCircle.height = circle.height;
             [ourShapes addObject:newCircle];
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {

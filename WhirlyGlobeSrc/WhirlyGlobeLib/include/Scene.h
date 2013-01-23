@@ -200,15 +200,7 @@ protected:
     NSString * __strong noteName;
     NSObject * __strong noteObj;
 };
-    
-/// This class give us a virtual destructor to make use of
-///  when we're deleting random objects at the end of the layer thread.
-class DelayedDeletable
-{
-public:
-    virtual ~DelayedDeletable() { }
-};
-    
+        
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     

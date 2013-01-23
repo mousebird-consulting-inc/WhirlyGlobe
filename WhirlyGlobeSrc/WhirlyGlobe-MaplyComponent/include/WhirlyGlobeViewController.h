@@ -93,16 +93,16 @@
 
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will just do nothing
-- (void)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
 /// Set the view to the given position immediately
-- (void)setPosition:(WGCoordinate)newPos;
+- (void)setPosition:(MaplyCoordinate)newPos;
 
 /// Set position and height at the same time
-- (void)setPosition:(WGCoordinate)newPos height:(float)height;
+- (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
 /// Get the current position and height
-- (void)getPosition:(WGCoordinate *)pos height:(float *)height;
+- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
 
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;

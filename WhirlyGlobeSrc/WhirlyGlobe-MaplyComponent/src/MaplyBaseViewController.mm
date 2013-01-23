@@ -39,6 +39,9 @@ using namespace WhirlyKit;
     {
         [layerThread addThingToDelete:scene];
         [layerThread addThingToRelease:layerThread];
+        [layerThread addThingToRelease:visualView];
+        [layerThread addThingToRelease:glView];
+        [layerThread addThingToRelease:sceneRenderer];
         [layerThread cancel];
     }
     
