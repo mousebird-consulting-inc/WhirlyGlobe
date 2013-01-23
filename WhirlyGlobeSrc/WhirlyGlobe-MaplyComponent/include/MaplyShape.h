@@ -31,10 +31,13 @@
     /// Radius of the circle in display units.
     /// For WhirlyGlobe, remember that the radius of the sphere is 1.0.
     float radius;
+    /// Height above the globe.  This is in units of radius = 1.0
+    float height;
 }
 
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
+@property (nonatomic,assign) float height;
 
 @end
 
