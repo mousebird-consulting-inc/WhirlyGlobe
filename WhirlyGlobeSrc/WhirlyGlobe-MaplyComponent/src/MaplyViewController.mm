@@ -40,6 +40,8 @@ using namespace Maply;
 // Tear down layers and layer thread
 - (void) clear
 {
+    [layerThread addThingToDelete:coordAdapter];
+
     [super clear];
     
     mapScene = NULL;
@@ -50,10 +52,8 @@ using namespace Maply;
     tapDelegate = nil;
     panDelegate = nil;
     pinchDelegate = nil;
-    
-    if (coordAdapter)
-        delete coordAdapter;
-    coordAdapter = NULL;    
+
+    coordAdapter = NULL;
 }
 
 - (void)dealloc
@@ -173,6 +173,23 @@ using namespace Maply;
     Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
     loc.z() = mapView.loc.z();
     [self animateToPoint:loc time:howLong];
+}
+
+// Note: This may not work with a tilt
+- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+{
+    // Figure out where the point lands on the map
+    Eigen::Matrix4f modelTrans = [mapView calcFullMatrix];
+    Point3f whereLoc;
+    if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
+    {
+        Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
+        Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+        loc.x() -= diffLoc.x();
+        loc.y() -= diffLoc.y();
+        loc.z() = mapView.loc.z();
+        [self animateToPoint:loc time:howLong];
+    }
 }
 
 // This version takes a height as well
