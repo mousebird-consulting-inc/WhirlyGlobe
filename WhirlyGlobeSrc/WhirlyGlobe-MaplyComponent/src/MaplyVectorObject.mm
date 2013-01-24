@@ -308,6 +308,19 @@ using namespace WhirlyGlobe;
     return [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
 }
 
++ (MaplyVectorDatabase *) vectorDatabaseWithShapePath:(NSString *)shapeFileName
+{
+    
+    NSString *fileName = shapeFileName;
+    NSString *shapeName = [fileName lastPathComponent];
+    shapeName = [shapeName stringByDeletingPathExtension];
+    
+    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+    
+    return [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+}
+
+
 /// Return vectors that match the given SQL query
 - (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery
 {
