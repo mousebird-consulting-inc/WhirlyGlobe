@@ -187,8 +187,8 @@ LocationInfo locations[NumLocations] =
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
-            vecColor = [UIColor brownColor];
-            vecWidth = 2.0;
+            vecColor = [UIColor colorWithRed:0.25 green:0.25 blue:0.25 alpha:1.0];
+            vecWidth = 4.0;
         }
             break;
         case OpenStreetmapRemote:
@@ -203,7 +203,7 @@ LocationInfo locations[NumLocations] =
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
             vecColor = [UIColor brownColor];
-            vecWidth = 2.0;
+            vecWidth = 4.0;
         }
             break;
         default:
@@ -349,6 +349,7 @@ LocationInfo locations[NumLocations] =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0),
                    ^{
                        NSMutableArray *locVecObjects = [NSMutableArray array];
+                       NSMutableArray *locAutoLabels = [NSMutableArray array];
                        
                        int ii = 0;
                        for (NSString *name in names)
@@ -361,22 +362,39 @@ LocationInfo locations[NumLocations] =
                                    NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                                    if (jsonData)
                                    {
-                                       MaplyVectorObject *mplyVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
-                                       MaplyComponentObject *compObj = [mapViewC addVectors:[NSArray arrayWithObject:mplyVecObj]];
+                                       WGVectorObject *wgVecObj = [WGVectorObject VectorObjectFromGeoJSON:jsonData];
+                                       WGComponentObject *compObj = [mapViewC addVectors:[NSArray arrayWithObject:wgVecObj]];
+                                       WGScreenLabel *screenLabel = [[WGScreenLabel alloc] init];
+                                       // Add a label right in the middle
+                                       WGCoordinate center;
+                                       [wgVecObj largestLoopCenter:&center mbrLL:nil mbrUR:nil];
+                                       screenLabel.loc = center;
+                                       screenLabel.size = CGSizeMake(0, 20);
+                                       screenLabel.layoutImportance = 1.0;
+                                       screenLabel.text = [[wgVecObj attributes] objectForKey:@"ADMIN"];
+                                       if (screenLabel.text)
+                                           [locAutoLabels addObject:screenLabel];
                                        if (compObj)
                                            [locVecObjects addObject:compObj];
                                    }
                                }
                            }
                            ii++;
-                           
-                           // Keep track of the created objects
-                           // Note: You could lose track of the objects if you turn the countries on/off quickly
-                           dispatch_async(dispatch_get_main_queue(),
-                                          ^{
-                                              vecObjects = locVecObjects;
-                                          });
                        }
+                       
+                       // Keep track of the created objects
+                       // Note: You could lose track of the objects if you turn the countries on/off quickly
+                       dispatch_async(dispatch_get_main_queue(),
+                                      ^{
+                                          // Toss in all the labels at once, more efficient
+                                          [mapViewC setScreenLabelDesc:@{kWGTextColor: [UIColor whiteColor], kWGBackgroundColor: [UIColor clearColor], kWGShadowSize: @(4.0)}];
+                                          WGComponentObject *autoLabelObj = [mapViewC addScreenLabels:locAutoLabels];
+                                          [mapViewC setScreenLabelDesc:@{kWGTextColor: [NSNull null], kWGBackgroundColor: [NSNull null], kWGShadowSize: [NSNull null]}];
+                                          
+                                          vecObjects = locVecObjects;
+//                                          autoLabels = autoLabelObj;
+                                      });
+                       
                    }
                    );
 }

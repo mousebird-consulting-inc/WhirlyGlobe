@@ -28,6 +28,7 @@
 #import "PinchDelegateFixed.h"
 #import "MaplyQuadEarthWithMBTiles_private.h"
 #import "MaplyQuadEarthWithRemoteTiles_private.h"
+#import "MaplySphericalQuadEarthWithTexGroup_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 
 @interface MaplyBaseViewController()
