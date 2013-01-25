@@ -27,8 +27,10 @@ void CopyColumn(NSBitmapImageRep *imageRep,int srcCol,int destCol)
         bcopy(&data[(rowLen*ii+srcCol)*pixSize],&data[(rowLen*ii+destCol)*pixSize], pixSize);
 }
 
+typedef enum {OutFormatTiff,OutFormatJPEG,OutFormatPNG} OutFormatType;
+
 // Build a single level of the image grid
-bool BuildLevel(int outX,int outY,const char *levelId,NSImage *img,int outSize,int borderSize,const char *outDir,const char *outName,const char *texTool)
+bool BuildLevel(int outX,int outY,const char *levelId,NSImage *img,int outSize,int borderSize,const char *outDir,const char *outName,OutFormatType outFormatType,const char *texTool)
 {
     // Work through the chunks
     for (unsigned int ix=0;ix<outX;ix++)
@@ -70,13 +72,29 @@ bool BuildLevel(int outX,int outY,const char *levelId,NSImage *img,int outSize,i
                 CopyColumn(imageRep,outSize-borderSize-1,ib);
             
             // And save it out
-            NSData *resultData = [imageRep TIFFRepresentation];
             char imgName[1024];
             if (levelId)
                 sprintf(imgName,"%s_%sx%dx%d",outName,levelId,ix,(outY-iy-1));
             else
                 sprintf(imgName,"%s_%dx%d",outName,ix,(outY-iy-1));
-            NSString *fullName = [NSString stringWithFormat:@"%s/%s.tiff",outDir,imgName];
+            NSData *resultData = nil;
+            NSString *ext = nil;
+            switch (outFormatType)
+            {
+                case OutFormatTiff:
+                    ext = @"tiff";
+                    resultData = [imageRep TIFFRepresentation];
+                    break;
+                case OutFormatJPEG:
+                    ext = @"jpg";
+                    resultData = [imageRep representationUsingType:NSJPEGFileType properties:nil];
+                    break;
+                case OutFormatPNG:
+                    ext = @"png";
+                    resultData = [imageRep representationUsingType:NSPNGFileType properties:nil];
+                    break;
+            }
+            NSString *fullName = [NSString stringWithFormat:@"%s/%s.%@",outDir,imgName,ext];
             [resultData writeToFile:fullName atomically:NO];
             
             // If they gave us a path to the texture tool, invoke that
@@ -106,7 +124,7 @@ int main (int argc, const char * argv[])
 
     if (argc < 6)
     {
-        fprintf(stderr,"syntax: %s <in.img> <outName> <outDir> [-singleres <outX> <outY>] [-multires <maxzoom>] [-outSize <outSize>] [-borderSize <borderSize>] [-texTool <textool path>]\n",argv[0]);
+        fprintf(stderr,"syntax: %s <in.img> <outName> <outDir> [-singleres <outX> <outY>] [-multires <maxzoom>] [-outSize <outSize>] [-borderSize <borderSize>] [-texTool <textool path>] [-outformat tiff/jpeg/png]\n",argv[0]);
         return -1;
     }
     
@@ -119,6 +137,7 @@ int main (int argc, const char * argv[])
     const char *texTool = NULL;
     int singleOutX = -1,singleOutY = -1;
     int maxZoom = -1;
+    OutFormatType outFormatType = OutFormatTiff;
     
     // Work through the arguments
     int ai = 1;
@@ -190,6 +209,24 @@ int main (int argc, const char * argv[])
             continue;
         }
         
+        if (!strcmp(argv[ii],"-outformat"))
+        {
+            ai = 2;
+            if (ii+ai > argc)
+            {
+                fprintf(stderr,"Missing argument for -outformat");
+                return -1;
+            }
+            
+            if (!strcmp(argv[ii+1],"jpg") || !strcmp(argv[ii+1],"jpeg"))
+                outFormatType = OutFormatJPEG;
+            else
+                if (!strcmp(argv[ii+1],"png"))
+                    outFormatType = OutFormatPNG;
+            
+            continue;
+        }
+        
         fprintf(stderr,"Unrecognized argument: %s\n",argv[ii]);
         return -1;
     }
@@ -238,7 +275,7 @@ int main (int argc, const char * argv[])
     if (singleOutX > 0)
     {
         // Single level is easy enough
-        BuildLevel(singleOutX, singleOutY, NULL, img, outSize, borderSize, outDir, outName, texTool);
+        BuildLevel(singleOutX, singleOutY, NULL, img, outSize, borderSize, outDir, outName, outFormatType, texTool);
 
         [dict setValue:[NSNumber numberWithInteger:singleOutX] forKey:@"tilesInX"];
         [dict setValue:[NSNumber numberWithInteger:singleOutY] forKey:@"tilesInY"];
@@ -247,7 +284,7 @@ int main (int argc, const char * argv[])
         {
             char levelStr[10];
             sprintf(levelStr, "%d",level);
-            BuildLevel(1<<level, 1<<level, levelStr, img, outSize, borderSize, outDir, outName, texTool);            
+            BuildLevel(1<<level, 1<<level, levelStr, img, outSize, borderSize, outDir, outName, outFormatType, texTool);            
         }
         [dict setValue:[NSNumber numberWithInteger:maxZoom] forKey:@"maxLevel"];
     }
