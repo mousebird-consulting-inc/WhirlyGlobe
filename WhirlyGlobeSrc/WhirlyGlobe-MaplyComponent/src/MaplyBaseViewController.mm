@@ -446,6 +446,16 @@ static const float PerfOutputDelay = 15.0;
     return newLayer;
 }
 
+- (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet
+{
+    MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer texGroup:imageSet];
+    if (!newLayer)
+        return nil;
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls

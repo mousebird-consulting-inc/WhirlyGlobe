@@ -532,6 +532,8 @@ static const float SkirtFactor = 0.95;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
                     Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    if (coordAdapter->isFlat())
+                        loc3D.z() = 0.0;
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
                     
                     // Do the texture coordinate seperately
