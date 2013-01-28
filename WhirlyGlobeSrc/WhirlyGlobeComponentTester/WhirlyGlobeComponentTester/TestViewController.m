@@ -175,6 +175,7 @@ LocationInfo locations[NumLocations] =
     switch (startupLayer)
     {
         case BlueMarbleSingleResLocal:
+            self.title = @"Blue Marble Single Res";
             // This is the static image set, included with the app, built with ImageChopper
             [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
             screenLabelColor = [UIColor blackColor];
@@ -185,6 +186,7 @@ LocationInfo locations[NumLocations] =
             vecWidth = 2.0;
             break;
         case GeographyClassMBTilesLocal:
+            self.title = @"Geography Class - MBTiles Local";
             // This is the Geography Class MBTiles data set from MapBox
             [globeViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
             screenLabelColor = [UIColor blackColor];
@@ -196,6 +198,7 @@ LocationInfo locations[NumLocations] =
             break;
         case StamenWatercolorRemote:
         {
+            self.title = @"Stamen Water Color - Remote";
             // These are the Stamen Watercolor tiles.
             // They're beautiful, but the server isn't so great.
             thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
@@ -210,6 +213,7 @@ LocationInfo locations[NumLocations] =
             break;
         case OpenStreetmapRemote:
         {
+            self.title = @"OpenStreetMap - Remote";
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
             thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
             [globeViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:17];
@@ -223,7 +227,8 @@ LocationInfo locations[NumLocations] =
             break;
         case MapBoxTilesSat1:
         {
-            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zga3rxng.json";
+            self.title = @"MapBox Tiles Satellite - Remote";
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
@@ -235,6 +240,7 @@ LocationInfo locations[NumLocations] =
             break;
         case MapBoxTilesTerrain1:
         {
+            self.title = @"MapBox Tiles Terrain - Remote";
             jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
             screenLabelColor = [UIColor blackColor];
@@ -247,6 +253,7 @@ LocationInfo locations[NumLocations] =
             break;
         case MapBoxTilesRegular1:
         {
+            self.title = @"MapBox Tiles Regular - Remote";
             jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
             screenLabelColor = [UIColor blackColor];
