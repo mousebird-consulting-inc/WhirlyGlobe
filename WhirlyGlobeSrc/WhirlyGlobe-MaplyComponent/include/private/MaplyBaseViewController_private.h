@@ -75,6 +75,9 @@
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
     WhirlyKitView *visualView;
     
+    /// Active lights
+    NSMutableArray *lights;
+    
     /// Set if we're doing performance output
     bool perfOutput;
 }

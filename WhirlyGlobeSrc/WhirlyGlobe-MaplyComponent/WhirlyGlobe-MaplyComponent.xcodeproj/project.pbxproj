@@ -53,6 +53,8 @@
 		2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB0717C1676B5BD00DE387D /* MaplySticker.mm */; };
 		2BB071901676B8EA00DE387D /* MaplyViewControllerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0718F1676B8EA00DE387D /* MaplyViewControllerLayer.h */; };
 		2BB071921676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071911676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h */; };
+		2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */; };
+		2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */; };
 		2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */; };
 		2BB9E01815BF9EE300F1DDD8 /* MaplyMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01515BF9EE300F1DDD8 /* MaplyMarker.h */; };
 		2BB9E01915BF9EE300F1DDD8 /* MaplyScreenLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01615BF9EE300F1DDD8 /* MaplyScreenLabel.h */; };
@@ -133,6 +135,8 @@
 		2BB0717C1676B5BD00DE387D /* MaplySticker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplySticker.mm; path = src/MaplySticker.mm; sourceTree = SOURCE_ROOT; };
 		2BB0718F1676B8EA00DE387D /* MaplyViewControllerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewControllerLayer.h; path = include/MaplyViewControllerLayer.h; sourceTree = "<group>"; };
 		2BB071911676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadEarthWithRemoteTiles.h; path = include/MaplyQuadEarthWithRemoteTiles.h; sourceTree = SOURCE_ROOT; };
+		2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyLight.h; path = include/MaplyLight.h; sourceTree = SOURCE_ROOT; };
+		2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyLight.m; path = src/MaplyLight.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MaplyLabel.h; path = include/MaplyLabel.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BB9E01515BF9EE300F1DDD8 /* MaplyMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMarker.h; path = include/MaplyMarker.h; sourceTree = SOURCE_ROOT; };
 		2BB9E01615BF9EE300F1DDD8 /* MaplyScreenLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyScreenLabel.h; path = include/MaplyScreenLabel.h; sourceTree = SOURCE_ROOT; };
@@ -301,6 +305,8 @@
 				2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */,
 				2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */,
 				2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */,
+				2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */,
+				2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */,
 				2BE43865160930B200A81959 /* MaplyComponentObject.h */,
 				2BE8491315BC8DEB006CFD3F /* MaplyComponentObject_private.h */,
 				2B897A8C15BC6BF000250F23 /* MaplyComponentObject.mm */,
@@ -419,6 +425,7 @@
 				2B0A4DC0167BFA7A000D5786 /* MaplyViewController_private.h in Headers */,
 				2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */,
 				2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */,
+				2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -513,6 +520,7 @@
 				2B0A4DB8167BDAD3000D5786 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
 				2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */,
+				2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
