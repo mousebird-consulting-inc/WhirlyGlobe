@@ -170,6 +170,11 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     renderUntil = std::max(renderUntil,newRenderUntil);
 }
 
+- (void)setTriggerDraw
+{
+    triggerDraw = true;
+}
+
 - (void)useContext
 {
 	if (context && [EAGLContext currentContext] != context)
@@ -307,6 +312,13 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     // First time through
     if (lastDraw == 0.0)
         return true;
+    
+    // Something wants to be sure we draw on the next frame
+    if (triggerDraw)
+    {
+        triggerDraw = false;
+        return true;
+    }
     
     // Something wants us to draw (probably an animation)
     // We look at the last draw so we can handle jumps in time
