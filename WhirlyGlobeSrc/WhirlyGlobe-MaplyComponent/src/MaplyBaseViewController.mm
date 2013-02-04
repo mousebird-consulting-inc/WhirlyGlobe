@@ -173,7 +173,15 @@ static const char *fragmentShaderNoLightLine =
             delete lineShader;
         } else {
             scene->setDefaultPrograms(triShader,lineShader);
-        }        
+        }
+    } else {
+        // Add a default light
+        MaplyLight *light = [[MaplyLight alloc] init];
+        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        light.viewDependent = false;
+        [self addLight:light];
     }
 }
 
@@ -411,6 +419,48 @@ static const float PerfOutputDelay = 15.0;
 - (bool)performanceOutput
 {
     return perfOutput;
+}
+
+// Build an array of lights and send them down all at once
+- (void)updateLights
+{
+    NSMutableArray *theLights = [NSMutableArray array];
+    for (MaplyLight *light in lights)
+    {
+        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
+        theLight->pos.x() = light.pos.x;  theLight->pos.y() = light.pos.y;  theLight->pos.z() = light.pos.z;
+        theLight->ambient = [light.ambient asVec4];
+        theLight->diffuse = [light.diffuse asVec4];
+        theLight->viewDependent = light.viewDependent;
+        [theLights addObject:theLight];
+    }
+    if ([theLights count] == 0)
+        theLights = nil;
+    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    {
+        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
+        [rendererES2 replaceLights:theLights];
+    }
+}
+
+- (void)clearLights
+{
+    lights = nil;
+    [self updateLights];
+}
+
+- (void)addLight:(MaplyLight *)light
+{
+    if (!lights)
+        lights = [NSMutableArray array];
+    [lights addObject:light];
+    [self updateLights];
+}
+
+- (void)removeLight:(MaplyLight *)light
+{
+    [lights removeObject:light];
+    [self updateLights];
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name

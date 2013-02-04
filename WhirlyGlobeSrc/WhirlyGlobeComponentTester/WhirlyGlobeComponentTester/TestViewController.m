@@ -182,7 +182,7 @@ LocationInfo locations[NumLocations] =
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
-            vecColor = [UIColor brownColor];
+            vecColor = [UIColor grayColor];
             vecWidth = 2.0;
             break;
         case GeographyClassMBTilesLocal:

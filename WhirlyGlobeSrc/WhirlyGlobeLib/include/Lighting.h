@@ -31,6 +31,8 @@
 @public
     /// Light position
     Eigen::Vector3f pos;
+    /// If set, we won't process the light position through the model matrix
+    bool viewDependent;
     /// Ambient light color
     Eigen::Vector4f ambient;
     /// Diffuse light color
@@ -41,7 +43,7 @@
 
 /// Bind this light (given the index) to the program.
 /// Don't call this yourself.
-- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index;
+- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index modelMatrix:(Eigen::Matrix4f &)modelMat;
 
 @end
 
@@ -60,7 +62,7 @@
     float specularExponent;
 }
 
-/// Bind this material to a the given problem.
+/// Bind this material to a the given OpenGL ES program.
 /// Don't call this yourself.
 - (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program;
 
