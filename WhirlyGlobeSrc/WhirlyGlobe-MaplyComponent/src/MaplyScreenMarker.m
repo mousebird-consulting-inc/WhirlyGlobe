@@ -22,6 +22,7 @@
 
 @implementation MaplyScreenMarker
 
+@synthesize userObject;
 @synthesize loc;
 @synthesize size;
 @synthesize image;

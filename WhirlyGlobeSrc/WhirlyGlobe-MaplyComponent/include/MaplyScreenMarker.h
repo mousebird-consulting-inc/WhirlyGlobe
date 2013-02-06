@@ -26,6 +26,8 @@
  */
 @interface MaplyScreenMarker : NSObject
 {
+    /// For user data
+    NSObject *userObject;
     /// Location in geographic (lat/lon) in radians
     MaplyCoordinate loc;
     /// Size on the screen, in points
@@ -36,6 +38,7 @@
     bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate loc;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) UIImage *image;

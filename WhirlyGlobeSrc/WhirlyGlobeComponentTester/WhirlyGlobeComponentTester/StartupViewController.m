@@ -41,11 +41,16 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.title = @"Select Base Map";
     
     tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     tableView.delegate = self;
     tableView.dataSource = self;
+    tableView.backgroundColor = [UIColor grayColor];
+    tableView.separatorColor = [UIColor whiteColor];
+    tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [self.view addSubview:tableView];
+    self.view.autoresizesSubviews = true;
 }
 
 - (void)viewDidUnload
@@ -69,12 +74,31 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    // Globe and map
+    return 2;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return MaxBaseLayers;
+    int numLayers = (section == 0 ? MaxBaseLayers : MaxBaseLayers-1);
+    return numLayers;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    NSString *title = nil;
+    
+    switch (section)
+    {
+        case 0:
+            title = @"Globe";
+            break;
+        case 1:
+            title = @"Map";
+            break;
+    }
+    
+    return title;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -106,6 +130,8 @@
         default:
             break;
     }
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.backgroundColor = [UIColor grayColor];
     
     return cell;
 }
@@ -114,7 +140,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    TestViewController *viewC = [[TestViewController alloc] initWithBaseLayer:indexPath.row];
+    TestViewController *viewC = [[TestViewController alloc] initWithMapType:indexPath.section  baseLayer:indexPath.row];
     [self.navigationController pushViewController:viewC animated:YES];
 }
 

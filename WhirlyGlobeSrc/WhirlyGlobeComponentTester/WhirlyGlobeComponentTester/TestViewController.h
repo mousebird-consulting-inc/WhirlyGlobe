@@ -22,19 +22,27 @@
 #import "WhirlyGlobeComponent.h"
 #import "ConfigViewController.h"
 
+// Map or globe or startup
+typedef enum {MapGlobe,MapMap} MapType;
+
 // The various base layers we know about
-typedef enum {BlueMarbleSingleResLocal,GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,MaxBaseLayers} BaseLayer;
+typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,BlueMarbleSingleResLocal,MaxBaseLayers} BaseLayer;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.
  */
-@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate,UIPopoverControllerDelegate>
+@interface TestViewController : UIViewController <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate,UIPopoverControllerDelegate>
 {
+    /// This is the base class shared between the MaplyViewController and the WhirlyGlobeViewController
+    MaplyBaseViewController *baseViewC;
+    /// If we're displaying a globe, this is set
     WhirlyGlobeViewController *globeViewC;
+    /// If we're displaying a map, this is set
+    MaplyViewController *mapViewC;
     UIPopoverController *popControl;
 }
 
-// Fire it up with a particular base layer
-- (id)initWithBaseLayer:(BaseLayer)baseLayer;
+// Fire it up with a particular base layer and map or globe display
+- (id)initWithMapType:(MapType)mapType baseLayer:(BaseLayer)baseLayer;
 
 @end
