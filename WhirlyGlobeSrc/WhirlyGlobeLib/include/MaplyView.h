@@ -44,7 +44,7 @@
     NSObject<MaplyAnimationDelegate> * __weak delegate;
 }
 
-@property(nonatomic,readonly) WhirlyKit::Point3f loc;
+@property(nonatomic,readonly) WhirlyKit::Point3f &loc;
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use

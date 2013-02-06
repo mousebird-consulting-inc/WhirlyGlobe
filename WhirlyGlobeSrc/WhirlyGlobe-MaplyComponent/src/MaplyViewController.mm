@@ -132,6 +132,11 @@ using namespace Maply;
     *ur = boundUR;
 }
 
+- (void)setHeight:(float)height
+{
+    mapView.loc.z() = height;
+}
+
 /// Set the view extents.  This is the box the view point is allowed to be within.
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
 {
