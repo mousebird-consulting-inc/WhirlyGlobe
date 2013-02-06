@@ -303,38 +303,38 @@ static const char *fragmentShaderNoLightLine =
     
     // Set up default descriptions for the various data types
     NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        [NSNumber numberWithFloat:1.0], kWGFade,
+                                        [NSNumber numberWithFloat:1.0], kMaplyFade,
                                         nil];
     [self setScreenLabelDesc:newScreenLabelDesc];
     
     NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
                                   [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setLabelDesc:newLabelDesc];
     
     NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSNumber numberWithFloat:1.0], kWGFade,
+                                         [NSNumber numberWithFloat:1.0], kMaplyFade,
                                          nil];
     [self setScreenMarkerDesc:newScreenMarkerDesc];
     
     NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
     NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setVectorDesc:newVectorDesc];
     
     NSDictionary *newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setShapeDesc:newShapeDesc];
     
