@@ -22,7 +22,6 @@
 #import "GlobeLayerViewWatcher.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @implementation WhirlyKitNetworkTileQuadSourceBase
 

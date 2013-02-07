@@ -30,6 +30,7 @@
 #import "MaplyQuadEarthWithRemoteTiles_private.h"
 #import "MaplySphericalQuadEarthWithTexGroup_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "MaplyVectorObject_private.h"
 
 @interface MaplyBaseViewController()
 {
@@ -47,6 +48,7 @@
     WhirlyKitSphericalChunkLayer *chunkLayer;
     WhirlyKitLayoutLayer *layoutLayer;
     WhirlyKitSelectionLayer *selectLayer;
+    WhirlyKitLoftLayer *loftLayer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
@@ -64,7 +66,7 @@
     NSDictionary *hints;
     
     // Default description dictionaries for the various data types
-    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc,*stickerDesc;
+    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc,*stickerDesc,*loftDesc;
     
     // Clear color we're using
     UIColor *theClearColor;

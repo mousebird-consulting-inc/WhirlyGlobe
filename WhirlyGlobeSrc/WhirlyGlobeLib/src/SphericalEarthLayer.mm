@@ -43,9 +43,6 @@ using namespace WhirlyGlobe;
 		texGroup = inTexGroup;
 		xDim = texGroup.numX;
 		yDim = texGroup.numY;
-        savingToCache = false;
-        cacheName = inCacheName;
-        cacheWriter = NULL;
         fade = 0.0;
         drawPriority = 0;
 	}
@@ -64,16 +61,6 @@ using namespace WhirlyGlobe;
 - (void)dealloc
 {
     [self clear];
-
-    if (cacheWriter)
-        delete cacheWriter;
-    cacheWriter = NULL;
-}
-
-- (void)saveToCacheName:(NSString *)inCacheName
-{
-    savingToCache = true;
-    cacheName = inCacheName;
 }
 
 // Set up the next chunk to build and schedule it
@@ -101,81 +88,9 @@ using namespace WhirlyGlobe;
 
 using namespace WhirlyGlobe;
 
-// Load from a pregenerated cache
-- (BOOL)loadFromCache
-{
-    drawIDs.clear();
-    texIDs.clear();
-    
-    RenderCacheReader cacheReader(cacheName);
-    std::vector<Texture *> textures;
-    std::vector<Drawable *> drawables;
-
-    try
-    {    
-        // Try reading the cached drawables
-        if (!cacheReader.getDrawablesAndTextures(textures,drawables))
-            throw 1;
-
-        // Should be as many drawables as textures
-        if (texGroup.numX * texGroup.numY != drawables.size())
-            throw 1;
-
-        int whichDrawable = 0;
-        for (unsigned int y = 0; y < texGroup.numY; y++)
-            for (unsigned int x = 0; x < texGroup.numX; x++)
-            {
-                BasicDrawable *chunk = (BasicDrawable *)drawables[whichDrawable++];
-                chunk->setDrawPriority(drawPriority);
-                drawIDs.push_back(chunk->getId());
-                
-                // Now for the changes to the scenegraph
-                std::vector<ChangeRequest *> changeRequests;
-                
-                // Ask for a new texture and wire it to the drawable
-                Texture *tex = new Texture([texGroup generateFileNameX:x y:y],texGroup.ext);
-                tex->setWidth(texGroup.pixelsSquare);
-                tex->setHeight(texGroup.pixelsSquare);
-                texIDs.push_back(tex->getId());
-                changeRequests.push_back(new AddTextureReq(tex));
-                chunk->setTexId(tex->getId());
-                changeRequests.push_back(new AddDrawableReq(chunk));                
-                scene->addChangeRequests(changeRequests);
-
-                drawables[whichDrawable-1] = NULL;
-            }
-    }
-    catch (...)
-    {
-        NSLog(@"Cache mismatch in SphericalEarthLayer.  Rebuilding.");
-        
-        for (unsigned int ii=0;ii<drawables.size();ii++)
-            if (drawables[ii])
-                delete drawables[ii];
-        
-        return FALSE;
-    }
-    
-    return TRUE;
-}
-
 // First processing call.  Set things up
 - (void)startProcess:(id)sender
 {
-    // See if there's a cache to read from first
-    if (cacheName)
-    {
-        if (savingToCache)
-        {
-            // If we're saving things out, set up the cache writer
-            cacheWriter = new RenderCacheWriter(cacheName);
-            cacheWriter->setIgnoreTextures();
-        } else {
-            if ([self loadFromCache])
-                return;            
-        }            
-    }
-
     // If we got here, we've got work to do.
     [self performSelector:@selector(process:) withObject:nil];
 }
@@ -270,11 +185,7 @@ using namespace WhirlyGlobe;
     }
 	changeRequests.push_back(new AddDrawableReq(chunk));
     drawIDs.push_back(chunk->getId());
-    
-    // Save out to the cache if we've got one
-    if (cacheWriter)
-        cacheWriter->addDrawable(chunk);
-	
+    	
 	// This should make the changes appear
 	scene->addChangeRequests(changeRequests);
 	
@@ -292,10 +203,6 @@ using namespace WhirlyGlobe;
 	if (chunkY < yDim) {
 		[self performSelector:@selector(process:) withObject:nil afterDelay:0.0];
 	} else {
-        if (cacheWriter)
-            delete cacheWriter;
-        cacheWriter = NULL;
-
         // If we're done, have the renderer send out a notification.
         // Odds are it's still processing the data right now
         scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self));

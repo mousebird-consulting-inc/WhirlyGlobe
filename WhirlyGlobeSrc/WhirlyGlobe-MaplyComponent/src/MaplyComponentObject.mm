@@ -27,6 +27,7 @@
 @synthesize vectorIDs;
 @synthesize shapeIDs;
 @synthesize chunkIDs;
+@synthesize loftIDs;
 @synthesize vectors;
 @synthesize images;
 

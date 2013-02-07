@@ -34,6 +34,7 @@
     WhirlyKit::SimpleIDSet vectorIDs;
     WhirlyKit::SimpleIDSet shapeIDs;
     WhirlyKit::SimpleIDSet chunkIDs;
+    WhirlyKit::SimpleIDSet loftIDs;
     std::set<UIImage *> images;
     NSArray *vectors;
 }
@@ -43,6 +44,7 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &vectorIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &shapeIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &chunkIDs;
+@property (nonatomic,assign) WhirlyKit::SimpleIDSet &loftIDs;
 @property (nonatomic,assign) std::set<UIImage *> &images;
 @property (nonatomic,strong) NSArray *vectors;
 

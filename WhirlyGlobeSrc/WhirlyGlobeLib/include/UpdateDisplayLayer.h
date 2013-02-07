@@ -24,7 +24,6 @@
 #import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"

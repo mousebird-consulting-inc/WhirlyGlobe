@@ -131,3 +131,12 @@
 /// Sampling size along one dimension
 #define kMaplySampleY @"sampleY"
 #define kWGSampleY kMaplySampleY
+
+/// These are used for lofted polygons
+
+/// Height above the ground
+#define kMaplyLoftedPolyHeight @"height"
+/// Boolean that turns on/off top (on by default)
+#define kMaplyLoftedPolyTop @"top"
+/// Boolean that turns on/off sides (on by default)
+#define kMaplyLoftedPolySide @"side"

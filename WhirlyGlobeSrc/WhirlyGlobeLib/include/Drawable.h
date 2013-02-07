@@ -104,8 +104,7 @@ protected:
     std::set<GLuint> texIDs;
 };
 
-/// Mapping from Simple ID to an int.  This is used by the render cache
-///  reader and writer.
+/// Mapping from Simple ID to an int
 typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
 	
 /** This is the base clase for a change request.  Change requests
@@ -168,19 +167,9 @@ public:
 
     /// Check if the force Z buffer on mode is on
     virtual bool getForceZBufferOn() const { return false; }
-
-    /// Can this drawable respond to a caching request?
-    virtual bool canCache() const = 0;
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
-
-    /// Read this drawable from a cache file
-    /// Return the the texure IDs encountered while reading
-    virtual bool readFromFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) { return false; }
-    
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) const { return false; }
 };
 
 /// Reference counted Drawable pointer
@@ -395,17 +384,8 @@ public:
     /// Return the active transform matrix, if we have one
     const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
 
-    /// The BasicDrawable can cache
-    virtual bool canCache() const { return true; }
-
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
-    
-    /// Read this drawable from a cache file
-    virtual bool readFromFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true);
-    
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
     
 protected:
     /// OpenGL ES 1.1 drawing routine
