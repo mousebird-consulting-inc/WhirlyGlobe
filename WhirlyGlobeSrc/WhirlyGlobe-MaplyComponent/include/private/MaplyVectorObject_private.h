@@ -30,7 +30,7 @@
 
 @end
 
-@interface MaplyVectorDatabase()
+@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
 {
     
 }

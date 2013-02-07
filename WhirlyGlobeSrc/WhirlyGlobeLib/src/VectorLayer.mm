@@ -22,7 +22,6 @@
 #import "VectorLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "RenderCache.h"
 #import "Tesselator.h"
 
 using namespace WhirlyKit;
@@ -45,12 +44,10 @@ using namespace WhirlyKit;
     float                       lineWidth;
     BOOL                        filled;
     float                       sample;
-    NSString                    *cacheName;
     SimpleIdentity              replaceVecID;
 }
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) SimpleIdentity replaceVecID;
@@ -62,7 +59,6 @@ using namespace WhirlyKit;
 @implementation VectorInfo
 
 @synthesize color;
-@synthesize cacheName;
 @synthesize fade;
 @synthesize lineWidth;
 @synthesize replaceVecID;
@@ -121,8 +117,8 @@ class DrawableBuilder
 {
 public:
     DrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
-                    VectorInfo *vecInfo,bool linesOrPoints,RenderCacheWriter *cacheWriter)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
+                    VectorInfo *vecInfo,bool linesOrPoints)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -209,10 +205,6 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
 
-                // Save to the cache
-                if (cacheWriter)
-                    cacheWriter->addDrawable(drawable);
-
                 if (vecInfo.fade > 0.0)
                 {
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -232,7 +224,6 @@ protected:
     Mbr drawMbr;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
-    RenderCacheWriter *cacheWriter;
     GLenum primType;
 };
 
@@ -394,12 +385,7 @@ protected:
     sceneRep->fade = vecInfo.fade;
     sceneRep->setId(vecInfo->sceneRepId);
     vectorReps[sceneRep->getId()] = sceneRep;
-    
-    // If we're writing out to a cache, set that up as well
-    RenderCacheWriter *renderCacheWriter=NULL;
-    if (vecInfo.cacheName)
-        renderCacheWriter = new RenderCacheWriter(vecInfo.cacheName);
-        
+            
     // All the shape types should be the same
     ShapeSet::iterator first = vecInfo->shapes.begin();
     if (first == vecInfo->shapes.end())
@@ -410,7 +396,7 @@ protected:
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     std::vector<ChangeRequest *> changeRequests;
-    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
+    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints);
     DrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
     
     // Note: This is a duplicate of the runRemoveVector logic
@@ -487,30 +473,7 @@ protected:
     drawBuild.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);
-    
-    if (renderCacheWriter)
-        delete renderCacheWriter;
-}
-
-// Load the vector drawables from the cache
-- (void)runAddVectorsFromCache:(VectorInfo *)vecInfo
-{
-    RenderCacheReader *renderCacheReader = new RenderCacheReader(vecInfo.cacheName);
-    
-    // Load in the textures and drawables
-    // We'll hand them to the scene as we get them    
-    SimpleIDSet texIDs,drawIDs;
-    if (!renderCacheReader->getDrawablesAndTexturesAddToScene(scene,texIDs,drawIDs,vecInfo.fade))
-        NSLog(@"VectorLayer failed to load from cache: %@",vecInfo.cacheName);
-    else {
-        VectorSceneRep *sceneRep = new VectorSceneRep(vecInfo->shapes);
-        sceneRep->setId(vecInfo->sceneRepId);
-        sceneRep->drawIDs = drawIDs;
-        vectorReps[sceneRep->getId()] = sceneRep;        
-    }
-    
-    delete renderCacheReader;
+    scene->addChangeRequests(changeRequests);    
 }
 
 // Change a vector representation according to the request
@@ -607,7 +570,7 @@ protected:
 }
 
 // Add a group of vectors and cache it to the given file, which might be on disk
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
 {
     if (!layerThread || !scene)
     {
@@ -616,34 +579,12 @@ protected:
     }
     
     VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
-    vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddVector:vecInfo];
     else
         [self performSelector:@selector(runAddVector:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
-    
-    return vecInfo->sceneRepId;
-}
-
-// Add a group of vectors.  These will all be referred to by the same ID.
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
-{
-    return [self addVectors:shapes desc:desc cacheName:nil];
-}
-
-// Load the drawables in from a cache
-- (SimpleIdentity)addVectorsFromCache:(NSString *)cacheName
-{
-    VectorInfo *vecInfo = [[VectorInfo alloc] init];
-    vecInfo.cacheName = cacheName;
-    vecInfo->sceneRepId = Identifiable::genId();
-    
-    if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runAddVectorsFromCache:vecInfo];
-    else
-        [self performSelector:@selector(runAddVectorsFromCache:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
     
     return vecInfo->sceneRepId;
 }

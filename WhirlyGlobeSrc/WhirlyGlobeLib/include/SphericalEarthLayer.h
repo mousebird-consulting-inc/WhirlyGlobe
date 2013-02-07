@@ -23,7 +23,6 @@
 #import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 
 namespace WhirlyGlobe
@@ -49,9 +48,6 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 	WhirlyGlobe::GlobeScene *scene;
 	unsigned int xDim,yDim;
 	unsigned int chunkX,chunkY;
-    bool savingToCache;
-    NSString *cacheName;
-    WhirlyKit::RenderCacheWriter *cacheWriter;
     /// If set, the time to fade in the globe
     float fade;
     std::vector<WhirlyKit::SimpleIdentity> texIDs;
@@ -69,11 +65,7 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.
-/// If you provide a cache name, we'll try to load from there first
-- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup cacheName:(NSString *)cacheName;
-
-/// Call this right after init if you want to save the geometry out
-- (void)saveToCacheName:(NSString *)cacheName;
+- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
