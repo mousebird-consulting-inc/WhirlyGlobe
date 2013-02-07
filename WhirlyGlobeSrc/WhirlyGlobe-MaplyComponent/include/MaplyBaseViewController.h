@@ -115,6 +115,15 @@
 /// Add one or more stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers;
 
+/// Add visual defaults for the lofted polys
+- (void)setLoftedPolyDesc:(NSDictionary *)desc;
+
+/// Add one or more lofted polys.
+/// If you pass in a vector database, we'll attempt to cache
+///  the generated data with 'key' for speed.  The vector database should
+///  be where the polys originated.  nil is acceptable for both key and cacheDb.
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
+
 /// Add a view to track to a particular location
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
 

@@ -59,6 +59,7 @@ using namespace WhirlyKit;
     shapeLayer = nil;
     chunkLayer = nil;
     layoutLayer = nil;
+    loftLayer = nil;
     selectLayer = nil;
     
     interactLayer = nil;
@@ -275,6 +276,10 @@ static const char *fragmentShaderNoLightLine =
     labelLayer.layoutLayer = layoutLayer;
     [layerThread addLayer:layoutLayer];
     
+    // Lofted polygon layer
+    loftLayer = [[WhirlyKitLoftLayer alloc] init];
+    [layerThread addLayer:loftLayer];
+    
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
     interactLayer.vectorLayer = vectorLayer;
@@ -283,6 +288,7 @@ static const char *fragmentShaderNoLightLine =
     interactLayer.shapeLayer = shapeLayer;
     interactLayer.chunkLayer = chunkLayer;
     interactLayer.selectLayer = selectLayer;
+    interactLayer.loftLayer = loftLayer;
     interactLayer.glView = glView;
     [layerThread addLayer:interactLayer];
     
@@ -339,6 +345,8 @@ static const char *fragmentShaderNoLightLine =
     [self setShapeDesc:newShapeDesc];
     
     [self setStickerDesc:@{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)}];
+    
+    [self setLoftedPolyDesc:@{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)}];
     
     selection = true;
     
@@ -580,6 +588,11 @@ static const float PerfOutputDelay = 15.0;
     stickerDesc = [self mergeAndCheck:stickerDesc changeDict:desc];
 }
 
+- (void)setLoftedPolyDesc:(NSDictionary *)desc
+{
+    loftDesc = [self mergeAndCheck:loftDesc changeDict:desc];
+}
+
 #pragma mark - Geometry related methods
 
 /// Add a group of screen (2D) markers
@@ -631,6 +644,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers
 {
     return [interactLayer addStickers:stickers desc:stickerDesc];
+}
+
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
+{
+    return [interactLayer addLoftedPolys:polys desc:loftDesc key:key cache:cacheDb];
 }
 
 /// Add a view to track to a particular location
