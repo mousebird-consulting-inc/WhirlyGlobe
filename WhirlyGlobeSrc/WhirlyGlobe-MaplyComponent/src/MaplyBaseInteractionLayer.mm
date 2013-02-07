@@ -664,6 +664,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
                  it != userObj.shapeIDs.end(); ++it)
                 [shapeLayer removeShapes:*it];
+            for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
+                 it != userObj.loftIDs.end(); ++it)
+                [loftLayer removeLoftedPoly:*it];
             for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
                  it != userObj.chunkIDs.end(); ++it)
                 [chunkLayer removeChunk:*it];
