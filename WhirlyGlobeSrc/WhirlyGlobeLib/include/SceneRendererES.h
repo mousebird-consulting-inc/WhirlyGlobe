@@ -212,6 +212,10 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZ
     /// Something wants to make sure we render until at least this point.
     NSTimeInterval renderUntil;
     
+    /// We use this to trigger a draw at the next opportunity.
+    /// For some reason something we can't see changed.
+    bool triggerDraw;
+    
     // View state from the last render, for comparison
     Eigen::Matrix4f modelMat,viewMat;
 }
@@ -252,6 +256,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZ
 /// Set the render until time.  This is used by things like fade to keep
 ///  the rendering optimization from cutting off animation.
 - (void)setRenderUntil:(NSTimeInterval)newTime;
+
+/// Force a draw at the next opportunity
+- (void)setTriggerDraw;
 
 /// Call this to force a draw on the next frame.
 /// This turns off the draw optimization, but just for one frame.

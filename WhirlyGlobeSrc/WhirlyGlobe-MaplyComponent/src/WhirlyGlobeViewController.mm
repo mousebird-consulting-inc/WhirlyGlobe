@@ -438,4 +438,14 @@ using namespace WhirlyGlobe;
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
+- (void)setSunDirection:(MaplyCoordinate3d)sunDir
+{
+    
+}
+
+- (void)clearSunDirection
+{
+    
+}
+
 @end

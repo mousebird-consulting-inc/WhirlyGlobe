@@ -26,6 +26,7 @@
 #import "MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyViewControllerLayer.h"
+#import "MaplyLight.h"
 
 /** The MaplyBaseViewController is the base class for the Maply and WhirlyGlobe
     view controllers.  Most of its functionality is private, but you can use
@@ -39,6 +40,16 @@
 /// Set the globe view's background color.
 /// Black, by default.
 @property (nonatomic,strong) UIColor *clearColor;
+
+/// Clear all the currently active lights.
+/// There are a default set of lights, so you'll need to do this before adding your own.
+- (void)clearLights;
+
+/// Add the given light to the lighting model
+- (void)addLight:(MaplyLight *)light;
+
+/// Remove the given light (assuming it's active) from the lighting model
+- (void)removeLight:(MaplyLight *)light;
 
 /// Add rendering and other general hints for the globe view controller.
 - (void)setHints:(NSDictionary *)hintsDict;
@@ -106,6 +117,15 @@
 
 /// Add one or more stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers;
+
+/// Add visual defaults for the lofted polys
+- (void)setLoftedPolyDesc:(NSDictionary *)desc;
+
+/// Add one or more lofted polys.
+/// If you pass in a vector database, we'll attempt to cache
+///  the generated data with 'key' for speed.  The vector database should
+///  be where the polys originated.  nil is acceptable for both key and cacheDb.
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
 
 /// Add a view to track to a particular location
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;

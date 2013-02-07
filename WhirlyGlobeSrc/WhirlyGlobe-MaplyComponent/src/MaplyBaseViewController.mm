@@ -59,6 +59,7 @@ using namespace WhirlyKit;
     shapeLayer = nil;
     chunkLayer = nil;
     layoutLayer = nil;
+    loftLayer = nil;
     selectLayer = nil;
     
     interactLayer = nil;
@@ -173,7 +174,15 @@ static const char *fragmentShaderNoLightLine =
             delete lineShader;
         } else {
             scene->setDefaultPrograms(triShader,lineShader);
-        }        
+        }
+    } else {
+        // Add a default light
+        MaplyLight *light = [[MaplyLight alloc] init];
+        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        light.viewDependent = false;
+        [self addLight:light];
     }
 }
 
@@ -267,6 +276,10 @@ static const char *fragmentShaderNoLightLine =
     labelLayer.layoutLayer = layoutLayer;
     [layerThread addLayer:layoutLayer];
     
+    // Lofted polygon layer
+    loftLayer = [[WhirlyKitLoftLayer alloc] init];
+    [layerThread addLayer:loftLayer];
+    
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
     interactLayer.vectorLayer = vectorLayer;
@@ -275,6 +288,7 @@ static const char *fragmentShaderNoLightLine =
     interactLayer.shapeLayer = shapeLayer;
     interactLayer.chunkLayer = chunkLayer;
     interactLayer.selectLayer = selectLayer;
+    interactLayer.loftLayer = loftLayer;
     interactLayer.glView = glView;
     [layerThread addLayer:interactLayer];
     
@@ -295,42 +309,44 @@ static const char *fragmentShaderNoLightLine =
     
     // Set up default descriptions for the various data types
     NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        [NSNumber numberWithFloat:1.0], kWGFade,
+                                        [NSNumber numberWithFloat:1.0], kMaplyFade,
                                         nil];
     [self setScreenLabelDesc:newScreenLabelDesc];
     
     NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
                                   [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setLabelDesc:newLabelDesc];
     
     NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSNumber numberWithFloat:1.0], kWGFade,
+                                         [NSNumber numberWithFloat:1.0], kMaplyFade,
                                          nil];
     [self setScreenMarkerDesc:newScreenMarkerDesc];
     
     NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
     NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setVectorDesc:newVectorDesc];
     
     NSDictionary *newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setShapeDesc:newShapeDesc];
     
     [self setStickerDesc:@{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)}];
+    
+    [self setLoftedPolyDesc:@{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)}];
     
     selection = true;
     
@@ -411,6 +427,48 @@ static const float PerfOutputDelay = 15.0;
 - (bool)performanceOutput
 {
     return perfOutput;
+}
+
+// Build an array of lights and send them down all at once
+- (void)updateLights
+{
+    NSMutableArray *theLights = [NSMutableArray array];
+    for (MaplyLight *light in lights)
+    {
+        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
+        theLight->pos.x() = light.pos.x;  theLight->pos.y() = light.pos.y;  theLight->pos.z() = light.pos.z;
+        theLight->ambient = [light.ambient asVec4];
+        theLight->diffuse = [light.diffuse asVec4];
+        theLight->viewDependent = light.viewDependent;
+        [theLights addObject:theLight];
+    }
+    if ([theLights count] == 0)
+        theLights = nil;
+    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    {
+        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
+        [rendererES2 replaceLights:theLights];
+    }
+}
+
+- (void)clearLights
+{
+    lights = nil;
+    [self updateLights];
+}
+
+- (void)addLight:(MaplyLight *)light
+{
+    if (!lights)
+        lights = [NSMutableArray array];
+    [lights addObject:light];
+    [self updateLights];
+}
+
+- (void)removeLight:(MaplyLight *)light
+{
+    [lights removeObject:light];
+    [self updateLights];
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
@@ -541,6 +599,11 @@ static const float PerfOutputDelay = 15.0;
     stickerDesc = [self mergeAndCheck:stickerDesc changeDict:desc];
 }
 
+- (void)setLoftedPolyDesc:(NSDictionary *)desc
+{
+    loftDesc = [self mergeAndCheck:loftDesc changeDict:desc];
+}
+
 #pragma mark - Geometry related methods
 
 /// Add a group of screen (2D) markers
@@ -592,6 +655,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers
 {
     return [interactLayer addStickers:stickers desc:stickerDesc];
+}
+
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
+{
+    return [interactLayer addLoftedPolys:polys desc:loftDesc key:key cache:cacheDb];
 }
 
 /// Add a view to track to a particular location

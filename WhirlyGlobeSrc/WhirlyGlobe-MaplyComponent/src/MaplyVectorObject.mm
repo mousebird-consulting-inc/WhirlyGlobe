@@ -286,6 +286,7 @@ using namespace WhirlyGlobe;
 @implementation MaplyVectorDatabase
 {
     VectorDatabase *vectorDb;
+    NSString *baseName;
 }
 
 - (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
@@ -305,7 +306,9 @@ using namespace WhirlyGlobe;
     NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
     VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
     
-    return [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+    mVecDb->baseName = shapeName;
+    return mVecDb;
 }
 
 + (MaplyVectorDatabase *) vectorDatabaseWithShapePath:(NSString *)shapeFileName
@@ -359,6 +362,42 @@ using namespace WhirlyGlobe;
         return nil;
     
     return vecObj;
+}
+
+#pragma mark - WhirlyKitLoftedPolyCache delegate
+
+// We'll look for the lofted poly data in the bundle first, then the cache dir
+- (NSData *)readLoftedPolyData:(NSString *)key
+{
+    // Look for cache files in the doc and bundle dirs
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
+
+    NSString *cache0 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",bundleDir,baseName,key];
+    NSString *cache1 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+    
+    // Look for an existing file
+    NSString *cacheFile = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:cache0])
+        cacheFile = cache0;
+    else
+        if ([fileManager fileExistsAtPath:cache1])
+            cacheFile = cache1;
+
+    if (!cacheFile)
+        return nil;
+    
+    return [NSData dataWithContentsOfFile:cacheFile];
+}
+
+// We'll write the lofted poly data to the cache dir with the base name and key
+- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)key
+{
+    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *cacheFile = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+    
+    return [data writeToFile:cacheFile atomically:YES];
 }
 
 @end

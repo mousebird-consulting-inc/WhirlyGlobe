@@ -70,6 +70,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 @synthesize vectorLayer;
 @synthesize shapeLayer;
 @synthesize chunkLayer;
+@synthesize loftLayer;
 @synthesize selectLayer;
 @synthesize glView;
 
@@ -607,6 +608,41 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually add the lofted polys.
+// Called in the layer thread.
+- (void)addLoftedPolysLayerThread:(NSArray *)argArray
+{
+    NSArray *vectors = [argArray objectAtIndex:0];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    compObj.vectors = vectors;
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSString *key = argArray[3];
+    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
+    
+    ShapeSet shapes;
+    for (MaplyVectorObject *vecObj in vectors)
+    {
+        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    }
+    
+    SimpleIdentity loftID = [loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
+    compObj.loftIDs.insert(loftID);
+    
+    [userObjects addObject:compObj];
+}
+
+// Add lofted polys
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], key, cache];
+    [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+
 // Remove the object, but do it on the layer thread
 - (void)removeObjectLayerThread:(NSArray *)userObjs
 {
@@ -628,6 +664,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
                  it != userObj.shapeIDs.end(); ++it)
                 [shapeLayer removeShapes:*it];
+            for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
+                 it != userObj.loftIDs.end(); ++it)
+                [loftLayer removeLoftedPoly:*it];
             for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
                  it != userObj.chunkIDs.end(); ++it)
                 [chunkLayer removeChunk:*it];

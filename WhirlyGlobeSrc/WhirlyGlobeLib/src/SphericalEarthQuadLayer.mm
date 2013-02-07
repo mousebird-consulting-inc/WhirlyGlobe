@@ -24,7 +24,6 @@
 
 using namespace Eigen;
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 // Describes the structure of the image database
 @interface WholeEarthStructure : NSObject<WhirlyKitQuadDataStructure>

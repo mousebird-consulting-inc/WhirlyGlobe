@@ -1,9 +1,9 @@
 /*
- *  UIColor+Stuff.h
- *  WhirlyGlobeLib
+ *  MaplyLight.m
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 1/30/13.
+ *  Copyright 2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "WhirlyVector.h"
+#import "MaplyLight.h"
 
-@interface UIColor(Stuff)
+@implementation MaplyLight
 
-/// Convert a UIColor to the RBGA color we use internally
-- (WhirlyKit::RGBAColor) asRGBAColor;
-
-/// Convert a UIColor to Vector4, which we also use internally
-- (Eigen::Vector4f) asVec4;
+@synthesize pos;
+@synthesize viewDependent;
+@synthesize ambient,diffuse;
 
 @end

@@ -25,7 +25,6 @@
 #import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 
 namespace WhirlyGlobe

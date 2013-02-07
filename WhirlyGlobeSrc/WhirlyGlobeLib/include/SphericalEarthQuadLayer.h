@@ -22,7 +22,6 @@
 #import "WhirlyVector.h"
 #import "TextureGroup.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "TileQuadLoader.h"
 

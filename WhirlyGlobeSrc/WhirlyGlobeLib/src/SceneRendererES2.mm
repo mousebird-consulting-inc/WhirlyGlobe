@@ -85,6 +85,7 @@ public:
     // Add a simple default light
     WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
     light->pos = Vector3f(0.75, 0.5, -1.0);
+    light->viewDependent = true;
     light->ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
     light->diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
     light->specular = Vector4f(0, 0, 0, 0);
@@ -103,6 +104,7 @@ static const char *vertexShaderTri =
 "  vec4 ambient;\n"
 "  vec4 diffuse;\n"
 "  vec4 specular;\n"
+"  float viewdepend;\n"
 "};\n"
 "\n"
 "struct material_properties {\n"
@@ -132,17 +134,18 @@ static const char *vertexShaderTri =
 "   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
 "   if (u_numLights > 0)                     \n"
 "   {\n"
-"     vec3 adjNorm = normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz);\n"
 "     vec4 ambient = vec4(0.0,0.0,0.0,0.0);         \n"
 "     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);         \n"
 "     for (int ii=0;ii<8;ii++)                 \n"
 "     {\n"
 "        if (ii>=u_numLights)                  \n"
 "           break;                             \n"
+"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;\n"
 "        float ndotl;\n"
-"        float ndoth;\n"
+//"        float ndoth;\n"
 "        ndotl = max(0.0, dot(adjNorm, light[ii].direction));\n"
-"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
+//"        ndotl = pow(ndotl,0.5);\n"
+//"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
 "        ambient += light[ii].ambient;\n"
 "        diffuse += ndotl * light[ii].diffuse;\n"
 "     }\n"
@@ -236,6 +239,7 @@ static const char *fragmentShaderLine =
         lights = [NSMutableArray array];
     [lights addObject:light];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+    triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
@@ -243,12 +247,14 @@ static const char *fragmentShaderLine =
 {
     lights = [NSMutableArray arrayWithArray:inLights];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+    triggerDraw = true;
 }
 
 - (void)setDefaultMaterial:(WhirlyKitMaterial *)mat
 {
     defaultMat = mat;
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+    triggerDraw = true;
 }
 
 
@@ -330,8 +336,8 @@ static const float ScreenOverlap = 0.1;
     projMat(2,3) = -2.0f * near * far / delta.z();
     projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
     
-    Eigen::Matrix4f matrixAndViewMat = viewTrans * modelTrans;
-    Eigen::Matrix4f mvpMat = projMat * (matrixAndViewMat);
+    Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
+    Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     
     switch (zBufferMode)
     {
@@ -378,7 +384,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
-        frameInfo.viewAndModelMat = matrixAndViewMat;
+        frameInfo.viewAndModelMat = modelAndViewMat;
         frameInfo.lights = lights;
 		
         if (perfInterval > 0)
@@ -521,7 +527,7 @@ static const float ScreenOverlap = 0.1;
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated, defaultMat);
+                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
                     // Explicitly turn the lights on
                     program->setUniform(kWKOGLNumLights, (int)[lights count]);
 

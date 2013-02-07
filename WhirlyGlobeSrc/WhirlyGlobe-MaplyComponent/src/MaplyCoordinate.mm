@@ -31,3 +31,10 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
     
     return coord;
 }
+
+MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z)
+{
+    MaplyCoordinate3d coord;
+    coord.x = x;  coord.y = y;  coord.z = z;
+    return coord;
+}

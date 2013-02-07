@@ -113,4 +113,11 @@
 /// This utility routine returns the on screen location for a coordinate in lat/lon
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
+/// Set the direction the sun is coming from.  This makes lighting independent of the viewing
+///  angle as well.
+- (void)setSunDirection:(MaplyCoordinate3d)sunDir;
+
+/// Turn off the sun direction and go back to view dependent lighting (the default).
+- (void)clearSunDirection;
+
 @end
