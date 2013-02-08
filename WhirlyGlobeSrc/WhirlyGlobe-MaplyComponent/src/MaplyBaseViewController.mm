@@ -352,6 +352,11 @@ static const char *fragmentShaderNoLightLine =
     
 }
 
+- (void) useGLContext
+{
+    [sceneRenderer useContext];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -749,5 +754,16 @@ static const float PerfOutputDelay = 15.0;
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
 }
+
+- (void)setDefaultPolyShader:(MaplyShader *)shader
+{
+    scene->setDefaultPrograms(shader.program, NULL);
+}
+
+- (void)setDefaultLineShader:(MaplyShader *)shader
+{
+    scene->setDefaultPrograms(NULL, shader.program);
+}
+
 
 @end
