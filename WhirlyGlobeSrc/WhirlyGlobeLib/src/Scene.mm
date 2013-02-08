@@ -312,10 +312,16 @@ void Scene::removeProgram(SimpleIdentity progId)
 
 void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
 {
-    defaultProgramTri = progTri->getId();
-    defaultProgramLine = progLine->getId();
-    addProgram(progTri);
-    addProgram(progLine);
+    if (progTri)
+    {
+        addProgram(progTri);
+        defaultProgramTri = progTri->getId();
+    }
+    if (progLine)
+    {
+        defaultProgramLine = progLine->getId();
+        addProgram(progLine);
+    }
 }
     
 void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)

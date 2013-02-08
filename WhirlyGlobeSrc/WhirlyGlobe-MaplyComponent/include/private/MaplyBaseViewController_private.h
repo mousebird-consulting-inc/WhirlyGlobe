@@ -31,6 +31,7 @@
 #import "MaplySphericalQuadEarthWithTexGroup_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
+#import "MaplyShader_private.h"
 
 @interface MaplyBaseViewController()
 {
@@ -103,5 +104,8 @@
 
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
+
+/// Make the renderer's GL context active.  This is used internally.
+- (void) useGLContext;
 
 @end
