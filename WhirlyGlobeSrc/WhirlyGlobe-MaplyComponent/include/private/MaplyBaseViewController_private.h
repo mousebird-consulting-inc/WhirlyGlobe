@@ -81,6 +81,9 @@
     /// Active lights
     NSMutableArray *lights;
     
+    /// Active shaders
+    NSMutableArray *shaders;
+    
     /// Set if we're doing performance output
     bool perfOutput;
 }
@@ -107,5 +110,8 @@
 
 /// Make the renderer's GL context active.  This is used internally.
 - (void) useGLContext;
+
+/// Every shader created with a view controller needs to be tracked by the view controller
+- (void) addShader:(MaplyShader *)shader;
 
 @end

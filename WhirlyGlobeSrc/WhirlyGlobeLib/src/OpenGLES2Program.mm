@@ -338,8 +338,9 @@ bool OpenGLES2Program::hasLights()
     
 bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
 {
-    if (lightsLastUpdated > lastUpdate)
-        return false;
+    // Note: This was causing all the geometry to turn up black
+//    if (lightsLastUpdated > lastUpdate)
+//        return false;
     lightsLastUpdated = lastUpdate;
     
     int numLights = [lights count];
