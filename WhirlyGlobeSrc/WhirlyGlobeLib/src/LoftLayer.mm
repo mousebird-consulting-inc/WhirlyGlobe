@@ -219,6 +219,7 @@ public:
             //            drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor([polyInfo.color asRGBAColor]);
             drawable->setAlpha(true);
+            drawable->setForceZBufferOn(true);
             //            drawable->setDrawPriority(vecInfo->priority);
             //            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }
