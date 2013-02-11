@@ -88,19 +88,24 @@ using namespace WhirlyKit;
         return nil;
     }
     
+    [baseViewC addShader:self];
+    
     return self;
+}
+
+// We're assuming the view controller has set the proper context
+- (void)shutdown
+{
+    if (_program)
+    {
+//        _program->cleanUp();
+//        delete _program;
+        _program = NULL;
+    }
 }
 
 - (void)dealloc
 {
-    if (_program)
-    {
-        EAGLContext *oldContext = [EAGLContext currentContext];
-        [EAGLContext setCurrentContext:context];
-        delete _program;
-        [EAGLContext setCurrentContext:oldContext];
-        _program = NULL;
-    }
 }
 
 - (bool)valid

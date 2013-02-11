@@ -35,6 +35,13 @@ using namespace WhirlyKit;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [sceneRenderer useContext];
+    for (MaplyShader *shader in shaders)
+        [shader shutdown];
+    if (oldContext)
+        [EAGLContext setCurrentContext:oldContext];
+    
     if (layerThread)
     {
         [layerThread addThingToDelete:scene];
@@ -474,6 +481,13 @@ static const float PerfOutputDelay = 15.0;
 {
     [lights removeObject:light];
     [self updateLights];
+}
+
+- (void)addShader:(MaplyShader *)shader
+{
+    if (!shaders)
+        shaders = [NSMutableArray array];
+    [shaders addObject:shader];
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name

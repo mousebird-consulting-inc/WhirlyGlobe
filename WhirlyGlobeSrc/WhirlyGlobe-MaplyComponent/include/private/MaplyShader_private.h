@@ -23,4 +23,8 @@
 @interface MaplyShader()
 
 @property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
+
+/// Called by the view controller to clear out the shader program
+- (void)shutdown;
+
 @end
