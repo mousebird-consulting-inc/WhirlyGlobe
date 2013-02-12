@@ -98,7 +98,7 @@ public:
         flush();
     }
     
-    void addPoints(std::vector<Point3f> &pts,Mbr mbr,float lineWidth,bool closed)
+    void addPoints(std::vector<Point3f> &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
@@ -143,8 +143,10 @@ public:
                 {
                     drawable->addPoint(prevPt);
                     drawable->addPoint(pt);
+                    drawable->addColor(color);
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
+                    drawable->addColor(color);
                 } else {
                     firstPt = pt;
                     firstNorm = norm;
@@ -161,6 +163,7 @@ public:
             drawable->addPoint(firstPt);
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
+            drawable->addColor(color);
         }
     }
     
@@ -559,7 +562,9 @@ static const float SphereTessY = 10;
 
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
 {
-    regBuilder->addPoints(pts, mbr, lineWidth, false);
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
+
+    regBuilder->addPoints(pts, theColor, mbr, lineWidth, false);
 }
 
 @end
