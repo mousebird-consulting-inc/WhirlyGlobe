@@ -28,6 +28,7 @@ using namespace WhirlyKit;
 @synthesize center;
 @synthesize radius;
 @synthesize height;
+@synthesize color;
 
 @end
 
@@ -36,6 +37,7 @@ using namespace WhirlyKit;
 @synthesize center;
 @synthesize radius;
 @synthesize height;
+@synthesize color;
 
 @end
 
@@ -44,6 +46,7 @@ using namespace WhirlyKit;
 @synthesize baseCenter;
 @synthesize radius;
 @synthesize height;
+@synthesize color;
 
 @end
 
@@ -52,6 +55,7 @@ using namespace WhirlyKit;
 @synthesize startPt,endPt;
 @synthesize height;
 @synthesize lineWidth;
+@synthesize color;
 
 - (id)init
 {
@@ -83,6 +87,7 @@ using namespace WhirlyKit;
 @implementation MaplyShapeLinear
 
 @synthesize lineWidth;
+@synthesize color;
 
 - (id)initWithCoords:(MaplyCoordinate3d *)inCoords numCoords:(int)inNumCoords
 {
