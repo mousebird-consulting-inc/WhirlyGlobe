@@ -33,11 +33,14 @@
     float radius;
     /// Height above the globe.  This is in units of radius = 1.0
     float height;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
 
 @end
 
@@ -54,11 +57,14 @@ typedef MaplyShapeCircle WGShapeCircle;
     float radius;
     /// Offset from the globe (in display units)
     float height;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
 
 @end
 
@@ -75,11 +81,14 @@ typedef MaplyShapeSphere WGShapeSphere;
     float radius;
     /// Height in display units
     float height;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate baseCenter;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
 
 @end
 
@@ -96,11 +105,14 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     float height;
     /// Line width is in pixels
     float lineWidth;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate startPt,endPt;
 @property (nonatomic,assign) float height;
 @property (nonatomic,assign) float lineWidth;
+@property (nonatomic,strong) UIColor *color;
 
 /// Return the angle between the two points in radians
 - (float)calcAngleBetween;
@@ -120,9 +132,12 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     MaplyCoordinate3d *coords;
     /// Line width in pixels
     float lineWidth;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) float lineWidth;
+@property (nonatomic,strong) UIColor *color;
 
 /// Initialize with the coordinate data (will be copied in)
 - (id)initWithCoords:(MaplyCoordinate3d *)coords numCoords:(int)numCoords;

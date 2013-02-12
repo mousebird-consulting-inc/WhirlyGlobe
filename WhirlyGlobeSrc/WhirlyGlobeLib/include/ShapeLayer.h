@@ -63,10 +63,16 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     /// If the shape is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
     WhirlyKit::SimpleIdentity selectID;
+    /// If set, we'll use the local color
+    bool useColor;
+    /// Local color, which will override the default
+    WhirlyKit::RGBAColor color;
 }
 
 @property (nonatomic,assign) bool isSelectable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+@property (nonatomic,assign) bool useColor;
+@property (nonatomic,assign) WhirlyKit::RGBAColor &color;
 
 @end
 
