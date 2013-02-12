@@ -30,5 +30,14 @@
 @synthesize loftIDs;
 @synthesize vectors;
 @synthesize images;
+@synthesize isSelectable;
+
+- (id)init
+{
+    self = [super init];
+    isSelectable = true;
+    
+    return self;
+}
 
 @end

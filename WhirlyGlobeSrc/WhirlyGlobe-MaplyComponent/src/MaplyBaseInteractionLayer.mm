@@ -503,6 +503,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newCircle.loc.lat() = circle.center.y;
             newCircle.radius = circle.radius;
             newCircle.height = circle.height;
+            if (circle.color)
+            {
+                newCircle.useColor = true;
+                RGBAColor color = [circle.color asRGBAColor];
+                newCircle.color = color;
+            }
             [ourShapes addObject:newCircle];
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
@@ -512,6 +518,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newSphere.loc.lat() = sphere.center.y;
             newSphere.radius = sphere.radius;
             newSphere.height = sphere.height;
+            if (sphere.color)
+            {
+                newSphere.useColor = true;
+                RGBAColor color = [sphere.color asRGBAColor];
+                newSphere.color = color;
+            }
             [ourShapes addObject:newSphere];
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
@@ -521,6 +533,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newCyl.loc.lat() = cyl.baseCenter.y;
             newCyl.radius = cyl.radius;
             newCyl.height = cyl.height;
+            if (cyl.color)
+            {
+                newCyl.useColor = true;
+                RGBAColor color = [cyl.color asRGBAColor];
+                newCyl.color = color;
+            }
             [ourShapes addObject:newCyl];
         } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
         {
@@ -528,6 +546,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
             SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter);
             lin.lineWidth = gc.lineWidth;
+            if (gc.color)
+            {
+                lin.useColor = true;
+                RGBAColor color = [gc.color asRGBAColor];
+                lin.color = color;
+            }
             [ourShapes addObject:lin];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
@@ -546,6 +570,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 newLin.pts.push_back(pt);
             }
             newLin.lineWidth = lin.lineWidth;
+            if (lin.color)
+            {
+                newLin.useColor = true;
+                RGBAColor color = [lin.color asRGBAColor];
+                newLin.color = color;
+            }
             [ourShapes addObject:newLin];
         }
     }
@@ -627,6 +657,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     SimpleIdentity loftID = [loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
     compObj.loftIDs.insert(loftID);
+    compObj.isSelectable = false;
     
     [userObjects addObject:compObj];
 }
@@ -700,7 +731,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     for (MaplyComponentObject *userObj in userObjects)
     {
-        if (userObj.vectors)
+        if (userObj.vectors && userObj.isSelectable)
         {
             for (MaplyVectorObject *vecObj in userObj.vectors)
             {

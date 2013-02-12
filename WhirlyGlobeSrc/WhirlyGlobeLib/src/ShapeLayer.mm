@@ -116,7 +116,7 @@ public:
             drawable->setType(primType);
             // Adjust according to the vector info
             drawable->setDrawOffset(shapeInfo.drawOffset);
-            drawable->setColor([shapeInfo.color asRGBAColor]);
+//            drawable->setColor([shapeInfo.color asRGBAColor]);
             drawable->setLineWidth(lineWidth);
             drawable->setDrawPriority(shapeInfo.drawPriority);
             drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
@@ -185,7 +185,7 @@ public:
         }
     }
     
-protected:   
+public:
     Scene *scene;
     std::vector<ChangeRequest *> &changeRequests;
     ShapeSceneRep *sceneRep;
@@ -221,14 +221,14 @@ public:
         drawable->setType(GL_TRIANGLES);
         // Adjust according to the vector info
         drawable->setDrawOffset(shapeInfo.drawOffset);
-        drawable->setColor([shapeInfo.color asRGBAColor]);
+//        drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setDrawPriority(shapeInfo.drawPriority);
         drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
         drawable->setForceZBufferOn(true);
     }
     
     // Add a triangle with normals
-    void addTriangle(Point3f p0,Point3f n0,Point3f p1,Point3f n1,Point3f p2,Point3f n2,Mbr shapeMbr)
+    void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr)
     {
         if (!drawable ||
             (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
@@ -246,17 +246,20 @@ public:
         int baseVert = drawable->getNumPoints();
         drawable->addPoint(p0);
         drawable->addNormal(n0);
+        drawable->addColor(c0);
         drawable->addPoint(p1);
         drawable->addNormal(n1);
+        drawable->addColor(c1);
         drawable->addPoint(p2);
         drawable->addNormal(n2);
+        drawable->addColor(c2);
         
         drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
         drawMbr.expand(shapeMbr);
     }
     
     // Add a group of pre-build triangles
-    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<BasicDrawable::Triangle> &tris)
+    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
     {
         if (!drawable ||
             (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
@@ -273,6 +276,7 @@ public:
         {
             drawable->addPoint(pts[ii]);
             drawable->addNormal(norms[ii]);
+            drawable->addColor(colors[ii]);
         }
         for (unsigned int ii=0;ii<tris.size();ii++)
         {
@@ -284,11 +288,11 @@ public:
     }
     
     // Add a convex outline, triangulated
-    void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,Mbr shapeMbr)
+    void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
     {
         // It's convex, so we'll just triangulate it dumb style
         for (unsigned int ii = 2;ii<pts.size();ii++)
-            addTriangle(pts[0], norm, pts[ii-1], norm, pts[ii], norm, shapeMbr);
+            addTriangle(pts[0], norm, color, pts[ii-1], norm, color, pts[ii], norm, color, shapeMbr);
     }
     
     void flush()
@@ -312,7 +316,7 @@ public:
         }
     }
     
-protected:   
+public:
     Scene *scene;
     std::vector<ChangeRequest *> &changeRequests;
     ShapeSceneRep *sceneRep;
@@ -338,6 +342,8 @@ protected:
 
 @synthesize isSelectable;
 @synthesize selectID;
+@synthesize useColor;
+@synthesize color;
 
 // Base shape doesn't make anything
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
@@ -360,6 +366,8 @@ static int CircleSamples = 20;
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
     
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
@@ -395,7 +403,7 @@ static int CircleSamples = 20;
         shapeMbr.addPoint(Point2f(thisLocalPt.x(),thisLocalPt.y()));
     }
     
-    triBuilder->addConvexOutline(samples,norm,shapeMbr);
+    triBuilder->addConvexOutline(samples,norm,theColor,shapeMbr);
 }
 
 @end
@@ -414,6 +422,8 @@ static const float SphereTessY = 10;
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
+
     // Get the location in display coordinates
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
@@ -427,6 +437,8 @@ static const float SphereTessY = 10;
     std::vector<Point3f> locs,norms;
     locs.reserve((SphereTessX+1)*(SphereTessX+1));
     norms.reserve((SphereTessX+1)*(SphereTessY+1));
+    std::vector<RGBAColor> colors;
+    colors.reserve((SphereTessX+1)*(SphereTessX+1));
     Point2f geoIncr(2*M_PI/SphereTessX,M_PI/SphereTessY);
     for (unsigned int iy=0;iy<SphereTessY+1;iy++)
         for (unsigned int ix=0;ix<SphereTessX+1;ix++)
@@ -442,6 +454,7 @@ static const float SphereTessY = 10;
             
             norms.push_back(spherePt);
             locs.push_back(thisPt);
+            colors.push_back(theColor);
         }
     
     // Two triangles per cell
@@ -461,7 +474,7 @@ static const float SphereTessY = 10;
             tris.push_back(triB);
         }
     
-    triBuilder->addTriangles(locs,norms,tris);
+    triBuilder->addTriangles(locs,norms,colors,tris);
 }
 
 @end
@@ -477,6 +490,8 @@ static const float SphereTessY = 10;
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
+
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
     Point3f norm = coordAdapter->normalForLocal(localPt);
@@ -518,7 +533,7 @@ static const float SphereTessY = 10;
         Point3f &pt = top[ii];
         pt = pt + height * norm;
     }
-    triBuilder->addConvexOutline(top,norm,shapeMbr);
+    triBuilder->addConvexOutline(top,norm,theColor,shapeMbr);
     
     // For the sides we'll just run things bottom to top
     for (unsigned int ii=0;ii<CircleSamples;ii++)
@@ -530,7 +545,7 @@ static const float SphereTessY = 10;
         pts[3] = top[ii];
         Point3f thisNorm = (pts[0]-pts[1]).cross(pts[2]-pts[1]);
         thisNorm.normalize();
-        triBuilder->addConvexOutline(pts, thisNorm, shapeMbr);
+        triBuilder->addConvexOutline(pts, thisNorm, theColor, shapeMbr);
     }
 }
 

@@ -37,6 +37,7 @@
     WhirlyKit::SimpleIDSet loftIDs;
     std::set<UIImage *> images;
     NSArray *vectors;
+    bool isSelectable;
 }
 
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &markerIDs;
@@ -47,5 +48,6 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &loftIDs;
 @property (nonatomic,assign) std::set<UIImage *> &images;
 @property (nonatomic,strong) NSArray *vectors;
+@property (nonatomic,assign) bool isSelectable;
 
 @end
