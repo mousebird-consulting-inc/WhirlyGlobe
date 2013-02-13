@@ -131,6 +131,10 @@
 /// Remove the view tracker associated with the given UIView
 - (void)removeViewTrackForView:(UIView *)view;
 
+/// Set the max number of objects for the layout engine to display.
+/// This will only affect objects that have an importance set
+- (void)setMaxLayoutObjects:(int)maxLayoutObjects;
+
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(MaplyComponentObject *)theObj;
 

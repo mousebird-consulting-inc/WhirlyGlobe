@@ -27,6 +27,7 @@
 @synthesize size;
 @synthesize image;
 @synthesize selectable;
+@synthesize layoutImportance;
 
 - (id)init
 {
