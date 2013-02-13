@@ -824,7 +824,7 @@ static const int NumMegaMarkers = 40000;
     // If we've currently got a selected view, get rid of it
     if (selectedViewTrack)
     {
-        [mapViewC removeViewTrackForView:selectedViewTrack.view];
+        [baseViewC removeViewTrackForView:selectedViewTrack.view];
         selectedViewTrack = nil;
     }
     
