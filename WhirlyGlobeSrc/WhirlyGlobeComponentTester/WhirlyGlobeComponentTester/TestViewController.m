@@ -84,6 +84,7 @@ LocationInfo locations[NumLocations] =
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
     NSArray *vecObjects;
+    MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
     
     // The view we're using to track a selected object
@@ -329,6 +330,9 @@ LocationInfo locations[NumLocations] =
                                 nil];
     [baseViewC setVectorDesc:vectorDesc];
     
+    // Maximum number of objects for the layout engine to display
+    [baseViewC setMaxLayoutObjects:1000];
+    
     // Bring up things based on what's turned on
     [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
     
@@ -573,6 +577,34 @@ LocationInfo locations[NumLocations] =
     );
 }
 
+// Number of markers to whip up for the large test case
+static const int NumMegaMarkers = 40000;
+
+// Make up a large number of markers and add them
+- (void)addMegaMarkers
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+       ^{
+           UIImage *image = [UIImage imageNamed:@"map_pin.png"];
+           NSMutableArray *markers = [NSMutableArray array];
+           for (unsigned int ii=0;ii<NumMegaMarkers;ii++)
+           {
+               MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+               marker.image = image;
+               marker.size = CGSizeMake(40,40);
+               marker.loc = MaplyCoordinateMakeWithDegrees(drand48()*360-180, drand48()*140-70);
+               marker.layoutImportance = drand48();
+               [markers addObject:marker];
+           }
+           dispatch_async(dispatch_get_main_queue(),
+                          ^{
+                              megaMarkersObj = [baseViewC addScreenMarkers:markers];
+                          }
+                          );
+       }
+    );
+}
+
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeMapContents
 {
@@ -717,6 +749,18 @@ LocationInfo locations[NumLocations] =
         {
             [baseViewC removeObject:autoLabels];
             autoLabels = nil;
+        }
+    }
+    
+    if (configViewC.megaMarkersSwitch.on)
+    {
+        if (!megaMarkersObj)
+            [self addMegaMarkers];
+    } else {
+        if (megaMarkersObj)
+        {
+            [baseViewC removeObject:megaMarkersObj];
+            megaMarkersObj = nil;
         }
     }
     

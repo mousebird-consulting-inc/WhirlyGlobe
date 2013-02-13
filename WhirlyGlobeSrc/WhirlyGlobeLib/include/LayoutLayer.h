@@ -74,6 +74,10 @@
   */
 @interface WhirlyKitLayoutLayer : NSObject<WhirlyKitLayer>
 
+/// If set to a value greater than zero, that will the max number of objects displayed.
+/// Zero by default, meaning all visible objects will be displayed (that can fit).
+@property (nonatomic,assign) int maxDisplayObjects;
+
 /// Initialize with the renderer (for screen size)
 - (id)initWithRenderer:(WhirlyKitSceneRendererES *)renderer;
 
