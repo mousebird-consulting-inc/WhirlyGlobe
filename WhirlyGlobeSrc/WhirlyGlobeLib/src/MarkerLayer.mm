@@ -48,6 +48,7 @@ MarkerSceneRep::MarkerSceneRep()
 @synthesize texIDs;
 @synthesize period;
 @synthesize timeOffset;
+@synthesize layoutImportance;
 
 - (id)init
 {
@@ -57,6 +58,7 @@ MarkerSceneRep::MarkerSceneRep()
     {
         isSelectable = false;
         selectID = EmptyIdentity;
+        layoutImportance = MAXFLOAT;
     }
     
     return self;
@@ -152,6 +154,7 @@ MarkerSceneRep::MarkerSceneRep()
 @implementation WhirlyKitMarkerLayer
 
 @synthesize selectLayer;
+@synthesize layoutLayer;
 
 - (void)clear
 {
@@ -201,7 +204,10 @@ MarkerSceneRep::MarkerSceneRep()
         }
         
         if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-            [self.selectLayer removeSelectable:markerRep->selectID];        
+            [self.selectLayer removeSelectable:markerRep->selectID];
+        
+        if (layoutLayer && !markerRep->screenShapeIDs.empty())
+            [layoutLayer removeLayoutObjects:markerRep->screenShapeIDs];
     }
     
     if (generatorId != EmptyIdentity)
@@ -232,6 +238,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
     // Screen space markers
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
+    
+    // Objects to be controlled by the layout layer
+    NSMutableArray *layoutObjects = [NSMutableArray array];
     
     std::vector<ChangeRequest *> changeRequests;
     
@@ -378,6 +387,26 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 screenShapes.push_back(shape);
                 markerRep->screenShapeIDs.insert(shape->getId());
                 
+                // Set up for the layout layer
+                if (layoutLayer && marker.layoutImportance != MAXFLOAT)
+                {
+                    WhirlyKitLayoutObject *layoutObj = [[WhirlyKitLayoutObject alloc] init];
+                    layoutObj->ssID = shape->getId();
+                    layoutObj->dispLoc = shape->worldLoc;
+                    // Note: This means they won't take up space
+                    layoutObj->size = Point2f(0.0,0.0);
+                    layoutObj->iconSize = Point2f(0.0,0.0);
+                    layoutObj->importance = marker.layoutImportance;
+                    layoutObj->minVis = markerInfo.minVis;
+                    layoutObj->maxVis = markerInfo.maxVis;
+                    // No moving it around
+                    layoutObj->acceptablePlacement = 0;
+                    [layoutObjects addObject:layoutObj];
+                    
+                    // Start out off, let the layout layer handle the rest
+                    shape->enable = false;
+                }
+                
             } else {
                 // We're sorting the static drawables by texture, so look for that
                 DrawableMap::iterator it = drawables.find(subTex.texId);
@@ -480,6 +509,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     screenShapes.clear();
     
     scene->addChangeRequests(changeRequests);
+
+    // And any layout constraints to the layout engine
+    if (layoutLayer && ([layoutObjects count] > 0))
+        [layoutLayer addLayoutObjects:layoutObjects];
 }
 
 // Remove the given marker(s)

@@ -191,6 +191,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.isSelectable = true;
             wgMarker.selectID = Identifiable::genId();
         }
+        wgMarker.layoutImportance = marker.layoutImportance;
         
         [wgMarkers addObject:wgMarker];
         
