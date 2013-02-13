@@ -1,9 +1,9 @@
 /*
- *  WGComponentObject_private.h
- *  WhirlyGlobeComponent
+ *  MaplyShader_private.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 2/7/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,26 +18,13 @@
  *
  */
 
-#import "MaplyComponentObject_private.h"
+#import "MaplyShader.h"
 
-@implementation MaplyComponentObject
+@interface MaplyShader()
 
-@synthesize markerIDs;
-@synthesize labelIDs;
-@synthesize vectorIDs;
-@synthesize shapeIDs;
-@synthesize chunkIDs;
-@synthesize loftIDs;
-@synthesize vectors;
-@synthesize images;
-@synthesize isSelectable;
+@property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
 
-- (id)init
-{
-    self = [super init];
-    isSelectable = true;
-    
-    return self;
-}
+/// Called by the view controller to clear out the shader program
+- (void)shutdown;
 
 @end

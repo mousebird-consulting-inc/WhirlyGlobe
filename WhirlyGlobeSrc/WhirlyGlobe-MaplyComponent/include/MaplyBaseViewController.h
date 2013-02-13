@@ -27,6 +27,7 @@
 #import "MaplySharedAttributes.h"
 #import "MaplyViewControllerLayer.h"
 #import "MaplyLight.h"
+#import "MaplyShader.h"
 
 /** The MaplyBaseViewController is the base class for the Maply and WhirlyGlobe
     view controllers.  Most of its functionality is private, but you can use
@@ -153,6 +154,12 @@
 
 /// Pause animation (probably because we're going into the background)
 - (void)stopAnimation;
+
+/// Set the default polygon shader
+- (void)setDefaultPolyShader:(MaplyShader *)shader;
+
+/// Set the default line shader
+- (void)setDefaultLineShader:(MaplyShader *)shader;
 
 /// Turn on/off performance output (goes to the log periodically)
 @property (nonatomic,assign) bool performanceOutput;

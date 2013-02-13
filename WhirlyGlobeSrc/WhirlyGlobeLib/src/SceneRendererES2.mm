@@ -94,6 +94,8 @@ public:
     // And a basic material
     [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
 
+    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+
     return self;
 }
 
@@ -227,6 +229,8 @@ static const char *fragmentShaderLine =
             scene->setDefaultPrograms(triShader,lineShader);
         }
     }
+
+    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 
     if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
