@@ -586,8 +586,8 @@ protected:
         return EmptyIdentity;
     }
 
-    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:cacheName];
-    polyInfo->cache = cacheHandler;
+    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:([cacheName isKindOfClass:[NSNull class]] ? nil : cacheName)];
+    polyInfo->cache = ([cacheHandler isKindOfClass:[NSNull class]] ? nil :cacheHandler);
     polyInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
