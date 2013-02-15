@@ -111,7 +111,7 @@ public:
     virtual ~OpenGLES2Program();
     
     /// Used only for comparison
-    OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId) { }
+    OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0) { }
 
     /// Initialize with both shader programs
     OpenGLES2Program(const std::string &name,const std::string &vShaderString,const std::string &fShaderString);
