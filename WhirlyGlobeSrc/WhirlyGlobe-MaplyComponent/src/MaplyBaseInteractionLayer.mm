@@ -191,6 +191,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.isSelectable = true;
             wgMarker.selectID = Identifiable::genId();
         }
+        wgMarker.layoutImportance = marker.layoutImportance;
         
         [wgMarkers addObject:wgMarker];
         
@@ -667,7 +668,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], key, cache];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null])];
     [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
     
     return compObj;

@@ -281,6 +281,7 @@ static const char *fragmentShaderNoLightLine =
     // 2D layout engine layer
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
     labelLayer.layoutLayer = layoutLayer;
+    markerLayer.layoutLayer = layoutLayer;
     [layerThread addLayer:layoutLayer];
     
     // Lofted polygon layer
@@ -719,6 +720,10 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+- (void)setMaxLayoutObjects:(int)maxLayoutObjects
+{
+    layoutLayer.maxDisplayObjects = maxLayoutObjects;
+}
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj
