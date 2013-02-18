@@ -707,7 +707,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 [self removeImage:*it];
             
             [userObjects removeObject:userObj];
-        }
+        } else
+            NSLog(@"Tried to delete object that doesn't exist");
     }
 }
 
