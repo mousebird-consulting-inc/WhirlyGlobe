@@ -722,7 +722,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeObjects:(NSArray *)theObjs
 {
-    [interactLayer removeObjects:theObjs];
+    [interactLayer removeObjects:[NSArray arrayWithArray:theObjs]];
 }
 
 - (void)removeLayer:(MaplyViewControllerLayer *)layer
