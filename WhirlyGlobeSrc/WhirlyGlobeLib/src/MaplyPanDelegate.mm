@@ -64,12 +64,31 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3f &)loc
+- (bool)withinBounds:(Point3f &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
     
-    return PointInPolygon(Point2f(loc.x(),loc.y()), bounds);
+    Eigen::Matrix4f fullMatrix = [mapView calcFullMatrix];
+
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    Point3f planePts[4];
+    bool isValid = true;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                    hit:&planePts[ii] clip:false];
+        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
+//        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    return isValid;
 }
 
 // How long we'll animate the gesture ending
@@ -118,13 +137,25 @@ static const float AnimLen = 1.0;
                                             hit:&hit clip:false];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
+                Point3f oldLoc = mapView.loc;
                 Point3f newLoc = startOnPlane - hit + startLoc;
+                [mapView setLoc:newLoc];
                 
                 // We'll do a hard stop if we're not within the bounds
-                // Note: Should do an intersection instead
-                if ([self withinBounds:newLoc])
+                // Note: We're trying this location out, then backing off if it failed.
+                if (![self withinBounds:newLoc view:glView renderer:sceneRender])
                 {
-                    [mapView setLoc:newLoc];
+                    // How about if we leave the x alone?
+                    Point3f testLoc = Point3f(oldLoc.x(),newLoc.y(),newLoc.z());
+                    [mapView setLoc:testLoc];
+                    if (![self withinBounds:testLoc view:glView renderer:sceneRender])
+                    {
+                        // How about leaving y alone?
+                        testLoc = Point3f(newLoc.x(),oldLoc.y(),newLoc.z());
+                        [mapView setLoc:testLoc];
+                        if (![self withinBounds:testLoc view:glView renderer:sceneRender])
+                            [mapView setLoc:oldLoc];
+                    }
                 }
             }
         }
@@ -153,7 +184,7 @@ static const float AnimLen = 1.0;
                 float accel = - modelVel / (AnimLen * AnimLen);
 
                 // Kick off a little movement at the end
-                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds];
+                translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds view:glView renderer:sceneRender];
                 mapView.delegate = translateDelegate;
                 
                 panning = NO;
