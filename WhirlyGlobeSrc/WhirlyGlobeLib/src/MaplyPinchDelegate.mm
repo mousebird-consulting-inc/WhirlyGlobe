@@ -18,7 +18,9 @@
  *
  */
 
+#import "EAGLView.h"
 #import "MaplyPinchDelegate.h"
+#import "SceneRendererES.h"
 
 using namespace WhirlyKit;
 
@@ -53,11 +55,48 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
+- (void)setBounds:(WhirlyKit::Point2f *)inBounds
+{
+    bounds.clear();
+    for (unsigned int ii=0;ii<4;ii++)
+        bounds.push_back(inBounds[ii]);
+}
+
+// Bounds check on a single point
+- (bool)withinBounds:(Point3f &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+{
+    if (bounds.empty())
+        return true;
+    
+    Eigen::Matrix4f fullMatrix = [mapView calcFullMatrix];
+    
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    Point3f planePts[4];
+    bool isValid = true;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                    hit:&planePts[ii] clip:false];
+        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
+//        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    return isValid;
+}
+
 // Called for pinch actions
 - (void)pinchGesture:(id)sender
 {
 	UIPinchGestureRecognizer *pinch = sender;
 	UIGestureRecognizerState theState = pinch.state;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
+	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
 	
 	switch (theState)
 	{
@@ -71,7 +110,11 @@ using namespace WhirlyKit;
             Point3f curLoc = mapView.loc;
             float newZ = startZ/pinch.scale;
             if (minZoom >= maxZoom || (minZoom < newZ && newZ < maxZoom))
+            {
                 [mapView setLoc:Point3f(curLoc.x(),curLoc.y(),newZ)];
+                if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
+                    [mapView setLoc:curLoc];
+            }
         }
 			break;
         default:

@@ -24,8 +24,13 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation MaplyAnimateTranslateMomentum
+{
+    MaplyView *mapView;
+    UIView *glView;
+    WhirlyKitSceneRendererES *sceneRenderer;
+}
 
-- (id)initWithView:(MaplyView *)mapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds
+- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
 {
     if ((self = [super init]))
     {
@@ -33,7 +38,10 @@ using namespace WhirlyKit;
         acceleration = inAcc;
         dir = inDir.normalized();        
         startDate = CFAbsoluteTimeGetCurrent();
+        mapView = inMapView;
         org = mapView.loc;
+        glView = inView;
+        sceneRenderer = inSceneRenderer;
         
         // Let's calculate the maximum time, so we know when to stop
         if (acceleration != 0.0)
@@ -54,9 +62,35 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (bool)withinBounds:(Point3f &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+{
+    if (bounds.empty())
+        return true;
+    
+    Eigen::Matrix4f fullMatrix = [mapView calcFullMatrix];
+    
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    Point3f planePts[4];
+    bool isValid = true;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                    hit:&planePts[ii] clip:false];
+        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
+        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    return isValid;
+}
 
 // Called by the view when it's time to update
-- (void)updateView:(MaplyView *)mapView
+- (void)updateView:(MaplyView *)theMapView
 {
     if (startDate == 0.0)
         return;
@@ -71,11 +105,31 @@ using namespace WhirlyKit;
     }
     
     // Calculate the distance
+    Point3f oldLoc = mapView.loc;
     float dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3f newLoc = org + dir * dist;
+    theMapView.loc = newLoc;
+
+    // We'll do a hard stop if we're not within the bounds
+    // Note: We're trying this location out, then backing off if it failed.
+    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
+    {
+        // How about if we leave the x alone?
+        Point3f testLoc = Point3f(oldLoc.x(),newLoc.y(),newLoc.z());
+        [mapView setLoc:testLoc];
+        if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
+        {
+            // How about leaving y alone?
+            testLoc = Point3f(newLoc.x(),oldLoc.y(),newLoc.z());
+            [mapView setLoc:testLoc];
+            if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
+                [mapView setLoc:oldLoc];
+        }
+    }
     
-    if (bounds.empty() || PointInPolygon(Point2f(newLoc.x(),newLoc.y()), bounds))
-        mapView.loc = newLoc;
+    
+    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
+        theMapView.loc = oldLoc;
 }
 
 
