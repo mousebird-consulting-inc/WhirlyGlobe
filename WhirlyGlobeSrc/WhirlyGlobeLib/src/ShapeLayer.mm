@@ -485,6 +485,7 @@ static const float SphereTessY = 10;
 @implementation WhirlyKitCylinder
 
 @synthesize loc;
+@synthesize baseHeight;
 @synthesize radius;
 @synthesize height;
 
@@ -498,6 +499,9 @@ static const float SphereTessY = 10;
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
     Point3f norm = coordAdapter->normalForLocal(localPt);
+    
+    // Move up by baseHeight
+    dispPt += norm * baseHeight;
     
     // Construct a set of axes to build the circle around
     Point3f up = norm;
@@ -518,7 +522,7 @@ static const float SphereTessY = 10;
     samples.resize(CircleSamples);
     for (unsigned int ii=0;ii<CircleSamples;ii++)
         samples[ii] =  xAxis * radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
-        
+    
     // We need the bounding box in the local coordinate system
     // Note: This is not handling height correctly
     Mbr shapeMbr;

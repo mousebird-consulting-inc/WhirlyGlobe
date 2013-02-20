@@ -44,6 +44,7 @@ using namespace WhirlyKit;
 @implementation MaplyShapeCylinder
 
 @synthesize baseCenter;
+@synthesize baseHeight;
 @synthesize radius;
 @synthesize height;
 @synthesize color;

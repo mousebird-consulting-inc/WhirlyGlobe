@@ -94,10 +94,10 @@ using namespace Maply;
     panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
     boundLL = MaplyCoordinateMakeWithDegrees(-180.0,-90.0);
     boundUR = MaplyCoordinateMakeWithDegrees(180.0,90.0);
-    [self setViewExtentsLL:boundLL ur:boundUR];
     pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
     pinchDelegate.minZoom = [mapView minHeightAboveSurface];
     pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+    [self setViewExtentsLL:boundLL ur:boundUR];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -154,6 +154,7 @@ using namespace Maply;
     for (unsigned int ii=0;ii<4;ii++)
         bounds[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
     [panDelegate setBounds:bounds];
+    [pinchDelegate setBounds:bounds];
 }
 
 // Internal animation handler
