@@ -115,6 +115,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 {
     /// The location for the origin of the shape
     WhirlyKit::GeoCoord loc;
+    /// Height offset from the ground (in display units)
+    float baseHeight;
     /// Radius in display units
     float radius;
     /// Height in display units
@@ -122,6 +124,7 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 }
 
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
+@property (nonatomic,assign) float baseHeight;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
 
