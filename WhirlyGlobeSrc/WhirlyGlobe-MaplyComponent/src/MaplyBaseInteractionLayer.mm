@@ -532,6 +532,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
             newCyl.loc.lon() = cyl.baseCenter.x;
             newCyl.loc.lat() = cyl.baseCenter.y;
+            newCyl.baseHeight = cyl.baseHeight;
             newCyl.radius = cyl.radius;
             newCyl.height = cyl.height;
             if (cyl.color)
@@ -707,8 +708,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 [self removeImage:*it];
             
             [userObjects removeObject:userObj];
-        } else
-            NSLog(@"Tried to delete object that doesn't exist");
+        } else {
+//            NSLog(@"Tried to delete object that doesn't exist");
+        }
     }
 }
 
