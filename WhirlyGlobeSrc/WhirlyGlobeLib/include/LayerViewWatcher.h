@@ -83,6 +83,9 @@
 /// Called by the subclasses
 - (id)initWithView:(WhirlyKitView *)view;
 
+/// Calculate where the eye is in model coordinates
+- (Eigen::Vector3f)eyePos;
+
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
 /// This will cache the values in the view state for later use

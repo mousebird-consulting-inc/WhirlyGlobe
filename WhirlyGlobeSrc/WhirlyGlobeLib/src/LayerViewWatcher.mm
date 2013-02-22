@@ -220,6 +220,14 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (Eigen::Vector3f)eyePos
+{
+	Eigen::Matrix4f modelMat = modelMatrix.inverse();
+	
+	Vector4f newUp = modelMat * Vector4f(0,0,0,1);
+	return Vector3f(newUp.x(),newUp.y(),newUp.z());
+}
+
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight
 {
 	ll.x() = -imagePlaneSize;
