@@ -37,9 +37,6 @@
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3f)currentUp;
 
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
-
 /** Given a location on the screen and the screen size, figure out where we touched the sphere
  Returns true if we hit and where
  Returns false if not and the closest point on the sphere

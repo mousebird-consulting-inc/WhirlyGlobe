@@ -65,6 +65,7 @@ using namespace Maply;
 {
     coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
+    
     mapView.continuousZoom = true;
 
     return mapView;

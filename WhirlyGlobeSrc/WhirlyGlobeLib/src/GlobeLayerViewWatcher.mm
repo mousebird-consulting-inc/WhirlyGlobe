@@ -51,13 +51,6 @@ using namespace WhirlyKit;
 	return Vector3f(newUp.x(),newUp.y(),newUp.z());
 }
 
-- (Eigen::Vector3f)eyePos
-{
-	Eigen::Matrix4f modelMat = modelMatrix.inverse();
-	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());    
-}
 
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
 {

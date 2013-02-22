@@ -40,6 +40,7 @@
 @synthesize pinchSwitch;
 @synthesize rotateSwitch;
 @synthesize countrySwitch;
+@synthesize loftPolySwitch;
 @synthesize megaMarkersSwitch;
 @synthesize perfSwitch;
 

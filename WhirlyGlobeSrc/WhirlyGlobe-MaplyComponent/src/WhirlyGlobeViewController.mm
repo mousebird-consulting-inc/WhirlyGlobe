@@ -252,6 +252,16 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (float)tilt
+{
+    return globeView.tilt;
+}
+
+- (void)setTilt:(float)newTilt
+{
+    globeView.tilt = newTilt;
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time

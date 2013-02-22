@@ -86,6 +86,7 @@ LocationInfo locations[NumLocations] =
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
+    NSMutableDictionary *loftPolyDict;
     
     // The view we're using to track a selected object
     MaplyViewTracker *selectedViewTrack;
@@ -135,6 +136,8 @@ LocationInfo locations[NumLocations] =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    loftPolyDict = [NSMutableDictionary dictionary];
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
@@ -752,6 +755,16 @@ static const int NumMegaMarkers = 40000;
         }
     }
     
+    if (configViewC.loftPolySwitch.on)
+    {
+    } else {
+        if ([loftPolyDict count] > 0)
+        {
+            [baseViewC removeObjects:loftPolyDict.allValues];
+            loftPolyDict = [NSMutableDictionary dictionary];
+        }
+    }
+    
     if (configViewC.megaMarkersSwitch.on)
     {
         if (!megaMarkersObj)
@@ -855,7 +868,22 @@ static const int NumMegaMarkers = 40000;
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
         [vecObj largestLoopCenter:&loc mbrLL:nil mbrUR:nil];
+        NSString *name = (NSString *)vecObj.userObject;
         msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
+        if (configViewC.loftPolySwitch.on)
+        {
+            // See if there already is one
+            if (!loftPolyDict[name])
+            {
+                [baseViewC setLoftedPolyDesc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05)}];
+                MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil];
+                if (compObj)
+                {
+                    loftPolyDict[name] = compObj;
+                }
+                [baseViewC setLoftedPolyDesc:@{kMaplyColor: [NSNull null], kMaplyLoftedPolyHeight: [NSNull null]}];
+            }
+        }
     } else
         // Don't know what it is
         return;
