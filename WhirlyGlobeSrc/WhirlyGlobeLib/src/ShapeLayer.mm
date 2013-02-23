@@ -142,9 +142,9 @@ public:
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
-                    drawable->addPoint(pt);
-                    drawable->addColor(color);
                     drawable->addNormal(prevNorm);
+                    drawable->addColor(color);
+                    drawable->addPoint(pt);
                     drawable->addNormal(norm);
                     drawable->addColor(color);
                 } else {
@@ -160,8 +160,9 @@ public:
         if (closed && primType == GL_LINES)
         {
             drawable->addPoint(prevPt);
-            drawable->addPoint(firstPt);
             drawable->addNormal(prevNorm);
+            drawable->addColor(color);
+            drawable->addPoint(firstPt);
             drawable->addNormal(firstNorm);
             drawable->addColor(color);
         }

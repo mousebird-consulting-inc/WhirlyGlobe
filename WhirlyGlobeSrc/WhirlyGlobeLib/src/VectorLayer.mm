@@ -36,7 +36,7 @@ using namespace WhirlyKit;
     // For creation request, the shapes
     ShapeSet                    shapes;
     BOOL                        enable;
-    int                         drawOffset;
+    float                         drawOffset;
     UIColor                     *color;
     int                         priority;
     float                       minVis,maxVis;
@@ -91,7 +91,7 @@ using namespace WhirlyKit;
 - (void)parseDict:(NSDictionary *)dict
 {
     enable = [dict boolForKey:@"enable" default:YES];
-    drawOffset = [dict intForKey:@"drawOffset" default:1];
+    drawOffset = [dict floatForKey:@"drawOffset" default:1];
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     priority = [dict intForKey:@"drawPriority" default:0];
     // This looks like an old bug
