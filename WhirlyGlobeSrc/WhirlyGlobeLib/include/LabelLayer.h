@@ -50,7 +50,7 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIdentity selectID;  // Selection rect
+    SimpleIDSet selectIDs;  // Selection rect
 };
 typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 

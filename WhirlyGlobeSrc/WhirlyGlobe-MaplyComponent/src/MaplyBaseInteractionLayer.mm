@@ -213,6 +213,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+
+        if (wgMarker.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgMarker.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -269,6 +272,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+
+        if (wgMarker.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgMarker.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -335,6 +341,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+
+        if (wgLabel.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgLabel.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -408,6 +417,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+        
+        if (wgLabel.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgLabel.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -722,6 +734,15 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];
+            
+            // And any references to selection objects
+            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                 it != userObj.selectIDs.end(); ++it)
+            {
+                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                if (sit != selectObjectSet.end())
+                    selectObjectSet.erase(sit);
+            }
             
             [userObjects removeObject:userObj];
         } else {

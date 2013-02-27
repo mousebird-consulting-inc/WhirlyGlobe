@@ -31,7 +31,6 @@ namespace WhirlyKit
 {
 LabelSceneRep::LabelSceneRep() 
 { 
-    selectID = EmptyIdentity; 
 }
 
 // We use these for labels that have icons
@@ -730,14 +729,14 @@ public:
                 select2d.minVis = labelInfo.minVis;
                 select2d.maxVis = labelInfo.maxVis;
                 selectables2D.push_back(select2d);
-                labelRep->selectID = label.selectID;
+                labelRep->selectIDs.insert(label.selectID);
             } else {
                 RectSelectable3D select3d;
                 select3d.selectID = label.selectID;
                 for (unsigned int jj=0;jj<4;jj++)
                     select3d.pts[jj] = pts[jj];
                 selectables3D.push_back(select3d);
-                labelRep->selectID = label.selectID;
+                labelRep->selectIDs.insert(label.selectID);
             }
         }
         
@@ -934,8 +933,9 @@ public:
              idIt != labelRep->screenIDs.end(); ++idIt)
             scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
         
-        if (labelRep->selectID != EmptyIdentity && selectLayer)
-            [self.selectLayer removeSelectable:labelRep->selectID];
+        for (SimpleIDSet::iterator idIt = labelRep->selectIDs.begin();
+             idIt != labelRep->selectIDs.end(); ++idIt)
+            [self.selectLayer removeSelectable:*idIt];
         
         if (layoutLayer && !labelRep->screenIDs.empty())
             [layoutLayer removeLayoutObjects:labelRep->screenIDs];
@@ -1052,9 +1052,9 @@ public:
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
                 scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
-            
-            if (labelRep->selectID != EmptyIdentity && selectLayer)
-                [self.selectLayer removeSelectable:labelRep->selectID];
+            for (SimpleIDSet::iterator idIt = labelRep->selectIDs.begin();
+                 idIt != labelRep->selectIDs.end(); ++idIt)
+                [self.selectLayer removeSelectable:*idIt];
             
             if (layoutLayer && !labelRep->screenIDs.empty())
                 [layoutLayer removeLayoutObjects:labelRep->screenIDs];

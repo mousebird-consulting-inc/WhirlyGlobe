@@ -28,6 +28,7 @@
 @synthesize shapeIDs;
 @synthesize chunkIDs;
 @synthesize loftIDs;
+@synthesize selectIDs;
 @synthesize vectors;
 @synthesize images;
 @synthesize isSelectable;
