@@ -207,7 +207,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         *retImage = resultImage;
     UIGraphicsEndImageContext();
     
-    Texture *texture = new Texture(resultImage);
+    Texture *texture = new Texture("Texture Atlas",resultImage);
     texture->setId(texId);
     // Note: Having trouble setting up mipmaps correctly
     texture->setUsesMipmaps(false);
@@ -282,7 +282,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return subTex.getId();
 }
 
-- (void)processIntoScene:(Scene *)scene texIDs:(std::set<SimpleIdentity> *)texIDs
+- (void)processIntoScene:(Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<SimpleIdentity> *)texIDs
 {
     // Create the textures, add them to the scene
     for (TextureAtlas *atlas in atlases)
@@ -293,7 +293,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
             if (texIDs)
                 texIDs->insert(tex->getId());
             // Note: Should be setting the textures up on this thread
-            scene->addChangeRequest(new AddTextureReq(tex));
+            [layerThread addChangeRequest:(new AddTextureReq(tex))];
         }
     }
     [atlases removeAllObjects];

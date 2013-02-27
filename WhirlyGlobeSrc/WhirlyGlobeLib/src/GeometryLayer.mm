@@ -203,7 +203,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     if (![self isValid])
         return nil;
     
-    BasicDrawable *draw = new BasicDrawable();
+    BasicDrawable *draw = new BasicDrawable("Geometry Layer");
     switch (type)
     {
         case WhirlyGlobeGeometryLines:

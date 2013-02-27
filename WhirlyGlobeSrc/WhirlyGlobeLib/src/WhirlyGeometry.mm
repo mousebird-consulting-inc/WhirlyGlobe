@@ -93,4 +93,18 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
     return Point2f(p0.x()+dx*u,p0.y()+dy*u);
 }
 	
+bool IntersectLines(const Point2f &p1,const Point2f &p2,const Point2f &p3,const Point2f &p4,Point2f *iPt)
+{
+    float denom = (p1.x()-p2.x())*(p3.y()-p4.y()) - (p1.y() - p2.y())*(p3.x() - p4.x());
+    if (denom == 0.0)
+        return false;
+    
+    float termA = (p1.x()*p2.y() - p1.y()*p2.x());
+    float termB = (p3.x() * p4.y() - p3.y() * p4.x());
+    iPt->x() = ( termA * (p3.x() - p4.x()) - (p1.x() - p2.x()) * termB)/denom;
+    iPt->y() = ( termA * (p3.y() - p4.y()) - (p1.y() - p2.y()) * termB)/denom;
+    
+    return true;
+}
+	
 }

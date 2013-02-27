@@ -52,6 +52,9 @@
     
     /// Used to keep track of things to release
     NSMutableArray *thingsToRelease;
+    
+    /// Change requests to merge soonish
+    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
 }
 
 @property (nonatomic,readonly) NSRunLoop *runLoop;
@@ -74,6 +77,12 @@
 /// Add an Objective C object to release after the thread has stopped
 /// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToRelease:(NSObject *)thing;
+
+/// Layers need to send their change requests throgh here
+- (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest;
+
+/// Layers should send their change requests through here
+- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)changeRequests;
 
 /// We're overriding the main entry point
 - (void)main;

@@ -213,4 +213,13 @@ protected:
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
 Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b);
 
+/// Convert a 4f matrix to a 4d matrix
+Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
+    
+/// Floats to doubles
+Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
+
+/// Floats to doubles
+Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec);
+
 }

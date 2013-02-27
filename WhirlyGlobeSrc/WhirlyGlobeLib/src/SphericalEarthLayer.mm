@@ -81,7 +81,7 @@ using namespace WhirlyGlobe;
     for (unsigned int ii=0;ii<texIDs.size();ii++)
         changeRequests.push_back(new RemTextureReq(texIDs[ii]));
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -115,7 +115,7 @@ using namespace WhirlyGlobe;
 	GeoCoord geoUR(geoLL.x()+SphereTessX*geoIncr.x(),geoLL.y()+SphereTessY*geoIncr.y());
 	
 	// We'll set up and fill in the drawable
-	BasicDrawable *chunk = new BasicDrawable((SphereTessX+1)*(SphereTessY+1),2*SphereTessX*SphereTessY);
+	BasicDrawable *chunk = new BasicDrawable("Spherical Earth Layer",(SphereTessX+1)*(SphereTessY+1),2*SphereTessX*SphereTessY);
 	chunk->setType(GL_TRIANGLES);
 //	chunk->setType(GL_POINTS);
     chunk->setLocalMbr(GeoCoordSystem::GeographicMbrToLocal(GeoMbr(geoLL,geoUR)));
@@ -171,7 +171,7 @@ using namespace WhirlyGlobe;
 	std::vector<ChangeRequest *> changeRequests;
 	
 	// Ask for a new texture and wire it to the drawable
-	Texture *tex = new Texture([texGroup generateFileNameX:chunkX y:chunkY],texGroup.ext);
+	Texture *tex = new Texture("Spherical Earth Layer",[texGroup generateFileNameX:chunkX y:chunkY],texGroup.ext);
     tex->setWidth(texGroup.pixelsSquare);
     tex->setHeight(texGroup.pixelsSquare);
 //    tex->createInGL(true, scene->getMemManager());
@@ -187,7 +187,7 @@ using namespace WhirlyGlobe;
     drawIDs.push_back(chunk->getId());
     	
 	// This should make the changes appear
-	scene->addChangeRequests(changeRequests);
+	[layerThread addChangeRequests:(changeRequests)];
 	
 	//	if (chunk->type == GL_POINTS)
 	//		chunk->textureId = 0;
@@ -205,7 +205,7 @@ using namespace WhirlyGlobe;
 	} else {
         // If we're done, have the renderer send out a notification.
         // Odds are it's still processing the data right now
-        scene->addChangeRequest(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self));
+        [layerThread addChangeRequest:(new NotificationReq(kWhirlyGlobeSphericalEarthLoaded,self))];
     }
 
 }
@@ -231,16 +231,16 @@ using namespace WhirlyGlobe;
             SimpleIdentity oldTexId = texIDs[y*texGroup.numX+x];
             
             // Set up a new texture
-            Texture *tex = new Texture([texGroup generateFileNameX:x y:y],texGroup.ext);
+            Texture *tex = new Texture("Spherical Earth Layer",[texGroup generateFileNameX:x y:y],texGroup.ext);
             tex->setWidth(texGroup.pixelsSquare);
             tex->setHeight(texGroup.pixelsSquare);
-            scene->addChangeRequest(new AddTextureReq(tex));
+            [layerThread addChangeRequest:(new AddTextureReq(tex))];
             texIDs[y*texGroup.numX+x] = tex->getId();
             
             // Reassign the drawable and delete the old texture
             SimpleIdentity drawId = drawIDs[y*texGroup.numX+x];
-            scene->addChangeRequest(new DrawTexChangeRequest(drawId,tex->getId()));
-            scene->addChangeRequest(new RemTextureReq(oldTexId));
+            [layerThread addChangeRequest:(new DrawTexChangeRequest(drawId,tex->getId()))];
+            [layerThread addChangeRequest:(new RemTextureReq(oldTexId))];
         }
 }
 

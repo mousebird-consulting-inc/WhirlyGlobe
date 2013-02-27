@@ -138,7 +138,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     // Add it and download it
     [EAGLContext setCurrentContext:layerThread.glContext];
-    Texture *tex = new Texture(image,true);
+    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
     tex->createInGL(YES, scene->getMemManager());
     scene->addChangeRequest(new AddTextureReq(tex));
     

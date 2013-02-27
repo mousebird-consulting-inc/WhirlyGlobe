@@ -111,7 +111,7 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Shape Layer");
             drawMbr.reset();
             drawable->setType(primType);
             // Adjust according to the vector info
@@ -220,7 +220,7 @@ public:
     void setupNewDrawable()
     {
         
-        drawable = new BasicDrawable();
+        drawable = new BasicDrawable("Shape Layer");
         drawMbr.reset();
         drawable->setType(GL_TRIANGLES);
         // Adjust according to the vector info
@@ -647,7 +647,7 @@ static const float SphereTessY = 10;
          it != shapeReps.end(); ++it)
         (*it)->clearContents(selectLayer,changeRequests);
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -676,7 +676,7 @@ static const float SphereTessY = 10;
     drawBuildReg.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     shapeReps.insert(sceneRep);
 }
@@ -707,7 +707,7 @@ static const float SphereTessY = 10;
             delete shapeRep;
         }
         
-        scene->addChangeRequests(changeRequests);
+        [layerThread addChangeRequests:(changeRequests)];
     }
 }
 

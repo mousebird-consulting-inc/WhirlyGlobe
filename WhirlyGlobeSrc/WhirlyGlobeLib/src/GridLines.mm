@@ -65,7 +65,7 @@ using namespace WhirlyGlobe;
 		
 	// Drawable containing just lines
 	// Note: Not deeply efficient here
-	BasicDrawable *drawable = new BasicDrawable();
+	BasicDrawable *drawable = new BasicDrawable("Grid Lines");
 	drawable->setType(GL_LINES);
 	
 	int startX = std::ceil(geoMbr.ll().x()/GridCellSize);

@@ -73,12 +73,7 @@ using namespace WhirlyKit;
         return MAXFLOAT;
     
     // For the rest,
-//    if (ident.level >= 10)
-//        NSLog(@"here");
-    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
-//    if (ident.level >= 10)
-//        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
-    return import;
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr, ident);
 }
 
 @end

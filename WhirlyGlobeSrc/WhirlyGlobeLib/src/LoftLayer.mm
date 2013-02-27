@@ -190,7 +190,7 @@ bool LoftedPolySceneRep::writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,
 class DrawableBuilder2
 {
 public:
-    DrawableBuilder2(Scene *scene,LoftedPolySceneRep *sceneRep,
+    DrawableBuilder2(Scene *scene,WhirlyKitLayerThread *layerThread,LoftedPolySceneRep *sceneRep,
                      LoftedPolyInfo *polyInfo,const GeoMbr &inDrawMbr)
     : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL)
     {
@@ -212,7 +212,7 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Lofted Poly");
             drawable->setType(primType);
             // Adjust according to the vector info
             //            drawable->setOnOff(polyInfo->enable);
@@ -365,7 +365,7 @@ public:
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
-                scene->addChangeRequest(new AddDrawableReq(drawable));
+                [layerThread addChangeRequest:(new AddDrawableReq(drawable))];
             } else
                 delete drawable;
             drawable = NULL;
@@ -374,6 +374,7 @@ public:
     
 protected:   
     Scene *scene;
+    WhirlyKitLayerThread *layerThread;
     LoftedPolySceneRep *sceneRep;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
@@ -441,7 +442,7 @@ protected:
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    DrawableBuilder2 drawBuild(scene,sceneRep,polyInfo,drawMbr);
+    DrawableBuilder2 drawBuild(scene,layerThread,sceneRep,polyInfo,drawMbr);
     
     // Toss in the polygons for the sides
     if (polyInfo->height != 0.0)
@@ -540,7 +541,7 @@ protected:
         // Clean out old geometry
         for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
              idIt != sceneRep->drawIDs.end(); ++idIt)
-            scene->addChangeRequest(new RemDrawableReq(*idIt));
+            [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
         sceneRep->drawIDs.clear();
         
         // And add the new back
@@ -561,7 +562,7 @@ protected:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemovePoly:) withObject:num afterDelay:sceneRep->fade];
@@ -569,7 +570,7 @@ protected:
         } else {
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             polyReps.erase(it);
         
             delete sceneRep;

@@ -44,19 +44,19 @@ public:
     }
     
     // Enable drawables
-    void enable(Scene *scene)
+    void enable(WhirlyKitLayerThread *layerThread)
     {
         for (SimpleIDSet::iterator it = drawIDs.begin();
              it != drawIDs.end(); ++it)
-            scene->addChangeRequest(new OnOffChangeRequest(*it, true));
+            [layerThread addChangeRequest:(new OnOffChangeRequest(*it, true))];
     }
     
     // Disable drawables
-    void disable(Scene *scene)
+    void disable(WhirlyKitLayerThread *layerThread)
     {
         for (SimpleIDSet::iterator it = drawIDs.begin();
              it != drawIDs.end(); ++it)
-            scene->addChangeRequest(new OnOffChangeRequest(*it, false));
+            [layerThread addChangeRequest:(new OnOffChangeRequest(*it, false))];
     }
 };
     
@@ -141,7 +141,7 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
         (*it)->clear(scene,changeRequests);
     chunkReps.clear();
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     scene = NULL;
 }
@@ -196,7 +196,7 @@ static const float SkirtFactor = 0.95;
     {
         GeoMbr geoMbr = chunk.mbr;
         
-        BasicDrawable *drawable = new BasicDrawable();
+        BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
         drawable->setType(GL_TRIANGLES);
         drawable->setLocalMbr(geoMbr);
         drawable->setDrawPriority(chunk.drawPriority);
@@ -299,7 +299,7 @@ static const float SkirtFactor = 0.95;
         // Build the skirts
         if (!ignoreEdgeMatching && !coordAdapter->isFlat())
         {
-            BasicDrawable *skirtDrawable = new BasicDrawable();
+            BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
             skirtDrawable->setType(GL_TRIANGLES);
             skirtDrawable->setLocalMbr(geoMbr);
             skirtDrawable->setDrawPriority(chunk.drawPriority);
@@ -360,7 +360,7 @@ static const float SkirtFactor = 0.95;
         changeRequests.push_back(new AddDrawableReq(drawable));
     }
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     chunkReps.insert(chunkRep);
 }
@@ -377,7 +377,7 @@ static const float SkirtFactor = 0.95;
     
     std::vector<ChangeRequest *> changeRequests;
     (*it)->clear(scene,changeRequests);
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     chunkReps.erase(it);
 }
@@ -393,9 +393,9 @@ static const float SkirtFactor = 0.95;
         return;
     
     if (enable)
-        (*it)->enable(scene);
+        (*it)->enable(layerThread);
     else
-        (*it)->disable(scene);
+        (*it)->disable(layerThread);
 }
 
 /// Add a single chunk on the spherical earth.  This returns and ID

@@ -85,7 +85,7 @@ using namespace WhirlyKit;
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr, ident);
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.

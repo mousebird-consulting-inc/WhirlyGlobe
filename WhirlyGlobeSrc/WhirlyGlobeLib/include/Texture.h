@@ -41,16 +41,16 @@ class Texture : public Identifiable
 {
 public:
     /// Construct emty
-	Texture();
+	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
-	Texture(NSData *texData,bool isPVRTC);
+	Texture(const std::string &name,NSData *texData,bool isPVRTC);
 	/// Construct with a file name and extension
-	Texture(NSString *baseName,NSString *ext);
+	Texture(const std::string &name,NSString *baseName,NSString *ext);
 	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
     /// If it's not we'll round up or down, depending on the flag
-	Texture(UIImage *inImage,bool roundUp=true);
+	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
     /// Construct from a FILE, presumably because it was cached
-    Texture(FILE *fp);
+    Texture(const std::string &name,FILE *fp);
 	
 	~Texture();
 	
@@ -71,6 +71,8 @@ public:
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
+    /// Set the format (before createInGL() is called)
+    void setFormat(GLenum inFormat) { format = inFormat; }
     
     /// Write to a FILE * for caching.
     bool writeToFile(FILE *fp);
@@ -80,6 +82,8 @@ protected:
 	NSData * __strong texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
+    /// If not PVRTC, the format we'll use for the texture
+    GLenum format;
 	
 	unsigned int width,height;
     bool usesMipmaps;
@@ -88,6 +92,9 @@ protected:
 	/// OpenGL ES ID
 	/// Set to 0 if we haven't loaded yet
 	GLuint glId;
+    
+    /// Used for debugging
+    std::string name;
 };
 	
 }
