@@ -46,9 +46,9 @@ public:
     class Identifier
     {
     public:
-        Identifier() { }
+        Identifier() { attrs = [NSMutableDictionary dictionary]; }
         /// Construct with the cell coordinates and level.
-        Identifier(int x,int y,int level) : x(x), y(y), level(level) { }
+        Identifier(int x,int y,int level) : x(x), y(y), level(level) { attrs = [NSMutableDictionary dictionary]; }
         
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
@@ -59,6 +59,10 @@ public:
         int y;
         /// Level of detail, starting with 0 at the top (low)
         int level;
+        
+        /// Put any attributes you'd like to keep track of here.
+        /// There are things you might calculate for a given tile over and over.
+        NSMutableDictionary *attrs;
     };
 
     /// Quad tree node with bounding box and importance, which is possibly screen size

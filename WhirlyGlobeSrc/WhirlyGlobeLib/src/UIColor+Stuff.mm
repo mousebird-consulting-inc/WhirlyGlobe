@@ -25,6 +25,15 @@ using namespace Eigen;
 
 @implementation UIColor(Stuff)
 
++ (UIColor *) colorFromHexRGB:(int)hexColor
+{
+    float red = (((hexColor) >> 16) & 0xFF)/255.0;
+    float green = (((hexColor) >> 8) & 0xFF)/255.0;
+    float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+    
+    return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+}
+
 - (RGBAColor) asRGBAColor
 {
     RGBAColor color;

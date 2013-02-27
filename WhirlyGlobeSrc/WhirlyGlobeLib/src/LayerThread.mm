@@ -101,6 +101,41 @@ using namespace WhirlyKit;
     [thingsToRelease addObject:thing];
 }
 
+- (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest
+{
+    std::vector<WhirlyKit::ChangeRequest *> requests;
+    requests.push_back(changeRequest);
+    
+    [self addChangeRequests:requests];
+}
+
+- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
+{
+    if ([NSThread currentThread] != self)
+    {
+        NSLog(@"WhirlyKitLayerThread::addChangeRequests called outside of layer thread.  Dropping requests on floor.");
+        for (unsigned int ii=0;ii<changeRequests.size();ii++)
+            delete changeRequests[ii];
+        return;
+    }
+
+    // If we don't have one coming, schedule a merge
+    if (changeRequests.empty())
+        [self performSelector:@selector(runAddChangeRequests) withObject:nil afterDelay:0.0];
+    
+    changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
+}
+
+- (void)runAddChangeRequests
+{
+    // Note: Should ask the requests if they need a flush
+    bool requiresFlush = true;
+    if (requiresFlush)
+        glFlush();
+    scene->addChangeRequests(changeRequests);
+    changeRequests.clear();
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main
@@ -132,6 +167,11 @@ using namespace WhirlyKit;
             [self removeLayerThread:[layers objectAtIndex:0]];
         layers = nil;
     }
+
+    // Delete outstanding change requests
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+        delete changeRequests[ii];
+    changeRequests.clear();
 
     // Clean up the things the main thread has asked us to
     for (unsigned int ii=0;ii<thingsToDelete.size();ii++)

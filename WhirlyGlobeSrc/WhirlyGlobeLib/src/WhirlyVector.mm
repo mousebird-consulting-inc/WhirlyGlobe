@@ -230,5 +230,33 @@ Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b)
     return ret;
 }
 
+/// Convert a 4f matrix to a 4d matrix
+Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat)
+{
+    Matrix4d outMat;
+    for (unsigned int ii=0;ii<16;ii++)
+        outMat.data()[ii] = inMat.data()[ii];
+    
+    return outMat;
+}
+
+/// Floats to doubles
+Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec)
+{
+    Vector3d outVec;
+    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();
+    
+    return outVec;
+}
+
+/// Floats to doubles
+Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec)
+{
+    Vector4d outVec;
+    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();  outVec.w() = inVec.w();
+    
+    return outVec;    
+}
+
 
 }

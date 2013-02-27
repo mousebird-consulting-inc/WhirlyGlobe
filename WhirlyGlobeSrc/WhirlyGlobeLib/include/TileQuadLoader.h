@@ -112,6 +112,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row;
 @end
 
+/// Used to specify the image type for the textures we create
+typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte} WhirlyKitTileImageType;
+
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
     creates simple terrain (chunks of the sphere) and asks for images
     to put on top.
@@ -166,6 +169,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
     
     /// If set, we'll fill in the poles for a projection that doesn't go all the way up or down
     bool coverPoles;
+    
+    /// The data type of GL textures we'll be creating.  RGBA by default.
+    WhirlyKitTileImageType imageType;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -177,6 +183,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 @property (nonatomic,weak) WhirlyKitQuadDisplayLayer *quadLayer;
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 @property (nonatomic,assign) bool coverPoles;
+@property (nonatomic,assign) WhirlyKitTileImageType imageType;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

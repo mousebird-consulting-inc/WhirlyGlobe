@@ -23,10 +23,245 @@
 #import "GlobeLayerViewWatcher.h"
 #import "MaplyLayerViewWatcher.h"
 #import "UIImage+Stuff.h"
+#import "FlatMath.h"
+#import "VectorData.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+@implementation WhirlyKitDisplaySolid
+
+// Let's not support tiles less than 10m on a side
+static float const BoundsEps = 10.0 / EarthRadius;
+
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
+{
+    WhirlyKitDisplaySolid *dispSolid = [[WhirlyKitDisplaySolid alloc] init];
+    
+    // Start with the outline in the source coordinate system
+    WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
+    Point3f srcBounds[4];
+    srcBounds[0] = Point3f(nodeMbr.ll().x(),nodeMbr.ll().y(),0.0);
+    srcBounds[1] = Point3f(nodeMbr.ur().x(),nodeMbr.ll().y(),0.0);
+    srcBounds[2] = Point3f(nodeMbr.ur().x(),nodeMbr.ur().y(),0.0);
+    srcBounds[3] = Point3f(nodeMbr.ll().x(),nodeMbr.ur().y(),0.0);
+    
+    // Figure out where the bounds drop in display space
+    std::vector<Point3f> dispBounds;
+    std::vector<Point3f> srcPts;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point3f localPt = CoordSystemConvert(srcSystem, displaySystem, srcBounds[ii]);
+        Point3f dispPt = coordAdapter->localToDisplay(localPt);
+        Point3f dispNorm = coordAdapter->normalForLocal(localPt);
+        dispSolid->surfNormals.push_back(dispNorm);
+        // If the previous one is too close, ditch this one
+        if (ii > 0)
+        {
+            float dist2 = (dispBounds[dispBounds.size()-1] - dispPt).squaredNorm();
+            if (dist2 > BoundsEps*BoundsEps)
+            {
+                dispBounds.push_back(dispPt);
+                srcPts.push_back(srcBounds[ii]);
+            }
+        } else {
+            dispBounds.push_back(dispPt);
+            srcPts.push_back(srcBounds[ii]);
+        }
+    }
+    
+    // If we didn't get enough boundary points, this is degenerate
+    if (dispBounds.size() < 3)
+        return nil;
+    
+    // We'll set up a plane and start working in that space
+    Point3f localMidPt = CoordSystemConvert(srcSystem, displaySystem, (srcBounds[0]+srcBounds[2])/2.0);
+    Point3f dispMidPt = coordAdapter->localToDisplay(localMidPt);
+    Point3f zAxis = coordAdapter->normalForLocal(localMidPt);  zAxis.normalize();
+    Point3f xAxis = dispBounds[1] - dispBounds[0];  xAxis.normalize();
+    Point3f yAxis = zAxis.cross(xAxis); yAxis.normalize();
+    Point3f org = dispMidPt;
+    
+    // Project the corner points onto the plane
+    // We'll collect height at the same time
+    std::vector<Point2f> planePts;
+    float minZ=MAXFLOAT,maxZ =-MAXFLOAT;
+    Mbr planeMbr;
+    for (unsigned int ii=0;ii<dispBounds.size();ii++)
+    {
+        Point3f dir = dispBounds[ii]-org;
+        Point3f planePt(dir.dot(xAxis),dir.dot(yAxis),dir.dot(zAxis));
+        minZ = std::min(minZ,planePt.z());
+        maxZ = std::max(maxZ,planePt.z());
+        planePts.push_back(Point2f(planePt.x(),planePt.y()));
+        planeMbr.addPoint(Point2f(planePt.x(),planePt.y()));
+    }
+
+    // Now sample the edges back in the source coordinate system
+    //  and see where the land in here
+    for (unsigned int ii=0;ii<srcPts.size();ii++)
+    {
+//        Point2f &planePt0 = planePts[ii], &planePt1 = planePts[(ii+1)%planePts.size()];
+        // Project the test point all the way into our plane
+        Point3f edgeSrcPt = (srcPts[ii]+srcPts[(ii+1)%srcPts.size()])/2.0;
+        Point3f localPt = CoordSystemConvert(srcSystem, displaySystem, edgeSrcPt);
+        Point3f edgeDispPt = coordAdapter->localToDisplay(localPt);
+        Point3f dir = edgeDispPt-org;
+        Point3f planePt(dir.dot(xAxis),dir.dot(yAxis),dir.dot(zAxis));
+        // Update the min and max
+        minZ = std::min(minZ,planePt.z());
+        maxZ = std::max(maxZ,planePt.z());
+        // Note: Trying MBR
+        planeMbr.addPoint(Point2f(planePt.x(),planePt.y()));
+
+        // And throw in another normal for the biggest tiles
+        Point3f dispNorm = coordAdapter->normalForLocal(localPt);
+        dispSolid->surfNormals.push_back(dispNorm);
+
+#if 0
+        // See if the plane pt is on the right of the two sample points
+        if ((planePt1.x()-planePt0.x())*(planePt.y()-planePt0.y()) - (planePt1.y()-planePt0.y())*(planePt.x()-planePt0.x()) < 0.0)
+        {
+            // If it is, we need to nudge the line outward
+            // Need the point previous to 0 and the one after 1
+            Point2f &planePt_1 = planePts[(ii-1+srcPts.size())%srcPts.size()];
+            Point2f &planePt2 = planePts[(ii+2)%srcPts.size()];
+            Point2f dir = planePt1 - planePt0;
+            Point2f ePt0 = Point2f(planePt.x(),planePt.y());
+            Point2f ePt1 = ePt0 + dir;
+
+            // Find the various intersections
+            Point2f new_planePt0,new_planePt1;
+            if (IntersectLines(ePt0, ePt1, planePt_1, planePt0, &new_planePt0))
+                planePt0 = new_planePt0;
+            if (IntersectLines(ePt0, ePt1, planePt1, planePt2, &new_planePt1))
+                planePt1 = new_planePt1;
+        }
+#endif
+    }
+    
+    // Now convert the plane points back into display space for the volume
+    std::vector<WhirlyKit::Point3f> botCorners;
+    std::vector<WhirlyKit::Point3f> topCorners;
+    std::vector<WhirlyKit::Point2f> planeMbrPts;
+    planeMbr.asPoints(planeMbrPts);
+//    for (unsigned int ii=0;ii<planePts.size();ii++)
+    for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
+    {
+#if 0
+        Point2f planePt = planePts[ii];
+#endif
+        Point2f planePt = planeMbrPts[ii];
+        Point3f dispPt0 = xAxis * planePt.x() + yAxis * planePt.y() + zAxis * minZ + org;
+        Point3f dispPt1 = xAxis * planePt.x() + yAxis * planePt.y() + zAxis * maxZ + org;
+        botCorners.push_back(dispPt0);
+        topCorners.push_back(dispPt1);        
+    }
+    
+    // Now let's go ahead and form the polygons for the planes
+    // First the ones around the outside
+    for (unsigned int ii=0;ii<planePts.size();ii++)
+    {
+        int thisPt = ii;
+        int nextPt = (ii+1)%planePts.size();
+        std::vector<Point3f> poly;
+        poly.push_back(botCorners[thisPt]);
+        poly.push_back(botCorners[nextPt]);
+        poly.push_back(topCorners[nextPt]);
+        poly.push_back(topCorners[thisPt]);
+        dispSolid->polys.push_back(poly);
+    }
+    // Then top and bottom
+    dispSolid->polys.push_back(topCorners);
+    std::reverse(botCorners.begin(),botCorners.end());
+    dispSolid->polys.push_back(botCorners);
+    
+    // Now calculate normals for each of those
+    for (unsigned int ii=0;ii<dispSolid->polys.size();ii++)
+    {
+        std::vector<Point3f> &poly = dispSolid->polys[ii];
+        Point3f &p0 = poly[0];
+        Point3f &p1 = poly[1];
+        Point3f &p2 = poly[poly.size()-1];
+        Vector3f norm = (p1-p0).cross(p2-p0);
+        norm.normalize();
+        dispSolid->normals.push_back(norm);
+    }
+        
+    return dispSolid;
+}
+
+// Calculate the size of a rectangle projected onto the screen
+float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+{
+    // Project the points onto the screen
+    std::vector<Point2f> screenPts;
+    Mbr mbrOnScreen;
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        CGPoint screenPt = [viewState pointOnScreenFromDisplay:poly[ii] transform:&viewState->modelMatrix frameSize:frameSize];
+        mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
+        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+    }
+    Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
+    
+    // If there's no overlap, we don't care about it
+    if (!mbrOnScreen.overlaps(frameMbr))
+        return 0.0;
+
+    float area = CalcLoopArea(screenPts);
+    
+    if (boost::math::isnan(area))
+        area = 0.0;
+    
+    return std::abs(area);
+}
+
+- (bool)isInside:(WhirlyKit::Point3f)pt
+{
+    // We should be on the inside of each plane
+    for (unsigned int ii=0;ii<polys.size();ii++)
+    {
+        const Point3f &org = (polys[ii])[0];
+        if ((pt-org).dot(normals[ii]) > 0.0)
+            return false;
+    }
+    
+    return true;
+}
+
+- (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+{
+    Point3f eyePos = viewState.eyePos;
+    
+    // If the viewer is inside the bounds, the node is maximimally important (duh)
+    if ([self isInside:eyePos])
+        return MAXFLOAT;
+    
+    // Make sure that we're pointed toward the eye, even a bit
+    bool isFacing = false;
+    for (unsigned int ii=0;ii<surfNormals.size();ii++)
+    {
+        const Vector3f &surfNorm = surfNormals[ii];
+        isFacing |= surfNorm.dot(eyePos) >= 0.0;
+    }
+    if (!isFacing)
+        return 0.0;
+    
+    // Now work through the polygons and project each to the screen
+    float totalImport = 0.0;
+    for (unsigned int ii=0;ii<polys.size();ii++)
+    {
+        const std::vector<Point3f> &poly = polys[ii];
+        float import = PolyImportance(poly, viewState, frameSize);
+        totalImport += import;
+    }
+    
+    return totalImport;
+}
+
+@end
 
 namespace WhirlyKit
 {
@@ -73,7 +308,7 @@ static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f
 
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
+float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
 {
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
@@ -131,127 +366,36 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     return maxImport;
 }
 
-// Calculate the size of a rectangle projected onto the screen
-float RectangleImportance(Point3f *rect,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyePos)
-{
-    // Project the points onto the screen
-    Point2f screenPts[4];
-    Mbr mbrOnScreen;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        CGPoint screenPt = [viewState pointOnScreenFromDisplay:rect[ii] transform:&viewState->fullMatrix frameSize:frameSize];
-        mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
-        screenPts[ii] = Point2f(screenPt.x,screenPt.y);
-    }
-    Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
-    
-    // If there's no overlap, we don't care about it
-    if (!mbrOnScreen.overlaps(frameMbr))
-        return 0.0;
-    
-    Point2f ac = screenPts[2]-screenPts[0];
-    Point2f bd = screenPts[3]-screenPts[1];
-    float area = 0.5 * (ac.x()*bd.y()-bd.x()*ac.y());
-    
-    if (boost::math::isnan(area))
-        area = 0.0;
-        
-    return std::abs(area);
-}
-
-// Cube face indices
-static int FaceIndices[][4] = {{0,3,2,1},{0,1,5,4},{1,2,6,5},{3,7,6,2},{4,7,3,0},{4,5,6,7}};
-    
 // Calculate the max pixel size for a tile
-float ScreenImportanceNew(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent)
 {
-    Vector3f eyePos = [viewState eyePos];
-
-    // Start with the outline in the source coordinate system
-    WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
-    Point3f srcBounds[9];
-    srcBounds[0] = Point3f(nodeMbr.ll().x(),nodeMbr.ll().y(),0.0);
-    srcBounds[1] = Point3f(nodeMbr.ur().x(),nodeMbr.ll().y(),0.0);
-    srcBounds[2] = Point3f(nodeMbr.ur().x(),nodeMbr.ur().y(),0.0);
-    srcBounds[3] = Point3f(nodeMbr.ll().x(),nodeMbr.ur().y(),0.0);
-    // Throw in the middle point, and a few edge points to account for curves (sort of)
-    srcBounds[4] = Point3f((srcBounds[0].x()+srcBounds[2].x())/2.0,(srcBounds[0].y()+srcBounds[2].y())/2.0,0.0);
-    for (unsigned int ii=0;ii<4;ii++)
+    WhirlyKitDisplaySolid *dispSolid = nodeIdent.attrs[@"DisplaySolid"];
+    if (!dispSolid)
     {
-        int nextii = (ii+1)%4;
-        srcBounds[ii+5] = (srcBounds[ii]+srcBounds[nextii])/2.0;
+        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr srcSystem:srcSystem adapter:coordAdapter];
+        if (dispSolid)
+            nodeIdent.attrs[@"DisplaySolid"] = dispSolid;
+        else
+            nodeIdent.attrs[@"DisplaySolid"] = [NSNull null];
     }
-    Point3f minPt(MAXFLOAT,MAXFLOAT,MAXFLOAT),maxPt(-MAXFLOAT,-MAXFLOAT,-MAXFLOAT);
-    bool frontFacing = false;
-    for (unsigned int ii=0;ii<9;ii++)
-    {
-        Point3f localPt = CoordSystemConvert(srcSystem, displaySystem, srcBounds[ii]);
-        Point3f dispPt = coordAdapter->localToDisplay(localPt);
-        Point3f norm = coordAdapter->normalForLocal(localPt);
-        frontFacing |= (eyePos - dispPt).dot(norm) > 0.0;
-        minPt.x() = std::min(minPt.x(),dispPt.x());
-        minPt.y() = std::min(minPt.y(),dispPt.y());
-        minPt.z() = std::min(minPt.z(),dispPt.z());
-        maxPt.x() = std::max(maxPt.x(),dispPt.x());
-        maxPt.y() = std::max(maxPt.y(),dispPt.y());
-        maxPt.z() = std::max(maxPt.z(),dispPt.z());
-    }
-    // Expand things out a bit
-//    Point3f diff = maxPt - minPt;
-//    minPt -= diff*0.1;
-//    maxPt += diff*0.1;
     
-    // Now we'll form a rectilinear solid in display space
-    Point3f dispBounds[8];
-    dispBounds[0] = Point3f(minPt.x(),minPt.y(),minPt.z());
-    dispBounds[1] = Point3f(maxPt.x(),minPt.y(),minPt.z());
-    dispBounds[2] = Point3f(maxPt.x(),maxPt.y(),minPt.z());
-    dispBounds[3] = Point3f(minPt.x(),maxPt.y(),minPt.z());
-    dispBounds[4] = Point3f(minPt.x(),minPt.y(),maxPt.z());
-    dispBounds[5] = Point3f(maxPt.x(),minPt.y(),maxPt.z());
-    dispBounds[6] = Point3f(maxPt.x(),maxPt.y(),maxPt.z());
-    dispBounds[7] = Point3f(minPt.x(),maxPt.y(),maxPt.z());
-    
-    
-    // If the viewer is inside the bounds, the node is maximimally important (duh)
-    if (minPt.x() <= eyePos.x() && eyePos.x() <= maxPt.x() &&
-        minPt.y() <= eyePos.y() && eyePos.y() <= maxPt.y() &&
-        minPt.z() <= eyePos.z() && eyePos.z() <= maxPt.z())
-        return MAXFLOAT;
-
-    // If the chunk isn't front facing, from our perspective, ditch it
-    if (!frontFacing)
+    // This means the tile is degenerate (as far as we're concerned)
+    if ([dispSolid isKindOfClass:[NSNull null]])
         return 0.0;
 
-    // Now work through the six faces
-    float totalImport = 0.0;
-    for (unsigned int ii=0;ii<6;ii++)
+    float import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+        // The system is expecting an estimate of pixel size on screen
+    import = import/(pixelsSquare * pixelsSquare);
+    if (import > 10e6 && import != MAXFLOAT)
     {
-        Point3f rect[4],mid(0,0,0);
-        for (unsigned int jj=0;jj<4;jj++)
-        {
-            rect[jj] = dispBounds[FaceIndices[ii][jj]];
-            mid += rect[jj];
-        }
-        mid /= 4;
-
-        // Check if the retangle is pointed away
-        Vector3f norm = (rect[1]-rect[0]).cross(rect[3]-rect[0]);
-        if ((eyePos - mid).dot(norm) < 0.0)
-            continue;
-        
-        float import = RectangleImportance(rect,viewState,frameSize,eyeVec);
-        if (import == MAXFLOAT)
-            return import;
-        // We'll scale this by the nominal pixels, since that's what the system is expecting
-//        totalImport += import;
-        totalImport = std::max(totalImport,import / (pixelsSquare * pixelsSquare));
-//        totalImport += import / (pixelsSquare * pixelsSquare);
+        NSLog(@"Got one");
+        float import2 = [dispSolid importanceForViewState:viewState frameSize:frameSize];
     }
     
-//    NSLog(@"nodeMbr: (%f,%f)->(%f,%f), totalImport = %f",nodeMbr.ll().x(),nodeMbr.ll().y(),nodeMbr.ur().x(),nodeMbr.ur().y(),totalImport);
     
-    return totalImport;    
+    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);
+    
+    return import;
 }
 
     
@@ -291,7 +435,6 @@ float ScreenImportanceNew(WhirlyKitViewState *viewState,WhirlyKit::Point2f frame
         viewUpdatePeriod = 0.1;
         quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
         renderer = inRenderer;
-        // Note: Debugging
         lineMode = false;
         drawEmpty = false;
         debugMode = false;
@@ -395,6 +538,13 @@ float ScreenImportanceNew(WhirlyKitViewState *viewState,WhirlyKit::Point2f frame
 - (void)evalStep:(id)Sender
 {
     bool didSomething = false;
+    
+    // If the renderer hasn't been set up, punt and try again later
+    if (renderer.framebufferWidth == 0 || renderer.framebufferHeight == 0)
+    {
+        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+        return;
+    }    
     
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;

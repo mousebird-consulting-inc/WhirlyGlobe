@@ -47,14 +47,6 @@ using namespace WhirlyKit;
         *height = upHeight;
     }
 
-    // Note: Make this optional
-#if 0
-    if (*width > 512)
-        *width = 512;
-    if (*height > 512)
-        *height = 512;
-#endif
-	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], (*width), (*height), 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
 //	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);

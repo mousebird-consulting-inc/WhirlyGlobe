@@ -130,7 +130,7 @@ class Drawable : public Identifiable
 {
 public:
     /// Construct empty
-	Drawable();
+	Drawable(const std::string &name);
 	virtual ~Drawable();
 	    
     /// Return the local MBR, if we're working in a non-geo coordinate system
@@ -170,6 +170,9 @@ public:
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
+    
+protected:
+    std::string name;
 };
 
 /// Reference counted Drawable pointer
@@ -214,10 +217,10 @@ class BasicDrawable : public Drawable
 {
 public:
     /// Construct empty
-	BasicDrawable();
+	BasicDrawable(const std::string &name);
 	/// Construct with some idea how big things are.
     /// You can violate this, but it will reserve space
-	BasicDrawable(unsigned int numVert,unsigned int numTri);
+	BasicDrawable(const std::string &name, unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
 
     /// For OpenGLES2, this is the program to use to render this drawable.
