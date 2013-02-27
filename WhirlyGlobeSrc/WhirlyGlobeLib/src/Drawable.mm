@@ -76,6 +76,7 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         which = *it;
         buffIDs.erase(it);
     }
+    pthread_mutex_unlock(&idLock);
 
     if (size != 0)
     {
@@ -86,7 +87,6 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer");
     }
-    pthread_mutex_unlock(&idLock);
     
     return which;
 }
@@ -98,9 +98,9 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
     pthread_mutex_lock(&idLock);
 
     // Clear out the data to save memory (Note: not sure we need this)
-    glBindBuffer(GL_ARRAY_BUFFER, bufID);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, bufID);
+//    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
     buffIDs.insert(bufID);
     
     if (buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
@@ -208,7 +208,8 @@ void OpenGLMemManager::unlock()
 }
 
 		
-Drawable::Drawable()
+Drawable::Drawable(const std::string &name)
+    : name(name)
 {
 }
 	
@@ -223,7 +224,8 @@ void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *rende
 		execute2(scene,renderer,theDrawable);
 }
 	
-BasicDrawable::BasicDrawable()
+BasicDrawable::BasicDrawable(const std::string &name)
+    : Drawable(name)
 {
 	on = true;
     programId = EmptyIdentity;
@@ -253,7 +255,8 @@ BasicDrawable::BasicDrawable()
     hasMatrix = false;
 }
 	
-BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
+BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
+    : Drawable(name)
 {
 	on = true;
     programId = EmptyIdentity;

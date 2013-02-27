@@ -265,13 +265,12 @@ using namespace WhirlyKit;
 - (CGPoint)pointOnScreenFromDisplay:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans;
-    Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
+//    Eigen::Matrix4f modelTrans = *transform;
+    Eigen::Matrix4d modelMat = Matrix4fToMatrix4d(*transform);
+    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     
     // Intersection with near gives us the same plane as the screen
-    Point3f ray;
+    Vector3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
     ray *= -nearPlane/ray.z();
     

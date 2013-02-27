@@ -248,7 +248,7 @@ static const float DelayPeriod = 0.1;
         }
     }
     
-    scene->addChangeRequest(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes));
+    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
 }
 
 // Sort more important things to the front
@@ -439,7 +439,7 @@ static float const DisappearFade = 0.1;
         }
     }
     
-    scene->addChangeRequest(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes));
+    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
 }
 
 - (void)addLayoutObjects:(NSArray *)newObjects

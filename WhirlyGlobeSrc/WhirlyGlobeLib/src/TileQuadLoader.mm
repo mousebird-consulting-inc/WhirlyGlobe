@@ -34,7 +34,7 @@ using namespace WhirlyKit;
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
-- (void)flushUpdates:(WhirlyKit::Scene *)scene;
+- (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
 
 namespace WhirlyKit
@@ -305,6 +305,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize quadLayer;
 @synthesize ignoreEdgeMatching;
 @synthesize coverPoles;
+@synthesize imageType;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -322,6 +323,7 @@ void LoadedTile::Print(Quadtree *tree)
         maxVis = DrawVisibleInvalid;
         minPageVis = DrawVisibleInvalid;
         maxPageVis = DrawVisibleInvalid;
+        imageType = WKTileIntRGBA;
     }
     
     return self;
@@ -352,7 +354,7 @@ void LoadedTile::Print(Quadtree *tree)
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
-    [self flushUpdates:layer.scene];
+    [self flushUpdates:layer.layerThread];
     
     std::vector<ChangeRequest *> theChangeRequests;
     
@@ -363,7 +365,7 @@ void LoadedTile::Print(Quadtree *tree)
         tile->clearContents(self,layer,scene,theChangeRequests);
     }
     
-    scene->addChangeRequests(theChangeRequests);
+    [layer.layerThread addChangeRequests:(theChangeRequests)];
     
     
     [self clear];
@@ -460,7 +462,7 @@ static const float SkirtFactor = 0.95;
             Texture *newTex = NULL;
             if (pvrtcSize > 0)
             {
-                newTex = new Texture(imageData,true);
+                newTex = new Texture("Tile Quad Loader", imageData,true);
                 newTex->setWidth(pvrtcSize);
                 newTex->setHeight(pvrtcSize);
             } else {
@@ -468,7 +470,26 @@ static const float SkirtFactor = 0.95;
                 if (texImage)
                 {
                     // Create the texture and set it up in OpenGL
-                     newTex = new Texture(texImage);
+                     newTex = new Texture("Tile Quad Loader",texImage,imageType);
+                    switch (imageType)
+                    {
+                        case WKTileIntRGBA:
+                        default:
+                            newTex->setFormat(GL_UNSIGNED_BYTE);
+                            break;
+                        case WKTileUShort565:
+                            newTex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+                            break;
+                        case WKTileUShort4444:
+                            newTex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+                            break;
+                        case WKTileUShort5551:
+                            newTex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+                            break;
+                        case WKTileUByte:
+                            newTex->setFormat(GL_ALPHA);
+                            break;
+                    }
                 }
             }
             
@@ -485,7 +506,7 @@ static const float SkirtFactor = 0.95;
     if (draw)
     {
         // We'll set up and fill in the drawable
-        BasicDrawable *chunk = new BasicDrawable((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+        BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
         chunk->setDrawOffset(drawOffset);
         chunk->setDrawPriority(drawPriority);
         chunk->setVisibleRange(minVis, maxVis);
@@ -568,7 +589,7 @@ static const float SkirtFactor = 0.95;
             if (!ignoreEdgeMatching && !coordAdapter->isFlat() && skirtDraw)
             {
                 // We'll set up and fill in the drawable
-                BasicDrawable *skirtChunk = new BasicDrawable();
+                BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
                 skirtChunk->setDrawOffset(drawOffset);
                 skirtChunk->setDrawPriority(drawPriority);
                 skirtChunk->setVisibleRange(minVis, maxVis);
@@ -736,11 +757,11 @@ static const float SkirtFactor = 0.95;
 }
 
 // Flush out any outstanding updates saved in the changeRequests
-- (void)flushUpdates:(WhirlyKit::Scene *)scene
+- (void)flushUpdates:(WhirlyKitLayerThread *)layerThread
 {
     if (!changeRequests.empty())
     {
-        scene->addChangeRequests(changeRequests);
+        [layerThread addChangeRequests:(changeRequests)];
         changeRequests.clear();
     }
 }
@@ -808,13 +829,13 @@ static const float SkirtFactor = 0.95;
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     [self refreshParents:quadLayer];
     
-    [self flushUpdates:quadLayer.scene];
+    [self flushUpdates:quadLayer.layerThread];
 }
 
 // We'll get this before a series of unloads
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
-    [self flushUpdates:layer.scene];
+    [self flushUpdates:layer.layerThread];
 }
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
@@ -850,7 +871,7 @@ static const float SkirtFactor = 0.95;
 {
     [self refreshParents:layer];
     
-    [self flushUpdates:layer.scene];
+    [self flushUpdates:layer.layerThread];
 }
 
 // We'll try to skip updates 

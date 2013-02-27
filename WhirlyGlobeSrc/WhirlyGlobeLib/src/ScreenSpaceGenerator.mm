@@ -196,7 +196,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         BasicDrawable *draw = NULL;
         if (it == drawables.end())
         {
-            draw = new BasicDrawable();
+            draw = new BasicDrawable("Screen Space Generator");
             draw->setType(GL_TRIANGLES);
             draw->setTexId(geom.texID);
             drawables[geom.texID] = draw;

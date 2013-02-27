@@ -115,7 +115,7 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     if (texIdent == EmptyIdentity)
         return 0;
     
-    Texture dumbTex;
+    Texture dumbTex("None");
     dumbTex.setId(texIdent);
     TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
@@ -126,7 +126,7 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
 
 DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable();
+    BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawId);
     Scene::DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
     if (it != drawables.end())
@@ -163,7 +163,7 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
 
 Texture *Scene::getTexture(SimpleIdentity texId)
 {
-    Texture dumbTex;
+    Texture dumbTex("None");
     dumbTex.setId(texId);
     Scene::TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
@@ -340,7 +340,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    Texture dumbTex;
+    Texture dumbTex("None");
     dumbTex.setId(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
@@ -369,7 +369,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 
 void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable();
+    BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawable);
     Scene::DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())

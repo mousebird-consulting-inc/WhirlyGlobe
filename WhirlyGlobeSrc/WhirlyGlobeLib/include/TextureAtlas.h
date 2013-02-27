@@ -29,6 +29,7 @@
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "GlobeScene.h"
+#import "LayerThread.h"
 
 namespace WhirlyKit
 {
@@ -140,6 +141,6 @@ public:
 
 /// Runs through the altases created and adds the resulting textures to the scene.
 /// Also puts the sub texture mappings in to the scene for use on the layer side.
-- (void)processIntoScene:(WhirlyKit::Scene *)scene texIDs:(std::set<WhirlyKit::SimpleIdentity> *)texIDs;
+- (void)processIntoScene:(WhirlyKit::Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<WhirlyKit::SimpleIdentity> *)texIDs;
 
 @end
