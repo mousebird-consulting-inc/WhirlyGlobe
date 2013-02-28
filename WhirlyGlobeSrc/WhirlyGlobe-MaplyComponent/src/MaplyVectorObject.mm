@@ -36,7 +36,7 @@ using namespace WhirlyGlobe;
 //   the whole thing, which might include multiple different vectors.
 + (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
 {
-    if([geoJSON length])
+    if([geoJSON length] > 0)
     {
     NSError *error = nil;
     NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
@@ -50,6 +50,7 @@ using namespace WhirlyGlobe;
 
       return vecObj;
     }
+    
     return nil;
 }
 

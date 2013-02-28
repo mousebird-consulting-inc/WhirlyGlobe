@@ -367,16 +367,16 @@ float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frame
 }
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent)
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
-    WhirlyKitDisplaySolid *dispSolid = nodeIdent.attrs[@"DisplaySolid"];
+    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
     {
         dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr srcSystem:srcSystem adapter:coordAdapter];
         if (dispSolid)
-            nodeIdent.attrs[@"DisplaySolid"] = dispSolid;
+            attrs[@"DisplaySolid"] = dispSolid;
         else
-            nodeIdent.attrs[@"DisplaySolid"] = [NSNull null];
+            attrs[@"DisplaySolid"] = [NSNull null];
     }
     
     // This means the tile is degenerate (as far as we're concerned)
@@ -386,14 +386,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     float import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
         // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
-    if (import > 10e6 && import != MAXFLOAT)
-    {
-        NSLog(@"Got one");
-        float import2 = [dispSolid importanceForViewState:viewState frameSize:frameSize];
-    }
     
-    
-    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);
+//    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);
     
     return import;
 }
@@ -700,9 +694,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 #pragma mark - Quad Tree Importance Delegate
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
 {
-    return [dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
+    return [dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) attrs:attrs];
 }
 
 @end

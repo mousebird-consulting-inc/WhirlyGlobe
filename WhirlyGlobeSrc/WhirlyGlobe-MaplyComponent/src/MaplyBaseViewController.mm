@@ -33,8 +33,6 @@ using namespace WhirlyKit;
 
     [glView stopAnimation];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
@@ -86,6 +84,11 @@ using namespace WhirlyKit;
 - (WhirlyKitView *) loadSetup_view
 {
     return nil;
+}
+
+- (void)loadSetup_glView
+{
+    glView = [[WhirlyKitEAGLView alloc] init];
 }
 
 - (WhirlyKit::Scene *) loadSetup_scene
@@ -204,6 +207,8 @@ static const char *fragmentShaderNoLightLine =
 {
     userLayers = [NSMutableArray array];
     
+    [self loadSetup_glView];
+
 	// Set up the OpenGL ES renderer
     NSNumber *renderNum = hints[kWGRendererOpenGLVersion];
     int whichRenderer = 2;

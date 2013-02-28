@@ -107,9 +107,16 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// You can change this on the fly, but it won't cancel outstanding fetches.
 - (int)maxSimultaneousFetches;
 
+@optional
 /// The quad loader is letting us know to start loading the image.
-/// We'll call the loader back with the image when it's ready
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row;
+/// We'll call the loader back with the image when it's ready.
+/// This is now deprecated.  Used the other version.
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row __deprecated;
+
+/// This version of the load method passes in a mutable dictionary.
+/// Store your expensive to generate key/value pairs here.
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
+
 @end
 
 /// Used to specify the image type for the textures we create

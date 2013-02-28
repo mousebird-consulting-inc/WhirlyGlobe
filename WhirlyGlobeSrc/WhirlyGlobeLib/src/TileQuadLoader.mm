@@ -784,7 +784,7 @@ static const float SkirtFactor = 0.95;
 
     tileSet.insert(newTile);
     numFetches++;
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
 }
 
 // Check if we're in the process of loading the given tile

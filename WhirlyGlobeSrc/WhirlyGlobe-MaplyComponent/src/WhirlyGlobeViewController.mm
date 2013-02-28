@@ -351,18 +351,21 @@ using namespace WhirlyGlobe;
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
+    WGCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
     if (selectedObj && selection)
     {
         // The user selected something, so let the delegate know
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+            [delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+        else if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             [delegate globeViewController:self didSelect:selectedObj];
     } else {
         // The user didn't select anything, let the delegate know.
         if (delegate && [delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
         {
-            WGCoordinate coord;
-            coord.x = msg.whereGeo.lon();
-            coord.y = msg.whereGeo.lat();
             [delegate globeViewController:self didTapAt:coord];
         }
         // Didn't select anything, so rotate
