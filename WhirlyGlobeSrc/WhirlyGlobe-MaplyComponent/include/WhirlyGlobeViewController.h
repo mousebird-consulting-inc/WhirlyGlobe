@@ -34,6 +34,12 @@
 /// You're given the object you passed in originally, such as a WGScreenMarker.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
+/// Called when the user taps on or near an object.
+/// You're given the object you passed in originally, such as a WGScreenMarker.
+/// This version is called if it's available in the delegate, otherwise the simpler version is called,
+///  if it's available.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /// Called when the user taps outside the globe.
 /// Passes in the location on the view.
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;

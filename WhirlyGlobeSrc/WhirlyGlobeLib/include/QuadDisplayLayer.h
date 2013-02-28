@@ -41,7 +41,10 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent);
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+
+/// This is the old version, for people still using it
+float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr);
 }
 
 /// A solid volume used to describe the display space a tile takes up.
@@ -91,7 +94,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;
