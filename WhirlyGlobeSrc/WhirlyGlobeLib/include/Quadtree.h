@@ -46,9 +46,9 @@ public:
     class Identifier
     {
     public:
-        Identifier() { attrs = [NSMutableDictionary dictionary]; }
+        Identifier() { }
         /// Construct with the cell coordinates and level.
-        Identifier(int x,int y,int level) : x(x), y(y), level(level) { attrs = [NSMutableDictionary dictionary]; }
+        Identifier(int x,int y,int level) : x(x), y(y), level(level) { }
         
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Identifier &that) const;
@@ -59,16 +59,15 @@ public:
         int y;
         /// Level of detail, starting with 0 at the top (low)
         int level;
-        
-        /// Put any attributes you'd like to keep track of here.
-        /// There are things you might calculate for a given tile over and over.
-        NSMutableDictionary *attrs;
     };
 
     /// Quad tree node with bounding box and importance, which is possibly screen size
     class NodeInfo
     {
     public:
+        NodeInfo() { attrs = [NSMutableDictionary dictionary]; }
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;
         
@@ -78,6 +77,10 @@ public:
         Mbr mbr;
         /// Importance as calculated by the callback.  More is better.
         float importance;
+
+        /// Put any attributes you'd like to keep track of here.
+        /// There are things you might calculate for a given tile over and over.
+        NSMutableDictionary *attrs;
     };
 
     /// Check if the given tile is already present
@@ -208,6 +211,6 @@ protected:
 /// Fill in this protocol to return the importance value for a given tile.
 @protocol WhirlyKitQuadTreeImportanceDelegate
 /// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
 @end
 
