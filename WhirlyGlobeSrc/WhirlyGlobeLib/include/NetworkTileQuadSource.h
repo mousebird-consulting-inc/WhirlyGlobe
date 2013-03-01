@@ -40,10 +40,13 @@
     int pixelsPerTile;
     /// Location of cache, if set
     NSString *cacheDir;
+    // Flip Y coordinate
+    BOOL flipY;
 }
 
 @property (nonatomic,assign) int numSimultaneous;
 @property (nonatomic,retain) NSString *cacheDir;
+@property (nonatomic,assign) BOOL flipY;
 
 @end
 

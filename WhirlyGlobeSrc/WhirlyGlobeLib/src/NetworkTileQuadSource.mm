@@ -27,6 +27,7 @@ using namespace WhirlyKit;
 
 @synthesize numSimultaneous;
 @synthesize cacheDir;
+@synthesize flipY;
 
 - (void)dealloc
 {
@@ -107,6 +108,8 @@ using namespace WhirlyKit;
         numSimultaneous = 1;
         
         pixelsPerTile = 256;
+
+        flipY = TRUE;
     }
     
     return self;
@@ -253,8 +256,13 @@ using namespace WhirlyKit;
 
 // Start loading a given tile
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
-{
-    int y = ((int)(1<<level)-row)-1;
+{ 
+    int y;
+
+    if(flipY)
+      y = ((int)(1<<level)-row)-1;
+    else
+      y = row;
     
     // Decide here which URL we'll use
     NSString *tileURL = [tileURLs objectAtIndex:col%[tileURLs count]];
