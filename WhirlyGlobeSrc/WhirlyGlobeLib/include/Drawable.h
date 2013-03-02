@@ -281,8 +281,8 @@ public:
 
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
-	void setDrawOffset(unsigned int newOffset) { drawOffset = newOffset; }
-	unsigned int getDrawOffset() { return drawOffset; }
+	void setDrawOffset(float newOffset) { drawOffset = newOffset; }
+	float getDrawOffset() { return drawOffset; }
 
 	/// Set the geometry type.  Probably triangles.
 	void setType(GLenum inType) { type = inType; }
@@ -412,7 +412,7 @@ protected:
     bool usingBuffers;  // If set, we've downloaded the buffers already
     NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
 	unsigned int drawPriority;  // Used to sort drawables
-	unsigned int drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
+	float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type

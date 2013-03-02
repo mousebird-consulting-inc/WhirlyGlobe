@@ -35,31 +35,47 @@ using namespace WhirlyKit;
 // Sample a great circle and throw in an interpolated height at each point
 void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
 {
-    Point3f p0 = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
-    Point3f p1 = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
-    
-    // Note: Dumb approach.  Switch to an adaptive sampling
     bool isFlat = coordAdapter->isFlat();
-    int numSamples = 100;
-    for (unsigned int ii=0;ii<=numSamples;ii++)
+
+    // We can subdivide the great circle with this routine
+    if (isFlat)
     {
-        // Sample the point
-        float t = (ii/(float)numSamples);
-        Point3f pt = (p1-p0)*t + p0;
-        // This puts us on the surface of the sphere
-        if (!isFlat)
-            pt.normalize();
+        pts.resize(2);
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
+    } else {
+        VectorRing inPts;
+        inPts.push_back(Point2f(startPt.x,startPt.y));
+        inPts.push_back(Point2f(endPt.x,endPt.y));
+        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, 0.001);
+
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
         
-        // Parabolic curve
-        float b = 4*height;
-        float a = -b;
-        float thisHeight = a*(t*t) + b*t;
-        
-        if (isFlat)
-            pt.z() = thisHeight;
-        else
-            pt *= 1.0+thisHeight;
-        pts.push_back(pt);
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3f &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+                pt.z() = thisHeight;
+            else
+                pt *= 1.0+thisHeight;        
+        }
     }
 }
 
@@ -197,6 +213,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+
+        if (wgMarker.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgMarker.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -253,6 +272,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+
+        if (wgMarker.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgMarker.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -319,6 +341,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+
+        if (wgLabel.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgLabel.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -392,6 +417,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+        
+        if (wgLabel.selectID != EmptyIdentity)
+            compObj.selectIDs.insert(wgLabel.selectID);
     }
     
     // Set up a description and create the markers in the marker layer
@@ -706,6 +734,15 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];
+            
+            // And any references to selection objects
+            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                 it != userObj.selectIDs.end(); ++it)
+            {
+                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                if (sit != selectObjectSet.end())
+                    selectObjectSet.erase(sit);
+            }
             
             [userObjects removeObject:userObj];
         } else {

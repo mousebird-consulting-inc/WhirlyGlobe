@@ -45,6 +45,9 @@
 
 	/// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 	float heightAboveGlobe;
+    
+    /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
+    float tilt;
 
     /// Used to update position based on time (or whatever other factor you like)
     NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;    
@@ -53,6 +56,7 @@
 @property (nonatomic,assign) float heightAboveGlobe;
 @property (nonatomic,assign) Eigen::Quaternionf rotQuat;
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+@property (nonatomic,assign) float tilt;
 
 /// Return min/max valid heights above globe
 - (float)minHeightAboveGlobe;

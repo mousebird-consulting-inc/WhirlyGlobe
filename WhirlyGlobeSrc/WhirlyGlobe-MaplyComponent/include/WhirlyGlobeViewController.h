@@ -78,6 +78,10 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
+/// This is is radians.  0 is looking straight down (the default)
+///  PI/2 is looking toward the horizon.
+@property(nonatomic,assign) float tilt;
+
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
 

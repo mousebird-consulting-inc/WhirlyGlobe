@@ -43,6 +43,7 @@ using namespace Eigen;
 @synthesize heightAboveGlobe;
 @synthesize delegate;
 @synthesize rotQuat;
+@synthesize tilt;
 
 - (id)init
 {
@@ -58,6 +59,7 @@ using namespace Eigen;
         absoluteMinHeight = 0.00005;
         heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
+        tilt = 0.0;
 	}
 	
 	return self;
@@ -76,6 +78,11 @@ using namespace Eigen;
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
     [self runViewUpdates];
+}
+
+- (void)setTilt:(float)newTilt
+{
+    tilt = newTilt;
 }
 	
 - (float)minHeightAboveGlobe
@@ -147,6 +154,13 @@ using namespace Eigen;
 	Eigen::Affine3f rot(rotQuat);
 	
 	return (trans * rot).matrix();
+}
+
+- (Eigen::Matrix4f)calcViewMatrix
+{
+    Eigen::Quaternionf selfRotPitch(AngleAxisf(-tilt, Vector3f::UnitX()));
+    
+    return ((Affine3f)selfRotPitch).matrix();
 }
 
 - (Vector3f)currentUp
