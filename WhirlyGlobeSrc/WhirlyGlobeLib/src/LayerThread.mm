@@ -28,6 +28,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
+{
+    WhirlyKitGLSetupInfo *glSetupInfo;
+}
 
 @synthesize runLoop;
 @synthesize viewWatcher;
@@ -46,8 +49,13 @@ using namespace WhirlyKit;
             if (dynamic_cast<Maply::MapScene *>(scene))
                 viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
         
+        // We'll create the context here and set it in the layer thread, always
         glContext = [[EAGLContext alloc] initWithAPI:renderer.context.API sharegroup:renderer.context.sharegroup];
+
         thingsToRelease = [NSMutableArray array];
+        
+        glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+        glSetupInfo->minZres = [inView calcZbufferRes];
 	}
 	
 	return self;
@@ -126,12 +134,36 @@ using namespace WhirlyKit;
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
 }
 
+- (void)requestFlush
+{
+    if ([NSThread currentThread] != self)
+        return;
+    
+    [self addChangeRequest:NULL];
+}
+
 - (void)runAddChangeRequests
 {
-    // Note: Should ask the requests if they need a flush
-    bool requiresFlush = true;
+    [EAGLContext setCurrentContext:glContext];
+
+    bool requiresFlush = false;
+    // Set up anything that needs to be set up
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *change = changeRequests[ii];
+        if (change)
+        {
+            requiresFlush |= change->needsFlush();
+            change->setupGL(glSetupInfo, scene->getMemManager());
+        } else
+            // A NULL change request is just a flush request
+            requiresFlush = true;
+    }
+    
+    // If anything needed a flush after that, let's do it
     if (requiresFlush)
         glFlush();
+    
     scene->addChangeRequests(changeRequests);
     changeRequests.clear();
 }
@@ -142,7 +174,10 @@ using namespace WhirlyKit;
 {
     @autoreleasepool {
         runLoop = [NSRunLoop currentRunLoop];
-        
+
+        // This should be the default context.  If you change it yourself, change it back
+        [EAGLContext setCurrentContext:glContext];
+
         // Wake up our layers.  It's up to them to do the rest
         for (unsigned int ii=0;ii<[layers count];ii++)
         {

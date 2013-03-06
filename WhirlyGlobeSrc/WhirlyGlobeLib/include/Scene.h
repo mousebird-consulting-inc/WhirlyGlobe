@@ -54,18 +54,24 @@ class AddTextureReq : public ChangeRequest
 public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
-	AddTextureReq(Texture *tex) : tex(tex) { }
+	AddTextureReq(TextureBase *tex) : tex(tex) { }
     /// If the texture hasn't been added to the renderer, clean it up.
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
+
+    /// Texture creation generally wants a flush
+    virtual bool needsFlush() { return true; }
+
+    /// Create the texture on its native thread
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
     /// Only use this if you've thought it out
-    Texture *getTex() { return tex; }
+    TextureBase *getTex() { return tex; }
 
 protected:
-	Texture *tex;
+	TextureBase *tex;
 };
 
 /// Remove a texture referred to by ID
@@ -90,6 +96,12 @@ public:
 	AddDrawableReq(Drawable *drawable) : drawable(drawable) { }
     /// If the drawable wasn't used, delete it
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
+    
+    /// Drawable creation generally wants a flush
+    virtual bool needsFlush() { return true; }
+    
+    /// Create the drawable on its native thread
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawable) drawable->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
@@ -301,7 +313,7 @@ public:
 	DrawableRef getDrawable(SimpleIdentity drawId);
 	
 	/// Look for a Texture by ID
-	Texture *getTexture(SimpleIdentity texId);
+	TextureBase *getTexture(SimpleIdentity texId);
     
     /// All the active models
     NSMutableArray *activeModels;
@@ -316,7 +328,7 @@ public:
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
-	typedef std::set<Texture *,IdentifiableSorter> TextureSet;
+	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
 	/// Textures, sorted by ID
 	TextureSet textures;
 	

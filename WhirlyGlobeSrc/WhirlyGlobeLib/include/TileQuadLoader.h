@@ -30,6 +30,7 @@
 #import "Quadtree.h"
 #import "SceneRendererES.h"
 #import "QuadDisplayLayer.h"
+#import "TextureAtlas.h"
 
 /// @cond
 @class WhirlyKitQuadTileLoader;
@@ -75,6 +76,8 @@ public:
     WhirlyKit::SimpleIdentity skirtDrawId;
     // Texture ID for the parent tile
     WhirlyKit::SimpleIdentity texId;
+    /// If set, this is a subset of a larger dynamic texture
+    WhirlyKit::SubTexture subTex;
     
     // Set for each child that's on.  That is, that we're drawing as filler.
     bool childIsOn[4];
@@ -179,6 +182,9 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
     
     /// The data type of GL textures we'll be creating.  RGBA by default.
     WhirlyKitTileImageType imageType;
+    
+    /// If set (before we start) we'll use dynamic texture atlases for the textures
+    bool useDynamicTextureAtlas;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -191,6 +197,7 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 @property (nonatomic,assign) bool coverPoles;
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
+@property (nonatomic,assign) bool useDynamicTextureAtlas;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

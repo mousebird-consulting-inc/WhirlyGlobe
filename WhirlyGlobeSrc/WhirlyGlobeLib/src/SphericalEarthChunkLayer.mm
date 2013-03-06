@@ -349,13 +349,7 @@ static const float SkirtFactor = 0.95;
             chunkRep->drawIDs.insert(skirtDrawable->getId());
             changeRequests.push_back(new AddDrawableReq(skirtDrawable));
         }
-        
-        [EAGLContext setCurrentContext:layerThread.glContext];
-        WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        // Note: This is a giant hack
-        setupInfo->minZres = 0.0001;
-        drawable->setupGL(setupInfo, scene->getMemManager());
-        
+                
         chunkRep->drawIDs.insert(drawable->getId());
         changeRequests.push_back(new AddDrawableReq(drawable));
     }

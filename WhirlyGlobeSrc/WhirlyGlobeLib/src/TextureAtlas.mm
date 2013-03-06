@@ -158,10 +158,11 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     imageInst.gridCellsY = gridCellsY;
     imageInst.gridCellX = foundX;
     imageInst.gridCellY = foundY;
-    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX;
-    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY;
-    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX;
-    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY;
+    Point2f halfPix(0.5/image.size.width,0.5/image.size.height);
+    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX + halfPix.x();
+    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY + halfPix.y();
+    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX - 2*halfPix.x();
+    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY - 2*halfPix.y();
     [images addObject:imageInst];
     
     org = imageInst->org;

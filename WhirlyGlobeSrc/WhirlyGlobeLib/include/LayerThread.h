@@ -84,6 +84,10 @@
 /// Layers should send their change requests through here
 - (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)changeRequests;
 
+/// Called by a layer to request a flush at the next opportunity.
+/// Presumably the layer did something worth flushing
+- (void)requestFlush;
+
 /// We're overriding the main entry point
 - (void)main;
 

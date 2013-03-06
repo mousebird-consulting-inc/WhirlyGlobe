@@ -174,7 +174,6 @@ using namespace WhirlyGlobe;
 	Texture *tex = new Texture("Spherical Earth Layer",[texGroup generateFileNameX:chunkX y:chunkY],texGroup.ext);
     tex->setWidth(texGroup.pixelsSquare);
     tex->setHeight(texGroup.pixelsSquare);
-//    tex->createInGL(true, scene->getMemManager());
 	changeRequests.push_back(new AddTextureReq(tex));
     texIDs.push_back(tex->getId());
 	chunk->setTexId(tex->getId());

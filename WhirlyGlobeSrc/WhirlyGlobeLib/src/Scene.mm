@@ -115,8 +115,7 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     if (texIdent == EmptyIdentity)
         return 0;
     
-    Texture dumbTex("None");
-    dumbTex.setId(texIdent);
+    TextureBase dumbTex(texIdent);
     TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
         return (*it)->getGLId();
@@ -161,10 +160,9 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
     }
 }
 
-Texture *Scene::getTexture(SimpleIdentity texId)
+TextureBase *Scene::getTexture(SimpleIdentity texId)
 {
-    Texture dumbTex("None");
-    dumbTex.setId(texId);
+    TextureBase dumbTex(texId);
     Scene::TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
         return *it;
@@ -333,19 +331,18 @@ void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineS
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
-        tex->createInGL(true,scene->getMemManager());
+        tex->createInGL(scene->getMemManager());
     scene->textures.insert(tex);
     tex = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    Texture dumbTex("None");
-    dumbTex.setId(texture);
+    TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
     {
-        Texture *tex = *it;
+        TextureBase *tex = *it;
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
         delete tex;

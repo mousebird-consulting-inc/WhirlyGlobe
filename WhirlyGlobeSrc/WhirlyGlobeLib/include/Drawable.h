@@ -118,6 +118,12 @@ class ChangeRequest
 public:
 	ChangeRequest() { }
 	virtual ~ChangeRequest() { }
+    
+    /// Return true if this change requires a GL Flush in the thread it was executed in
+    virtual bool needsFlush() { return false; }
+    
+    /// Fill this in to set up whatever resources we need on the GL side
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
@@ -208,6 +214,8 @@ static const unsigned int MaxDrawablePoints = ((1<<16)-1);
     
 /// Maximum number of triangles we want in a drawable
 static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
+    
+class SubTexture;
     
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
@@ -386,6 +394,9 @@ public:
 
     /// Return the active transform matrix, if we have one
     const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
+    
+    /// Run the texture and texture coordinates based on a SubTexture
+    void applySubTexture(SubTexture subTex);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
