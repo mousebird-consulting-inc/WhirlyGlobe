@@ -23,6 +23,7 @@
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 
@@ -395,6 +396,18 @@ void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3
 	
 	addTriangle(Triangle(ptIdx[0],ptIdx[1],ptIdx[3]));
 	addTriangle(Triangle(ptIdx[3],ptIdx[1],ptIdx[2]));
+}
+    
+// Move the texture coordinates around and apply a new texture
+void BasicDrawable::applySubTexture(SubTexture subTex)
+{
+    texId = subTex.texId;
+    
+    for (unsigned int ii=0;ii<texCoords.size();ii++)
+    {
+        Point2f tc = texCoords[ii];
+        texCoords[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+    }
 }
 
 // Size of a single vertex in an interleaved buffer

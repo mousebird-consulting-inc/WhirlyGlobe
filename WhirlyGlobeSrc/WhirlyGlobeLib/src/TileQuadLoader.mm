@@ -23,13 +23,16 @@
 #import "UIImage+Stuff.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 #import "TileQuadLoader.h"
+#import "DynamicTextureAtlas.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
 @interface WhirlyKitQuadTileLoader()
 {
+@public
     int sphereTessX,sphereTessY;
+    DynamicTextureAtlas *texAtlas;
 }
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
@@ -84,11 +87,23 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
         texId = tex->getId();
     else
         texId = EmptyIdentity;
+
+    if (tex)
+    {
+        if (loader->texAtlas)
+        {
+            loader->texAtlas->addTexture(tex, subTex, scene->getMemManager(), changeRequests);
+            [layer.layerThread requestFlush];
+            if (draw)
+                draw->applySubTexture(subTex);
+            if (skirtDraw)
+                skirtDraw->applySubTexture(subTex);
+            delete tex;
+        } else
+            changeRequests.push_back(new AddTextureReq(tex));
+    }
     
     // Now for the changes to the scenegraph
-    // Texture first, then drawable
-    if (tex)
-        changeRequests.push_back(new AddTextureReq(tex));
     changeRequests.push_back(new AddDrawableReq(draw));
     if (skirtDraw)
         changeRequests.push_back(new AddDrawableReq(skirtDraw));
@@ -121,6 +136,11 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
     {
         changeRequests.push_back(new RemTextureReq(texId));
         texId = EmptyIdentity;
+    }
+    if (subTex.texId != EmptyIdentity)
+    {
+        loader->texAtlas->removeTexture(subTex, changeRequests);
+        subTex.texId = EmptyIdentity;
     }
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -197,6 +217,13 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                                     if (childSkirtDraw)
                                         childSkirtDraw->setTexId(texId);
                                 }
+                                if (loader->texAtlas)
+                                {
+                                    if (childDraw)
+                                        childDraw->applySubTexture(subTex);
+                                    if (childSkirtDraw)
+                                        childSkirtDraw->applySubTexture(subTex);
+                                }
                                 changeRequests.push_back(new AddDrawableReq(childDraw));
                                 if (childSkirtDraw)
                                     changeRequests.push_back(new AddDrawableReq(childSkirtDraw));
@@ -226,18 +253,26 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
             if (drawId == EmptyIdentity)
             {
-                BasicDrawable *draw = NULL;
-                BasicDrawable *skirtDraw = NULL;
-                [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
-                draw->setTexId(texId);
-                drawId = draw->getId();
-                changeRequests.push_back(new AddDrawableReq(draw));
-                if (skirtDraw)
-                {
-                    skirtDraw->setTexId(texId);
-                    changeRequests.push_back(new AddDrawableReq(skirtDraw));
-                    skirtDrawId = skirtDraw->getId();
-                }
+                NSLog(@"Removed the drawID in TileQuadLoader somehow");
+//                BasicDrawable *draw = NULL;
+//                BasicDrawable *skirtDraw = NULL;
+//                [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
+//                draw->setTexId(texId);
+//                drawId = draw->getId();
+//                changeRequests.push_back(new AddDrawableReq(draw));
+//                if (loader->texAtlas)
+//                {
+//                    if (draw)
+//                        draw->applySubTexture(subTex);
+//                    if (skirtDraw)
+//                        skirtDraw->applySubTexture(subTex);
+//                }
+//                if (skirtDraw)
+//                {
+//                    skirtDraw->setTexId(texId);
+//                    changeRequests.push_back(new AddDrawableReq(skirtDraw));
+//                    skirtDrawId = skirtDraw->getId();
+//                }
             } else {
                 changeRequests.push_back(new OnOffChangeRequest(drawId,true));
                 if (skirtDrawId)
@@ -252,12 +287,15 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
             if (childDrawIds[ii] != EmptyIdentity && childIsOn[ii])
             {
-//                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
-                changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
+//                changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
                 if (childSkirtDrawIds[ii] != EmptyIdentity)
-                    changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
-                childDrawIds[ii] = EmptyIdentity;
-                childSkirtDrawIds[ii] = EmptyIdentity;
+                {
+                    changeRequests.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],false));
+//                    changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+                }
+//                childDrawIds[ii] = EmptyIdentity;
+//                childSkirtDrawIds[ii] = EmptyIdentity;
                 childIsOn[ii] = false;
             }
         }
@@ -265,12 +303,15 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         // Make sure our representation is off
         if (isOn)
         {
-//            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
-            changeRequests.push_back(new RemDrawableReq(drawId));
+            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
+//            changeRequests.push_back(new RemDrawableReq(drawId));
             if (skirtDrawId != EmptyIdentity)
-                changeRequests.push_back(new RemDrawableReq(skirtDrawId));
-            drawId = EmptyIdentity;
-            skirtDrawId = EmptyIdentity;
+            {
+                changeRequests.push_back(new OnOffChangeRequest(skirtDrawId,false));
+//                changeRequests.push_back(new RemDrawableReq(skirtDrawId));
+            }
+//            drawId = EmptyIdentity;
+//            skirtDrawId = EmptyIdentity;
             isOn = false;
         }
     }
@@ -306,6 +347,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize ignoreEdgeMatching;
 @synthesize coverPoles;
 @synthesize imageType;
+@synthesize useDynamicTextureAtlas;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -324,6 +366,7 @@ void LoadedTile::Print(Quadtree *tree)
         minPageVis = DrawVisibleInvalid;
         maxPageVis = DrawVisibleInvalid;
         imageType = WKTileIntRGBA;
+        useDynamicTextureAtlas = true;
     }
     
     return self;
@@ -365,8 +408,10 @@ void LoadedTile::Print(Quadtree *tree)
         tile->clearContents(self,layer,scene,theChangeRequests);
     }
     
-    [layer.layerThread addChangeRequests:(theChangeRequests)];
+    if (texAtlas)
+        texAtlas->shutdown(theChangeRequests);
     
+    [layer.layerThread addChangeRequests:(theChangeRequests)];
     
     [self clear];
 }
@@ -403,6 +448,32 @@ static const float SkirtFactor = 0.95;
         draw->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
         draw->addTriangle(BasicDrawable::Triangle(base+1,base+3,base+2));
     }
+}
+
+// Convert from our image type to a GL enum
+- (GLenum)glFormat
+{
+    switch (imageType)
+    {
+        case WKTileIntRGBA:
+        default:
+            return GL_UNSIGNED_BYTE;
+            break;
+        case WKTileUShort565:
+            return GL_UNSIGNED_SHORT_5_6_5;
+            break;
+        case WKTileUShort4444:
+            return GL_UNSIGNED_SHORT_4_4_4_4;
+            break;
+        case WKTileUShort5551:
+            return GL_UNSIGNED_SHORT_5_5_5_1;
+            break;
+        case WKTileUByte:
+            return GL_ALPHA;
+            break;
+    }
+    
+    return GL_UNSIGNED_BYTE;
 }
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
@@ -470,33 +541,13 @@ static const float SkirtFactor = 0.95;
                 if (texImage)
                 {
                     // Create the texture and set it up in OpenGL
-                     newTex = new Texture("Tile Quad Loader",texImage,imageType);
-                    switch (imageType)
-                    {
-                        case WKTileIntRGBA:
-                        default:
-                            newTex->setFormat(GL_UNSIGNED_BYTE);
-                            break;
-                        case WKTileUShort565:
-                            newTex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-                            break;
-                        case WKTileUShort4444:
-                            newTex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-                            break;
-                        case WKTileUShort5551:
-                            newTex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-                            break;
-                        case WKTileUByte:
-                            newTex->setFormat(GL_ALPHA);
-                            break;
-                    }
+                    newTex = new Texture("Tile Quad Loader",texImage,imageType);
+                    newTex->setFormat([self glFormat]);
                 }
             }
             
             if (newTex)
             {
-                [EAGLContext setCurrentContext:layer.layerThread.glContext];
-                newTex->createInGL(true,quadLayer.scene->getMemManager());
                 *tex = newTex;
             }
         } else
@@ -523,7 +574,6 @@ static const float SkirtFactor = 0.95;
             for (unsigned int iy=0;iy<sphereTessY;iy++)
                 for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
-                    
                     Point3f org3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                     Point3f ptA_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                     Point3f ptB_3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
@@ -715,14 +765,8 @@ static const float SkirtFactor = 0.95;
                 chunk->setTexId((*tex)->getId());
         }
         
-        *draw = chunk;
-        
-        // Set up the geometry before we hand it over
-        [EAGLContext setCurrentContext:layer.layerThread.glContext];
-        // Note: This will work poorly with a draw offset
-        WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        chunk->setupGL(setupInfo,quadLayer.scene->getMemManager());
-    }    
+        *draw = chunk;        
+    }
 }
 
 // Look for a specific tile
@@ -801,6 +845,10 @@ static const float SkirtFactor = 0.95;
 // When the data source loads the image, we'll get called here
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
 {
+    // Create the dynamic texture atlas before we need it
+    if (useDynamicTextureAtlas && !texAtlas)
+        texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
+    
     // Look for the tile
     // If it's not here, just drop this on the floor
     LoadedTile dummyTile(Quadtree::Identifier(col,row,level));
@@ -813,7 +861,7 @@ static const float SkirtFactor = 0.95;
     tile->isLoading = false;
     if (image)
     {
-        tile->addToScene(self,quadLayer,quadLayer.scene,image,pvrtcSize,changeRequests);    
+        tile->addToScene(self,quadLayer,quadLayer.scene,image,pvrtcSize,changeRequests);
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it
