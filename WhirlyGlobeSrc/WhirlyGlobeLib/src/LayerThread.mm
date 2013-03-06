@@ -148,6 +148,7 @@ using namespace WhirlyKit;
 
     bool requiresFlush = false;
     // Set up anything that needs to be set up
+    std::vector<ChangeRequest *> changesToAdd;
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
     {
         ChangeRequest *change = changeRequests[ii];
@@ -155,6 +156,7 @@ using namespace WhirlyKit;
         {
             requiresFlush |= change->needsFlush();
             change->setupGL(glSetupInfo, scene->getMemManager());
+            changesToAdd.push_back(changeRequests[ii]);
         } else
             // A NULL change request is just a flush request
             requiresFlush = true;
@@ -164,7 +166,7 @@ using namespace WhirlyKit;
     if (requiresFlush)
         glFlush();
     
-    scene->addChangeRequests(changeRequests);
+    scene->addChangeRequests(changesToAdd);
     changeRequests.clear();
 }
 
