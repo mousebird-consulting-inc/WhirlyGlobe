@@ -976,20 +976,7 @@ public:
 }
 
 - (void)mergeRenderedLabels:(LabelRenderer *)labelRenderer
-{
-    // We'll run through the textures and create them here
-    [EAGLContext setCurrentContext:layerThread.glContext];
-    for (unsigned int ii=0;ii<labelRenderer->changeRequests.size();ii++)
-    {
-        ChangeRequest *cr = labelRenderer->changeRequests[ii];
-        AddTextureReq *texReq = dynamic_cast<AddTextureReq *>(cr);
-        if (texReq)
-        {
-            Texture *tex = texReq->getTex();
-            tex->createInGL(true, scene->getMemManager());
-        }
-    }
-    
+{    
     // Flush out the changes
     [layerThread addChangeRequests:labelRenderer->changeRequests];
     

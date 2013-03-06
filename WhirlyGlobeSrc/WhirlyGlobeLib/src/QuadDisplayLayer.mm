@@ -258,7 +258,7 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
         totalImport += import;
     }
     
-    return totalImport;
+    return totalImport/2.0;
 }
 
 @end

@@ -30,6 +30,36 @@
 
 namespace WhirlyKit
 {
+    
+/** Base class for textures.  This is enough information to
+    track it in the Scene, but little else.
+  */
+class TextureBase : public Identifiable
+{
+public:
+    /// Construct for comparison
+    TextureBase(SimpleIdentity thisId) : Identifiable(thisId), glId(0) { }
+    TextureBase(const std::string &name) : name(name), glId(0) { }
+    
+    virtual ~TextureBase() { }
+    
+    /// Return the unique GL ID.
+    GLuint getGLId() const { return glId; }
+
+    /// Render side only.  Don't call this.  Create the openGL version
+	virtual bool createInGL(OpenGLMemManager *memManager) {  return false; }
+	
+	/// Render side only.  Don't call this.  Destroy the openGL version
+	virtual void destroyInGL(OpenGLMemManager *memManager) { }
+
+protected:
+	/// OpenGL ES ID
+	/// Set to 0 if we haven't loaded yet
+	GLuint glId;    
+    
+    /// Used for debugging
+    std::string name;
+};
 
 /** Your basic Texture representation.
     This is how you get an image sent over to the
@@ -37,7 +67,7 @@ namespace WhirlyKit
     If you want to remove it, you need to use its
     Identifiable ID.
  */
-class Texture : public Identifiable
+class Texture : public TextureBase
 {
 public:
     /// Construct emty
@@ -52,30 +82,31 @@ public:
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
-	~Texture();
+	virtual ~Texture();
+	    
+    /// Process the data for display based on the format.
+    NSData *processData();
 	
-    /// Return the unique GL ID.
-	GLuint getGLId() const { return glId; }
-	
-	/// Render side only.  Don't call this.  Create the openGL version
-	bool createInGL(bool releaseData,OpenGLMemManager *memManager);
-	
-	/// Render side only.  Don't call this.  Destroy the openGL version
-	void destroyInGL(OpenGLMemManager *memManager);
-
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
+    /// Get the texture width
+    int getWidth() { return width; }
     /// Set the texture height
     void setHeight(unsigned int newHeight) { height = newHeight; }
+    /// Get the texture height
+    int getHeight() { return height; }
     /// Set this to have a mipmap generated and used for minification
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
     /// Set the format (before createInGL() is called)
     void setFormat(GLenum inFormat) { format = inFormat; }
-    
-    /// Write to a FILE * for caching.
-    bool writeToFile(FILE *fp);
+
+    /// Render side only.  Don't call this.  Create the openGL version
+	virtual bool createInGL(OpenGLMemManager *memManager);
+	
+	/// Render side only.  Don't call this.  Destroy the openGL version
+	virtual void destroyInGL(OpenGLMemManager *memManager);
 	
 protected:
 	/// Raw texture data
@@ -88,13 +119,6 @@ protected:
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;
-	
-	/// OpenGL ES ID
-	/// Set to 0 if we haven't loaded yet
-	GLuint glId;
-    
-    /// Used for debugging
-    std::string name;
 };
 	
 }

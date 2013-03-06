@@ -112,19 +112,19 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: name(name), glId(0), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+	: TextureBase(name), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,NSData *texData,bool isPVRTC)
-	: name(name), glId(0), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
 { 
 }
 
 // Set up the texture from a filename
 Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
-    : name(name), glId(0), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
 {	
 	if (![ext compare:@"pvrtc"])
 	{
@@ -157,7 +157,7 @@ Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
 
 // Construct with a UIImage
 Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
-    : name(name), glId(0), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
 {
 	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
@@ -167,9 +167,40 @@ Texture::~Texture()
 	texData = nil;
 }
 
+NSData *Texture::processData()
+{
+	if (isPVRTC)
+	{
+        return texData;
+	} else {
+        // Depending on the format, we may need to mess around with the bytes
+        switch (format)
+        {
+            case GL_UNSIGNED_BYTE:
+            default:
+                return texData;
+                break;
+            case GL_UNSIGNED_SHORT_5_6_5:
+                return ConvertRGBATo565(texData);
+                break;
+            case GL_UNSIGNED_SHORT_4_4_4_4:
+                return ConvertRGBATo4444(texData);
+                break;
+            case GL_UNSIGNED_SHORT_5_5_5_1:
+                return ConvertRGBATo5551(texData);
+                break;
+            case GL_ALPHA:
+                return ConvertRGBATo8(texData);
+                break;
+        }
+	}
+    
+    return nil;
+}
+    
 // Define the texture in OpenGL
 // Note: Should load the texture from disk elsewhere
-bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
+bool Texture::createInGL(OpenGLMemManager *memManager)
 {
 	if (!texData)
 		return false;
@@ -199,12 +230,14 @@ bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (wrapV ? GL_REPEAT : GL_CLAMP_TO_EDGE));
 
     CheckGLError("Texture::createInGL() glTexParameteri()");
+    
+    NSData *convertedData = processData();
 	
 	// If it's in an optimized form, we can use that more efficiently
 	if (isPVRTC)
 	{
 		// Will always be 4 bits per pixel and RGB
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, [texData length], [texData bytes]);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, [convertedData length], [convertedData bytes]);
         CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
 	} else {
         // Depending on the format, we may need to mess around with the bytes
@@ -212,31 +245,19 @@ bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
         {
             case GL_UNSIGNED_BYTE:
             default:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [texData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [convertedData bytes]);
                 break;
             case GL_UNSIGNED_SHORT_5_6_5:
-            {
-                NSData *convertedData = ConvertRGBATo565(texData);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, [convertedData bytes]);
-            }
                 break;
             case GL_UNSIGNED_SHORT_4_4_4_4:
-            {
-                NSData *convertedData = ConvertRGBATo4444(texData);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, [convertedData bytes]);
-            }
                 break;
             case GL_UNSIGNED_SHORT_5_5_5_1:
-            {
-                NSData *convertedData = ConvertRGBATo5551(texData);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, [convertedData bytes]);
-            }
                 break;
             case GL_ALPHA:
-            {
-                NSData *convertedData = ConvertRGBATo8(texData);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, [convertedData bytes]);
-            }
                 break;
         }
         CheckGLError("Texture::createInGL() glTexImage2D()");
@@ -245,8 +266,8 @@ bool Texture::createInGL(bool releaseData,OpenGLMemManager *memManager)
     if (usesMipmaps)
         glGenerateMipmap(GL_TEXTURE_2D);
 	
-	if (releaseData)
-		texData = nil;
+    // Once we've moved it over to OpenGL, let's get rid of this copy
+    texData = nil;
 	
 	return true;
 }
