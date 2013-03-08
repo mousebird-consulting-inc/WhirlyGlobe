@@ -579,7 +579,7 @@ struct TmpVert
 class TriStripBuilder
 {
 public:
-    TriStripBuilder(BasicDrawable *draw) : draw(draw) { }
+    TriStripBuilder(BasicDrawable *draw) : draw(draw), flip(false) { }
     
     void addTriangle(TmpVert verts[3])
     {
@@ -588,17 +588,17 @@ public:
             addVert(verts[0]);
             addVert(verts[1]);
             addVert(verts[2]);
-            lastVerts.push_back(verts[2]);
             lastVerts.push_back(verts[1]);
+            lastVerts.push_back(verts[2]);
         } else {
             // See if this triangle shares two vertices with the last one
-            int matchOffset = -1;
+            int matchOffset = 3;
             if (lastVerts.size() == 2)
             {
                 // Try rotating the vertices until we find a match
                 for (matchOffset=0;matchOffset<3;matchOffset++)
-                    if (verts[matchOffset] == lastVerts[0] &&
-                        verts[(matchOffset+1)%3] == lastVerts[1])
+                    if (verts[matchOffset] == lastVerts[(flip ? 1 : 0)] &&
+                        verts[(matchOffset+1)%3] == lastVerts[(flip ? 0 : 1)])
                         break;
             }
             
@@ -610,16 +610,28 @@ public:
                 lastVerts[1] = verts[(matchOffset+2)%3];
             } else {
                 // Otherwise, repeat the last vertex and the first vertex of the new triangle
-                addVert(lastVerts[0]);
-                addVert(verts[0]);
-                addVert(verts[0]);
-                addVert(verts[1]);
-                addVert(verts[2]);
+                addVert(lastVerts[1]);
                 lastVerts.clear();
-                lastVerts.push_back(verts[2]);
-                lastVerts.push_back(verts[1]);
+                if (flip)
+                {
+                    addVert(verts[2]);
+                    addVert(verts[2]);
+                    addVert(verts[1]);
+                    addVert(verts[0]);
+                    lastVerts.push_back(verts[1]);
+                    lastVerts.push_back(verts[0]);
+                } else {
+                    addVert(verts[0]);
+                    addVert(verts[0]);
+                    addVert(verts[1]);
+                    addVert(verts[2]);
+                    lastVerts.push_back(verts[1]);
+                    lastVerts.push_back(verts[2]);
+                }
             }
         }
+
+        flip = !flip;
     }
     
     void addVert(TmpVert vert)
@@ -631,6 +643,7 @@ public:
     }
     
     BasicDrawable *draw;
+    bool flip;
     std::vector<TmpVert> lastVerts;
 };
     
@@ -640,8 +653,7 @@ void BasicDrawable::convertToTriStrip()
         return;
     
     if (points.empty() || tris.empty() ||
-        points.size() != texCoords.size() || points.size() != norms.size() ||
-        points.size() != colors.size())
+        points.size() != texCoords.size() || points.size() != norms.size())
         return;
     
     // Set up a temporary drawable to capture the data
