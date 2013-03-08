@@ -344,8 +344,14 @@ public:
     /// Add a texture coordinate.
 	void addTexCoord(TexCoord coord) { texCoords.push_back(coord); }
     
+    /// Return a texture coordinate
+    TexCoord getTexCoord(int which) { if (which <= texCoords.size()) return TexCoord(0.0,0.0);  Point2f tpt = texCoords[which]; return TexCoord(tpt.x(),tpt.y()); }
+    
     /// Add a color
     void addColor(RGBAColor color) { colors.push_back(color); }
+    
+    /// Return a given color
+    RGBAColor getColor(int which) { if (which <= colors.size()) return RGBAColor(255,255,255,255);  return colors[which]; }
 
     /// Add a normal
 	void addNormal(Point3f norm) { norms.push_back(norm); }
@@ -400,6 +406,12 @@ public:
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    
+    /// Copy the vertex data into an NSData object and return it
+    NSData *asData();
+    
+    /// Assuming this is a set of triangles, convert to a triangle strip
+    void convertToTriStrip();
     
 protected:
     /// OpenGL ES 1.1 drawing routine

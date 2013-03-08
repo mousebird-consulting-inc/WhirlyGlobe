@@ -24,6 +24,7 @@
 #import <boost/math/special_functions/fpclassify.hpp>
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"
+#import "DynamicDrawableAtlas.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -33,6 +34,7 @@ using namespace WhirlyKit;
 @public
     int sphereTessX,sphereTessY;
     DynamicTextureAtlas *texAtlas;
+    DynamicDrawableAtlas *drawAtlas;
 }
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
@@ -45,14 +47,12 @@ namespace WhirlyKit
     
 LoadedTile::LoadedTile()
 {
-    isOn = false;
     isLoading = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        childIsOn[ii] = false;
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }
@@ -61,14 +61,12 @@ LoadedTile::LoadedTile()
 LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 {
     nodeInfo.ident = ident;
-    isOn = false;
     isLoading = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        childIsOn[ii] = false;
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }    
@@ -104,19 +102,23 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     }
     
     // Now for the changes to the scenegraph
-    changeRequests.push_back(new AddDrawableReq(draw));
-    if (skirtDraw)
-        changeRequests.push_back(new AddDrawableReq(skirtDraw));
+    if (loader->drawAtlas)
+    {
+        loader->drawAtlas->addDrawable(draw,changeRequests);
+        if (skirtDraw)
+            loader->drawAtlas->addDrawable(skirtDraw,changeRequests);
+    } else {
+        changeRequests.push_back(new AddDrawableReq(draw));
+        if (skirtDraw)
+            changeRequests.push_back(new AddDrawableReq(skirtDraw));
+    }
     
     // Just in case, we don't have any child drawables here
     for (unsigned int ii=0;ii<4;ii++)
     {
-        childIsOn[ii] = false;
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }
-    
-    isOn = true;
 }
 
 // Clean out the geometry and texture associated with the given tile
@@ -124,12 +126,18 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
 {
     if (drawId != EmptyIdentity)
     {
-        changeRequests.push_back(new RemDrawableReq(drawId));
+        if (loader->drawAtlas)
+            loader->drawAtlas->removeDrawable(drawId, changeRequests);
+        else
+            changeRequests.push_back(new RemDrawableReq(drawId));
         drawId = EmptyIdentity;
     }
     if (skirtDrawId != EmptyIdentity)
     {
-        changeRequests.push_back(new RemDrawableReq(skirtDrawId));
+        if (loader->drawAtlas)
+            loader->drawAtlas->removeDrawable(drawId, changeRequests);
+        else
+            changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
     }
     if (texId != EmptyIdentity)
@@ -145,9 +153,19 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
     for (unsigned int ii=0;ii<4;ii++)
     {
         if (childDrawIds[ii] != EmptyIdentity)
-            changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+        {
+            if (loader->drawAtlas)
+                loader->drawAtlas->removeDrawable(childDrawIds[ii], changeRequests);
+            else
+                changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+        }
         if (childSkirtDrawIds[ii] != EmptyIdentity)
-            changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+        {
+            if (loader->drawAtlas)
+                loader->drawAtlas->removeDrawable(childSkirtDrawIds[ii], changeRequests);
+            else
+                changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+        }
     }
 }
 
@@ -160,159 +178,152 @@ bool isValidTile(WhirlyKitQuadDisplayLayer *layer,Mbr theMbr)
 // Update based on what children are doing
 void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Quadtree *tree,std::vector<ChangeRequest *> &changeRequests)
 {
-    //    NSLog(@"Updating children for node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
-    
     bool childrenExist = false;
     
-    {
-        // Work through the possible children
-        int whichChild = 0;
-        for (unsigned int iy=0;iy<2;iy++)
-            for (unsigned int ix=0;ix<2;ix++)
+    // Work through the possible children
+    int whichChild = 0;
+    for (unsigned int iy=0;iy<2;iy++)
+        for (unsigned int ix=0;ix<2;ix++)
+        {
+            // Is it here?
+            bool isPresent = false;
+            Quadtree::Identifier childIdent(2*nodeInfo.ident.x+ix,2*nodeInfo.ident.y+iy,nodeInfo.ident.level+1);
+            LoadedTile *childTile = [loader getTile:childIdent];
+            isPresent = childTile && !childTile->isLoading;
+            
+            // If it exists, make sure we're not representing it here
+            if (isPresent)
             {
-                // Is it here?
-                bool isPresent = false;
-                Quadtree::Identifier childIdent(2*nodeInfo.ident.x+ix,2*nodeInfo.ident.y+iy,nodeInfo.ident.level+1);
-                LoadedTile *childTile = [loader getTile:childIdent];
-                isPresent = childTile && !childTile->isLoading;
-                
-                // If it exists, make sure we're not representing it here
-                if (isPresent)
+                // Turn the child back off
+                if (childDrawIds[whichChild] != EmptyIdentity)
                 {
-                    //                    NSLog(@"  Child present: (%d,%d,%d)",childIdent.x,childIdent.y,childIdent.level);
-                    // Turn the child back off
-                    if (childDrawIds[whichChild] != EmptyIdentity && childIsOn[whichChild])
+                    if (loader->drawAtlas)
                     {
-//                        changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],false));
+                        loader->drawAtlas->removeDrawable(childDrawIds[whichChild], changeRequests);
+                        if (childSkirtDrawIds[whichChild])
+                            loader->drawAtlas->removeDrawable(childSkirtDrawIds[whichChild], changeRequests);
+                    } else {
                         changeRequests.push_back(new RemDrawableReq(childDrawIds[whichChild]));
                         if (childSkirtDrawIds[whichChild])
                             changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[whichChild]));
-                        childDrawIds[whichChild] = EmptyIdentity;
-                        childSkirtDrawIds[whichChild] = EmptyIdentity;
-                        childIsOn[whichChild] = false;
                     }
-                    
-                    childrenExist = true;
-                } else {
-                    //                    NSLog(@"  Child missing: (%d,%d,%d)",childIdent.x,childIdent.y,childIdent.level);
-                    
-                    // It's not there, so make sure we're faking it with our texture
-                    //                    if (!childIsOn[whichChild])
+                    childDrawIds[whichChild] = EmptyIdentity;
+                    childSkirtDrawIds[whichChild] = EmptyIdentity;
+                }
+                
+                childrenExist = true;
+            } else {
+                // It's not there, so make sure we're faking it with our texture
+                // May need to build the geometry
+                if (childDrawIds[whichChild] == EmptyIdentity)
+                {
+                    Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
+                    if (isValidTile(layer,childInfo.mbr))
                     {
-                        // May need to build the geometry
-                        if (childDrawIds[whichChild] == EmptyIdentity)
+                        BasicDrawable *childDraw = NULL;
+                        BasicDrawable *childSkirtDraw = NULL;
+                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
+                        childDrawIds[whichChild] = childDraw->getId();
+                        if (childSkirtDraw)
+                            childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
+                        if (!layer.lineMode && texId)
                         {
-                            Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
-                            if (isValidTile(layer,childInfo.mbr))
-                            {
-                                BasicDrawable *childDraw = NULL;
-                                BasicDrawable *childSkirtDraw = NULL;
-                                [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
-                                childDrawIds[whichChild] = childDraw->getId();
-                                if (childSkirtDraw)
-                                    childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
-                                if (!layer.lineMode && texId)
-                                {
-                                    childDraw->setTexId(texId);
-                                    if (childSkirtDraw)
-                                        childSkirtDraw->setTexId(texId);
-                                }
-                                if (loader->texAtlas)
-                                {
-                                    if (childDraw)
-                                        childDraw->applySubTexture(subTex);
-                                    if (childSkirtDraw)
-                                        childSkirtDraw->applySubTexture(subTex);
-                                }
-                                changeRequests.push_back(new AddDrawableReq(childDraw));
-                                if (childSkirtDraw)
-                                    changeRequests.push_back(new AddDrawableReq(childSkirtDraw));
-                                childIsOn[whichChild] = true;
-                            }
+                            childDraw->setTexId(texId);
+                            if (childSkirtDraw)
+                                childSkirtDraw->setTexId(texId);
+                        }
+                        if (loader->texAtlas)
+                        {
+                            if (childDraw)
+                                childDraw->applySubTexture(subTex);
+                            if (childSkirtDraw)
+                                childSkirtDraw->applySubTexture(subTex);
+                        }
+                        if (loader->drawAtlas)
+                        {
+                            loader->drawAtlas->addDrawable(childDraw, changeRequests);
+                            if (childSkirtDraw)
+                                loader->drawAtlas->addDrawable(childSkirtDraw, changeRequests);
                         } else {
-                            // Just turn it on
-                            if (!childIsOn[whichChild])
-                            {
-                                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[whichChild],true));
-                                if (childSkirtDrawIds[whichChild])
-                                    changeRequests.push_back(new OnOffChangeRequest(childSkirtDrawIds[whichChild], true));
-                                childIsOn[whichChild] = true;
-                            }
+                            changeRequests.push_back(new AddDrawableReq(childDraw));
+                            if (childSkirtDraw)
+                                changeRequests.push_back(new AddDrawableReq(childSkirtDraw));
                         }
                     }
                 }
-                
-                whichChild++;
             }
-    }
+            
+            whichChild++;
+        }
     
     // No children, so turn the geometry for this tile back on
     if (!childrenExist)
     {
-        if (!isOn)
+        if (drawId == EmptyIdentity)
         {
-            if (drawId == EmptyIdentity)
+            BasicDrawable *draw = NULL;
+            BasicDrawable *skirtDraw = NULL;
+            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
+            drawId = draw->getId();
+            draw->setTexId(texId);
+            if (skirtDraw)
             {
-                NSLog(@"Removed the drawID in TileQuadLoader somehow");
-//                BasicDrawable *draw = NULL;
-//                BasicDrawable *skirtDraw = NULL;
-//                [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
-//                draw->setTexId(texId);
-//                drawId = draw->getId();
-//                changeRequests.push_back(new AddDrawableReq(draw));
-//                if (loader->texAtlas)
-//                {
-//                    if (draw)
-//                        draw->applySubTexture(subTex);
-//                    if (skirtDraw)
-//                        skirtDraw->applySubTexture(subTex);
-//                }
-//                if (skirtDraw)
-//                {
-//                    skirtDraw->setTexId(texId);
-//                    changeRequests.push_back(new AddDrawableReq(skirtDraw));
-//                    skirtDrawId = skirtDraw->getId();
-//                }
-            } else {
-                changeRequests.push_back(new OnOffChangeRequest(drawId,true));
-                if (skirtDrawId)
-                    changeRequests.push_back(new OnOffChangeRequest(skirtDrawId,true));
+                skirtDrawId = skirtDraw->getId();
+                skirtDraw->setTexId(texId);
             }
-            isOn = true;
+            if (loader->texAtlas)
+            {
+                draw->applySubTexture(subTex);
+                if (skirtDraw)
+                    skirtDraw->applySubTexture(subTex);
+            }
+            if (loader->drawAtlas)
+            {
+                loader->drawAtlas->addDrawable(draw, changeRequests);
+                if (skirtDraw)
+                    loader->drawAtlas->addDrawable(skirtDraw, changeRequests);
+            } else {
+                changeRequests.push_back(new AddDrawableReq(draw));
+                if (skirtDraw)
+                    changeRequests.push_back(new AddDrawableReq(skirtDraw));
+            }
         }
         
         // Also turn off any children that may have been on
         for (unsigned int ii=0;ii<4;ii++)
-            //            if (childIsOn[ii])
         {
-            if (childDrawIds[ii] != EmptyIdentity && childIsOn[ii])
+            if (childDrawIds[ii] != EmptyIdentity)
             {
-                changeRequests.push_back(new OnOffChangeRequest(childDrawIds[ii],false));
-//                changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
-                if (childSkirtDrawIds[ii] != EmptyIdentity)
+                if (loader->drawAtlas)
                 {
-                    changeRequests.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],false));
-//                    changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
+                    loader->drawAtlas->removeDrawable(childDrawIds[ii], changeRequests);
+                    if (childSkirtDrawIds[ii] != EmptyIdentity)
+                        loader->drawAtlas->removeDrawable(childSkirtDrawIds[ii], changeRequests);
+                } else {
+                    changeRequests.push_back(new RemDrawableReq(childDrawIds[ii]));
+                    if (childSkirtDrawIds[ii] != EmptyIdentity)
+                        changeRequests.push_back(new RemDrawableReq(childSkirtDrawIds[ii]));
                 }
-//                childDrawIds[ii] = EmptyIdentity;
-//                childSkirtDrawIds[ii] = EmptyIdentity;
-                childIsOn[ii] = false;
+                childDrawIds[ii] = EmptyIdentity;
+                childSkirtDrawIds[ii] = EmptyIdentity;
             }
         }
     } else {
         // Make sure our representation is off
-        if (isOn)
+        if (drawId != EmptyIdentity)
         {
-            changeRequests.push_back(new OnOffChangeRequest(drawId,false));
-//            changeRequests.push_back(new RemDrawableReq(drawId));
-            if (skirtDrawId != EmptyIdentity)
+            if (loader->drawAtlas)
             {
-                changeRequests.push_back(new OnOffChangeRequest(skirtDrawId,false));
-//                changeRequests.push_back(new RemDrawableReq(skirtDrawId));
+                loader->drawAtlas->removeDrawable(drawId, changeRequests);
+                if (skirtDrawId != EmptyIdentity)
+                    loader->drawAtlas->removeDrawable(skirtDrawId, changeRequests);
+            } else {
+                changeRequests.push_back(new RemDrawableReq(drawId));
+                if (skirtDrawId != EmptyIdentity)
+                    changeRequests.push_back(new RemDrawableReq(skirtDrawId));
             }
-//            drawId = EmptyIdentity;
-//            skirtDrawId = EmptyIdentity;
-            isOn = false;
+            drawId = EmptyIdentity;
+            skirtDrawId = EmptyIdentity;
         }
     }
     
@@ -322,10 +333,10 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
 
 void LoadedTile::Print(Quadtree *tree)
 {
-    NSLog(@"Node (%d,%d,%d), draw is %@, drawId = %d, texId = %d",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,(isOn ? @"on" : @"off"),(int)drawId,(int)texId);
+    NSLog(@"Node (%d,%d,%d), drawId = %d, texId = %d",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,(int)drawId,(int)texId);
     for (unsigned int ii=0;ii<4;ii++)
     {
-        NSLog(@" Child %d is %@, drawId = %d",ii,(childIsOn[ii] ? @"on" : @"off"),(int)childDrawIds[ii]);
+        NSLog(@" Child %d drawId = %d",ii,(int)childDrawIds[ii]);
     }
     std::vector<Quadtree::Identifier> childIdents;
     tree->childrenForNode(nodeInfo.ident,childIdents);
@@ -347,7 +358,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize ignoreEdgeMatching;
 @synthesize coverPoles;
 @synthesize imageType;
-@synthesize useDynamicTextureAtlas;
+@synthesize useDynamicAtlas;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -366,7 +377,7 @@ void LoadedTile::Print(Quadtree *tree)
         minPageVis = DrawVisibleInvalid;
         maxPageVis = DrawVisibleInvalid;
         imageType = WKTileIntRGBA;
-        useDynamicTextureAtlas = true;
+        useDynamicAtlas = false;
     }
     
     return self;
@@ -410,6 +421,9 @@ void LoadedTile::Print(Quadtree *tree)
     
     if (texAtlas)
         texAtlas->shutdown(theChangeRequests);
+    
+    if (drawAtlas)
+        drawAtlas->shutdown(theChangeRequests);
     
     [layer.layerThread addChangeRequests:(theChangeRequests)];
     
@@ -764,8 +778,16 @@ static const float SkirtFactor = 0.95;
             if (tex && *tex)
                 chunk->setTexId((*tex)->getId());
         }
+
+        // We'll want tri strips if we're doing atlases
+        if (drawAtlas)
+        {
+            chunk->convertToTriStrip();
+            if (skirtDraw)
+                (*skirtDraw)->convertToTriStrip();
+        }
         
-        *draw = chunk;        
+        *draw = chunk;
     }
 }
 
@@ -842,12 +864,20 @@ static const float SkirtFactor = 0.95;
     return !tile->isLoading;
 }
 
+// Note: This is the hardcoded vertex size for our case.  Should make this flexible.
+static const int VertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
+// Note: Hard coding the buffer size at 1MB.  Should probably adjust
+static const int DrawBufferSize = 1*1024*1024;
+
 // When the data source loads the image, we'll get called here
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
 {
     // Create the dynamic texture atlas before we need it
-    if (useDynamicTextureAtlas && !texAtlas)
+    if (useDynamicAtlas && !texAtlas)
+    {
         texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
+        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",VertexSize,DrawBufferSize);
+    }
     
     // Look for the tile
     // If it's not here, just drop this on the floor

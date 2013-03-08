@@ -66,8 +66,6 @@ public:
     // Details of which node we're representing
     WhirlyKit::Quadtree::NodeInfo nodeInfo;
     
-    /// Set if this parent tile is on
-    bool isOn;
     /// Set if this tile is in the process of loading
     bool isLoading;
     // DrawID for this parent tile
@@ -79,8 +77,6 @@ public:
     /// If set, this is a subset of a larger dynamic texture
     WhirlyKit::SubTexture subTex;
     
-    // Set for each child that's on.  That is, that we're drawing as filler.
-    bool childIsOn[4];
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
     WhirlyKit::SimpleIdentity childSkirtDrawIds[4];
@@ -183,8 +179,8 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
     /// The data type of GL textures we'll be creating.  RGBA by default.
     WhirlyKitTileImageType imageType;
     
-    /// If set (before we start) we'll use dynamic texture atlases for the textures
-    bool useDynamicTextureAtlas;
+    /// If set (before we start) we'll use dynamic texture and drawable atlases
+    bool useDynamicAtlas;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -197,7 +193,7 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 @property (nonatomic,assign) bool coverPoles;
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
-@property (nonatomic,assign) bool useDynamicTextureAtlas;
+@property (nonatomic,assign) bool useDynamicAtlas;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

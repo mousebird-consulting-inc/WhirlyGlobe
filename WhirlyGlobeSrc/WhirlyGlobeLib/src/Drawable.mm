@@ -533,7 +533,143 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     usingBuffers = true;
 }
-	
+
+// Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
+NSData *BasicDrawable::asData()
+{
+    if (points.empty() || tris.empty() || texCoords.empty() || norms.empty() || colors.empty())
+        return nil;
+    
+    vertexSize = singleVertexSize();
+    int numVerts = points.size();
+    
+    unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
+    NSData *retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
+    unsigned char *basePtr = buffer;
+    for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+        addPointToBuffer(basePtr, ii);
+    
+    return retData;
+}
+    
+// Combined vertex used in triangle stripping
+struct TmpVert
+{
+    TmpVert() { }
+    TmpVert(BasicDrawable *draw,int which)
+    {
+        vert = draw->getPoint(which);
+        texCoord = draw->getTexCoord(which);
+        norm = draw->getNormal(which);
+        color = draw->getColor(which);
+    }
+    bool operator == (const TmpVert &that)
+    {
+        return vert.x() == that.vert.x() && vert.y() == that.vert.y() && vert.z() == that.vert.z() &&
+                texCoord.x() == that.texCoord.x() && texCoord.y() && that.texCoord.y() &&
+                norm.x() == that.norm.x() && norm.y() == that.norm.y() && norm.z() == that.norm.z() &&
+        color.r == that.color.r && color.g == that.color.g && color.b == that.color.b && color.a == that.color.a;
+    }
+    Point3f vert;
+    Point2f texCoord;
+    Point3f norm;
+    RGBAColor color;
+};
+    
+class TriStripBuilder
+{
+public:
+    TriStripBuilder(BasicDrawable *draw) : draw(draw) { }
+    
+    void addTriangle(TmpVert verts[3])
+    {
+        if (lastVerts.empty())
+        {
+            addVert(verts[0]);
+            addVert(verts[1]);
+            addVert(verts[2]);
+            lastVerts.push_back(verts[2]);
+            lastVerts.push_back(verts[1]);
+        } else {
+            // See if this triangle shares two vertices with the last one
+            int matchOffset = -1;
+            if (lastVerts.size() == 2)
+            {
+                // Try rotating the vertices until we find a match
+                for (matchOffset=0;matchOffset<3;matchOffset++)
+                    if (verts[matchOffset] == lastVerts[0] &&
+                        verts[(matchOffset+1)%3] == lastVerts[1])
+                        break;
+            }
+            
+            // Found one that worked
+            if (matchOffset != 3)
+            {
+                addVert(verts[(matchOffset+2)%3]);
+                lastVerts[0] = lastVerts[1];
+                lastVerts[1] = verts[(matchOffset+2)%3];
+            } else {
+                // Otherwise, repeat the last vertex and the first vertex of the new triangle
+                addVert(lastVerts[0]);
+                addVert(verts[0]);
+                addVert(verts[0]);
+                addVert(verts[1]);
+                addVert(verts[2]);
+                lastVerts.clear();
+                lastVerts.push_back(verts[2]);
+                lastVerts.push_back(verts[1]);
+            }
+        }
+    }
+    
+    void addVert(TmpVert vert)
+    {
+        draw->addPoint(vert.vert);
+        draw->addTexCoord(TexCoord(vert.texCoord.x(),vert.texCoord.y()));
+        draw->addNormal(vert.norm);
+        draw->addColor(vert.color);
+    }
+    
+    BasicDrawable *draw;
+    std::vector<TmpVert> lastVerts;
+};
+    
+void BasicDrawable::convertToTriStrip()
+{
+    if (type != GL_TRIANGLES)
+        return;
+    
+    if (points.empty() || tris.empty() ||
+        points.size() != texCoords.size() || points.size() != norms.size() ||
+        points.size() != colors.size())
+        return;
+    
+    // Set up a temporary drawable to capture the data
+    BasicDrawable tmpDraw("tmp");
+    tmpDraw.setType(GL_TRIANGLE_STRIP);
+    
+    TriStripBuilder stripBuilder(&tmpDraw);
+
+    // Add the triangles one by one and let the
+    for (unsigned int ii=0;ii<tris.size();ii++)
+    {
+        Triangle &tri = tris[ii];
+        TmpVert verts[3];
+        for (unsigned int jj=0;jj<3;jj++)
+            verts[jj] = TmpVert(this,tri.verts[jj]);
+        stripBuilder.addTriangle(verts);
+    }
+    
+    setType(GL_TRIANGLE_STRIP);
+    numPoints = 0;
+    numTris = 0;
+    points = tmpDraw.points;
+    colors = tmpDraw.colors;
+    texCoords = tmpDraw.texCoords;
+    norms = tmpDraw.norms;
+    tris.clear();
+}
+
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
@@ -1038,6 +1174,10 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
+            case GL_TRIANGLE_STRIP:
+                glDrawArrays(type, 0, numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
         }
         glBindVertexArrayOES(0);
     } else {
@@ -1070,7 +1210,11 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
-        }        
+            case GL_TRIANGLE_STRIP:
+                glDrawArrays(type, 0, numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
+        }
     }
     
     // Unbind any texture
