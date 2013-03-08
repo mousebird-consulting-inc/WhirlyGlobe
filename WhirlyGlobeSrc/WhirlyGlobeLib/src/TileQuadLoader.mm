@@ -459,8 +459,8 @@ static const float SkirtFactor = 0.95;
         }
         
         // Add two triangles
-        draw->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
-        draw->addTriangle(BasicDrawable::Triangle(base+1,base+3,base+2));
+        draw->addTriangle(BasicDrawable::Triangle(base+3,base+2,base+0));
+        draw->addTriangle(BasicDrawable::Triangle(base+0,base+2,base+1));
     }
 }
 
@@ -639,12 +639,12 @@ static const float SkirtFactor = 0.95;
                 for (unsigned int ix=0;ix<sphereTessX;ix++)
                 {
                     BasicDrawable::Triangle triA,triB;
-                    triA.verts[0] = iy*(sphereTessX+1)+ix;
-                    triA.verts[1] = iy*(sphereTessX+1)+(ix+1);
+                    triA.verts[0] = (iy+1)*(sphereTessX+1)+ix;
+                    triA.verts[1] = iy*(sphereTessX+1)+ix;
                     triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
-                    triB.verts[0] = triA.verts[0];
-                    triB.verts[1] = triA.verts[2];
-                    triB.verts[2] = (iy+1)*(sphereTessX+1)+ix;
+                    triB.verts[0] = triA.verts[2];
+                    triB.verts[1] = triA.verts[1];
+                    triB.verts[2] = iy*(sphereTessX+1)+(ix+1);
                     chunk->addTriangle(triA);
                     chunk->addTriangle(triB);
                 }
@@ -778,6 +778,11 @@ static const float SkirtFactor = 0.95;
             if (tex && *tex)
                 chunk->setTexId((*tex)->getId());
         }
+        
+        // Note: Debugging
+        chunk->convertToTriStrip();
+        if (skirtDraw && *skirtDraw)
+            (*skirtDraw)->convertToTriStrip();
 
         // We'll want tri strips if we're doing atlases
         if (drawAtlas)

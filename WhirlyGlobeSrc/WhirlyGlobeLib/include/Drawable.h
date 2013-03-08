@@ -345,19 +345,19 @@ public:
 	void addTexCoord(TexCoord coord) { texCoords.push_back(coord); }
     
     /// Return a texture coordinate
-    TexCoord getTexCoord(int which) { if (which <= texCoords.size()) return TexCoord(0.0,0.0);  Point2f tpt = texCoords[which]; return TexCoord(tpt.x(),tpt.y()); }
+    TexCoord getTexCoord(int which) { if (which >= texCoords.size()) return TexCoord(0.0,0.0);  Point2f tpt = texCoords[which]; return TexCoord(tpt.x(),tpt.y()); }
     
     /// Add a color
     void addColor(RGBAColor color) { colors.push_back(color); }
     
     /// Return a given color
-    RGBAColor getColor(int which) { if (which <= colors.size()) return RGBAColor(255,255,255,255);  return colors[which]; }
+    RGBAColor getColor(int which) { if (which >= colors.size()) return color;  return colors[which]; }
 
     /// Add a normal
 	void addNormal(Point3f norm) { norms.push_back(norm); }
     
     /// Return a given normal
-    Point3f getNormal(int which) { if (which <= norms.size()) return Point3f(0,0,1);  return norms[which]; }
+    Point3f getNormal(int which) { if (which >= norms.size()) return Point3f(0,0,1);  return norms[which]; }
 
     /// Add a triangle.  Should point to the vertex IDs.
 	void addTriangle(Triangle tri) { tris.push_back(tri); }
