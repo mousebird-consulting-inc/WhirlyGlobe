@@ -377,7 +377,7 @@ void LoadedTile::Print(Quadtree *tree)
         minPageVis = DrawVisibleInvalid;
         maxPageVis = DrawVisibleInvalid;
         imageType = WKTileIntRGBA;
-        useDynamicAtlas = false;
+        useDynamicAtlas = true;
     }
     
     return self;
@@ -420,10 +420,18 @@ void LoadedTile::Print(Quadtree *tree)
     }
     
     if (texAtlas)
+    {
         texAtlas->shutdown(theChangeRequests);
+        delete texAtlas;
+        texAtlas = NULL;
+    }
     
     if (drawAtlas)
+    {
         drawAtlas->shutdown(theChangeRequests);
+        delete drawAtlas;
+        drawAtlas = NULL;
+    }
     
     [layer.layerThread addChangeRequests:(theChangeRequests)];
     
@@ -705,7 +713,7 @@ static const float SkirtFactor = 0.95;
                     skirtChunk->setTexId((*tex)->getId());
                 *skirtDraw = skirtChunk;
             }
-            
+
             if (coverPoles && !coordAdapter->isFlat())
             {
                 // If we're at the top, toss in a few more triangles to represent that
@@ -779,16 +787,11 @@ static const float SkirtFactor = 0.95;
                 chunk->setTexId((*tex)->getId());
         }
         
-        // Note: Debugging
-        chunk->convertToTriStrip();
-        if (skirtDraw && *skirtDraw)
-            (*skirtDraw)->convertToTriStrip();
-
         // We'll want tri strips if we're doing atlases
         if (drawAtlas)
         {
             chunk->convertToTriStrip();
-            if (skirtDraw)
+            if (skirtDraw && *skirtDraw)
                 (*skirtDraw)->convertToTriStrip();
         }
         
@@ -830,10 +833,13 @@ static const float SkirtFactor = 0.95;
 // Flush out any outstanding updates saved in the changeRequests
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread
 {
+    if (drawAtlas)
+        drawAtlas->flush(changeRequests);
     if (!changeRequests.empty())
     {
         [layerThread addChangeRequests:(changeRequests)];
         changeRequests.clear();
+        [layerThread flushChangeRequests];
     }
 }
 
@@ -881,7 +887,7 @@ static const int DrawBufferSize = 1*1024*1024;
     if (useDynamicAtlas && !texAtlas)
     {
         texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
-        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",VertexSize,DrawBufferSize);
+        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",VertexSize,DrawBufferSize,quadLayer.scene->getMemManager());
     }
     
     // Look for the tile

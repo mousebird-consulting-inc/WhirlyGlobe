@@ -408,7 +408,7 @@ public:
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
-    NSData *asData();
+    NSData *asData(bool dupStart,bool dupEnd);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     void convertToTriStrip();

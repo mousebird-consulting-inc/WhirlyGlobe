@@ -31,7 +31,7 @@ class DynamicDrawableAtlas
 public:
     /// Construct with a name (for debugging), individual vertex size, and
     ///  number of bytes for each big drawable
-    DynamicDrawableAtlas(const std::string &name,int vertexSize,int numBytes);
+    DynamicDrawableAtlas(const std::string &name,int vertexSize,int numBytes,OpenGLMemManager *memManager);
     ~DynamicDrawableAtlas();
     
     /// Set the draw priority for any drawables we create
@@ -57,7 +57,7 @@ protected:
     {
     public:
         // Constructor for sorting
-        DrawRepresent(SimpleIdentity theId) : Identifiable(theId), pos(0), size(0) { }
+        DrawRepresent(SimpleIdentity theId) : Identifiable(theId), pos(0), size(0), bigDrawId(EmptyIdentity) { }
         
         /// Which big drawable this is in
         SimpleIdentity bigDrawId;
@@ -65,7 +65,8 @@ protected:
         /// Position and size within the big drawable (in bytes)
         int pos,size;
     };
-    
+
+    OpenGLMemManager *memManager;
     std::string name;
     int vertexSize;
     int numBytes;
