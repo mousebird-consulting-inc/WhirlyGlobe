@@ -88,6 +88,11 @@
 /// Presumably the layer did something worth flushing
 - (void)requestFlush;
 
+/// Explicitly flush the change requests out to the scene.
+/// Only call this if you're trying to reduce latency between the layer thread
+///  and the render.  And you know what this does.
+- (void)flushChangeRequests;
+
 /// We're overriding the main entry point
 - (void)main;
 

@@ -75,6 +75,8 @@ public:
     NSMutableArray *lights;
     CFTimeInterval lightsLastUpdated;
     WhirlyKitMaterial *defaultMat;
+    dispatch_semaphore_t frameRenderingSemaphore;
+    dispatch_queue_t contextQueue;
 }
 
 - (id) init
@@ -95,6 +97,9 @@ public:
     [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
 
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+    
+    frameRenderingSemaphore = dispatch_semaphore_create(1);
+    contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
 
     return self;
 }
@@ -274,6 +279,18 @@ static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
+    if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
+        return;
+    
+    dispatch_async(contextQueue,
+                   ^{
+                       [self renderAsync];
+                       dispatch_semaphore_signal(frameRenderingSemaphore);
+                   });
+}
+
+- (void) renderAsync
+{
     if (framebufferWidth <= 0 || framebufferHeight <= 0)
         return;
     
@@ -286,7 +303,7 @@ static const float ScreenOverlap = 0.1;
     lastDraw = CFAbsoluteTimeGetCurrent();
     
     if (perfInterval > 0)
-        perfTimer.startTiming("aaRender");
+        perfTimer.startTiming("Render Frame");
     
 	if (frameCountStart)
 		frameCountStart = CFAbsoluteTimeGetCurrent();
@@ -384,7 +401,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.theView = theView;
         frameInfo.modelTrans = modelTrans;
         frameInfo.scene = scene;
-        frameInfo.frameLen = duration;
+//        frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
@@ -637,6 +654,14 @@ static const float ScreenOverlap = 0.1;
             perfTimer.stopTiming("Generators - Draw 2D");
     }
     
+//    if (perfInterval > 0)
+//        perfTimer.startTiming("Flush");
+//    
+//    glFlush();
+//    
+//    if (perfInterval > 0)
+//        perfTimer.stopTiming("Flush");
+    
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
     
@@ -647,7 +672,7 @@ static const float ScreenOverlap = 0.1;
         perfTimer.stopTiming("Present Renderbuffer");
     
     if (perfInterval > 0)
-        perfTimer.stopTiming("aaRender");
+        perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
 	if (perfInterval > 0 && frameCount++ > perfInterval)
@@ -663,8 +688,12 @@ static const float ScreenOverlap = 0.1;
         perfTimer.clear();
 	}
     
+    // Explicitly discard the depth buffer
+    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
+    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+    
     if (oldContext != context)
-        [EAGLContext setCurrentContext:oldContext];
+        [EAGLContext setCurrentContext:oldContext];    
 }
 
 @end

@@ -63,9 +63,18 @@ void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memM
     for (unsigned int ii=0;ii<2;ii++)
     {
         buffers[ii].bufferId = memManager->getBufferID(numBytes,GL_DYNAMIC_DRAW);
+
+        // Clear out the buffer
+        glBindBuffer(GL_ARRAY_BUFFER, buffers[ii].bufferId);
+        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+        memset(glMem, 0, numBytes);
+        glUnmapBufferOES(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
         // Note: Should make this smarter
         buffers[ii].numVertex = numBytes / vertexSize;
     }
+    activeBuffer = 0;
 }
     
 void BigDrawable::teardownGL(OpenGLMemManager *memManager)
@@ -104,6 +113,9 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     GLuint glTexID = 0;
     if (texId != EmptyIdentity)
         glTexID = scene->getGLTexture(texId);
+    
+    if (!prog)
+        return;
 
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
@@ -130,15 +142,15 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    bool hasTexCoords = true;
-    int texCoordOffset = 3*sizeof(float);
     const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
     bool hasColors = true;
-    int colorOffset = texCoordOffset + 2*sizeof(float);
+    int colorOffset = 3*sizeof(float);
+    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
+    bool hasTexCoords = true;
+    int texCoordOffset = colorOffset+ 4*sizeof(unsigned char);
     const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
     bool hasNormals = true;
-    int normOffset = colorOffset + 4*sizeof(unsigned char);
+    int normOffset = texCoordOffset + 2*sizeof(float);
     
     Buffer &theBuffer = buffers[activeBuffer];
     
@@ -230,30 +242,40 @@ void BigDrawable::clearRegion(int pos, int size)
     
     // Set up the change in the buffers
     Change change(ChangeClear,pos,size);
+    unsigned char *zeroData = (unsigned char *)malloc(size);
+    memset(zeroData, 0, size);
+    change.data = [[NSData alloc] initWithBytesNoCopy:zeroData length:size freeWhenDone:YES];
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
     
     // Now look for where to put the region back
     Region thisRegion(pos,size);
-    RegionSet::iterator prevIt = regions.lower_bound(thisRegion);
-    RegionSet::iterator nextIt = regions.upper_bound(thisRegion);
+    RegionSet::iterator prevIt = regions.end();
+    RegionSet::iterator nextIt = regions.begin();
+    while (nextIt->pos < thisRegion.pos)
+    {
+        prevIt = nextIt;
+        nextIt++;
+    }
 
     // Possibly merge with previous region
     if (prevIt != regions.end())
     {
-        if (prevIt->pos + prevIt->len == thisRegion.pos)
+        const Region &prevRegion = *prevIt;
+        if (prevRegion.pos + prevRegion.len == thisRegion.pos)
         {
-            thisRegion.pos = prevIt->pos;
-            thisRegion.len = thisRegion.len + prevIt->len;
+            thisRegion.pos = prevRegion.pos;
+            thisRegion.len = thisRegion.len + prevRegion.len;
             regions.erase(prevIt);
         }
     }
     // Possibly merge with the next region
     if (nextIt != regions.end())
     {
-        if (thisRegion.pos + thisRegion.len == nextIt->pos)
+        const Region &nextRegion = *nextIt;
+        if (thisRegion.pos + thisRegion.len == nextRegion.pos)
         {
-            thisRegion.len = thisRegion.len + nextIt->len;
+            thisRegion.len = thisRegion.len + nextRegion.len;
             regions.erase(nextIt);
         }
     }
@@ -280,22 +302,24 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
     
     // Run the additions or clears
     glBindBuffer(GL_ARRAY_BUFFER, theBuffer.bufferId);
-    void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+//    void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
     for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
     {
         Change &change = theBuffer.changes[ii];
-        unsigned char *basePtr = (unsigned char *)glMem + change.where;
+//        unsigned char *basePtr = (unsigned char *)glMem + change.where;
         switch (change.type)
         {
             case ChangeAdd:
-                memcpy(basePtr, [change.data bytes], change.len);
+                glBufferSubData(GL_ARRAY_BUFFER, change.where, change.len, [change.data bytes]);
+//                memcpy(basePtr, [change.data bytes], change.len);
                 break;
             case ChangeClear:
-                memset(basePtr, 0, change.len);
+                glBufferSubData(GL_ARRAY_BUFFER, change.where, change.len, [change.data bytes]);
+//                memset(basePtr, 0, change.len);
                 break;
         }
     }
-    glUnmapBufferOES(GL_ARRAY_BUFFER);
+//    glUnmapBufferOES(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     theBuffer.changes.clear();
