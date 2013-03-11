@@ -50,6 +50,9 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     
     pthread_mutex_init(&changeRequestLock,NULL);        
     pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()
@@ -62,6 +65,9 @@ Scene::~Scene()
     
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
+    pthread_mutex_destroy(&textureLock);
+    pthread_mutex_destroy(&generatorLock);
+    pthread_mutex_destroy(&programLock);
     
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];
@@ -79,15 +85,23 @@ Scene::~Scene()
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
 {
+    pthread_mutex_lock(&generatorLock);
+    
+    SimpleIdentity retId = EmptyIdentity;
     for (GeneratorSet::iterator it = generators.begin();
          it != generators.end(); ++it)
     {
         Generator *gen = *it;
         if (!name.compare(gen->name))
-            return gen->getId();
+        {
+            retId = gen->getId();
+            break;
+        }
     }
     
-    return EmptyIdentity;
+    pthread_mutex_unlock(&generatorLock);
+
+    return retId;
 }
 
 // Add change requests to our list
@@ -115,12 +129,19 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     if (texIdent == EmptyIdentity)
         return 0;
     
+    GLuint ret = 0;
+    
+    pthread_mutex_lock(&textureLock);
     TextureBase dumbTex(texIdent);
     TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
-        return (*it)->getGLId();
+    {
+        ret = (*it)->getGLId();
+    }
     
-    return 0;
+    pthread_mutex_unlock(&textureLock);
+    
+    return ret;
 }
 
 DrawableRef Scene::getDrawable(SimpleIdentity drawId)
@@ -136,13 +157,20 @@ DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 
 Generator *Scene::getGenerator(SimpleIdentity genId)
 {
+    pthread_mutex_lock(&generatorLock);
+    
+    Generator *retGen = NULL;
     Generator dumbGen;
     dumbGen.setId(genId);
     GeneratorSet::iterator it = generators.find(&dumbGen);
     if (it != generators.end())
-        return *it;
+    {
+        retGen = *it;
+    }
     
-    return NULL;
+    pthread_mutex_unlock(&generatorLock);
+    
+    return retGen;
 }
     
 void Scene::addActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
@@ -162,12 +190,17 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
 
 TextureBase *Scene::getTexture(SimpleIdentity texId)
 {
+    pthread_mutex_lock(&textureLock);
+    
+    TextureBase *retTex = NULL;
     TextureBase dumbTex(texId);
     Scene::TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
-        return *it;
+        retTex = *it;
     
-    return NULL;
+    pthread_mutex_unlock(&textureLock);
+    
+    return retTex;
 }
 
 // Process outstanding changes.
@@ -259,45 +292,46 @@ void Scene::dumpStats()
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return NULL;
-    
+    pthread_mutex_lock(&programLock);
+
+    OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
     std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
-    if (it == glPrograms.end())
-        return NULL;
-    return *it;
+    if (it != glPrograms.end())
+        prog = *it;
+    
+    pthread_mutex_unlock(&programLock);
+        
+    return prog;
 }
     
 OpenGLES2Program *Scene::getProgram(const std::string &name)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return NULL;
+    pthread_mutex_lock(&programLock);
     
+    OpenGLES2Program *prog = NULL;
     for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
         if ((*it)->getName() == name)
-            return *it;
+            prog = *it;
+            
+    pthread_mutex_unlock(&programLock);
     
-    return NULL;
+    return prog;
 }
 
 void Scene::addProgram(OpenGLES2Program *prog)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
-
+    pthread_mutex_lock(&programLock);
+    
     glPrograms.insert(prog);
+    
+    pthread_mutex_unlock(&programLock);
 }
     
 void Scene::removeProgram(SimpleIdentity progId)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
+    pthread_mutex_lock(&programLock);
 
     std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
     for (it = glPrograms.begin();it != glPrograms.end(); ++it)
@@ -306,6 +340,8 @@ void Scene::removeProgram(SimpleIdentity progId)
     
     if (it != glPrograms.end())
         glPrograms.erase(it);
+    
+    pthread_mutex_unlock(&programLock);
 }
 
 void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
@@ -324,8 +360,12 @@ void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progL
     
 void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)
 {
+    pthread_mutex_lock(&programLock);
+
     triShader = defaultProgramTri;
     lineShader = defaultProgramLine;
+
+    pthread_mutex_unlock(&programLock);
 }
 
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)

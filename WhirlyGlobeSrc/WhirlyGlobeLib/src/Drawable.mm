@@ -535,19 +535,36 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 }
 
 // Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
-NSData *BasicDrawable::asData()
+NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
 {
-    if (points.empty() || tris.empty() || texCoords.empty() || norms.empty() || colors.empty())
+    if (type != GL_TRIANGLE_STRIP && type != GL_POINTS && type != GL_LINES && type != GL_LINE_STRIP)
+        return nil;
+    
+    if (points.empty() || texCoords.empty() || norms.empty() || colors.empty())
         return nil;
     
     vertexSize = singleVertexSize();
-    int numVerts = points.size();
-    
+    int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+
     unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
     NSData *retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
     unsigned char *basePtr = buffer;
-    for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+    if (dupStart)
+    {
+        addPointToBuffer(basePtr, 0);
+        basePtr += vertexSize;
+        addPointToBuffer(basePtr, 0);
+        basePtr += vertexSize;
+    }
+    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
         addPointToBuffer(basePtr, ii);
+    if (dupEnd)
+    {
+        addPointToBuffer(basePtr, points.size()-1);
+        basePtr += vertexSize;
+        addPointToBuffer(basePtr, points.size()-1);
+        basePtr += vertexSize;
+    }
     
     return retData;
 }

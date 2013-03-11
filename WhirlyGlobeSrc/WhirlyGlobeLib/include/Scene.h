@@ -331,6 +331,9 @@ public:
 	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
 	/// Textures, sorted by ID
 	TextureSet textures;
+    
+    /// Mutex for accessing textures
+    pthread_mutex_t textureLock;
 	
 	pthread_mutex_t changeRequestLock;
 	/// We keep a list of change requests to execute
@@ -345,6 +348,9 @@ public:
     /// ID for screen space generator
     SimpleIdentity screenSpaceGeneratorID;
     
+    /// Lock for accessing the generators
+    pthread_mutex_t generatorLock;
+    
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
     
@@ -353,6 +359,9 @@ public:
     
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
+    
+    /// Lock for accessing programs
+    pthread_mutex_t programLock;
     
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);

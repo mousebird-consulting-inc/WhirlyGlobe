@@ -24,8 +24,8 @@
 namespace WhirlyKit
 {
     
-DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int vertexSize,int numBytes)
-    : name(name), vertexSize(vertexSize), numBytes(numBytes)
+DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int vertexSize,int numBytes,OpenGLMemManager *memManager)
+    : name(name), vertexSize(vertexSize), numBytes(numBytes), memManager(memManager)
 {
 }
     
@@ -36,7 +36,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
 bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes)
 {
     // First, turn the vertex data into an NSData
-    NSData *drawData = draw->asData();
+    NSData *drawData = draw->asData(true,true);
     if (!drawData)
         return false;
     
@@ -50,6 +50,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         {
             if (bigDraw->addRegion(drawData,represent.pos,represent.size))
             {
+                represent.bigDrawId = bigDraw->getId();
                 foundBigDraw = bigDraw;
                 break;
             }
@@ -63,8 +64,10 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         newBigDraw->setDrawPriority(drawPriority);
         newBigDraw->setTexId(draw->getTexId());
         newBigDraw->setForceZBufferOn(draw->getForceZBufferOn());
+        newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(newBigDraw);
+        represent.bigDrawId = newBigDraw->getId();
         if (newBigDraw->addRegion(drawData,represent.pos,represent.size))
         {
             foundBigDraw = newBigDraw;

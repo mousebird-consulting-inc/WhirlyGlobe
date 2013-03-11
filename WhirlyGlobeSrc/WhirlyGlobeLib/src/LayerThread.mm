@@ -134,6 +134,15 @@ using namespace WhirlyKit;
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
 }
 
+- (void)flushChangeRequests
+{
+    if ([NSThread currentThread] != self)
+        return;
+    
+    [self runAddChangeRequests];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(runAddChangeRequests) object:nil];
+}
+
 - (void)requestFlush
 {
     if ([NSThread currentThread] != self)

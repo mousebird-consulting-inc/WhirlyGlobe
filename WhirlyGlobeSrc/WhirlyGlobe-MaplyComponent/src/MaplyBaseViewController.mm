@@ -236,7 +236,7 @@ static const char *fragmentShaderNoLightLine =
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
     // Note: Should be able to change this
-	glView.frameInterval = 2;  // 30 fps
+	glView.frameInterval = 1;  // 30 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
