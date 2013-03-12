@@ -702,28 +702,32 @@ void BasicDrawable::convertToTriStrip()
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
+    if (vertArrayObj)
+        glDeleteVertexArraysOES(1,&vertArrayObj);
+    vertArrayObj = 0;
+    
     if (sharedBuffer && !sharedBufferIsExternal)
     {
         memManager->removeBufferID(sharedBuffer);
         sharedBuffer = 0;
     } else {
-	if (pointBuffer)
-        memManager->removeBufferID(pointBuffer);
-    if (colorBuffer)
-        memManager->removeBufferID(colorBuffer);
-	if (texCoordBuffer)
-        memManager->removeBufferID(texCoordBuffer);
-	if (normBuffer)
-        memManager->removeBufferID(normBuffer);
-	if (triBuffer)
-        memManager->removeBufferID(triBuffer);
+        if (pointBuffer)
+            memManager->removeBufferID(pointBuffer);
+        if (colorBuffer)
+            memManager->removeBufferID(colorBuffer);
+        if (texCoordBuffer)
+            memManager->removeBufferID(texCoordBuffer);
+        if (normBuffer)
+            memManager->removeBufferID(normBuffer);
+        if (triBuffer)
+            memManager->removeBufferID(triBuffer);
     }
     pointBuffer = 0;
     colorBuffer = 0;
     texCoordBuffer = 0;
     normBuffer = 0;
-        triBuffer = 0;
-    }
+    triBuffer = 0;
+}
 	
 void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
@@ -1097,8 +1101,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     bool hasTexture = glTexID != 0 && texUni;
     if (hasTexture)
     {
-        glActiveTexture(GL_TEXTURE0);
-        CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, glTexID);
         CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
         prog->setUniform("s_baseMap", 0);
@@ -1249,7 +1252,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     // Unbind any texture
     if (hasTexture)
     {
-        glActiveTexture(GL_TEXTURE0);
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 

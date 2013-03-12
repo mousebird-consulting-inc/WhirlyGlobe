@@ -60,6 +60,72 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize viewAndModelMat;
 @synthesize program;
 @synthesize lights;
+@synthesize stateOpt;
+
+@end
+
+@implementation WhirlyKitOpenGLStateOptimizer
+{
+    int activeTexture;
+    int depthMask;
+    int depthTest;
+    int progId;
+}
+
+- (id)init
+{
+    self = [super init];
+    [self reset];
+    
+    return self;
+}
+
+- (void)reset
+{
+    activeTexture = -1;
+    depthMask = 0;
+    depthTest = -1;
+    progId = -1;
+}
+
+- (void)setActiveTexture:(GLenum)newActiveTexture
+{
+    if (newActiveTexture != activeTexture)
+    {
+        glActiveTexture(newActiveTexture);
+        activeTexture = newActiveTexture;
+    }
+}
+
+- (void)setDepthMask:(bool)newDepthMask
+{
+    if (depthMask == -1 || (bool)depthMask != newDepthMask)
+    {
+        glDepthMask(newDepthMask);
+        depthMask = newDepthMask;
+    }
+}
+
+- (void)setEnableDepthTest:(bool)newEnable
+{
+    if (depthTest == -1 || (bool)depthTest != newEnable)
+    {
+        if (newEnable)
+            glEnable(GL_DEPTH_TEST);
+        else
+            glDisable(GL_DEPTH_TEST);
+        depthTest = newEnable;
+    }
+}
+
+- (void)setUseProgram:(GLuint)newProgId
+{
+    if (progId != newProgId)
+    {
+        glUseProgram(newProgId);
+        progId = newProgId;
+    }
+}
 
 @end
 

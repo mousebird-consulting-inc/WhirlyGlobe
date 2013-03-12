@@ -33,6 +33,7 @@ namespace WhirlyKit
         {
         public:
             TimeEntry();
+            TimeEntry & operator = (const TimeEntry &that);
             bool operator < (const TimeEntry &that) const;
             
             void addTime(NSTimeInterval dur);

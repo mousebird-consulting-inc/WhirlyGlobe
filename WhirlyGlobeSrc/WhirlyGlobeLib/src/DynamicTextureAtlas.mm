@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
  
 DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), format(format), numCell(0), numRegions(0)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), format(format), numCell(0), numRegions(0), compressed(false)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
@@ -40,6 +40,9 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
         case GL_UNSIGNED_SHORT_4_4_4_4:
         case GL_UNSIGNED_SHORT_5_5_5_1:
         case GL_ALPHA:
+            break;
+        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+            compressed = true;
             break;
         default:
             return;
@@ -84,8 +87,18 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // Note: Need to handle compressed
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, NULL);
+    if (compressed)
+    {
+        size_t size = texSize * texSize / 2;
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, texSize, texSize, 0, size, NULL);
+    } else {
+        // Providing glTexImage2D with empty memory so Instruments doesn't complain
+        size_t size = texSize*texSize*4;
+        unsigned char *zeroMem = (unsigned char *)malloc(size);
+        memset(zeroMem, 0, size);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
+        free(zeroMem);
+    }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -111,9 +124,13 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
     {
         glBindTexture(GL_TEXTURE_2D, glId);
         CheckGLError("DynamicTexture::createInGL() glBindTexture()");
-        // Note: Need to handle compressed
+        if (compressed)
+        {
+            size_t size = width * height / 2;
+            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, size, [data bytes]);
+        } else
         glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_RGBA, format, [data bytes]);
-        CheckGLError("DynamicTexture::createInGL() glTexSubImage2D()");
+        CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
@@ -226,7 +243,7 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
     {
         DynamicTexture *tex = *it;
         DynamicTexture::Region thisRegion;
-        if (tex->findRegion(numCellX, numCellX, thisRegion))
+        if (tex->findRegion(numCellX, numCellY, thisRegion))
         {
             texRegion.region = thisRegion;
             texRegion.dynTexId = tex->getId();
@@ -259,6 +276,8 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
         dynTex->setRegion(texRegion.region, true);
 //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
         dynTex->addTexture(tex, texRegion.region);
+        // This asks for a flush
+        changes.push_back(NULL);
 //        Point2f halfPix(0.5 / texSize, 0.5 / texSize);
         TexCoord org((texRegion.region.sx * cellSize) / (float)texSize, (texRegion.region.sy * cellSize) / (float)texSize);
 //        texRegion.subTex.setFromTex(TexCoord(org.x()+halfPix.x(),org.y()+halfPix.y()),

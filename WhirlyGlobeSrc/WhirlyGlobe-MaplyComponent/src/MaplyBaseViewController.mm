@@ -127,9 +127,10 @@ static const char *fragmentShaderNoLightTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
+"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  if (baseColor.a < 0.1)                            \n"
-"      discard;                                      \n"
+//"  if (baseColor.a < 0.1)                            \n"
+//"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
@@ -236,7 +237,7 @@ static const char *fragmentShaderNoLightLine =
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
     // Note: Should be able to change this
-	glView.frameInterval = 1;  // 30 fps
+	glView.frameInterval = 1;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;

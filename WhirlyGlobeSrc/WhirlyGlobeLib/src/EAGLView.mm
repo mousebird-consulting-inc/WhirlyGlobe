@@ -55,6 +55,11 @@
     return self;
 }
 
+- (void)dealloc
+{
+    [displayLink invalidate];
+}
+
 - (void)setUseRetina:(BOOL)newVal
 {
     useRetina = newVal;
@@ -78,12 +83,7 @@
     if (newFrameInterval >= 1)
     {
         frameInterval = newFrameInterval;
-        
-        if (animating)
-        {
-            [self stopAnimation];
-            [self startAnimation];
-        }
+        [displayLink setFrameInterval:frameInterval];
     }
 }
 
@@ -91,7 +91,8 @@
 {
     if (!animating)
     {
-        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+        if (!displayLink)
+            displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
         [displayLink setFrameInterval:frameInterval];
         [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         
@@ -103,8 +104,7 @@
 {
     if (animating)
     {
-        [displayLink invalidate];
-        displayLink = nil;
+        displayLink.paused = YES;
         animating = FALSE;
     }
 }
