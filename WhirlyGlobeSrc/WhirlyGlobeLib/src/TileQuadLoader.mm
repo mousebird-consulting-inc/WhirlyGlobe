@@ -135,7 +135,7 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
     if (skirtDrawId != EmptyIdentity)
     {
         if (loader->drawAtlas)
-            loader->drawAtlas->removeDrawable(drawId, changeRequests);
+            loader->drawAtlas->removeDrawable(skirtDrawId, changeRequests);
         else
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
@@ -438,10 +438,8 @@ void LoadedTile::Print(Quadtree *tree)
     [self clear];
 }
 
-static const float SkirtFactor = 0.95;
-
 // Helper routine for constructing the skirt around a tile
-- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords
+- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords skirtFactor:(float)skirtFactor
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -451,9 +449,9 @@ static const float SkirtFactor = 0.95;
         cornerTex[0] = texCoords[ii];
         corners[1] = pts[ii+1];
         cornerTex[1] = texCoords[ii+1];
-        corners[2] = pts[ii+1] * SkirtFactor;
+        corners[2] = pts[ii+1] * skirtFactor;
         cornerTex[2] = texCoords[ii+1];
-        corners[3] = pts[ii] * SkirtFactor;
+        corners[3] = pts[ii] * skirtFactor;
         cornerTex[3] = texCoords[ii];
 
         // Toss in the points, but point the normal up
@@ -492,6 +490,9 @@ static const float SkirtFactor = 0.95;
             break;
         case WKTileUByte:
             return GL_ALPHA;
+            break;
+        case WKTilePVRTC4:
+            return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
             break;
     }
     
@@ -672,6 +673,12 @@ static const float SkirtFactor = 0.95;
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
                 skirtChunk->setForceZBufferOn(true);
                 
+                // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
+                //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
+                //  disparity
+                float skirtFactor = 0.95;
+                skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
+                
                 // Bottom skirt
                 std::vector<Point3f> skirtLocs;
                 std::vector<TexCoord> skirtTexCoords;
@@ -680,7 +687,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[ix]);
                     skirtTexCoords.push_back(texCoords[ix]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 // Top skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -689,7 +696,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
                     skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 // Left skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -698,7 +705,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 // right skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -707,7 +714,7 @@ static const float SkirtFactor = 0.95;
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 
                 if (tex && *tex)
                     skirtChunk->setTexId((*tex)->getId());
@@ -886,8 +893,12 @@ static const int DrawBufferSize = 1*1024*1024;
     // Create the dynamic texture atlas before we need it
     if (useDynamicAtlas && !texAtlas)
     {
+        // Note: Trouble with PVRTC sub texture loading
+        if (imageType != WKTilePVRTC4)
+        {
         texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",VertexSize,DrawBufferSize,quadLayer.scene->getMemManager());
+        }
     }
     
     // Look for the tile

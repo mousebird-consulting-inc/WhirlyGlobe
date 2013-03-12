@@ -75,8 +75,10 @@ public:
     NSMutableArray *lights;
     CFTimeInterval lightsLastUpdated;
     WhirlyKitMaterial *defaultMat;
-    dispatch_semaphore_t frameRenderingSemaphore;
     dispatch_queue_t contextQueue;
+    dispatch_semaphore_t frameRenderingSemaphore;
+    bool renderSetup;
+    WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
 }
 
 - (id) init
@@ -100,8 +102,15 @@ public:
     
     frameRenderingSemaphore = dispatch_semaphore_create(1);
     contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
+    
+    renderSetup = false;
 
     return self;
+}
+
+- (void) dealloc
+{
+    // Clean up semaphore?
 }
 
 static const char *vertexShaderTri =
@@ -176,7 +185,8 @@ static const char *fragmentShaderTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
+"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
+//"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
@@ -291,9 +301,14 @@ static const float ScreenOverlap = 0.1;
 
 - (void) renderAsync
 {
+    frameCount++;
+    
     if (framebufferWidth <= 0 || framebufferHeight <= 0)
         return;
-    
+
+    if (!renderStateOptimizer)
+        renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
+
 	[theView animate];
 
     // Decide if we even need to draw
@@ -301,13 +316,10 @@ static const float ScreenOverlap = 0.1;
         return;
     
     lastDraw = CFAbsoluteTimeGetCurrent();
-    
+        
     if (perfInterval > 0)
         perfTimer.startTiming("Render Frame");
-    
-	if (frameCountStart)
-		frameCountStart = CFAbsoluteTimeGetCurrent();
-	
+    	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
@@ -316,20 +328,25 @@ static const float ScreenOverlap = 0.1;
         [EAGLContext setCurrentContext:context];
     CheckGLError("SceneRendererES2: setCurrentContext");
     
-    // Turn on blending
-    // Note: Only need to do this once
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    if (!renderSetup)
+    {
+        // Turn on blending
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+    }
 
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-    CheckGLError("SceneRendererES2: glBindFramebuffer");
-    glViewport(0, 0, framebufferWidth, framebufferHeight);
-    CheckGLError("SceneRendererES2: glViewport");
+    if (!renderSetup)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+        CheckGLError("SceneRendererES2: glBindFramebuffer");
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        CheckGLError("SceneRendererES2: glViewport");
+    }
 
     // Get the model and view matrices
     Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
@@ -363,27 +380,34 @@ static const float ScreenOverlap = 0.1;
     switch (zBufferMode)
     {
         case zBufferOn:
-            glDepthMask(GL_TRUE);
-            glEnable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_TRUE];
+            [renderStateOptimizer setEnableDepthTest:true];
             break;
         case zBufferOff:
-            glDepthMask(GL_FALSE);
-            glDisable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_FALSE];
+            [renderStateOptimizer setEnableDepthTest:false];
             break;
         case zBufferOffUntilLines:
-            glDepthMask(GL_TRUE);
-            glEnable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_TRUE];
+            [renderStateOptimizer setEnableDepthTest:true];
             glDepthFunc(GL_ALWAYS);
             break;
     }
     
-	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
-    CheckGLError("SceneRendererES2: glClearColor");
+    if (!renderSetup)
+    {
+        // Note: What happens if they change this?
+        glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
+        CheckGLError("SceneRendererES2: glClearColor");
+    }
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     CheckGLError("SceneRendererES2: glClear");
 
-	glEnable(GL_CULL_FACE);
-    CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
+    if (!renderSetup)
+    {
+        glEnable(GL_CULL_FACE);
+        CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
+    }
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Setup");
@@ -407,6 +431,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.mvpMat = mvpMat;
         frameInfo.viewAndModelMat = modelAndViewMat;
         frameInfo.lights = lights;
+        frameInfo.stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -545,7 +570,7 @@ static const float ScreenOverlap = 0.1;
                 OpenGLES2Program *program = scene->getProgram(drawProgramId);
                 if (program)
                 {
-                    glUseProgram(program->getProgram());
+                    [renderStateOptimizer setUseProgram:program->getProgram()];
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
                         program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
@@ -634,7 +659,7 @@ static const float ScreenOverlap = 0.1;
                         OpenGLES2Program *program = scene->getProgram(drawProgramId);
                         if (program)
                         {
-                            glUseProgram(program->getProgram());
+                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
                             frameInfo.program = program;
@@ -655,17 +680,24 @@ static const float ScreenOverlap = 0.1;
     }
     
 //    if (perfInterval > 0)
-//        perfTimer.startTiming("Flush");
-//    
+//        perfTimer.startTiming("glFinish");
+    
 //    glFlush();
-//    
+//    glFinish();
+    
 //    if (perfInterval > 0)
-//        perfTimer.stopTiming("Flush");
+//        perfTimer.stopTiming("glFinish");
     
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
     
-    glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    // Explicitly discard the depth buffer
+    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
+    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+
+    if (!renderSetup)
+        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+
     [context presentRenderbuffer:GL_RENDERBUFFER];
 
     if (perfInterval > 0)
@@ -675,7 +707,7 @@ static const float ScreenOverlap = 0.1;
         perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
-	if (perfInterval > 0 && frameCount++ > perfInterval)
+	if (perfInterval > 0 && frameCount > perfInterval)
 	{
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
 		NSTimeInterval howLong =  now - frameCountStart;;
@@ -684,16 +716,15 @@ static const float ScreenOverlap = 0.1;
 		frameCount = 0;
         
         NSLog(@"---Rendering Performance---");
+        NSLog(@" Frames per sec = %.2f",framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}
     
-    // Explicitly discard the depth buffer
-    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
-    
     if (oldContext != context)
-        [EAGLContext setCurrentContext:oldContext];    
+        [EAGLContext setCurrentContext:oldContext];
+    
+    renderSetup = true;
 }
 
 @end

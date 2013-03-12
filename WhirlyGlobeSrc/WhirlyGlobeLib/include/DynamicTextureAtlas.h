@@ -73,6 +73,8 @@ protected:
     /// Used for debugging
     std::string name;
     
+    /// If set, this is a compressed format (assume PVRTC4)
+    bool compressed;
     /// Texture memory format
     GLenum format;
     /// Number of texels on a side
