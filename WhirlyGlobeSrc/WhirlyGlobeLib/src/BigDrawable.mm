@@ -32,7 +32,7 @@ BigDrawable::Change::Change(ChangeType type,int where,int len,NSData *data)
 }
     
 BigDrawable::Buffer::Buffer()
-    : bufferId(0), numVertex(0)
+    : bufferId(0), numVertex(0), vertexArrayObj(0)
 {
 }
 
@@ -85,6 +85,8 @@ void BigDrawable::teardownGL(OpenGLMemManager *memManager)
             memManager->removeBufferID(buffers[ii].bufferId);
         buffers[ii].bufferId = 0;
         buffers[ii].changes.clear();
+        if (buffers[ii].vertexArrayObj)
+            glDeleteVertexArraysOES(1,&buffers[ii].vertexArrayObj);
     }
 }
     
@@ -132,8 +134,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     bool hasTexture = glTexID != 0 && texUni;
     if (hasTexture)
     {
-        glActiveTexture(GL_TEXTURE0);
-        CheckGLError("BigDrawable::draw() glActiveTexture");
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, glTexID);
         CheckGLError("BigDrawable::draw() glBindTexture");
         prog->setUniform("s_baseMap", 0);
@@ -154,50 +155,64 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     Buffer &theBuffer = buffers[activeBuffer];
     
-    glBindBuffer(GL_ARRAY_BUFFER,theBuffer.bufferId);
+    // Set up a VAO for this buffer, if there isn't one
+    if (theBuffer.vertexArrayObj == 0)
+    {
+        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
+        glBindVertexArrayOES(theBuffer.vertexArrayObj);
+    
+        glBindBuffer(GL_ARRAY_BUFFER,theBuffer.bufferId);
 
-    // Vertex array
-    if (vertAttr)
-    {
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
-        glEnableVertexAttribArray ( vertAttr->index );
-    }
-    
-    // Texture coordinates
-    if (texAttr && hasTexCoords)
-    {
-        glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,texCoordOffset));
-        glEnableVertexAttribArray ( texAttr->index );
-    }
-    
-    // Per vertex colors
-    if (colorAttr && hasColors)
-    {
-        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize, CALCBUFOFF(0,colorOffset));
-        glEnableVertexAttribArray(colorAttr->index);
-    }
-    
-    // Per vertex normals
-    if (normAttr && hasNormals)
-    {
-        glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,normOffset));
-        glEnableVertexAttribArray(normAttr->index);
+        // Vertex array
+        if (vertAttr)
+        {
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
+            glEnableVertexAttribArray ( vertAttr->index );
+        }
+        
+        // Texture coordinates
+        if (texAttr && hasTexCoords)
+        {
+            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,texCoordOffset));
+            glEnableVertexAttribArray ( texAttr->index );
+        }
+        
+        // Per vertex colors
+        if (colorAttr && hasColors)
+        {
+            glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize, CALCBUFOFF(0,colorOffset));
+            glEnableVertexAttribArray(colorAttr->index);
+        }
+        
+        // Per vertex normals
+        if (normAttr && hasNormals)
+        {
+            glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,normOffset));
+            glEnableVertexAttribArray(normAttr->index);
+        }
+        
+        glBindVertexArrayOES(0);
+
+        // Tear it all down
+        if (vertAttr)
+            glDisableVertexAttribArray(vertAttr->index);
+        if (texAttr && hasTexCoords)
+            glDisableVertexAttribArray(texAttr->index);
+        if (colorAttr && hasColors)
+            glDisableVertexAttribArray(colorAttr->index);
+        if (normAttr && hasNormals)
+            glDisableVertexAttribArray(normAttr->index);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     
     // Draw it
+    glBindVertexArrayOES(theBuffer.vertexArrayObj);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, theBuffer.numVertex);
+    glBindVertexArrayOES(0);
     
-    // Tear it all down
-    if (vertAttr)
-        glDisableVertexAttribArray(vertAttr->index);
-    if (texAttr && hasTexCoords)
-        glDisableVertexAttribArray(texAttr->index);
-    if (colorAttr && hasColors)
-        glDisableVertexAttribArray(colorAttr->index);
-    if (normAttr && hasNormals)
-        glDisableVertexAttribArray(normAttr->index);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (hasTexture)
+        glBindTexture(GL_TEXTURE_2D, 0);
 }
     
 bool BigDrawable::addRegion(NSData *data,int &pos,int &size)
@@ -338,6 +353,10 @@ void BigDrawable::swapBuffers(int whichBuffer)
     waitingOnSwap = false;
     pthread_cond_signal(&useCondition);
     pthread_mutex_unlock(&useMutex);
+    
+    // Bind the buffer to get any new updates
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[activeBuffer].bufferId);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Called in the renderer

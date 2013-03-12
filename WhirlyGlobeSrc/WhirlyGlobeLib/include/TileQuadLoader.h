@@ -119,7 +119,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 @end
 
 /// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte} WhirlyKitTileImageType;
+typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte,WKTilePVRTC4} WhirlyKitTileImageType;
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
     creates simple terrain (chunks of the sphere) and asks for images

@@ -70,7 +70,7 @@ using namespace WhirlyKit;
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return 2;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -210,6 +210,8 @@ using namespace WhirlyKit;
     
     // This handles the geometry and loading
     WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+    if (![theDataSource.ext compare:@"pvrtc"])
+        [theLoader setImageType:WKTilePVRTC4];
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];
     if (self)

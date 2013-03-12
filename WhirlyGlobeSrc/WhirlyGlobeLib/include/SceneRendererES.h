@@ -76,6 +76,27 @@ namespace WhirlyKit
     };
 }
 
+/// OpenGL ES state optimizer.  This short circuits many of the OGL state
+///  changes that would otherwise be redundant.
+@interface WhirlyKitOpenGLStateOptimizer : NSObject
+
+/// Calls glActiveTextures
+- (void)setActiveTexture:(GLenum)activeTexture;
+
+/// Calls glDepthMask
+- (void)setDepthMask:(bool)depthMask;
+
+/// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
+- (void)setEnableDepthTest:(bool)enable;
+
+/// Calls glUseProgram
+- (void)setUseProgram:(GLuint)progId;
+
+/// Called by the render to clear state
+- (void)reset;
+
+@end
+
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
  */
@@ -120,6 +141,9 @@ namespace WhirlyKit
     
     /// Lights, if applicable
     NSArray *lights;
+    
+    /// State optimizer.  Used when setting state for drawing
+    WhirlyKitOpenGLStateOptimizer *stateOpt;
 }
 
 @property (nonatomic,assign) EAGLRenderingAPI oglVersion;
@@ -135,6 +159,7 @@ namespace WhirlyKit
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 @property (nonatomic,strong) NSArray *lights;
+@property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
 
 @end
 

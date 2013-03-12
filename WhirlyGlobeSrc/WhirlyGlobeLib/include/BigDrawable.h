@@ -68,7 +68,7 @@ public:
     bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
     
     /// For now, just using these with globe layers
-    bool getForceZBufferOn() const { return false; }
+    bool getForceZBufferOn() const { return forceZBuffer; }
 
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);
@@ -126,6 +126,8 @@ protected:
         int numVertex;
         // Changes we need to make to this buffer at the next opportunity
         std::vector<Change> changes;
+        // VAO we use for rendering
+        GLuint vertexArrayObj;
     };
     
     int numBytes;
@@ -165,6 +167,9 @@ public:
 
     /// Run the swap.  Only the renderer calls this.
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+    /// We'll want a flush on the layer thread side before we swap buffers on the render side
+    virtual bool needsFlush() { return true; }
 
 protected:
     SimpleIdentity drawId;
