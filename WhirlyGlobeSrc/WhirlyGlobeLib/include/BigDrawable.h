@@ -32,7 +32,7 @@ class BigDrawable : public Drawable
 {
 public:
     /// Construct with a debuggign name and the total number of bytes
-    BigDrawable(const std::string &name,int vertexSize,int numBytes);
+    BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
     ~BigDrawable();
 
     /// No bounding box, since these change constantly
@@ -81,10 +81,10 @@ public:
     /// Look for a region of the given size for the given data.
     /// If there isn't one, return false.  If there is one, we'll
     ///  use it and return the position and size of the region (in bytes).
-    bool addRegion(NSData *data,int &pos,int &size);
+    bool addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,int &elementPos);
     
     /// Clear the region referred to by position and size (in bytes)
-    void clearRegion(int pos,int size);
+    void clearRegion(int vertPos,int vertSize,int elementPos,int elementSize);
     
     /// Flush out changes to the inactive buffer and request a switch
     void flush(std::vector<ChangeRequest *> &changes);
@@ -103,16 +103,16 @@ protected:
     class Change
     {
     public:
-        Change(ChangeType type,int where,int len,NSData *data=nil);
+        Change(ChangeType type,int whereVert,NSData *vertData,int whereElement,NSData *elementData);
         
         // Type of the change we'll make
         ChangeType type;
-        // Location (in bytes)
-        int where;
-        // How much data (in bytes)
-        int len;
+        // Location (in bytes) in the vertex pool
+        int whereVert;
+        // Location (in bytes) in the element pool
+        int whereElement;
         // For an add, the actual data
-        NSData *data;
+        NSData *vertData,*elementData;
     };
     
     /// Used to represent a single buffer we can draw
@@ -120,23 +120,27 @@ protected:
     {
     public:
         Buffer();
-        // GL Id for the buffer
-        GLuint bufferId;
-        // Number of active vertices to draw (starting from zero)
-        int numVertex;
+        // GL Id for the vertex buffer
+        GLuint vertexBufferId;
+        // GL Id for the element buffer
+        GLuint elementBufferId;
+        // Number of active elements to draw (starting from zero)
+        int numElement;
         // Changes we need to make to this buffer at the next opportunity
         std::vector<Change> changes;
         // VAO we use for rendering
         GLuint vertexArrayObj;
     };
     
-    int numBytes;
+    int numVertexBytes,numElementBytes;
     // One of these buffers will be active at a time
     Buffer buffers[2];
     // Which buffer is currently active
     int activeBuffer;
-    // Vertex sizes
-    int vertexSize;
+    // Size of one vertex
+    int singleVertexSize;
+    // Size of one element
+    int singleElementSize;
     
     pthread_cond_t useCondition;
     bool waitingOnSwap;
@@ -152,8 +156,13 @@ protected:
         // Position and length of a free buffer region
         int pos,len;
     };
+    
     typedef std::set<Region> RegionSet;
-    RegionSet regions;
+
+    // Remove the givne region from the given region set
+    void removeRegion(RegionSet &regions,int pos,int size);
+            
+    RegionSet vertexRegions,elementRegions;
 };
             
 typedef boost::shared_ptr<BigDrawable> BigDrawableRef;

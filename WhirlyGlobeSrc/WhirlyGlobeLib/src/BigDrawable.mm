@@ -26,19 +26,19 @@
 namespace WhirlyKit
 {
     
-BigDrawable::Change::Change(ChangeType type,int where,int len,NSData *data)
-    : type(type), where(where), len(len), data(data)
+BigDrawable::Change::Change(ChangeType type,int whereVert,NSData *vertData,int whereElement,NSData *elementData)
+    : type(type), whereVert(whereVert), vertData(vertData), whereElement(whereElement), elementData(elementData)
 {
 }
     
 BigDrawable::Buffer::Buffer()
-    : bufferId(0), numVertex(0), vertexArrayObj(0)
+    : vertexBufferId(0), elementBufferId(0), numElement(0), vertexArrayObj(0)
 {
 }
 
-BigDrawable::BigDrawable(const std::string &name,int vertexSize,int numBytes)
-    : Drawable(name), vertexSize(vertexSize), numBytes(numBytes), texId(0), drawPriority(0), forceZBuffer(false), waitingOnSwap(false),
-    programId(0)
+BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
+    : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), forceZBuffer(false),
+    waitingOnSwap(false), programId(0)
 {
     activeBuffer = -1;
     
@@ -46,7 +46,11 @@ BigDrawable::BigDrawable(const std::string &name,int vertexSize,int numBytes)
     pthread_cond_init(&useCondition, nil);
     
     // Start with one region that covers the whole thing
-    regions.insert(Region(0,numBytes));
+    vertexRegions.insert(Region(0,numVertexBytes));
+    elementRegions.insert(Region(0,numElementBytes));
+
+    // Note: This could be more clever
+    buffers[1].numElement = buffers[0].numElement = numElementBytes / singleElementSize;
 }
     
 BigDrawable::~BigDrawable()
@@ -57,22 +61,28 @@ BigDrawable::~BigDrawable()
     
 void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
-    if (buffers[0].bufferId)
+    if (buffers[0].vertexBufferId)
         return;
     
     for (unsigned int ii=0;ii<2;ii++)
     {
-        buffers[ii].bufferId = memManager->getBufferID(numBytes,GL_DYNAMIC_DRAW);
+        Buffer &theBuffer = buffers[ii];
+        theBuffer.vertexBufferId = memManager->getBufferID(numVertexBytes,GL_DYNAMIC_DRAW);
+        theBuffer.elementBufferId = memManager->getBufferID(numElementBytes,GL_DYNAMIC_DRAW);
 
-        // Clear out the buffer
-        glBindBuffer(GL_ARRAY_BUFFER, buffers[ii].bufferId);
+        // Clear out the vertex buffer
+        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
         void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        memset(glMem, 0, numBytes);
+        memset(glMem, 0, numVertexBytes);
         glUnmapBufferOES(GL_ARRAY_BUFFER);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        
-        // Note: Should make this smarter
-        buffers[ii].numVertex = numBytes / vertexSize;
+
+        // Clear out the element buffer
+        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.elementBufferId);
+        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+        memset(glMem, 0, numElementBytes);
+        glUnmapBufferOES(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     activeBuffer = 0;
 }
@@ -81,12 +91,17 @@ void BigDrawable::teardownGL(OpenGLMemManager *memManager)
 {
     for (unsigned int ii=0;ii<2;ii++)
     {
-        if (buffers[ii].bufferId)
-            memManager->removeBufferID(buffers[ii].bufferId);
-        buffers[ii].bufferId = 0;
-        buffers[ii].changes.clear();
-        if (buffers[ii].vertexArrayObj)
+        Buffer &theBuffer = buffers[ii];
+        if (theBuffer.vertexBufferId)
+            memManager->removeBufferID(theBuffer.vertexBufferId);
+        if (theBuffer.elementBufferId)
+            memManager->removeBufferID(theBuffer.elementBufferId);
+        theBuffer.vertexBufferId = 0;
+        theBuffer.elementBufferId = 0;
+        theBuffer.changes.clear();
+        if (theBuffer.vertexArrayObj)
             glDeleteVertexArraysOES(1,&buffers[ii].vertexArrayObj);
+        theBuffer.vertexArrayObj = 0;
     }
 }
     
@@ -161,33 +176,34 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
         glBindVertexArrayOES(theBuffer.vertexArrayObj);
     
-        glBindBuffer(GL_ARRAY_BUFFER,theBuffer.bufferId);
+        glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
 
         // Vertex array
         if (vertAttr)
         {
-            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, singleVertexSize, 0);
             glEnableVertexAttribArray ( vertAttr->index );
         }
         
         // Texture coordinates
         if (texAttr && hasTexCoords)
         {
-            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,texCoordOffset));
+            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, singleVertexSize, CALCBUFOFF(0,texCoordOffset));
             glEnableVertexAttribArray ( texAttr->index );
         }
         
         // Per vertex colors
         if (colorAttr && hasColors)
         {
-            glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize, CALCBUFOFF(0,colorOffset));
+            glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, singleVertexSize, CALCBUFOFF(0,colorOffset));
             glEnableVertexAttribArray(colorAttr->index);
         }
         
         // Per vertex normals
         if (normAttr && hasNormals)
         {
-            glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(0,normOffset));
+            glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, singleVertexSize, CALCBUFOFF(0,normOffset));
             glEnableVertexAttribArray(normAttr->index);
         }
         
@@ -204,65 +220,101 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glDisableVertexAttribArray(normAttr->index);
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
     
     // Draw it
     glBindVertexArrayOES(theBuffer.vertexArrayObj);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, theBuffer.numVertex);
+    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     glBindVertexArrayOES(0);
     
     if (hasTexture)
         glBindTexture(GL_TEXTURE_2D, 0);
 }
     
-bool BigDrawable::addRegion(NSData *data,int &pos,int &size)
+bool BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,int &elementPos)
 {
-    size = [data length];
+    size_t vertexSize = [vertData length];
+    size_t elementSize = [elementData length];
     
-    // Let's look for a region large enough to contain the new data
-    RegionSet::iterator rit;
-    for (rit = regions.begin(); rit != regions.end(); ++rit)
+    // Let's look for a region large enough to contain the new vertices
+    RegionSet::iterator vrit;
+    for (vrit = vertexRegions.begin(); vrit != vertexRegions.end(); ++vrit)
     {
-        if ((*rit).len >= size)
+        if ((*vrit).len >= vertexSize)
         {
             break;
         }
     }
     // Not enough room
-    if (rit == regions.end())
+    if (vrit == vertexRegions.end())
+        return false;
+
+    // And one large enough to contain the new elements
+    RegionSet::iterator erit;
+    for (erit = elementRegions.begin(); erit != elementRegions.end(); ++erit)
+    {
+        if ((*erit).len >= elementSize)
+        {
+            break;
+        }
+    }
+    // Not enough room
+    if (erit == elementRegions.end())
         return false;
     
-    // Obviously we're getting rid of this region
-    Region theRegion = *rit;
-    regions.erase(rit);
 
-    // Set up the change and let the caller know where it wound up
-    pos = theRegion.pos;
-    Change change(ChangeAdd,pos,size,data);
+    // Get rid of the old vertex region
+    {
+        Region theRegion = *vrit;
+        vertexRegions.erase(vrit);
+
+        // Set up the change and let the caller know where it wound up
+        vertPos = theRegion.pos;
+        
+        // Split up the remaining space, if there is any
+        Region newRegion(theRegion.pos + vertexSize,theRegion.len - vertexSize);
+        if (newRegion.len > 0)
+            vertexRegions.insert(newRegion);
+    }
+
+    // Get rid of the old element region
+    {
+        Region theRegion = *erit;
+        elementRegions.erase(erit);
+        
+        // Set up the change and let the caller know where it wound up
+        elementPos = theRegion.pos;
+        
+        // Split up the remaining space, if there is any
+        Region newRegion(theRegion.pos + elementSize,theRegion.len - elementSize);
+        if (newRegion.len > 0)
+            elementRegions.insert(newRegion);
+    }
+
+    // We know the element data needs to be offset from the position, so let's do that
+    int vertOffset = vertPos/singleVertexSize;
+    if (singleElementSize == sizeof(GLushort))
+    {
+        GLushort *elPtr = (GLushort *)[elementData mutableBytes];
+        for (unsigned int ii=0;ii<elementSize/2;ii++,elPtr++)
+            *elPtr += vertOffset;
+    } else {
+        GLuint *elPtr = (GLuint *)[elementData mutableBytes];
+        for (unsigned int ii=0;ii<elementSize/2;ii++,elPtr++)
+            *elPtr += vertOffset;      
+    }
+
+    // Set up the change for processing later
+    Change change(ChangeAdd,vertPos,vertData,elementPos,elementData);
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
-    
-    // Split up the remaining space, if there is any
-    Region newRegion(theRegion.pos + size,theRegion.len - size);
-    if (newRegion.len > 0)
-        regions.insert(newRegion);
     
     return true;
 }
-    
-void BigDrawable::clearRegion(int pos, int size)
+ 
+void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
 {
-    if (pos+size > numBytes)
-        return;
-    
-    // Set up the change in the buffers
-    Change change(ChangeClear,pos,size);
-    unsigned char *zeroData = (unsigned char *)malloc(size);
-    memset(zeroData, 0, size);
-    change.data = [[NSData alloc] initWithBytesNoCopy:zeroData length:size freeWhenDone:YES];
-    for (unsigned int ii=0;ii<2;ii++)
-        buffers[ii].changes.push_back(change);
-    
     // Now look for where to put the region back
     Region thisRegion(pos,size);
     RegionSet::iterator prevIt = regions.end();
@@ -272,7 +324,7 @@ void BigDrawable::clearRegion(int pos, int size)
         prevIt = nextIt;
         nextIt++;
     }
-
+    
     // Possibly merge with previous region
     if (prevIt != regions.end())
     {
@@ -295,7 +347,25 @@ void BigDrawable::clearRegion(int pos, int size)
         }
     }
     
-    regions.insert(thisRegion);
+    regions.insert(thisRegion);    
+}
+
+void BigDrawable::clearRegion(int vertPos,int vertSize,int elementPos,int elementSize)
+{
+    if (vertPos+vertSize > numVertexBytes ||
+        elementPos+elementSize > numElementBytes)
+        return;
+    
+    // Set up the change in the buffers
+    unsigned char *zeroData = (unsigned char *)malloc(elementSize);
+    memset(zeroData, 0, elementSize);
+    NSData *elementData = [[NSData alloc] initWithBytesNoCopy:zeroData length:elementSize freeWhenDone:YES];
+    Change change(ChangeClear,vertPos,nil,elementPos,elementData);
+    for (unsigned int ii=0;ii<2;ii++)
+        buffers[ii].changes.push_back(change);
+    
+    removeRegion(vertexRegions,vertPos,vertSize);
+    removeRegion(elementRegions,elementPos,elementSize);
 }
     
 void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
@@ -316,26 +386,25 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
         return;
     
     // Run the additions or clears
-    glBindBuffer(GL_ARRAY_BUFFER, theBuffer.bufferId);
-//    void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
     for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
     {
         Change &change = theBuffer.changes[ii];
-//        unsigned char *basePtr = (unsigned char *)glMem + change.where;
         switch (change.type)
         {
             case ChangeAdd:
-                glBufferSubData(GL_ARRAY_BUFFER, change.where, change.len, [change.data bytes]);
-//                memcpy(basePtr, [change.data bytes], change.len);
+                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
                 break;
             case ChangeClear:
-                glBufferSubData(GL_ARRAY_BUFFER, change.where, change.len, [change.data bytes]);
-//                memset(basePtr, 0, change.len);
+//                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
                 break;
         }
     }
-//    glUnmapBufferOES(GL_ARRAY_BUFFER);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     
     theBuffer.changes.clear();
     
@@ -355,8 +424,10 @@ void BigDrawable::swapBuffers(int whichBuffer)
     pthread_mutex_unlock(&useMutex);
     
     // Bind the buffer to get any new updates
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[activeBuffer].bufferId);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[activeBuffer].vertexBufferId);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[activeBuffer].elementBufferId);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 // Called in the renderer

@@ -537,36 +537,75 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 // Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
 NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
 {
-    if (type != GL_TRIANGLE_STRIP && type != GL_POINTS && type != GL_LINES && type != GL_LINE_STRIP)
-        return nil;
-    
     if (points.empty() || texCoords.empty() || norms.empty() || colors.empty())
         return nil;
-    
-    vertexSize = singleVertexSize();
-    int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
 
-    unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
-    NSData *retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
-    unsigned char *basePtr = buffer;
-    if (dupStart)
+    NSData *retData = nil;
+    if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
     {
-        addPointToBuffer(basePtr, 0);
-        basePtr += vertexSize;
-        addPointToBuffer(basePtr, 0);
-        basePtr += vertexSize;
-    }
-    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr, ii);
-    if (dupEnd)
-    {
-        addPointToBuffer(basePtr, points.size()-1);
-        basePtr += vertexSize;
-        addPointToBuffer(basePtr, points.size()-1);
-        basePtr += vertexSize;
+        vertexSize = singleVertexSize();
+        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+
+        unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
+        retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
+        unsigned char *basePtr = buffer;
+        if (dupStart)
+        {
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+        }
+        for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr, ii);
+        if (dupEnd)
+        {
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+        }
     }
     
     return retData;
+}
+    
+void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize)
+{
+    *retVertData = nil;
+    *retElementData = nil;
+    if (type != GL_TRIANGLES)
+        return;
+    if (points.empty() || tris.empty())
+        return;
+
+    // Note: Hack to fill out the color
+    if (colors.empty())
+        for (unsigned int ii=0;ii<points.size();ii++)
+            colors.push_back(color);
+
+    // Build up the vertices
+    vertexSize = singleVertexSize();
+    int numVerts = points.size();
+    NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
+    unsigned char *basePtr = (unsigned char *)[vertData bytes];
+    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+        addPointToBuffer(basePtr, ii);
+    
+    // Build up the triangles
+    int triSize = singleElementSize * 3;
+    int numTris = tris.size();
+    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(triSize * numTris)) length:triSize*numTris freeWhenDone:YES];
+    GLushort *elPtr = (GLushort *)[elementData bytes];
+    for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
+    {
+        Triangle &tri = tris[ii];
+        for (unsigned int jj=0;jj<3;jj++)
+            elPtr[jj] = tri.verts[jj];
+    }
+    
+    *retVertData = vertData;
+    *retElementData = elementData;
 }
     
 // Combined vertex used in triangle stripping

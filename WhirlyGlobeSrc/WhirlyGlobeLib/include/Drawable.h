@@ -410,6 +410,9 @@ public:
     /// Copy the vertex data into an NSData object and return it
     NSData *asData(bool dupStart,bool dupEnd);
     
+    /// Copy vertex and element data into appropriate NSData objects
+    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
+    
     /// Assuming this is a set of triangles, convert to a triangle strip
     void convertToTriStrip();
     
