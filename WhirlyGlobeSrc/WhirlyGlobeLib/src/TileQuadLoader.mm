@@ -795,12 +795,13 @@ void LoadedTile::Print(Quadtree *tree)
         }
         
         // We'll want tri strips if we're doing atlases
-        if (drawAtlas)
-        {
-            chunk->convertToTriStrip();
-            if (skirtDraw && *skirtDraw)
-                (*skirtDraw)->convertToTriStrip();
-        }
+        // Note: Or not
+//        if (drawAtlas)
+//        {
+//            chunk->convertToTriStrip();
+//            if (skirtDraw && *skirtDraw)
+//                (*skirtDraw)->convertToTriStrip();
+//        }
         
         *draw = chunk;
     }
@@ -883,9 +884,8 @@ void LoadedTile::Print(Quadtree *tree)
 }
 
 // Note: This is the hardcoded vertex size for our case.  Should make this flexible.
-static const int VertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
-// Note: Hard coding the buffer size at 1MB.  Should probably adjust
-static const int DrawBufferSize = 1*1024*1024;
+static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
+static const int SingleElementSize = sizeof(GLushort);
 
 // When the data source loads the image, we'll get called here
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
@@ -896,8 +896,12 @@ static const int DrawBufferSize = 1*1024*1024;
         // Note: Trouble with PVRTC sub texture loading
         if (imageType != WKTilePVRTC4)
         {
-        texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
-        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",VertexSize,DrawBufferSize,quadLayer.scene->getMemManager());
+            // At 256 pixels square we can hold 64 tiles in a texture atlas
+            int DrawBufferSize = 2 * (sphereTessX + 1) * (sphereTessY + 1) * SingleVertexSize * 64;
+            // Two triangles per grid cell in a tile
+            int ElementBufferSize = 2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64;
+            texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
+            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
         }
     }
     
