@@ -24,8 +24,8 @@
 namespace WhirlyKit
 {
     
-DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int vertexSize,int numBytes,OpenGLMemManager *memManager)
-    : name(name), vertexSize(vertexSize), numBytes(numBytes), memManager(memManager)
+DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager)
+    : name(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager)
 {
 }
     
@@ -35,9 +35,10 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     
 bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes)
 {
-    // First, turn the vertex data into an NSData
-    NSData *drawData = draw->asData(true,true);
-    if (!drawData)
+    // Turn the vertex and element data in to NSData objects
+    NSMutableData *vertData = nil, *elementData = nil;
+    draw->asVertexAndElementData(&vertData,&elementData,singleElementSize);
+    if (!vertData || !elementData)
         return false;
     
     // Look for a big drawable that uses the same texture
@@ -48,8 +49,10 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         BigDrawable *bigDraw = *it;
         if (bigDraw->getTexId() == draw->getTexId() && bigDraw->getForceZBufferOn() == draw->getForceZBufferOn())
         {
-            if (bigDraw->addRegion(drawData,represent.pos,represent.size))
+            if (bigDraw->addRegion(vertData, represent.vertexPos, elementData, represent.elementPos))
             {
+                represent.vertexSize = [vertData length];
+                represent.elementSize = [elementData length];
                 represent.bigDrawId = bigDraw->getId();
                 foundBigDraw = bigDraw;
                 break;
@@ -60,7 +63,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     // Didn't find one, so create one
     if (!foundBigDraw)
     {
-        BigDrawable *newBigDraw = new BigDrawable(name,vertexSize,numBytes);
+        BigDrawable *newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
         newBigDraw->setDrawPriority(drawPriority);
         newBigDraw->setTexId(draw->getTexId());
         newBigDraw->setForceZBufferOn(draw->getForceZBufferOn());
@@ -68,8 +71,11 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(newBigDraw);
         represent.bigDrawId = newBigDraw->getId();
-        if (newBigDraw->addRegion(drawData,represent.pos,represent.size))
+        if (newBigDraw->addRegion(vertData, represent.vertexPos, elementData, represent.elementPos))
         {
+            represent.vertexSize = [vertData length];
+            represent.elementSize = [elementData length];
+            represent.bigDrawId = newBigDraw->getId();
             foundBigDraw = newBigDraw;
         }
     }
@@ -111,7 +117,7 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<Chan
         return false;
     
     // Set up the requests to clear the region
-    bigDraw->clearRegion(represent.pos, represent.size);
+    bigDraw->clearRegion(represent.vertexPos, represent.vertexSize, represent.elementPos, represent.elementSize);
     
     return true;
 }
