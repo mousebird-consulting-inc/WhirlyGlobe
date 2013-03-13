@@ -902,6 +902,7 @@ static const int SingleElementSize = sizeof(GLushort);
             int ElementBufferSize = 2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64;
             texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
+            drawAtlas->setDrawPriority(drawPriority);
         }
     }
     
