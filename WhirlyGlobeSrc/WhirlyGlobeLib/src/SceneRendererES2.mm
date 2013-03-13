@@ -287,8 +287,13 @@ static const char *fragmentShaderLine =
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
+// Set if we're doing an async dispatch on the render
+static const bool UsingAsyncRender = true;
+
 - (void) render:(CFTimeInterval)duration
 {
+    if (UsingAsyncRender)
+    {
     if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
         return;
     
@@ -297,6 +302,8 @@ static const float ScreenOverlap = 0.1;
                        [self renderAsync];
                        dispatch_semaphore_signal(frameRenderingSemaphore);
                    });
+    } else
+        [self renderAsync];
 }
 
 - (void) renderAsync
@@ -694,11 +701,16 @@ static const float ScreenOverlap = 0.1;
     // Explicitly discard the depth buffer
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
     glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+    CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
-    if (!renderSetup)
+//    if (!renderSetup)
+//    {
         glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+        CheckGLError("SceneRendererES2: glBindRenderbuffer");
+//    }
 
     [context presentRenderbuffer:GL_RENDERBUFFER];
+    CheckGLError("SceneRendererES2: presentRenderbuffer");
 
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
