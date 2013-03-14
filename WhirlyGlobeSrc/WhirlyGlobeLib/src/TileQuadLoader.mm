@@ -37,9 +37,91 @@ using namespace WhirlyKit;
     DynamicDrawableAtlas *drawAtlas;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
+@end
+
+@implementation WhirlyKitLoadedImage
+
++ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage->type = WKLoadedImageUIImage;
+    loadImage->borderSize = 0;
+    loadImage->imageData = image;
+    loadImage->width = loadImage->height = 0;
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage->type = WKLoadedImagePVRTC4;
+    loadImage->borderSize = 0;
+    loadImage->imageData = imageData;
+    loadImage->width = loadImage->height = squareSize;
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage->type = WKLoadedImageNSDataAsImage;
+    loadImage->borderSize = 0;
+    loadImage->imageData = imageData;
+    loadImage->width = loadImage->height = 0;
+    
+    return loadImage;
+}
+
+
+- (WhirlyKit::Texture *)buildTexture
+{
+    Texture *newTex = NULL;
+    
+    switch (type)
+    {
+        case WKLoadedImageUIImage:
+            newTex = new Texture("Tile Quad Loader",(UIImage *)imageData,false);
+            break;
+        case WKLoadedImageNSDataAsImage:
+            if ([imageData isKindOfClass:[NSData class]])
+            {
+                UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+                if (texImage)
+                {
+                    // Create the texture and set it up in OpenGL
+                    newTex = new Texture("Tile Quad Loader",texImage,false);
+                }
+            }
+            break;
+        case WKLoadedImageNSDataRawData:
+            if ([imageData isKindOfClass:[NSData class]])
+            {
+                newTex = new Texture("Tile Quad Loader",(NSData *)imageData,false);
+                newTex->setWidth(width);
+                newTex->setHeight(height);
+            }
+            break;
+        case WKLoadedImagePVRTC4:
+            if ([imageData isKindOfClass:[NSData class]])
+            {
+                newTex = new Texture("Tile Quad Loader", (NSData *)imageData,true);
+                newTex->setWidth(width);
+                newTex->setHeight(height);
+            }
+            break;
+        case WKLoadedImagePlaceholder:
+        default:
+            break;
+    }
+    
+    return newTex;
+}
+
 @end
 
 namespace WhirlyKit
@@ -73,12 +155,12 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
     Texture *tex = NULL;
-    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:imageData pvrtcSize:pvrtcSize];
+    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:loadImage];
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
     if (tex)
@@ -105,8 +187,12 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     if (loader->drawAtlas)
     {
         loader->drawAtlas->addDrawable(draw,changeRequests);
+        delete draw;
         if (skirtDraw)
+        {
             loader->drawAtlas->addDrawable(skirtDraw,changeRequests);
+            delete skirtDraw;
+        }
     } else {
         changeRequests.push_back(new AddDrawableReq(draw));
         if (skirtDraw)
@@ -222,7 +308,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil pvrtcSize:0];
+                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil];
                         childDrawIds[whichChild] = childDraw->getId();
                         if (childSkirtDraw)
                             childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
@@ -242,8 +328,12 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                         if (loader->drawAtlas)
                         {
                             loader->drawAtlas->addDrawable(childDraw, changeRequests);
+                            delete childDraw;
                             if (childSkirtDraw)
+                            {
                                 loader->drawAtlas->addDrawable(childSkirtDraw, changeRequests);
+                                delete childSkirtDraw;
+                            }
                         } else {
                             changeRequests.push_back(new AddDrawableReq(childDraw));
                             if (childSkirtDraw)
@@ -263,7 +353,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil pvrtcSize:0];
+            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil];
             drawId = draw->getId();
             draw->setTexId(texId);
             if (skirtDraw)
@@ -280,8 +370,12 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             if (loader->drawAtlas)
             {
                 loader->drawAtlas->addDrawable(draw, changeRequests);
+                delete draw;
                 if (skirtDraw)
+                {
                     loader->drawAtlas->addDrawable(skirtDraw, changeRequests);
+                    delete skirtDraw;
+                }
             } else {
                 changeRequests.push_back(new AddDrawableReq(draw));
                 if (skirtDraw)
@@ -347,6 +441,9 @@ void LoadedTile::Print(Quadtree *tree)
 }
 
 @implementation WhirlyKitQuadTileLoader
+{
+    bool doingUpdate;
+}
 
 @synthesize drawOffset;
 @synthesize drawPriority;
@@ -378,6 +475,7 @@ void LoadedTile::Print(Quadtree *tree)
         maxPageVis = DrawVisibleInvalid;
         imageType = WKTileIntRGBA;
         useDynamicAtlas = true;
+        doingUpdate = false;
     }
     
     return self;
@@ -499,7 +597,7 @@ void LoadedTile::Print(Quadtree *tree)
     return GL_UNSIGNED_BYTE;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(NSData *)imageData pvrtcSize:(int)pvrtcSize
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)loadImage
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -551,26 +649,13 @@ void LoadedTile::Print(Quadtree *tree)
     // Get texture (locally)
     if (tex)
     {
-        if (imageData)
+        if (loadImage)
         {
-            Texture *newTex = NULL;
-            if (pvrtcSize > 0)
-            {
-                newTex = new Texture("Tile Quad Loader", imageData,true);
-                newTex->setWidth(pvrtcSize);
-                newTex->setHeight(pvrtcSize);
-            } else {
-                UIImage *texImage = [UIImage imageWithData:imageData];
-                if (texImage)
-                {
-                    // Create the texture and set it up in OpenGL
-                    newTex = new Texture("Tile Quad Loader",texImage,imageType);
-                    newTex->setFormat([self glFormat]);
-                }
-            }
+            Texture *newTex = [loadImage buildTexture];
             
             if (newTex)
             {
+                newTex->setFormat([self glFormat]);
                 *tex = newTex;
             }
         } else
@@ -794,15 +879,6 @@ void LoadedTile::Print(Quadtree *tree)
                 chunk->setTexId((*tex)->getId());
         }
         
-        // We'll want tri strips if we're doing atlases
-        // Note: Or not
-//        if (drawAtlas)
-//        {
-//            chunk->convertToTriStrip();
-//            if (skirtDraw && *skirtDraw)
-//                (*skirtDraw)->convertToTriStrip();
-//        }
-        
         *draw = chunk;
     }
 }
@@ -856,7 +932,15 @@ void LoadedTile::Print(Quadtree *tree)
 // We can do another fetch if we haven't hit the max
 - (bool)isReady
 {
-    return (numFetches < [dataSource maxSimultaneousFetches]);
+    // Make sure we're not fetching too much at once
+    if (numFetches >= [dataSource maxSimultaneousFetches])
+        return false;
+    
+    // And make sure we're not waiting on buffer switches
+    if (drawAtlas && drawAtlas->waitingOnSwap())
+        return false;
+    
+    return true;
 }
 
 // Ask the data source to start loading the image for this tile
@@ -888,7 +972,23 @@ static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeo
 static const int SingleElementSize = sizeof(GLushort);
 
 // When the data source loads the image, we'll get called here
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    if (pvrtcSize != 0)
+    {
+        loadImage->type = WKLoadedImagePVRTC4;
+        loadImage->width = loadImage->height = pvrtcSize;
+        loadImage->imageData = image;
+    } else {
+        loadImage->type = WKLoadedImageNSDataAsImage;
+        loadImage->imageData = image;
+    }
+
+    [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
+}
+
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(WhirlyKitLoadedImage *)loadImage forLevel:(int)level col:(int)col row:(int)row
 {
     // Create the dynamic texture atlas before we need it
     if (useDynamicAtlas && !texAtlas)
@@ -902,7 +1002,6 @@ static const int SingleElementSize = sizeof(GLushort);
             int ElementBufferSize = 2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64;
             texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
-            drawAtlas->setDrawPriority(drawPriority);
         }
     }
     
@@ -916,9 +1015,9 @@ static const int SingleElementSize = sizeof(GLushort);
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    if (image)
+    if (loadImage)
     {
-        tile->addToScene(self,quadLayer,quadLayer.scene,image,pvrtcSize,changeRequests);
+        tile->addToScene(self,quadLayer,quadLayer.scene,loadImage,changeRequests);
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it
@@ -934,13 +1033,14 @@ static const int SingleElementSize = sizeof(GLushort);
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     [self refreshParents:quadLayer];
     
-    [self flushUpdates:quadLayer.layerThread];
+    if (!doingUpdate)
+        [self flushUpdates:quadLayer.layerThread];
 }
 
-// We'll get this before a series of unloads
+// We'll get this before a series of unloads and loads
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
-    [self flushUpdates:layer.layerThread];
+    doingUpdate = true;
 }
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
@@ -977,6 +1077,8 @@ static const int SingleElementSize = sizeof(GLushort);
     [self refreshParents:layer];
     
     [self flushUpdates:layer.layerThread];
+    
+    doingUpdate = false;
 }
 
 // We'll try to skip updates 

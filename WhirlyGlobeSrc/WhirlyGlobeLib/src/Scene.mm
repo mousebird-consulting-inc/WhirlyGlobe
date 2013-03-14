@@ -57,7 +57,11 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
 Scene::~Scene()
 {
-    delete cullTree;
+    if (cullTree)
+    {
+        delete cullTree;
+        cullTree = NULL;
+    }
     for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
         delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
@@ -70,7 +74,10 @@ Scene::~Scene()
     pthread_mutex_destroy(&programLock);
     
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        // Note: Tear down change requests?
         delete changeRequests[ii];
+    }
     changeRequests.clear();
     
     activeModels = nil;
@@ -187,6 +194,28 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
         [activeModel shutdown];
     }
 }
+    
+void Scene::teardownGL()
+{
+    // Note: Tear down generators
+    // Note: Tear down active models
+    for (DrawableRefSet::iterator it = drawables.begin();
+         it != drawables.end(); ++it)
+        (*it)->teardownGL(&memManager);
+    if (cullTree)
+    {
+        delete cullTree;
+        cullTree = NULL;
+    }
+    drawables.clear();
+    for (TextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+        (*it)->destroyInGL(&memManager);
+    textures.clear();
+    
+    memManager.clearBufferIDs();
+    memManager.clearTextureIDs();
+}
 
 TextureBase *Scene::getTexture(SimpleIdentity texId)
 {
@@ -270,7 +299,7 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     pthread_mutex_unlock(&subTexLock);
     return *it;
 }
-        
+    
 SimpleIdentity Scene::getScreenSpaceGeneratorID()
 {
     return screenSpaceGeneratorID;

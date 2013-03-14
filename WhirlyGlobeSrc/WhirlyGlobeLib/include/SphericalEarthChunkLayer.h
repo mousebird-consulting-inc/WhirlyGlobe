@@ -22,6 +22,7 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
+#import "TileQuadLoader.h"
 
 /** This defines a chunk of the globe to overlay with a single
     image.  In general you should use one of the quad layers
@@ -34,6 +35,9 @@
     WhirlyKit::GeoMbr mbr;
     /// Texture we'll wrap over the top
     WhirlyKit::SimpleIdentity texId;
+    /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
+    /// The implication here is that we're going to stick these in an atlas.
+    WhirlyKitLoadedImage *loadImage;
     /// Z offset for the generated geometry
     float drawOffset;
     /// Sorting priority for the generated geometry
@@ -54,6 +58,7 @@
 
 @property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+@property (nonatomic,strong) WhirlyKitLoadedImage *loadImage;
 @property (nonatomic,assign) float drawOffset;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) int sampleX,sampleY;
@@ -67,10 +72,14 @@
   */
 @interface WhirlyKitSphericalChunkLayer : NSObject<WhirlyKitLayer>
 {
+    /// If set, we'll turn off skirts
     bool ignoreEdgeMatching;
+    /// If set we'll use a dynamic texture and drawable atlas
+    bool useDynamicAtlas;
 }
 
 @property (nonatomic,assign) bool ignoreEdgeMatching;
+@property (nonatomic,assign) bool useDynamicAtlas;
 
 /// Add a single chunk on the spherical earth.  This returns and ID
 ///  we can use to remove it later.

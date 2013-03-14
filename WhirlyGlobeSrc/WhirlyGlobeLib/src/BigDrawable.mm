@@ -414,6 +414,15 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
     pthread_mutex_unlock(&useMutex);
     changes.push_back(new BigDrawableSwap(getId(),whichBuffer));
 }
+    
+bool BigDrawable::isWaitingOnSwap()
+{
+    bool ret = false;
+    pthread_mutex_lock(&useMutex);
+    ret = waitingOnSwap;
+    pthread_mutex_unlock(&useMutex);
+    return ret;
+}
 
 void BigDrawable::swapBuffers(int whichBuffer)
 {

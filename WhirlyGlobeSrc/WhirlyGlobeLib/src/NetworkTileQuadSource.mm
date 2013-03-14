@@ -186,9 +186,9 @@ using namespace WhirlyKit;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 
@@ -310,9 +310,9 @@ using namespace WhirlyKit;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 

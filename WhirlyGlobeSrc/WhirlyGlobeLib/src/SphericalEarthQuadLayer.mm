@@ -152,7 +152,12 @@ using namespace WhirlyKit;
     
     bool isPvrtc = ![ext compare:@"pvrtc"];
     
-    [quadLoader dataSource:self loadedImage:imageData pvrtcSize:(isPvrtc ? pixelsSquare : 0) forLevel:level col:col row:row];
+    WhirlyKitLoadedImage *loadImage = nil;
+    if (isPvrtc)
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithPVRTC:imageData size:pixelsSquare];
+    else
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
+    [quadLoader dataSource:self loadedImage:loadImage forLevel:level col:col row:row];
 }
 
 @end

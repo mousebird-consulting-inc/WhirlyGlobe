@@ -225,6 +225,8 @@ using namespace WhirlyKit;
     thingsToDelete.clear();
     while ([thingsToRelease count] > 0)
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
+    
+    glContext = nil;
 }
 
 @end
