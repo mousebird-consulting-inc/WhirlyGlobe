@@ -514,7 +514,7 @@ static unsigned short CacheFileVersion = 1;
          it != geomReps.end(); ++it)
         (*it)->removeFromScene(changeRequests);
         
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -552,7 +552,7 @@ static unsigned short CacheFileVersion = 1;
         }
     }
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:changeRequests];
     
     geomReps.insert(geomRep);
 }
@@ -581,7 +581,7 @@ static unsigned short CacheFileVersion = 1;
             geomReps.erase(geomRep);
         }
         
-        scene->addChangeRequests(changeRequests);
+        [layerThread addChangeRequests:changeRequests];
     }
 }
 

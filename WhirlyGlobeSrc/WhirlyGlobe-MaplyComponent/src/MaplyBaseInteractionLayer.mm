@@ -174,7 +174,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // Note: This is a hack to work around fade problems
 - (void)delayedRemoveTexture:(NSNumber *)texID
 {
-    scene->addChangeRequest(new RemTextureReq([texID integerValue]));
+    [layerThread addChangeRequest:(new RemTextureReq([texID integerValue]))];
 }
 
 // Actually add the markers.

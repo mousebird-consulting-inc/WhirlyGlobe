@@ -52,7 +52,8 @@ using namespace WhirlyGlobe;
 
 - (void) dealloc
 {
-    [self clear];
+    if (globeScene)
+        [self clear];
 }
 
 // Create the globe view

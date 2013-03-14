@@ -29,6 +29,9 @@ using namespace WhirlyKit;
 
 - (void) clear
 {
+    if (!scene)
+        return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
@@ -37,6 +40,7 @@ using namespace WhirlyKit;
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
         [shader shutdown];
+    scene->teardownGL();
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
@@ -79,6 +83,12 @@ using namespace WhirlyKit;
     viewTrackers = nil;
     
     theClearColor = nil;
+}
+
+- (void) dealloc
+{
+    if (scene)
+        [self clear];
 }
 
 - (WhirlyKitView *) loadSetup_view

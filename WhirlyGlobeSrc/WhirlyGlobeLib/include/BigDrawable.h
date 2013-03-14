@@ -89,6 +89,9 @@ public:
     /// Flush out changes to the inactive buffer and request a switch
     void flush(std::vector<ChangeRequest *> &changes);
     
+    /// Return true if we're waiting on a buffer swap, but don't block
+    bool isWaitingOnSwap();
+    
     /// Only called by the renderer
     void swapBuffers(int whichBuffer);
     

@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 {
     MaplyView *mapView;
     UIView *glView;
-    WhirlyKitSceneRendererES *sceneRenderer;
+    WhirlyKitSceneRendererES * __weak sceneRenderer;
 }
 
 - (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
