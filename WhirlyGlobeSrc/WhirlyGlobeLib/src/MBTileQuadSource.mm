@@ -157,7 +157,7 @@ using namespace WhirlyKit;
 //        NSLog(@"Missing tile: (%d,%d,%d)",col,row,level);
     
     // Tell the quad loader about the new tile data, whether its null or not
-    [quadLoader dataSource:self loadedImage:imageData pvrtcSize:0 forLevel:level col:col row:row];
+    [quadLoader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData] forLevel:level col:col row:row];
 }
 
 

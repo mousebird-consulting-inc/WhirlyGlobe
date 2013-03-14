@@ -34,9 +34,6 @@ public:
     DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager);
     ~DynamicDrawableAtlas();
     
-    /// Set the draw priority for any drawables we create
-    void setDrawPriority(int newPriority) { drawPriority = newPriority; }
-    
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
     bool addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes);
@@ -47,6 +44,9 @@ public:
     /// Flush out any outstanding changes.
     /// This may block waiting for the renderer
     void flush(std::vector<ChangeRequest *> &changes);
+    
+    /// Check if we're waiting on an active drawable buffer swap
+    bool waitingOnSwap();
     
     /// Remove anything associated with the drawable atlas
     void shutdown(std::vector<ChangeRequest *> &changes);
@@ -72,7 +72,6 @@ protected:
     int singleVertexSize;
     int singleElementSize;
     int numVertexBytes,numElementBytes;
-    int drawPriority;
     
     typedef std::set<BigDrawable *,IdentifiableSorter> BigDrawableSet;
     BigDrawableSet bigDrawables;

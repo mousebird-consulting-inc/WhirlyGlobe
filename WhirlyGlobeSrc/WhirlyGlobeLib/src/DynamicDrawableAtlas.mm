@@ -25,7 +25,7 @@ namespace WhirlyKit
 {
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager)
-    : name(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), drawPriority(0)
+    : name(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager)
 {
 }
     
@@ -47,7 +47,8 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = *it;
-        if (bigDraw->getTexId() == draw->getTexId() && bigDraw->getForceZBufferOn() == draw->getForceZBufferOn())
+        if (bigDraw->getTexId() == draw->getTexId() && bigDraw->getForceZBufferOn() == draw->getForceZBufferOn() &&
+            bigDraw->getDrawPriority() == draw->getDrawPriority())
         {
             if (bigDraw->addRegion(vertData, represent.vertexPos, elementData, represent.elementPos))
             {
@@ -64,7 +65,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     if (!foundBigDraw)
     {
         BigDrawable *newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
-        newBigDraw->setDrawPriority(drawPriority);
+        newBigDraw->setDrawPriority(draw->getDrawPriority());
         newBigDraw->setTexId(draw->getTexId());
         newBigDraw->setForceZBufferOn(draw->getForceZBufferOn());
         newBigDraw->setupGL(NULL, memManager);
@@ -130,6 +131,15 @@ void DynamicDrawableAtlas::flush(std::vector<ChangeRequest *> &changes)
         BigDrawable *bigDraw = *it;
         bigDraw->flush(changes);
     }
+}
+    
+bool DynamicDrawableAtlas::waitingOnSwap()
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        if ((*it)->isWaitingOnSwap())
+            return true;
+    
+    return false;
 }
     
 void DynamicDrawableAtlas::shutdown(std::vector<ChangeRequest *> &changes)

@@ -58,7 +58,8 @@ using namespace Maply;
 
 - (void)dealloc
 {
-    [self clear];
+    if (mapScene)
+        [self clear];
 }
 
 - (WhirlyKitView *) loadSetup_view

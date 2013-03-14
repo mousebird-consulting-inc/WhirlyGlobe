@@ -206,7 +206,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
-	
+    	
 	if (defaultFramebuffer)
 	{
 		glDeleteFramebuffers(1, &defaultFramebuffer);

@@ -36,6 +36,48 @@
 @class WhirlyKitQuadTileLoader;
 /// @endcond
 
+/** Type of the image being passed to the tile loader.
+    UIImage - A UIImage object.
+    NSDataAsImage - An NSData object containing PNG or JPEG data.    
+    WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
+    PVRTC4 - Compressed PVRTC, 4 bit, no alpha
+    Placeholder - This is an empty image (so no visual representation)
+                that is nonetheless "valid" so its children will be paged.
+  */
+typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+
+/** The Loaded Image is handed back to the Tile Loader when an image
+ is finished.  It can either be loaded or empty, or something of that sort.
+ */
+@interface WhirlyKitLoadedImage : NSObject
+{
+@public
+    /// The data we're passing back
+    WhirlyKitLoadedImageType type;
+    /// Set if there are any border pixels in the image
+    int borderSize;
+    /// The UIImage or NSData object
+    NSObject *imageData;
+    /// Some formats contain no size info (e.g. PVRTC).  In which case, this is set
+    int width,height;
+}
+
+/// Return a loaded image made of a standard UIImage
++ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image;
+
+/// Return a loaded image made from an NSData object containing PVRTC
++ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize;
+
+/// Return a loaded image made from an NSData object that contains a PNG or JPG.
+/// Basically somethign that UIImage will recognize if you initialize it with one.
++ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData;
+
+/// Generate an appropriate texture.
+/// You could overload this, just be sure to respect the border pixels.
+- (WhirlyKit::Texture *)buildTexture;
+
+@end
+
 namespace WhirlyKit
 {
     
@@ -51,7 +93,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,NSData *imageData,int pvrtcSize,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,WhirlyKitLoadedImage *loadImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -204,6 +246,11 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
 /// When a data source has finished its fetch for a given image, it calls
 ///  this method to hand that back to the quad tile loader
 /// If this isn't called in the layer thread, it will switch over to that thread first.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row;
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row __deprecated;
+
+/// When a data source has finished its fetch for a given image, it
+///  calls this method to hand the image (along with key info) back to the
+///  quad tile loader.
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(WhirlyKitLoadedImage *)loadImage forLevel:(int)level col:(int)col row:(int)row;
 
 @end

@@ -293,6 +293,10 @@ public:
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
     
+    /// Explicitly tear everything down in OpenGL ES.
+    /// We're assuming the context has been set.
+    void teardownGL();
+    
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
