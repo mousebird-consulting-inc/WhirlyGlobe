@@ -918,7 +918,7 @@ void LoadedTile::Print(Quadtree *tree)
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread
 {
     if (drawAtlas)
-        drawAtlas->flush(changeRequests);
+        drawAtlas->flush(changeRequests,quadLayer,@selector(wakeUp));
     if (!changeRequests.empty())
     {
         [layerThread addChangeRequests:(changeRequests)];
