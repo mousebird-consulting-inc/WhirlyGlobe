@@ -451,7 +451,7 @@ static const int SingleElementSize = sizeof(GLushort);
     }
     
     if (drawAtlas)
-        drawAtlas->flush(changeRequests);
+        drawAtlas->flush(changeRequests,nil,nil);
 
     [layerThread addChangeRequests:(changeRequests)];
     
@@ -491,7 +491,7 @@ static const int SingleElementSize = sizeof(GLushort);
     else
         (*it)->disable(texAtlas,drawAtlas,changes);
     
-    drawAtlas->flush(changes);
+    drawAtlas->flush(changes,nil,nil);
 
     [layerThread addChangeRequests:changes];
 }

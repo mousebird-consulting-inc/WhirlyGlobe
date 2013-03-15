@@ -539,11 +539,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.1];
         return;
     }    
-    
-    // If the loader isn't ready, try again in a bit
+
+    // If the loader isn't ready, it's up to it to wake us up when it is
     if (![loader isReady])
     {
-        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
         return;
     }
 
@@ -686,6 +685,19 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             nodesForEval.insert(thisNode);
         }
 
+    [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+}
+
+- (void)wakeUp
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(wakeUp) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+
+    // Note: Might be better to check if an eval is scheduled, rather than cancel it
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
 

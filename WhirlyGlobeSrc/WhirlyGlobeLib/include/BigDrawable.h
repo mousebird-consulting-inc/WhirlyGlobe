@@ -87,7 +87,7 @@ public:
     void clearRegion(int vertPos,int vertSize,int elementPos,int elementSize);
     
     /// Flush out changes to the inactive buffer and request a switch
-    void flush(std::vector<ChangeRequest *> &changes);
+    void flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
     
     /// Return true if we're waiting on a buffer swap, but don't block
     bool isWaitingOnSwap();
@@ -175,7 +175,8 @@ class BigDrawableSwap : public ChangeRequest
 {
 public:
     /// Construct with the big drawable ID and the buffer to switch to
-    BigDrawableSwap(SimpleIdentity drawId,int whichBuffer) : drawId(drawId), whichBuffer(whichBuffer) { }
+    BigDrawableSwap(SimpleIdentity drawId,int whichBuffer,NSObject * __weak target,SEL sel)
+    : drawId(drawId), whichBuffer(whichBuffer), target(target), sel(sel) { }
 
     /// Run the swap.  Only the renderer calls this.
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -184,6 +185,8 @@ public:
     virtual bool needsFlush() { return true; }
 
 protected:
+    NSObject * __weak target;
+    SEL sel;
     SimpleIdentity drawId;
     int whichBuffer;
 };

@@ -42,8 +42,10 @@ public:
     bool removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes);
     
     /// Flush out any outstanding changes.
-    /// This may block waiting for the renderer
-    void flush(std::vector<ChangeRequest *> &changes);
+    /// Pass in a target and selector to pass through to the main thread.
+    /// This will be called when one or more parts of the flush have done their
+    ///  thing on the main thread.  Use this to wake yourself up on another thread.
+    void flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
     
     /// Check if we're waiting on an active drawable buffer swap
     bool waitingOnSwap();
