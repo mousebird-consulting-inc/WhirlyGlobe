@@ -368,13 +368,11 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,int elementPos,int elemen
     removeRegion(elementRegions,elementPos,elementSize);
 }
     
-void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
+void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
 {
-    // If we're waiting on a buffer swap, then wait
-    pthread_mutex_lock(&useMutex);
-    while (waitingOnSwap)
-        pthread_cond_wait(&useCondition, &useMutex);
-    pthread_mutex_unlock(&useMutex);
+    // If we're waiting on a swap, no flushing
+    if (isWaitingOnSwap())
+        return;
 
     // Figure out which is the inactive buffer.
     // That's the one we modify
@@ -412,7 +410,7 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes)
     pthread_mutex_lock(&useMutex);
     waitingOnSwap = true;
     pthread_mutex_unlock(&useMutex);
-    changes.push_back(new BigDrawableSwap(getId(),whichBuffer));
+    changes.push_back(new BigDrawableSwap(getId(),whichBuffer,target,sel));
 }
     
 bool BigDrawable::isWaitingOnSwap()
@@ -429,14 +427,13 @@ void BigDrawable::swapBuffers(int whichBuffer)
     pthread_mutex_lock(&useMutex);
     activeBuffer = whichBuffer;
     waitingOnSwap = false;
-    pthread_cond_signal(&useCondition);
     pthread_mutex_unlock(&useMutex);
     
     // Bind the buffer to get any new updates
     glBindBuffer(GL_ARRAY_BUFFER, buffers[activeBuffer].vertexBufferId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[activeBuffer].elementBufferId);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);    
 }
 
 // Called in the renderer
@@ -446,6 +443,15 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->swapBuffers(whichBuffer);
+    
+    // And let the target know we're done
+    if (target)
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [target performSelector:sel];
+#pragma clang diagnostic pop
+    }
 }
 
 }

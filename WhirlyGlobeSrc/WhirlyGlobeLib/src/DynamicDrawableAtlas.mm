@@ -123,13 +123,13 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<Chan
     return true;
 }
     
-void DynamicDrawableAtlas::flush(std::vector<ChangeRequest *> &changes)
+void DynamicDrawableAtlas::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
 {
     // Note: We could keep a list of changes ones if these get to be more than a few
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = *it;
-        bigDraw->flush(changes);
+        bigDraw->flush(changes,target,sel);
     }
 }
     

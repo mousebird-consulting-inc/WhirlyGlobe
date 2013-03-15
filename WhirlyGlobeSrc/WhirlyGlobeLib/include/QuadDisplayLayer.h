@@ -239,5 +239,8 @@ float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frame
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
 
+/// Call this to nudge the quad display layer awake.
+- (void)wakeUp;
+
 @end
 
