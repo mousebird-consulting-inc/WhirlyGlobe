@@ -18,6 +18,7 @@
  *
  */
 
+#import <queue>
 #import <set>
 #import "SphericalEarthChunkLayer.h"
 #import "DynamicTextureAtlas.h"
@@ -135,7 +136,7 @@ static const int DefaultSampleY = 8;
 @public
     bool enable;
     WhirlyKit::SimpleIdentity chunkId;
-    NSArray *chunks;
+    WhirlyKitSphericalChunk *chunk;
 }
 @end
 
@@ -143,6 +144,21 @@ static const int DefaultSampleY = 8;
 
 @end
 
+// Used to track requests that come in so we can queue them
+typedef enum {ChunkAdd,ChunkRemove,ChunkEnable,ChunkDisable} ChunkRequestType;
+class ChunkRequest
+{
+public:
+    ChunkRequest() { }
+    ChunkRequest(ChunkRequestType type,SphericalChunkInfo *chunkInfo,WhirlyKitSphericalChunk *chunk) :
+        type(type), chunkId(EmptyIdentity), chunkInfo(chunkInfo), chunk(chunk) { }
+    ChunkRequest(ChunkRequestType type,SimpleIdentity chunkId) :
+        type(type), chunkId(chunkId), chunkInfo(NULL), chunk(NULL) { }
+    ChunkRequestType type;
+    SimpleIdentity chunkId;
+    SphericalChunkInfo *chunkInfo;
+    WhirlyKitSphericalChunk *chunk;
+};
 
 @implementation WhirlyKitSphericalChunkLayer
 {
@@ -151,6 +167,8 @@ static const int DefaultSampleY = 8;
     WhirlyKit::Scene *scene;
     DynamicTextureAtlas *texAtlas;
     DynamicDrawableAtlas *drawAtlas;
+    // Outstanding requests to process
+    std::queue<ChunkRequest> requests;
 }
 
 @synthesize ignoreEdgeMatching;
@@ -240,20 +258,80 @@ static const float SkirtFactor = 0.95;
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
 
-// Do the work of adding the chunk to the scene
+// Add chunks to the outstanding list and possibly execute the list
 - (void)runAddChunk:(SphericalChunkInfo *)chunkInfo
 {
+    std::vector<ChangeRequest *> changes;
+    
+    ChunkRequest request(ChunkAdd,chunkInfo,chunkInfo->chunk);
+    // If it needs the altases, just queue it up
+    if (chunkInfo->chunk.loadImage)
+        requests.push(request);
+    else {
+        // If it doesn't, just run it right now
+        [self processChunkRequest:request changes:changes];
+    }
+    
+    // Get rid of an unnecessary circularity
+    chunkInfo->chunk = nil;
+    
+    // Push out changes (if there are any)
+    [layerThread addChangeRequests:changes];
+    
+    // And possibly run the outstanding request queue
+    [self processQueue];
+}
+
+// Process outstanding requests
+- (void)processQueue
+{
+    // Nothing to do
+    if (requests.empty())
+        return;
+    
+    // If there's an outstanding swap going on, can't do this now, wait for the wakeUp
+    if (drawAtlas && drawAtlas->waitingOnSwap())
+        return;
+    
+    // Process the changes and then flush them out
+    std::vector<ChangeRequest *> changes;
+    while (!requests.empty())
+    {
+        ChunkRequest request = requests.front();
+        requests.pop();
+        [self processChunkRequest:request changes:changes];
+    }
+    
+    if (drawAtlas)
+        drawAtlas->flush(changes, self, @selector(wakeUp));
+    
+    [layerThread addChangeRequests:changes];
+}
+
+// Called by the main thread to wake us up after a buffer swap
+- (void)wakeUp
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(wakeUp) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    [self processQueue];
+}
+
+// Process a single chunk request (add, enable, disable)
+- (void)processChunkRequest:(ChunkRequest &)request changes:(std::vector<ChangeRequest *> &)changes
+{
+    switch (request.type)
+    {
+        case ChunkAdd:
+        {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     CoordSystem *localSys = coordAdapter->getCoordSystem();
-    ChunkSceneRepRef chunkRep(new ChunkSceneRep(chunkInfo->chunkId));
+            ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkInfo->chunkId));
+            WhirlyKitSphericalChunk *chunk = request.chunk;
     
-    // Work through the chunks
-#ifdef DEBUG
-//    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-#endif
-    std::vector<ChangeRequest *> changeRequests;
-    for (WhirlyKitSphericalChunk *chunk in chunkInfo->chunks)
-    {
         GeoMbr geoMbr = chunk.mbr;
         
         // If the atlases aren't initialized, do that
@@ -276,7 +354,7 @@ static const int SingleElementSize = sizeof(GLushort);
             Texture *newTex = [chunk.loadImage buildTexture];
             if (newTex)
             {
-                texAtlas->addTexture(newTex, chunkRep->subTex, scene->getMemManager(), changeRequests);
+                    texAtlas->addTexture(newTex, chunkRep->subTex, scene->getMemManager(), changes);
                 chunkRep->usesAtlas = true;
             }
         } else
@@ -288,7 +366,7 @@ static const int SingleElementSize = sizeof(GLushort);
         drawable->setDrawPriority(chunk.drawPriority);
         drawable->setDrawOffset(chunk.drawOffset);
         drawable->setTexId(texId);
-        drawable->setOnOff(chunkInfo->enable);
+            drawable->setOnOff(request.chunkInfo->enable);
         drawable->setVisibleRange(chunk.minVis, chunk.maxVis, chunk.minVisBand, chunk.maxVisBand);
         
         std::vector<Point3f> locs((chunk.sampleX+1)*(chunk.sampleY+1));
@@ -389,7 +467,7 @@ static const int SingleElementSize = sizeof(GLushort);
             skirtDrawable->setDrawPriority(chunk.drawPriority);
             skirtDrawable->setDrawOffset(chunk.drawOffset);
             skirtDrawable->setTexId(chunk.texId);
-            skirtDrawable->setOnOff(chunkInfo->enable);
+                skirtDrawable->setOnOff(request.chunkInfo->enable);
             skirtDrawable->setVisibleRange(chunk.minVis, chunk.maxVis);
             skirtDrawable->setForceZBufferOn(true);
             
@@ -434,36 +512,45 @@ static const int SingleElementSize = sizeof(GLushort);
             if (chunkRep->usesAtlas)
             {
                 skirtDrawable->applySubTexture(chunkRep->subTex);
-                drawAtlas->addDrawable(skirtDrawable, changeRequests);
+                    drawAtlas->addDrawable(skirtDrawable, changes);
                 chunkRep->drawables.push_back(skirtDrawable);
             } else
-                changeRequests.push_back(new AddDrawableReq(skirtDrawable));
+                    changes.push_back(new AddDrawableReq(skirtDrawable));
         }
 
         chunkRep->drawIDs.insert(drawable->getId());
         if (chunkRep->usesAtlas)
         {
             drawable->applySubTexture(chunkRep->subTex);
-            drawAtlas->addDrawable(drawable, changeRequests);
+                drawAtlas->addDrawable(drawable, changes);
             chunkRep->drawables.push_back(drawable);
         } else
-            changeRequests.push_back(new AddDrawableReq(drawable));
-    }
-    
-    if (drawAtlas)
-        drawAtlas->flush(changeRequests,nil,nil);
-
-    [layerThread addChangeRequests:(changeRequests)];
+                changes.push_back(new AddDrawableReq(drawable));
     
     chunkReps.insert(chunkRep);
 }
-
-// Do the work to remove the chunk from the scene
-- (void)runRemoveChunk:(NSNumber *)num
+            break;
+        case ChunkEnable:
 {
-    SimpleIdentity chunkId = [num integerValue];
-    
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkId));
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
+            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+            if (it == chunkReps.end())
+                return;
+            (*it)->enable(texAtlas,drawAtlas,changes);
+        }
+            break;
+        case ChunkDisable:
+        {
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
+            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+            if (it == chunkReps.end())
+                return;
+            (*it)->disable(texAtlas,drawAtlas,changes);
+        }
+            break;
+        case ChunkRemove:
+        {
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
     ChunkRepSet::iterator it = chunkReps.find(dummyRef);
     if (it == chunkReps.end())
         return;
@@ -474,26 +561,30 @@ static const int SingleElementSize = sizeof(GLushort);
     
     chunkReps.erase(it);
 }
+            break;
+    }
+}
+
+// Do the work to remove the chunk from the scene
+- (void)runRemoveChunk:(NSNumber *)num
+{
+    requests.push(ChunkRequest(ChunkRemove,[num integerValue]));
+    
+    [self processQueue];
+}
 
 - (void)runToggleChunk:(NSArray *)args
 {
     SimpleIdentity chunkId = [[args objectAtIndex:0] integerValue];
     bool enable = [[args objectAtIndex:1] boolValue];
     
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkId));
-    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-    if (it == chunkReps.end())
-        return;
-    
     std::vector<ChangeRequest *> changes;
     if (enable)
-        (*it)->enable(texAtlas,drawAtlas,changes);
+        requests.push(ChunkRequest(ChunkEnable,chunkId));
     else
-        (*it)->disable(texAtlas,drawAtlas,changes);
-    
-    drawAtlas->flush(changes,nil,nil);
+        requests.push(ChunkRequest(ChunkDisable,chunkId));
 
-    [layerThread addChangeRequests:changes];
+    [self processQueue];
 }
 
 /// Add a single chunk on the spherical earth.  This returns and ID
@@ -508,7 +599,7 @@ static const int SingleElementSize = sizeof(GLushort);
 
     SphericalChunkInfo *chunkInfo = [[SphericalChunkInfo alloc] init];
     chunkInfo->enable = enable;
-    chunkInfo->chunks = [NSArray arrayWithObject:chunk];
+    chunkInfo->chunk = chunk;
     chunkInfo->chunkId = Identifiable::genId();
     if ([NSThread currentThread] == layerThread)
         [self runAddChunk:chunkInfo];
