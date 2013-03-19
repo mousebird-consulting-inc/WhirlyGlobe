@@ -284,6 +284,18 @@ LocationInfo locations[NumLocations] =
             vecWidth = 4.0;
         }
             break;
+        case QuadTestLayer:
+        {
+            self.title = @"Quad Paging Test Layer";
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor blackColor];
+            vecWidth = 4.0;
+            [baseViewC addQuadTestLayerMaxZoom:17];
+        }
+            break;
         default:
             break;
     }
