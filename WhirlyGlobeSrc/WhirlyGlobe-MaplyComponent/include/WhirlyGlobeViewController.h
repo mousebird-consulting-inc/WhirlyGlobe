@@ -84,7 +84,7 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
-/// This is is radians.  0 is looking straight down (the default)
+/// This is in radians.  0 is looking straight down (the default)
 ///  PI/2 is looking toward the horizon.
 @property(nonatomic,assign) float tilt;
 
@@ -93,6 +93,13 @@
 
 /// Set the min and max heights above the globe for zooming
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
+/// Set the height range over which to modify tilt.  We'll
+///  vary the tilt between the given values over the given height range, if set.
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt;
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight;
 
 /// Set this to something other than zero and it will autorotate
 ///  after that interval the given number of degrees per second

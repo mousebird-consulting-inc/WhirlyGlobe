@@ -32,7 +32,7 @@
     float heightAboveGlobe;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView;
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3f)currentUp;

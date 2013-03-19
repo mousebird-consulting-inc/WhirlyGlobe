@@ -41,5 +41,8 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
 	
 /// Calculates the intersection point of two lines (not line segments) if there is one
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
+
+/// Clip and return a polygon represented in homogeneous coordinates
+void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4f> &pts,std::vector<Eigen::Vector4f> &outPts);
 	
 }

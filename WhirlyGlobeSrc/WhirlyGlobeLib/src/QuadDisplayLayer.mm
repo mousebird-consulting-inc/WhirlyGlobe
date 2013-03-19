@@ -193,7 +193,8 @@ static float const BoundsEps = 10.0 / EarthRadius;
 }
 
 // Calculate the size of a rectangle projected onto the screen
-float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+// Note: This doesn't do clipping
+float PolyImportanceOld(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     // Project the points onto the screen
     std::vector<Point2f> screenPts;
@@ -210,6 +211,44 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
     if (!mbrOnScreen.overlaps(frameMbr))
         return 0.0;
 
+    float area = CalcLoopArea(screenPts);
+    
+    if (boost::math::isnan(area))
+        area = 0.0;
+    
+    return std::abs(area);
+}
+
+float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+{
+    std::vector<Eigen::Vector4f> pts;
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        const Point3f &pt = poly[ii];
+        // Run through the model transform
+        Vector4f modPt = viewState->fullMatrix * Vector4f(pt.x(),pt.y(),pt.z(),1.0);
+        // And then the projection matrix.  Now we're in clip space
+        Vector4f projPt = viewState->projMatrix * modPt;
+        pts.push_back(projPt);
+    }
+    
+    // The points are in clip space, so clip!
+    std::vector<Eigen::Vector4f> outPts;
+    ClipHomogeneousPolygon(pts,outPts);
+    
+    // Outside the viewing frustum, so ignore it
+    if (outPts.empty())
+        return 0.0;
+    
+    // Project to the screen and calculate area
+    std::vector<Point2f> screenPts;
+    for (unsigned int ii=0;ii<outPts.size();ii++)
+    {
+        Vector4f &outPt = outPts[ii];
+        Point2f screenPt(outPt.x()/outPt.w() * frameSize.x(),outPt.y()/outPt.w() * frameSize.y());
+        screenPts.push_back(screenPt);
+    }
+    
     float area = CalcLoopArea(screenPts);
     
     if (boost::math::isnan(area))

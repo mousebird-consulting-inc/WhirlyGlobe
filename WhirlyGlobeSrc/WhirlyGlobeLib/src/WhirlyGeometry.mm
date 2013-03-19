@@ -106,5 +106,81 @@ bool IntersectLines(const Point2f &p1,const Point2f &p2,const Point2f &p3,const 
     
     return true;
 }
+    
+// Homogeneous clipping code credit to:
+//   http://wwwx.cs.unc.edu/~sud/courses/236/a5/softgl_homoclip_smooth.cpp
+
+// Clipping planes
+typedef enum {Left,Right,Bottom,Top,Near,Far} ClipPlane;
+    
+Eigen::Vector4f intersectPlane(const Vector4f &p1,const Vector4f &p2,ClipPlane plane)
+{
+    float t=0.0;
+    switch (plane)
+    {
+        case Left   : t=(-p1.w()-p1.x())/(p2.x()-p1.x()+p2.w()-p1.w()); break;
+        case Right  : t=(p1.w()-p1.x())/(p2.x()-p1.x()-p2.w()+p1.w());  break;
+        case Bottom : t=(-p1.w()-p1.y())/(p2.y()-p1.y()+p2.w()-p1.w()); break;
+        case Top    : t=(p1.w()-p1.y())/(p2.y()-p1.y()-p2.w()+p1.w());  break;
+        case Near   : t=(-p1.w()-p1.z())/(p2.z()-p1.z()+p2.w()-p1.w()); break;
+        case Far    : t=(p1.w()-p1.z())/(p2.z()-p1.z()-p2.w()+p1.w());  break;
+    }
+    
+    Vector4f pt = p1 + (p2-p1)*t;
+    
+    return pt;
+}
+    
+bool insidePlane(const Vector4f &pt,ClipPlane plane)
+{
+    switch (plane)
+    {
+        case Left: return pt.x()>=  -pt.w();
+        case Right: return pt.x()<=  pt.w();
+        case Bottom: return pt.y()>=-pt.w();
+        case Top: return pt.y()<=    pt.w();
+        case Near: return pt.z()>=  -pt.w();
+        case Far: return pt.z()<=    pt.w();
+    }
+    
+    // Won't get here
+    return false;
+}
+
+void ClipHomogeneousPolyToPlane(const std::vector<Eigen::Vector4f> &pts,ClipPlane plane,std::vector<Eigen::Vector4f> &outPts)
+{
+    outPts.clear();
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        const Vector4f &p0 = pts[ii];
+        const Vector4f &p1 = pts[(ii+1)%pts.size()];
+        bool p0_in = insidePlane(p0,plane);
+        bool p1_in = insidePlane(p1,plane);
+        // Edge crosses plane
+        if (p0_in != p1_in)
+        {
+            Vector4f newP = intersectPlane(p0,p1,plane);
+            outPts.push_back(newP);
+        }
+        // 2nd vertex inside, add it
+        if (p1_in)
+            outPts.push_back(p1);
+    }
+}
+    
+void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4f> &inPts,std::vector<Eigen::Vector4f> &outPts)
+{
+    if (inPts.size() < 3)
+        return;
+    std::vector<Vector4f> pts = inPts;
+ 
+    ClipHomogeneousPolyToPlane(pts, Left, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Right, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Bottom, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Top, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Near, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Far, outPts);
+}
+
 	
 }

@@ -253,6 +253,19 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
+{
+    if (pinchDelegate)
+        [pinchDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+}
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight
+{
+    if (pinchDelegate)
+        [pinchDelegate clearTiltZoom];
+}
+
 - (float)tilt
 {
     return globeView.tilt;
@@ -333,6 +346,11 @@ using namespace WhirlyGlobe;
 {
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
+    // If there's a pinch delegate, ask it to calculate the height.
+    if (pinchDelegate)
+    {
+        self.tilt = [pinchDelegate calcTilt];
+    }
 }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height

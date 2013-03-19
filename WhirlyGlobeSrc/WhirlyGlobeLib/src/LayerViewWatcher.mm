@@ -20,6 +20,7 @@
 
 #import "LayerViewWatcher.h"
 #import "LayerThread.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -63,7 +64,7 @@ using namespace WhirlyKit;
     
     if (!lastViewState)
     {
-        WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view];
+        WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
     }
     
@@ -107,7 +108,7 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
-    WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView];
+    WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
     lastViewState = viewState;
     [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
     [self performSelector:@selector(kickoffViewUpdated:) onThread:layerThread withObject:viewState waitUntilDone:NO];
@@ -190,7 +191,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitViewState
 
-- (id)initWithView:(WhirlyKitView *)view
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer
 {
     self = [super init];
     if (!self)
@@ -199,6 +200,7 @@ using namespace WhirlyKit;
     modelMatrix = [view calcModelMatrix];
     viewMatrix = [view calcViewMatrix];
     fullMatrix = [view calcFullMatrix];
+    projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight)];
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;
     nearPlane = view.nearPlane;
