@@ -26,9 +26,9 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeViewState
 
-- (id)initWithView:(WhirlyGlobeView *)globeView
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer
 {
-    self = [super initWithView:globeView];
+    self = [super initWithView:globeView renderer:renderer];
     if (self)
     {
         heightAboveGlobe = globeView.heightAboveGlobe;

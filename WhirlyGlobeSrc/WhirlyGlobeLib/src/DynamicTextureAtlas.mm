@@ -95,7 +95,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         // Providing glTexImage2D with empty memory so Instruments doesn't complain
         size_t size = texSize*texSize*4;
         unsigned char *zeroMem = (unsigned char *)malloc(size);
-        memset(zeroMem, 0, size);
+        memset(zeroMem, 255, size);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
         free(zeroMem);
     }

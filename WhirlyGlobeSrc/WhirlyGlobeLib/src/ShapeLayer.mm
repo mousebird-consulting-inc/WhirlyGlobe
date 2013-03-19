@@ -225,7 +225,7 @@ public:
         drawable->setType(GL_TRIANGLES);
         // Adjust according to the vector info
         drawable->setDrawOffset(shapeInfo.drawOffset);
-//        drawable->setColor([shapeInfo.color asRGBAColor]);
+        drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setDrawPriority(shapeInfo.drawPriority);
         drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
         drawable->setForceZBufferOn(true);

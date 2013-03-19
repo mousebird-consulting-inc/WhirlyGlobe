@@ -30,7 +30,7 @@
 @public
 }
 
-- (id)initWithView:(MaplyView *)mapView;
+- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end
 

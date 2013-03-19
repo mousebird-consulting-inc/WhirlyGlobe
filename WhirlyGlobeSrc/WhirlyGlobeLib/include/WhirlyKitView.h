@@ -89,6 +89,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Return the combination of model and view matrix
 - (Eigen::Matrix4f)calcFullMatrix;
 
+/// Calculate the projection matrix, given the size of the frame buffer
+- (Eigen::Matrix4f)calcProjectionMatrix:(WhirlyKit::Point2f)frameBufferSize;
+
 /// Return the nominal height above the surface of the data
 - (float)heightAboveSurface;
 

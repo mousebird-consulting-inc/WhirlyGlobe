@@ -35,12 +35,14 @@ using namespace WhirlyKit;
 @synthesize runLoop;
 @synthesize viewWatcher;
 @synthesize glContext;
+@synthesize renderer;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer;
 {
 	if ((self = [super init]))
 	{
 		scene = inScene;
+        renderer = inRenderer;
 		layers = [NSMutableArray array];
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
