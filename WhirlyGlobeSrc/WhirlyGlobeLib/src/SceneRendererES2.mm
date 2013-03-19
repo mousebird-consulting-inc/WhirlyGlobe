@@ -360,7 +360,7 @@ static const bool UsingAsyncRender = true;
     Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
     
     // Set up a projection matrix
-    Eigen::Matrix4f projMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight)];
+    Eigen::Matrix4f projMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);

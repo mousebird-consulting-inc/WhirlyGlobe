@@ -127,6 +127,8 @@
         case MapBoxTilesRegular1:
             cell.textLabel.text = @"MapBox Tiles Regular - Remote";
             break;
+        case QuadTestLayer:
+            cell.textLabel.text = @"Quad Paging Test";
         default:
             break;
     }

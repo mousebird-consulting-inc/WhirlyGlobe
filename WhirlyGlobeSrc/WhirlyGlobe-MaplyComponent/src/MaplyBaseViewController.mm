@@ -550,6 +550,16 @@ static const float PerfOutputDelay = 15.0;
     return newLayer;
 }
 
+- (MaplyViewControllerLayer *)addQuadTestLayerMaxZoom:(int)maxZoom
+{
+    MaplyQuadTestLayer *newLayer = [[MaplyQuadTestLayer alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer maxZoom:maxZoom];
+    if (!newLayer)
+        return nil;
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls

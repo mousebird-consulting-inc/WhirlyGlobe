@@ -32,6 +32,7 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
+#import "MaplyQuadTestLayer_private.h"
 
 @interface MaplyBaseViewController()
 {
