@@ -46,6 +46,9 @@
     
     /// Our own EAGLContext, connected by a share group to the main one
     EAGLContext *glContext;
+    
+    /// The renderer we're working with
+    WhirlyKitSceneRendererES __weak *renderer;
         
     /// Used to keep track of things to delete
     std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
@@ -60,6 +63,7 @@
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 @property (nonatomic,readonly) EAGLContext *glContext;
+@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 
 /// Set up with a scene and a view
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;

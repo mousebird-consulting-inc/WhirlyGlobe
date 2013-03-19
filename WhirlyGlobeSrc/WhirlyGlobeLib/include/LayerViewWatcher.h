@@ -24,6 +24,7 @@
 /// @cond
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
+@class WhirlyKitSceneRendererES;
 /// @endcond
 
 /** The layer view watcher is a base class.  We subclass it for specific
@@ -68,7 +69,7 @@
 @interface WhirlyKitViewState : NSObject
 {
 @public
-    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix;
+    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix,projMatrix;
 	float fieldOfView;
 	float imagePlaneSize;
 	float nearPlane;
@@ -81,7 +82,7 @@
 }
 
 /// Called by the subclasses
-- (id)initWithView:(WhirlyKitView *)view;
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Calculate where the eye is in model coordinates
 - (Eigen::Vector3f)eyePos;
