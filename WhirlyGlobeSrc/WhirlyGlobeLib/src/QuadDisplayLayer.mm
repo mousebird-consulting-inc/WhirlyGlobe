@@ -228,7 +228,7 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
         // Run through the model transform
         Vector4f modPt = viewState->fullMatrix * Vector4f(pt.x(),pt.y(),pt.z(),1.0);
         // And then the projection matrix.  Now we're in clip space
-        Vector4f projPt = viewState->projMatrix * modPt;
+        Vector4f projPt = viewState->projDoubleMatrix * modPt;
         pts.push_back(projPt);
     }
     
@@ -242,10 +242,11 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
     
     // Project to the screen and calculate area
     std::vector<Point2f> screenPts;
+    Point2f halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
     for (unsigned int ii=0;ii<outPts.size();ii++)
     {
         Vector4f &outPt = outPts[ii];
-        Point2f screenPt(outPt.x()/outPt.w() * frameSize.x(),outPt.y()/outPt.w() * frameSize.y());
+        Point2f screenPt(outPt.x()/outPt.w() * frameSize.x()+frameSize.x(),outPt.y()/outPt.w() * frameSize.y()+frameSize.y());
         screenPts.push_back(screenPt);
     }
     

@@ -91,13 +91,21 @@ using namespace Eigen;
     return [self calcViewMatrix] * [self calcModelMatrix];
 }
 
-- (Eigen::Matrix4f)calcProjectionMatrix:(Point2f)frameBufferSize
+- (Eigen::Matrix4f)calcProjectionMatrix:(Point2f)frameBufferSize margin:(float)margin
 {
+	GLfloat near=0,far=0;
+	Point2f frustLL,frustUR;
+	frustLL.x() = -imagePlaneSize * (1.0 + margin);
+	frustUR.x() = imagePlaneSize * (1.0 + margin);
+	float ratio =  ((float)frameBufferSize.y() / (float)frameBufferSize.x());
+	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
+	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
+	near = nearPlane;
+	far = farPlane;
+    
+    
     // Borrowed from the "OpenGL ES 2.0 Programming" book
     Eigen::Matrix4f projMat;
-	Point2f frustLL,frustUR;
-	GLfloat near=0,far=0;
-	[self calcFrustumWidth:frameBufferSize.x() height:frameBufferSize.y() ll:frustLL ur:frustUR near:near far:far];
     Point3f delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
     projMat.setIdentity();
     projMat(0,0) = 2.0f * near / delta.x();
