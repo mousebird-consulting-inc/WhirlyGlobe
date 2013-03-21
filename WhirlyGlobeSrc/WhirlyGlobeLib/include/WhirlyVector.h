@@ -208,6 +208,17 @@ protected:
 	
 	GeoCoord pt_ll,pt_ur;
 };
+    
+/** 3D ray representation.  Mostly used for intersection calculation.
+  */
+class Ray3f
+{
+public:
+    Ray3f() { }
+    Ray3f(Point3f org,Point3f dir) : org(org), dir(dir) { }
+    
+    Point3f org,dir;
+};
 
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes

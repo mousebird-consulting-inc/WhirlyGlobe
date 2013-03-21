@@ -95,6 +95,12 @@ public:
     /// Only called by the renderer
     void swapBuffers(int whichBuffer);
     
+    /// Run the changes in the non-active buffer (don't call this yourself)
+    void executeFlush(int whichBuffer);
+    
+    /// Return which is the active buffer
+    int getActiveBuffer() { return activeBuffer; }
+    
 protected:
     GLuint programId;
     SimpleIdentity texId;
@@ -189,6 +195,19 @@ protected:
     SEL sel;
     SimpleIdentity drawId;
     int whichBuffer;
+};
+
+/// Tell the main rendering thread to flush a given big drawable
+class BigDrawableFlush : public ChangeRequest
+{
+public:
+    BigDrawableFlush(SimpleIdentity drawId) : drawId(drawId) { }
+
+    /// Run the flush.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity drawId;
 };
 
 }

@@ -37,6 +37,11 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     return selectID < that.selectID;
 }
 
+bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
+{
+    return selectID < that.selectID;
+}
+
 @implementation WhirlyKitSelectionLayer
 
 - (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer
@@ -112,21 +117,44 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     rect2Dselectables.insert(newSelect);
 }
 
+- (void)addSelectableAxisRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    RectSolidSelectable newSelect;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    const Point3f &ll = pts[0];
+    const Point3f &ur = pts[1];
+    newSelect.pts[0] = Point3f(ll.x(),ll.y(),ll.z());
+    newSelect.pts[1] = Point3f(ur.x(),ll.y(),ll.z());
+    newSelect.pts[2] = Point3f(ur.x(),ur.y(),ll.z());
+    newSelect.pts[3] = Point3f(ll.x(),ur.y(),ll.z());
+    newSelect.pts[4] = Point3f(ll.x(),ll.y(),ur.z());
+    newSelect.pts[5] = Point3f(ur.x(),ll.y(),ur.z());
+    newSelect.pts[6] = Point3f(ur.x(),ur.y(),ur.z());
+    newSelect.pts[7] = Point3f(ll.x(),ur.y(),ur.z());
+    
+    rectSolidSelectables.insert(newSelect);
+}
+
 // Remove the given selectable from consideration
 - (void)removeSelectable:(SimpleIdentity)selectID
 {
     RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
     
     if (it != rect3Dselectables.end())
-    {
         rect3Dselectables.erase(it);
-    }
     
     RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
     if (it2 != rect2Dselectables.end())
-    {
         rect2Dselectables.erase(it2);
-    }
+    
+    RectSolidSelectableSet::iterator it3 = rectSolidSelectables.find(RectSolidSelectable(selectID));
+    if (it3 != rectSolidSelectables.end())
+        rectSolidSelectables.erase(it3);
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
@@ -201,6 +229,63 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
                 }
             }
         }
+    }
+
+    if (retId == EmptyIdentity)
+    {
+        // Calculate a ray in display space from the viewer
+//        Ray3f dispRay = [theView displaySpaceRayFromScreenPt:touchPt width:renderer.framebufferWidth height:renderer.framebufferHeight];
+        
+        // Work through the axis aligned rectangular solids
+//        float minDist2 = MAXFLOAT;
+//        SimpleIdentity foundId = EmptyIdentity;
+        for (RectSolidSelectableSet::iterator it = rectSolidSelectables.begin();
+             it != rectSolidSelectables.end(); ++it)
+        {
+            RectSolidSelectable sel = *it;
+            if (sel.selectID != EmptyIdentity)
+            {
+                if (sel.minVis == DrawVisibleInvalid ||
+                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                {
+                    std::vector<Point2f> screenPts;
+                    
+//                    // Convert coordinates to screen
+//                    
+//                    for (unsigned int ii=0;ii<4;ii++)
+//                    {
+//                        CGPoint screenPt;
+//                        if (globeView)
+//                            screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+//                        else
+//                            screenPt = [mapView pointOnScreenFromPlane:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+//                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+//                    }
+//                    
+//                    // See if we fall within that polygon
+//                    if (PointInPolygon(touchPt, screenPts))
+//                    {
+//                        retId = sel.selectID;
+//                        break;
+//                    }
+//                    
+//                    // Now for a proximity check around the edges
+//                    for (unsigned int ii=0;ii<4;ii++)
+//                    {
+//                        Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+//                        float dist2 = (closePt-touchPt).squaredNorm();
+//                        if (dist2 <= maxDist2 && (dist2 < closeDist2))
+//                        {
+//                            retId = sel.selectID;
+//                            closeDist2 = dist2;
+//                        }
+//                    }
+                }
+            }
+        }
+        
+//        if (foundId != EmptyIdentity)
+//            retId = foundId;
     }
     
 

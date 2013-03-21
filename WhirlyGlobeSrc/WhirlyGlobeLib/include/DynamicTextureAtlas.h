@@ -59,6 +59,9 @@ public:
     /// This is probably called on the layer thread
     void addTexture(Texture *tex,const Region &region);
     
+    /// Add the data at a given location in the texture
+    void addTextureData(int startX,int startY,int width,int height,NSData *data);
+    
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
     
@@ -94,7 +97,23 @@ protected:
     /// Number of active regions
     int numRegions;
 };
-        
+
+/// Copy data into a dynamic texture (on the main thread)
+class DynamicTextureAddRegion : public ChangeRequest
+{
+public:
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,NSData *data)
+    : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
+
+    /// Add the region.  Never call this.
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity texId;
+    int startX,startY,width,height;
+    NSData *data;
+};
+    
 /// Tell a dynamic texture that a region has been released for use
 class DynamicTextureClearRegion : public ChangeRequest
 {

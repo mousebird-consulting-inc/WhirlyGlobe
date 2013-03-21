@@ -182,5 +182,10 @@ void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4f> &inPts,std::vecto
     ClipHomogeneousPolyToPlane(pts, Far, outPts);
 }
 
+bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
+{
+    
+}
+
 	
 }
