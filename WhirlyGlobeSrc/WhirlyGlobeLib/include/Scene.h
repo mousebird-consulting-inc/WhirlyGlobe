@@ -60,7 +60,7 @@ public:
 
     /// Texture creation generally wants a flush
     virtual bool needsFlush() { return true; }
-
+    
     /// Create the texture on its native thread
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
 

@@ -45,4 +45,8 @@ bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const 
 /// Clip and return a polygon represented in homogeneous coordinates
 void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4f> &pts,std::vector<Eigen::Vector4f> &outPts);
 	
+/// Look for a ray/rectangular solid intersection.
+/// Return true if we found one and the distance^2 from the ray origin to the intersection
+bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
+    
 }

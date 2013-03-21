@@ -360,6 +360,8 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,int elementPos,int elemen
     unsigned char *zeroData = (unsigned char *)malloc(elementSize);
     memset(zeroData, 0, elementSize);
     NSData *elementData = [[NSData alloc] initWithBytesNoCopy:zeroData length:elementSize freeWhenDone:YES];
+//    unsigned char *zeroDataVert = (unsigned char *)malloc(vertSize);
+//    NSData *vertData = [[NSData alloc] initWithBytesNoCopy:zeroDataVert length:vertSize freeWhenDone:YES];
     Change change(ChangeClear,vertPos,nil,elementPos,elementData);
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
@@ -367,22 +369,11 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,int elementPos,int elemen
     removeRegion(vertexRegions,vertPos,vertSize);
     removeRegion(elementRegions,elementPos,elementSize);
 }
-    
-void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
-{
-    // If we're waiting on a swap, no flushing
-    if (isWaitingOnSwap())
-        return;
 
-    // Figure out which is the inactive buffer.
-    // That's the one we modify
-    int whichBuffer = (activeBuffer == 0 ? 1 : 0);
+void BigDrawable::executeFlush(int whichBuffer)
+{    
     Buffer &theBuffer = buffers[whichBuffer];
-    
-    // No changes, no work
-    if (theBuffer.changes.empty())
-        return;
-    
+
     // Run the additions or clears
     glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
@@ -396,7 +387,7 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak 
                 glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
                 break;
             case ChangeClear:
-//                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
+                //                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
                 glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
                 break;
         }
@@ -404,7 +395,31 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     
-    theBuffer.changes.clear();
+    theBuffer.changes.clear();    
+}
+    
+// If set, we'll do the flushes on the main thread
+static const bool MainThreadFlush = true;
+    
+void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
+{
+    // If we're waiting on a swap, no flushing
+    if (isWaitingOnSwap())
+        return;
+    
+    // Figure out which is the inactive buffer.
+    // That's the one we modify
+    int whichBuffer = (activeBuffer == 0 ? 1 : 0);
+    
+    // No changes, no work
+    Buffer &theBuffer = buffers[whichBuffer];
+    if (theBuffer.changes.empty())
+        return;
+    
+    if (!MainThreadFlush)
+        executeFlush(whichBuffer);
+    else
+        changes.push_back(new BigDrawableFlush(getId()));
     
     // Ask the renderer to swap buffers
     pthread_mutex_lock(&useMutex);
@@ -451,6 +466,17 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [target performSelector:sel];
 #pragma clang diagnostic pop
+    }
+}
+    
+void BigDrawableFlush::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+    {
+        int whichBuffer = (bigDraw->getActiveBuffer() == 0 ? 1 : 0);
+        bigDraw->executeFlush(whichBuffer);
     }
 }
 
