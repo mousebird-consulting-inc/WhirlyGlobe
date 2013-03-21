@@ -65,6 +65,9 @@
 /// Returns false if there was no loop
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 
+/// Bounding box for all the data in the vector
+- (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
 /// Vector objects can encapsulate multiple objects since they're read from GeoJSON.
 /// This splits any multiples into single objects.
 - (NSArray *)splitVectors;

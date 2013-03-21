@@ -120,6 +120,11 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
     int height = tex->getHeight();
     
     NSData *data = tex->processData();
+    addTextureData(startX,startY,width,height,data);
+}
+    
+void DynamicTexture::addTextureData(int startX,int startY,int width,int height,NSData *data)
+{
     if (data)
     {
         glBindTexture(GL_TEXTURE_2D, glId);
@@ -129,10 +134,10 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
             size_t size = width * height / 2;
             glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, size, [data bytes]);
         } else
-        glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_RGBA, format, [data bytes]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_RGBA, format, [data bytes]);
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
-    }
+    }    
 }
 
 void DynamicTexture::setRegion(const Region &region, bool enable)
@@ -213,6 +218,16 @@ void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *r
     }
 }
     
+void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    TextureBase *tex = scene->getTexture(texId);
+    DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
+    if (dynTex)
+    {
+        dynTex->addTextureData(startX, startY, width, height, data);
+    }    
+}
+    
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format)
     : texSize(texSize), cellSize(cellSize), format(format)
 {
@@ -225,6 +240,9 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
         delete *it;
     textures.clear();
 }
+    
+// If set, we ask the main thread to do the sub texture loads
+static const bool MainThreadMerge = true;
     
 bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes)
 {
@@ -275,9 +293,16 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
     {
         dynTex->setRegion(texRegion.region, true);
 //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
-        dynTex->addTexture(tex, texRegion.region);
-        // This asks for a flush
-        changes.push_back(NULL);
+        // Note: Making the main thread do the merge
+        if (MainThreadMerge)
+            changes.push_back(new DynamicTextureAddRegion(dynTex->getId(),
+                                                          texRegion.region.sx * cellSize, texRegion.region.sy * cellSize, tex->getWidth(), tex->getHeight(),
+                                                          tex->processData()));
+        else
+            dynTex->addTexture(tex, texRegion.region);
+
+//        // This asks for a flush
+//        changes.push_back(NULL);
 //        Point2f halfPix(0.5 / texSize, 0.5 / texSize);
         TexCoord org((texRegion.region.sx * cellSize) / (float)texSize, (texRegion.region.sy * cellSize) / (float)texSize);
 //        texRegion.subTex.setFromTex(TexCoord(org.x()+halfPix.x(),org.y()+halfPix.y()),

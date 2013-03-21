@@ -258,7 +258,7 @@ void VectorPoints::initGeoMbr()
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)
 {
-    if (![coords isKindOfClass:[NSArray class]] || [coords count] != 2)
+    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
         return false;
     coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
     coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
@@ -355,7 +355,6 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
         NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
         if (![coordsArray isKindOfClass:[NSArray class]])
             return false;
-        VectorArealRef ar = VectorAreal::createAreal();
         for (NSArray *coordsEntry in coordsArray)
         {
             VectorRing coords;

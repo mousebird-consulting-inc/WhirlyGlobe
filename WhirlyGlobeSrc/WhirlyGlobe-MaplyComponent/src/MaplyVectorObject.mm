@@ -240,6 +240,29 @@ using namespace WhirlyGlobe;
     return true;
 }
 
+- (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
+{
+    bool valid = false;
+    Mbr mbr;
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        GeoMbr geoMbr = (*it)->calcGeoMbr();
+        mbr.addPoint(geoMbr.ll());
+        mbr.addPoint(geoMbr.ur());
+        valid = true;
+    }
+
+    if (valid)
+    {
+        ll->x = mbr.ll().x();
+        ll->y = mbr.ll().y();
+        ur->x = mbr.ur().x();
+        ur->y = mbr.ur().y();
+    }
+    
+    return valid;
+}
+
 - (NSArray *)splitVectors
 {
     NSMutableArray *vecs = [NSMutableArray array];

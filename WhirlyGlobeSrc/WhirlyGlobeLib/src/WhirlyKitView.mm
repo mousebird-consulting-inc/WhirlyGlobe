@@ -154,6 +154,19 @@ using namespace Eigen;
 	return Point3f(mid.x(),mid.y(),-near);
 }
 
+- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight
+{
+    // Here's where that screen point is in display space
+    Point3f dispPt = [self pointUnproject:screenPt width:frameWidth height:frameHeight clip:false];
+
+    Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
+	
+	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
+	Vector3f eyePt(newUp.x(),newUp.y(),newUp.z());
+        
+    return Ray3f(eyePt,(dispPt-eyePt).normalized());
+}
+
 /// Add a watcher delegate
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
 {

@@ -66,6 +66,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     {
         BigDrawable *newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
         newBigDraw->setDrawPriority(draw->getDrawPriority());
+        // Note: debugging
         newBigDraw->setTexId(draw->getTexId());
         newBigDraw->setForceZBufferOn(draw->getForceZBufferOn());
         newBigDraw->setupGL(NULL, memManager);

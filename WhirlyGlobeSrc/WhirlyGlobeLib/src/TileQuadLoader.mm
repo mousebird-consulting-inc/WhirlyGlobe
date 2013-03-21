@@ -923,7 +923,7 @@ void LoadedTile::Print(Quadtree *tree)
     {
         [layerThread addChangeRequests:(changeRequests)];
         changeRequests.clear();
-        [layerThread flushChangeRequests];
+//        [layerThread flushChangeRequests];
     }
 }
 
