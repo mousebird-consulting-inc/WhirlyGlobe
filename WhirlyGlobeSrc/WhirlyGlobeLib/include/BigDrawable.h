@@ -24,6 +24,8 @@
 namespace WhirlyKit
 {
     
+class BigDrawableSwap;
+    
 /** The Big Drawable is a double buffered drawable we can use to make changes
     in one thread and have them reflected in the renderer without slowing
     the renderer down.
@@ -77,20 +79,22 @@ public:
     bool getForceZBufferOn() { return forceZBuffer; }
     void setForceZBufferOn(bool enable) { forceZBuffer = enable; }
 
-
     /// Look for a region of the given size for the given data.
-    /// If there isn't one, return false.  If there is one, we'll
-    ///  use it and return the position and size of the region (in bytes).
-    bool addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,int &elementPos);
+    /// This places the vertex data and adds the element data to the set
+    ///  of element chunks we consolidate during a flush.
+    SimpleIdentity addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData);
     
     /// Clear the region referred to by position and size (in bytes)
-    void clearRegion(int vertPos,int vertSize,int elementPos,int elementSize);
+    void clearRegion(int vertPos,int vertSize,SimpleIdentity elementChunkId);
     
     /// Flush out changes to the inactive buffer and request a switch
-    void flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
+    void swap(std::vector<ChangeRequest *> &changes,BigDrawableSwap *swapRequest);
     
     /// Return true if we're waiting on a buffer swap, but don't block
     bool isWaitingOnSwap();
+    
+    /// Check if there are outstanding changes in either buffer
+    bool hasChanges();
     
     /// Only called by the renderer
     void swapBuffers(int whichBuffer);
@@ -112,17 +116,21 @@ protected:
     class Change
     {
     public:
-        Change(ChangeType type,int whereVert,NSData *vertData,int whereElement,NSData *elementData);
+        Change(ChangeType type,int whereVert,NSData *vertData,int clearLen=0);
+        Change(const Change &that) : type(that.type), whereVert(that.whereVert), vertData(that.vertData), clearLen(that.clearLen) { }
+        const Change & operator = (const Change &that) { type = that.type;  whereVert = that.whereVert; vertData = that.vertData;  clearLen = that.clearLen; return *this; }
+        ~Change() { }
         
         // Type of the change we'll make
         ChangeType type;
         // Location (in bytes) in the vertex pool
         int whereVert;
-        // Location (in bytes) in the element pool
-        int whereElement;
         // For an add, the actual data
-        NSData *vertData,*elementData;
+        NSData *vertData;
+        // For a clear, amount of data to clear
+        int clearLen;
     };
+    typedef boost::shared_ptr<Change> ChangeRef;
     
     /// Used to represent a single buffer we can draw
     class Buffer
@@ -136,7 +144,7 @@ protected:
         // Number of active elements to draw (starting from zero)
         int numElement;
         // Changes we need to make to this buffer at the next opportunity
-        std::vector<Change> changes;
+        std::vector<ChangeRef> changes;
         // VAO we use for rendering
         GLuint vertexArrayObj;
     };
@@ -155,7 +163,7 @@ protected:
     bool waitingOnSwap;
     pthread_mutex_t useMutex;
     
-    // Buffer region
+    // Free region within the vertex buffer
     class Region
     {
     public:
@@ -165,13 +173,27 @@ protected:
         // Position and length of a free buffer region
         int pos,len;
     };
-    
     typedef std::set<Region> RegionSet;
-
-    // Remove the givne region from the given region set
+        
+    // Remove the given region from the given region set
     void removeRegion(RegionSet &regions,int pos,int size);
-            
-    RegionSet vertexRegions,elementRegions;
+    
+    RegionSet vertexRegions;
+
+    // A chunk of renderable element data.
+    // We consolidate these during a flush to for a coherent element buffer
+    class ElementChunk : public Identifiable
+    {
+    public:
+        ElementChunk(NSData *elementData) : elementData(elementData) { }
+        ElementChunk(SimpleIdentity theId) : Identifiable(theId) { }
+        NSData *elementData;
+    };
+    typedef std::set<ElementChunk> ElementChunkSet;
+    
+    // Total size of elements we already have
+    int elementChunkSize;
+    ElementChunkSet elementChunks;
 };
             
 typedef boost::shared_ptr<BigDrawable> BigDrawableRef;
@@ -181,8 +203,13 @@ class BigDrawableSwap : public ChangeRequest
 {
 public:
     /// Construct with the big drawable ID and the buffer to switch to
-    BigDrawableSwap(SimpleIdentity drawId,int whichBuffer,NSObject * __weak target,SEL sel)
-    : drawId(drawId), whichBuffer(whichBuffer), target(target), sel(sel) { }
+    BigDrawableSwap(NSObject * __weak target,SEL sel)
+    : target(target), sel(sel) { }
+    
+    void addSwap(SimpleIdentity drawId,int whichBuffer)
+    {
+        swaps.push_back(SwapInfo(drawId,whichBuffer));
+    }
 
     /// Run the swap.  Only the renderer calls this.
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -193,8 +220,14 @@ public:
 protected:
     NSObject * __weak target;
     SEL sel;
-    SimpleIdentity drawId;
-    int whichBuffer;
+    class SwapInfo
+    {
+    public:
+        SwapInfo(SimpleIdentity drawId,int whichBuffer) : drawId(drawId), whichBuffer(whichBuffer) { }
+        SimpleIdentity drawId;
+        int whichBuffer;
+    };
+    std::vector<SwapInfo> swaps;
 };
 
 /// Tell the main rendering thread to flush a given big drawable

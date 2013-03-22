@@ -233,7 +233,10 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
     }
     if (subTex.texId != EmptyIdentity)
     {
-        loader->texAtlas->removeTexture(subTex, changeRequests);
+        std::vector<ChangeRequest *> texChanges;
+        loader->texAtlas->removeTexture(subTex, texChanges);
+        if (loader->drawAtlas)
+            loader->drawAtlas->addSwapChanges(texChanges);
         subTex.texId = EmptyIdentity;
     }
     for (unsigned int ii=0;ii<4;ii++)
@@ -309,6 +312,8 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
                         [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil];
+                        // Set this to change the color of child drawables.  Helpfull for debugging
+//                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
                         if (childSkirtDraw)
                             childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
@@ -626,7 +631,7 @@ void LoadedTile::Print(Quadtree *tree)
     
     // Size of each chunk
     Point2f chunkSize = theMbr.ur() - theMbr.ll();
-    
+        
     // Unit size of each tesselation in spherical mercator
     Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
@@ -805,7 +810,7 @@ void LoadedTile::Print(Quadtree *tree)
                     skirtChunk->setTexId((*tex)->getId());
                 *skirtDraw = skirtChunk;
             }
-
+            
             if (coverPoles && !coordAdapter->isFlat())
             {
                 // If we're at the top, toss in a few more triangles to represent that
@@ -918,7 +923,10 @@ void LoadedTile::Print(Quadtree *tree)
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread
 {
     if (drawAtlas)
-        drawAtlas->flush(changeRequests,quadLayer,@selector(wakeUp));
+    {
+        if (drawAtlas->hasUpdates() && !drawAtlas->waitingOnSwap())
+            drawAtlas->swap(changeRequests,quadLayer,@selector(wakeUp));
+    }
     if (!changeRequests.empty())
     {
         [layerThread addChangeRequests:(changeRequests)];
@@ -996,10 +1004,10 @@ static const int SingleElementSize = sizeof(GLushort);
         // Note: Trouble with PVRTC sub texture loading
         if (imageType != WKTilePVRTC4)
         {
-            // At 256 pixels square we can hold 64 tiles in a texture atlas
-            int DrawBufferSize = 2 * (sphereTessX + 1) * (sphereTessY + 1) * SingleVertexSize * 64;
+            // At 256 pixels square we can hold 64 tiles in a texture atlas.  Round up to 1k.
+            int DrawBufferSize = ceil((2 * (sphereTessX + 1) * (sphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
             // Two triangles per grid cell in a tile
-            int ElementBufferSize = 2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64;
+            int ElementBufferSize = ceil((2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
             texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
         }
