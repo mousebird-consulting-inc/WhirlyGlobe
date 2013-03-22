@@ -41,14 +41,21 @@ public:
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes);
     
-    /// Flush out any outstanding changes.
+    /// Check if there are any active updates in any of the drawable buffers
+    bool hasUpdates();
+    
+    /// Flush out any outstanding changes and swap the 
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
     ///  thing on the main thread.  Use this to wake yourself up on another thread.
-    void flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
+    void swap(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
     
     /// Check if we're waiting on an active drawable buffer swap
     bool waitingOnSwap();
+    
+    /// Add changes to be executed with the next buffer swap.
+    /// These are things like the removal of textures that we're using.
+    void addSwapChanges(const std::vector<ChangeRequest *> &swapChanges);
     
     /// Remove anything associated with the drawable atlas
     void shutdown(std::vector<ChangeRequest *> &changes);
@@ -59,14 +66,14 @@ protected:
     {
     public:
         // Constructor for sorting
-        DrawRepresent(SimpleIdentity theId) : Identifiable(theId), vertexPos(0), vertexSize(0), elementPos(0), elementSize(0), bigDrawId(EmptyIdentity) { }
+        DrawRepresent(SimpleIdentity theId) : Identifiable(theId), vertexPos(0), vertexSize(0), elementChunkId(EmptyIdentity), bigDrawId(EmptyIdentity) { }
         
         /// Which big drawable this is in
         SimpleIdentity bigDrawId;
         
         /// Position and size within the big drawable (in bytes)
         int vertexPos,vertexSize;
-        int elementPos,elementSize;
+        SimpleIdentity elementChunkId;
     };
 
     OpenGLMemManager *memManager;
@@ -81,6 +88,9 @@ protected:
     // Used to track where the individual drawables wound up
     typedef std::set<DrawRepresent> DrawRepresentSet;
     DrawRepresentSet drawables;
+    
+    // Changes to be swept out with the next swap
+    std::vector<ChangeRequest *> swapChanges;
 };
     
 }

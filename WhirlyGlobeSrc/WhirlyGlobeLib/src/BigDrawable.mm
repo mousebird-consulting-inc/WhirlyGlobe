@@ -26,8 +26,8 @@
 namespace WhirlyKit
 {
     
-BigDrawable::Change::Change(ChangeType type,int whereVert,NSData *vertData,int whereElement,NSData *elementData)
-    : type(type), whereVert(whereVert), vertData(vertData), whereElement(whereElement), elementData(elementData)
+BigDrawable::Change::Change(ChangeType type,int whereVert,NSData *vertData,int clearLen)
+    : type(type), whereVert(whereVert), vertData(vertData), clearLen(clearLen)
 {
 }
     
@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), forceZBuffer(false),
-    waitingOnSwap(false), programId(0)
+    waitingOnSwap(false), programId(0), elementChunkSize(0)
 {
     activeBuffer = -1;
     
@@ -47,10 +47,8 @@ BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int single
     
     // Start with one region that covers the whole thing
     vertexRegions.insert(Region(0,numVertexBytes));
-    elementRegions.insert(Region(0,numElementBytes));
 
-    // Note: This could be more clever
-    buffers[1].numElement = buffers[0].numElement = numElementBytes / singleElementSize;
+    buffers[1].numElement = buffers[0].numElement = 0;
 }
     
 BigDrawable::~BigDrawable()
@@ -123,7 +121,11 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     if (frameInfo.oglVersion < kEAGLRenderingAPIOpenGLES2)
         return;
-
+    
+    Buffer &theBuffer = buffers[activeBuffer];
+    if (theBuffer.numElement <= 0)
+        return;
+    
     OpenGLES2Program *prog = frameInfo.program;
     
     // GL Texture ID
@@ -167,15 +169,13 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
     bool hasNormals = true;
     int normOffset = texCoordOffset + 2*sizeof(float);
-    
-    Buffer &theBuffer = buffers[activeBuffer];
-    
+        
     // Set up a VAO for this buffer, if there isn't one
     if (theBuffer.vertexArrayObj == 0)
     {
-        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
-        glBindVertexArrayOES(theBuffer.vertexArrayObj);
-    
+//        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
+//        glBindVertexArrayOES(theBuffer.vertexArrayObj);
+
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
 
@@ -207,7 +207,8 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glEnableVertexAttribArray(normAttr->index);
         }
         
-        glBindVertexArrayOES(0);
+//        glBindVertexArrayOES(0);
+        glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
 
         // Tear it all down
         if (vertAttr)
@@ -224,18 +225,22 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Draw it
-    glBindVertexArrayOES(theBuffer.vertexArrayObj);
-    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
-    glBindVertexArrayOES(0);
+//    glBindVertexArrayOES(theBuffer.vertexArrayObj);
+//    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
+//    glBindVertexArrayOES(0);
     
     if (hasTexture)
         glBindTexture(GL_TEXTURE_2D, 0);
 }
     
-bool BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,int &elementPos)
+SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData)
 {
     size_t vertexSize = [vertData length];
     size_t elementSize = [elementData length];
+    
+    // Make sure there's room for the elements
+    if (elementSize + elementChunkSize >= numElementBytes)
+        return EmptyIdentity;
     
     // Let's look for a region large enough to contain the new vertices
     RegionSet::iterator vrit;
@@ -248,21 +253,7 @@ bool BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *
     }
     // Not enough room
     if (vrit == vertexRegions.end())
-        return false;
-
-    // And one large enough to contain the new elements
-    RegionSet::iterator erit;
-    for (erit = elementRegions.begin(); erit != elementRegions.end(); ++erit)
-    {
-        if ((*erit).len >= elementSize)
-        {
-            break;
-        }
-    }
-    // Not enough room
-    if (erit == elementRegions.end())
-        return false;
-    
+        return EmptyIdentity;
 
     // Get rid of the old vertex region
     {
@@ -278,19 +269,10 @@ bool BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *
             vertexRegions.insert(newRegion);
     }
 
-    // Get rid of the old element region
-    {
-        Region theRegion = *erit;
-        elementRegions.erase(erit);
-        
-        // Set up the change and let the caller know where it wound up
-        elementPos = theRegion.pos;
-        
-        // Split up the remaining space, if there is any
-        Region newRegion(theRegion.pos + elementSize,theRegion.len - elementSize);
-        if (newRegion.len > 0)
-            elementRegions.insert(newRegion);
-    }
+    // Set up the vertex buffer change for processing later
+    ChangeRef change (new Change(ChangeAdd,vertPos,vertData));
+    for (unsigned int ii=0;ii<2;ii++)
+        buffers[ii].changes.push_back(change);
 
     // We know the element data needs to be offset from the position, so let's do that
     int vertOffset = vertPos/singleVertexSize;
@@ -301,22 +283,31 @@ bool BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *
             *elPtr += vertOffset;
     } else {
         GLuint *elPtr = (GLuint *)[elementData mutableBytes];
-        for (unsigned int ii=0;ii<elementSize/2;ii++,elPtr++)
-            *elPtr += vertOffset;      
+        for (unsigned int ii=0;ii<elementSize/4;ii++,elPtr++)
+            *elPtr += vertOffset;
     }
 
-    // Set up the change for processing later
-    Change change(ChangeAdd,vertPos,vertData,elementPos,elementData);
-    for (unsigned int ii=0;ii<2;ii++)
-        buffers[ii].changes.push_back(change);
-    
-    return true;
+    // Toss the element chunk into the set.  It'll be dealt with during the next flush
+    ElementChunk elementChunk(elementData);
+    elementChunks.insert(elementChunk);
+    elementChunkSize += elementSize;
+
+    return elementChunk.getId();
 }
  
 void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
 {
+//    NSLog(@"Removing vertex region (pos,size) = (%d,%d), existing regions = %ld",pos,size,regions.size());
+    
     // Now look for where to put the region back
     Region thisRegion(pos,size);
+    
+    if (regions.empty())
+    {
+        regions.insert(thisRegion);
+        return;
+    }
+    
     RegionSet::iterator prevIt = regions.end();
     RegionSet::iterator nextIt = regions.begin();
     while (nextIt->pos < thisRegion.pos)
@@ -350,62 +341,85 @@ void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
     regions.insert(thisRegion);    
 }
 
-void BigDrawable::clearRegion(int vertPos,int vertSize,int elementPos,int elementSize)
+void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChunkId)
 {
-    if (vertPos+vertSize > numVertexBytes ||
-        elementPos+elementSize > numElementBytes)
+    if (vertPos+vertSize > numVertexBytes)
         return;
-    
+
     // Set up the change in the buffers
-    unsigned char *zeroData = (unsigned char *)malloc(elementSize);
-    memset(zeroData, 0, elementSize);
-    NSData *elementData = [[NSData alloc] initWithBytesNoCopy:zeroData length:elementSize freeWhenDone:YES];
-//    unsigned char *zeroDataVert = (unsigned char *)malloc(vertSize);
-//    NSData *vertData = [[NSData alloc] initWithBytesNoCopy:zeroDataVert length:vertSize freeWhenDone:YES];
-    Change change(ChangeClear,vertPos,nil,elementPos,elementData);
+    ChangeRef change(new Change(ChangeClear,vertPos,nil,vertSize));
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
-    
+
     removeRegion(vertexRegions,vertPos,vertSize);
-    removeRegion(elementRegions,elementPos,elementSize);
+
+    // Remove the element chunk.  The next flush will pick it up.
+    ElementChunkSet::iterator it = elementChunks.find(ElementChunk(elementChunkId));
+    if (it != elementChunks.end())
+    {
+        elementChunkSize -= [it->elementData length];
+        elementChunks.erase(it);
+    }
+    
+    // This would be weird
+    if (elementChunkSize < 0)
+        elementChunkSize = 0;
 }
 
 void BigDrawable::executeFlush(int whichBuffer)
 {    
     Buffer &theBuffer = buffers[whichBuffer];
+    
+    if (theBuffer.changes.empty())
+        return;
 
-    // Run the additions or clears
+    // Run the additions to the vertex buffer
+    // Note: The clears don't do anything
     glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
     for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
     {
-        Change &change = theBuffer.changes[ii];
-        switch (change.type)
+        ChangeRef change = theBuffer.changes[ii];
+        switch (change->type)
         {
             case ChangeAdd:
-                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
-                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
+                glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
                 break;
             case ChangeClear:
+//                memset(vertBufferPtr + change.whereVert, 0, change.clearLen);
                 //                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
-                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, change.whereElement, [change.elementData length], [change.elementData bytes]);
                 break;
         }
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    theBuffer.changes.clear();
+
+    // Redo the entire element buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
+    GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+    GLubyte *elBufPtr = elBuffer;
+    for (ElementChunkSet::iterator it = elementChunks.begin();
+         it != elementChunks.end(); ++it)
+    {
+        size_t len = [it->elementData length];
+        memcpy(elBufPtr, [it->elementData bytes], len);
+        elBufPtr += len;
+    }
+    glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
-    theBuffer.changes.clear();    
+    theBuffer.numElement = elementChunkSize / singleElementSize;
 }
     
 // If set, we'll do the flushes on the main thread
-static const bool MainThreadFlush = true;
+static const bool MainThreadFlush = false;
     
-void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
+void BigDrawable::swap(std::vector<ChangeRequest *> &changes,BigDrawableSwap *swapRequest)
 {
     // If we're waiting on a swap, no flushing
     if (isWaitingOnSwap())
+    {
+        NSLog(@"Uh oh, tried to swap while we're waiting on something.");
         return;
+    }
     
     // Figure out which is the inactive buffer.
     // That's the one we modify
@@ -416,16 +430,18 @@ void BigDrawable::flush(std::vector<ChangeRequest *> &changes,NSObject * __weak 
     if (theBuffer.changes.empty())
         return;
     
-    if (!MainThreadFlush)
-        executeFlush(whichBuffer);
-    else
-        changes.push_back(new BigDrawableFlush(getId()));
+    executeFlush(whichBuffer);
     
     // Ask the renderer to swap buffers
     pthread_mutex_lock(&useMutex);
     waitingOnSwap = true;
     pthread_mutex_unlock(&useMutex);
-    changes.push_back(new BigDrawableSwap(getId(),whichBuffer,target,sel));
+    swapRequest->addSwap(getId(), whichBuffer);
+}
+    
+bool BigDrawable::hasChanges()
+{
+    return !buffers[0].changes.empty() || !buffers[1].changes.empty();
 }
     
 bool BigDrawable::isWaitingOnSwap()
@@ -443,21 +459,38 @@ void BigDrawable::swapBuffers(int whichBuffer)
     activeBuffer = whichBuffer;
     waitingOnSwap = false;
     pthread_mutex_unlock(&useMutex);
-    
-    // Bind the buffer to get any new updates
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[activeBuffer].vertexBufferId);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[activeBuffer].elementBufferId);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);    
+
+    // Let's tear down the VAO's for both buffers
+    for (unsigned int ii=0;ii<2;ii++)
+    {
+        Buffer &theBuffer = buffers[ii];
+        if (theBuffer.vertexArrayObj)
+        {
+            glDeleteVertexArraysOES(1,&theBuffer.vertexArrayObj);
+            theBuffer.vertexArrayObj = 0;
+        }
+
+        // Bind the buffer to get any new updates
+        // Note: Don't think we need this
+        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
 }
 
 // Called in the renderer
 void BigDrawableSwap::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
-    if (bigDraw)
-        bigDraw->swapBuffers(whichBuffer);
+    for (unsigned int ii=0;ii<swaps.size();ii++)
+    {
+        SwapInfo &swap = swaps[ii];
+
+        DrawableRef draw = scene->getDrawable(swap.drawId);
+        BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+        if (bigDraw)
+            bigDraw->swapBuffers(swap.whichBuffer);
+    }
     
     // And let the target know we're done
     if (target)

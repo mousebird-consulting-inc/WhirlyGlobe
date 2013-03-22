@@ -146,7 +146,7 @@ public:
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,std::vector<ChangeRequest *> &changes);
-    
+
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
     void shutdown(std::vector<ChangeRequest *> &changes);
