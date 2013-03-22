@@ -303,7 +303,8 @@ static const int SingleElementSize = sizeof(GLushort);
     }
     
     if (drawAtlas)
-        drawAtlas->flush(changes, self, @selector(wakeUp));
+        if (drawAtlas->hasUpdates() && !drawAtlas->waitingOnSwap())
+            drawAtlas->swap(changes, self, @selector(wakeUp));
     
     [layerThread addChangeRequests:changes];
 }

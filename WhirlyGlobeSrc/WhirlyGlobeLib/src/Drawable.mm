@@ -92,6 +92,9 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
     return which;
 }
 
+// If set, we'll reuse buffers rather than allocating new ones
+static const bool ReuseBuffers = true;
+
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
     bool doClear = false;
@@ -104,7 +107,7 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
     buffIDs.insert(bufID);
     
-    if (buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
+    if (!ReuseBuffers || buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
         doClear = true;
 
     pthread_mutex_unlock(&idLock);
@@ -444,13 +447,13 @@ GLuint BasicDrawable::singleVertexSize()
 void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which)
 {
     if (!points.empty())
-        memcpy(basePtr+pointBuffer, &points[which], 3*sizeof(GLfloat));
+        memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
     if (!colors.empty())
-        memcpy(basePtr+colorBuffer, &colors[which], 4*sizeof(GLchar));
+        memcpy(basePtr+colorBuffer, &colors[which].r, 4*sizeof(GLchar));
     if (!texCoords.empty())
-        memcpy(basePtr+texCoordBuffer, &texCoords[which], 2*sizeof(GLfloat));
+        memcpy(basePtr+texCoordBuffer, &texCoords[which].x(), 2*sizeof(GLfloat));
     if (!norms.empty())
-        memcpy(basePtr+normBuffer, &norms[which], 3*sizeof(GLfloat));
+        memcpy(basePtr+normBuffer, &norms[which].x(), 3*sizeof(GLfloat));
 }
     
 void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
@@ -588,20 +591,24 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     vertexSize = singleVertexSize();
     int numVerts = points.size();
     NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
-    unsigned char *basePtr = (unsigned char *)[vertData bytes];
+    unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
         addPointToBuffer(basePtr, ii);
-    
+        
     // Build up the triangles
     int triSize = singleElementSize * 3;
     int numTris = tris.size();
-    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(triSize * numTris)) length:triSize*numTris freeWhenDone:YES];
-    GLushort *elPtr = (GLushort *)[elementData bytes];
+    int totSize = numTris*triSize;
+    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(totSize)) length:totSize freeWhenDone:YES];
+    GLushort *elPtr = (GLushort *)[elementData mutableBytes];
     for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
     {
         Triangle &tri = tris[ii];
         for (unsigned int jj=0;jj<3;jj++)
-            elPtr[jj] = tri.verts[jj];
+        {
+            unsigned short vertId = tri.verts[jj];
+            elPtr[jj] = vertId;
+        }
     }
     
     *retVertData = vertData;

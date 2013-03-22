@@ -242,7 +242,7 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 }
     
 // If set, we ask the main thread to do the sub texture loads
-static const bool MainThreadMerge = true;
+static const bool MainThreadMerge = false;
     
 bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes)
 {
