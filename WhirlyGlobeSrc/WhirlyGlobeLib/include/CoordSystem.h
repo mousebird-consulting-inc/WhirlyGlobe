@@ -57,11 +57,15 @@ public:
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3f) = 0;
     /// Convert from lat/lon t the local coordinate system
     virtual WhirlyKit::Point3f geographicToLocal(WhirlyKit::GeoCoord) = 0;
+    virtual WhirlyKit::Point3d geographicToLocal3d(WhirlyKit::GeoCoord) = 0;
 
     /// Convert from the local coordinate system to geocentric
     virtual WhirlyKit::Point3f localToGeocentric(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d localToGeocentric(WhirlyKit::Point3d) = 0;
+    
     /// Convert from display coordinates to geocentric
     virtual WhirlyKit::Point3f geocentricToLocal(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d geocentricToLocal(WhirlyKit::Point3d) = 0;
     
     /// Return true if the given coordinate system is the same as the one passed in
     virtual bool isSameAs(CoordSystem *coordSys) { return false; }
@@ -69,6 +73,7 @@ public:
     
 /// Convert a point from one coordinate system to another
 Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord);
+Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord);
     
 /** The Coordinate System Display Adapter handles the task of
     converting coordinates in the native system to data values we
@@ -87,12 +92,15 @@ public:
 
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d localToDisplay(WhirlyKit::Point3d) = 0;
     
     /// Convert from display coordinates to the local system's coordinates
     virtual WhirlyKit::Point3f displayToLocal(WhirlyKit::Point3f) = 0;
+    virtual WhirlyKit::Point3d displayToLocal(WhirlyKit::Point3d) = 0;
     
     /// For flat systems the normal is Z up.  For the globe, it's based on the location.
     virtual Point3f normalForLocal(Point3f) = 0;
+    virtual Point3d normalForLocal(Point3d) = 0;
 
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;

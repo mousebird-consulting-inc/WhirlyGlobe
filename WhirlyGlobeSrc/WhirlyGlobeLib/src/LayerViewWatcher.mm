@@ -205,6 +205,16 @@ using namespace WhirlyKit;
     invFullMatrix = fullMatrix.inverse();
     projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
     invProjMatrix = projMatrix.inverse();
+
+    modelMatrix4d = Matrix4fToMatrix4d(modelMatrix);
+    invModelMatrx4d = modelMatrix4d.inverse();
+    viewMatrix4d = Matrix4fToMatrix4d(viewMatrix);
+    invViewMatrix4d = viewMatrix4d.inverse();
+    fullMatrix4d = Matrix4fToMatrix4d(fullMatrix);
+    invFullMatrix4d = fullMatrix4d.inverse();
+    projMatrix4d = Matrix4fToMatrix4d(projMatrix);
+    invProjMatrix4d = projMatrix4d.inverse();
+    
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;
     nearPlane = view.nearPlane;

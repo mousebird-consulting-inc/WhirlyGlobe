@@ -96,7 +96,8 @@ using namespace WhirlyKit;
     if (ident.level == 0)
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, 128, &coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 128, &coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+    return import;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
