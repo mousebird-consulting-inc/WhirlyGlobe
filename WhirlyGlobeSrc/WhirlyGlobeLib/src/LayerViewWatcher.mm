@@ -198,10 +198,13 @@ using namespace WhirlyKit;
         return nil;
     
     modelMatrix = [view calcModelMatrix];
+    invModelMatrx = modelMatrix.inverse();
     viewMatrix = [view calcViewMatrix];
+    invViewMatrix = viewMatrix.inverse();
     fullMatrix = [view calcFullMatrix];
+    invFullMatrix = fullMatrix.inverse();
     projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
-    projDoubleMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:1.0];
+    invProjMatrix = projMatrix.inverse();
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;
     nearPlane = view.nearPlane;

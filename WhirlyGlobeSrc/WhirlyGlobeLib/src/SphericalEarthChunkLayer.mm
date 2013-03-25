@@ -169,6 +169,7 @@ public:
     DynamicDrawableAtlas *drawAtlas;
     // Outstanding requests to process
     std::queue<ChunkRequest> requests;
+    int borderTexel;
 }
 
 @synthesize ignoreEdgeMatching;
@@ -182,6 +183,7 @@ public:
     
     ignoreEdgeMatching = false;
     useDynamicAtlas = true;
+    borderTexel = 0;
     
     return self;
 }
@@ -345,6 +347,7 @@ static const int SingleElementSize = sizeof(GLushort);
             // Note: We should be able to set one of the compressed texture formats on the layer
             texAtlas = new DynamicTextureAtlas(2048,64,GL_UNSIGNED_BYTE);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager());
+            borderTexel = 1;
         }
         
         // May need to set up the texture
@@ -352,7 +355,7 @@ static const int SingleElementSize = sizeof(GLushort);
         chunkRep->usesAtlas = false;
         if (chunk.loadImage && texAtlas)
         {
-            Texture *newTex = [chunk.loadImage buildTexture];
+            Texture *newTex = [chunk.loadImage buildTexture:borderTexel];
             if (newTex)
             {
                     texAtlas->addTexture(newTex, chunkRep->subTex, scene->getMemManager(), changes);

@@ -41,6 +41,7 @@ using namespace WhirlyGlobe;
     float       minVis,maxVis;
     int         priority;
     bool        top,side;
+    bool        layered;
     NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
 

@@ -105,6 +105,8 @@ public:
     
     renderSetup = false;
 
+    _dispatchRendering = true;
+
     return self;
 }
 
@@ -279,6 +281,7 @@ static const char *fragmentShaderLine =
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
+    renderSetup = false;
     bool ret = [super resizeFromLayer:layer];
     
     return ret;
@@ -287,12 +290,9 @@ static const char *fragmentShaderLine =
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
-// Set if we're doing an async dispatch on the render
-static const bool UsingAsyncRender = true;
-
 - (void) render:(CFTimeInterval)duration
 {
-    if (UsingAsyncRender)
+    if (_dispatchRendering)
     {
     if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
         return;

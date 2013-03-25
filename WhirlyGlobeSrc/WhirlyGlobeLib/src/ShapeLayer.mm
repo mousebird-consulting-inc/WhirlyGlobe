@@ -661,6 +661,12 @@ static const float SphereTessY = 10;
 // Do the work for adding shapes
 - (void)runAddShapes:(ShapeInfo *)shapeInfo
 {
+    if (!scene)
+    {
+        NSLog(@"Shape layer called before initialization.  Dropping data on floor.");
+        return;
+    }
+    
     ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo.shapeId);
     sceneRep->fade = shapeInfo.fade;
 
