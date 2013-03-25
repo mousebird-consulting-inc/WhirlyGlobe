@@ -28,6 +28,7 @@ namespace WhirlyKit
     Returns the intersection in hit or the closest pass
  */
 bool IntersectUnitSphere(Point3f org,Eigen::Vector3f dir,Point3f &hit);
+bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit);
 
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.

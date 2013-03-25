@@ -187,8 +187,8 @@ using namespace Maply;
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     // Figure out where the point lands on the map
-    Eigen::Matrix4f modelTrans = [mapView calcFullMatrix];
-    Point3f whereLoc;
+    Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
+    Point3d whereLoc;
     if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
     {
         Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
@@ -226,7 +226,7 @@ using namespace Maply;
 // External facing set position
 - (void)setPosition:(MaplyCoordinate)newPos
 {
-    Point3f loc = mapView.loc;
+    Point3f loc = Vector3dToVector3f(mapView.loc);
     [self setPosition:newPos height:loc.z()];
 }
 
@@ -248,14 +248,14 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
-    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView.loc = loc;
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
-    Point3f loc = mapView.loc;
+    Point3d loc = mapView.loc;
     GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
@@ -278,11 +278,11 @@ using namespace Maply;
     {
         pinchDelegate.minZoom = minHeight;
         pinchDelegate.maxZoom = maxHeight;
-        Point3f loc = mapView.loc;
+        Point3d loc = mapView.loc;
         if (mapView.heightAboveSurface < minHeight)
-            mapView.loc = Point3f(loc.x(),loc.y(),minHeight);
+            mapView.loc = Point3d(loc.x(),loc.y(),minHeight);
         if (mapView.heightAboveSurface > maxHeight)
-            mapView.loc = Point3f(loc.x(),loc.y(),maxHeight);
+            mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
     }
 }
 

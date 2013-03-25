@@ -63,16 +63,16 @@ using namespace WhirlyKit;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
-	Point3f hit;
-	Eigen::Matrix4f theTransform = [globeView calcFullMatrix];
+	Point3d hit;
+	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
     if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
-		[msg setWorldLoc:hit];
-        Point3f localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
+		[msg setWorldLocD:hit];
+        Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		

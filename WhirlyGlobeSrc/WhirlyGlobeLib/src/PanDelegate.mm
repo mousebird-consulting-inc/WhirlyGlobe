@@ -85,16 +85,16 @@ using namespace WhirlyKit;
 				[view cancelAnimation];
 
 				// Figure out where we are now
-				Point3f hit;
+				Point3d hit;
                 [view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&hit ];
 
 				// This gives us a direction to rotate around
 				// And how far to rotate
-				Eigen::Quaternion<float> endRot;
+				Eigen::Quaterniond endRot;
 				endRot.setFromTwoVectors(startOnSphere,hit);
-                Eigen::Quaternion<float> newRotQuat = startQuat * endRot;
+                Eigen::Quaterniond newRotQuat = startQuat * endRot;
 
                 [view setRotQuat:(newRotQuat)];
 			}

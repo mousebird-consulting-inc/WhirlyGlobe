@@ -88,8 +88,8 @@ using namespace WhirlyGlobe;
 
             if (rotType == RotFree)
             {
-                Eigen::AngleAxisf rotQuat(-rotate.rotation,axis);
-                Eigen::Quaternionf newRotQuat = startQuat * rotQuat;
+                Eigen::AngleAxisd rotQuat(-rotate.rotation,axis);
+                Eigen::Quaterniond newRotQuat = startQuat * rotQuat;
                 [globeView setRotQuat:newRotQuat];
             }
             

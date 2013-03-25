@@ -48,11 +48,11 @@ using namespace Eigen;
 }
 
 
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2f &)ll ur:(Point2f &)ur near:(float &)near far:(float &)far
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2d &)ll ur:(Point2d &)ur near:(double &)near far:(double &)far
 {
 	ll.x() = -imagePlaneSize;
 	ur.x() = imagePlaneSize;
-	float ratio =  ((float)frameHeight / (float)frameWidth);
+	double ratio =  ((double)frameHeight / (double)frameWidth);
 	ll.y() = -imagePlaneSize * ratio;
 	ur.y() = imagePlaneSize * ratio ;
 	near = nearPlane;
@@ -74,30 +74,30 @@ using namespace Eigen;
 }
 
 /// Generate the model view matrix for use by OpenGL.
-- (Eigen::Matrix4f)calcModelMatrix
+- (Eigen::Matrix4d)calcModelMatrix
 {
-    Eigen::Matrix4f ident = ident.Identity();
+    Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-- (Eigen::Matrix4f)calcViewMatrix
+- (Eigen::Matrix4d)calcViewMatrix
 {
-    Eigen::Matrix4f ident = ident.Identity();
+    Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-- (Eigen::Matrix4f)calcFullMatrix
+- (Eigen::Matrix4d)calcFullMatrix
 {
     return [self calcViewMatrix] * [self calcModelMatrix];
 }
 
-- (Eigen::Matrix4f)calcProjectionMatrix:(Point2f)frameBufferSize margin:(float)margin
+- (Eigen::Matrix4d)calcProjectionMatrix:(Point2f)frameBufferSize margin:(float)margin
 {
 	GLfloat near=0,far=0;
-	Point2f frustLL,frustUR;
+	Point2d frustLL,frustUR;
 	frustLL.x() = -imagePlaneSize * (1.0 + margin);
 	frustUR.x() = imagePlaneSize * (1.0 + margin);
-	float ratio =  ((float)frameBufferSize.y() / (float)frameBufferSize.x());
+	double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
 	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
 	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
 	near = nearPlane;
@@ -105,8 +105,8 @@ using namespace Eigen;
     
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
-    Eigen::Matrix4f projMat;
-    Point3f delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
+    Eigen::Matrix4d projMat;
+    Point3d delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
     projMat.setIdentity();
     projMat(0,0) = 2.0f * near / delta.x();
     projMat(1,0) = projMat(2,0) = projMat(3,0) = 0.0f;
@@ -130,42 +130,42 @@ using namespace Eigen;
     return 0.0;
 }
 
-- (Point3f)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
+- (Point3d)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
 {
-	Point2f ll,ur;
-	float near,far;
+	Point2d ll,ur;
+	double near,far;
 	[self calcFrustumWidth:frameWidth height:frameHeight ll:ll ur:ur near:near far:far];
 	
 	// Calculate a parameteric value and flip the y/v
-	float u = screenPt.x() / frameWidth;
+	double u = screenPt.x() / frameWidth;
     if (clip)
     {
-        u = std::max(0.0f,u);	u = std::min(1.0f,u);
+        u = std::max(0.0,u);	u = std::min(1.0,u);
     }
-	float v = screenPt.y() / frameHeight;
+	double v = screenPt.y() / frameHeight;
     if (clip)
     {
-        v = std::max(0.0f,v);	v = std::min(1.0f,v);
+        v = std::max(0.0,v);	v = std::min(1.0,v);
     }
 	v = 1.0 - v;
 	
 	// Now come up with a point in 3 space between ll and ur
-	Point2f mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-	return Point3f(mid.x(),mid.y(),-near);
+	Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+	return Point3d(mid.x(),mid.y(),-near);
 }
 
-- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight
-{
-    // Here's where that screen point is in display space
-    Point3f dispPt = [self pointUnproject:screenPt width:frameWidth height:frameHeight clip:false];
-
-    Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
-	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
-	Vector3f eyePt(newUp.x(),newUp.y(),newUp.z());
-        
-    return Ray3f(eyePt,(dispPt-eyePt).normalized());
-}
+//- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight
+//{
+//    // Here's where that screen point is in display space
+//    Point3f dispPt = [self pointUnproject:screenPt width:frameWidth height:frameHeight clip:false];
+//
+//    Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
+//	
+//	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
+//	Vector3f eyePt(newUp.x(),newUp.y(),newUp.z());
+//        
+//    return Ray3f(eyePt,(dispPt-eyePt).normalized());
+//}
 
 /// Add a watcher delegate
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate

@@ -356,12 +356,15 @@ static const float ScreenOverlap = 0.1;
     }
 
     // Get the model and view matrices
-    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
-    Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    Eigen::Matrix4d viewTrans4d = [theView calcViewMatrix];
+    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4f projMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Eigen::Matrix4d projMat4d = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
+    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     
@@ -458,7 +461,7 @@ static const float ScreenOverlap = 0.1;
         // Stretch the screen MBR a little for safety
         screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
         screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;

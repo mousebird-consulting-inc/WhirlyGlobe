@@ -44,7 +44,27 @@ bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)
 	hit = org + dir * t;
 	return true;
 }
-    	
+
+bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
+{
+    double a = dir.dot(dir);
+    double b = 2.0f * org.dot(dir);
+    double c = org.dot(org) - 1.0;
+    
+    double sq = b*b - 4.0f * a * c;
+    if (sq < 0.0)
+        return false;
+    
+    double rt = sqrt(sq);
+    double ta = (-b + rt) / (2.0f * a);
+    double tb = (-b - rt) / (2.0f * a);
+    
+    double t = std::min(ta,tb);
+    
+    hit = org + dir * t;
+    return true;
+}
+    
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 

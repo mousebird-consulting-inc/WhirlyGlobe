@@ -38,13 +38,13 @@
 @interface MaplyView : WhirlyKitView
 {
     /// Viewer location
-    WhirlyKit::Point3f loc;
+    WhirlyKit::Point3d loc;
     
     /// Used to update position based on time (or whatever)
     NSObject<MaplyAnimationDelegate> * __weak delegate;
 }
 
-@property(nonatomic,readonly) WhirlyKit::Point3f &loc;
+@property(nonatomic,readonly) WhirlyKit::Point3d &loc;
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
@@ -60,29 +60,29 @@
 - (float)calcZbufferRes;
 
 /// Generate the model view matrix for use by OpenGL.
-- (Eigen::Matrix4f)calcModelMatrix;
+- (Eigen::Matrix4d)calcModelMatrix;
 
 /// Height above the plane
-- (float)heightAboveSurface;
+- (double)heightAboveSurface;
 
 /// Minimum valid height above plane
-- (float)minHeightAboveSurface;
+- (double)minHeightAboveSurface;
 
 /// Maximum valid height above plane
-- (float)maxHeightAboveSurface;
+- (double)maxHeightAboveSurface;
 
 /** Given a location on the screen and the screen size, figure out where we touched
     the plane.  Returns true if we hit and where.
     Returns false if we didn't, which can only happened if we're turned away.
  */
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit clip:(bool)clip;
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit clip:(bool)clip;
 
 /** From a world location in 3D, figure the projection to the screen.
     Returns a point within the frame.
   */
-- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromPlane:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /// Set the location we're looking from
-- (void)setLoc:(WhirlyKit::Point3f)newLoc;
+- (void)setLoc:(WhirlyKit::Point3d)newLoc;
 
 @end
