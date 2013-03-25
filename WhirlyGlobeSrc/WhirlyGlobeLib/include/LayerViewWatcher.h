@@ -69,7 +69,8 @@
 @interface WhirlyKitViewState : NSObject
 {
 @public
-    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix,projMatrix,projDoubleMatrix;
+    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix,projMatrix;
+    Eigen::Matrix4f invModelMatrx,invViewMatrix,invFullMatrix,invProjMatrix;
 	float fieldOfView;
 	float imagePlaneSize;
 	float nearPlane;

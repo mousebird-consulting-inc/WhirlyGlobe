@@ -44,6 +44,11 @@ void BufferBuilder::addToTotal(BasicDrawable *drawable)
 void BufferBuilder::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager,BasicDrawable *drawable)
 {
     int thisSize = drawable->getNumPoints() * drawable->singleVertexSize() + drawable->getNumTris() * sizeof(BasicDrawable::Triangle);
+    
+    // Note: Disabling the buffer builder
+    drawable->setupGL(setupInfo, memManager);
+    return;
+    
     // New buffer
     if (!curBuf || (curBufLoc + thisSize) > maxBufferSize)
     {

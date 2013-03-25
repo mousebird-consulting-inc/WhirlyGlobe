@@ -495,6 +495,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 	{
         sharedBuffer = externalSharedBuf;
         sharedBufferOffset = externalSharedBufOffset;
+        sharedBufferIsExternal = true;
     } else {
         // Set up the buffer
         int bufferSize = vertexSize*numVerts;
@@ -504,6 +505,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         }
         sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
         sharedBufferOffset = 0;
+        sharedBufferIsExternal = false;
 	}
     
     // Now copy in the data

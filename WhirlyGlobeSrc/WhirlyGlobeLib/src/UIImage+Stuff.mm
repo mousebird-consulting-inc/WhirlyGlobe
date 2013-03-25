@@ -57,4 +57,21 @@ using namespace WhirlyKit;
 	return retData;
 }
 
+-(NSData *)rawDataScaleWidth:(unsigned int)destWidth height:(unsigned int)destHeight border:(int)border
+{
+	CGImageRef cgImage = self.CGImage;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	
+    
+	NSMutableData *retData = [NSMutableData dataWithLength:destWidth*destHeight*4];
+	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], destWidth, destHeight, 8, destWidth * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-border), (CGFloat)(destWidth-border)), cgImage);
+	CGContextRelease(theContext);
+    CGColorSpaceRelease(colorSpace);
+	
+	return retData;
+    
+}
+
+
 @end

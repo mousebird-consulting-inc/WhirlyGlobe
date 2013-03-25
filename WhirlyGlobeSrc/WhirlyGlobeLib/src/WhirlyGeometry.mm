@@ -187,6 +187,54 @@ bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
 {
     return false;
 }
+    
+// Inspired by: http://geomalgorithms.com/a01-_area.html
+float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm)
+{
+    if (poly.size() < 3)
+        return 0.0;
+    float area = 0.0;
+
+    // Decide which coordinate to ignore
+    Point3f a(std::abs(norm.x()),std::abs(norm.y()),std::abs(norm.z()));
+    int coord = (a.x() > a.y()) ? (a.x() > a.z() ? 1 : 3) : (a.y() > a.z() ? 2 : 3);
+    
+    // Area of the 3D version
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        const Point3f &p1 = poly[ii];
+        const Point3f &p2 = poly[(ii+1)%poly.size()];
+        switch (coord)
+        {
+            case 1:
+                area += p1.y()*p2.z() - p1.z()*p2.y();
+                break;
+            case 2:
+                area += p1.x()*p2.z() - p1.z()*p2.x();
+                break;
+            case 3:
+                area += p1.x()*p2.y() - p1.y()*p2.x();
+                break;
+        }
+    }
+                 
+    // Scale to get a 3D area back
+    float an = sqrtf(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
+    switch (coord)
+    {
+        case 1:
+            area *= (an / (2*a.x()));
+            break;
+        case 2:
+            area *= (an / (2*a.y()));
+            break;
+        case 3:
+            area *= (an / (2*a.z()));
+            break;
+    }
+                 
+    return area;
+}
 
 	
 }

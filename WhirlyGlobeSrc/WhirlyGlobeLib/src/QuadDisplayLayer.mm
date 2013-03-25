@@ -219,8 +219,11 @@ float PolyImportanceOld(const std::vector<Point3f> &poly,WhirlyKitViewState *vie
     return std::abs(area);
 }
 
-float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+float PolyImportance(const std::vector<Point3f> &poly,const Point3f &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
 {
+    float origArea = PolygonArea(poly,norm);
+    origArea = std::abs(origArea);
+    
     std::vector<Eigen::Vector4f> pts;
     for (unsigned int ii=0;ii<poly.size();ii++)
     {
@@ -228,34 +231,53 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
         // Run through the model transform
         Vector4f modPt = viewState->fullMatrix * Vector4f(pt.x(),pt.y(),pt.z(),1.0);
         // And then the projection matrix.  Now we're in clip space
-        Vector4f projPt = viewState->projDoubleMatrix * modPt;
+        Vector4f projPt = viewState->projMatrix * modPt;
         pts.push_back(projPt);
     }
     
     // The points are in clip space, so clip!
-    std::vector<Eigen::Vector4f> outPts;
-    ClipHomogeneousPolygon(pts,outPts);
+    std::vector<Eigen::Vector4f> clipSpacePts;
+    ClipHomogeneousPolygon(pts,clipSpacePts);
     
     // Outside the viewing frustum, so ignore it
-    if (outPts.empty())
+    if (clipSpacePts.empty())
         return 0.0;
     
-    // Project to the screen and calculate area
+    // Project to the screen
     std::vector<Point2f> screenPts;
     Point2f halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
-    for (unsigned int ii=0;ii<outPts.size();ii++)
+    for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
     {
-        Vector4f &outPt = outPts[ii];
-        Point2f screenPt(outPt.x()/outPt.w() * frameSize.x()+frameSize.x(),outPt.y()/outPt.w() * frameSize.y()+frameSize.y());
+        Vector4f &outPt = clipSpacePts[ii];
+        Point2f screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
         screenPts.push_back(screenPt);
     }
     
-    float area = CalcLoopArea(screenPts);
+    float screenArea = CalcLoopArea(screenPts);
+    screenArea = std::abs(screenArea);
+    if (boost::math::isnan(screenArea))
+        screenArea = 0.0;
     
-    if (boost::math::isnan(area))
-        area = 0.0;
+    // Now project the screen points back into model space
+    std::vector<Point3f> backPts;
+    for (unsigned int ii=0;ii<screenPts.size();ii++)
+    {
+        Vector4f modelPt = viewState->invProjMatrix * clipSpacePts[ii];
+        Vector4f backPt = viewState->invFullMatrix * modelPt;
+        backPts.push_back(Point3f(backPt.x(),backPt.y(),backPt.z()));
+    }
+    // Then calculate the area
+    float backArea = PolygonArea(backPts,norm);
+    backArea = std::abs(backArea);
     
-    return std::abs(area);
+    // Now we know how much of the original polygon made it out to the screen
+    // We can scale its importance accordingly.
+    // This gets rid of small slices of big tiles not getting loaded
+    float scale = origArea / backArea;
+    
+    // Note: Turned off for the moment
+//    return std::abs(screenArea) * scale;
+    return std::abs(screenArea);
 }
 
 - (bool)isInside:(WhirlyKit::Point3f)pt
@@ -293,8 +315,7 @@ float PolyImportance(const std::vector<Point3f> &poly,WhirlyKitViewState *viewSt
     float totalImport = 0.0;
     for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        const std::vector<Point3f> &poly = polys[ii];
-        float import = PolyImportance(poly, viewState, frameSize);
+        float import = PolyImportance(polys[ii], normals[ii], viewState, frameSize);
         totalImport += import;
     }
     

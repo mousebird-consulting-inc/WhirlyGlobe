@@ -50,7 +50,9 @@ using namespace WhirlyKit;
     loadImage->type = WKLoadedImageUIImage;
     loadImage->borderSize = 0;
     loadImage->imageData = image;
-    loadImage->width = loadImage->height = 0;
+    CGImageRef cgImage = image.CGImage;
+    loadImage->width = CGImageGetWidth(cgImage);
+    loadImage->height = CGImageGetHeight(cgImage);
     
     return loadImage;
 }
@@ -77,15 +79,26 @@ using namespace WhirlyKit;
     return loadImage;
 }
 
+- (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData
+{
+    Texture *newTex = new Texture("Tile Quad Loader",theData,false);
+    newTex->setWidth(width);
+    newTex->setHeight(height);
+    
+    return newTex;
+}
 
-- (WhirlyKit::Texture *)buildTexture
+- (WhirlyKit::Texture *)buildTexture:(int)reqBorderTexel
 {
     Texture *newTex = NULL;
     
     switch (type)
     {
         case WKLoadedImageUIImage:
-            newTex = new Texture("Tile Quad Loader",(UIImage *)imageData,false);
+        {
+            NSData *rawData = [(UIImage *)imageData rawDataScaleWidth:width height:height border:reqBorderTexel];
+            newTex = [self textureFromRawData:rawData];
+        }
             break;
         case WKLoadedImageNSDataAsImage:
             if ([imageData isKindOfClass:[NSData class]])
@@ -93,17 +106,17 @@ using namespace WhirlyKit;
                 UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
                 if (texImage)
                 {
-                    // Create the texture and set it up in OpenGL
-                    newTex = new Texture("Tile Quad Loader",texImage,false);
+                    width = CGImageGetWidth(texImage.CGImage);
+                    height = CGImageGetHeight(texImage.CGImage);                    
+                    NSData *rawData = [texImage rawDataScaleWidth:width height:height border:reqBorderTexel];
+                    newTex = [self textureFromRawData:rawData];
                 }
             }
             break;
         case WKLoadedImageNSDataRawData:
             if ([imageData isKindOfClass:[NSData class]])
             {
-                newTex = new Texture("Tile Quad Loader",(NSData *)imageData,false);
-                newTex->setWidth(width);
-                newTex->setHeight(height);
+                return [self textureFromRawData:(NSData *)imageData];
             }
             break;
         case WKLoadedImagePVRTC4:
@@ -448,6 +461,8 @@ void LoadedTile::Print(Quadtree *tree)
 @implementation WhirlyKitQuadTileLoader
 {
     bool doingUpdate;
+    // Number of border texels we need in an image
+    int borderTexel;
 }
 
 @synthesize drawOffset;
@@ -481,6 +496,7 @@ void LoadedTile::Print(Quadtree *tree)
         imageType = WKTileIntRGBA;
         useDynamicAtlas = true;
         doingUpdate = false;
+        borderTexel = 0;
     }
     
     return self;
@@ -656,7 +672,7 @@ void LoadedTile::Print(Quadtree *tree)
     {
         if (loadImage)
         {
-            Texture *newTex = [loadImage buildTexture];
+            Texture *newTex = [loadImage buildTexture:borderTexel];
             
             if (newTex)
             {
@@ -1010,6 +1026,9 @@ static const int SingleElementSize = sizeof(GLushort);
             int ElementBufferSize = ceil((2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
             texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
+            
+            // We want some room around these
+            borderTexel = 1;
         }
     }
     
