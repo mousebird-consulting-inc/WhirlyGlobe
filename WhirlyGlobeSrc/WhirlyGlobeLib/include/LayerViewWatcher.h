@@ -69,18 +69,16 @@
 @interface WhirlyKitViewState : NSObject
 {
 @public
-    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix,projMatrix;
-    Eigen::Matrix4f invModelMatrx,invViewMatrix,invFullMatrix,invProjMatrix;
-    Eigen::Matrix4d modelMatrix4d,viewMatrix4d,fullMatrix4d,projMatrix4d;
-    Eigen::Matrix4d invModelMatrx4d,invViewMatrix4d,invFullMatrix4d,invProjMatrix4d;
-	float fieldOfView;
-	float imagePlaneSize;
-	float nearPlane;
-	float farPlane;
-    WhirlyKit::Point3f eyeVec;
-    WhirlyKit::Point3f eyeVecModel;
-    WhirlyKit::Point2f ll,ur;
-    float near,far;
+    Eigen::Matrix4d modelMatrix,viewMatrix,fullMatrix,projMatrix;
+    Eigen::Matrix4d invModelMatrix,invViewMatrix,invFullMatrix,invProjMatrix;
+	double fieldOfView;
+	double imagePlaneSize;
+	double nearPlane;
+	double farPlane;
+    WhirlyKit::Point3d eyeVec;
+    WhirlyKit::Point3d eyeVecModel;
+    WhirlyKit::Point2d ll,ur;
+    double near,far;
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 }
 
@@ -88,7 +86,7 @@
 - (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
+- (Eigen::Vector3d)eyePos;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
@@ -96,11 +94,11 @@
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight;
 
 /// From a screen point calculate the corresponding point in 3-space
-- (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+- (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
 /// From a world location (3D), figure out the projection to the screen
 ///  Returns a point within the frame
-- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /// Compare this view state to the other one.  Returns true if they're identical.
 - (bool)isSameAs:(WhirlyKitViewState *)other;

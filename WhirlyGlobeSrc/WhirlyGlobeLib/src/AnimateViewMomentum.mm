@@ -34,7 +34,7 @@ using namespace Eigen;
     {
         velocity = inVel;
         acceleration = inAcc;
-        axis = inAxis;
+        axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
         startQuat = [globeView rotQuat];
         
         startDate = CFAbsoluteTimeGetCurrent();
@@ -74,8 +74,8 @@ using namespace Eigen;
     
     // Calculate the offset based on angle
     float totalAng = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
-    Eigen::Quaternion<float> diffRot(Eigen::AngleAxisf(totalAng,axis));
-    Eigen::Quaternion<float> newQuat;
+    Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
+    Eigen::Quaterniond newQuat;
     newQuat = startQuat * diffRot;    
     [globeView setRotQuat:newQuat];
 }

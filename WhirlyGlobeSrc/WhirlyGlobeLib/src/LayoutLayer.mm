@@ -308,7 +308,7 @@ static const float ScreenBuffer = 0.1;
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
 
-    Matrix4f modelTrans = viewState->fullMatrix;
+    Matrix4d modelTrans = viewState->fullMatrix;
     int numSoFar = 0;
     for (WhirlyKitLayoutObjectSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
@@ -322,12 +322,12 @@ static const float ScreenBuffer = 0.1;
         // Start with a back face check
         // Note: Doesn't take projection into account, but close enough
         if (isActive && globeViewState)
-            isActive = layoutObj->dispLoc.dot(viewState->eyeVec) > 0.0;
+            isActive = layoutObj->dispLoc.dot(Vector3dToVector3f(viewState->eyeVec)) > 0.0;
         Point2f objOffset(0.0,0.0);
         if (isActive)
         {
             // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromDisplay:layoutObj->dispLoc transform:&modelTrans frameSize:frameBufferSize];
+            CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->dispLoc) transform:&modelTrans frameSize:frameBufferSize];
             isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
             // Now for the overlap checks
             if (isActive)

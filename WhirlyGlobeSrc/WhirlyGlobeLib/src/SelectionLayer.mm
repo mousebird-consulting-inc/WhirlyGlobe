@@ -167,7 +167,7 @@ bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
-    Eigen::Matrix4f modelTrans = [theView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
@@ -306,10 +306,11 @@ bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
                     for (unsigned int ii=0;ii<4;ii++)
                     {
                         CGPoint screenPt;
+                        Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (globeView)
-                            screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                            screenPt = [globeView pointOnScreenFromSphere:pt3d transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
                         else
-                            screenPt = [mapView pointOnScreenFromPlane:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                            screenPt = [mapView pointOnScreenFromPlane:pt3d transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     

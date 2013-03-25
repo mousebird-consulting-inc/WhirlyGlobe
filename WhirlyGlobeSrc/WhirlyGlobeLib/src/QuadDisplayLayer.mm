@@ -206,33 +206,6 @@ static float const BoundsEps = 10.0 / EarthRadius;
     return dispSolid;
 }
 
-// Calculate the size of a rectangle projected onto the screen
-// Note: This doesn't do clipping
-float PolyImportanceOld(const std::vector<Point3f> &poly,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
-{
-    // Project the points onto the screen
-    std::vector<Point2f> screenPts;
-    Mbr mbrOnScreen;
-    for (unsigned int ii=0;ii<poly.size();ii++)
-    {
-        CGPoint screenPt = [viewState pointOnScreenFromDisplay:poly[ii] transform:&viewState->modelMatrix frameSize:frameSize];
-        mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
-        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
-    }
-    Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
-    
-    // If there's no overlap, we don't care about it
-    if (!mbrOnScreen.overlaps(frameMbr))
-        return 0.0;
-
-    float area = CalcLoopArea(screenPts);
-    
-    if (boost::math::isnan(area))
-        area = 0.0;
-    
-    return std::abs(area);
-}
-
 float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     float origArea = PolygonArea(poly,norm);
@@ -243,9 +216,9 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     {
         const Point3d &pt = poly[ii];
         // Run through the model transform
-        Vector4d modPt = viewState->fullMatrix4d * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        Vector4d modPt = viewState->fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
         // And then the projection matrix.  Now we're in clip space
-        Vector4d projPt = viewState->projMatrix4d * modPt;
+        Vector4d projPt = viewState->projMatrix * modPt;
         pts.push_back(projPt);
     }
     
@@ -276,17 +249,13 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     std::vector<Point3d> backPts;
     for (unsigned int ii=0;ii<screenPts.size();ii++)
     {
-        Vector4d modelPt = viewState->invProjMatrix4d * clipSpacePts[ii];
-        Vector4d backPt = viewState->invFullMatrix4d * modelPt;
+        Vector4d modelPt = viewState->invProjMatrix * clipSpacePts[ii];
+        Vector4d backPt = viewState->invFullMatrix * modelPt;
         backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
     }
     // Then calculate the area
     float backArea = PolygonArea(backPts,norm);
     backArea = std::abs(backArea);
-    if (backArea == 0.0)
-    {
-        backArea = PolygonArea(backPts, norm);
-    }
     
     // Now we know how much of the original polygon made it out to the screen
     // We can scale its importance accordingly.
@@ -312,7 +281,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 
 - (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
-    Point3d eyePos = Vector3fToVector3d(viewState.eyePos);
+    Point3d eyePos = viewState.eyePos;
     
     // If the viewer is inside the bounds, the node is maximimally important (duh)
     if ([self isInside:eyePos])
@@ -343,109 +312,9 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 
 namespace WhirlyKit
 {
-// Calculate the importance for the given texel
-static float calcImportance(WhirlyKitViewState *viewState,Point3f eyeVec,Point3f pt,Point2f pixSize,Point2f frameSize,CoordSystem *srcSystem,CoordSystem *destSystem,CoordSystemDisplayAdapter *coordAdapter)
-{
-    Point3f pts[4];
-    pts[0] = pt + Point3f(-pixSize.x()/2.0,-pixSize.y()/2.0,0.0);
-    pts[1] = pt + Point3f(pixSize.x()/2.0,-pixSize.y()/2.0,0.0);
-    pts[2] = pt + Point3f(pixSize.x()/2.0,pixSize.y()/2.0,0.0);
-    pts[3] = pt + Point3f(-pixSize.x()/2.0,pixSize.y()/2.0,0.0);
-    
-    // Convert to 3-space
-    Point3f pts3d[4];
-    Point2f screenPts[4];
-    bool forwardFacing = false;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        pts3d[ii] = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, destSystem, pts[ii]));
-        
-        // Check the normal (point in this case) against the eye vec
-        if (!coordAdapter->isFlat())
-            if (pts3d[ii].dot(eyeVec) > 0.0)
-                forwardFacing = true;
-        
-        CGPoint screenPt = [viewState pointOnScreenFromDisplay:pts3d[ii] transform:&viewState->fullMatrix frameSize:frameSize];
-        screenPts[ii] = Point2f(screenPt.x,screenPt.y);
-    }
-    
-    // Look at area on the screen
-    float area = 0.0;
-    if (forwardFacing || coordAdapter->isFlat())
-    {
-        Point2f ac = screenPts[2]-screenPts[0];
-        Point2f bd = screenPts[3]-screenPts[1];
-        area = 0.5 * (ac.x()*bd.y()-bd.x()*ac.y());
-    }
-    
-    if (boost::math::isnan(area))
-        area = 0.0;
-        
-    return std::abs(area);
-}
-
 
 // Calculate the max pixel size for a tile
-float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr)
-{
-    WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
-    Point2f pixSize((nodeMbr.ur().x()-nodeMbr.ll().x())/pixelsSquare,(nodeMbr.ur().y()-nodeMbr.ll().y())/pixelsSquare);
-    Point3f testPoints[6];
-    int numTestPoints = 0;
-    testPoints[0] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
-    testPoints[1] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ll().y()+pixSize.y(),0.0);
-    testPoints[2] = Point3f(nodeMbr.ur().x()-pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
-    testPoints[3] = Point3f(nodeMbr.ll().x()+pixSize.x(),nodeMbr.ur().y()-pixSize.y(),0.0);
-    testPoints[4] = (testPoints[0]+testPoints[2])/2.0;
-    numTestPoints = 5;
-    
-    // Let's make sure we at least overlap the screen
-    // Note: Need to fix this for Maply
-    Mbr mbrOnScreen;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        Point3f pt3d = coordAdapter->localToDisplay(CoordSystemConvert(srcSystem, displaySystem, testPoints[ii]));
-        
-        CGPoint screenPt = [viewState pointOnScreenFromDisplay:pt3d transform:&viewState->fullMatrix frameSize:frameSize];
-        mbrOnScreen.addPoint(Point2f(screenPt.x,screenPt.y));
-    }
-    Mbr frameMbr(Point2f(0,0),Point2f(frameSize.x(),frameSize.y()));
-    if (!mbrOnScreen.overlaps(frameMbr))
-        return 0.0;
-    
-#if 0
-    // Figure out the intersection of the projection and the screen MBR
-    // We'll take the middle, project that back and toss that in as a test point
-    Mbr screenIntersect = mbrOnScreen.intersect(frameMbr);
-    Point2f intersectMid = screenIntersect.mid();
-    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
-    {
-        WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
-        Point3f dispPt;
-        if ([globeViewState pointOnSphereFromScreen:CGPointMake(intersectMid.x(), intersectMid.y()) transform:&viewState->fullMatrix frameSize:frameSize hit:&dispPt])
-        {
-            Point3f localPt = coordAdapter->displayToLocal(dispPt);
-            if (nodeMbr.inside(Point2f(localPt.x(),localPt.y())))
-            {
-                testPoints[numTestPoints++] = coordAdapter->displayToLocal(dispPt);
-                numTestPoints++;
-            }
-        }
-    }
-#endif
-    
-    float maxImport = 0.0;
-    for (unsigned int ii=0;ii<numTestPoints;ii++)
-    {
-        float thisImport = calcImportance(viewState,eyeVec,testPoints[ii],pixSize,frameSize,srcSystem,displaySystem,coordAdapter);
-        maxImport = std::max(thisImport,maxImport);
-    }
-    
-    return maxImport;
-}
-
-// Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3d eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)

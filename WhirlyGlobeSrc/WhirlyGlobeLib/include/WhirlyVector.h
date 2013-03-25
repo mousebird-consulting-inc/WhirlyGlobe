@@ -225,13 +225,18 @@ public:
 
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
-Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b);
+Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b);
 
 /// Convert a 4f matrix to a 4d matrix
 Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
+
+/// Convert a 4d matrix to a 4f matrix
+Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
     
 /// Floats to doubles
 Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
+/// Doubles to floats
+Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec);
 
 /// Floats to doubles
 Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec);

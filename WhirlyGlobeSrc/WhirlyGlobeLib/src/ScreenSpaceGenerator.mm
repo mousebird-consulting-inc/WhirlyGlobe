@@ -65,7 +65,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
+    Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
 
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
     if ([globeView isKindOfClass:[WhirlyGlobeView class]])
@@ -107,11 +107,11 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
             return;
 #endif
 
-        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
     } else {
         MaplyView *mapView = (MaplyView *)frameInfo.theView;
         if ([mapView isKindOfClass:[MaplyView class]])
-            screenPt = [mapView pointOnScreenFromPlane:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         else
             // No idea what this could be
             return;
@@ -150,7 +150,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         Point3f upDir = up * cosf(shape->rotation);
         
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
-        CGPoint outScreenPt = [globeView pointOnScreenFromSphere:outPt transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        CGPoint outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }

@@ -137,8 +137,8 @@ static const float ScreenOverlap = 0.1;
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-	Point2f frustLL,frustUR;
-	GLfloat near=0,far=0;
+	Point2d frustLL,frustUR;
+	double near=0,far=0;
 	[theView calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
 	glFrustumf(frustLL.x(),frustUR.x(),frustLL.y(),frustUR.y(),near,far);
 	
@@ -151,8 +151,9 @@ static const float ScreenOverlap = 0.1;
         globeView = (WhirlyGlobeView *)theView;
     
     // Put both model and view matrices in place
-    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
-    Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f([theView calcViewMatrix]);
     glMultMatrixf(viewTrans.data());
     glMultMatrixf(modelTrans.data());
     
@@ -251,7 +252,7 @@ static const float ScreenOverlap = 0.1;
         int drawablesConsidered = 0;
 		std::set<DrawableRef> toDraw;
         CullTree *cullTree = scene->getCullTree();
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;

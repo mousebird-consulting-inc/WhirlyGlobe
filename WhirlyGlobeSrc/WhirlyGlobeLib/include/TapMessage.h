@@ -55,4 +55,7 @@
 @property (nonatomic,assign) WhirlyKit::Point3f worldLoc;
 @property (nonatomic,assign) float heightAboveSurface;
 
+/// This version of set takes a set of doubles
+- (void)setWorldLocD:(WhirlyKit::Point3d)newLoc;
+
 @end
