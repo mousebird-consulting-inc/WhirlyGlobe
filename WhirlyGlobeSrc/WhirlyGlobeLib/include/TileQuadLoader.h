@@ -74,7 +74,7 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
 
 /// Generate an appropriate texture.
 /// You could overload this, just be sure to respect the border pixels.
-- (WhirlyKit::Texture *)buildTexture;
+- (WhirlyKit::Texture *)buildTexture:(int)borderSize;
 
 @end
 
