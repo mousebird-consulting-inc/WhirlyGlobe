@@ -65,9 +65,29 @@ using namespace WhirlyKit;
     
 	NSMutableData *retData = [NSMutableData dataWithLength:destWidth*destHeight*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], destWidth, destHeight, 8, destWidth * 4, colorSpace, kCGImageAlphaPremultipliedLast);
-	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-border), (CGFloat)(destWidth-border)), cgImage);
+	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-2*border), (CGFloat)(destWidth-2*border)), cgImage);
 	CGContextRelease(theContext);
     CGColorSpaceRelease(colorSpace);
+    
+    // Copy over the extra pixels
+    // Note: Only supporting one pixel
+    unsigned int *buf = (unsigned int *)[retData mutableBytes];
+    if (border > 0)
+    {
+        int ix,iy;
+        // Bottom
+        for (ix=0,iy=0;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy+1)*destWidth + ix];
+        // Top
+        for (ix=0,iy=destHeight-1;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
+        // Left
+        for (iy=0,ix=0;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix+1)];
+        // Right
+        for (iy=0,ix=destWidth-1;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix-1)];
+    }
 	
 	return retData;
     

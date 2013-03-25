@@ -273,7 +273,7 @@ float PolyImportance(const std::vector<Point3f> &poly,const Point3f &norm,Whirly
     // Now we know how much of the original polygon made it out to the screen
     // We can scale its importance accordingly.
     // This gets rid of small slices of big tiles not getting loaded
-    float scale = origArea / backArea;
+//    float scale = origArea / backArea;
     
     // Note: Turned off for the moment
 //    return std::abs(screenArea) * scale;
