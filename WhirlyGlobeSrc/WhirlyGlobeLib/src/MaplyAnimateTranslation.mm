@@ -39,7 +39,7 @@ using namespace Eigen;
         startDate = CFAbsoluteTimeGetCurrent();
         endDate = startDate + howLong;
         startLoc = globeView.loc;
-        endLoc = newLoc;
+        endLoc = Point3d(newLoc.x(),newLoc.y(),newLoc.z());
     }
     
     return self;
@@ -64,7 +64,7 @@ using namespace Eigen;
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;
-        Point3f midLoc = startLoc + (endLoc-startLoc)*t;
+        Point3d midLoc = startLoc + (endLoc-startLoc)*t;
         [mapView setLoc:midLoc];
     }
 }

@@ -27,7 +27,7 @@
 @interface MaplyAnimateViewTranslation : NSObject<MaplyAnimationDelegate>
 {
     CFTimeInterval startDate,endDate;
-    WhirlyKit::Point3f startLoc,endLoc;
+    WhirlyKit::Point3d startLoc,endLoc;
 }
 
 /// When to start the animation.  Can be in the past
@@ -35,9 +35,9 @@
 /// When to finish the animation.
 @property (nonatomic,assign) CFTimeInterval endDate;
 /// Where to start the translation.  This is probably where you are when you starting.
-@property (nonatomic,assign) WhirlyKit::Point3f startLoc;
+@property (nonatomic,assign) WhirlyKit::Point3d startLoc;
 /// Where to end the translation.  We'll interpolate from the start to here.
-@property (nonatomic,assign) WhirlyKit::Point3f endLoc;
+@property (nonatomic,assign) WhirlyKit::Point3d endLoc;
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
