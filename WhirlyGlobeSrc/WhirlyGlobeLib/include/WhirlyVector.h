@@ -29,6 +29,8 @@ namespace WhirlyKit
 {
 
 typedef Eigen::Vector3f Point3f;
+typedef Eigen::Vector3d Point3d;
+typedef Eigen::Vector2d Point2d;
 typedef Eigen::Vector2f Point2f;
     
 	
@@ -137,6 +139,7 @@ public:
     
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(std::vector<Point2f> &pts) const;
+    void asPoints(std::vector<Point2d> &pts) const;
     
     /// Expand with the given MBR
     void expand(const Mbr &that);

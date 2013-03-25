@@ -51,12 +51,22 @@ GeoCoord GeoCoordSystem::localToGeographic(WhirlyKit::Point3f pt)
     return GeoCoord(pt.x(),pt.y());
 }
 
+GeoCoord GeoCoordSystem::localToGeographic(WhirlyKit::Point3d pt)
+{
+    return GeoCoord(pt.x(),pt.y());
+}
+
 /// Convert from lat/lon t the local coordinate system
 Point3f GeoCoordSystem::geographicToLocal(WhirlyKit::GeoCoord coord)
 {
     return Point3f(coord.lon(),coord.lat(),0.0);
 }
-    
+
+Point3d GeoCoordSystem::geographicToLocal3d(WhirlyKit::GeoCoord coord)
+{
+    return Point3d(coord.lon(),coord.lat(),0.0);
+}
+
 Point3f GeoCoordSystem::LocalToGeocentric(Point3f localPt)
 {
     InitProj4();
@@ -66,9 +76,24 @@ Point3f GeoCoordSystem::LocalToGeocentric(Point3f localPt)
     pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
     return Point3f(x,y,z);
 }
+
+Point3d GeoCoordSystem::LocalToGeocentric(Point3d localPt)
+{
+    InitProj4();
     
+    double x,y,z;
+    x = localPt.x(), y = localPt.y(), z = localPt.z();
+    pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
+    return Point3d(x,y,z);
+}
+
 /// Convert from local coordinates to WGS84 geocentric
 Point3f GeoCoordSystem::localToGeocentric(Point3f localPt)
+{
+    return LocalToGeocentric(localPt);
+}
+
+Point3d GeoCoordSystem::localToGeocentric(Point3d localPt)
 {
     return LocalToGeocentric(localPt);
 }
@@ -83,12 +108,27 @@ Point3f GeoCoordSystem::GeocentricToLocal(Point3f geocPt)
     return Point3f(x,y,z);
 }
 
+Point3d GeoCoordSystem::GeocentricToLocal(Point3d geocPt)
+{
+    InitProj4();
+    
+    double x,y,z;
+    x = geocPt.x(), y = geocPt.y(), z = geocPt.z();
+    pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
+    return Point3d(x,y,z);
+}
+    
 /// Convert from WGS84 geocentric to local coordinates
 Point3f GeoCoordSystem::geocentricToLocal(Point3f geocPt)
 {
     return GeocentricToLocal(geocPt);
 }
 
+Point3d GeoCoordSystem::geocentricToLocal(Point3d geocPt)
+{
+    return GeocentricToLocal(geocPt);
+}
+    
 
 Mbr GeoCoordSystem::GeographicMbrToLocal(GeoMbr geoMbr)
 {
@@ -113,8 +153,21 @@ Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f geoPt)
     Point3f pt(rad*cosf(geoPt.x()),rad*sinf(geoPt.x()),z);
     return pt;
 }
+
+Point3d FakeGeocentricDisplayAdapter::LocalToDisplay(Point3d geoPt)
+{
+    float z = sinf(geoPt.y());
+    float rad = sqrtf(1.0-z*z);
+    Point3d pt(rad*cosf(geoPt.x()),rad*sinf(geoPt.x()),z);
+    return pt;
+}
     
 Point3f FakeGeocentricDisplayAdapter::localToDisplay(Point3f geoPt)
+{
+    return LocalToDisplay(geoPt);
+}
+
+Point3d FakeGeocentricDisplayAdapter::localToDisplay(Point3d geoPt)
 {
     return LocalToDisplay(geoPt);
 }
@@ -127,10 +180,26 @@ Point3f FakeGeocentricDisplayAdapter::DisplayToLocal(Point3f pt)
     geoCoord.lon() = acosf(pt.x() / rad);
     if (pt.y() < 0)  geoCoord.lon() *= -1;
         
-        return Point3f(geoCoord.lon(),geoCoord.lat(),0.0);    
+    return Point3f(geoCoord.lon(),geoCoord.lat(),0.0);
+}
+
+Point3d FakeGeocentricDisplayAdapter::DisplayToLocal(Point3d pt)
+{
+    GeoCoord geoCoord;
+    geoCoord.lat() = asinf(pt.z());
+    float rad = sqrtf(1.0-pt.z()*pt.z());
+    geoCoord.lon() = acosf(pt.x() / rad);
+    if (pt.y() < 0)  geoCoord.lon() *= -1;
+    
+    return Point3d(geoCoord.lon(),geoCoord.lat(),0.0);
 }
     
 Point3f FakeGeocentricDisplayAdapter::displayToLocal(Point3f pt)
+{
+    return DisplayToLocal(pt);
+}
+ 
+Point3d FakeGeocentricDisplayAdapter::displayToLocal(Point3d pt)
 {
     return DisplayToLocal(pt);
 }
@@ -140,5 +209,10 @@ Point3f FakeGeocentricDisplayAdapter::normalForLocal(Point3f pt)
     return LocalToDisplay(pt);
 }
 
+Point3d FakeGeocentricDisplayAdapter::normalForLocal(Point3d pt)
+{
+    return LocalToDisplay(pt);
+}
+    
 	
 }

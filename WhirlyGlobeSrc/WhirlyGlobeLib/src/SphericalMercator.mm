@@ -42,6 +42,15 @@ GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3f pt)
     return coord;    
 }
 
+GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3d pt)
+{
+    GeoCoord coord;
+    coord.lon() = pt.x() + originLon;
+    coord.lat() = atan(sinh(pt.y()));
+    
+    return coord;    
+}
+    
 /// Convert from lat/lon t the local coordinate system
 Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo)
 {
@@ -55,12 +64,31 @@ Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo)
     
     return coord;    
 }
+
+Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo)
+{
+    Point3d coord;
+    coord.x() = geo.lon() - originLon;
+    float lat = geo.lat();
+    if (lat < -PoleLimit) lat = -PoleLimit;
+    if (lat > PoleLimit) lat = PoleLimit;
+    coord.y() = log((1.0f+sin(lat))/cos(lat));
+    coord.z() = 0.0;
+    
+    return coord;    
+}
     
 /// Convert from the local coordinate system to geocentric
 Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt)
 {
     GeoCoord geoCoord = localToGeographic(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
+}
+
+Point3d SphericalMercatorCoordSystem::localToGeocentric(Point3d localPt)
+{
+    GeoCoord geoCoord = localToGeographic(localPt);
+    return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
     
 /// Convert from display coordinates to geocentric
@@ -69,6 +97,13 @@ Point3f SphericalMercatorCoordSystem::geocentricToLocal(Point3f geocPt)
     Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
     Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
     return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());    
+}
+
+Point3d SphericalMercatorCoordSystem::geocentricToLocal(Point3d geocPt)
+{
+    Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return Point3d(localPt.x(),localPt.y(),geoCoordPlus.z());
 }
     
 bool SphericalMercatorCoordSystem::isSameAs(CoordSystem *coordSys)
@@ -109,6 +144,12 @@ WhirlyKit::Point3f SphericalMercatorDisplayAdapter::localToDisplay(WhirlyKit::Po
     return dispPt;
 }
 
+WhirlyKit::Point3d SphericalMercatorDisplayAdapter::localToDisplay(WhirlyKit::Point3d localPt)
+{
+    Point3d dispPt = localPt-Point3d(org.x(),org.y(),0.0);
+    return dispPt;
+}
+    
 /// Convert from display coordinates to the local system's coordinates
 WhirlyKit::Point3f SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt)
 {
@@ -116,12 +157,23 @@ WhirlyKit::Point3f SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Po
     return localPt;
 }
 
+WhirlyKit::Point3d SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Point3d dispPt)
+{
+    Point3d localPt = dispPt+Point3d(org.x(),org.y(),0.0);
+    return localPt;
+}
+    
 /// For flat systems the normal is Z up.  For the globe, it's based on the location.
 Point3f SphericalMercatorDisplayAdapter::normalForLocal(Point3f)
 {
     return Point3f(0,0,1);
 }
 
+Point3d SphericalMercatorDisplayAdapter::normalForLocal(Point3d)
+{
+    return Point3d(0,0,1);
+}
+    
 /// Get a reference to the coordinate system
 CoordSystem *SphericalMercatorDisplayAdapter::getCoordSystem()
 {

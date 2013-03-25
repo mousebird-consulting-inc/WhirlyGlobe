@@ -71,6 +71,8 @@
 @public
     Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix,projMatrix;
     Eigen::Matrix4f invModelMatrx,invViewMatrix,invFullMatrix,invProjMatrix;
+    Eigen::Matrix4d modelMatrix4d,viewMatrix4d,fullMatrix4d,projMatrix4d;
+    Eigen::Matrix4d invModelMatrx4d,invViewMatrix4d,invFullMatrix4d,invProjMatrix4d;
 	float fieldOfView;
 	float imagePlaneSize;
 	float nearPlane;
