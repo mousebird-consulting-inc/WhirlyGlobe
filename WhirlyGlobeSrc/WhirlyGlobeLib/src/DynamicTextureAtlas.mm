@@ -92,12 +92,13 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         size_t size = texSize * texSize / 2;
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, texSize, texSize, 0, size, NULL);
     } else {
-        // Providing glTexImage2D with empty memory so Instruments doesn't complain
-        size_t size = texSize*texSize*4;
-        unsigned char *zeroMem = (unsigned char *)malloc(size);
-        memset(zeroMem, 255, size);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
-        free(zeroMem);
+        // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
+//        size_t size = texSize*texSize*4;
+//        unsigned char *zeroMem = (unsigned char *)malloc(size);
+//        memset(zeroMem, 255, size);
+//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
+//        free(zeroMem);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
@@ -301,14 +302,17 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
         else
             dynTex->addTexture(tex, texRegion.region);
 
-//        // This asks for a flush
-//        changes.push_back(NULL);
-//        Point2f halfPix(0.5 / texSize, 0.5 / texSize);
+        // This asks for a flush
+        changes.push_back(NULL);
+
+        // This way does not take into account borders
         TexCoord org((texRegion.region.sx * cellSize) / (float)texSize, (texRegion.region.sy * cellSize) / (float)texSize);
-//        texRegion.subTex.setFromTex(TexCoord(org.x()+halfPix.x(),org.y()+halfPix.y()),
-//                                    TexCoord(org.x() + tex->getWidth() / (float)texSize - halfPix.x(), org.y() + tex->getHeight() / (float)texSize - halfPix.y()));
-        texRegion.subTex.setFromTex(TexCoord(org.x(),org.y()),
-                                    TexCoord(org.x() + tex->getWidth() / (float)texSize , org.y() + tex->getHeight() / (float)texSize));
+//        texRegion.subTex.setFromTex(TexCoord(org.x(),org.y()),
+//                                    TexCoord(org.x() + tex->getWidth() / (float)texSize , org.y() + tex->getHeight() / (float)texSize));
+        
+        Point2f halfPix(0.5 / texSize, 0.5 / texSize);
+        texRegion.subTex.setFromTex(TexCoord(org.x()+halfPix.x(),org.y()+halfPix.y()),
+                                    TexCoord(org.x() + tex->getWidth() / (float)texSize - halfPix.x(), org.y() + tex->getHeight() / (float)texSize - halfPix.y()));
         texRegion.subTex.texId = dynTex->getId();
         
         subTex = texRegion.subTex;
