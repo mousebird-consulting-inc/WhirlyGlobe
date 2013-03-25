@@ -54,18 +54,18 @@ float ScreenImportanceOld(WhirlyKitViewState *viewState,WhirlyKit::Point2f frame
 {
 @public
     /// The actual polygons for the side (we are lazy)
-    std::vector<std::vector<WhirlyKit::Point3f> > polys;
+    std::vector<std::vector<WhirlyKit::Point3d> > polys;
     /// Normals for all 5 or 6 planes
-    std::vector<Eigen::Vector3f> normals;
+    std::vector<Eigen::Vector3d> normals;
     /// Normals for the surface.  We use these to make sure the solid is pointing towards us.
-    std::vector<Eigen::Vector3f> surfNormals;
+    std::vector<Eigen::Vector3d> surfNormals;
 }
 
 /// Look for an existing display solid or create one for the node ident
 + (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// Returns true if the given point (in display space) is inside the volume
-- (bool)isInside:(WhirlyKit::Point3f)pt;
+- (bool)isInside:(WhirlyKit::Point3d)pt;
 
 /// Calculate the importance for this display solid given the user's eye position
 - (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;

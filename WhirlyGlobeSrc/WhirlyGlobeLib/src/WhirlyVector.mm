@@ -99,6 +99,14 @@ void Mbr::asPoints(std::vector<Point2f> &pts) const
     pts.push_back(pt_ur);
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
+
+void Mbr::asPoints(std::vector<Point2d> &pts) const
+{
+    pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
+    pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
+    pts.push_back(Point2d(pt_ur.x(),pt_ur.y()));
+    pts.push_back(Point2d(pt_ll.x(),pt_ur.y()));
+}
 	
 Mbr Mbr::intersect(const Mbr &that) const
 {

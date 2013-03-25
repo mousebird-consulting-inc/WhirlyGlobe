@@ -43,7 +43,7 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
 
 /// Clip and return a polygon represented in homogeneous coordinates
-void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4f> &pts,std::vector<Eigen::Vector4f> &outPts);
+void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &pts,std::vector<Eigen::Vector4d> &outPts);
 	
 /// Look for a ray/rectangular solid intersection.
 /// Return true if we found one and the distance^2 from the ray origin to the intersection
@@ -51,5 +51,8 @@ bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
     
 /// Return the area of the 3D polygon
 float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
+
+/// Return the area of the 3D polygon
+float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
     
 }
