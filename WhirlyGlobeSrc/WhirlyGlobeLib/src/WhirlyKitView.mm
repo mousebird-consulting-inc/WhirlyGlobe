@@ -125,7 +125,7 @@ using namespace Eigen;
     return projMat;
 }
 
-- (float)heightAboveSurface
+- (double)heightAboveSurface
 {
     return 0.0;
 }

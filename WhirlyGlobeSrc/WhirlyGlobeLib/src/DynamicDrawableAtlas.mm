@@ -59,8 +59,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = *it;
-        if (bigDraw->getTexId() == draw->getTexId() && bigDraw->getForceZBufferOn() == draw->getForceZBufferOn() &&
-            bigDraw->getDrawPriority() == draw->getDrawPriority())
+        if (bigDraw->isCompatible(draw))
         {
             if ((represent.elementChunkId = bigDraw->addRegion(vertData, represent.vertexPos, elementData)) != EmptyIdentity)
             {
@@ -76,9 +75,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     if (!foundBigDraw)
     {
         BigDrawable *newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
-        newBigDraw->setDrawPriority(draw->getDrawPriority());
-        newBigDraw->setTexId(draw->getTexId());
-        newBigDraw->setForceZBufferOn(draw->getForceZBufferOn());
+        newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(newBigDraw);

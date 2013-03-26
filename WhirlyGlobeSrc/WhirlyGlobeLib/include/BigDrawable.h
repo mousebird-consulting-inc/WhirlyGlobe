@@ -37,6 +37,14 @@ public:
     BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
     ~BigDrawable();
 
+    /// See if this big drawable can represent data in the given drawable.
+    /// We check various modes (e.g. draw priority, z buffer on, etc)
+    bool isCompatible(BasicDrawable *);
+    
+    /// Set the various drawing modes to be compatible with the given
+    ///  drawable.
+    void setModes(BasicDrawable *);
+
     /// No bounding box, since these change constantly
     Mbr getLocalMbr() const { return Mbr(); }
 
@@ -52,7 +60,7 @@ public:
     SimpleIdentity getProgram() const { return EmptyIdentity; }
 
     /// Always on for the moment
-    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const { return true; }
+    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
 
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -71,6 +79,9 @@ public:
     
     /// For now, just using these with globe layers
     bool getForceZBufferOn() const { return forceZBuffer; }
+
+    /// Set the visible range for all drawables we produce
+    void setVisibleRange(float minVis,float maxVis);
 
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);
@@ -110,6 +121,7 @@ protected:
     SimpleIdentity texId;
     int drawPriority;
     bool forceZBuffer;
+    float minVis,maxVis;
     
     typedef enum {ChangeAdd,ChangeClear} ChangeType;
     /// Used to represent an outstanding change to the buffer

@@ -93,7 +93,7 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 - (Eigen::Matrix4d)calcProjectionMatrix:(WhirlyKit::Point2f)frameBufferSize margin:(float)margin;
 
 /// Return the nominal height above the surface of the data
-- (float)heightAboveSurface;
+- (double)heightAboveSurface;
 
 /// From a screen point calculate the corresponding point in 3-space
 - (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;

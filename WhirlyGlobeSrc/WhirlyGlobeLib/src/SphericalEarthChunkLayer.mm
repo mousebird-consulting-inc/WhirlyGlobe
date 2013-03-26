@@ -355,7 +355,7 @@ static const int SingleElementSize = sizeof(GLushort);
         chunkRep->usesAtlas = false;
         if (chunk.loadImage && texAtlas)
         {
-            Texture *newTex = [chunk.loadImage buildTexture:borderTexel];
+            Texture *newTex = [chunk.loadImage buildTexture:borderTexel destWidth:0 destHeight:0];
             if (newTex)
             {
                     texAtlas->addTexture(newTex, chunkRep->subTex, scene->getMemManager(), changes);

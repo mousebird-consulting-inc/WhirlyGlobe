@@ -26,23 +26,30 @@ using namespace Eigen;
 namespace WhirlyKit
 {
  
-DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), format(format), numCell(0), numRegions(0), compressed(false)
+DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
     
     // Check for the formats we'll accept
-    switch (format)
+    switch (inFormat)
     {
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_SHORT_5_6_5:
         case GL_UNSIGNED_SHORT_4_4_4_4:
         case GL_UNSIGNED_SHORT_5_5_5_1:
+            format = GL_RGBA;
+            type = inFormat;
+            break;
         case GL_ALPHA:
+            format = GL_ALPHA;
+            type = GL_UNSIGNED_BYTE;
             break;
         case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
             compressed = true;
+            format = GL_RGBA;
+            type = inFormat;
             break;
         default:
             return;
@@ -98,7 +105,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
 //        memset(zeroMem, 255, size);
 //        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
 //        free(zeroMem);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
@@ -135,7 +142,7 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
             size_t size = width * height / 2;
             glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, size, [data bytes]);
         } else
-            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_RGBA, format, [data bytes]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, [data bytes]);
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
     }    
