@@ -167,9 +167,9 @@ static const char *vertexShaderTri =
 "        ambient += light[ii].ambient;\n"
 "        diffuse += ndotl * light[ii].diffuse;\n"
 "     }\n"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a);\n"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;\n"
 "   } else {\n"
-"     v_color = a_color;\n"
+"     v_color = a_color * u_fade;\n"
 "   }\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
@@ -197,6 +197,7 @@ static const char *fragmentShaderTri =
 
 static const char *vertexShaderLine =
 "uniform mat4  u_mvpMatrix;                   \n"
+"uniform float u_fade;                        \n"
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec4 a_color;                     \n"
@@ -205,7 +206,7 @@ static const char *vertexShaderLine =
 "\n"
 "void main()                                 \n"
 "{                                           \n"
-"   v_color = a_color;                       \n"
+"   v_color = a_color * u_fade;                       \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -294,14 +295,14 @@ static const float ScreenOverlap = 0.1;
 {
     if (_dispatchRendering)
     {
-    if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
-        return;
-    
-    dispatch_async(contextQueue,
-                   ^{
-                       [self renderAsync];
-                       dispatch_semaphore_signal(frameRenderingSemaphore);
-                   });
+        if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
+            return;
+        
+        dispatch_async(contextQueue,
+                       ^{
+                           [self renderAsync];
+                           dispatch_semaphore_signal(frameRenderingSemaphore);
+                       });
     } else
         [self renderAsync];
 }
@@ -527,7 +528,7 @@ static const float ScreenOverlap = 0.1;
                 if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
                     depthMaskOn = false;
-                    glDisable(GL_DEPTH_TEST);
+                    [renderStateOptimizer setEnableDepthTest:false];
                 }
             }
             
@@ -608,7 +609,7 @@ static const float ScreenOverlap = 0.1;
         {
             curProgramId = EmptyIdentity;
             
-            glDisable(GL_DEPTH_TEST);
+            [renderStateOptimizer setEnableDepthTest:false];
             // Sort by draw priority (and alpha, I guess)
             for (unsigned int ii=0;ii<screenDrawables.size();ii++)
             {

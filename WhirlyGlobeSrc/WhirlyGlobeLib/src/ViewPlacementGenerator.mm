@@ -141,7 +141,6 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             }
         }
         
-        viewInst.view.hidden = hidden;
         if (!hidden)
         {
             CGSize size = viewInst.view.frame.size;
@@ -149,7 +148,27 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             float scale = viewInst.view.superview.contentScaleFactor;
             if (scale < 1.0)
                 scale = 1.0;
-            viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+            // We can only modify UIViews on the main thread
+            if ([NSThread currentThread] != [NSThread mainThread])
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                               ^{
+                                   viewInst.view.hidden = false;
+                                   viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+                               });
+            } else {
+                viewInst.view.hidden = false;
+                viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+            }
+        } else {
+            if ([NSThread currentThread] != [NSThread mainThread])
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                               ^{
+                                   viewInst.view.hidden = true;
+                               });
+            } else
+                viewInst.view.hidden = true;
         }
     }
 }

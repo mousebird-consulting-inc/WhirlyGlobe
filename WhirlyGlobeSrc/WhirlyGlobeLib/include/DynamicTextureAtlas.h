@@ -79,7 +79,7 @@ protected:
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
     /// Texture memory format
-    GLenum format;
+    GLenum format,type;
     /// Number of texels on a side
     int texSize;
     /// Number of texels in a cell

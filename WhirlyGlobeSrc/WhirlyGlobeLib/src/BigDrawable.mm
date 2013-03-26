@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), forceZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
 {
     activeBuffer = -1;
     
@@ -57,6 +57,28 @@ BigDrawable::~BigDrawable()
     pthread_cond_destroy(&useCondition);
 }
     
+bool BigDrawable::isCompatible(BasicDrawable *draw)
+{
+    if (getTexId() == draw->getTexId() && getForceZBufferOn() == draw->getForceZBufferOn() &&
+        getDrawPriority() == draw->getDrawPriority())
+    {
+        float minVis,maxVis;
+        draw->getVisibleRange(minVis, maxVis);
+        if (this->minVis == minVis && this->maxVis == maxVis)
+            return true;
+    }
+    
+    return false;
+}
+
+void BigDrawable::setModes(BasicDrawable *draw)
+{
+    texId = draw->getTexId();
+    forceZBuffer = draw->getForceZBufferOn();
+    drawPriority = draw->getDrawPriority();
+    draw->getVisibleRange(minVis, maxVis);
+}
+
 void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
     if (buffers[0].vertexBufferId)
@@ -112,6 +134,17 @@ void BigDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
         renderer.scene->getDefaultProgramIDs(triShaderId,lineShaderId);
         programId = triShaderId;
     }
+}
+    
+bool BigDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+{
+    if (minVis == DrawVisibleInvalid)
+        return true;
+    
+    float visVal = [frameInfo.theView heightAboveSurface];
+    
+    return ((minVis <= visVal && visVal <= maxVis) ||
+            (minVis <= visVal && visVal <= maxVis));
 }
     
 // Used to pass in buffer offsets

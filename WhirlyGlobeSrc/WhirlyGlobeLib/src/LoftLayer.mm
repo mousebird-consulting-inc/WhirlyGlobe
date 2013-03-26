@@ -86,13 +86,15 @@ using namespace WhirlyGlobe;
 - (void)parseDesc:(NSDictionary *)dict key:(NSString *)inKey
 {
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"priority" default:0];
+    priority = [dict intForKey:@"drawPriority" default:0];
+    priority = [dict intForKey:@"priority" default:priority];
     height = [dict floatForKey:@"height" default:.01];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     fade = [dict floatForKey:@"fade" default:0.0];
     top = [dict boolForKey:@"top" default:true];
     side = [dict boolForKey:@"side" default:true];
+    layered = [dict boolForKey:@"layered" default:false];
     self.key = inKey;
 }
 
@@ -193,7 +195,7 @@ class DrawableBuilder2
 public:
     DrawableBuilder2(Scene *scene,WhirlyKitLayerThread *layerThread,LoftedPolySceneRep *sceneRep,
                      LoftedPolyInfo *polyInfo,const GeoMbr &inDrawMbr)
-    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL)
+    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), layerThread(layerThread)
     {
         primType = GL_TRIANGLES;
         drawMbr = inDrawMbr;
@@ -219,10 +221,15 @@ public:
             //            drawable->setOnOff(polyInfo->enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor([polyInfo.color asRGBAColor]);
+            if (polyInfo->layered)
+            {
+                drawable->setDrawPriority(polyInfo->priority);
+                drawable->setAlpha(true);
+            } else {
             drawable->setAlpha(true);
             drawable->setForceZBufferOn(true);
-            //            drawable->setDrawPriority(vecInfo->priority);
-            //            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+            }
+            drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
     }
     
