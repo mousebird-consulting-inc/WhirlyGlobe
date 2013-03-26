@@ -75,20 +75,28 @@ using namespace WhirlyKit;
     loadImage->borderSize = 0;
     loadImage->imageData = imageData;
     loadImage->width = loadImage->height = 0;
+    UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+    if (texImage)
+    {
+        loadImage->imageData = texImage;
+        loadImage->width = CGImageGetWidth(texImage.CGImage);
+        loadImage->height = CGImageGetHeight(texImage.CGImage);
+        loadImage->type = WKLoadedImageUIImage;
+    }
     
     return loadImage;
 }
 
-- (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData
+- (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData width:(int)theWidth height:(int)theHeight
 {
     Texture *newTex = new Texture("Tile Quad Loader",theData,false);
-    newTex->setWidth(width);
-    newTex->setHeight(height);
+    newTex->setWidth(theWidth);
+    newTex->setHeight(theHeight);
     
     return newTex;
 }
 
-- (WhirlyKit::Texture *)buildTexture:(int)reqBorderTexel
+- (WhirlyKit::Texture *)buildTexture:(int)reqBorderTexel destWidth:(int)destWidth destHeight:(int)destHeight
 {
     Texture *newTex = NULL;
     
@@ -96,27 +104,20 @@ using namespace WhirlyKit;
     {
         case WKLoadedImageUIImage:
         {
-            NSData *rawData = [(UIImage *)imageData rawDataScaleWidth:width height:height border:reqBorderTexel];
-            newTex = [self textureFromRawData:rawData];
+            destWidth = (destWidth <= 0 ? width : destWidth);
+            destHeight = (destHeight <= 0 ? height : destHeight);
+            NSData *rawData = [(UIImage *)imageData rawDataScaleWidth:destWidth height:destHeight border:reqBorderTexel];
+            newTex = [self textureFromRawData:rawData width:destWidth height:destHeight];
         }
             break;
         case WKLoadedImageNSDataAsImage:
-            if ([imageData isKindOfClass:[NSData class]])
-            {
-                UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
-                if (texImage)
-                {
-                    width = CGImageGetWidth(texImage.CGImage);
-                    height = CGImageGetHeight(texImage.CGImage);                    
-                    NSData *rawData = [texImage rawDataScaleWidth:width height:height border:reqBorderTexel];
-                    newTex = [self textureFromRawData:rawData];
-                }
-            }
+            // These are converted to UIImages on initialization.  So it must have failed.
             break;
         case WKLoadedImageNSDataRawData:
             if ([imageData isKindOfClass:[NSData class]])
             {
-                return [self textureFromRawData:(NSData *)imageData];
+                // Note: This isn't complete
+                return [self textureFromRawData:(NSData *)imageData width:width height:height];
             }
             break;
         case WKLoadedImagePVRTC4:
@@ -476,6 +477,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize coverPoles;
 @synthesize imageType;
 @synthesize useDynamicAtlas;
+@synthesize tileScale;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -497,6 +499,7 @@ void LoadedTile::Print(Quadtree *tree)
         useDynamicAtlas = true;
         doingUpdate = false;
         borderTexel = 0;
+        tileScale = WKTileScaleNone;
     }
     
     return self;
@@ -618,6 +621,43 @@ void LoadedTile::Print(Quadtree *tree)
     return GL_UNSIGNED_BYTE;
 }
 
+// Figure out the target size for an image based on our settings
+- (void)texWidth:(int)width height:(int)height destWidth:(int *)destWidth destHeight:(int *)destHeight
+{
+    switch (tileScale)
+    {
+        case WKTileScaleNone:
+            *destWidth = width;
+            *destHeight = height;
+            break;
+        case WKTileScaleDown:
+        {
+            int upWidth = NextPowOf2(width);
+            int upHeight = NextPowOf2(height);
+            
+            if (upWidth > width && upWidth > 4)
+                upWidth /= 2;
+            if (upHeight > height && upHeight > 4)
+                upHeight /= 2;
+
+            // Note: Shouldn't be necessary
+            int square = std::max(upWidth,upHeight);
+            *destWidth = square;
+            *destHeight = square;
+        }
+            break;
+        case WKTileScaleUp:
+        {
+            int upWidth = NextPowOf2(width);
+            int upHeight = NextPowOf2(height);
+                        
+            *destWidth = upWidth;
+            *destHeight = upHeight;
+        }
+            break;
+    }
+}
+
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)loadImage
 {
     Mbr theMbr = nodeInfo->mbr;
@@ -672,7 +712,9 @@ void LoadedTile::Print(Quadtree *tree)
     {
         if (loadImage)
         {
-            Texture *newTex = [loadImage buildTexture:borderTexel];
+            int destWidth,destHeight;
+            [self texWidth:loadImage->width height:loadImage->height destWidth:&destWidth destHeight:&destHeight];
+            Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
             
             if (newTex)
             {

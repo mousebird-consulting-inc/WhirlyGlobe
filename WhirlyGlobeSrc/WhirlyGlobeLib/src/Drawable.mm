@@ -302,7 +302,7 @@ bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
 
-    float visVal = [frameInfo.theView heightAboveSurface];
+    double visVal = [frameInfo.theView heightAboveSurface];
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
              (maxVisible <= visVal && visVal <= minVisible));

@@ -74,7 +74,7 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
 
 /// Generate an appropriate texture.
 /// You could overload this, just be sure to respect the border pixels.
-- (WhirlyKit::Texture *)buildTexture:(int)borderSize;
+- (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
 
 @end
 
@@ -163,6 +163,9 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// Used to specify the image type for the textures we create
 typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte,WKTilePVRTC4} WhirlyKitTileImageType;
 
+/// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
+typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleNone} WhirlyKitTileScaleType;
+
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
     creates simple terrain (chunks of the sphere) and asks for images
     to put on top.
@@ -223,6 +226,9 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
     
     /// If set (before we start) we'll use dynamic texture and drawable atlases
     bool useDynamicAtlas;
+    
+    /// If set we'll scale the input images to the nearest square power of two
+    WhirlyKitTileScaleType tileScale;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -236,6 +242,7 @@ typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WK
 @property (nonatomic,assign) bool coverPoles;
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
 @property (nonatomic,assign) bool useDynamicAtlas;
+@property (nonatomic,assign) WhirlyKitTileScaleType tileScale;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

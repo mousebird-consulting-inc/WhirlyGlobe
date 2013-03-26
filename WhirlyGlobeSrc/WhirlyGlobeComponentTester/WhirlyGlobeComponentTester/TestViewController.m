@@ -824,6 +824,8 @@ static const int NumMegaMarkers = 40000;
     // Make a label and stick it in as a view to track
     // We put it in a top level view so we can center it
     UIView *topView = [[UIView alloc] initWithFrame:CGRectZero];
+    // Start out hidden before the first placement.  The tracker will turn it on.
+    topView.hidden = YES;
     topView.alpha = 0.8;
     UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
     [topView addSubview:backView];
