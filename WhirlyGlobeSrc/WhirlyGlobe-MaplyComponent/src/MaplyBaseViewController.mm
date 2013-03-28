@@ -709,6 +709,7 @@ static const float PerfOutputDelay = 15.0;
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    [sceneRenderer setTriggerDraw];
     
     // And add it to the view hierarchy
     if ([viewTrack.view superview] == nil)
@@ -734,6 +735,7 @@ static const float PerfOutputDelay = 15.0;
         vpGen->removeView(theTracker.view);
         if ([theTracker.view superview] == glView)
             [theTracker.view removeFromSuperview];
+        [sceneRenderer setTriggerDraw];
     }
 }
 

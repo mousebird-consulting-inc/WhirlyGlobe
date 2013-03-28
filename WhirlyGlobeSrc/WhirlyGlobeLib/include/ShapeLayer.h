@@ -44,7 +44,7 @@ public:
     void clearContents(WhirlyKitSelectionLayer *selectLayer,std::vector<ChangeRequest *> &changeRequests);
 
     SimpleIDSet drawIDs;  // Drawables created for this
-    SimpleIdentity selectID;  // ID in the selection layer
+    SimpleIDSet selectIDs;  // IDs in the selection layer
     float fade;  // Time to fade away for removal
 };
 
