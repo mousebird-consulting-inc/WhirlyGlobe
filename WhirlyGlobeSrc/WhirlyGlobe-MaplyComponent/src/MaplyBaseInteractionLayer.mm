@@ -211,7 +211,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgMarkers addObject:wgMarker];
         
         if (marker.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            compObj.selectIDs.insert(wgMarker.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -267,7 +270,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgMarkers addObject:wgMarker];
         
         if (marker.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            compObj.selectIDs.insert(wgMarker.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -333,7 +339,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgLabels addObject:wgLabel];
         
         if (label.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            compObj.selectIDs.insert(wgLabel.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -406,7 +415,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgLabels addObject:wgLabel];
         
         if (label.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            compObj.selectIDs.insert(wgLabel.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -540,6 +552,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 RGBAColor color = [sphere.color asRGBAColor];
                 newSphere.color = color;
             }
+            if (sphere.selectable)
+            {
+                newSphere.isSelectable = true;
+                newSphere.selectID = Identifiable::genId();
+                selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
+                compObj.selectIDs.insert(newSphere.selectID);
+            }
             [ourShapes addObject:newSphere];
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
@@ -555,6 +574,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 newCyl.useColor = true;
                 RGBAColor color = [cyl.color asRGBAColor];
                 newCyl.color = color;
+            }
+            if (cyl.selectable)
+            {
+                newCyl.isSelectable = true;
+                newCyl.selectID = Identifiable::genId();
+                selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
+                compObj.selectIDs.insert(newCyl.selectID);
             }
             [ourShapes addObject:newCyl];
         } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
@@ -721,6 +747,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];
+            // And associated selection mappings
+            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                 it != userObj.selectIDs.end(); ++it)
+            {
+                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                if (sit != selectObjectSet.end())
+                    selectObjectSet.erase(sit);
+            }
             
             [userObjects removeObject:userObj];
         } else {

@@ -51,6 +51,8 @@ typedef MaplyShapeCircle WGShapeCircle;
   */
 @interface MaplyShapeSphere : NSObject
 {
+    /// Put yer user data here
+    NSObject *userObject;
     /// Center of the sphere in local coordinates
     MaplyCoordinate center;
     /// Radius in display units (1.0 is the size of the earth)
@@ -59,12 +61,16 @@ typedef MaplyShapeCircle WGShapeCircle;
     float height;
     /// Optional color
     UIColor *color;
+    /// If set, this cylinder can be selected.  On by default.
+    bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
 @property (nonatomic,strong) UIColor *color;
+@property (nonatomic,assign) bool selectable;
 
 @end
 
@@ -75,6 +81,8 @@ typedef MaplyShapeSphere WGShapeSphere;
  */
 @interface MaplyShapeCylinder : NSObject
 {
+    /// Put yer user data here
+    NSObject *userObject;
     /// Center of the base in local coordinates
     MaplyCoordinate baseCenter;
     /// An optional height offset for the base (e.g. cylinder starts at this height)
@@ -85,13 +93,17 @@ typedef MaplyShapeSphere WGShapeSphere;
     float height;
     /// Optional color
     UIColor *color;
+    /// If set, this cylinder can be selected.  On by default.
+    bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate baseCenter;
 @property (nonatomic,assign) float baseHeight;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
 @property (nonatomic,strong) UIColor *color;
+@property (nonatomic,assign) bool selectable;
 
 @end
 

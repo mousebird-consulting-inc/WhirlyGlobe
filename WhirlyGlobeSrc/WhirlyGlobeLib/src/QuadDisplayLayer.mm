@@ -288,14 +288,17 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
         return MAXFLOAT;
     
     // Make sure that we're pointed toward the eye, even a bit
-    bool isFacing = false;
-    for (unsigned int ii=0;ii<surfNormals.size();ii++)
+    if (!viewState->coordAdapter->isFlat())
     {
-        const Vector3d &surfNorm = surfNormals[ii];
-        isFacing |= surfNorm.dot(eyePos) >= 0.0;
+        bool isFacing = false;
+        for (unsigned int ii=0;ii<surfNormals.size();ii++)
+        {
+            const Vector3d &surfNorm = surfNormals[ii];
+            isFacing |= surfNorm.dot(eyePos) >= 0.0;
+        }
+        if (!isFacing)
+            return 0.0;
     }
-    if (!isFacing)
-        return 0.0;
     
     // Now work through the polygons and project each to the screen
     float totalImport = 0.0;

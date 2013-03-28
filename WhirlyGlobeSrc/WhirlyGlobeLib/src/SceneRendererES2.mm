@@ -105,7 +105,8 @@ public:
     
     renderSetup = false;
 
-    _dispatchRendering = true;
+    // Note: Try to turn this back on at some point
+    _dispatchRendering = false;
 
     return self;
 }
