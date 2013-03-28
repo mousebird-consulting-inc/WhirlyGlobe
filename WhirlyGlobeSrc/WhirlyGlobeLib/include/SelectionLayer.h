@@ -52,8 +52,6 @@ public:
 typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 
 /** This is 3D rectangular solid.
-    You initialize it with the lower left and upper right points
-    in display space.
   */
 class RectSolidSelectable
 {
@@ -67,8 +65,11 @@ public:
     SimpleIdentity selectID;
     Point3f pts[8];
     float minVis,maxVis;  // Range over which this is visible
-};
     
+    /// Returns one of the six planes, with proper normal
+    void getPlane(int which,std::vector<Point3d> &pts,Eigen::Vector3d &norm);
+};
+
 typedef std::set<WhirlyKit::RectSolidSelectable> RectSolidSelectableSet;
     
 /** Rectangle Selectable (screen space version).
