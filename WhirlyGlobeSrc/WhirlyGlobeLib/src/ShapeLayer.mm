@@ -75,8 +75,9 @@ void ShapeSceneRep::clearContents(WhirlyKitSelectionLayer *selectLayer,std::vect
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
         changeRequests.push_back(new RemDrawableReq(*idIt));
-    if (selectLayer && selectID != EmptyIdentity)
-        [selectLayer removeSelectable:selectID];
+    if (selectLayer)
+        for (SimpleIDSet::iterator it = selectIDs.begin();it != selectIDs.end(); ++it)
+            [selectLayer removeSelectable:*it];
 }
     
 /* Drawable Builder
@@ -485,10 +486,18 @@ static const float SphereTessY = 10;
     // Add a selection region
     if (isSelectable)
     {
-        Point3f pts[2];
-        pts[0] = dispPt - radius * sqrt2 * Point3f(1,1,1);
-        pts[1] = dispPt + radius * sqrt2 * Point3f(1,1,1);
-        [selectLayer addSelectableAxisRect:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        Point3f pts[8];
+        float dist = radius * sqrt2;
+        pts[0] = dispPt + dist * Point3f(-1,-1,-1);
+        pts[1] = dispPt + dist * Point3f(1,-1,-1);
+        pts[2] = dispPt + dist * Point3f(1,1,-1);
+        pts[3] = dispPt + dist * Point3f(-1,1,-1);
+        pts[4] = dispPt + dist * Point3f(-1,-1,1);
+        pts[5] = dispPt + dist * Point3f(1,-1,1);
+        pts[6] = dispPt + dist * Point3f(1,1,1);
+        pts[7] = dispPt + dist * Point3f(-1,1,1);
+        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        triBuilder->sceneRep->selectIDs.insert(selectID);
     }
 }
 
@@ -583,10 +592,18 @@ static std::vector<Point3f> circleSamples;
     // Add a selection region
     if (isSelectable)
     {
-        Point3f pts[2];
-        pts[0] = dispPt - radius * sqrt2 * xAxis - radius * sqrt2 * yAxis;
-        pts[1] = dispPt + height * norm + radius * sqrt2 * xAxis + radius * sqrt2 * yAxis;
-        [selectLayer addSelectableAxisRect:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        Point3f pts[8];
+        float dist1 = radius * sqrt2;
+        pts[0] = dispPt - dist1 * xAxis - dist1 * yAxis;
+        pts[1] = dispPt + dist1 * xAxis - dist1 * yAxis;
+        pts[2] = dispPt + dist1 * xAxis + dist1 * yAxis;
+        pts[3] = dispPt - dist1 * xAxis + dist1 * yAxis;
+        pts[4] = pts[0] + height * norm;
+        pts[5] = pts[1] + height * norm;
+        pts[6] = pts[2] + height * norm;
+        pts[7] = pts[3] + height * norm;
+        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        triBuilder->sceneRep->selectIDs.insert(selectID);
     }
 }
 

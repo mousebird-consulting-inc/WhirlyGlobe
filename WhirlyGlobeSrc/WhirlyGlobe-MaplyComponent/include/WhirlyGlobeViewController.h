@@ -77,6 +77,10 @@
 /// On by default.
 @property(nonatomic,assign) bool rotateGesture;
 
+/// Set this to move to a location where the user tapped
+/// On by default
+@property(nonatomic,assign) bool autoMoveToTap;
+
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
