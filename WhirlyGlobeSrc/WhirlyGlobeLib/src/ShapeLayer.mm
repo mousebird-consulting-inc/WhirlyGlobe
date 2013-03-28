@@ -338,7 +338,7 @@ public:
 
 @interface WhirlyKitShape()
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer;
 
 @end
 
@@ -350,7 +350,7 @@ public:
 @synthesize color;
 
 // Base shape doesn't make anything
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
 }
 
@@ -367,7 +367,7 @@ static int CircleSamples = 20;
 @synthesize height;
 
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -412,6 +412,8 @@ static int CircleSamples = 20;
 
 @end
 
+static const float sqrt2 = 1.4142135623;
+
 @implementation WhirlyKitSphere
 
 @synthesize loc;
@@ -422,7 +424,7 @@ static int CircleSamples = 20;
 static const float SphereTessX = 10;
 static const float SphereTessY = 10;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
@@ -479,6 +481,15 @@ static const float SphereTessY = 10;
         }
     
     triBuilder->addTriangles(locs,norms,colors,tris);
+
+    // Add a selection region
+    if (isSelectable)
+    {
+        Point3f pts[2];
+        pts[0] = dispPt - radius * sqrt2 * Point3f(1,1,1);
+        pts[1] = dispPt + radius * sqrt2 * Point3f(1,1,1);
+        [selectLayer addSelectableAxisRect:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+    }
 }
 
 @end
@@ -490,8 +501,10 @@ static const float SphereTessY = 10;
 @synthesize radius;
 @synthesize height;
 
+static std::vector<Point3f> circleSamples;
+
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -517,12 +530,20 @@ static const float SphereTessY = 10;
         xAxis = north.cross(up);  xAxis.normalize();
         yAxis = up.cross(xAxis);  yAxis.normalize();
     }
+    
+    // Generate the circle ones
+    if (circleSamples.empty())
+    {
+        circleSamples.resize(CircleSamples);
+        for (unsigned int ii=0;ii<CircleSamples;ii++)
+            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1));
+    }
 
     // Calculate samples around the bottom
     std::vector<Point3f> samples;
     samples.resize(CircleSamples);
     for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  xAxis * radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
+        samples[ii] =  radius * circleSamples[ii] + dispPt;
     
     // We need the bounding box in the local coordinate system
     // Note: This is not handling height correctly
@@ -555,6 +576,18 @@ static const float SphereTessY = 10;
         thisNorm.normalize();
         triBuilder->addConvexOutline(pts, thisNorm, theColor, shapeMbr);
     }
+    
+    // Note: Would be nice to keep these around
+    circleSamples.clear();
+    
+    // Add a selection region
+    if (isSelectable)
+    {
+        Point3f pts[2];
+        pts[0] = dispPt - radius * sqrt2 * xAxis - radius * sqrt2 * yAxis;
+        pts[1] = dispPt + height * norm + radius * sqrt2 * xAxis + radius * sqrt2 * yAxis;
+        [selectLayer addSelectableAxisRect:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+    }
 }
 
 @end
@@ -565,7 +598,7 @@ static const float SphereTessY = 10;
 @synthesize mbr;
 @synthesize lineWidth;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
 
@@ -676,7 +709,7 @@ static const float SphereTessY = 10;
 
     // Work through the shapes
     for (WhirlyKitShape *shape in shapeInfo.shapes)
-        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene];
+        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectLayer:selectLayer];
     
     // Flush out remaining geometry
     drawBuildReg.flush();

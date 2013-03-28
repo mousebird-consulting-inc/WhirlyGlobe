@@ -202,6 +202,35 @@ void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &inPts,std::vecto
     ClipHomogeneousPolyToPlane(pts, Far, outPts);
 }
 
+void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly)
+{
+    std::vector<Vector4d> pts;
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        const Point3d &pt = poly[ii];
+        // Run through the model transform
+        Vector4d modPt = modelMat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        // And then the projection matrix.  Now we're in clip space
+        Vector4d projPt = projMat * modPt;
+        pts.push_back(projPt);
+    }
+
+    std::vector<Eigen::Vector4d> clipSpacePts;
+    ClipHomogeneousPolygon(pts,clipSpacePts);
+    
+    if (clipSpacePts.empty())
+        return;
+    
+    // Project to the screen
+    Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
+    for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
+    {
+        Vector4d &outPt = clipSpacePts[ii];
+        Point2f screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
+        screenPoly.push_back(screenPt);
+    }    
+}
+    
 // Note: Maybe finish implementing this
 bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
 {

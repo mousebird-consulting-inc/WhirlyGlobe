@@ -24,7 +24,9 @@
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
 #import "MaplyView.h"
+#import "WhirlyGeometry.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 bool RectSelectable3D::operator < (const RectSelectable3D &that) const
@@ -40,6 +42,40 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
 bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
 {
     return selectID < that.selectID;
+}
+
+static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
+    
+void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen::Vector3d &norm)
+{
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        const Point3f &pt = pts[corners[which][ii]];
+        retPts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+    }
+    
+    // Note: These normals are wrongc
+    switch (which)
+    {
+        case 0:
+            norm = Vector3d(0,0,-1);
+            break;
+        case 1:
+            norm = Vector3d(0,0,1);
+            break;
+        case 2:
+            norm = Vector3d(0,0,-1);
+            break;
+        case 3:
+            norm = Vector3d(0,0,-1);
+            break;
+        case 4:
+            norm = Vector3d(0,0,-1);
+            break;
+        case 5:
+            norm = Vector3d(0,0,-1);
+            break;
+    }
 }
 
 @implementation WhirlyKitSelectionLayer
@@ -168,6 +204,8 @@ bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
     
     // Precalculate the model matrix for use below
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
+    Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
+    Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
@@ -233,12 +271,7 @@ bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
 
     if (retId == EmptyIdentity)
     {
-        // Calculate a ray in display space from the viewer
-//        Ray3f dispRay = [theView displaySpaceRayFromScreenPt:touchPt width:renderer.framebufferWidth height:renderer.framebufferHeight];
-        
         // Work through the axis aligned rectangular solids
-//        float minDist2 = MAXFLOAT;
-//        SimpleIdentity foundId = EmptyIdentity;
         for (RectSolidSelectableSet::iterator it = rectSolidSelectables.begin();
              it != rectSolidSelectables.end(); ++it)
         {
@@ -248,44 +281,40 @@ bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
-                    std::vector<Point2f> screenPts;
-                    
-//                    // Convert coordinates to screen
-//                    
-//                    for (unsigned int ii=0;ii<4;ii++)
-//                    {
-//                        CGPoint screenPt;
-//                        if (globeView)
-//                            screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
-//                        else
-//                            screenPt = [mapView pointOnScreenFromPlane:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
-//                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
-//                    }
-//                    
-//                    // See if we fall within that polygon
-//                    if (PointInPolygon(touchPt, screenPts))
-//                    {
-//                        retId = sel.selectID;
-//                        break;
-//                    }
-//                    
-//                    // Now for a proximity check around the edges
-//                    for (unsigned int ii=0;ii<4;ii++)
-//                    {
-//                        Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
-//                        float dist2 = (closePt-touchPt).squaredNorm();
-//                        if (dist2 <= maxDist2 && (dist2 < closeDist2))
-//                        {
-//                            retId = sel.selectID;
-//                            closeDist2 = dist2;
-//                        }
-//                    }
+                    // Project each plane to the screen, including clipping
+                    for (unsigned int ii=0;ii<6;ii++)
+                    {
+                        std::vector<Point3d> pts;
+                        Eigen::Vector3d norm;
+                        sel.getPlane(ii, pts, norm);
+
+                        std::vector<Point2f> screenPts;
+                        ClipAndProjectPolygon(modelTrans,projTrans,frameSize,pts,screenPts);
+                        
+                        if (screenPts.size() > 3)
+                        {
+                            if (PointInPolygon(touchPt, screenPts))
+                            {
+                                retId = sel.selectID;
+                                break;                                
+                            }
+                            
+                            for (unsigned int ii=0;ii<screenPts.size();ii++)
+                            {
+                                Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+                                float dist2 = (closePt-touchPt).squaredNorm();
+                                if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                                {
+                                    // Note: Should be doing a range check here
+                                    retId = sel.selectID;
+                                    closeDist2 = dist2;
+                                }
+                            }                            
+                        }
+                    }
                 }
             }
         }
-        
-//        if (foundId != EmptyIdentity)
-//            retId = foundId;
     }
     
 

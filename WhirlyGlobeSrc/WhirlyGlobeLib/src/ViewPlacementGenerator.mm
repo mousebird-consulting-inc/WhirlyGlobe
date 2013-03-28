@@ -97,7 +97,9 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         {
             // Note: Calculate this ahead of time
             Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(viewInst.loc));
-            
+     
+            // Note: Need to fix this logic
+#if 0
             // Check that it's not behind the globe
             if (globeView)
             {
@@ -123,6 +125,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
                     //            if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
                     //                hidden = YES;
             }
+#endif
 
             if (!hidden)
             {
