@@ -227,6 +227,7 @@ void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Po
     {
         Vector4d &outPt = clipSpacePts[ii];
         Point2f screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
+        screenPt.y() = frameSize.y() - screenPt.y();
         screenPoly.push_back(screenPt);
     }    
 }

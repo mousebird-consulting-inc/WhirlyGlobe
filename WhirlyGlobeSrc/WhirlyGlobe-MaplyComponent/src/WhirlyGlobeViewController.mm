@@ -35,6 +35,17 @@ using namespace WhirlyGlobe;
 
 @synthesize delegate;
 
+- (id) init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _autoMoveToTap = true;
+    
+    return self;
+}
+
 // Tear down layers and layer thread
 - (void) clear
 {
@@ -388,7 +399,8 @@ using namespace WhirlyGlobe;
             [delegate globeViewController:self didTapAt:coord];
         }
         // Didn't select anything, so rotate
-        [self rotateToPoint:msg.whereGeo time:1.0];
+        if (_autoMoveToTap)
+            [self rotateToPoint:msg.whereGeo time:1.0];
     }
 }
 

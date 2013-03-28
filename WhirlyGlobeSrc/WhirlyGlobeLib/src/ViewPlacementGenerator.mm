@@ -148,9 +148,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         {
             CGSize size = viewInst.view.frame.size;
             // Note: We should really be passing this in
-            float scale = viewInst.view.superview.contentScaleFactor;
-            if (scale < 1.0)
-                scale = 1.0;
+            float scale = [UIScreen mainScreen].scale;
             // We can only modify UIViews on the main thread
             if ([NSThread currentThread] != [NSThread mainThread])
             {

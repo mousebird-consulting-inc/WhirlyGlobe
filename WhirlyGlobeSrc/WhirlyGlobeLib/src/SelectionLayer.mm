@@ -39,43 +39,9 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     return selectID < that.selectID;
 }
 
-bool RectSolidSelectable::operator < (const RectSolidSelectable &that) const
+bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
 {
     return selectID < that.selectID;
-}
-
-static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
-    
-void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen::Vector3d &norm)
-{
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        const Point3f &pt = pts[corners[which][ii]];
-        retPts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
-    }
-    
-    // Note: These normals are wrongc
-    switch (which)
-    {
-        case 0:
-            norm = Vector3d(0,0,-1);
-            break;
-        case 1:
-            norm = Vector3d(0,0,1);
-            break;
-        case 2:
-            norm = Vector3d(0,0,-1);
-            break;
-        case 3:
-            norm = Vector3d(0,0,-1);
-            break;
-        case 4:
-            norm = Vector3d(0,0,-1);
-            break;
-        case 5:
-            norm = Vector3d(0,0,-1);
-            break;
-    }
 }
 
 @implementation WhirlyKitSelectionLayer
@@ -153,27 +119,30 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
     rect2Dselectables.insert(newSelect);
 }
 
-- (void)addSelectableAxisRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
+static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
+
+- (void)addSelectableRectSolid:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
 {
     if (selectId == EmptyIdentity)
         return;
     
-    RectSolidSelectable newSelect;
+    PolytopeSelectable newSelect;
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
-    const Point3f &ll = pts[0];
-    const Point3f &ur = pts[1];
-    newSelect.pts[0] = Point3f(ll.x(),ll.y(),ll.z());
-    newSelect.pts[1] = Point3f(ur.x(),ll.y(),ll.z());
-    newSelect.pts[2] = Point3f(ur.x(),ur.y(),ll.z());
-    newSelect.pts[3] = Point3f(ll.x(),ur.y(),ll.z());
-    newSelect.pts[4] = Point3f(ll.x(),ll.y(),ur.z());
-    newSelect.pts[5] = Point3f(ur.x(),ll.y(),ur.z());
-    newSelect.pts[6] = Point3f(ur.x(),ur.y(),ur.z());
-    newSelect.pts[7] = Point3f(ll.x(),ur.y(),ur.z());
+    newSelect.midPt = Point3f(0,0,0);
+    for (unsigned int ii=0;ii<8;ii++)
+        newSelect.midPt += pts[ii];
+    newSelect.midPt /= 8.0;
+    for (unsigned int ii=0;ii<6;ii++)
+    {
+        std::vector<Point3f> poly;
+        for (unsigned int jj=0;jj<4;jj++)
+            poly.push_back(pts[corners[ii][jj]]);
+        newSelect.polys.push_back(poly);
+    }
     
-    rectSolidSelectables.insert(newSelect);
+    polytopeSelectables.insert(newSelect);
 }
 
 // Remove the given selectable from consideration
@@ -188,9 +157,9 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
     if (it2 != rect2Dselectables.end())
         rect2Dselectables.erase(it2);
     
-    RectSolidSelectableSet::iterator it3 = rectSolidSelectables.find(RectSolidSelectable(selectID));
-    if (it3 != rectSolidSelectables.end())
-        rectSolidSelectables.erase(it3);
+    PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+    if (it3 != polytopeSelectables.end())
+        polytopeSelectables.erase(it3);
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
@@ -204,8 +173,8 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
     
     // Precalculate the model matrix for use below
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
-    Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
+    Point2f frameSize(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor);
+    Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:frameSize margin:0.0];
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
@@ -269,45 +238,68 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
         }
     }
 
-    if (retId == EmptyIdentity)
+    if (retId == EmptyIdentity && !polytopeSelectables.empty())
     {
+        // We'll look for the closest object we can find
+        float distToObj2 = MAXFLOAT;
+        SimpleIdentity foundId = EmptyIdentity;
+        Point3f eyePos;
+        if (globeView)
+            eyePos = Vector3dToVector3f(globeView.eyePos);
+        else
+            NSLog(@"Need to fill in eyePos for mapView");
+        
         // Work through the axis aligned rectangular solids
-        for (RectSolidSelectableSet::iterator it = rectSolidSelectables.begin();
-             it != rectSolidSelectables.end(); ++it)
+        for (PolytopeSelectableSet::iterator it = polytopeSelectables.begin();
+             it != polytopeSelectables.end(); ++it)
         {
-            RectSolidSelectable sel = *it;
+            PolytopeSelectable sel = *it;
             if (sel.selectID != EmptyIdentity)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
                     // Project each plane to the screen, including clipping
-                    for (unsigned int ii=0;ii<6;ii++)
+                    for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
-                        std::vector<Point3d> pts;
-                        Eigen::Vector3d norm;
-                        sel.getPlane(ii, pts, norm);
-
+                        std::vector<Point3f> &poly3f = sel.polys[ii];
+                        std::vector<Point3d> poly;
+                        poly.reserve(poly3f.size());
+                        for (unsigned int jj=0;jj<poly3f.size();jj++)
+                        {
+                            Point3f &pt = poly3f[jj];
+                            poly.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+                        }
+                        
                         std::vector<Point2f> screenPts;
-                        ClipAndProjectPolygon(modelTrans,projTrans,frameSize,pts,screenPts);
+                        ClipAndProjectPolygon(modelTrans,projTrans,frameSize,poly,screenPts);
                         
                         if (screenPts.size() > 3)
                         {
                             if (PointInPolygon(touchPt, screenPts))
                             {
-                                retId = sel.selectID;
-                                break;                                
+                                float dist2 = (sel.midPt - eyePos).squaredNorm();
+                                if (dist2 < distToObj2)
+                                {
+                                    distToObj2 = dist2;
+                                    foundId = sel.selectID;
+                                }
+                                break;
                             }
                             
-                            for (unsigned int ii=0;ii<screenPts.size();ii++)
+                            for (unsigned int jj=0;jj<screenPts.size();jj++)
                             {
-                                Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt);
+                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt);
                                 float dist2 = (closePt-touchPt).squaredNorm();
-                                if (dist2 <= maxDist2 && (dist2 < closeDist2))
+                                if (dist2 <= maxDist2)
                                 {
-                                    // Note: Should be doing a range check here
-                                    retId = sel.selectID;
-                                    closeDist2 = dist2;
+                                    float objDist2 = (sel.midPt - eyePos).squaredNorm();
+                                    if (objDist2 < distToObj2)
+                                    {
+                                        distToObj2 = objDist2;
+                                        foundId = sel.selectID;
+                                        break;
+                                    }
                                 }
                             }                            
                         }
@@ -315,6 +307,8 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
                 }
             }
         }
+        
+        retId = foundId;
     }
     
 
@@ -337,9 +331,9 @@ void RectSolidSelectable::getPlane(int which,std::vector<Point3d> &retPts,Eigen:
                         CGPoint screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (globeView)
-                            screenPt = [globeView pointOnScreenFromSphere:pt3d transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                            screenPt = [globeView pointOnScreenFromSphere:pt3d transform:&modelTrans frameSize:frameSize];
                         else
-                            screenPt = [mapView pointOnScreenFromPlane:pt3d transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                            screenPt = [mapView pointOnScreenFromPlane:pt3d transform:&modelTrans frameSize:frameSize];
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     

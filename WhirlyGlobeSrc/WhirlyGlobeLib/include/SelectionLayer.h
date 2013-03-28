@@ -53,24 +53,22 @@ typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 
 /** This is 3D rectangular solid.
   */
-class RectSolidSelectable
+class PolytopeSelectable
 {
 public:
-    RectSolidSelectable() { }
-    RectSolidSelectable(SimpleIdentity theID) : selectID(theID) { }
+    PolytopeSelectable() { }
+    PolytopeSelectable(SimpleIdentity theID) : selectID(theID) { }
     // Comparison operator for sorting
-    bool operator < (const RectSolidSelectable &that) const;
+    bool operator < (const PolytopeSelectable &that) const;
     
     /// Used to identify the selectable
     SimpleIdentity selectID;
-    Point3f pts[8];
-    float minVis,maxVis;  // Range over which this is visible
-    
-    /// Returns one of the six planes, with proper normal
-    void getPlane(int which,std::vector<Point3d> &pts,Eigen::Vector3d &norm);
+    std::vector<std::vector<Point3f> > polys;
+    Point3f midPt;        // Point right in the middle of the polytope
+    float minVis,maxVis;  // Range over which this is visible    
 };
 
-typedef std::set<WhirlyKit::RectSolidSelectable> RectSolidSelectableSet;
+typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
     
 /** Rectangle Selectable (screen space version).
  */
@@ -114,7 +112,7 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
-    WhirlyKit::RectSolidSelectableSet rectSolidSelectables;
+    WhirlyKit::PolytopeSelectableSet polytopeSelectables;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
@@ -132,8 +130,8 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
 - (void)addSelectableScreenRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point2f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
-/// Add an axis aligned rectangular solid for selection
-- (void)addSelectableAxisRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
+/// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
+- (void)addSelectableRectSolid:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
 /// Remove the given selectable from consideration
 - (void)removeSelectable:(WhirlyKit::SimpleIdentity)selectId;
