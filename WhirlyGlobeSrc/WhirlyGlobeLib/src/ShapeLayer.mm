@@ -359,7 +359,7 @@ public:
 
 // Number of samples for a circle.
 // Note: Make this a parameter
-static int CircleSamples = 20;
+static int CircleSamples = 10;
 
 @implementation WhirlyKitCircle
 

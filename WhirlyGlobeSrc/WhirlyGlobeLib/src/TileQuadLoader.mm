@@ -35,6 +35,9 @@ using namespace WhirlyKit;
     int sphereTessX,sphereTessY;
     DynamicTextureAtlas *texAtlas;
     DynamicDrawableAtlas *drawAtlas;
+    bool doingUpdate;
+    // Number of border texels we need in an image
+    int borderTexel;
 }
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData;
@@ -83,6 +86,14 @@ using namespace WhirlyKit;
         loadImage->height = CGImageGetHeight(texImage.CGImage);
         loadImage->type = WKLoadedImageUIImage;
     }
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)PlaceholderImage
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage->type = WKLoadedImagePlaceholder;
     
     return loadImage;
 }
@@ -144,6 +155,7 @@ namespace WhirlyKit
 LoadedTile::LoadedTile()
 {
     isLoading = false;
+    placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
@@ -158,6 +170,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 {
     nodeInfo.ident = ident;
     isLoading = false;
+    placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
@@ -171,6 +184,13 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 // Add the geometry and texture to the scene for a given tile
 void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
+    // If it's a placeholder, we don't create geometry
+    if (loadImage->type == WKLoadedImagePlaceholder)
+    {
+        placeholder = true;
+        return;
+    }
+    
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
     Texture *tex = NULL;
@@ -186,7 +206,7 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     {
         if (loader->texAtlas)
         {
-            loader->texAtlas->addTexture(tex, subTex, scene->getMemManager(), changeRequests);
+            loader->texAtlas->addTexture(tex, subTex, scene->getMemManager(), changeRequests, loader->borderTexel);
             [layer.layerThread requestFlush];
             if (draw)
                 draw->applySubTexture(subTex);
@@ -321,7 +341,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                 if (childDrawIds[whichChild] == EmptyIdentity)
                 {
                     Quadtree::NodeInfo childInfo = tree->generateNode(childIdent);
-                    if (isValidTile(layer,childInfo.mbr))
+                    if (isValidTile(layer,childInfo.mbr) && !placeholder)
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
@@ -368,7 +388,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
     // No children, so turn the geometry for this tile back on
     if (!childrenExist)
     {
-        if (drawId == EmptyIdentity)
+        if (drawId == EmptyIdentity && !placeholder)
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
@@ -460,11 +480,6 @@ void LoadedTile::Print(Quadtree *tree)
 }
 
 @implementation WhirlyKitQuadTileLoader
-{
-    bool doingUpdate;
-    // Number of border texels we need in an image
-    int borderTexel;
-}
 
 @synthesize drawOffset;
 @synthesize drawPriority;
@@ -710,7 +725,7 @@ void LoadedTile::Print(Quadtree *tree)
     // Get texture (locally)
     if (tex)
     {
-        if (loadImage)
+        if (loadImage && loadImage->type != WKLoadedImagePlaceholder)
         {
             int destWidth,destHeight;
             [self texWidth:loadImage->width height:loadImage->height destWidth:&destWidth destHeight:&destHeight];
