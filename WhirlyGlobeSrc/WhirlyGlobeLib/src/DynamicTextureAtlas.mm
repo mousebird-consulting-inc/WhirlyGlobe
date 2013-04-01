@@ -252,7 +252,7 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 // If set, we ask the main thread to do the sub texture loads
 static const bool MainThreadMerge = false;
     
-bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes)
+bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels)
 {
     // Make sure we can fit the thing
     if (tex->getWidth() > texSize || tex->getHeight() > texSize)
@@ -317,9 +317,14 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
 //        texRegion.subTex.setFromTex(TexCoord(org.x(),org.y()),
 //                                    TexCoord(org.x() + tex->getWidth() / (float)texSize , org.y() + tex->getHeight() / (float)texSize));
         
-        Point2f halfPix(0.5 / texSize, 0.5 / texSize);
-        texRegion.subTex.setFromTex(TexCoord(org.x()+halfPix.x(),org.y()+halfPix.y()),
-                                    TexCoord(org.x() + tex->getWidth() / (float)texSize - halfPix.x(), org.y() + tex->getHeight() / (float)texSize - halfPix.y()));
+        Point2f boundaryPix;
+        if (borderPixels == 0)
+            boundaryPix = Point2f(0,0);
+        else
+//            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
+            boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);
+        texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x(),org.y() + boundaryPix.y()),
+                                    TexCoord(org.x() + tex->getWidth() / (float)texSize - boundaryPix.x(), org.y() + tex->getHeight() / (float)texSize - boundaryPix.y()));
         texRegion.subTex.texId = dynTex->getId();
         
         subTex = texRegion.subTex;

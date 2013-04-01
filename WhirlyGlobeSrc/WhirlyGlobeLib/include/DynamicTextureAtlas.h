@@ -142,7 +142,7 @@ public:
     ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(Texture *,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes);
+    bool addTexture(Texture *,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels);
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,std::vector<ChangeRequest *> &changes);
