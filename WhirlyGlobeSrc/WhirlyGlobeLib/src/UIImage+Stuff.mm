@@ -76,16 +76,20 @@ using namespace WhirlyKit;
     {
         int ix,iy;
         // Bottom
-        for (ix=0,iy=0;ix<destWidth;ix++)
+        for (iy=border-1;iy>=0;iy--)
+            for (ix=0;ix<destWidth;ix++)
             buf[iy*destWidth + ix] = buf[(iy+1)*destWidth + ix];
         // Top
+        for (iy=destHeight-(1+border);iy<destHeight;iy++)
         for (ix=0,iy=destHeight-1;ix<destWidth;ix++)
             buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
         // Left
-        for (iy=0,ix=0;iy<destHeight;iy++)
+        for (ix=border-1;ix>=0;ix--)
+            for (iy=0;iy<destHeight;iy++)
             buf[iy*destWidth + ix] = buf[iy*destWidth + (ix+1)];
         // Right
-        for (iy=0,ix=destWidth-1;iy<destHeight;iy++)
+        for (ix=destWidth-(1+border);ix<destWidth;ix++)
+            for (iy=0;iy<destHeight;iy++)
             buf[iy*destWidth + ix] = buf[iy*destWidth + (ix-1)];
     }
 	

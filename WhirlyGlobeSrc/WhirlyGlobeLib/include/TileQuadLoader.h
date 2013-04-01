@@ -68,6 +68,10 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
 /// Return a loaded image made from an NSData object containing PVRTC
 + (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize;
 
+/// Return a loaded image that's just an empty placeholder.
+/// This means there's nothing to display, but the children are valid
++ (WhirlyKitLoadedImage *)PlaceholderImage;
+
 /// Return a loaded image made from an NSData object that contains a PNG or JPG.
 /// Basically somethign that UIImage will recognize if you initialize it with one.
 + (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData;
@@ -108,6 +112,8 @@ public:
     // Details of which node we're representing
     WhirlyKit::Quadtree::NodeInfo nodeInfo;
     
+    /// Set if this is just a placeholder (no geometry)
+    bool placeholder;    
     /// Set if this tile is in the process of loading
     bool isLoading;
     // DrawID for this parent tile
