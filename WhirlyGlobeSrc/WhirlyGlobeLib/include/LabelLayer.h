@@ -28,6 +28,7 @@
 #import "TextureAtlas.h"
 #import "DrawCost.h"
 #import "SelectionLayer.h"
+#import "LayoutLayer.h"
 
 namespace WhirlyKit 
 {
@@ -49,7 +50,7 @@ public:
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
     SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIdentity selectID;  // Selection rect
+    SimpleIDSet selectIDs;  // Selection rect
 };
 typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 
@@ -75,10 +76,13 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
     ///  depending on the justification
     WhirlyKit::GeoCoord loc;
     /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, and icon supported
+    ///  for just this label.  Only width, height, icon, text color, and
+    ///  background color supported.
     NSDictionary *desc;
     /// If non-zero, this is the texture to use as an icon
-    WhirlyKit::SimpleIdentity iconTexture;  
+    WhirlyKit::SimpleIdentity iconTexture;
+    /// If set, this moves the label if displayed in screen (2D) mode
+    CGSize screenOffset;
 }
 
 @property (nonatomic,assign) bool isSelectable;
@@ -87,6 +91,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 @property (nonatomic,retain) NSDictionary *desc;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
+@property (nonatomic,assign) CGSize screenOffset;
 
 /// This is used to sort out width and height from the defaults.  Pass
 ///  in the value of one and zero for the other and it will fill in the
@@ -97,7 +102,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 /// Pass in an array of 3 point3f structures for the points and
 ///  normals.  The corners are returned in counter-clockwise order.
 /// This is used for label selection
-- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordSystem:(WhirlyKit::CoordSystem *)coordSys;
+- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 @end
 
@@ -139,6 +144,10 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>justify         [NSString>] middle, left, right
     <item>fade            [NSSTring float]
     <item>screen          [NSNumber bool]  [If true, this is a 2D object, width and height are in screen coordinates]
+    <item>layout          [NSNumber bool]  [If true, pass this off to the layout engine to compete with other labels]
+    <item>layoutImportance [NSNumber float]  [If set and layout is on, this is the importance value used in competition in the layout layer]
+    <item>shadowSize      [NSNumber float]  [If set, we'll draw a background shadow underneath the text of this width]
+    <item>shadowColor     [UIcolor]  [If shadow size is non-zero, this will be the color we draw the shadow in.  Defaults to black.]
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
@@ -152,6 +161,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     /// If set, we register labels as selectable here
     WhirlyKitSelectionLayer * __weak selectLayer;
 
+    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
+    WhirlyKitLayoutLayer * __weak layoutLayer;
+
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepMap labelReps;
     
@@ -160,6 +172,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 
 /// Set this to enable selection for labels
 @property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
+
+/// Set this to use the layout engine for labels so marked
+@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2
@@ -184,12 +199,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 ///  look and feel.
 /// You get the ID identifying the whole group for modification or deletion
 - (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
-
-/// Add a group of labels and save them to a render cache
-- (WhirlyKit::SimpleIdentity) addLabels:(NSArray *)labels desc:(NSDictionary *)desc cacheName:(NSString *)cacheName;
-
-/// Add a previously cached group of labels all at once
-- (WhirlyKit::SimpleIdentity) addLabelsFromCache:(NSString *)cacheName;
 
 /// Change the display of a given label accordingly to the desc dictionary.
 /// Only minVis and maxVis are supported

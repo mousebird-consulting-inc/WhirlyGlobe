@@ -20,6 +20,7 @@
 
 #import "Scene.h"
 #import "Cullable.h"
+#import "GlobeMath.h"
 
 namespace WhirlyGlobe
 {
@@ -31,8 +32,9 @@ namespace WhirlyGlobe
 class GlobeScene : public WhirlyKit::Scene
 {
 public:
-    /// Construct with the geo coordinate system and the quad tree depth for the culling.
-    GlobeScene(WhirlyKit::CoordSystem *coordSystem,int depth);
+    /// Construct with the depth of the culling tree
+    GlobeScene(int depth);
+    virtual ~GlobeScene();
     
     /// Add a drawable, taking overlap into account
     virtual void addDrawable(WhirlyKit::DrawableRef drawable);
@@ -41,6 +43,10 @@ public:
     virtual void remDrawable(WhirlyKit::DrawableRef drawable);
     
 protected:
+    /// Display adapter and coordinate system used by a globe scene.
+    /// The coordinate system in lat/lon/elev and the display adapter converts
+    ///  to fake geocentric.
+    WhirlyKit::FakeGeocentricDisplayAdapter coordAdapter;
 };
     
 }

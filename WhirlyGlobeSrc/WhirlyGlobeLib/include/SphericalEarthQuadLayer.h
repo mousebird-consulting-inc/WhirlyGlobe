@@ -21,9 +21,7 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "TextureGroup.h"
-#import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "TileQuadLoader.h"
 
@@ -32,7 +30,7 @@
     a simple hierarchy of images that covers the whole earth.
     This replaces SphericalEarthLayer with its paging version.
  */
-@interface WhirlyGlobeSphericalEarthQuadLayer : WhirlyGlobeQuadDisplayLayer
+@interface WhirlyKitSphericalEarthQuadLayer : WhirlyKitQuadDisplayLayer
 {
 }
 
@@ -46,6 +44,6 @@
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Initialize with name of the plist the defines the image data set
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end

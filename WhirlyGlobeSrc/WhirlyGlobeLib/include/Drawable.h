@@ -31,18 +31,37 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
-#import "ESRenderer.h"
 
-using namespace Eigen;
+/// @cond
+@class WhirlyKitSceneRendererES;
+/// @endcond
 
 /// @cond
 @class WhirlyKitRendererFrameInfo;
 /// @endcon
 
+/** This is the configuration info passed to setupGL for each
+    drawable.  Sometimes this will be render thread side, sometimes
+    layer thread side.  The defaults should be valid.
+  */
+@interface WhirlyKitGLSetupInfo : NSObject
+{
+@public
+    /// If we're using drawOffset, this is the units
+    float minZres;
+}
+@end
+
 namespace WhirlyKit
 {
 	
 class Scene;
+    class OpenGLES2Program;
+
+/// We'll only keep this many buffers or textures around for reuse
+#define WhirlyKitOpenGLMemCacheMax 32
+/// Number of buffers we allocate at once
+#define WhirlyKitOpenGLMemCacheAllocUnit 32
 
 /// We'll only keep this many buffers or textures around for reuse
 #define WhirlyKitOpenGLMemCacheMax 32
@@ -59,7 +78,7 @@ public:
     ~OpenGLMemManager();
     
     /// Pick a buffer ID off the list or ask OpenGL for one
-    GLuint getBufferID();
+    GLuint getBufferID(unsigned int size=0,GLenum drawType=GL_STATIC_DRAW);
     /// Toss the given buffer ID back on the list for reuse
     void removeBufferID(GLuint bufID);
 
@@ -77,6 +96,12 @@ public:
     /// Print out stats about what's in the cache
     void dumpStats();
         
+    /// Locks the mutex.  Don't be using this.
+    void lock();
+    
+    /// Unlocks the mutix.  Seriously, not for you.  Don't call this.
+    void unlock();
+        
 protected:
     pthread_mutex_t idLock;
 
@@ -84,8 +109,7 @@ protected:
     std::set<GLuint> texIDs;
 };
 
-/// Mapping from Simple ID to an int.  This is used by the render cache
-///  reader and writer.
+/// Mapping from Simple ID to an int
 typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
 	
 /** This is the base clase for a change request.  Change requests
@@ -101,7 +125,7 @@ public:
 	virtual ~ChangeRequest() { }
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view) = 0;
+	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
 };	
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
@@ -119,6 +143,9 @@ public:
 	
 	/// We use this to sort drawables
 	virtual unsigned int getDrawPriority() const = 0;
+    
+    /// For OpenGLES2, this is the program to use to render this drawable.
+    virtual SimpleIdentity getProgram() const = 0;
 	
 	/// We're allowed to turn drawables off completely
 	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
@@ -126,32 +153,28 @@ public:
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
 	/// We pass in the minimum Z buffer resolution (for offsets).
-	virtual void setupGL(float minZres,OpenGLMemManager *memManage) { };
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 	
 	/// Clean up any OpenGL objects you may have (e.g. VBOs).
 	virtual void teardownGL(OpenGLMemManager *memManage) { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const = 0;	
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) = 0;
+    
+    /// Return the type (or an approximation thereof).  We use this for sorting.
+    virtual GLenum getType() const = 0;
     
     /// Return true if the drawable has alpha.  These will be sorted last.
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Matrix4f *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4f *getMatrix() const { return NULL; }
 
-    /// Can this drawable respond to a caching request?
-    virtual bool canCache() const = 0;
+    /// Check if the force Z buffer on mode is on
+    virtual bool getForceZBufferOn() const { return false; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(NSObject<WhirlyKitESRenderer> *renderer) = 0;
-
-    /// Read this drawable from a cache file
-    /// Return the the texure IDs encountered while reading
-    virtual bool readFromFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) { return false; }
-    
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) const { return false; }
+    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
 };
 
 /// Reference counted Drawable pointer
@@ -166,14 +189,14 @@ class DrawableChangeRequest : public ChangeRequest
 public:
     /// Construct with the ID of the Drawable we'll be changing
 	DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
-	~DrawableChangeRequest() { }
+	virtual ~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-	virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw) = 0;
+	virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw) = 0;
 	
 protected:
 	SimpleIdentity drawId;
@@ -202,14 +225,31 @@ public:
 	BasicDrawable(unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
 
+    /// For OpenGLES2, this is the program to use to render this drawable.
+    virtual SimpleIdentity getProgram() const { return programId; }
+
+    /// For OpenGLES2, you can set the program to use in rendering
+    void setProgram(SimpleIdentity progId) { programId = progId; }
+
 	/// Set up the VBOs
-	virtual void setupGL(float minZres,OpenGLMemManager *memManage);
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
+
+    /// This version can use a shared buffer instead of allocating its own
+	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager,GLuint sharedBuf,GLuint sharedBufOffset);
 	
 	/// Clean up the VBOs
 	virtual void teardownGL(OpenGLMemManager *memManage);	
 	
+    /// Size of a single vertex used in creating an interleaved buffer.
+    /// Override this if you want to include your own data in the interleaved buffer.
+    virtual GLuint singleVertexSize();
+        
+    /// Called render-thread side to set up a VAO
+    /// Override this to set up
+    virtual void setupVAO(OpenGLES2Program *prog);
+	
 	/// Fill this in to draw the basic drawable
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
 	
 	/// Draw priority
 	virtual unsigned int getDrawPriority() const { return drawPriority; }
@@ -246,8 +286,8 @@ public:
 
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
-	void setDrawOffset(unsigned int newOffset) { drawOffset = newOffset; }
-	unsigned int getDrawOffset() { return drawOffset; }
+	void setDrawOffset(float newOffset) { drawOffset = newOffset; }
+	float getDrawOffset() { return drawOffset; }
 
 	/// Set the geometry type.  Probably triangles.
 	void setType(GLenum inType) { type = inType; }
@@ -266,10 +306,13 @@ public:
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
     ///  the surface of the globe as at 1.0
-    void setVisibleRange(float minVis,float maxVis) { minVisible = minVis;  maxVisible = maxVis; }
+    void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0) { minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
     
-    /// Retrieve the visibile range
+    /// Retrieve the visible range, just min and max
     void getVisibleRange(float &minVis,float &maxVis) { minVis = minVisible;  maxVis = maxVisible; }
+    
+    /// Retrieve the visible range, including bands
+    void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand) { minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
     
     /// Set the fade in and out
     void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp) { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
@@ -279,6 +322,12 @@ public:
     
     /// Return the line width (1.0 is the default)
     float getLineWidth() { return lineWidth; }
+
+    /// Used to sort a Drawable in with the lines in zBufferOffUntilLines mode
+    void setForceZBufferOn(bool val) { forceZBufferOn = val; }
+    
+    /// Check if the force Z buffer on mode is on
+    bool getForceZBufferOn() const { return forceZBufferOn; }
 
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
@@ -332,58 +381,71 @@ public:
     void reserveNumColors(int numColors) { colors.reserve(colors.size()+numColors); }
 	
 	/// Widen a line and turn it into a rectangle of the given width
-	void addRect(const Point3f &l0, const Vector3f &ln0, const Point3f &l1, const Vector3f &ln1,float width);
+	void addRect(const Point3f &l0, const Eigen::Vector3f &ln0, const Point3f &l1, const Eigen::Vector3f &ln1,float width);
     
     /// Set the active transform matrix
-    void setMatrix(const Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+    void setMatrix(const Eigen::Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
 
     /// Return the active transform matrix, if we have one
-    const Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
-
-    /// The BasicDrawable can cache
-    virtual bool canCache() const { return true; }
+    const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
-    virtual void updateRenderer(NSObject<WhirlyKitESRenderer> *renderer);
+    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
-    /// Read this drawable from a cache file
-    virtual bool readFromFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true);
-    
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
-    
-    // Return the point buffer ID (for debugging)
-    GLuint getPointBuffer() { return pointBuffer; }
-
 protected:
-	void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
-	void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) const;
+    /// OpenGL ES 1.1 drawing routine
+	virtual void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    /// OpenGL ES 1.1 drawing routine
+	virtual void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    
+    /// Draw routine for OpenGL 2.0
+    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    /// Add a single point to the GL Buffer.
+    /// Override this to add your own data to interleaved vertex buffers.
+    virtual void addPointToBuffer(unsigned char *basePtr,int which);
+    /// Called while a new VAO is bound.  Set up your VAO-related state here.
+    virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
+    /// Called after the drawable has bound all its various data, but before it actually
+    /// renders.  This is where you would bind your own attributes and uniforms, if you
+    /// haven't already done so in setupAdditionalVAO()
+    virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
+    /// Called at the end of the drawOGL2() call
+    virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
 	
 	bool on;  // If set, draw.  If not, not
+    SimpleIdentity programId;    // Program to use for rendering
     bool usingBuffers;  // If set, we've downloaded the buffers already
     NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
 	unsigned int drawPriority;  // Used to sort drawables
-	unsigned int drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
+	float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type
 	SimpleIdentity texId;  // ID for Texture (in scene)
 	RGBAColor color;
     float minVisible,maxVisible;
+    float minVisibleFadeBand,maxVisibleFadeBand;
     float lineWidth;
+    // For zBufferOffUntilLines mode we'll sort this with the lines
+    bool forceZBufferOn;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
-	std::vector<Vector3f> points;
+	std::vector<Eigen::Vector3f> points;
     std::vector<RGBAColor> colors;
-	std::vector<Vector2f> texCoords;
-	std::vector<Vector3f> norms;
+	std::vector<Eigen::Vector2f> texCoords;
+	std::vector<Eigen::Vector3f> norms;
 	std::vector<Triangle> tris;
     
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
-    Matrix4f mat;
+    Eigen::Matrix4f mat;
 	
-	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer;
+    // Size for a single vertex w/ all its data.  Used by shared buffer
+    int vertexSize;
+	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer,sharedBuffer;
+    GLuint vertArrayObj;
+    GLuint sharedBufferOffset;
+    bool sharedBufferIsExternal;
 };
     
 /// Reference counted version of BasicDrawable
@@ -395,7 +457,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
 	ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
 	
-	void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
 	
 protected:
 	unsigned char color[4];
@@ -407,7 +469,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
 	OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
 	
-	void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
 	
 protected:
 	bool newOnOff;
@@ -419,7 +481,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float minVis,maxVis;
@@ -431,7 +493,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
     NSTimeInterval fadeUp,fadeDown;
@@ -443,7 +505,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
     SimpleIdentity newTexId;
@@ -453,12 +515,12 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
-    TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat);
+    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4f *newMat);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    Matrix4f newMat;
+    Eigen::Matrix4f newMat;
 };
     
 /// Change the drawPriority on a drawable
@@ -467,7 +529,7 @@ class DrawPriorityChangeRequest : public DrawableChangeRequest
 public:
     DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
     int drawPriority;
@@ -479,7 +541,7 @@ class LineWidthChangeRequest : public DrawableChangeRequest
 public:
     LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
     
-    void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float lineWidth;

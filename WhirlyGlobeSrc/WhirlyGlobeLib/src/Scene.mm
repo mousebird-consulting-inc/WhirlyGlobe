@@ -28,11 +28,16 @@
 namespace WhirlyKit
 {
     
-Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth)
-    : coordSystem(coordSystem)
+Scene::Scene()
+    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
-    cullTree = new CullTree(coordSystem,localMbr,depth);
-
+}
+    
+void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
+{
+    coordAdapter = adapter;
+    cullTree = new CullTree(adapter,localMbr,depth);
+    
     // Also toss in a screen space generator to share amongst the layers
     ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
@@ -43,7 +48,8 @@ Scene::Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth
     
     activeModels = [NSMutableArray array];
     
-    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&changeRequestLock,NULL);        
+    pthread_mutex_init(&subTexLock, NULL);
 }
 
 Scene::~Scene()
@@ -55,6 +61,7 @@ Scene::~Scene()
         delete *it;
     
     pthread_mutex_destroy(&changeRequestLock);
+    pthread_mutex_destroy(&subTexLock);
     
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];
@@ -63,6 +70,11 @@ Scene::~Scene()
     activeModels = nil;
     
     subTextureMap.clear();
+
+    // Note: Should be clearing program out of context somewhere
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        delete *it;
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
@@ -162,7 +174,7 @@ Texture *Scene::getTexture(SimpleIdentity texId)
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer)
+void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
@@ -195,18 +207,23 @@ bool Scene::hasChanges()
 // Add a single sub texture map
 void Scene::addSubTexture(const SubTexture &subTex)
 {
+    pthread_mutex_lock(&subTexLock);
     subTextureMap.insert(subTex);
+    pthread_mutex_unlock(&subTexLock);
 }
 
 // Add a whole group of sub textures maps
 void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
 {
+    pthread_mutex_lock(&subTexLock);
     subTextureMap.insert(subTexes.begin(),subTexes.end());
+    pthread_mutex_unlock(&subTexLock);
 }
 
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 {
+    pthread_mutex_lock(&subTexLock);
     SubTexture dumbTex;
     dumbTex.setId(subTexId);
     SubTextureSet::iterator it = subTextureMap.find(dumbTex);
@@ -215,9 +232,11 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
         SubTexture passTex;
         passTex.trans = passTex.trans.Identity();
         passTex.texId = subTexId;
+        pthread_mutex_unlock(&subTexLock);
         return passTex;
     }
     
+    pthread_mutex_unlock(&subTexLock);
     return *it;
 }
         
@@ -240,8 +259,78 @@ void Scene::dumpStats()
         (*it)->dumpStats();
 }
 
+OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
+{
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
+    OpenGLES2Program dummy(progId);
+    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
+    if (it == glPrograms.end())
+        return NULL;
+    return *it;
+}
+    
+OpenGLES2Program *Scene::getProgram(const std::string &name)
+{
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+    
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        if ((*it)->getName() == name)
+            return *it;
+    
+    return NULL;
+}
 
-void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void Scene::addProgram(OpenGLES2Program *prog)
+{
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+
+    glPrograms.insert(prog);
+}
+    
+void Scene::removeProgram(SimpleIdentity progId)
+{
+    // If we're not on the main thread, forget it
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+
+    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
+    for (it = glPrograms.begin();it != glPrograms.end(); ++it)
+        if ((*it)->getId() == progId)
+            break;
+    
+    if (it != glPrograms.end())
+        glPrograms.erase(it);
+}
+
+void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
+{
+    if (progTri)
+    {
+        addProgram(progTri);
+        defaultProgramTri = progTri->getId();
+    }
+    if (progLine)
+    {
+        defaultProgramLine = progLine->getId();
+        addProgram(progLine);
+    }
+}
+    
+void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)
+{
+    triShader = defaultProgramTri;
+    lineShader = defaultProgramLine;
+}
+
+void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
         tex->createInGL(true,scene->getMemManager());
@@ -249,7 +338,7 @@ void AddTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer
     tex = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     Texture dumbTex;
     dumbTex.setId(texture);
@@ -263,21 +352,22 @@ void RemTextureReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer
     }
 }
 
-void AddDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
         
     // Initialize any OpenGL foo
-    // Note: Make the Z offset a parameter
-    drawable->setupGL([view calcZbufferRes],scene->getMemManager());
+    WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+    setupInfo->minZres = [view calcZbufferRes];
+    drawable->setupGL(setupInfo,scene->getMemManager());
     
     drawable->updateRenderer(renderer);
         
     drawable = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     BasicDrawable *dumbDraw = new BasicDrawable();
     dumbDraw->setId(drawable);
@@ -291,7 +381,7 @@ void RemDrawableReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *rendere
     }
 }
 
-void AddGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     // Add the generator
     scene->generators.insert(generator);
@@ -299,7 +389,7 @@ void AddGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *render
     generator = NULL;
 }
 
-void RemGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     Generator dumbGen;
     dumbGen.setId(genId);
@@ -311,6 +401,23 @@ void RemGeneratorReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *render
         
         delete theGenerator;
     }
+}
+
+void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->addProgram(program);
+    program = NULL;
+}
+
+void RemProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->removeProgram(programId);
+}
+    
+void RemBufferReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    scene->getMemManager()->removeBufferID(bufID);
+    bufID = 0;
 }
     
 NotificationReq::NotificationReq(NSString *inNoteName,NSObject *inNoteObj)
@@ -325,7 +432,7 @@ NotificationReq::~NotificationReq()
     noteObj = nil;
 }
 
-void NotificationReq::execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view)
+void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     NSString *theNoteName = noteName;
     NSObject *theNoteObj = noteObj;

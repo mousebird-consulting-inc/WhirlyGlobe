@@ -19,13 +19,26 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <set>
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 #import "CoordSystem.h"
 
+/// @cond
+@class WhirlyKitView;
+/// @endcond
+
+/// Watcher Callback
+@protocol WhirlyKitViewWatcherDelegate
+/// Called when the view changes position
+- (void)viewUpdated:(WhirlyKitView *)view;
+@end
+
+typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewWatcherDelegateSet;
+
 /** Whirly Kit View is the base class for the views
-    used in WhirlyGlobe and WhirlyMap.  It contains the general purpose
+    used in WhirlyGlobe and Maply.  It contains the general purpose
     methods and parameters related to the model and view matrices used for display.
  */
 @interface WhirlyKitView : NSObject
@@ -37,14 +50,21 @@
 	
     /// The last time the position was changed
     CFTimeInterval lastChangedTime;
+
+    /// Display adapter and coordinate system we're working in
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
-    /// Coordinate system we're working in for the view
-    WhirlyKit::CoordSystem *coordSystem;
+    /// If set, we'll scale the near and far clipping planes as we get closer
+    bool continuousZoom;
+
+    /// Called when positions are updated
+    WhirlyKitViewWatcherDelegateSet watchDelegates;
 }
 
 @property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic,readonly) CFTimeInterval lastChangedTime;
-@property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSystem;
+@property (nonatomic,readonly) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+@property (nonatomic,assign) bool continuousZoom;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
@@ -66,11 +86,22 @@
 ///  as a second step from where we are
 - (Eigen::Matrix4f)calcViewMatrix;
 
+/// Return the combination of model and view matrix
+- (Eigen::Matrix4f)calcFullMatrix;
+
 /// Return the nominal height above the surface of the data
 - (float)heightAboveSurface;
 
 /// From a screen point calculate the corresponding point in 3-space
 - (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
-@end
+/// Add a watcher delegate.  Call this on the main thread.
+- (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
 
+/// Remove the given watcher delegate.  Call this on the main thread
+- (void)removeWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
+
+/// Used by subclasses to notify all the watchers of updates
+- (void)runViewUpdates;
+
+@end

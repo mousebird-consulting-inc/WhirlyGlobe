@@ -79,6 +79,7 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
     <item>fade        [NSNumber float]
     <item>width       [NSNumber float]
     <item>filled      [NSNumber bool]
+    <item>sample      [NSNumber float]
     </list>
   */
 @interface WhirlyKitVectorLayer : NSObject<WhirlyKitLayer>
@@ -109,16 +110,9 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 ///  with the returned ID.
 - (WhirlyKit::SimpleIdentity)addVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict;
 
-/// This version will cache the drawables in to the given cache file
-- (WhirlyKit::SimpleIdentity)addVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict cacheName:(NSString *)cacheName;
-
 /// This is exactly the same as removeVector/addVector except it times the remove to coincide
 ///  with the add.
 - (WhirlyKit::SimpleIdentity)replaceVector:(WhirlyKit::SimpleIdentity)oldVecID withVectors:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)dict;
-
-/// Read vectors from the given cache.
-/// Returns EmptyIdentity on failure
-- (WhirlyKit::SimpleIdentity)addVectorsFromCache:(NSString *)cacheName;
 
 /// This lets you change how a set of vectors is represented visually.
 /// You specify a dictionary to change particular attributues

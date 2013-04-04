@@ -20,7 +20,9 @@
 
 #import "LayerThread.h"
 #import "GlobeLayerViewWatcher.h"
+#import "MaplyLayerViewWatcher.h"
 #import "GlobeScene.h"
+#import "MaplyScene.h"
 #import "GlobeView.h"
 
 using namespace WhirlyKit;
@@ -31,7 +33,7 @@ using namespace WhirlyKit;
 @synthesize viewWatcher;
 @synthesize glContext;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;
 {
 	if ((self = [super init]))
 	{
@@ -40,8 +42,11 @@ using namespace WhirlyKit;
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
             viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
+        else
+            if (dynamic_cast<Maply::MapScene *>(scene))
+                viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
         
-        glContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:renderer.context.sharegroup];
+        glContext = [[EAGLContext alloc] initWithAPI:renderer.context.API sharegroup:renderer.context.sharegroup];
         thingsToRelease = [NSMutableArray array];
 	}
 	

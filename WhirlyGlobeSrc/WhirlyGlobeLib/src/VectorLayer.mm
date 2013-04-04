@@ -22,7 +22,6 @@
 #import "VectorLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "RenderCache.h"
 #import "Tesselator.h"
 
 using namespace WhirlyKit;
@@ -37,19 +36,18 @@ using namespace WhirlyKit;
     // For creation request, the shapes
     ShapeSet                    shapes;
     BOOL                        enable;
-    int                         drawOffset;
+    float                         drawOffset;
     UIColor                     *color;
     int                         priority;
     float                       minVis,maxVis;
     float                       fade;
     float                       lineWidth;
     BOOL                        filled;
-    NSString                    *cacheName;
+    float                       sample;
     SimpleIdentity              replaceVecID;
 }
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) SimpleIdentity replaceVecID;
@@ -61,7 +59,6 @@ using namespace WhirlyKit;
 @implementation VectorInfo
 
 @synthesize color;
-@synthesize cacheName;
 @synthesize fade;
 @synthesize lineWidth;
 @synthesize replaceVecID;
@@ -94,7 +91,7 @@ using namespace WhirlyKit;
 - (void)parseDict:(NSDictionary *)dict
 {
     enable = [dict boolForKey:@"enable" default:YES];
-    drawOffset = [dict intForKey:@"drawOffset" default:1];
+    drawOffset = [dict floatForKey:@"drawOffset" default:1];
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     priority = [dict intForKey:@"drawPriority" default:0];
     // This looks like an old bug
@@ -104,6 +101,7 @@ using namespace WhirlyKit;
     fade = [dict floatForKey:@"fade" default:0.0];
     lineWidth = [dict floatForKey:@"width" default:1.0];
     filled = [dict boolForKey:@"filled" default:false];
+    sample = [dict floatForKey:@"sample" default:false];
 }
 
 @end
@@ -119,8 +117,8 @@ class DrawableBuilder
 {
 public:
     DrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
-                    VectorInfo *vecInfo,bool linesOrPoints,RenderCacheWriter *cacheWriter)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
+                    VectorInfo *vecInfo,bool linesOrPoints)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -131,8 +129,8 @@ public:
     }
         
     void addPoints(VectorRing &pts,bool closed)
-    {          
-//        CoordSystem *coordSys = scene->getCoordSystem();
+    {
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -162,8 +160,9 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-            Point3f pt = norm;
+            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+            Point3f norm = coordAdapter->normalForLocal(localPt);
+            Point3f pt = coordAdapter->localToDisplay(localPt);
             
             // Add to drawable
             // Depending on the type, we do this differently
@@ -206,10 +205,6 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
 
-                // Save to the cache
-                if (cacheWriter)
-                    cacheWriter->addDrawable(drawable);
-
                 if (vecInfo.fade > 0.0)
                 {
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -229,7 +224,6 @@ protected:
     Mbr drawMbr;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
-    RenderCacheWriter *cacheWriter;
     GLenum primType;
 };
 
@@ -252,9 +246,11 @@ public:
     }
     
     void addPoints(VectorRing &inRing)
-    {          
+    {
         if (inRing.size() < 3)
             return;
+        
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
         std::vector<VectorRing> rings;
         TesselateRing(inRing,rings);
@@ -293,8 +289,9 @@ public:
                 // Convert to real world coordinates and offset from the globe
                 Point2f &geoPt = pts[jj];
                 GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-                Point3f norm = GeoCoordSystem::LocalToGeocentricish(geoCoord);
-                Point3f pt = norm;
+                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+                Point3f norm = coordAdapter->normalForLocal(localPt);
+                Point3f pt = coordAdapter->localToDisplay(localPt);
                 
                 drawable->addPoint(pt);
                 drawable->addNormal(norm);
@@ -388,12 +385,7 @@ protected:
     sceneRep->fade = vecInfo.fade;
     sceneRep->setId(vecInfo->sceneRepId);
     vectorReps[sceneRep->getId()] = sceneRep;
-    
-    // If we're writing out to a cache, set that up as well
-    RenderCacheWriter *renderCacheWriter=NULL;
-    if (vecInfo.cacheName)
-        renderCacheWriter = new RenderCacheWriter(vecInfo.cacheName);
-        
+            
     // All the shape types should be the same
     ShapeSet::iterator first = vecInfo->shapes.begin();
     if (first == vecInfo->shapes.end())
@@ -404,7 +396,7 @@ protected:
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     std::vector<ChangeRequest *> changeRequests;
-    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
+    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints);
     DrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
     
     // Note: This is a duplicate of the runRemoveVector logic
@@ -439,9 +431,16 @@ protected:
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    VectorRing &ring = theAreal->loops[ri];					
+                    VectorRing &ring = theAreal->loops[ri];
 
-                    drawBuild.addPoints(ring,true);
+                    // Break the edges around the globe (presumably)
+                    if (vecInfo->sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(ring, newPts, false, vecInfo->sample);
+                        drawBuild.addPoints(newPts,true);
+                    } else
+                        drawBuild.addPoints(ring,true);
                 }
             }
         } else {
@@ -453,7 +452,13 @@ protected:
             } else {
                 if (theLinear.get())
                 {
-                    drawBuild.addPoints(theLinear->pts,false);
+                    if (vecInfo->sample > 0.0)
+                    {
+                        VectorRing newPts;
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo->sample);
+                        drawBuild.addPoints(newPts,false);
+                    } else
+                        drawBuild.addPoints(theLinear->pts,false);
                 } else {
                     VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
                     if (thePoints.get())
@@ -468,30 +473,7 @@ protected:
     drawBuild.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);
-    
-    if (renderCacheWriter)
-        delete renderCacheWriter;
-}
-
-// Load the vector drawables from the cache
-- (void)runAddVectorsFromCache:(VectorInfo *)vecInfo
-{
-    RenderCacheReader *renderCacheReader = new RenderCacheReader(vecInfo.cacheName);
-    
-    // Load in the textures and drawables
-    // We'll hand them to the scene as we get them    
-    SimpleIDSet texIDs,drawIDs;
-    if (!renderCacheReader->getDrawablesAndTexturesAddToScene(scene,texIDs,drawIDs,vecInfo.fade))
-        NSLog(@"VectorLayer failed to load from cache: %@",vecInfo.cacheName);
-    else {
-        VectorSceneRep *sceneRep = new VectorSceneRep(vecInfo->shapes);
-        sceneRep->setId(vecInfo->sceneRepId);
-        sceneRep->drawIDs = drawIDs;
-        vectorReps[sceneRep->getId()] = sceneRep;        
-    }
-    
-    delete renderCacheReader;
+    scene->addChangeRequests(changeRequests);    
 }
 
 // Change a vector representation according to the request
@@ -588,7 +570,7 @@ protected:
 }
 
 // Add a group of vectors and cache it to the given file, which might be on disk
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
 {
     if (!layerThread || !scene)
     {
@@ -597,34 +579,12 @@ protected:
     }
     
     VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
-    vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddVector:vecInfo];
     else
         [self performSelector:@selector(runAddVector:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
-    
-    return vecInfo->sceneRepId;
-}
-
-// Add a group of vectors.  These will all be referred to by the same ID.
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
-{
-    return [self addVectors:shapes desc:desc cacheName:nil];
-}
-
-// Load the drawables in from a cache
-- (SimpleIdentity)addVectorsFromCache:(NSString *)cacheName
-{
-    VectorInfo *vecInfo = [[VectorInfo alloc] init];
-    vecInfo.cacheName = cacheName;
-    vecInfo->sceneRepId = Identifiable::genId();
-    
-    if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runAddVectorsFromCache:vecInfo];
-    else
-        [self performSelector:@selector(runAddVectorsFromCache:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
     
     return vecInfo->sceneRepId;
 }

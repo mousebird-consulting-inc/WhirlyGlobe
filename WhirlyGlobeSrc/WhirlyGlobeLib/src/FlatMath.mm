@@ -23,7 +23,7 @@
 
 namespace WhirlyKit
 {
-    
+        
 GeoCoord PlateCarreeCoordSystem::localToGeographic(Point3f pt)
 {
     return GeoCoord(pt.x(),pt.y());
@@ -34,17 +34,25 @@ Point3f PlateCarreeCoordSystem::geographicToLocal(GeoCoord geo)
     return Point3f(geo.lon(),geo.lat(),0.0);
 }
     
-Point3f PlateCarreeCoordSystem::localToGeocentricish(Point3f pt)
+Point3f PlateCarreeCoordSystem::localToGeocentric(Point3f localPt)
 {
-    return GeoCoordSystem::LocalToGeocentricish(localToGeographic(pt));
+    return GeoCoordSystem::LocalToGeocentric(Point3f(localPt.x(),localPt.y(),localPt.z()));
+}
+
+/// Convert from WGS84 geocentric to local coordinates
+Point3f PlateCarreeCoordSystem::geocentricToLocal(Point3f geocPt)
+{
+    return GeoCoordSystem::GeocentricToLocal(geocPt);
 }
     
-Point3f PlateCarreeCoordSystem::geocentricishToLocal(Point3f pt)
+bool PlateCarreeCoordSystem::isSameAs(CoordSystem *coordSys)
 {
-    Point3f coord = GeoCoordSystem::GeocentricishToLocal(pt);
-    return geographicToLocal(GeoCoord(coord.x(),coord.y()));
-}    
+    PlateCarreeCoordSystem *other = dynamic_cast<PlateCarreeCoordSystem *>(coordSys);
     
+    return (other != NULL);
+}
+
+        
 FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin)
     : origin(origin)
 {
@@ -73,29 +81,55 @@ Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
     return pt;
 }
 
-Point3f FlatEarthCoordSystem::localToGeocentricish(Point3f inPt)
+// Note: This needs to be turned into a display adapter
+//Point3f FlatEarthCoordSystem::localToGeocentricish(Point3f inPt)
+//{
+//    // Note: This is entirely bogus.  We need to use proj4 and take the elipsoid into account
+//    GeoCoord coord = localToGeographic(inPt);
+//    Point3f pt = GeoCoordSystem::LocalToGeocentricish(Point3f(coord.lon(),coord.lat(),0.0));
+//    
+//    // And don't forget the Z
+//    pt *= 1.0 + inPt.z() / EarthRadius;
+//    
+//    return pt;
+//}
+//
+//Point3f FlatEarthCoordSystem::geocentricishToLocal(Point3f inPt)
+//{
+//    // Note: Entirely bogus. Pull in proj4 for the elipsoid
+//    float len = inPt.norm() - 1.0;
+//    inPt.normalize();
+//
+//    Point3f coord = GeoCoordSystem::GeocentricishToLocal(inPt);
+//    Point3f pt = geographicToLocal(GeoCoord(coord.x(),coord.y()));
+//    pt.z() = len * EarthRadius;
+//    
+//    return pt;
+//}
+    
+/// Convert from local coordinates to WGS84 geocentric
+Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt)
 {
-    // Note: This is entirely bogus.  We need to use proj4 and take the elipsoid into account
-    GeoCoord coord = localToGeographic(inPt);
-    Point3f pt = GeoCoordSystem::LocalToGeocentricish(Point3f(coord.lon(),coord.lat(),0.0));
-    
-    // And don't forget the Z
-    pt *= 1.0 + inPt.z() / EarthRadius;
-    
-    return pt;
+    GeoCoord geoCoord = localToGeographic(localPt);
+    return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
 
-Point3f FlatEarthCoordSystem::geocentricishToLocal(Point3f inPt)
+/// Convert from WGS84 geocentric to local coordinates
+Point3f FlatEarthCoordSystem::geocentricToLocal(Point3f geocPt)
 {
-    // Note: Entirely bogus. Pull in proj4 for the elipsoid
-    float len = inPt.norm() - 1.0;
-    inPt.normalize();
+    Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());
+}
 
-    Point3f coord = GeoCoordSystem::GeocentricishToLocal(inPt);
-    Point3f pt = geographicToLocal(GeoCoord(coord.x(),coord.y()));
-    pt.z() = len * EarthRadius;
+bool FlatEarthCoordSystem::isSameAs(CoordSystem *coordSys)
+{
+    FlatEarthCoordSystem *other = dynamic_cast<FlatEarthCoordSystem *>(coordSys);
     
-    return pt;
+    if (!other)
+        return false;
+    
+    return other->origin == origin;
 }
     
 GeoCoord FlatEarthCoordSystem::getOrigin() const

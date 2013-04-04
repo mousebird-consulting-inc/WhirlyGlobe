@@ -28,8 +28,9 @@ using namespace Eigen;
 @implementation WhirlyKitView
 
 @synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@synthesize coordSystem;
+@synthesize coordAdapter;
 @synthesize lastChangedTime;
+@synthesize continuousZoom;
 
 - (id)init
 {
@@ -38,8 +39,9 @@ using namespace Eigen;
         fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
 		nearPlane = 0.001;
 		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-		farPlane = 2.6;
+		farPlane = 4.0;
         lastChangedTime = CFAbsoluteTimeGetCurrent();
+        continuousZoom = false;
     }
     
     return self;
@@ -84,6 +86,11 @@ using namespace Eigen;
     return ident;
 }
 
+- (Eigen::Matrix4f)calcFullMatrix
+{
+    return [self calcViewMatrix] * [self calcModelMatrix];
+}
+
 - (float)heightAboveSurface
 {
     return 0.0;
@@ -111,6 +118,25 @@ using namespace Eigen;
 	// Now come up with a point in 3 space between ll and ur
 	Point2f mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
 	return Point3f(mid.x(),mid.y(),-near);
+}
+
+/// Add a watcher delegate
+- (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
+{
+    watchDelegates.insert(delegate);
+}
+
+/// Remove the given watcher delegate
+- (void)removeWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
+{
+    watchDelegates.erase(delegate);
+}
+
+- (void)runViewUpdates
+{
+    for (WhirlyKitViewWatcherDelegateSet::iterator it = watchDelegates.begin();
+         it != watchDelegates.end(); ++it)
+        [(*it) viewUpdated:self];    
 }
 
 @end

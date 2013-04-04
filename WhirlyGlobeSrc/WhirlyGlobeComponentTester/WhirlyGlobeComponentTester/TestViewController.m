@@ -1,13 +1,26 @@
-//
-//  TestViewController.m
-//  WhirlyGlobeComponentTester
-//
-//  Created by Steve Gifford on 7/23/12.
-//  Copyright (c) 2012 mousebird consulting. All rights reserved.
-//
+/*
+ *  TestViewController.m
+ *  WhirlyGlobeComponentTester
+ *
+ *  Created by Steve Gifford on 7/23/12.
+ *  Copyright 2011-2012 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
 
 #import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
+#import "AFJSONRequestOperation.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -62,14 +75,21 @@ LocationInfo locations[NumLocations] =
         
     // These represent a group of objects we've added to the globe.
     // This is how we track them for removal
-    WGComponentObject *screenMarkersObj;
-    WGComponentObject *markersObj;
-    WGComponentObject *screenLabelsObj;
-    WGComponentObject *labelsObj;
+    MaplyComponentObject *screenMarkersObj;
+    MaplyComponentObject *markersObj;
+    MaplyComponentObject *shapeCylObj;
+    MaplyComponentObject *shapeSphereObj;
+    MaplyComponentObject *greatCircleObj;
+    MaplyComponentObject *screenLabelsObj;
+    MaplyComponentObject *labelsObj;
+    MaplyComponentObject *stickersObj;
     NSArray *vecObjects;
+    MaplyComponentObject *megaMarkersObj;
+    MaplyComponentObject *autoLabels;
+    NSMutableDictionary *loftPolyDict;
     
     // The view we're using to track a selected object
-    WGViewTracker *selectedViewTrack;
+    MaplyViewTracker *selectedViewTrack;
 }
 
 // These routine add objects to the globe based on locations and/or labels in the
@@ -80,20 +100,23 @@ LocationInfo locations[NumLocations] =
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 - (void)addLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 - (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
+- (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset;
 
 // Change what we're showing based on the Configuration
-- (void)changeGlobeContents;
+- (void)changeMapContents;
 @end
 
 @implementation TestViewController
 {
+    MapType startupMapType;
     BaseLayer startupLayer;
 }
 
-- (id)initWithBaseLayer:(BaseLayer)baseLayer;
+- (id)initWithMapType:(MapType)mapType baseLayer:(BaseLayer)baseLayer
 {
     self = [super init];
     if (self) {
+        startupMapType = mapType;
         startupLayer = baseLayer;
     }
     return self;
@@ -102,11 +125,11 @@ LocationInfo locations[NumLocations] =
 - (void)dealloc
 {
     // This should release the globe view
-    if (globeViewC)
+    if (baseViewC)
     {
-        [globeViewC.view removeFromSuperview];
-        [globeViewC removeFromParentViewController];
-        globeViewC = nil;
+        [baseViewC.view removeFromSuperview];
+        [baseViewC removeFromParentViewController];
+        baseViewC = nil;
     }    
 }
 
@@ -114,30 +137,43 @@ LocationInfo locations[NumLocations] =
 {
     [super viewDidLoad];
     
+    loftPolyDict = [NSMutableDictionary dictionary];
+    
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
     // Force the view to load so we can get the default switch values
     [configViewC view];
-    
-    // Create an empty globe view controller and hook it in to our view hiearchy
-    globeViewC = [[WhirlyGlobeViewController alloc] init];
-    [self.view addSubview:globeViewC.view];
-    globeViewC.view.frame = self.view.bounds;
-    [self addChildViewController:globeViewC];
+
+    // Create an empty globe or map controller
+    if (startupMapType == MapGlobe)
+    {
+        globeViewC = [[WhirlyGlobeViewController alloc] init];
+        globeViewC.delegate = self;
+        baseViewC = globeViewC;
+    } else {
+        mapViewC = [[MaplyViewController alloc] init];
+        mapViewC.delegate = self;
+        baseViewC = mapViewC;
+    }
+    [self.view addSubview:baseViewC.view];
+    baseViewC.view.frame = self.view.bounds;
+    [self addChildViewController:baseViewC];
     
     // Set the background color for the globe
-    globeViewC.clearColor = [UIColor blackColor];
+    baseViewC.clearColor = [UIColor blackColor];
     
     // This will get us taps and such
-    globeViewC.delegate = self;
-    
-    // Start up over San Francisco
-    [globeViewC animateToPosition:WGCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
-    
-    // Zoom in a bit
-    globeViewC.height = 0.8;
+    if (globeViewC)
+    {
+        // Start up over San Francisco
+        globeViewC.height = 0.8;
+        [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+    } else {
+        mapViewC.height = 1.0;
+        [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+    }
 
-    // For network paging layers, where 
+    // For network paging layers, where we'll store temp files
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 
     // We'll pick default colors for the labels
@@ -149,52 +185,103 @@ LocationInfo locations[NumLocations] =
     UIColor *vecColor = [UIColor whiteColor];
     float vecWidth = 1.0;
 
+    NSString *jsonTileSpec = nil;
+    NSString *thisCacheDir = nil;
+    
     // Set up the base layer
     switch (startupLayer)
     {
         case BlueMarbleSingleResLocal:
-            // This is the static image set, included with the app, built with ImageChopper
-            [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+            self.title = @"Blue Marble Single Res";
+            if (globeViewC)
+            {
+                // This is the static image set, included with the app, built with ImageChopper
+                [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+                screenLabelColor = [UIColor blackColor];
+                screenLabelBackColor = [UIColor whiteColor];
+                labelColor = [UIColor blackColor];
+                labelBackColor = [UIColor whiteColor];
+                vecColor = [UIColor whiteColor];
+                vecWidth = 4.0;
+            }
             break;
         case GeographyClassMBTilesLocal:
+            self.title = @"Geography Class - MBTiles Local";
             // This is the Geography Class MBTiles data set from MapBox
-            [globeViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
+            [baseViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
-            vecColor = [UIColor brownColor];
-            vecWidth = 2.0;
+            vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+            vecWidth = 4.0;
             break;
         case StamenWatercolorRemote:
         {
+            self.title = @"Stamen Water Color - Remote";
             // These are the Stamen Watercolor tiles.
             // They're beautiful, but the server isn't so great.
-            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-            [globeViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:2 maxZoom:10];
+            thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
+            [baseViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:10];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
-            labelBackColor = [UIColor whiteColor];
-            vecColor = [UIColor brownColor];
-            vecWidth = 2.0;
+            labelBackColor = [UIColor blackColor];
+            vecColor = [UIColor grayColor];
+            vecWidth = 4.0;
         }
             break;
         case OpenStreetmapRemote:
         {
+            self.title = @"OpenStreetMap - Remote";
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
-            NSString *thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-            NSError *error = nil;
-            [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-            [globeViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:12];            
+            thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
+            [baseViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:17];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
-            vecColor = [UIColor brownColor];
-            vecWidth = 2.0;
+            vecColor = [UIColor blackColor];
+            vecWidth = 4.0;
+        }
+            break;
+        case MapBoxTilesSat1:
+        {
+            self.title = @"MapBox Tiles Satellite - Remote";
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor whiteColor];
+            vecWidth = 4.0;
+        }
+            break;
+        case MapBoxTilesTerrain1:
+        {
+            self.title = @"MapBox Tiles Terrain - Remote";
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor blackColor];
+            vecWidth = 4.0;
+        }
+            break;
+        case MapBoxTilesRegular1:
+        {
+            self.title = @"MapBox Tiles Regular - Remote";
+            jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
+            thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor blackColor];
+            vecWidth = 4.0;
         }
             break;
         case ArgyleTilesRemote:
@@ -216,28 +303,59 @@ LocationInfo locations[NumLocations] =
             break;
     }
     
+    // Fill out the cache dir if there is one
+    if (thisCacheDir)
+    {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];        
+    }
+    
+    // If we're fetching one of the JSON tile specs, kick that off
+    if (jsonTileSpec)
+    {
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+        
+        AFJSONRequestOperation *operation =
+        [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+        {
+            // Add a quad earth paging layer based on the tile spec we just fetched
+            [baseViewC addQuadEarthLayerWithRemoteSource:JSON cache:thisCacheDir];
+        }
+                                                        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+        {
+            NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+        }
+         ];
+        
+        [operation start];
+    }
+    
     // Set up some defaults for display
     NSDictionary *screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
-                       screenLabelColor,kWGTextColor,
-                       screenLabelBackColor,kWGBackgroundColor,
+                       screenLabelColor,kMaplyTextColor,
+                       screenLabelBackColor,kMaplyBackgroundColor,
                        nil];
-    [globeViewC setScreenLabelDesc:screenLabelDesc];
+    [baseViewC setScreenLabelDesc:screenLabelDesc];
     NSDictionary *labelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
-                 labelColor,kWGTextColor,
-                 labelBackColor,kWGBackgroundColor,
+                 labelColor,kMaplyTextColor,
+                 labelBackColor,kMaplyBackgroundColor,
                  nil];
-    [globeViewC setLabelDesc:labelDesc];
+    [baseViewC setLabelDesc:labelDesc];
     NSDictionary *vectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                vecColor,kWGColor,
-                                [NSNumber numberWithFloat:vecWidth],kWGVecWidth,
+                                vecColor,kMaplyColor,
+                                [NSNumber numberWithFloat:vecWidth],kMaplyVecWidth,
                                 nil];
-    [globeViewC setVectorDesc:vectorDesc];
+    [baseViewC setVectorDesc:vectorDesc];
     
-    // Restrict the min and max zoom
-//    [globeViewC setZoomLimitsMin:1.2 max:1.5];
+    // Maximum number of objects for the layout engine to display
+    [baseViewC setMaxLayoutObjects:1000];
     
     // Bring up things based on what's turned on
-    [self performSelector:@selector(changeGlobeContents) withObject:nil afterDelay:0.0];
+    [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
+    
+    // Settings panel
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showPopControl)];
 }
 
 - (void)viewDidUnload
@@ -245,11 +363,11 @@ LocationInfo locations[NumLocations] =
     [super viewDidUnload];
     
     // This should release the globe view
-    if (globeViewC)
+    if (baseViewC)
     {
-        [globeViewC.view removeFromSuperview];
-        [globeViewC removeFromParentViewController];
-        globeViewC = nil;
+        [baseViewC.view removeFromSuperview];
+        [baseViewC removeFromParentViewController];
+        baseViewC = nil;
     }
 }
 
@@ -263,21 +381,22 @@ LocationInfo locations[NumLocations] =
 // Add screen (2D) markers at all our locations
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    CGSize size = CGSizeMake(20, 20);
+    CGSize size = CGSizeMake(40, 40);
     UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
     
     NSMutableArray *markers = [NSMutableArray array];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
-        WGScreenMarker *marker = [[WGScreenMarker alloc] init];
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
         marker.image = pinImage;
-        marker.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
+        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
         [markers addObject:marker];
     }
     
-    screenMarkersObj = [globeViewC addScreenMarkers:markers];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers];
 }
 
 // Add 3D markers
@@ -290,14 +409,15 @@ LocationInfo locations[NumLocations] =
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
-        WGMarker *marker = [[WGMarker alloc] init];
+        MaplyMarker *marker = [[MaplyMarker alloc] init];
         marker.image = startImage;
-        marker.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
+        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
         [markers addObject:marker];
     }
     
-    markersObj = [globeViewC addMarkers:markers];
+    markersObj = [baseViewC addMarkers:markers];
 }
 
 // Add screen (2D) labels
@@ -309,14 +429,15 @@ LocationInfo locations[NumLocations] =
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
-        WGScreenLabel *label = [[WGScreenLabel alloc] init];
-        label.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
+        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.size = size;
         label.text = [NSString stringWithFormat:@"%s",location->name];
+        label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
     
-    screenLabelsObj = [globeViewC addScreenLabels:labels];    
+    screenLabelsObj = [baseViewC addScreenLabels:labels];    
 }
 
 // Add 3D labels
@@ -328,14 +449,90 @@ LocationInfo locations[NumLocations] =
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
-        WGLabel *label = [[WGLabel alloc] init];
-        label.loc = WGCoordinateMakeWithDegrees(location->lon,location->lat);
+        MaplyLabel *label = [[MaplyLabel alloc] init];
+        label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.size = size;
         label.text = [NSString stringWithFormat:@"%s",location->name];
+        label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
     
-    labelsObj = [globeViewC addLabels:labels];        
+    labelsObj = [baseViewC addLabels:labels];        
+}
+
+// Add cylinders
+- (void)addShapeCylinders:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *cyls = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyShapeCylinder *cyl = [[MaplyShapeCylinder alloc] init];
+        cyl.baseCenter = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
+        cyl.radius = 0.01;
+        cyl.height = 0.06;
+        [cyls addObject:cyl];
+    }
+    
+    shapeCylObj = [baseViewC addShapes:cyls];
+}
+
+// Add spheres
+- (void)addShapeSpheres:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *spheres = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
+        sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
+        sphere.radius = 0.04;
+        [spheres addObject:sphere];
+    }
+
+    shapeSphereObj = [baseViewC addShapes:spheres];
+}
+
+// Add spheres
+- (void)addGreatCircles:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    NSMutableArray *circles = [[NSMutableArray alloc] init];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *loc0 = &locations[ii];
+        LocationInfo *loc1 = &locations[(ii+1)%len];
+        MaplyShapeGreatCircle *greatCircle = [[MaplyShapeGreatCircle alloc] init];
+        greatCircle.startPt = MaplyCoordinateMakeWithDegrees(loc0->lon, loc0->lat);
+        greatCircle.endPt = MaplyCoordinateMakeWithDegrees(loc1->lon, loc1->lat);
+        greatCircle.lineWidth = 6.0;
+        // This limits the height based on the length of the great circle
+        float angle = [greatCircle calcAngleBetween];
+        greatCircle.height = 0.3 * angle / M_PI;
+        [circles addObject:greatCircle];
+    }
+    
+    greatCircleObj = [baseViewC addShapes:circles];
+}
+
+- (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
+{
+    UIImage *startImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
+    
+    NSMutableArray *stickers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplySticker *sticker = [[MaplySticker alloc] init];
+        // Stickers are sized in geographic (because they're for KML ground overlays).  Bleah.
+        sticker.ll = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
+        sticker.ur = MaplyCoordinateMakeWithDegrees(location->lon+10.0, location->lat+10.0);
+        sticker.image = startImage;
+        // And a random rotation
+        sticker.rotation = 2*M_PI * drand48();
+        [stickers addObject:sticker];
+    }
+    
+    stickersObj = [baseViewC addStickers:stickers];
 }
 
 // Add country outlines.  Pass in the names of the geoJSON files
@@ -345,6 +542,7 @@ LocationInfo locations[NumLocations] =
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0), 
          ^{
              NSMutableArray *locVecObjects = [NSMutableArray array];
+             NSMutableArray *locAutoLabels = [NSMutableArray array];
              
              int ii = 0;
              for (NSString *name in names)
@@ -357,28 +555,76 @@ LocationInfo locations[NumLocations] =
                          NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
                          if (jsonData)
                          {
-                             WGVectorObject *wgVecObj = [WGVectorObject VectorObjectFromGeoJSON:jsonData];
-                             WGComponentObject *compObj = [globeViewC addVectors:[NSArray arrayWithObject:wgVecObj]];
+                             MaplyVectorObject *wgVecObj = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
+                             NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
+                             wgVecObj.userObject = vecName;
+                             MaplyComponentObject *compObj = [baseViewC addVectors:[NSArray arrayWithObject:wgVecObj]];
+                             MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
+                             // Add a label right in the middle
+                             MaplyCoordinate center;
+                             [wgVecObj largestLoopCenter:&center mbrLL:nil mbrUR:nil];
+                             screenLabel.loc = center;
+                             screenLabel.size = CGSizeMake(0, 20);
+                             screenLabel.layoutImportance = 1.0;
+                             screenLabel.text = vecName;
+                             screenLabel.userObject = screenLabel.text;
+                             if (screenLabel.text)
+                                 [locAutoLabels addObject:screenLabel];
                              if (compObj)
                                  [locVecObjects addObject:compObj];
                          }
                      }
                  }
                  ii++;
-
-                 // Keep track of the created objects
-                 // Note: You could lose track of the objects if you turn the countries on/off quickly
-                 dispatch_async(dispatch_get_main_queue(),
-                                ^{
-                                    vecObjects = locVecObjects;
-                                });
              }
+             
+             // Keep track of the created objects
+             // Note: You could lose track of the objects if you turn the countries on/off quickly
+             dispatch_async(dispatch_get_main_queue(),
+                            ^{
+                                // Toss in all the labels at once, more efficient
+                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [UIColor whiteColor], kMaplyBackgroundColor: [UIColor clearColor], kMaplyShadowSize: @(4.0)}];
+                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels];
+                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [NSNull null], kMaplyBackgroundColor: [NSNull null], kMaplyShadowSize: [NSNull null]}];
+
+                                vecObjects = locVecObjects;
+                                autoLabels = autoLabelObj;
+                            });
+
          }
     );
 }
 
+// Number of markers to whip up for the large test case
+static const int NumMegaMarkers = 40000;
+
+// Make up a large number of markers and add them
+- (void)addMegaMarkers
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+       ^{
+           UIImage *image = [UIImage imageNamed:@"map_pin.png"];
+           NSMutableArray *markers = [NSMutableArray array];
+           for (unsigned int ii=0;ii<NumMegaMarkers;ii++)
+           {
+               MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+               marker.image = image;
+               marker.size = CGSizeMake(40,40);
+               marker.loc = MaplyCoordinateMakeWithDegrees(drand48()*360-180, drand48()*140-70);
+               marker.layoutImportance = drand48();
+               [markers addObject:marker];
+           }
+           dispatch_async(dispatch_get_main_queue(),
+                          ^{
+                              megaMarkersObj = [baseViewC addScreenMarkers:markers];
+                          }
+                          );
+       }
+    );
+}
+
 // Look at the configuration controller and decide what to turn off or on
-- (void)changeGlobeContents
+- (void)changeMapContents
 {
     if (configViewC.label2DSwitch.on)
     {
@@ -387,7 +633,7 @@ LocationInfo locations[NumLocations] =
     } else {
         if (screenLabelsObj)
         {
-            [globeViewC removeObject:screenLabelsObj];
+            [baseViewC removeObject:screenLabelsObj];
             screenLabelsObj = nil;
         }
     }    
@@ -399,7 +645,7 @@ LocationInfo locations[NumLocations] =
     } else {
         if (labelsObj)
         {
-            [globeViewC removeObject:labelsObj];
+            [baseViewC removeObject:labelsObj];
             labelsObj = nil;
         }
     }    
@@ -411,11 +657,11 @@ LocationInfo locations[NumLocations] =
     } else {
         if (screenMarkersObj)
         {
-            [globeViewC removeObject:screenMarkersObj];
+            [baseViewC removeObject:screenMarkersObj];
             screenMarkersObj = nil;
         }
-    }    
-
+    }
+    
     if (configViewC.marker3DSwitch.on)
     {
         if (!markersObj)
@@ -423,11 +669,71 @@ LocationInfo locations[NumLocations] =
     } else {
         if (markersObj)
         {
-            [globeViewC removeObject:markersObj];
+            [baseViewC removeObject:markersObj];
             markersObj = nil;
         }
-    }    
-    
+    }
+
+    if (configViewC.stickerSwitch.on)
+    {
+        if (!stickersObj)
+            [self addStickers:locations len:NumLocations stride:4 offset:2];
+    } else {
+        if (stickersObj)
+        {
+            [baseViewC removeObject:stickersObj];
+            stickersObj = nil;
+        }
+    }
+
+    if (configViewC.shapeCylSwitch.on)
+    {
+        if (!shapeCylObj)
+        {
+            [baseViewC setShapeDesc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8]}];
+            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0];
+            [baseViewC setShapeDesc:@{kMaplyColor : [NSNull null]}];
+        }
+    } else {
+        if (shapeCylObj)
+        {
+            [baseViewC removeObject:shapeCylObj];
+            shapeCylObj = nil;
+        }
+    }
+
+    if (configViewC.shapeSphereSwitch.on)
+    {
+        if (!shapeSphereObj)
+        {
+            [baseViewC setShapeDesc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8]}];
+            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1];
+            [baseViewC setShapeDesc:@{kMaplyColor : [NSNull null]}];
+        }
+    } else {
+        if (shapeSphereObj)
+        {
+            [baseViewC removeObject:shapeSphereObj];
+            shapeSphereObj = nil;
+        }
+    }
+
+    if (configViewC.shapeGreatCircleSwitch.on)
+    {
+        if (!greatCircleObj)
+        {
+            [baseViewC setShapeDesc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0]}];
+            [self addGreatCircles:locations len:NumLocations stride:4 offset:2];
+            [baseViewC setShapeDesc:@{kMaplyColor : [NSNull null]}];
+        }
+    } else {
+        if (greatCircleObj)
+        {
+            [baseViewC removeObject:greatCircleObj];
+            greatCircleObj = nil;
+        }
+    }
+
     if (configViewC.countrySwitch.on)
     {
         // Countries we have geoJSON for
@@ -454,20 +760,60 @@ LocationInfo locations[NumLocations] =
     } else {
         if (vecObjects)
         {
-            [globeViewC removeObjects:vecObjects];
+            [baseViewC removeObjects:vecObjects];
             vecObjects = nil;
+        }
+        if (autoLabels)
+        {
+            [baseViewC removeObject:autoLabels];
+            autoLabels = nil;
         }
     }
     
-    globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
-    globeViewC.pinchGesture = configViewC.pinchSwitch.on;
-    globeViewC.rotateGesture = configViewC.rotateSwitch.on;
+    if (configViewC.loftPolySwitch.on)
+    {
+    } else {
+        if ([loftPolyDict count] > 0)
+        {
+            [baseViewC removeObjects:loftPolyDict.allValues];
+            loftPolyDict = [NSMutableDictionary dictionary];
+        }
+    }
+    
+    if (configViewC.megaMarkersSwitch.on)
+    {
+        if (!megaMarkersObj)
+            [self addMegaMarkers];
+    } else {
+        if (megaMarkersObj)
+        {
+            [baseViewC removeObject:megaMarkersObj];
+            megaMarkersObj = nil;
+        }
+    }
+    
+    baseViewC.performanceOutput = configViewC.perfSwitch.on;
+    
+    if (globeViewC)
+    {
+        globeViewC.keepNorthUp = configViewC.northUpSwitch.on;
+        globeViewC.pinchGesture = configViewC.pinchSwitch.on;
+        globeViewC.rotateGesture = configViewC.rotateSwitch.on;
+    }
     
     // Update rendering hints
     NSMutableDictionary *hintDict = [NSMutableDictionary dictionary];
-    [hintDict setObject:[NSNumber numberWithBool:configViewC.cullingSwitch.on] forKey:kWGRenderHintCulling];
-    [hintDict setObject:[NSNumber numberWithBool:configViewC.zBufferSwitch.on] forKey:kWGRenderHintZBuffer];
-    [globeViewC setHints:hintDict];
+    [hintDict setObject:[NSNumber numberWithBool:configViewC.cullingSwitch.on] forKey:kMaplyRenderHintCulling];
+    [hintDict setObject:[NSNumber numberWithBool:configViewC.zBufferSwitch.on] forKey:kMaplyRenderHintZBuffer];
+    [baseViewC setHints:hintDict];
+}
+
+// Show the popup control panel
+- (void)showPopControl
+{
+    popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
+    popControl.delegate = self;
+    [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
 }
 
 #pragma mark - Whirly Globe Delegate
@@ -501,62 +847,82 @@ LocationInfo locations[NumLocations] =
     return topView;
 }
 
-// User selected something
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
+- (void)handleSelection:(NSObject *)selectedObj
 {
     // If we've currently got a selected view, get rid of it
     if (selectedViewTrack)
     {
-        [globeViewC removeViewTrackForView:selectedViewTrack.view];
+        [baseViewC removeViewTrackForView:selectedViewTrack.view];
         selectedViewTrack = nil;
     }
     
-    WGCoordinate loc;
+    MaplyCoordinate loc;
     NSString *msg = nil;
     
-    if ([selectedObj isKindOfClass:[WGMarker class]])
+    if ([selectedObj isKindOfClass:[MaplyMarker class]])
     {
-        WGMarker *marker = (WGMarker *)selectedObj;    
+        MaplyMarker *marker = (MaplyMarker *)selectedObj;
         loc = marker.loc;
-        msg = [NSString stringWithFormat:@"Marker: Unknown"];
-    } else if ([selectedObj isKindOfClass:[WGScreenMarker class]])
+        msg = [NSString stringWithFormat:@"Marker: %@",marker.userObject];
+    } else if ([selectedObj isKindOfClass:[MaplyScreenMarker class]])
     {
-        WGScreenMarker *screenMarker = (WGScreenMarker *)selectedObj;        
+        MaplyScreenMarker *screenMarker = (MaplyScreenMarker *)selectedObj;
         loc = screenMarker.loc;
-        msg = [NSString stringWithFormat:@"Screen Marker: Unknown"];
-    } else if ([selectedObj isKindOfClass:[WGLabel class]])
+        msg = [NSString stringWithFormat:@"Screen Marker: %@",screenMarker.userObject];
+    } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
     {
-        WGLabel *label = (WGLabel *)selectedObj;        
+        MaplyLabel *label = (MaplyLabel *)selectedObj;
         loc = label.loc;
-        msg = [NSString stringWithFormat:@"Label: %@",label.text];
-    } else if ([selectedObj isKindOfClass:[WGScreenLabel class]])
+        msg = [NSString stringWithFormat:@"Label: %@",label.userObject];
+    } else if ([selectedObj isKindOfClass:[MaplyScreenLabel class]])
     {
-        WGScreenLabel *screenLabel = (WGScreenLabel *)selectedObj;        
+        MaplyScreenLabel *screenLabel = (MaplyScreenLabel *)selectedObj;
         loc = screenLabel.loc;
-        msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.text];
-    } else if ([selectedObj isKindOfClass:[WGVectorObject class]])
+        msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.userObject];
+    } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
-        WGVectorObject *vecObj = (WGVectorObject *)selectedObj;
-        loc = [vecObj largestLoopCenter];
-        msg = [NSString stringWithFormat:@"Vector"];
+        MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
+        [vecObj largestLoopCenter:&loc mbrLL:nil mbrUR:nil];
+        NSString *name = (NSString *)vecObj.userObject;
+        msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
+        if (configViewC.loftPolySwitch.on)
+        {
+            // See if there already is one
+            if (!loftPolyDict[name])
+            {
+                [baseViewC setLoftedPolyDesc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05)}];
+                MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil];
+                if (compObj)
+                {
+                    loftPolyDict[name] = compObj;
+                }
+                [baseViewC setLoftedPolyDesc:@{kMaplyColor: [NSNull null], kMaplyLoftedPolyHeight: [NSNull null]}];
+            }
+        }
     } else
         // Don't know what it is
         return;
-
+    
     // Build the selection view and hand it over to the globe to track
-    selectedViewTrack = [[WGViewTracker alloc] init];
+    selectedViewTrack = [[MaplyViewTracker alloc] init];
     selectedViewTrack.loc = loc;
     selectedViewTrack.view = [self makeSelectionView:msg];
-    [globeViewC addViewTracker:selectedViewTrack];
+    [baseViewC addViewTracker:selectedViewTrack];    
+}
+
+// User selected something
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj
+{
+    [self handleSelection:selectedObj];
 }
 
 // User didn't select anything, but did tap
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
     // Just clear the selection
     if (selectedViewTrack)
     {
-        [globeViewC removeViewTrackForView:selectedViewTrack.view];
+        [baseViewC removeViewTrackForView:selectedViewTrack.view];
         selectedViewTrack = nil;        
     }
 }
@@ -564,21 +930,36 @@ LocationInfo locations[NumLocations] =
 // Bring up the config view when the user taps outside
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC
 {
-    popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
-    popControl.delegate = self;
-    [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    [self showPopControl];
 }
 
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(MaplyViewControllerLayer *)layer
 {
     NSLog(@"Spherical Earth Layer loaded.");
+}
+
+#pragma mark - Maply delegate
+
+- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj
+{
+    [self handleSelection:selectedObj];
+}
+
+- (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
+{
+    // Just clear the selection
+    if (selectedViewTrack)
+    {
+        [baseViewC removeViewTrackForView:selectedViewTrack.view];
+        selectedViewTrack = nil;
+    }    
 }
 
 #pragma mark - Popover Delegate
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
-    [self changeGlobeContents];
+    [self changeMapContents];
 }
 
 @end

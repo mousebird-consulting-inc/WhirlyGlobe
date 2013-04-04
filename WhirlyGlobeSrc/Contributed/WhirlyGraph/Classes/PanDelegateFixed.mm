@@ -20,6 +20,8 @@
 
 #import "PanDelegateFixed.h"
 
+using namespace Eigen;
+using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface PanDelegateFixed()
@@ -66,7 +68,7 @@ using namespace WhirlyGlobe;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES1 *)sceneRender glView:(EAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES1 *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = [view calcModelMatrix];
@@ -87,8 +89,8 @@ using namespace WhirlyGlobe;
 - (void)panAction:(id)sender
 {
 	UIPanGestureRecognizer *pan = sender;
-	EAGLView *glView = (EAGLView *)pan.view;
-	SceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
+	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
     
     // Put ourselves on hold for more than one touch
     if ([pan numberOfTouches] > 1)
@@ -185,7 +187,7 @@ using namespace WhirlyGlobe;
             Point3f p1 = [view pointUnproject:touch1 width:sceneRender.framebufferWidth height:sceneRender.framebufferHeight clip:false];
             
             // Now unproject them back to the canonical model
-            Eigen::Matrix4f modelMat = [view calcModelMatrix].inverse().matrix();
+            Eigen::Matrix4f modelMat = [view calcModelMatrix].inverse();
             Vector4f model_p0 = modelMat * Vector4f(p0.x(),p0.y(),p0.z(),1.0);
             Vector4f model_p1 = modelMat * Vector4f(p1.x(),p1.y(),p1.z(),1.0);
             model_p0.x() /= model_p0.w();  model_p0.y() /= model_p0.w();  model_p0.z() /= model_p0.w();
