@@ -280,6 +280,11 @@ static const char *fragmentShaderLine =
     triggerDraw = true;
 }
 
+- (void) setClearColor:(UIColor *)color
+{
+    clearColor = [color asRGBAColor];
+    renderSetup = false;
+}
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
