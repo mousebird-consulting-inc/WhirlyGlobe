@@ -12,7 +12,7 @@ This is the master branch of the WhirlyGlobe-Maply Component and API version 2.1
 
 ---
 
-WhirlyGlobe uses a bunch of submodules, which you'll need to get.  Like so.
+WhirlyGlobe-Maply uses a bunch of submodules, which you'll need to get.  Like so.
 
 git submodule init
 git submodule update
