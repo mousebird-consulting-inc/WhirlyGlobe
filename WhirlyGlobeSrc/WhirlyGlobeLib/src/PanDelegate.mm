@@ -19,7 +19,7 @@
  */
 
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "PanDelegate.h"
 
 using namespace WhirlyKit;
@@ -54,7 +54,7 @@ using namespace WhirlyKit;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
 	
 	if (pan.numberOfTouches > 1)
 	{
@@ -69,7 +69,7 @@ using namespace WhirlyKit;
 			[view cancelAnimation];
 
 			// Save the first place we touched
-			startTransform = [view calcModelMatrix];
+			startTransform = [view calcFullMatrix];
 			startQuat = [view rotQuat];
 			panning = NO;
             if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform

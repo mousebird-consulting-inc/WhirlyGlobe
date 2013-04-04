@@ -23,6 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
+#import "MaplyView.h"
 
 using namespace WhirlyKit;
 
@@ -38,7 +39,7 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
 
 @implementation WhirlyKitSelectionLayer
 
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES1 *)inRenderer
+- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
     self = [super init];
     
@@ -138,16 +139,19 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
-    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = [theView calcFullMatrix];
     
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
     
-    WhirlyGlobeView *globeView = nil;
-    if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)theView;
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)theView;
+    if (![theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = nil;
+    MaplyView *mapView = (MaplyView *)theView;
+    if (![theView isKindOfClass:[MaplyView class]])
+        mapView = nil;
     
-    if (!globeView)
+    if (!globeView && !mapView)
         return EmptyIdentity;
     
     // First we need to know where the things wound up, 2D wise
@@ -157,10 +161,11 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     // Work through the 2D rectangles
     for (unsigned int ii=0;ii<projPts.size();ii++)
     {
-        ScreenSpaceGenerator::ProjectedPoint &projPt = projPts[ii];
+        ScreenSpaceGenerator::ProjectedPoint projPt = projPts[ii];
         // If we're on a retina display, we need to scale accordingly
         projPt.screenLoc.x() /= view.contentScaleFactor;
         projPt.screenLoc.y() /= view.contentScaleFactor;
+        
         // Look for the corresponding selectable
         RectSelectable2DSet::iterator it = rect2Dselectables.find(RectSelectable2D(projPt.shapeID));
         if (it != rect2Dselectables.end())
@@ -216,7 +221,10 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
                     for (unsigned int ii=0;ii<4;ii++)
                     {
                         CGPoint screenPt;
-                        screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                        if (globeView)
+                            screenPt = [globeView pointOnScreenFromSphere:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
+                        else
+                            screenPt = [mapView pointOnScreenFromPlane:sel.pts[ii] transform:&modelTrans frameSize:Point2f(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor)];
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     

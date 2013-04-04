@@ -22,59 +22,37 @@
 #import "GlobeView.h"
 #import "LayerViewWatcher.h"
 
-/** Representation of the view state at a given point in time.
-    This is enough information to figure out what we were looking
-    at.
- */
-@interface WhirlyGlobeViewState : NSObject
+/** View State related to the Globe view.  This adds
+    more parameters relating to the globe.
+  */
+@interface WhirlyGlobeViewState : WhirlyKitViewState
 {
 @public
-    Eigen::Matrix4f modelMatrix;
-	Eigen::Quaternion<float> rotQuat;    
+	Eigen::Quaternion<float> rotQuat;
     float heightAboveGlobe;
-	float fieldOfView;
-	float imagePlaneSize;
-	float nearPlane;
-	float farPlane;
-    WhirlyKit::Point3f eyeVec;
 }
 
 - (id)initWithView:(WhirlyGlobeView *)globeView;
 
-/// Calculate the viewing frustum (which is also the image plane)
-/// Need the framebuffer size in pixels as input
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
-
-/** From a world location (3D), figure out the projection to the screen
- Returns a point within the frame
- */
-- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
-
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3f)currentUp;
 
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
+/** Given a location on the screen and the screen size, figure out where we touched the sphere
+ Returns true if we hit and where
+ Returns false if not and the closest point on the sphere
+ */
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
 
 @end
 
 /** The Globe Layer View watcher is a subclass of the layer view
     watcher that takes globe specific parameters into account.
   */
-@interface WhirlyGlobeLayerViewWatcher : WhirlyKitLayerViewWatcher<WhirlyGlobeViewWatcherDelegate>
+@interface WhirlyGlobeLayerViewWatcher : WhirlyKitLayerViewWatcher
 {
-    /// You should know the type here.  A globe or a map view state.
-    WhirlyGlobeViewState *lastViewState;
 }
 
 /// Initialize with the globe view to watch and the layer thread
 - (id)initWithView:(WhirlyGlobeView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
-
-/// Add the given target/selector combo as a watcher.
-/// Will get called at most the given frequency.
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime;
-
-/// Remove the given target/selector combo
-- (void)removeWatcherTarget:(id)target selector:(SEL)selector;
 
 @end

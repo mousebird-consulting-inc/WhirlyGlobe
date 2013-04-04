@@ -54,7 +54,7 @@ public:
         
         RGBAColor color;
         Point2f loc;
-        Vector3f norm;
+        Eigen::Vector3f norm;
         Point3f pts[4];
         std::vector<std::vector<TexCoord> > texCoords;
         std::vector<SimpleIdentity> texIDs;
@@ -101,7 +101,7 @@ public:
     MarkerGeneratorAddRequest(SimpleIdentity genID,const std::vector<MarkerGenerator::Marker *> &markers);
     ~MarkerGeneratorAddRequest();
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
     
 protected:
     std::vector<MarkerGenerator::Marker *> markers;
@@ -119,7 +119,7 @@ public:
     MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs);
     ~MarkerGeneratorRemRequest();
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
     
 protected:
     std::vector<SimpleIdentity> markerIDs;
@@ -136,7 +136,7 @@ public:
     /// Construct with the ID for the generator, a list of IDs for markers and the fade up/down absolute times
     MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
 
 protected:
     NSTimeInterval fadeUp,fadeDown;

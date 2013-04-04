@@ -155,12 +155,12 @@ using namespace WhirlyGlobe;
     bool hit = false;
     if (labelSelectIDs.find(objectId) != labelSelectIDs.end())
     {
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Label %d",objectId] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Label %ld",objectId] waitUntilDone:NO];
         hit = true;
     }
     if (markerSelectIDs.find(objectId) != markerSelectIDs.end())
     {
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Marker %d",objectId] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Marker %ld",objectId] waitUntilDone:NO];
         hit = true;
     }
     
@@ -201,7 +201,7 @@ using namespace WhirlyGlobe;
     }
     
     if (!hit)
-        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:[NSString stringWithFormat:@"Nothing",objectId] waitUntilDone:NO];        
+        [self performSelectorOnMainThread:@selector(selectionNote:) withObject:@"Nothing" waitUntilDone:NO];
 }
 
 #pragma mark -
@@ -459,7 +459,7 @@ const int NumParticleSystems = 150;
 
 - (void)displayParticles:(bool)how
 {
-    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Add some new particle systems
     if (how)
@@ -496,7 +496,7 @@ const int NumParticleSystems = 150;
             WhirlyKitParticleSystem *particleSystem = [[WhirlyKitParticleSystem alloc] init];
             GeoCoord coord = GeoCoord(pt->pts[0].x(),pt->pts[0].y());
             [particleSystem setLoc:coord];
-            [particleSystem setNorm:coordSys->geographicToLocal(coord)];   
+            [particleSystem setNorm:coordAdapter->normalForLocal(coordAdapter->getCoordSystem()->geographicToLocal(coord))];
             [partSystems addObject:particleSystem];
         }
         

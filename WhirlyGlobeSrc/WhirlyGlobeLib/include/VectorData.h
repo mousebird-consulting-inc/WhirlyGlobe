@@ -26,6 +26,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
+#import "CoordSystem.h"
 
 namespace WhirlyKit
 {
@@ -159,6 +160,15 @@ typedef std::set<std::string> StringSet;
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
+
+/// Break any edge that deviates by the given epsilon from the surface described in
+/// the display adapter;
+void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
+
+/// Break any edge that deviates by the given epsilon from the surface described in
+///  the display adapter.  But rather than using lat lon values, we'll output in
+///  display coordinates and build points along the great circle.
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

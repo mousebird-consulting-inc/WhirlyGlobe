@@ -33,6 +33,11 @@
 #import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
+#import "OpenGLES2Program.h"
+
+/// @cond
+@class WhirlyKitSceneRendererES;
+/// @endcond
 
 namespace WhirlyKit
 {
@@ -54,8 +59,11 @@ public:
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
+    /// Only use this if you've thought it out
+    Texture *getTex() { return tex; }
+
 protected:
 	Texture *tex;
 };
@@ -68,7 +76,7 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -84,7 +92,7 @@ public:
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);	
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
 	
 protected:
 	Drawable *drawable;
@@ -98,7 +106,7 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -108,11 +116,11 @@ protected:
 class AddGeneratorReq : public ChangeRequest
 {
 public:
-    /// Construct with the generator ID
+    /// Construct with the generator
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     Generator *generator;
@@ -126,10 +134,53 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity genId;
+};
+    
+/// Add an OpenGL ES 2.0 program to the scene for user later
+class AddProgramReq : public ChangeRequest
+{
+public:
+    // Construct with the program to add
+    AddProgramReq(OpenGLES2Program *prog) : program(prog) { }
+    ~AddProgramReq() { if (program) delete program; program = NULL; }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    OpenGLES2Program *program;
+};
+    
+/// Remove an OpenGL ES 2.0 program from the scene
+class RemProgramReq : public ChangeRequest
+{
+public:
+    /// Construct with the program ID
+    RemProgramReq(SimpleIdentity progId) : programId(progId) { }
+    
+    /// Remove from the renderer.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    SimpleIdentity programId;
+};
+    
+/// Remove a GL buffer ID, presumably because we needed other things cleaned up first
+class RemBufferReq : public ChangeRequest
+{
+public:
+    /// Construct with the buffer we want to delete
+    RemBufferReq(GLuint bufID) : bufID(bufID) { }
+    
+    /// Actually run the remove.  Never call this.
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    GLuint bufID;
 };
     
 /// Send out a notification (on the main thread) when
@@ -143,21 +194,13 @@ public:
     virtual ~NotificationReq();
     
     /// Send out the notification
-    void execute(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     NSString * __strong noteName;
     NSObject * __strong noteObj;
 };
-    
-/// This class give us a virtual destructor to make use of
-///  when we're deleting random objects at the end of the layer thread.
-class DelayedDeletable
-{
-public:
-    virtual ~DelayedDeletable() { }
-};
-    
+        
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
@@ -170,15 +213,11 @@ class Scene : public DelayedDeletable
 {
 	friend class ChangeRequest;
 public:
-	/// Construct with the depth of the cullable quad tree,
-    ///  the coordinate system we're using, and the MBR of the
-    ///  top level.
-    /// The earth will be recursively divided into a quad tree of given depth.
-	Scene(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,unsigned int depth);
 	virtual ~Scene();
     
-    /// Return the coordinate system we're working in
-    WhirlyKit::CoordSystem *getCoordSystem() { return coordSystem; }
+    /// Return the coordinate system adapter we're using.
+    /// You can get the coordinate system we're using from that.
+    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter() { return coordAdapter; }
     
     /// Full set of Generators
     const GeneratorSet *getGenerators() { return &generators; }
@@ -200,7 +239,7 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
-	void processChanges(WhirlyKitView *view,NSObject<WhirlyKitESRenderer> *renderer);
+	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
     
     /// True if there are pending updates
     bool hasChanges();
@@ -250,9 +289,10 @@ public:
     /// Use this sparingly, as it writes to the log.
     void dumpStats();
 	
-public:	    
-    /// Coordinate system 
-    WhirlyKit::CoordSystem *coordSystem;
+public:
+    /// The coordinate system display adapter converts from the local space
+    ///  to display coordinates.
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
     /// Look for a Draw Generator by ID
     Generator *getGenerator(SimpleIdentity genId);
@@ -285,6 +325,7 @@ public:
 	/// This can be accessed in multiple threads, so we lock it
 	std::vector<ChangeRequest *> changeRequests;
     
+    pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
@@ -300,6 +341,42 @@ public:
     
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
+    
+    /// Search for a shader program by ID (our ID, not OpenGL's)
+    OpenGLES2Program *getProgram(SimpleIdentity programId);
+    
+    /// Search for a shader program by name
+    OpenGLES2Program *getProgram(const std::string &name);
+    
+    /// Add a shader to the mix (don't be calling this yourself).
+    /// Scene is responsible for deletion.
+    void addProgram(OpenGLES2Program *);
+    
+    /// Remove a program (by ID)
+    void removeProgram(SimpleIdentity programId);
+    
+    /// Called during initialization after the default shader is created.
+    /// Scene is responsible for deletion
+    void setDefaultPrograms(OpenGLES2Program *tri,OpenGLES2Program *line);
+    
+    /// Get the IDs for the default programs
+    void getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader);
+        
+protected:
+    /// Only the subclasses are allowed to create these
+    Scene();
+
+	/// Construct with the depth of the cullable quad tree,
+    ///  the coordinate system we're using, and the MBR of the
+    ///  top level.
+    /// The earth will be recursively divided into a quad tree of given depth.
+    /// Init call used by the base class to set things up
+    void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+    
+    /// Keep track of the OpenGL ES 2.0 shader programs here
+    std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
+    /// IDs for the default programs we'll use in drawables that don't have them
+    SimpleIdentity defaultProgramTri,defaultProgramLine;
 };
 	
 }

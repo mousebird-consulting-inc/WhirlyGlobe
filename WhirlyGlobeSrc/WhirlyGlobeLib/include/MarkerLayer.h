@@ -28,6 +28,7 @@
 #import "TextureAtlas.h"
 #import "DrawCost.h"
 #import "SelectionLayer.h"
+#import "LayoutLayer.h"
 
 namespace WhirlyKit
 {
@@ -41,6 +42,7 @@ static const int MaxMarkerDrawableTris=1<<15/3;
 namespace WhirlyKit
 {
 
+/// Marker representation.
 /// Used internally to track marker resources
 class MarkerSceneRep : public Identifiable
 {
@@ -89,6 +91,9 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     /// For markers with more than one texture, this is the offset
     ///  we'll use when calculating position within the period.
     NSTimeInterval timeOffset;
+    /// Value to use for the layout engine.  Set to MAXFLOAT by
+    ///  default, which will always display.
+    float layoutImportance;
 }
 
 @property (nonatomic,assign) bool isSelectable;
@@ -99,6 +104,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) float width,height,rotation;
 @property (nonatomic,assign) NSTimeInterval period;
 @property (nonatomic,assign) NSTimeInterval timeOffset;
+@property (nonatomic,assign) float layoutImportance;
 
 /// Add a texture ID to be displayed
 - (void)addTexID:(WhirlyKit::SimpleIdentity)texID;
@@ -130,6 +136,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     WhirlyKit::Scene *scene;
     /// If set, we'll pass markers on for selection
     WhirlyKitSelectionLayer * __weak selectLayer;
+    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
+    WhirlyKitLayoutLayer * __weak layoutLayer;
     /// Used to track what scene components correspond to which markers
     WhirlyKit::MarkerSceneRepSet markerReps;
     /// Screen space generator on the render side
@@ -141,6 +149,9 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 ///  of each marker will be passed to the selection layer
 ///  and will show up in search results.
 @property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
+
+/// Set this to use the layout engine for markers so marked
+@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

@@ -35,6 +35,9 @@
     CFTimeInterval startDate;
 }
 
+@property (nonatomic,assign) float velocity;
+@property (nonatomic,assign) float acceleration;
+
 /// Initialize with an angular velocity and a negative acceleration (to slow down)
 - (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis;
 

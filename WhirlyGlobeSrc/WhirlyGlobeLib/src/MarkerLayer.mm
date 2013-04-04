@@ -25,6 +25,7 @@
 #import "MarkerGenerator.h"
 #import "ScreenSpaceGenerator.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 namespace WhirlyKit
@@ -47,6 +48,7 @@ MarkerSceneRep::MarkerSceneRep()
 @synthesize texIDs;
 @synthesize period;
 @synthesize timeOffset;
+@synthesize layoutImportance;
 
 - (id)init
 {
@@ -56,6 +58,7 @@ MarkerSceneRep::MarkerSceneRep()
     {
         isSelectable = false;
         selectID = EmptyIdentity;
+        layoutImportance = MAXFLOAT;
     }
     
     return self;
@@ -151,6 +154,7 @@ MarkerSceneRep::MarkerSceneRep()
 @implementation WhirlyKitMarkerLayer
 
 @synthesize selectLayer;
+@synthesize layoutLayer;
 
 - (void)clear
 {
@@ -200,7 +204,10 @@ MarkerSceneRep::MarkerSceneRep()
         }
         
         if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-            [self.selectLayer removeSelectable:markerRep->selectID];        
+            [self.selectLayer removeSelectable:markerRep->selectID];
+        
+        if (layoutLayer && !markerRep->screenShapeIDs.empty())
+            [layoutLayer removeLayoutObjects:markerRep->screenShapeIDs];
     }
     
     if (generatorId != EmptyIdentity)
@@ -219,7 +226,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 {
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
 
-    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fade = markerInfo.fade;
     markerRep->setId(markerInfo.markerId);
@@ -231,6 +238,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
     // Screen space markers
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
+    
+    // Objects to be controlled by the layout layer
+    NSMutableArray *layoutObjects = [NSMutableArray array];
     
     std::vector<ChangeRequest *> changeRequests;
     
@@ -283,7 +293,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
         float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
         
-        norm = GeoCoordSystem::LocalToGeocentricish(marker.loc);
+        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
+        norm = coordAdapter->normalForLocal(localPt);
         
         if (markerInfo.screenObject)
         {
@@ -292,10 +303,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             pts[2] = Point3f(width2,height2,0.0);
             pts[3] = Point3f(-width2,height2,0.0);
         } else {            
-            Point3f center = norm;
+            Point3f center = coordAdapter->localToDisplay(localPt);
             Vector3f up(0,0,1);
-            Point3f horiz = up.cross(norm).normalized();
-            Point3f vert = norm.cross(horiz).normalized();;        
+            Point3f horiz,vert;
+            if (coordAdapter->isFlat())
+            {
+                horiz = Point3f(1,0,0);
+                vert = Point3f(0,1,0);
+            } else {
+                horiz = up.cross(norm).normalized();
+                vert = norm.cross(horiz).normalized();;
+            }
             
             Point3f ll = center - width2*horiz - height2*vert;
             pts[0] = ll;
@@ -351,7 +369,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
                 if (marker.isSelectable && marker.selectID != EmptyIdentity)
                     shape->setId(marker.selectID);
-                shape->worldLoc = norm;
+                shape->worldLoc = coordAdapter->localToDisplay(localPt);
                 if (marker.lockRotation)
                 {
                     shape->useRotation = true;
@@ -368,6 +386,26 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 shape->geom.push_back(smGeom);
                 screenShapes.push_back(shape);
                 markerRep->screenShapeIDs.insert(shape->getId());
+                
+                // Set up for the layout layer
+                if (layoutLayer && marker.layoutImportance != MAXFLOAT)
+                {
+                    WhirlyKitLayoutObject *layoutObj = [[WhirlyKitLayoutObject alloc] init];
+                    layoutObj->ssID = shape->getId();
+                    layoutObj->dispLoc = shape->worldLoc;
+                    // Note: This means they won't take up space
+                    layoutObj->size = Point2f(0.0,0.0);
+                    layoutObj->iconSize = Point2f(0.0,0.0);
+                    layoutObj->importance = marker.layoutImportance;
+                    layoutObj->minVis = markerInfo.minVis;
+                    layoutObj->maxVis = markerInfo.maxVis;
+                    // No moving it around
+                    layoutObj->acceptablePlacement = 0;
+                    [layoutObjects addObject:layoutObj];
+                    
+                    // Start out off, let the layout layer handle the rest
+                    shape->enable = false;
+                }
                 
             } else {
                 // We're sorting the static drawables by texture, so look for that
@@ -396,7 +434,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                     draw->addNormal(norm);
                     draw->addTexCoord(texCoord[ii]);
                     Mbr localMbr = draw->getLocalMbr();
-                    Point3f localLoc = coordSys->geographicToLocal(marker.loc);
+                    Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
                     draw->setLocalMbr(localMbr);
                 }
@@ -471,6 +509,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     screenShapes.clear();
     
     scene->addChangeRequests(changeRequests);
+
+    // And any layout constraints to the layout engine
+    if (layoutLayer && ([layoutObjects count] > 0))
+        [layoutLayer addLayoutObjects:layoutObjects];
 }
 
 // Remove the given marker(s)

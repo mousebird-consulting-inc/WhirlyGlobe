@@ -70,12 +70,20 @@ public:
 
         /// Center location
         Point3f worldLoc;
+        /// If true we'll use the rotation.  If not, we won't.
         bool useRotation;
         /// Rotation clockwise from north
         float rotation;
+        /// If we're fading in or out, these are used
         NSTimeInterval fadeUp,fadeDown;
+        /// Sort by draw priority
         int drawPriority;
+        /// Visual range
         float minVis,maxVis;
+        /// 2D offset applied at the last
+        Point2f offset;
+        /// false if we're not to draw this one
+        bool enable;
         
         /// List of geometry we'll transform to the destination
         std::vector<SimpleGeometry> geom;
@@ -97,11 +105,15 @@ public:
     /// Remove a single convex shape by ID
     void removeConvexShape(SimpleIdentity shapeID);
     
-    /// Called by the render to remove zero or more shapes
+    /// Called by the renderer to remove zero or more shapes
     void removeConvexShapes(std::vector<SimpleIdentity> &shapeIDs);
     
     /// Return a convex shape.  Only used by the change request objects.
     ConvexShape *getConvexShape(SimpleIdentity shapeId);
+    
+    /// Use this to change the enable (on/off).  We keep a cache of active shapes,
+    ///  so always use this.
+    void changeEnable(ConvexShape *shape,bool enable);
     
     /// Get the projected points from the last frame.
     /// This will lock, make a copy and unlock so go wild.
@@ -113,6 +125,7 @@ public:
 protected:
     typedef std::set<ConvexShape *,IdentifiableSorter> ConvexShapeSet;
     ConvexShapeSet convexShapes;
+    ConvexShapeSet activeShapes;
     Point2f margin;
 	pthread_mutex_t projectedPtsLock;
     std::vector<ProjectedPoint> projectedPoints;
@@ -130,7 +143,7 @@ public:
     ScreenSpaceGeneratorAddRequest(SimpleIdentity genID,const std::vector<ScreenSpaceGenerator::ConvexShape *> &);
     ~ScreenSpaceGeneratorAddRequest();
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
 
 protected:
     std::vector<ScreenSpaceGenerator::ConvexShape *> shapes;
@@ -147,7 +160,7 @@ public:
     ScreenSpaceGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &);
     ~ScreenSpaceGeneratorRemRequest();
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);    
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);    
 
 protected:
     std::vector<SimpleIdentity> shapeIDs;
@@ -165,11 +178,51 @@ public:
     ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     ~ScreenSpaceGeneratorFadeRequest();
     
-    virtual void execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
 
 protected:
     NSTimeInterval fadeUp,fadeDown;
     std::vector<SimpleIdentity> shapeIDs;
+};
+
+/** Enable or disable a whole mess of shapes at once.
+  */
+class ScreenSpaceGeneratorEnableRequest : public GeneratorChangeRequest
+{
+public:
+    /// Construct with the generator ID and a list of IDs to turn on/off
+    ScreenSpaceGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &shapeIDs,bool enable);
+
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    
+protected:
+    bool enable;
+    std::vector<SimpleIdentity> shapeIDs;
+};
+   
+/** Change a subset of attributes on a whole bunch of shapes at once.
+  */
+class ScreenSpaceGeneratorGangChangeRequest : public GeneratorChangeRequest
+{
+public:
+    // Used to change several parameters at once in screen space objects
+    class ShapeChange
+    {
+    public:
+        ShapeChange();
+        SimpleIdentity shapeID;
+        bool enable;
+        NSTimeInterval fadeUp,fadeDown;
+        Point2f offset;
+    };
+    
+    /// Construct with a generator ID and a list of shapes to change
+    ScreenSpaceGeneratorGangChangeRequest(SimpleIdentity genID,const std::vector<ShapeChange> &changes);
+    
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    
+protected:
+    std::vector<ShapeChange> changes;
 };
 
 }

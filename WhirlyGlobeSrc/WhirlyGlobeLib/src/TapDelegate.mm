@@ -20,7 +20,7 @@
 
 #import "TapDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
@@ -58,13 +58,13 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
 	Point3f hit;
-	Eigen::Matrix4f theTransform = [globeView calcModelMatrix];
+	Eigen::Matrix4f theTransform = [globeView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
     if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
     {
@@ -72,7 +72,7 @@ using namespace WhirlyKit;
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
 		[msg setWorldLoc:hit];
-        Point3f localCoord = GeoCoordSystem::GeocentricishToLocal(hit);
+        Point3f localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		

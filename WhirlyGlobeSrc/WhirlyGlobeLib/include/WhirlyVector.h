@@ -57,6 +57,7 @@ public:
 	float lat() const { return y(); }
 	float &lat() { return y(); }
 	GeoCoord operator + (const GeoCoord &that) { return GeoCoord(x()+that.x(),y()+that.y()); }
+    bool operator == (const GeoCoord &that) { return x() == that.x() && y() == that.y(); }
     
     /// Create a geo coordinate using degrees intead of radians.
     /// Note the order of the arguments
@@ -97,9 +98,15 @@ public:
     /// Lower left corner
 	const Point2f &ll() const { return pt_ll; }
 	Point2f &ll() { return pt_ll; }
+    /// Lower right corner
+    Point2f lr() const { return Point2f(pt_ur.x(),pt_ll.y()); }
     /// Upper right corner
 	const Point2f &ur() const { return pt_ur; }
 	Point2f &ur() { return pt_ur; }
+    /// Upper left corner
+    Point2f ul() { return Point2f(pt_ll.x(),pt_ur.y()); }
+    /// Middle
+    const Point2f mid() const { return (pt_ll+pt_ur)/2.0; }
 
 	/// Check validity
 	bool valid() const { return pt_ur.x() >= pt_ll.x(); }
@@ -124,6 +131,9 @@ public:
     
     /// Inside or on the edge
     bool insideOrOnEdge(Point2f pt) const { return ((pt_ll.x() <= pt.x()) && (pt_ll.y() <= pt.y()) && (pt.x() <= pt_ur.x()) && (pt.y() <= pt_ur.y())); }
+    
+    /// Intersection of two MBRs
+    Mbr intersect(const Mbr &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(std::vector<Point2f> &pts) const;

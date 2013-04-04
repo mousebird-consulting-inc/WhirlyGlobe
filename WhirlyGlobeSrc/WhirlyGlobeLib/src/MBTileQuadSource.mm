@@ -22,12 +22,8 @@
 #import "GlobeLayerViewWatcher.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-@implementation WhirlyMBTileQuadSource
-{
-    bool tilesStyles;
-}
+@implementation WhirlyKitMBTileQuadSource
 
 - (id)initWithPath:(NSString *)path
 {
@@ -130,14 +126,16 @@ using namespace WhirlyGlobe;
     return maxZoom;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
-    
-    // For the rest, 
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, tileMbr);
+
+    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+//    if (import != 0.0)
+//        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
+    return import;
 }
 
 // Just one fetch at a time
@@ -147,7 +145,7 @@ using namespace WhirlyGlobe;
 }
 
 // Load the given tile.  We'll do that right here
-- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
 {
     NSData *imageData = nil;
     

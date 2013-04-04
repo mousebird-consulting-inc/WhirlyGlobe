@@ -23,6 +23,7 @@
 #import "GlobeMath.h"
 #import "UIColor+Stuff.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 #pragma mark - Particle System
@@ -164,7 +165,7 @@ using namespace WhirlyKit;
 // Do the actual work off setting up and adding one or more particle systems
 - (void)runAddSystems:(ParticleSystemInfo *)systemInfo
 {
-//    CoordSystem *coordSys = scene->getCoordSystem();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     ParticleSysSceneRep *sceneRep = new ParticleSysSceneRep();
     sceneRep->setId(systemInfo.destId);
     
@@ -179,7 +180,7 @@ using namespace WhirlyKit;
         ParticleGenerator::ParticleSystem *newPartSys = new ParticleGenerator::ParticleSystem(baseParams);
         newPartSys->setId(Identifiable::genId());
         sceneRep->partSysIDs.insert(newPartSys->getId());
-        newPartSys->loc = GeoCoordSystem::LocalToGeocentricish([partSys loc]);
+        newPartSys->loc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal([partSys loc]));
         // Note: Won't work at the poles
         newPartSys->dirUp = [partSys norm];
         newPartSys->dirE = Vector3f(0,0,1).cross(newPartSys->dirUp);

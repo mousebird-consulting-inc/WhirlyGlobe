@@ -58,7 +58,7 @@ public:
     SimpleIdentity texId;
 
     /// Transform from the source images texture coordinates to the target
-    Affine2f trans;
+    Eigen::Affine2f trans;
 };
     
 }

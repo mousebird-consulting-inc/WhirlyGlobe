@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 5, "LabelRank": 5, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Australia", "SOV_A3": "AU1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Norfolk Island", "ADM0_A3": "NFK", "GEOU_DIF": 0.0, "GEOUNIT": "Norfolk Island", "GU_A3": "NFK", "SU_DIF": 0.0, "SUBUNIT": "Norfolk Island", "SU_A3": "NFK", "NAME": "Norfolk Island", "ABBREV": "Nfk. I.", "POSTAL": "NF", "NAME_FORMA": "Territory of Norfolk Island", "TERR_": "Auz.", "NAME_SORT": "Norfolk Island", "MAP_COLOR": 7.0, "POP_EST": 2141.0, "GDP_MD_EST": 0.0, "FIPS_10_": "NF", "ISO_A2": "NF", "ISO_A3": "NFK", "ISO_N3": 574.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 167.939445, -29.01766 ], [ 167.9598, -29.028305 ], [ 167.9781, -29.0343 ], [ 167.990398, -29.042051 ], [ 167.988641, -29.059001 ], [ 167.979029, -29.075641 ], [ 167.96766, -29.082772 ], [ 167.964146, -29.085356 ], [ 167.961872, -29.088457 ], [ 167.960632, -29.092177 ], [ 167.960735, -29.096312 ], [ 167.954741, -29.082152 ], [ 167.94441, -29.072954 ], [ 167.93376, -29.072127 ], [ 167.926526, -29.082772 ], [ 167.92043, -29.082772 ], [ 167.918257, -29.07192 ], [ 167.914227, -29.061895 ], [ 167.912366, -29.0528 ], [ 167.9164, -29.045152 ], [ 167.924045, -29.03585 ], [ 167.924562, -29.028512 ], [ 167.918567, -29.025101 ], [ 167.90616, -29.028099 ], [ 167.920634, -29.013939 ], [ 167.939445, -29.01766 ] ] ] } }
-
-]
-}

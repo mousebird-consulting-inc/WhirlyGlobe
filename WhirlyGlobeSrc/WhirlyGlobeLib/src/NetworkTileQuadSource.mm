@@ -22,12 +22,69 @@
 #import "GlobeLayerViewWatcher.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
-@implementation WhirlyGlobeNetworkTileQuadSource
+@implementation WhirlyKitNetworkTileQuadSourceBase
 
 @synthesize numSimultaneous;
 @synthesize cacheDir;
+
+- (void)dealloc
+{
+    if (coordSys)
+        delete coordSys;
+    coordSys = nil;
+}
+
+- (void)shutdown
+{
+    // Nothing much to do here
+}
+
+
+- (CoordSystem *)coordSystem
+{
+    return coordSys;
+}
+
+- (Mbr)totalExtents
+{
+    return mbr;
+}
+
+- (Mbr)validExtents
+{
+    return mbr;
+}
+
+- (int)minZoom
+{
+    return minZoom;
+}
+
+- (int)maxZoom
+{
+    return maxZoom;
+}
+
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+{
+    // Everything at the top is loaded in, so be careful
+    if (ident.level == minZoom)
+        return MAXFLOAT;
+    
+    // For the rest,
+//    if (ident.level >= 10)
+//        NSLog(@"here");
+    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+//    if (ident.level >= 10)
+//        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
+    return import;
+}
+
+@end
+
+@implementation WhirlyKitNetworkTileQuadSource
+
 
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt
 {
@@ -55,36 +112,9 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    if (coordSys)
-        delete coordSys;
-    coordSys = nil;
-}
-
 - (void)shutdown
 {
     // Nothing much to do here
-}
-
-- (CoordSystem *)coordSystem
-{
-    return coordSys;
-}
-
-- (Mbr)totalExtents
-{
-    return mbr;
-}
-
-- (Mbr)validExtents
-{
-    return mbr;
-}
-
-- (int)minZoom
-{
-    return minZoom;
 }
 
 - (void)setMinZoom:(int)zoom
@@ -92,24 +122,9 @@ using namespace WhirlyGlobe;
     minZoom = zoom;
 }
 
-- (int)maxZoom
-{
-    return maxZoom;
-}
-
 - (void)setMaxZoom:(int)zoom
 {
     maxZoom = zoom;
-}
-
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyGlobeViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
-{
-    // Everything at the top is loaded in, so be careful
-    if (ident.level == minZoom)
-        return MAXFLOAT;
-    
-    // For the rest, 
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, tileMbr);
 }
 
 - (int)maxSimultaneousFetches
@@ -118,7 +133,7 @@ using namespace WhirlyGlobe;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyGlobeQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
 {
     int y = ((int)(1<<level)-row)-1;
     
@@ -169,7 +184,131 @@ using namespace WhirlyGlobe;
 // We're in the layer thread here
 - (void)tileUpdate:(NSArray *)args
 {
-    WhirlyGlobeQuadTileLoader *loader = [args objectAtIndex:0];
+    WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
+    NSData *imgData = [args objectAtIndex:1];
+    int level = [[args objectAtIndex:2] intValue];
+    int x = [[args objectAtIndex:3] intValue];
+    int y = [[args objectAtIndex:4] intValue];
+    
+    if (imgData && [imgData isKindOfClass:[NSData class]])
+        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+    else {
+        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+    }
+}
+
+@end
+
+@implementation WhirlyKitNetworkTileSpecQuadSource
+
+- (id)initWithTileSpec:(NSDictionary *)jsonDict;
+{
+    self = [super init];
+    
+    if (self)
+    {
+        coordSys = new SphericalMercatorCoordSystem();
+        
+        tileURLs = jsonDict[@"tiles"];
+        if (![tileURLs isKindOfClass:[NSArray class]])
+            return nil;
+        
+        // Set'll set up a default to cover the whole world
+        GeoCoord ll = GeoCoord::CoordFromDegrees(-180,-85.05113);
+        GeoCoord ur = GeoCoord::CoordFromDegrees( 180, 85.05113);
+        
+        // Then again, there may be a real default
+        NSArray *bounds = jsonDict[@"bounds"];
+        if ([bounds isKindOfClass:[NSArray class]] && [bounds count] == 4)
+        {
+            ll = GeoCoord::CoordFromDegrees([[bounds objectAtIndex:0] floatValue],[[bounds objectAtIndex:1] floatValue]);
+            ur = GeoCoord::CoordFromDegrees([[bounds objectAtIndex:2] floatValue],[[bounds objectAtIndex:3] floatValue]);
+        }
+        Point3f ll3d = coordSys->geographicToLocal(ll);
+        Point3f ur3d = coordSys->geographicToLocal(ur);
+        mbr.ll() = Point2f(ll3d.x(),ll3d.y());
+        mbr.ur() = Point2f(ur3d.x(),ur3d.y());
+        
+        minZoom = maxZoom = 0;
+        minZoom = [jsonDict[@"minzoom"] intValue];
+        maxZoom = [jsonDict[@"maxzoom"] intValue];
+        
+        numSimultaneous = 4;
+        
+        pixelsPerTile = 256;
+    }
+    
+    return self;
+}
+
+- (void)shutdown
+{
+    // Nothing much to do here
+}
+
+- (int)maxSimultaneousFetches
+{
+    return numSimultaneous;
+}
+
+// Start loading a given tile
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+{
+    int y = ((int)(1<<level)-row)-1;
+    
+    // Decide here which URL we'll use
+    NSString *tileURL = [tileURLs objectAtIndex:col%[tileURLs count]];
+    
+    // Let's just do this in a block
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       NSData *imgData;
+                       
+                       // Look for it in the local cache first
+                       NSString *localName = nil;
+                       if (cacheDir)
+                       {
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",cacheDir,level,col,y];
+                           
+                           if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
+                           {
+                               imgData = [NSData dataWithContentsOfFile:localName];
+                           }
+                       }
+                       
+                       if (!imgData)
+                       {
+                           NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(level) stringValue]]
+                                                    stringByReplacingOccurrencesOfString:@"{x}" withString:[@(col) stringValue]]
+                                                   stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
+                           NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                           
+                           // Fetch the image synchronously
+                           NSURLResponse *resp = nil;
+                           NSError *error = nil;
+                           imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+                           
+                           if (error || !imgData)
+                               imgData = nil;
+                           
+                           // Save to the cache
+                           if (imgData && localName)
+                               [imgData writeToFile:localName atomically:YES];
+                       }
+                       
+                       // Let the loader know what's up
+                       NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]),
+                                        [NSNumber numberWithInt:level], [NSNumber numberWithInt:col], [NSNumber numberWithInt:row], nil];
+                       [self performSelector:@selector(tileUpdate:) onThread:quadLoader.quadLayer.layerThread withObject:args waitUntilDone:NO];
+                       imgData = nil;
+                   });
+}
+
+// Merge the tile into the quad layer
+// We're in the layer thread here
+- (void)tileUpdate:(NSArray *)args
+{
+    WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
     int level = [[args objectAtIndex:2] intValue];
     int x = [[args objectAtIndex:3] intValue];

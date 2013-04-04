@@ -22,7 +22,7 @@
 #import <set>
 
 /// @cond
-@class WhirlyGlobeViewState;
+@class WhirlyKitViewState;
 @protocol WhirlyKitQuadTreeImportanceDelegate;
 /// @endcond
 
@@ -47,7 +47,7 @@ public:
     {
     public:
         Identifier() { }
-        /// Construct with the cell coordinates and leve.
+        /// Construct with the cell coordinates and level.
         Identifier(int x,int y,int level) : x(x), y(y), level(level) { }
         
         /// Comparison based on x,y,level.  Used for sorting
@@ -126,6 +126,13 @@ public:
     /// Return a vector of all nodes less than the given importance without children
     void unimportantNodes(std::vector<NodeInfo> &nodes,float importance);
     
+    /// Update the maximum number of nodes.
+    /// This won't check to see if we already have more than that
+    void setMaxNodes(int newMaxNodes);
+    
+    /// Change the minimum importance value
+    void setMinImportance(float newMinImportance);
+    
     /// Dump out to the log for debugging
     void Print();
     
@@ -146,6 +153,8 @@ protected:
     {
         bool operator() (const Node *a,const Node *b)
         {
+            if (a->nodeInfo.importance == b->nodeInfo.importance)
+                return a < b;
             return a->nodeInfo.importance < b->nodeInfo.importance;
         }
     } NodeSizeSorter;
@@ -182,7 +191,7 @@ protected:
     int maxNodes;
     float minImportance;
     /// Used to calculate importance for a particular 
-    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __unsafe_unretained importDelegate;
+    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __weak importDelegate;
     
     // All nodes, sorted by ID
     NodesByIdentType nodesByIdent;
