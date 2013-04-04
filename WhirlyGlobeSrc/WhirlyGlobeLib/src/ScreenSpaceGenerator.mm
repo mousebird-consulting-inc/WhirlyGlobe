@@ -19,8 +19,9 @@
  */
 
 #import "ScreenSpaceGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeView.h"
+#import "MaplyView.h"
 
 using namespace Eigen;
 
@@ -44,13 +45,16 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
     drawPriority = 0;
     useRotation = false;
     rotation = 0.0;
+    offset.x() = 0.0;
+    offset.y() = 0.0;
+    enable = true;
 }
 
 // Calculate its position and add this feature to the appropriate drawable
 void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
 {
     float visVal = [frameInfo.theView heightAboveSurface];
-    if (!(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
+    if (!shape->enable || !(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
           ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
         return;
@@ -58,59 +62,70 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     // If it's pointed away from the user, don't bother
 //    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
 //        return;
-
-    // Run the world location through the projection matrix to see if its behind the globe
-    // Note: Turned off.  Doesn't work yet.
-#if 1
-    Point3f testPts[2];
-    testPts[0] = shape->worldLoc;
-    testPts[1] = shape->worldLoc*1.5;
-    for (unsigned int ii=0;ii<2;ii++)
-    {
-        Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-        modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-        Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-//        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-        testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
-    }
-    Vector3f testDir = testPts[1] - testPts[0];
-    testDir.normalize();
-    
-//    Vector3f eyePt0(0,0,0);
-//    Vector3f eyePt1(0,0,1);
-//    Vector4f projSpacePt0 = frameInfo.projMat * Vector4f(eyePt0.x(),eyePt0.y(),eyePt0.z(),1.0);
-//    projSpacePt0.x() /= projSpacePt0.w();  projSpacePt0.y() /= projSpacePt0.w();  projSpacePt0.z() /= projSpacePt0.w();  projSpacePt0.w() = 1.0;
-//    Vector4f projSpacePt1 = frameInfo.projMat * Vector4f(eyePt1.x(),eyePt1.y(),eyePt1.z(),1.0);
-//    projSpacePt1.x() /= projSpacePt1.w();  projSpacePt1.y() /= projSpacePt1.w();  projSpacePt1.z() /= projSpacePt1.w();  projSpacePt1.w() = 1.0;
-//    Vector3f eyeDir = eyePt1 - eyePt0;
-    
-//    NSLog(@"testDir = (%f,%f,%f)",testDir.x(),testDir.y(),testDir.z());
-//    NSLog(@"eyeDir = (%f,%f,%f)",eyeDir.x(),eyeDir.y(),eyeDir.z());
-    
-//    float dot = eyeDir.dot(testDir);
-    
-//    if (testDir.z() > 0.0)
-//        return;
-    
-    // Note: This is so dumb it hurts.  Figure out why the math is broken.
-    if (testDir.z() > -0.33)
-        return;
-#endif
-    
-    // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-        return;
     
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Matrix4f modelTrans = frameInfo.modelTrans;
-    screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)]; 
+    Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
+
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    if ([globeView isKindOfClass:[WhirlyGlobeView class]])
+    {
+        // Run the world location through the projection matrix to see if its behind the globe
+#if 1
+        Point3f testPts[2];
+        testPts[0] = shape->worldLoc;
+        testPts[1] = shape->worldLoc*1.5;
+        for (unsigned int ii=0;ii<2;ii++)
+        {
+            Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
+            modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
+            Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
+            //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
+            testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
+        }
+        Vector3f testDir = testPts[1] - testPts[0];
+        testDir.normalize();
         
+        //    Vector3f eyePt0(0,0,0);
+        //    Vector3f eyePt1(0,0,1);
+        //    Vector4f projSpacePt0 = frameInfo.projMat * Vector4f(eyePt0.x(),eyePt0.y(),eyePt0.z(),1.0);
+        //    projSpacePt0.x() /= projSpacePt0.w();  projSpacePt0.y() /= projSpacePt0.w();  projSpacePt0.z() /= projSpacePt0.w();  projSpacePt0.w() = 1.0;
+        //    Vector4f projSpacePt1 = frameInfo.projMat * Vector4f(eyePt1.x(),eyePt1.y(),eyePt1.z(),1.0);
+        //    projSpacePt1.x() /= projSpacePt1.w();  projSpacePt1.y() /= projSpacePt1.w();  projSpacePt1.z() /= projSpacePt1.w();  projSpacePt1.w() = 1.0;
+        //    Vector3f eyeDir = eyePt1 - eyePt0;
+        
+        //    NSLog(@"testDir = (%f,%f,%f)",testDir.x(),testDir.y(),testDir.z());
+        //    NSLog(@"eyeDir = (%f,%f,%f)",eyeDir.x(),eyeDir.y(),eyeDir.z());
+        
+        //    float dot = eyeDir.dot(testDir);
+        
+        //    if (testDir.z() > 0.0)
+        //        return;
+        
+        // Note: This is so dumb it hurts.  Figure out why the math is broken.
+        if (testDir.z() > -0.33)
+            return;
+#endif
+
+        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+    } else {
+        MaplyView *mapView = (MaplyView *)frameInfo.theView;
+        if ([mapView isKindOfClass:[MaplyView class]])
+            screenPt = [mapView pointOnScreenFromPlane:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        else
+            // No idea what this could be
+            return;
+    }
+            
     // Note: This check is too simple
     if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
+    
+    float resScale = frameInfo.sceneRenderer.scale;
+
+    screenPt.x += shape->offset.x()*resScale;
+    screenPt.y += shape->offset.y()*resScale;
     
     // It survived, so add it to the list if someone else needs to know where they wound up
     ProjectedPoint projPt;
@@ -263,11 +278,18 @@ ScreenSpaceGenerator::~ScreenSpaceGenerator()
         delete *it;
     }
     convexShapes.clear();    
+    activeShapes.clear();
 }
     
 void ScreenSpaceGenerator::addConvexShapes(std::vector<ConvexShape *> inShapes)
 {
     convexShapes.insert(inShapes.begin(),inShapes.end());
+    for (unsigned int ii=0;ii<inShapes.size();ii++)
+    {
+        ConvexShape *shape = inShapes[ii];
+        if (shape->enable)
+            activeShapes.insert(shape);
+    }
 }
 
 void ScreenSpaceGenerator::removeConvexShape(SimpleIdentity shapeID)
@@ -275,10 +297,20 @@ void ScreenSpaceGenerator::removeConvexShape(SimpleIdentity shapeID)
     ConvexShape dummyShape;
     dummyShape.setId(shapeID);
     ConvexShapeSet::iterator it = convexShapes.find(&dummyShape);
+    ConvexShape *theShape = NULL;
     if (it != convexShapes.end())
     {
-        delete *it;
+        theShape = *it;
         convexShapes.erase(it);
+    }
+    if (theShape)
+    {
+        it = activeShapes.find(theShape);
+        if (it != activeShapes.end())
+        {
+            activeShapes.erase(it);
+        }
+        delete theShape;
     }
 }
 
@@ -290,7 +322,7 @@ void ScreenSpaceGenerator::removeConvexShapes(std::vector<SimpleIdentity> &shape
     
 void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
-    if (convexShapes.empty())
+    if (activeShapes.empty())
         return;
     
     // Keep drawables sorted by destination texture ID
@@ -307,8 +339,8 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     std::vector<ProjectedPoint> newProjPts;
     
     // Work through the markers, asking each to generate its content
-    for (ConvexShapeSet::iterator it = convexShapes.begin();
-         it != convexShapes.end(); ++it)
+    for (ConvexShapeSet::iterator it = activeShapes.begin();
+         it != activeShapes.end(); ++it)
     {
         ConvexShape *shape = *it;
         addToDrawables(shape,frameInfo,drawables,frameMbr,newProjPts);
@@ -343,10 +375,23 @@ ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleId
     return NULL;
 }
 
+void ScreenSpaceGenerator::changeEnable(ConvexShape *shape,bool enable)
+{
+    if (shape->enable == enable)
+        return;
+    
+    if (shape->enable)
+        activeShapes.erase(shape);
+    else
+        activeShapes.insert(shape);
+
+    shape->enable = enable;
+}
+
 void ScreenSpaceGenerator::dumpStats()
 {
     pthread_mutex_lock(&projectedPtsLock);
-    NSLog(@"ScreenSpace Generator: %ld shapes",convexShapes.size());
+    NSLog(@"ScreenSpace Generator: %ld shapes, %ld active",convexShapes.size(),activeShapes.size());
     NSLog(@"ScreenSpace Generator: %ld projected points",projectedPoints.size());
     pthread_mutex_unlock(&projectedPtsLock);
 }
@@ -371,7 +416,7 @@ ScreenSpaceGeneratorAddRequest::~ScreenSpaceGeneratorAddRequest()
     shapes.clear();
 }
     
-void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     for (unsigned int ii=0;ii<shapes.size();ii++)
@@ -398,7 +443,7 @@ ScreenSpaceGeneratorRemRequest::~ScreenSpaceGeneratorRemRequest()
 {
 }
     
-void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     screenGen->removeConvexShapes(shapeIDs);
@@ -419,7 +464,7 @@ ScreenSpaceGeneratorFadeRequest::~ScreenSpaceGeneratorFadeRequest()
 {        
 }
     
-void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     
@@ -434,6 +479,55 @@ void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,NSObject<WhirlyKitES
             [renderer setRenderUntil:fadeDown];
         }
     }    
+}
+    
+ScreenSpaceGeneratorEnableRequest::ScreenSpaceGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &shapeIDs,bool enable)
+    : GeneratorChangeRequest(genID), enable(enable), shapeIDs(shapeIDs)
+{
+}
+    
+void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+{
+    ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
+    
+    for (unsigned int ii=0;ii<shapeIDs.size();ii++)
+    {
+        ScreenSpaceGenerator::ConvexShape *shape = screenGen->getConvexShape(shapeIDs[ii]);
+        if (shape)
+        {
+            screenGen->changeEnable(shape,enable);
+        }
+    }
+}
+    
+ScreenSpaceGeneratorGangChangeRequest::ShapeChange::ShapeChange()
+ : shapeID(EmptyIdentity), enable(false), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
+{
+}
+    
+ScreenSpaceGeneratorGangChangeRequest::ScreenSpaceGeneratorGangChangeRequest(SimpleIdentity genID,const std::vector<ShapeChange> &changes)
+    : GeneratorChangeRequest(genID), changes(changes)
+{
+}
+    
+void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+{
+    ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
+    
+    for (unsigned int ii=0;ii<changes.size();ii++)
+    {
+        ShapeChange &change = changes[ii];
+        ScreenSpaceGenerator::ConvexShape *shape = screenGen->getConvexShape(change.shapeID);
+        if (shape)
+        {
+            shape->fadeUp = change.fadeUp;
+            shape->fadeDown = change.fadeDown;
+            screenGen->changeEnable(shape,change.enable);
+            shape->offset = change.offset;
+            [renderer setRenderUntil:change.fadeUp];
+            [renderer setRenderUntil:change.fadeDown];
+        }
+    }
 }
     
 }

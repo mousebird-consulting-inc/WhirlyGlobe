@@ -28,8 +28,12 @@ using namespace WhirlyKit;
 namespace WhirlyGlobe
 {
         
-GlobeScene::GlobeScene(CoordSystem *coordSystem,int depth)
-    : Scene(coordSystem,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1)    
+GlobeScene::GlobeScene(int depth)
+{
+    Init(&coordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1);
+}
+
+GlobeScene::~GlobeScene()
 {
     
 }

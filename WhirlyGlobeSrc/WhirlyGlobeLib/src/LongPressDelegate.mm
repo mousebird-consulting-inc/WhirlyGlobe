@@ -20,7 +20,7 @@
 
 #import "LongPressDelegate.h"
 #import "EAGLView.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
@@ -56,7 +56,7 @@ using namespace WhirlyKit;
 {
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	WhirlyKitSceneRendererES1 *sceneRender = glView.renderer;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
@@ -64,7 +64,7 @@ using namespace WhirlyKit;
         // Translate that to the sphere
         // If we hit, then we'll generate a message
         Point3f hit;
-        Eigen::Matrix4f theTransform = [globeView calcModelMatrix];
+        Eigen::Matrix4f theTransform = [globeView calcFullMatrix];
         CGPoint touchLoc = [press locationOfTouch:0 inView:press.view];
         if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
         {
@@ -72,7 +72,7 @@ using namespace WhirlyKit;
             msg.view = press.view;
             msg.touchLoc = touchLoc;
             [msg setWorldLoc:hit];
-            Point3f geoHit = GeoCoordSystem::GeocentricishToLocal(hit);
+            Point3f geoHit = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
             [msg setWhereGeo:GeoCoord(geoHit.x(),geoHit.y())];
             msg.heightAboveSurface = globeView.heightAboveGlobe;
             

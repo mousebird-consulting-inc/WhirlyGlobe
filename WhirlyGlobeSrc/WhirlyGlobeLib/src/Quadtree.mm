@@ -361,4 +361,14 @@ void Quadtree::removeNode(Node *node)
     delete node;
 }
     
+void Quadtree::setMaxNodes(int newMaxNodes)
+{
+    maxNodes = newMaxNodes;
+}
+
+void Quadtree::setMinImportance(float newMinImportance)
+{
+    minImportance = newMinImportance;
+}
+
 }

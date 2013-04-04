@@ -24,12 +24,12 @@
 #import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
 #import "Quadtree.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
+#import "GlobeLayerViewWatcher.h"
 
 /// Fill in this protocol to be called 
 @protocol WhirlyGlobeUpdateDataSource <NSObject>

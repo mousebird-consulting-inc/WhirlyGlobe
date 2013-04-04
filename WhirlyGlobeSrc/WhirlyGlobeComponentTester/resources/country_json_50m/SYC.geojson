@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-                                                                                
-"features": [
-{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Seychelles", "SOV_A3": "SYC", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Seychelles", "ADM0_A3": "SYC", "GEOU_DIF": 0.0, "GEOUNIT": "Seychelles", "GU_A3": "SYC", "SU_DIF": 0.0, "SUBUNIT": "Seychelles", "SU_A3": "SYC", "NAME": "Seychelles", "ABBREV": "Syc.", "POSTAL": "SC", "NAME_FORMA": "Republic of Seychelles", "TERR_": "", "NAME_SORT": "Seychelles", "MAP_COLOR": 1.0, "POP_EST": 87476.0, "GDP_MD_EST": 1715.0, "FIPS_10_": "SE", "ISO_A2": "SC", "ISO_A3": "SYC", "ISO_N3": 690.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 55.54031, -4.693098 ], [ 55.542998, -4.785496 ], [ 55.494732, -4.754593 ], [ 55.481193, -4.694855 ], [ 55.416804, -4.65031 ], [ 55.383421, -4.609279 ], [ 55.455768, -4.55874 ], [ 55.54031, -4.693098 ] ] ] } }
-
-]
-}

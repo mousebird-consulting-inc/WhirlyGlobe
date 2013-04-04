@@ -34,7 +34,7 @@ class CullTree
 { 
     friend class Cullable;
 public:
-    CullTree(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth,int maxDrawPerNode = 8);
+    CullTree(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth,int maxDrawPerNode = 8);
     ~CullTree();
     
     Cullable *getTopCullable() { return topCullable; }
@@ -44,7 +44,7 @@ public:
     void dumpStats();
     
 protected:
-    CoordSystem *coordSystem;
+    CoordSystemDisplayAdapter *coordAdapter;
     Cullable *topCullable;
     int depth;
     int maxDrawPerNode;
@@ -67,7 +67,7 @@ class Cullable : public Identifiable
 {
 public:
     /// Construct recursively down to the given depth
-	Cullable(WhirlyKit::CoordSystem *coordSystem,Mbr localMbr,int depth);
+	Cullable(CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth);
     ~Cullable();
 	
 	/// Add the given drawable to our set or the appropriate children
@@ -107,7 +107,7 @@ public:
     /// 3D locations (in model space) of the corners
 	Point3f cornerPoints[WhirlyKitCullableCorners];
 	/// Normal vectors (in model space) for the corners
-	Vector3f cornerNorms[WhirlyKitCullableCornerNorms];
+    Eigen::Vector3f cornerNorms[WhirlyKitCullableCornerNorms];
     /// Opposite of depth.  0 means go no lower
     int height;
     /// Local coordinates for bounding box

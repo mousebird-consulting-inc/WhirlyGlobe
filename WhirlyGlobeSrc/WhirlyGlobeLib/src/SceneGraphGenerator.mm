@@ -19,7 +19,7 @@
  */
 
 #import "SceneGraphGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 
@@ -47,7 +47,12 @@ void SceneGraphGenerator::traverseNode(WhirlyKitRendererFrameInfo *frameInfo,Poi
 //            geom->drawables[ii]->setupGL(0.0);
         
         // Add it to the drawables
-        drawables.insert(drawables.end(),geom->drawables.begin(),geom->drawables.end());
+        for (std::vector<WhirlyKit::DrawableRef>::iterator it = geom->drawables.begin();
+             it != geom->drawables.end(); ++it)
+        {
+            if ((*it)->isOn(frameInfo))
+                drawables.push_back(*it);
+        }
     } else {
         SceneGraphGroupRef group = boost::dynamic_pointer_cast<SceneGraphGroup>(node);
         if (group.get())
@@ -196,7 +201,7 @@ SceneGraphGeneratorAddRequest::SceneGraphGeneratorAddRequest(SimpleIdentity genI
 {
 }
 
-void SceneGraphGeneratorAddRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void SceneGraphGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     
@@ -208,7 +213,7 @@ SceneGraphGeneratorRemRequest::SceneGraphGeneratorRemRequest(SimpleIdentity genI
 {    
 }
 
-void SceneGraphGeneratorRemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void SceneGraphGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     SceneGraphGenerator *sceneGen = (SceneGraphGenerator *)gen;
     

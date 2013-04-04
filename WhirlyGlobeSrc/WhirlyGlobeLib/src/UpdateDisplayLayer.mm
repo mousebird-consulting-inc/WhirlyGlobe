@@ -44,12 +44,6 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)dealloc
-{
-    if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];    
-}
-
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     layerThread = inLayerThread;

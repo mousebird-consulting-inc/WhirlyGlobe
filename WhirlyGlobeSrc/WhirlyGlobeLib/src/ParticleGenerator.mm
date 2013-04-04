@@ -19,7 +19,9 @@
  */
 
 #import "ParticleGenerator.h"
-#import "SceneRendererES1.h"
+#import "SceneRendererES.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
@@ -166,7 +168,7 @@ void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
     }
     
     // Note: Should shrink the particles vector
-    
+
     // Build a drawable containing all the active particles
     // Note: Should possibly build more than one
     BasicDrawable *draw = NULL;
@@ -201,7 +203,7 @@ ParticleGeneratorAddSystemRequest::~ParticleGeneratorAddSystemRequest()
         delete system;
 }
     
-void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ParticleGeneratorAddSystemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->addParticleSystem(system);
@@ -214,7 +216,7 @@ ParticleGeneratorRemSystemRequest::ParticleGeneratorRemSystemRequest(SimpleIdent
     genId = generatorID;
 }
     
-void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,NSObject<WhirlyKitESRenderer> *renderer,Generator *gen)
+void ParticleGeneratorRemSystemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
 {
     ParticleGenerator *theGen = (ParticleGenerator *)gen;
     theGen->removeParticleSystem(systemId);
