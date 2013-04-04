@@ -23,10 +23,14 @@
 
 @interface UIColor(Stuff)
 
+/// Build a UIColor from a hex value
++ (UIColor *) colorFromHexRGB:(int)hexColor;
+
 /// Convert a UIColor to the RBGA color we use internally
 - (WhirlyKit::RGBAColor) asRGBAColor;
 
 /// Convert a UIColor to Vector4, which we also use internally
 - (Eigen::Vector4f) asVec4;
+
 
 @end

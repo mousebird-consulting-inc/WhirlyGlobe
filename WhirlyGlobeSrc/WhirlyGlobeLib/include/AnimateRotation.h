@@ -30,7 +30,7 @@
 @interface AnimateViewRotation : NSObject<WhirlyGlobeAnimationDelegate>
 {
     CFTimeInterval startDate,endDate;
-    Eigen::Quaternion<float> startRot,endRot;
+    Eigen::Quaterniond startRot,endRot;
 }
 
 /// When to start the animation.  Can be in the past
@@ -38,12 +38,12 @@
 /// When to finish the animation.
 @property (nonatomic,assign) NSTimeInterval endDate;
 /// Where to start rotating.  This is probably where you are when you start
-@property (nonatomic,assign) Eigen::Quaternion<float> startRot;
+@property (nonatomic,assign) Eigen::Quaterniond startRot;
 /// Where to end the rotation.  We'll interpolate from the start to here
-@property (nonatomic,assign) Eigen::Quaternion<float> endRot;
+@property (nonatomic,assign) Eigen::Quaterniond endRot;
 
 /// Kick off a rotate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaternion<float> &)newRot howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
 
 @end

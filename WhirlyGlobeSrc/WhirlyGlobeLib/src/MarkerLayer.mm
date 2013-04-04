@@ -179,7 +179,7 @@ MarkerSceneRep::MarkerSceneRep()
     // Set up the generator we'll pass markers to
     MarkerGenerator *gen = new MarkerGenerator();
     generatorId = gen->getId();
-    scene->addChangeRequest(new AddGeneratorReq(gen));
+    [layerThread addChangeRequest:(new AddGeneratorReq(gen))];
 }
 
 - (void)shutdown
@@ -213,7 +213,7 @@ MarkerSceneRep::MarkerSceneRep()
     if (generatorId != EmptyIdentity)
         changeRequests.push_back(new RemGeneratorReq(generatorId));
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -414,7 +414,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 if (it != drawables.end())
                     draw = it->second;
                 else {
-                    draw = new BasicDrawable();
+                    draw = new BasicDrawable("Marker Layer");
                     draw->setType(GL_TRIANGLES);
                     draw->setDrawOffset(markerInfo.drawOffset);
                     draw->setColor([markerInfo.color asRGBAColor]);
@@ -508,7 +508,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         changeRequests.push_back(new ScreenSpaceGeneratorAddRequest(screenGenId,screenShapes));
     screenShapes.clear();
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
 
     // And any layout constraints to the layout engine
     if (layoutLayer && ([layoutObjects count] > 0))
@@ -586,7 +586,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             delete markerRep;
         }
         
-        scene->addChangeRequests(changeRequests);
+        [layerThread addChangeRequests:(changeRequests)];
     }
 }
 

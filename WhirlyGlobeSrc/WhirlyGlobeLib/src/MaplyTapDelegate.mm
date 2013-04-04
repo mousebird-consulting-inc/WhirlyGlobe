@@ -62,16 +62,16 @@ using namespace WhirlyKit;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     // Just figure out where we tapped
-	Point3f hit;
-    Eigen::Matrix4f theTransform = [mapView calcFullMatrix];
+	Point3d hit;
+    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:tap.view];
-		[msg setWorldLoc:hit];
-        Point3f localPt = coordAdapter->displayToLocal(hit);
+		[msg setWorldLoc:Point3f(hit.x(),hit.y(),hit.z())];
+        Point3d localPt = coordAdapter->displayToLocal(hit);
 		[msg setWhereGeo:coordAdapter->getCoordSystem()->localToGeographic(localPt)];
         msg.heightAboveSurface = hit.z();
 		

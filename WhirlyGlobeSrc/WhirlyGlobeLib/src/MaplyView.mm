@@ -33,7 +33,7 @@ using namespace WhirlyKit;
     if (self = [super init])
     {
         coordAdapter = inCoordAdapter;
-        loc = Point3f(0,0,4);
+        loc = Point3d(0,0,4);
         farPlane = 10.0;
     }
     
@@ -55,87 +55,87 @@ using namespace WhirlyKit;
 - (float)calcZbufferRes
 {
     // Note: Not right
-    float delta = 0.0001;
+    double delta = 0.0001;
     
     return delta;
 }
 
-- (Eigen::Matrix4f)calcModelMatrix
+- (Eigen::Matrix4d)calcModelMatrix
 {
-    Eigen::Affine3f trans(Eigen::Translation3f(-loc.x(),-loc.y(),-loc.z()));
+    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x(),-loc.y(),-loc.z()));
     
     return trans.matrix();
 }
 
-- (float)heightAboveSurface
+- (double)heightAboveSurface
 {
     return loc.z();
 }
 
-- (float)minHeightAboveSurface
+- (double)minHeightAboveSurface
 {
     return nearPlane;
 }
 
-- (float)maxHeightAboveSurface
+- (double)maxHeightAboveSurface
 {
     return farPlane;
 }
 
-- (void)setLoc:(WhirlyKit::Point3f)newLoc
+- (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
     loc = newLoc;
     [self runViewUpdates];
 }
 
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit clip:(bool)clip
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
 {
     // Back Project the screen point into model space
-    Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
+    Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
-    Eigen::Matrix4f modelTrans = *transform;
-    Matrix4f invModelMat = modelTrans.inverse();
-    Point3f eyePt(0,0,0);
-    Vector4f modelEye = invModelMat * Vector4f(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
-    Vector4f modelScreenPt = invModelMat * Vector4f(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+    Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
     
     // Now intersect with the plane at (0,0)
     // Okay, this is kind of overkill
-    Vector4f dir4 = modelScreenPt - modelEye;
-    Vector3f dir(dir4.x(),dir4.y(),dir4.z());
+    Vector4d dir4 = modelScreenPt - modelEye;
+    Vector3d dir(dir4.x(),dir4.y(),dir4.z());
     
     if (dir.z() == 0.0)
         return false;
     dir.normalize();
-    float t = - modelEye.z() / dir.z();
-    *hit = Vector3f(modelEye.x(),modelEye.y(),modelEye.z()) + dir * t;
+    double t = - modelEye.z() / dir.z();
+    *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir * t;
     
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const Point3f &)inWorldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromPlane:(const Point3d &)inWorldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
 {
-    Point3f worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
+    Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans;
-    Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d modelMat = modelTrans;
+    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
     
     // Intersection with near gives us the same plane as the screen 
-    Point3f ray;  
+    Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
     ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame
-    Point2f ll,ur;
-    float near,far;
+    Point2d ll,ur;
+    double near,far;
     [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
-    float u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    float v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
     
     CGPoint retPt;

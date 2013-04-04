@@ -79,12 +79,13 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
      <list type="bullet">
      <item>color       [UIColor]
      <item>height      [NSNumber float]
-     <item>priority    [NSNumber int]
+     <item>drawPriority [NSNumber int]
      <item>minVis      [NSNumber float]
      <item>maxVis      [NSNumber float]
      <item>fade        [NSNumber float]
      <item>top         [NSNumber bool]
      <item>side        [NSNumber bool]
+     <item>layered     [NSNumber bool]
      </list>
  */
 @interface WhirlyKitLoftLayer : NSObject<WhirlyKitLayer>

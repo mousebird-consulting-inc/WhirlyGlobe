@@ -47,14 +47,6 @@ using namespace WhirlyKit;
         *height = upHeight;
     }
 
-    // Note: Make this optional
-#if 0
-    if (*width > 512)
-        *width = 512;
-    if (*height > 512)
-        *height = 512;
-#endif
-	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], (*width), (*height), 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
 //	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);
@@ -64,5 +56,46 @@ using namespace WhirlyKit;
 	
 	return retData;
 }
+
+-(NSData *)rawDataScaleWidth:(unsigned int)destWidth height:(unsigned int)destHeight border:(int)border
+{
+	CGImageRef cgImage = self.CGImage;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	
+    
+	NSMutableData *retData = [NSMutableData dataWithLength:destWidth*destHeight*4];
+	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], destWidth, destHeight, 8, destWidth * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-2*border), (CGFloat)(destWidth-2*border)), cgImage);
+	CGContextRelease(theContext);
+    CGColorSpaceRelease(colorSpace);
+    
+    // Copy over the extra pixels
+    // Note: Only supporting one pixel
+    unsigned int *buf = (unsigned int *)[retData mutableBytes];
+    if (border > 0)
+    {
+        int ix,iy;
+        // Bottom
+        for (iy=border-1;iy>=0;iy--)
+            for (ix=0;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy+1)*destWidth + ix];
+        // Top
+        for (iy=destHeight-(1+border);iy<destHeight;iy++)
+        for (ix=0,iy=destHeight-1;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
+        // Left
+        for (ix=border-1;ix>=0;ix--)
+            for (iy=0;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix+1)];
+        // Right
+        for (ix=destWidth-(1+border);ix<destWidth;ix++)
+            for (iy=0;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix-1)];
+    }
+	
+	return retData;
+    
+}
+
 
 @end

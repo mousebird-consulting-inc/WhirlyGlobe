@@ -20,6 +20,7 @@
 
 #import "LayerViewWatcher.h"
 #import "LayerThread.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -63,7 +64,7 @@ using namespace WhirlyKit;
     
     if (!lastViewState)
     {
-        WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view];
+        WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
     }
     
@@ -107,7 +108,7 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
-    WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView];
+    WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
     lastViewState = viewState;
     [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
     [self performSelector:@selector(kickoffViewUpdated:) onThread:layerThread withObject:viewState waitUntilDone:NO];
@@ -190,28 +191,32 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitViewState
 
-- (id)initWithView:(WhirlyKitView *)view
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer
 {
     self = [super init];
     if (!self)
         return nil;
     
     modelMatrix = [view calcModelMatrix];
+    invModelMatrix = modelMatrix.inverse();
     viewMatrix = [view calcViewMatrix];
+    invViewMatrix = viewMatrix.inverse();
     fullMatrix = [view calcFullMatrix];
+    invFullMatrix = fullMatrix.inverse();
+    projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
+    invProjMatrix = projMatrix.inverse();
+    
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;
     nearPlane = view.nearPlane;
     farPlane = view.farPlane;
     
     // Need the eye point for backface checking
-    Eigen::Matrix4f fullMatrixInv = fullMatrix.inverse();
-    Vector4f eyeVec4 = fullMatrixInv * Vector4f(0,0,1,0);
-    eyeVec = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    Vector4d eyeVec4 = invFullMatrix * Vector4d(0,0,1,0);
+    eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // Also a version for the model matrix (e.g. just location, not direction)
-    Eigen::Matrix4f modelMatInv = modelMatrix.inverse();
-    eyeVec4 = modelMatInv * Vector4f(0,0,1,0);
-    eyeVecModel = Vector3f(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());    
+    eyeVec4 = invModelMatrix * Vector4d(0,0,1,0);
+    eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     
     ll.x() = ur.x() = 0.0;
     
@@ -220,12 +225,12 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (Eigen::Vector3f)eyePos
+- (Eigen::Vector3d)eyePos
 {
-	Eigen::Matrix4f modelMat = modelMatrix.inverse();
+	Eigen::Matrix4d modelMat = modelMatrix.inverse();
 	
-	Vector4f newUp = modelMat * Vector4f(0,0,0,1);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());
+	Vector4d newUp = modelMat * Vector4d(0,0,0,1);
+	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight
@@ -239,47 +244,45 @@ using namespace WhirlyKit;
 	far = farPlane;
 }
 
-- (Point3f)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
+- (Point3d)pointUnproject:(Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
 {
     if (ll.x() == ur.x())
         [self calcFrustumWidth:frameWidth height:frameHeight];
 	
 	// Calculate a parameteric value and flip the y/v
-	float u = screenPt.x() / frameWidth;
+	double u = screenPt.x() / frameWidth;
     if (clip)
     {
-        u = std::max(0.0f,u);	u = std::min(1.0f,u);
+        u = std::max(0.0,u);	u = std::min(1.0,u);
     }
-	float v = screenPt.y() / frameHeight;
+	double v = screenPt.y() / frameHeight;
     if (clip)
     {
-        v = std::max(0.0f,v);	v = std::min(1.0f,v);
+        v = std::max(0.0,v);	v = std::min(1.0,v);
     }
 	v = 1.0 - v;
 	
 	// Now come up with a point in 3 space between ll and ur
-	Point2f mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-	return Point3f(mid.x(),mid.y(),-near);
+	Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+	return Point3d(mid.x(),mid.y(),-near);
 }
 
-- (CGPoint)pointOnScreenFromDisplay:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromDisplay:(const Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans;
-    Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
+    Eigen::Matrix4d modelMat = *transform;
+    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     
     // Intersection with near gives us the same plane as the screen
-    Point3f ray;
+    Vector3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
     ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame
     if (ll.x() == ur.x())
         [self calcFrustumWidth:frameSize.x() height:frameSize.y()];
-    float u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    float v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
     
     CGPoint retPt;
@@ -300,8 +303,8 @@ using namespace WhirlyKit;
         return false;
     
     // Matrix comparison
-    float *floatsA = fullMatrix.data();
-    float *floatsB = other->fullMatrix.data();
+    double *floatsA = fullMatrix.data();
+    double *floatsB = other->fullMatrix.data();
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
             return false;

@@ -284,6 +284,18 @@ LocationInfo locations[NumLocations] =
             vecWidth = 4.0;
         }
             break;
+        case QuadTestLayer:
+        {
+            self.title = @"Quad Paging Test Layer";
+            screenLabelColor = [UIColor blackColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor blackColor];
+            vecWidth = 4.0;
+            [baseViewC addQuadTestLayerMaxZoom:17];
+        }
+            break;
         default:
             break;
     }
@@ -812,6 +824,8 @@ static const int NumMegaMarkers = 40000;
     // Make a label and stick it in as a view to track
     // We put it in a top level view so we can center it
     UIView *topView = [[UIView alloc] initWithFrame:CGRectZero];
+    // Start out hidden before the first placement.  The tracker will turn it on.
+    topView.hidden = YES;
     topView.alpha = 0.8;
     UIView *backView = [[UIView alloc] initWithFrame:CGRectZero];
     [topView addSubview:backView];

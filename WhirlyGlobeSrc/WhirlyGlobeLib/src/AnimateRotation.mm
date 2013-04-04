@@ -25,7 +25,7 @@
 @synthesize startDate,endDate;
 @synthesize startRot,endRot;
 
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaternion<float> &)newRot howLong:(float)howLong
+- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
 {
     if ((self = [super init]))
     {

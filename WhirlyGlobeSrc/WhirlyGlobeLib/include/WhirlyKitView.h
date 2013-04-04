@@ -43,10 +43,10 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
  */
 @interface WhirlyKitView : NSObject
 {
-	float fieldOfView;
-	float imagePlaneSize;
-	float nearPlane;
-	float farPlane;
+	double fieldOfView;
+	double imagePlaneSize;
+	double nearPlane;
+	double farPlane;
 	
     /// The last time the position was changed
     CFTimeInterval lastChangedTime;
@@ -61,14 +61,14 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
     WhirlyKitViewWatcherDelegateSet watchDelegates;
 }
 
-@property (nonatomic,assign) float fieldOfView,imagePlaneSize,nearPlane,farPlane;
+@property (nonatomic,assign) double fieldOfView,imagePlaneSize,nearPlane,farPlane;
 @property (nonatomic,readonly) CFTimeInterval lastChangedTime;
 @property (nonatomic,readonly) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
 @property (nonatomic,assign) bool continuousZoom;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2f &)ll ur:(WhirlyKit::Point2f &)ur near:(float &)near far:(float &)far;
+- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(WhirlyKit::Point2d &)ll ur:(WhirlyKit::Point2d &)ur near:(double &)near far:(double &)far;
 
 /// Cancel any outstanding animation.  Filled in by subclass.
 - (void)cancelAnimation;
@@ -80,20 +80,26 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 - (float)calcZbufferRes;
 
 /// Generate the model view matrix for use by OpenGL.  Filled in by subclass.
-- (Eigen::Matrix4f)calcModelMatrix;
+- (Eigen::Matrix4d)calcModelMatrix;
 
 /// An optional matrix used to calculate where we're looking
 ///  as a second step from where we are
-- (Eigen::Matrix4f)calcViewMatrix;
+- (Eigen::Matrix4d)calcViewMatrix;
 
 /// Return the combination of model and view matrix
-- (Eigen::Matrix4f)calcFullMatrix;
+- (Eigen::Matrix4d)calcFullMatrix;
+
+/// Calculate the projection matrix, given the size of the frame buffer
+- (Eigen::Matrix4d)calcProjectionMatrix:(WhirlyKit::Point2f)frameBufferSize margin:(float)margin;
 
 /// Return the nominal height above the surface of the data
-- (float)heightAboveSurface;
+- (double)heightAboveSurface;
 
 /// From a screen point calculate the corresponding point in 3-space
-- (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+- (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+
+/// Return the ray running from eye through the given screen point in display space
+//- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
 
 /// Add a watcher delegate.  Call this on the main thread.
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;

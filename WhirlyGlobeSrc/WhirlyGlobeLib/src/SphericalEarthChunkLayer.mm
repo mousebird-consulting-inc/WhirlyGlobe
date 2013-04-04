@@ -18,8 +18,11 @@
  *
  */
 
+#import <queue>
 #import <set>
 #import "SphericalEarthChunkLayer.h"
+#import "DynamicTextureAtlas.h"
+#import "DynamicDrawableAtlas.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -32,31 +35,62 @@ class ChunkSceneRep : public Identifiable
 {
 public:
     ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ChunkSceneRep() { }
+    ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
+    ~ChunkSceneRep()
+    {
+        for (unsigned int ii=0;ii<drawables.size();ii++)
+            delete drawables[ii];
+    }
     SimpleIDSet drawIDs;
+    bool usesAtlas;
+    // Set if we're using a dynamic texture atlas
+    SubTexture subTex;
+    // If we're using atlases, we have to keep the geometry around for enable/disable
+    std::vector<BasicDrawable *> drawables;
     
     // Remove elements from the scene
-    void clear(Scene *scene,std::vector<ChangeRequest *> &changeRequests)
+    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changeRequests)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changeRequests.push_back(new RemDrawableReq(*it));
+        if (usesAtlas)
+        {
+            if (subTex.texId != EmptyIdentity)
+                texAtlas->removeTexture(subTex, changeRequests);
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->removeDrawable(*it, changeRequests);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changeRequests.push_back(new RemDrawableReq(*it));
+        }
     }
     
     // Enable drawables
-    void enable(Scene *scene)
+    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            scene->addChangeRequest(new OnOffChangeRequest(*it, true));
+        if (usesAtlas)
+        {
+            for (unsigned int ii=0;ii<drawables.size();ii++)
+                drawAtlas->addDrawable(drawables[ii], changes);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changes.push_back(new OnOffChangeRequest(*it, true));
+        }
     }
     
     // Disable drawables
-    void disable(Scene *scene)
+    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            scene->addChangeRequest(new OnOffChangeRequest(*it, false));
+        if (usesAtlas)
+        {
+            for (unsigned int ii=0;ii<drawables.size();ii++)
+                drawAtlas->removeDrawable(drawables[ii]->getId(), changes);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changes.push_back(new OnOffChangeRequest(*it, false));
+        }
     }
 };
     
@@ -69,12 +103,17 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 
 @synthesize mbr;
 @synthesize texId;
+@synthesize loadImage;
 @synthesize drawOffset;
 @synthesize drawPriority;
 @synthesize sampleX,sampleY;
 @synthesize minVis,maxVis;
 @synthesize minVisBand,maxVisBand;
 @synthesize rotation;
+
+// Default sample size for chunks
+static const int DefaultSampleX = 8;
+static const int DefaultSampleY = 8;
 
 - (id)init
 {
@@ -97,7 +136,7 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 @public
     bool enable;
     WhirlyKit::SimpleIdentity chunkId;
-    NSArray *chunks;
+    WhirlyKitSphericalChunk *chunk;
 }
 @end
 
@@ -105,15 +144,36 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 
 @end
 
+// Used to track requests that come in so we can queue them
+typedef enum {ChunkAdd,ChunkRemove,ChunkEnable,ChunkDisable} ChunkRequestType;
+class ChunkRequest
+{
+public:
+    ChunkRequest() { }
+    ChunkRequest(ChunkRequestType type,SphericalChunkInfo *chunkInfo,WhirlyKitSphericalChunk *chunk) :
+        type(type), chunkId(EmptyIdentity), chunkInfo(chunkInfo), chunk(chunk) { }
+    ChunkRequest(ChunkRequestType type,SimpleIdentity chunkId) :
+        type(type), chunkId(chunkId), chunkInfo(NULL), chunk(NULL) { }
+    ChunkRequestType type;
+    SimpleIdentity chunkId;
+    SphericalChunkInfo *chunkInfo;
+    WhirlyKitSphericalChunk *chunk;
+};
 
 @implementation WhirlyKitSphericalChunkLayer
 {
     ChunkRepSet chunkReps;
     WhirlyKitLayerThread *layerThread;
     WhirlyKit::Scene *scene;
+    DynamicTextureAtlas *texAtlas;
+    DynamicDrawableAtlas *drawAtlas;
+    // Outstanding requests to process
+    std::queue<ChunkRequest> requests;
+    int borderTexel;
 }
 
 @synthesize ignoreEdgeMatching;
+@synthesize useDynamicAtlas;
 
 - (id)init
 {
@@ -122,6 +182,8 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
         return nil;
     
     ignoreEdgeMatching = false;
+    useDynamicAtlas = true;
+    borderTexel = 0;
     
     return self;
 }
@@ -138,10 +200,24 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 
     for (ChunkRepSet::iterator it = chunkReps.begin();
          it != chunkReps.end(); ++it)
-        (*it)->clear(scene,changeRequests);
+        (*it)->clear(scene,texAtlas,drawAtlas,changeRequests);
     chunkReps.clear();
+
+    if (texAtlas)
+    {
+        texAtlas->shutdown(changeRequests);
+        delete texAtlas;
+        texAtlas = NULL;
+    }
     
-    scene->addChangeRequests(changeRequests);
+    if (drawAtlas)
+    {
+        drawAtlas->shutdown(changeRequests);
+        delete drawAtlas;
+        drawAtlas = NULL;
+    }
+
+    [layerThread addChangeRequests:(changeRequests)];
     
     scene = NULL;
 }
@@ -175,34 +251,126 @@ static const float SkirtFactor = 0.95;
         }
         
         // Add two triangles
-        draw->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
-        draw->addTriangle(BasicDrawable::Triangle(base+1,base+3,base+2));
+        draw->addTriangle(BasicDrawable::Triangle(base+3,base+2,base+0));
+        draw->addTriangle(BasicDrawable::Triangle(base+0,base+2,base+1));
     }
 }
 
-// Do the work of adding the chunk to the scene
+// Note: This is the hardcoded vertex size for our case.  Should make this flexible.
+static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
+static const int SingleElementSize = sizeof(GLushort);
+
+// Add chunks to the outstanding list and possibly execute the list
 - (void)runAddChunk:(SphericalChunkInfo *)chunkInfo
 {
+    std::vector<ChangeRequest *> changes;
+    
+    ChunkRequest request(ChunkAdd,chunkInfo,chunkInfo->chunk);
+    // If it needs the altases, just queue it up
+    if (chunkInfo->chunk.loadImage)
+        requests.push(request);
+    else {
+        // If it doesn't, just run it right now
+        [self processChunkRequest:request changes:changes];
+    }
+    
+    // Get rid of an unnecessary circularity
+    chunkInfo->chunk = nil;
+    
+    // Push out changes (if there are any)
+    [layerThread addChangeRequests:changes];
+    
+    // And possibly run the outstanding request queue
+    [self processQueue];
+}
+
+// Process outstanding requests
+- (void)processQueue
+{
+    // Nothing to do
+    if (requests.empty())
+        return;
+    
+    // If there's an outstanding swap going on, can't do this now, wait for the wakeUp
+    if (drawAtlas && drawAtlas->waitingOnSwap())
+        return;
+    
+    // Process the changes and then flush them out
+    std::vector<ChangeRequest *> changes;
+    while (!requests.empty())
+    {
+        ChunkRequest request = requests.front();
+        requests.pop();
+        [self processChunkRequest:request changes:changes];
+    }
+    
+    if (drawAtlas)
+        if (drawAtlas->hasUpdates() && !drawAtlas->waitingOnSwap())
+            drawAtlas->swap(changes, self, @selector(wakeUp));
+    
+    [layerThread addChangeRequests:changes];
+}
+
+// Called by the main thread to wake us up after a buffer swap
+- (void)wakeUp
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(wakeUp) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    [self processQueue];
+}
+
+// Process a single chunk request (add, enable, disable)
+- (void)processChunkRequest:(ChunkRequest &)request changes:(std::vector<ChangeRequest *> &)changes
+{
+    switch (request.type)
+    {
+        case ChunkAdd:
+        {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     CoordSystem *localSys = coordAdapter->getCoordSystem();
-    ChunkSceneRepRef chunkRep(new ChunkSceneRep(chunkInfo->chunkId));
+            ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkInfo->chunkId));
+            WhirlyKitSphericalChunk *chunk = request.chunk;
     
-    // Work through the chunks
-#ifdef DEBUG
-//    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-#endif
-    std::vector<ChangeRequest *> changeRequests;
-    for (WhirlyKitSphericalChunk *chunk in chunkInfo->chunks)
-    {
         GeoMbr geoMbr = chunk.mbr;
         
-        BasicDrawable *drawable = new BasicDrawable();
+        // If the atlases aren't initialized, do that
+        if (chunk.loadImage && useDynamicAtlas && !texAtlas)
+        {
+            // At 256 pixels square we can hold 64 tiles in a texture atlas
+            int DrawBufferSize = 2 * (DefaultSampleX + 1) * (DefaultSampleY + 1) * SingleVertexSize * 64;
+            // Two triangles per grid cell in a tile
+            int ElementBufferSize = 2 * 6 * (DefaultSampleX + 1) * (DefaultSampleY + 1) * SingleElementSize * 64;
+            // Note: We should be able to set one of the compressed texture formats on the layer
+            texAtlas = new DynamicTextureAtlas(2048,64,GL_UNSIGNED_BYTE);
+            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager());
+            borderTexel = 1;
+        }
+        
+        // May need to set up the texture
+        SimpleIdentity texId = EmptyIdentity;
+        chunkRep->usesAtlas = false;
+        if (chunk.loadImage && texAtlas)
+        {
+            Texture *newTex = [chunk.loadImage buildTexture:borderTexel destWidth:0 destHeight:0];
+            if (newTex)
+            {
+                    texAtlas->addTexture(newTex, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                chunkRep->usesAtlas = true;
+            }
+        } else
+            texId = chunk.texId;
+        
+        BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
         drawable->setType(GL_TRIANGLES);
         drawable->setLocalMbr(geoMbr);
         drawable->setDrawPriority(chunk.drawPriority);
         drawable->setDrawOffset(chunk.drawOffset);
-        drawable->setTexId(chunk.texId);
-        drawable->setOnOff(chunkInfo->enable);
+        drawable->setTexId(texId);
+            drawable->setOnOff(request.chunkInfo->enable);
         drawable->setVisibleRange(chunk.minVis, chunk.maxVis, chunk.minVisBand, chunk.maxVisBand);
         
         std::vector<Point3f> locs((chunk.sampleX+1)*(chunk.sampleY+1));
@@ -241,7 +409,7 @@ static const float SkirtFactor = 0.95;
             dispPts[2] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.ur()));
             dispPts[3] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoMbr.ul()));
             
-        // Rotate around the center
+            // Rotate around the center
             Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
             Eigen::Affine3f rot(AngleAxisf(chunk.rotation,center));
             Eigen::Matrix4f mat = rot.matrix();
@@ -257,26 +425,24 @@ static const float SkirtFactor = 0.95;
             Point3f vecA = dispPts[1] - dispPts[0];
             Point3f vecB = dispPts[2] - dispPts[3];
         
-        // Vertices
-        for (unsigned int iy=0;iy<chunk.sampleY+1;iy++)
-            for (unsigned int ix=0;ix<chunk.sampleX+1;ix++)
-            {
-                    Point3f ptA = dispPts[0] + ix * vecA / chunk.sampleX;
-                    Point3f ptB = dispPts[3] + ix * vecB / chunk.sampleX;
-                    Point3f dispLoc = ptA + iy * (ptB-ptA) / chunk.sampleY;
-                    if (!coordAdapter->isFlat())
-                        dispLoc.normalize();
+            // Vertices
+            for (unsigned int iy=0;iy<chunk.sampleY+1;iy++)
+                for (unsigned int ix=0;ix<chunk.sampleX+1;ix++)
+                {
+                        Point3f ptA = dispPts[0] + ix * vecA / chunk.sampleX;
+                        Point3f ptB = dispPts[3] + ix * vecB / chunk.sampleX;
+                        Point3f dispLoc = ptA + iy * (ptB-ptA) / chunk.sampleY;
+                        if (!coordAdapter->isFlat())
+                            dispLoc.normalize();
 
-                locs[iy*(chunk.sampleX+1)+ix] = dispLoc;
-                TexCoord texCoord(ix * texIncr.x(), 1.0-iy * texIncr.y());
-                texCoords[iy*(chunk.sampleX+1)+ix] = texCoord;
-                
-                drawable->addPoint(dispLoc);
-                drawable->addTexCoord(texCoord);
-                drawable->addNormal(dispLoc);
-            }
-        
-            
+                    locs[iy*(chunk.sampleX+1)+ix] = dispLoc;
+                    TexCoord texCoord(ix * texIncr.x(), 1.0-iy * texIncr.y());
+                    texCoords[iy*(chunk.sampleX+1)+ix] = texCoord;
+                    
+                    drawable->addPoint(dispLoc);
+                    drawable->addTexCoord(texCoord);
+                    drawable->addNormal(dispLoc);
+                }
         }
         
         // Two triangles per cell
@@ -285,12 +451,12 @@ static const float SkirtFactor = 0.95;
             for (unsigned int ix=0;ix<chunk.sampleX;ix++)
             {
                 BasicDrawable::Triangle triA,triB;
-                triA.verts[0] = iy*(chunk.sampleX+1)+ix;
-                triA.verts[1] = iy*(chunk.sampleX+1)+(ix+1);
+                triA.verts[0] = (iy+1)*(chunk.sampleX+1)+ix;
+                triA.verts[1] = iy*(chunk.sampleX+1)+ix;
                 triA.verts[2] = (iy+1)*(chunk.sampleX+1)+(ix+1);
-                triB.verts[0] = triA.verts[0];
-                triB.verts[1] = triA.verts[2];
-                triB.verts[2] = (iy+1)*(chunk.sampleX+1)+ix;
+                triB.verts[0] = triA.verts[2];
+                triB.verts[1] = triA.verts[1];
+                triB.verts[2] = iy*(chunk.sampleX+1)+(ix+1);
                 drawable->addTriangle(triA);
                 drawable->addTriangle(triB);
             }
@@ -299,13 +465,13 @@ static const float SkirtFactor = 0.95;
         // Build the skirts
         if (!ignoreEdgeMatching && !coordAdapter->isFlat())
         {
-            BasicDrawable *skirtDrawable = new BasicDrawable();
+            BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
             skirtDrawable->setType(GL_TRIANGLES);
             skirtDrawable->setLocalMbr(geoMbr);
             skirtDrawable->setDrawPriority(chunk.drawPriority);
             skirtDrawable->setDrawOffset(chunk.drawOffset);
             skirtDrawable->setTexId(chunk.texId);
-            skirtDrawable->setOnOff(chunkInfo->enable);
+                skirtDrawable->setOnOff(request.chunkInfo->enable);
             skirtDrawable->setVisibleRange(chunk.minVis, chunk.maxVis);
             skirtDrawable->setForceZBufferOn(true);
             
@@ -347,39 +513,68 @@ static const float SkirtFactor = 0.95;
             [self buildSkirt:skirtDrawable pts:skirtLocs tex:skirtTexCoords];
 
             chunkRep->drawIDs.insert(skirtDrawable->getId());
-            changeRequests.push_back(new AddDrawableReq(skirtDrawable));
+            if (chunkRep->usesAtlas)
+            {
+                skirtDrawable->applySubTexture(chunkRep->subTex);
+                    drawAtlas->addDrawable(skirtDrawable, changes);
+                chunkRep->drawables.push_back(skirtDrawable);
+            } else
+                    changes.push_back(new AddDrawableReq(skirtDrawable));
         }
-        
-        [EAGLContext setCurrentContext:layerThread.glContext];
-        WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        // Note: This is a giant hack
-        setupInfo->minZres = 0.0001;
-        drawable->setupGL(setupInfo, scene->getMemManager());
-        
+
         chunkRep->drawIDs.insert(drawable->getId());
-        changeRequests.push_back(new AddDrawableReq(drawable));
-    }
-    
-    scene->addChangeRequests(changeRequests);
+        if (chunkRep->usesAtlas)
+        {
+            drawable->applySubTexture(chunkRep->subTex);
+                drawAtlas->addDrawable(drawable, changes);
+            chunkRep->drawables.push_back(drawable);
+        } else
+                changes.push_back(new AddDrawableReq(drawable));
     
     chunkReps.insert(chunkRep);
 }
-
-// Do the work to remove the chunk from the scene
-- (void)runRemoveChunk:(NSNumber *)num
+            break;
+        case ChunkEnable:
 {
-    SimpleIdentity chunkId = [num integerValue];
-    
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkId));
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
+            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+            if (it == chunkReps.end())
+                return;
+            (*it)->enable(texAtlas,drawAtlas,changes);
+        }
+            break;
+        case ChunkDisable:
+        {
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
+            ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+            if (it == chunkReps.end())
+                return;
+            (*it)->disable(texAtlas,drawAtlas,changes);
+        }
+            break;
+        case ChunkRemove:
+        {
+            ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
     ChunkRepSet::iterator it = chunkReps.find(dummyRef);
     if (it == chunkReps.end())
         return;
     
     std::vector<ChangeRequest *> changeRequests;
-    (*it)->clear(scene,changeRequests);
-    scene->addChangeRequests(changeRequests);
+    (*it)->clear(scene,texAtlas,drawAtlas,changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     chunkReps.erase(it);
+}
+            break;
+    }
+}
+
+// Do the work to remove the chunk from the scene
+- (void)runRemoveChunk:(NSNumber *)num
+{
+    requests.push(ChunkRequest(ChunkRemove,[num integerValue]));
+    
+    [self processQueue];
 }
 
 - (void)runToggleChunk:(NSArray *)args
@@ -387,15 +582,13 @@ static const float SkirtFactor = 0.95;
     SimpleIdentity chunkId = [[args objectAtIndex:0] integerValue];
     bool enable = [[args objectAtIndex:1] boolValue];
     
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkId));
-    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-    if (it == chunkReps.end())
-        return;
-    
+    std::vector<ChangeRequest *> changes;
     if (enable)
-        (*it)->enable(scene);
+        requests.push(ChunkRequest(ChunkEnable,chunkId));
     else
-        (*it)->disable(scene);
+        requests.push(ChunkRequest(ChunkDisable,chunkId));
+
+    [self processQueue];
 }
 
 /// Add a single chunk on the spherical earth.  This returns and ID
@@ -410,7 +603,7 @@ static const float SkirtFactor = 0.95;
 
     SphericalChunkInfo *chunkInfo = [[SphericalChunkInfo alloc] init];
     chunkInfo->enable = enable;
-    chunkInfo->chunks = [NSArray arrayWithObject:chunk];
+    chunkInfo->chunk = chunk;
     chunkInfo->chunkId = Identifiable::genId();
     if ([NSThread currentThread] == layerThread)
         [self runAddChunk:chunkInfo];

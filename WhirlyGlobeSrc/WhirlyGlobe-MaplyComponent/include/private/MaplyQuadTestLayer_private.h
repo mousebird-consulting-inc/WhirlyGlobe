@@ -1,8 +1,8 @@
 /*
- *  TapMessage.mm
- *  WhirlyGlobeLib
+ *  MaplyQuadTestLayer_private.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 2/3/11.
+ *  Created by Steve Gifford on 3/19/13.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +18,12 @@
  *
  */
 
-#import "TapMessage.h"
+#import "MaplyViewControllerLayer.h"
+#import <WhirlyGlobe.h>
 
-using namespace WhirlyKit;
+@interface MaplyQuadTestLayer : MaplyViewControllerLayer <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 
-@implementation WhirlyGlobeTapMessage
-
-@synthesize view;
-@synthesize touchLoc;
-@synthesize whereGeo;
-@synthesize worldLoc;
-@synthesize heightAboveSurface;
-
-- (void)setWorldLocD:(WhirlyKit::Point3d)newLoc
-{
-    worldLoc = Point3f(newLoc.x(),newLoc.y(),newLoc.z());
-}
+/// Initialize
+- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer maxZoom:(int)maxZoom;
 
 @end

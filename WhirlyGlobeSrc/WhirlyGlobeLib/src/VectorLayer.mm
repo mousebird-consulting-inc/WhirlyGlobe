@@ -141,7 +141,7 @@ public:
             if (drawable)
                 flush();
                 
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Vector Layer");
             drawMbr.reset();
             drawable->setType(primType);
             // Adjust according to the vector info
@@ -270,7 +270,7 @@ public:
                 if (drawable)
                     flush();
                 
-                drawable = new BasicDrawable();
+                drawable = new BasicDrawable("Vector Layer");
                 drawMbr.reset();
                 drawable->setType(GL_TRIANGLES);
                 // Adjust according to the vector info
@@ -279,6 +279,7 @@ public:
                 drawable->setColor([vecInfo.color asRGBAColor]);
                 drawable->setDrawPriority(vecInfo->priority);
                 drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+//                drawable->setForceZBufferOn(true);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
@@ -372,7 +373,7 @@ protected:
              sit != sceneRep->drawIDs.end(); ++sit)
             changeRequests.push_back(new RemDrawableReq(*sit));
     }
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -473,7 +474,7 @@ protected:
     drawBuild.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);    
+    [layerThread addChangeRequests:(changeRequests)];
 }
 
 // Change a vector representation according to the request
@@ -491,20 +492,20 @@ protected:
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Turned it on or off
-            scene->addChangeRequest(new OnOffChangeRequest(*idIt, vecInfo->enable));
+            [layerThread addChangeRequest:(new OnOffChangeRequest(*idIt, vecInfo->enable))];
     
             // Changed color
             RGBAColor newColor = [vecInfo.color asRGBAColor];
-            scene->addChangeRequest(new ColorChangeRequest(*idIt, newColor));
+            [layerThread addChangeRequest:(new ColorChangeRequest(*idIt, newColor))];
             
             // Changed visibility
-            scene->addChangeRequest(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis));
+            [layerThread addChangeRequest:(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis))];
             
             // Changed line width
-            scene->addChangeRequest(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth));
+            [layerThread addChangeRequest:(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth))];
             
             // Changed draw priority
-            scene->addChangeRequest(new DrawPriorityChangeRequest(*idIt, vecInfo->priority));
+            [layerThread addChangeRequest:(new DrawPriorityChangeRequest(*idIt, vecInfo->priority))];
         }
     }
 }
@@ -523,7 +524,7 @@ protected:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveVector:) withObject:num afterDelay:sceneRep->fade];
@@ -531,7 +532,7 @@ protected:
         } else {
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             vectorReps.erase(it);
             
             delete sceneRep;

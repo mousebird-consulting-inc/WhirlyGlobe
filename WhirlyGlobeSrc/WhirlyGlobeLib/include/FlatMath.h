@@ -33,13 +33,17 @@ class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
 public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
+    GeoCoord localToGeographic(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
+    Point3d geographicToLocal3d(GeoCoord);
 
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);
+    Point3d localToGeocentric(Point3d);
     /// Convert from WGS84 geocentric to local coordinates
     Point3f geocentricToLocal(Point3f);
+    Point3d geocentricToLocal(Point3d);
         
     /// Return true if the other coordinate system is also Plate Carree
     bool isSameAs(CoordSystem *coordSys);
@@ -55,13 +59,17 @@ public:
     
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
+    GeoCoord localToGeographic(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
+    Point3d geographicToLocal3d(GeoCoord);
     
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);
+    Point3d localToGeocentric(Point3d);
     /// Convert from WGS84 geocentric to local coordinates
     Point3f geocentricToLocal(Point3f);
+    Point3d geocentricToLocal(Point3d);
     
     /// Return true if the other coordinate system is Flat Earth with the same origin
     bool isSameAs(CoordSystem *coordSys);
