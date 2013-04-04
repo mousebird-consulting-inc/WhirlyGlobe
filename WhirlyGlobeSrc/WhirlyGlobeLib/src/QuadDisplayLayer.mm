@@ -194,13 +194,17 @@ static float const BoundsEps = 10.0 / EarthRadius;
     // Now calculate normals for each of those
     for (unsigned int ii=0;ii<dispSolid->polys.size();ii++)
     {
-        std::vector<Point3d> &poly = dispSolid->polys[ii];
-        Point3d &p0 = poly[0];
-        Point3d &p1 = poly[1];
-        Point3d &p2 = poly[poly.size()-1];
-        Vector3d norm = (p1-p0).cross(p2-p0);
-        norm.normalize();
-        dispSolid->normals.push_back(norm);
+        if (coordAdapter->isFlat())
+            dispSolid->normals.push_back(Vector3d(0,0,1));
+        else {
+            std::vector<Point3d> &poly = dispSolid->polys[ii];
+            Point3d &p0 = poly[0];
+            Point3d &p1 = poly[1];
+            Point3d &p2 = poly[poly.size()-1];
+            Vector3d norm = (p1-p0).cross(p2-p0);
+            norm.normalize();
+            dispSolid->normals.push_back(norm);
+        }
     }
         
     return dispSolid;
