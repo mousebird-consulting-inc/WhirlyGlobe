@@ -63,11 +63,6 @@ class Scene;
 /// Number of buffers we allocate at once
 #define WhirlyKitOpenGLMemCacheAllocUnit 32
 
-/// We'll only keep this many buffers or textures around for reuse
-#define WhirlyKitOpenGLMemCacheMax 32
-/// Number of buffers we allocate at once
-#define WhirlyKitOpenGLMemCacheAllocUnit 8
-
 /// Used to manage OpenGL buffer IDs and such.
 /// They're expensive to create and delete, so we try to do it
 ///  outside the renderer.
