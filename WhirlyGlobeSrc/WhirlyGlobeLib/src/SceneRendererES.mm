@@ -30,10 +30,10 @@ namespace WhirlyKit
     
 // Compare two matrices float by float
 // The default comparison seems to have an epsilon and the cwise version isn't getting picked up
-bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
+bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 {
-    float *floatsA = a.data();
-    float *floatsB = b.data();
+    double *floatsA = a.data();
+    double *floatsB = b.data();
     
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
@@ -60,6 +60,72 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 @synthesize viewAndModelMat;
 @synthesize program;
 @synthesize lights;
+@synthesize stateOpt;
+
+@end
+
+@implementation WhirlyKitOpenGLStateOptimizer
+{
+    int activeTexture;
+    int depthMask;
+    int depthTest;
+    int progId;
+}
+
+- (id)init
+{
+    self = [super init];
+    [self reset];
+    
+    return self;
+}
+
+- (void)reset
+{
+    activeTexture = -1;
+    depthMask = 0;
+    depthTest = -1;
+    progId = -1;
+}
+
+- (void)setActiveTexture:(GLenum)newActiveTexture
+{
+    if (newActiveTexture != activeTexture)
+    {
+        glActiveTexture(newActiveTexture);
+        activeTexture = newActiveTexture;
+    }
+}
+
+- (void)setDepthMask:(bool)newDepthMask
+{
+    if (depthMask == -1 || (bool)depthMask != newDepthMask)
+    {
+        glDepthMask(newDepthMask);
+        depthMask = newDepthMask;
+    }
+}
+
+- (void)setEnableDepthTest:(bool)newEnable
+{
+    if (depthTest == -1 || (bool)depthTest != newEnable)
+    {
+        if (newEnable)
+            glEnable(GL_DEPTH_TEST);
+        else
+            glDisable(GL_DEPTH_TEST);
+        depthTest = newEnable;
+    }
+}
+
+- (void)setUseProgram:(GLuint)newProgId
+{
+    if (progId != newProgId)
+    {
+        glUseProgram(newProgId);
+        progId = newProgId;
+    }
+}
 
 @end
 
@@ -140,7 +206,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
-	
+    	
 	if (defaultFramebuffer)
 	{
 		glDeleteFramebuffers(1, &defaultFramebuffer);
@@ -221,20 +287,21 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 }
 
 // Calculate an acceptable MBR from world coords
-- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4f *)modelTrans frameSize:(Point2f)frameSize
+- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4d *)modelTrans frameSize:(Point2f)frameSize
 {
     Mbr localScreenMbr;
     
     for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
     {
-        CGPoint screenPt = [globeView pointOnScreenFromSphere:corners[ii] transform:modelTrans frameSize:frameSize];
+        Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
+        CGPoint screenPt = [globeView pointOnScreenFromSphere:cornerPt transform:modelTrans frameSize:frameSize];
         localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     
     return localScreenMbr;
 }
 
-- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -250,7 +317,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     }
 }
 
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -325,8 +392,8 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     if (lastDraw < renderUntil)
         return true;
     
-    Matrix4f newModelMat = [theView calcModelMatrix];
-    Matrix4f newViewMat = [theView calcViewMatrix];
+    Matrix4d newModelMat = [theView calcModelMatrix];
+    Matrix4d newViewMat = [theView calcViewMatrix];
     
     // Should be exactly the same
     if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat))

@@ -31,11 +31,28 @@
 	float startZ;
 	WhirlyGlobeView *globeView;
     float minHeight,maxHeight;
+    // If set we're modifying the tilt within a certain height range
+    bool tiltZoom;
+    float minTilt,maxTilt;
+    float minTiltHeight,maxTiltHeight;
 }
 @property (nonatomic,assign) float minHeight,maxHeight;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
 + (WGPinchDelegateFixed *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
+
+/// If this is called, the pan delegate will vary the tilt between the given values for the
+///  given height range.
+- (void)setMinTilt:(float)minTilt maxTilt:(float)maxTilt minHeight:(float)minHeight maxHeight:(float)maxHeight;
+
+/// Returns true if the tilt zoom mode is set and the appropriate values
+- (bool)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight;
+
+/// Turn off the tilt controlled by zoom height
+- (void)clearTiltZoom;
+
+/// Calculate the current tilt based on the tilt zoom values, if they're there
+- (float)calcTilt;
 
 @end

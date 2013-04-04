@@ -533,7 +533,7 @@ public:
                 if (!labelInfo.screenObject)
                 {
                     // And a corresponding drawable
-                    BasicDrawable *drawable = new BasicDrawable();
+                    BasicDrawable *drawable = new BasicDrawable("Label Layer");
                     drawable->setDrawOffset(labelInfo.drawOffset);
                     drawable->setType(GL_TRIANGLES);
                     drawable->setColor(RGBAColor(255,255,255,255));
@@ -550,7 +550,7 @@ public:
             if (!labelInfo.screenObject)
             {
                 // Add a drawable for just the one label because it's too big
-                drawable = new BasicDrawable();
+                drawable = new BasicDrawable("Label Layer");
                 drawable->setDrawOffset(labelInfo.drawOffset);
                 drawable->setType(GL_TRIANGLES);
                 drawable->setColor(RGBAColor(255,255,255,255));
@@ -629,7 +629,7 @@ public:
             if (!texAtlas)
             {
                 // This texture was unique to the object
-                Texture *tex = new Texture(textImage);
+                Texture *tex = new Texture("Label Layer",textImage);
                 if (labelInfo.screenObject)
                     tex->setUsesMipmaps(false);
                 changeRequests.push_back(new AddTextureReq(tex));
@@ -696,7 +696,7 @@ public:
             //  the drawable and make a new texture
             if (!texAtlas)
             {
-                Texture *tex = new Texture(textImage);
+                Texture *tex = new Texture("Label Layer",textImage);
                 drawable->setTexId(tex->getId());
                 
                 if (labelInfo.fade > 0.0)
@@ -784,7 +784,7 @@ public:
                 if (it == iconDrawables.end())
                 {
                     // Create one
-                    iconDrawable = new BasicDrawable();
+                    iconDrawable = new BasicDrawable("Label Layer");
                     iconDrawable->setDrawOffset(labelInfo.drawOffset);
                     iconDrawable->setType(GL_TRIANGLES);
                     iconDrawable->setColor(RGBAColor(255,255,255,255));
@@ -931,7 +931,7 @@ public:
             changeRequests.push_back(new RemTextureReq(*idIt));
         for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
              idIt != labelRep->screenIDs.end(); ++idIt)
-            scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
+            [layerThread addChangeRequest:(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt))];
         
         for (SimpleIDSet::iterator idIt = labelRep->selectIDs.begin();
              idIt != labelRep->selectIDs.end(); ++idIt)
@@ -940,7 +940,7 @@ public:
         if (layoutLayer && !labelRep->screenIDs.empty())
             [layoutLayer removeLayoutObjects:labelRep->screenIDs];
     }
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:changeRequests];
     
     [self clear];
 }
@@ -976,22 +976,9 @@ public:
 }
 
 - (void)mergeRenderedLabels:(LabelRenderer *)labelRenderer
-{
-    // We'll run through the textures and create them here
-    [EAGLContext setCurrentContext:layerThread.glContext];
-    for (unsigned int ii=0;ii<labelRenderer->changeRequests.size();ii++)
-    {
-        ChangeRequest *cr = labelRenderer->changeRequests[ii];
-        AddTextureReq *texReq = dynamic_cast<AddTextureReq *>(cr);
-        if (texReq)
-        {
-            Texture *tex = texReq->getTex();
-            tex->createInGL(true, scene->getMemManager());
-        }
-    }
-    
+{    
     // Flush out the changes
-    scene->addChangeRequests(labelRenderer->changeRequests);
+    [layerThread addChangeRequests:labelRenderer->changeRequests];
     
     // And any layout constraints to the layout engine
     if (layoutLayer && ([labelRenderer->layoutObjects count] > 0))
@@ -1033,11 +1020,11 @@ public:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade))];
             
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
-                scene->addChangeRequest(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
+                [layerThread addChangeRequest:(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveLabel:) withObject:num afterDelay:labelRep->fade];
@@ -1045,10 +1032,10 @@ public:
         } else {
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                  idIt != labelRep->texIDs.end(); ++idIt)        
-                scene->addChangeRequest(new RemTextureReq(*idIt));
+                [layerThread addChangeRequest:(new RemTextureReq(*idIt))];
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
                 scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
@@ -1119,7 +1106,7 @@ public:
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Changed visibility
-            scene->addChangeRequest(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
+            [layerThread addChangeRequest:(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis))];
         }
     }    
 }

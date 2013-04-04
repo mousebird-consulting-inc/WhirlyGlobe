@@ -25,12 +25,9 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewState
 
-- (id)initWithView:(MaplyView *)mapView
+- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer
 {
-    self = [super initWithView:mapView];
-    if (self)
-    {
-    }
+    self = [super initWithView:mapView renderer:renderer];
     
     return self;
 }

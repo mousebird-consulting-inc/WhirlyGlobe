@@ -37,4 +37,16 @@ Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f 
     return outPt;
 }
 
+Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord)
+{
+    // Easy if the coordinate systems are the same
+    if (inSystem->isSameAs(outSystem))
+        return inCoord;
+    
+    // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
+    Point3d geoCPt = inSystem->localToGeocentric(inCoord);
+    Point3d outPt = outSystem->geocentricToLocal(geoCPt);
+    return outPt;
+}
+    
 }

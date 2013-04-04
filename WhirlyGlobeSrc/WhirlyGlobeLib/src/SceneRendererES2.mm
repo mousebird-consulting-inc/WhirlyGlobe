@@ -75,6 +75,10 @@ public:
     NSMutableArray *lights;
     CFTimeInterval lightsLastUpdated;
     WhirlyKitMaterial *defaultMat;
+    dispatch_queue_t contextQueue;
+    dispatch_semaphore_t frameRenderingSemaphore;
+    bool renderSetup;
+    WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
 }
 
 - (id) init
@@ -95,8 +99,21 @@ public:
     [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
 
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
+    
+    frameRenderingSemaphore = dispatch_semaphore_create(1);
+    contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
+    
+    renderSetup = false;
+
+    // Note: Try to turn this back on at some point
+    _dispatchRendering = false;
 
     return self;
+}
+
+- (void) dealloc
+{
+    // Clean up semaphore?
 }
 
 static const char *vertexShaderTri =
@@ -151,9 +168,9 @@ static const char *vertexShaderTri =
 "        ambient += light[ii].ambient;\n"
 "        diffuse += ndotl * light[ii].diffuse;\n"
 "     }\n"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a);\n"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;\n"
 "   } else {\n"
-"     v_color = a_color;\n"
+"     v_color = a_color * u_fade;\n"
 "   }\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
@@ -171,6 +188,7 @@ static const char *fragmentShaderTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
+//"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
@@ -180,6 +198,7 @@ static const char *fragmentShaderTri =
 
 static const char *vertexShaderLine =
 "uniform mat4  u_mvpMatrix;                   \n"
+"uniform float u_fade;                        \n"
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec4 a_color;                     \n"
@@ -188,7 +207,7 @@ static const char *vertexShaderLine =
 "\n"
 "void main()                                 \n"
 "{                                           \n"
-"   v_color = a_color;                       \n"
+"   v_color = a_color * u_fade;                       \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -261,9 +280,15 @@ static const char *fragmentShaderLine =
     triggerDraw = true;
 }
 
+- (void) setClearColor:(UIColor *)color
+{
+    clearColor = [color asRGBAColor];
+    renderSetup = false;
+}
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
+    renderSetup = false;
     bool ret = [super resizeFromLayer:layer];
     
     return ret;
@@ -274,9 +299,30 @@ static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
+    if (_dispatchRendering)
+    {
+        if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
+            return;
+        
+        dispatch_async(contextQueue,
+                       ^{
+                           [self renderAsync];
+                           dispatch_semaphore_signal(frameRenderingSemaphore);
+                       });
+    } else
+        [self renderAsync];
+}
+
+- (void) renderAsync
+{
+    frameCount++;
+    
     if (framebufferWidth <= 0 || framebufferHeight <= 0)
         return;
-    
+
+    if (!renderStateOptimizer)
+        renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
+
 	[theView animate];
 
     // Decide if we even need to draw
@@ -284,13 +330,10 @@ static const float ScreenOverlap = 0.1;
         return;
     
     lastDraw = CFAbsoluteTimeGetCurrent();
-    
+        
     if (perfInterval > 0)
-        perfTimer.startTiming("aaRender");
-    
-	if (frameCountStart)
-		frameCountStart = CFAbsoluteTimeGetCurrent();
-	
+        perfTimer.startTiming("Render Frame");
+    	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
@@ -299,74 +342,70 @@ static const float ScreenOverlap = 0.1;
         [EAGLContext setCurrentContext:context];
     CheckGLError("SceneRendererES2: setCurrentContext");
     
-    // Turn on blending
-    // Note: Only need to do this once
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    if (!renderSetup)
+    {
+        // Turn on blending
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        glEnable(GL_BLEND);
+    }
 
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
     if ([theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)theView;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-    CheckGLError("SceneRendererES2: glBindFramebuffer");
-    glViewport(0, 0, framebufferWidth, framebufferHeight);
-    CheckGLError("SceneRendererES2: glViewport");
+    if (!renderSetup)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+        CheckGLError("SceneRendererES2: glBindFramebuffer");
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        CheckGLError("SceneRendererES2: glViewport");
+    }
 
     // Get the model and view matrices
-    Eigen::Matrix4f modelTrans = [theView calcModelMatrix];
-    Eigen::Matrix4f viewTrans = [theView calcViewMatrix];
+    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
+    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    Eigen::Matrix4d viewTrans4d = [theView calcViewMatrix];
+    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    // Borrowed from the "OpenGL ES 2.0 Programming" book
-	Point2f frustLL,frustUR;
-	GLfloat near=0,far=0;
-	[theView calcFrustumWidth:framebufferWidth height:framebufferHeight ll:frustLL ur:frustUR near:near far:far];
-    Eigen::Matrix4f projMat;
-    Point3f delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
-    projMat.setIdentity();
-    projMat(0,0) = 2.0f * near / delta.x();
-    projMat(1,0) = projMat(2,0) = projMat(3,0) = 0.0f;
-
-    projMat(1,1) = 2.0f * near / delta.y();
-    projMat(0,1) = projMat(2,1) = projMat(3,1) = 0.0f;
-
-    projMat(0,2) = (frustUR.x()+frustLL.x()) / delta.x();
-    projMat(1,2) = (frustUR.y()+frustLL.y()) / delta.y();
-    projMat(2,2) = -(near + far ) / delta.z();
-    projMat(3,2) = -1.0f;
+    Eigen::Matrix4d projMat4d = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
-    projMat(2,3) = -2.0f * near * far / delta.z();
-    projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
-    
+    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     
     switch (zBufferMode)
     {
         case zBufferOn:
-            glDepthMask(GL_TRUE);
-            glEnable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_TRUE];
+            [renderStateOptimizer setEnableDepthTest:true];
             break;
         case zBufferOff:
-            glDepthMask(GL_FALSE);
-            glDisable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_FALSE];
+            [renderStateOptimizer setEnableDepthTest:false];
             break;
         case zBufferOffUntilLines:
-            glDepthMask(GL_TRUE);
-            glEnable(GL_DEPTH_TEST);
+            [renderStateOptimizer setDepthMask:GL_TRUE];
+            [renderStateOptimizer setEnableDepthTest:true];
             glDepthFunc(GL_ALWAYS);
             break;
     }
     
-	glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
-    CheckGLError("SceneRendererES2: glClearColor");
+    if (!renderSetup)
+    {
+        // Note: What happens if they change this?
+        glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
+        CheckGLError("SceneRendererES2: glClearColor");
+    }
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     CheckGLError("SceneRendererES2: glClear");
 
-	glEnable(GL_CULL_FACE);
-    CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
+    if (!renderSetup)
+    {
+        glEnable(GL_CULL_FACE);
+        CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
+    }
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Setup");
@@ -384,12 +423,13 @@ static const float ScreenOverlap = 0.1;
         frameInfo.theView = theView;
         frameInfo.modelTrans = modelTrans;
         frameInfo.scene = scene;
-        frameInfo.frameLen = duration;
+//        frameInfo.frameLen = duration;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
         frameInfo.viewAndModelMat = modelAndViewMat;
         frameInfo.lights = lights;
+        frameInfo.stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -428,7 +468,7 @@ static const float ScreenOverlap = 0.1;
         // Stretch the screen MBR a little for safety
         screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
         screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;
@@ -494,7 +534,7 @@ static const float ScreenOverlap = 0.1;
                 if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
                     depthMaskOn = false;
-                    glDisable(GL_DEPTH_TEST);
+                    [renderStateOptimizer setEnableDepthTest:false];
                 }
             }
             
@@ -528,7 +568,7 @@ static const float ScreenOverlap = 0.1;
                 OpenGLES2Program *program = scene->getProgram(drawProgramId);
                 if (program)
                 {
-                    glUseProgram(program->getProgram());
+                    [renderStateOptimizer setUseProgram:program->getProgram()];
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
                         program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
@@ -575,7 +615,7 @@ static const float ScreenOverlap = 0.1;
         {
             curProgramId = EmptyIdentity;
             
-            glDisable(GL_DEPTH_TEST);
+            [renderStateOptimizer setEnableDepthTest:false];
             // Sort by draw priority (and alpha, I guess)
             for (unsigned int ii=0;ii<screenDrawables.size();ii++)
             {
@@ -617,7 +657,7 @@ static const float ScreenOverlap = 0.1;
                         OpenGLES2Program *program = scene->getProgram(drawProgramId);
                         if (program)
                         {
-                            glUseProgram(program->getProgram());
+                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
                             frameInfo.program = program;
@@ -637,20 +677,40 @@ static const float ScreenOverlap = 0.1;
             perfTimer.stopTiming("Generators - Draw 2D");
     }
     
+//    if (perfInterval > 0)
+//        perfTimer.startTiming("glFinish");
+    
+//    glFlush();
+//    glFinish();
+    
+//    if (perfInterval > 0)
+//        perfTimer.stopTiming("glFinish");
+    
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
     
-    glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    // Explicitly discard the depth buffer
+    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
+    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+    CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
+
+//    if (!renderSetup)
+//    {
+        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+        CheckGLError("SceneRendererES2: glBindRenderbuffer");
+//    }
+
     [context presentRenderbuffer:GL_RENDERBUFFER];
+    CheckGLError("SceneRendererES2: presentRenderbuffer");
 
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
     
     if (perfInterval > 0)
-        perfTimer.stopTiming("aaRender");
+        perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
-	if (perfInterval > 0 && frameCount++ > perfInterval)
+	if (perfInterval > 0 && frameCount > perfInterval)
 	{
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
 		NSTimeInterval howLong =  now - frameCountStart;;
@@ -659,12 +719,15 @@ static const float ScreenOverlap = 0.1;
 		frameCount = 0;
         
         NSLog(@"---Rendering Performance---");
+        NSLog(@" Frames per sec = %.2f",framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}
     
     if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
+    
+    renderSetup = true;
 }
 
 @end

@@ -30,11 +30,11 @@
     /// Set if we're in the process of panning
 	BOOL panning;
 	/// The view transform when we started
-	Eigen::Matrix4f startTransform;
+	Eigen::Matrix4d startTransform;
 	/// Where we first touched the sphere
-	WhirlyKit::Point3f startOnSphere;
+	WhirlyKit::Point3d startOnSphere;
 	/// Rotation when we started
-	Eigen::Quaternionf startQuat;
+	Eigen::Quaterniond startQuat;
 }
 
 /// Creates a pan gesture delegate and wires it up to the given view.

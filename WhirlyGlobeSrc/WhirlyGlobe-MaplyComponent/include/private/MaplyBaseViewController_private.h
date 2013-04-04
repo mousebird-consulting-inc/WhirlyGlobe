@@ -32,6 +32,7 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
+#import "MaplyQuadTestLayer_private.h"
 
 @interface MaplyBaseViewController()
 {
@@ -94,6 +95,9 @@
 /// LoadSetup is where the Component does all the WhirlyGlobe/Maply specific setup.  If you override this,
 ///  be sure to call [super loadSetup] first and then do your thing.
 - (void) loadSetup;
+
+/// Create the EAGLView
+- (void) loadSetup_glView;
 
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
 - (WhirlyKitView *) loadSetup_view;

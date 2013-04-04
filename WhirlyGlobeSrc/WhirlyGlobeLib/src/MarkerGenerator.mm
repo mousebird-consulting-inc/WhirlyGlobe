@@ -48,7 +48,7 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
     BasicDrawable *draw = NULL;
     if (it == drawables.end())
     {
-        draw = new BasicDrawable();
+        draw = new BasicDrawable("Marker Generator");
         draw->setType(GL_TRIANGLES);
         draw->setTexId(texID);
         drawables[texID] = draw;

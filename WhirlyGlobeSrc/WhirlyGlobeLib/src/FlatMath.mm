@@ -29,9 +29,19 @@ GeoCoord PlateCarreeCoordSystem::localToGeographic(Point3f pt)
     return GeoCoord(pt.x(),pt.y());
 }
 
+GeoCoord PlateCarreeCoordSystem::localToGeographic(Point3d pt)
+{
+    return GeoCoord(pt.x(),pt.y());
+}
+    
 Point3f PlateCarreeCoordSystem::geographicToLocal(GeoCoord geo)
 {
     return Point3f(geo.lon(),geo.lat(),0.0);
+}
+
+Point3d PlateCarreeCoordSystem::geographicToLocal3d(GeoCoord geo)
+{
+    return Point3d(geo.lon(),geo.lat(),0.0);
 }
     
 Point3f PlateCarreeCoordSystem::localToGeocentric(Point3f localPt)
@@ -39,8 +49,18 @@ Point3f PlateCarreeCoordSystem::localToGeocentric(Point3f localPt)
     return GeoCoordSystem::LocalToGeocentric(Point3f(localPt.x(),localPt.y(),localPt.z()));
 }
 
+Point3d PlateCarreeCoordSystem::localToGeocentric(Point3d localPt)
+{
+    return GeoCoordSystem::LocalToGeocentric(Point3d(localPt.x(),localPt.y(),localPt.z()));
+}
+    
 /// Convert from WGS84 geocentric to local coordinates
 Point3f PlateCarreeCoordSystem::geocentricToLocal(Point3f geocPt)
+{
+    return GeoCoordSystem::GeocentricToLocal(geocPt);
+}
+
+Point3d PlateCarreeCoordSystem::geocentricToLocal(Point3d geocPt)
 {
     return GeoCoordSystem::GeocentricToLocal(geocPt);
 }
@@ -71,6 +91,15 @@ GeoCoord FlatEarthCoordSystem::localToGeographic(Point3f pt)
     return coord;
 }
 
+GeoCoord FlatEarthCoordSystem::localToGeographic(Point3d pt)
+{
+    GeoCoord coord;
+    coord.lon() = pt.x() / (MetersPerRadian * converge) + origin.lon();
+    coord.lat() = pt.y() / MetersPerRadian + origin.lat();
+    
+    return coord;
+}
+    
 Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
 {
     Point3f pt;
@@ -81,32 +110,16 @@ Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo)
     return pt;
 }
 
-// Note: This needs to be turned into a display adapter
-//Point3f FlatEarthCoordSystem::localToGeocentricish(Point3f inPt)
-//{
-//    // Note: This is entirely bogus.  We need to use proj4 and take the elipsoid into account
-//    GeoCoord coord = localToGeographic(inPt);
-//    Point3f pt = GeoCoordSystem::LocalToGeocentricish(Point3f(coord.lon(),coord.lat(),0.0));
-//    
-//    // And don't forget the Z
-//    pt *= 1.0 + inPt.z() / EarthRadius;
-//    
-//    return pt;
-//}
-//
-//Point3f FlatEarthCoordSystem::geocentricishToLocal(Point3f inPt)
-//{
-//    // Note: Entirely bogus. Pull in proj4 for the elipsoid
-//    float len = inPt.norm() - 1.0;
-//    inPt.normalize();
-//
-//    Point3f coord = GeoCoordSystem::GeocentricishToLocal(inPt);
-//    Point3f pt = geographicToLocal(GeoCoord(coord.x(),coord.y()));
-//    pt.z() = len * EarthRadius;
-//    
-//    return pt;
-//}
+Point3d FlatEarthCoordSystem::geographicToLocal3d(GeoCoord geo)
+{
+    Point3d pt;
+    pt.x() = (geo.lon() - origin.lon()) * converge * MetersPerRadian;
+    pt.y() = (geo.lat() - origin.lat()) * MetersPerRadian;
+    pt.z() = 0.0;
     
+    return pt;
+}
+        
 /// Convert from local coordinates to WGS84 geocentric
 Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt)
 {
@@ -114,6 +127,12 @@ Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt)
     return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
 
+Point3d FlatEarthCoordSystem::localToGeocentric(Point3d localPt)
+{
+    GeoCoord geoCoord = localToGeographic(localPt);
+    return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
+}
+    
 /// Convert from WGS84 geocentric to local coordinates
 Point3f FlatEarthCoordSystem::geocentricToLocal(Point3f geocPt)
 {
@@ -122,6 +141,13 @@ Point3f FlatEarthCoordSystem::geocentricToLocal(Point3f geocPt)
     return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());
 }
 
+Point3d FlatEarthCoordSystem::geocentricToLocal(Point3d geocPt)
+{
+    Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return Point3d(localPt.x(),localPt.y(),geoCoordPlus.z());
+}
+    
 bool FlatEarthCoordSystem::isSameAs(CoordSystem *coordSys)
 {
     FlatEarthCoordSystem *other = dynamic_cast<FlatEarthCoordSystem *>(coordSys);
