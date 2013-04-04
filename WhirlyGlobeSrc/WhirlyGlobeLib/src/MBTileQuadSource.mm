@@ -24,6 +24,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitMBTileQuadSource
+{
+    bool tilesStyles;
+}
 
 - (id)initWithPath:(NSString *)path
 {
