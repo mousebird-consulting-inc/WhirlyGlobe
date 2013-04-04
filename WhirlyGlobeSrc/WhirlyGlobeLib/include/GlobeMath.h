@@ -32,17 +32,23 @@ class GeoCoordSystem : public WhirlyKit::CoordSystem
 public:
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
+    GeoCoord localToGeographic(Point3d);
     /// Convert from lat/lon t the local coordinate system
     Point3f geographicToLocal(GeoCoord);
+    Point3d geographicToLocal3d(GeoCoord);
 
     /// Convert from local coordinates to WGS84 geocentric
     Point3f localToGeocentric(Point3f);
+    Point3d localToGeocentric(Point3d);
     /// Static version for convenience
     static Point3f LocalToGeocentric(Point3f);
+    static Point3d LocalToGeocentric(Point3d);
     /// Convert from WGS84 geocentric to local coordinates
     Point3f geocentricToLocal(Point3f);
+    Point3d geocentricToLocal(Point3d);
     /// Static version for convenience
     static Point3f GeocentricToLocal(Point3f);
+    static Point3d GeocentricToLocal(Point3d);
     
     /// Convenience routine to convert a whole MBR to local coordinates
     static Mbr GeographicMbrToLocal(GeoMbr);
@@ -68,16 +74,21 @@ public:
     
     /// Convert from geographic+height to fake display geocentric
     virtual Point3f localToDisplay(Point3f);
+    virtual Point3d localToDisplay(Point3d);
     /// Static version
     static Point3f LocalToDisplay(Point3f);
+    static Point3d LocalToDisplay(Point3d);
 
     /// Convert from fake display geocentric to geographic+height
     virtual Point3f displayToLocal(Point3f);
+    virtual Point3d displayToLocal(Point3d);
     /// Static version
     static Point3f DisplayToLocal(Point3f);
+    static Point3d DisplayToLocal(Point3d);
     
     /// Return a normal for the given point
     virtual Point3f normalForLocal(Point3f);
+    virtual Point3d normalForLocal(Point3d);
     
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() { return &geoCoordSys; }

@@ -29,16 +29,18 @@ using namespace WhirlyKit;
 
 - (void) clear
 {
+    if (!scene)
+        return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
         [shader shutdown];
+    scene->teardownGL();
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
@@ -83,9 +85,20 @@ using namespace WhirlyKit;
     theClearColor = nil;
 }
 
+- (void) dealloc
+{
+    if (scene)
+        [self clear];
+}
+
 - (WhirlyKitView *) loadSetup_view
 {
     return nil;
+}
+
+- (void)loadSetup_glView
+{
+    glView = [[WhirlyKitEAGLView alloc] init];
 }
 
 - (WhirlyKit::Scene *) loadSetup_scene
@@ -100,6 +113,7 @@ static const char *vertexShaderNoLightTri =
 "attribute vec2 a_texCoord;                  \n"
 "attribute vec4 a_color;                     \n"
 "attribute vec3 a_normal;                    \n"
+"uniform float u_fade;                        \n"
 "\n"
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
@@ -107,7 +121,7 @@ static const char *vertexShaderNoLightTri =
 "void main()                                 \n"
 "{                                           \n"
 "   v_texCoord = a_texCoord;                 \n"
-"   v_color = a_color;\n"
+"   v_color = a_color * u_fade;\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
@@ -124,9 +138,10 @@ static const char *fragmentShaderNoLightTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
+"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  if (baseColor.a < 0.1)                            \n"
-"      discard;                                      \n"
+//"  if (baseColor.a < 0.1)                            \n"
+//"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
@@ -136,12 +151,13 @@ static const char *vertexShaderNoLightLine =
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec4 a_color;                     \n"
+"uniform float u_fade;                        \n"
 "\n"
 "varying vec4      v_color;                          \n"
 "\n"
 "void main()                                 \n"
 "{                                           \n"
-"   v_color = a_color;                       \n"
+"   v_color = a_color * u_fade;                       \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -204,6 +220,8 @@ static const char *fragmentShaderNoLightLine =
 {
     userLayers = [NSMutableArray array];
     
+    [self loadSetup_glView];
+
 	// Set up the OpenGL ES renderer
     NSNumber *renderNum = hints[kWGRendererOpenGLVersion];
     int whichRenderer = 2;
@@ -231,7 +249,7 @@ static const char *fragmentShaderNoLightLine =
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
     // Note: Should be able to change this
-	glView.frameInterval = 2;  // 30 fps
+	glView.frameInterval = 1;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
@@ -534,6 +552,16 @@ static const float PerfOutputDelay = 15.0;
     return newLayer;
 }
 
+- (MaplyViewControllerLayer *)addQuadTestLayerMaxZoom:(int)maxZoom
+{
+    MaplyQuadTestLayer *newLayer = [[MaplyQuadTestLayer alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer maxZoom:maxZoom];
+    if (!newLayer)
+        return nil;
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls
@@ -681,6 +709,7 @@ static const float PerfOutputDelay = 15.0;
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    [sceneRenderer setTriggerDraw];
     
     // And add it to the view hierarchy
     if ([viewTrack.view superview] == nil)
@@ -706,6 +735,7 @@ static const float PerfOutputDelay = 15.0;
         vpGen->removeView(theTracker.view);
         if ([theTracker.view superview] == glView)
             [theTracker.view removeFromSuperview];
+        [sceneRenderer setTriggerDraw];
     }
 }
 

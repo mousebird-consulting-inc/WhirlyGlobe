@@ -29,6 +29,8 @@ namespace WhirlyKit
 {
 
 typedef Eigen::Vector3f Point3f;
+typedef Eigen::Vector3d Point3d;
+typedef Eigen::Vector2d Point2d;
 typedef Eigen::Vector2f Point2f;
     
 	
@@ -137,6 +139,7 @@ public:
     
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(std::vector<Point2f> &pts) const;
+    void asPoints(std::vector<Point2d> &pts) const;
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
@@ -208,9 +211,34 @@ protected:
 	
 	GeoCoord pt_ll,pt_ur;
 };
+    
+/** 3D ray representation.  Mostly used for intersection calculation.
+  */
+class Ray3f
+{
+public:
+    Ray3f() { }
+    Ray3f(Point3f org,Point3f dir) : org(org), dir(dir) { }
+    
+    Point3f org,dir;
+};
 
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
-Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b);
+Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b);
+
+/// Convert a 4f matrix to a 4d matrix
+Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
+
+/// Convert a 4d matrix to a 4f matrix
+Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
+    
+/// Floats to doubles
+Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
+/// Doubles to floats
+Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec);
+
+/// Floats to doubles
+Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec);
 
 }

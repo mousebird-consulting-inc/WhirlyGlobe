@@ -73,8 +73,8 @@ using namespace WhirlyGlobe;
     float dist2 = 0.0;
     if (lastViewState)
     {
-        Vector3f eye0 = [lastViewState eyePos];
-        Vector3f eye1 = [newViewState eyePos];
+        Vector3d eye0 = [lastViewState eyePos];
+        Vector3d eye1 = [newViewState eyePos];
         
         dist2 = (eye0-eye1).squaredNorm();
     }

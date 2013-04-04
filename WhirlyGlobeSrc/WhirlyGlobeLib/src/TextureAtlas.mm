@@ -158,10 +158,11 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     imageInst.gridCellsY = gridCellsY;
     imageInst.gridCellX = foundX;
     imageInst.gridCellY = foundY;
-    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX;
-    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY;
-    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX;
-    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY;
+    Point2f halfPix(0.5/(float)texSizeX,0.5/(float)texSizeY);
+    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX + halfPix.x();
+    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY + halfPix.y();
+    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX - 2*halfPix.x();
+    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY - 2*halfPix.y();
     [images addObject:imageInst];
     
     org = imageInst->org;
@@ -207,7 +208,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         *retImage = resultImage;
     UIGraphicsEndImageContext();
     
-    Texture *texture = new Texture(resultImage);
+    Texture *texture = new Texture("Texture Atlas",resultImage);
     texture->setId(texId);
     // Note: Having trouble setting up mipmaps correctly
     texture->setUsesMipmaps(false);
@@ -282,7 +283,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return subTex.getId();
 }
 
-- (void)processIntoScene:(Scene *)scene texIDs:(std::set<SimpleIdentity> *)texIDs
+- (void)processIntoScene:(Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<SimpleIdentity> *)texIDs
 {
     // Create the textures, add them to the scene
     for (TextureAtlas *atlas in atlases)
@@ -293,7 +294,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
             if (texIDs)
                 texIDs->insert(tex->getId());
             // Note: Should be setting the textures up on this thread
-            scene->addChangeRequest(new AddTextureReq(tex));
+            [layerThread addChangeRequest:(new AddTextureReq(tex))];
         }
     }
     [atlases removeAllObjects];

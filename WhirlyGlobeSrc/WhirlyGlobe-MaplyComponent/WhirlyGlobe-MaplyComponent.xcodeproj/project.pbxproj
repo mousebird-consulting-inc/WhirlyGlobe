@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B08E1D016F8CBCF0084441D /* MaplyQuadTestLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08E1CF16F8CBCF0084441D /* MaplyQuadTestLayer_private.h */; };
+		2B08E1D316F8CBD90084441D /* MaplyQuadTestLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08E1D216F8CBD90084441D /* MaplyQuadTestLayer.mm */; };
 		2B0A4DB0167BD795000D5786 /* MaplyBaseViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0A4DAE167BD795000D5786 /* MaplyBaseViewController.h */; };
 		2B0A4DB1167BD795000D5786 /* MaplyBaseViewController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0A4DAF167BD795000D5786 /* MaplyBaseViewController_private.h */; };
 		2B0A4DB5167BDAC6000D5786 /* MaplyBaseInteractionLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0A4DB4167BDAC6000D5786 /* MaplyBaseInteractionLayer_private.h */; };
@@ -91,6 +93,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B08E1CF16F8CBCF0084441D /* MaplyQuadTestLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadTestLayer_private.h; path = include/private/MaplyQuadTestLayer_private.h; sourceTree = SOURCE_ROOT; };
+		2B08E1D216F8CBD90084441D /* MaplyQuadTestLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyQuadTestLayer.mm; path = src/MaplyQuadTestLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B0A4DAE167BD795000D5786 /* MaplyBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBaseViewController.h; path = include/MaplyBaseViewController.h; sourceTree = "<group>"; };
 		2B0A4DAF167BD795000D5786 /* MaplyBaseViewController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBaseViewController_private.h; path = include/private/MaplyBaseViewController_private.h; sourceTree = "<group>"; };
 		2B0A4DB4167BDAC6000D5786 /* MaplyBaseInteractionLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBaseInteractionLayer_private.h; path = include/private/MaplyBaseInteractionLayer_private.h; sourceTree = "<group>"; };
@@ -265,6 +269,8 @@
 				2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */,
 				2B37059816B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h */,
 				2B37059D16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm */,
+				2B08E1CF16F8CBCF0084441D /* MaplyQuadTestLayer_private.h */,
+				2B08E1D216F8CBD90084441D /* MaplyQuadTestLayer.mm */,
 			);
 			name = "layer wrappers";
 			path = WhirlyGlobeComponent;
@@ -437,6 +443,7 @@
 				2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */,
 				2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */,
 				2BACF3F416C4B94A00C7A4AC /* MaplyShader_private.h in Headers */,
+				2B08E1D016F8CBCF0084441D /* MaplyQuadTestLayer_private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,6 +540,7 @@
 				2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */,
 				2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */,
 				2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */,
+				2B08E1D316F8CBD90084441D /* MaplyQuadTestLayer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,7 +554,7 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -554,11 +562,11 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -570,12 +578,12 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -593,6 +601,7 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -615,6 +624,7 @@
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = (
 					"-ObjC",

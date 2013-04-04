@@ -179,7 +179,7 @@ void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
         {
             if (!draw || draw->getNumPoints() >= MaxDrawablePoints)
             {
-                draw = new BasicDrawable((numFull > MaxDrawablePoints ? MaxDrawablePoints : numFull),0);                
+                draw = new BasicDrawable("Particle Generator",(numFull > MaxDrawablePoints ? MaxDrawablePoints : numFull),0);                
                 draw->setType(GL_POINTS);
                 drawables.push_back(DrawableRef(draw));
             }

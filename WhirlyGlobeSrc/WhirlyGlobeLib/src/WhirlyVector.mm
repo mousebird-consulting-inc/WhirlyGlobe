@@ -99,6 +99,14 @@ void Mbr::asPoints(std::vector<Point2f> &pts) const
     pts.push_back(pt_ur);
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
+
+void Mbr::asPoints(std::vector<Point2d> &pts) const
+{
+    pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
+    pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
+    pts.push_back(Point2d(pt_ur.x(),pt_ur.y()));
+    pts.push_back(Point2d(pt_ll.x(),pt_ur.y()));
+}
 	
 Mbr Mbr::intersect(const Mbr &that) const
 {
@@ -210,24 +218,70 @@ void GeoMbr::splitIntoMbrs(std::vector<Mbr> &mbrs) const
 	}
 }
 
-Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b)
+Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
 {
-    Eigen::Quaternionf ret;
+    Eigen::Quaterniond ret;
     
-    Vector3f v0 = a.normalized();
-    Vector3f v1 = b.normalized();
-    float c = v0.dot(v1);
+    Vector3d v0 = a.normalized();
+    Vector3d v1 = b.normalized();
+    double c = v0.dot(v1);
     
     // The trick here is that we've taken out the checks against
     //  1 (vectors are nearly identical) and -1
     
-    Vector3f axis = v0.cross(v1);
-    float s = internal::sqrt((1.f+c)*2.f);
-    float invs = 1.f/s;
+    Vector3d axis = v0.cross(v1);
+    double s = internal::sqrt((1.f+c)*2.f);
+    double invs = 1.f/s;
     ret.vec() = axis * invs;
     ret.w() = s * 0.5f;
     
     return ret;
+}
+
+/// Convert a 4f matrix to a 4d matrix
+Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat)
+{
+    Matrix4d outMat;
+    for (unsigned int ii=0;ii<16;ii++)
+        outMat.data()[ii] = inMat.data()[ii];
+    
+    return outMat;
+}
+    
+Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat)
+{
+    Matrix4f outMat;
+    for (unsigned int ii=0;ii<16;ii++)
+        outMat.data()[ii] = inMat.data()[ii];
+    
+    return outMat;
+}
+
+/// Floats to doubles
+Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec)
+{
+    Vector3d outVec;
+    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();
+    
+    return outVec;
+}
+
+// Double to floats
+Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec)
+{
+    Vector3f outVec;
+    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();
+    
+    return outVec;
+}
+    
+/// Floats to doubles
+Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec)
+{
+    Vector4d outVec;
+    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();  outVec.w() = inVec.w();
+    
+    return outVec;    
 }
 
 
