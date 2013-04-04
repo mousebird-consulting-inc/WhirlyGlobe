@@ -58,6 +58,7 @@ using namespace WhirlyKit;
         
         glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
         glSetupInfo->minZres = [inView calcZbufferRes];
+        _allowFlush = true;
 	}
 	
 	return self;
@@ -174,7 +175,7 @@ using namespace WhirlyKit;
     }
     
     // If anything needed a flush after that, let's do it
-    if (requiresFlush)
+    if (requiresFlush && _allowFlush)
         glFlush();
     
     scene->addChangeRequests(changesToAdd);
