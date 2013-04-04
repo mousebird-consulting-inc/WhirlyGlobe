@@ -127,28 +127,8 @@ void OpenGLMemManager::clearBufferIDs()
     buffIDs.clear();
     
     pthread_mutex_unlock(&idLock);
-    
-    if (doClear)
-        clearBufferIDs();
 }
     
-// Clear out any and all buffer IDs that we may have sitting around
-void OpenGLMemManager::clearBufferIDs()
-{
-    pthread_mutex_lock(&idLock);
-    
-    std::vector<GLuint> toRemove;
-    toRemove.reserve(buffIDs.size());
-    for (std::set<GLuint>::iterator it = buffIDs.begin();
-         it != buffIDs.end(); ++it)
-        toRemove.push_back(*it);
-    if (!toRemove.empty())
-        glDeleteBuffers(toRemove.size(), &toRemove[0]);
-    buffIDs.clear();
-    
-    pthread_mutex_unlock(&idLock);
-}
-
 GLuint OpenGLMemManager::getTexID()
 {
     pthread_mutex_lock(&idLock);
@@ -224,10 +204,7 @@ void OpenGLMemManager::lock()
 
 void OpenGLMemManager::unlock()
 {
-    pthread_mutex_unlock(&idLock);
-    
-    if (doClear)
-        clearTextureIDs();
+    pthread_mutex_unlock(&idLock);    
 }
 
 		
