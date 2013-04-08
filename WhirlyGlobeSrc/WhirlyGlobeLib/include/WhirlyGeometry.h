@@ -28,6 +28,7 @@ namespace WhirlyKit
     Returns the intersection in hit or the closest pass
  */
 bool IntersectUnitSphere(Point3f org,Eigen::Vector3f dir,Point3f &hit);
+bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit);
 
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.
@@ -39,4 +40,23 @@ unsigned int NextPowOf2(unsigned int val);
 /// Find the point on a line segment closest to the give point
 Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt);
 	
+/// Calculates the intersection point of two lines (not line segments) if there is one
+bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
+
+/// Clip and return a polygon represented in homogeneous coordinates
+void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &pts,std::vector<Eigen::Vector4d> &outPts);
+	
+/// Project and clip a given polygon to screen space.  Clips in homogeneous coordinates.
+void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly);
+    
+/// Look for a ray/rectangular solid intersection.
+/// Return true if we found one and the distance^2 from the ray origin to the intersection
+bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
+    
+/// Return the area of the 3D polygon
+float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
+
+/// Return the area of the 3D polygon
+float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
+    
 }

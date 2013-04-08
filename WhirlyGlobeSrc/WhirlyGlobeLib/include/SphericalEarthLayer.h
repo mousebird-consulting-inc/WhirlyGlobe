@@ -63,10 +63,6 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
 /// That provides the images and it will generate the geometry.
 - (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup;
 
-/// Create it like this.  It needs a texture group to run.
-/// That provides the images and it will generate the geometry.
-- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup;
-
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 

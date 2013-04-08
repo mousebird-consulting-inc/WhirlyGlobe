@@ -104,7 +104,7 @@ using namespace WhirlyKit;
     // This will create particles for us every frame
     ParticleGenerator *gen = new ParticleGenerator(500000);
     generatorId = gen->getId();
-    scene->addChangeRequest(new AddGeneratorReq(gen));
+    [layerThread addChangeRequest:(new AddGeneratorReq(gen))];
 }
 
 // Remove outstanding particle systems
@@ -127,7 +127,7 @@ using namespace WhirlyKit;
         generatorId = EmptyIdentity;
     }
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -187,7 +187,7 @@ using namespace WhirlyKit;
         newPartSys->dirN = newPartSys->dirUp.cross(newPartSys->dirE);
         
         // Hand it off to the renderer
-        scene->addChangeRequest(new ParticleGeneratorAddSystemRequest(generatorId,newPartSys));
+        [layerThread addChangeRequest:(new ParticleGeneratorAddSystemRequest(generatorId,newPartSys))];
     }
     
     sceneReps.insert(sceneRep);
@@ -205,7 +205,7 @@ using namespace WhirlyKit;
         ParticleSysSceneRep *sceneRep = *it;
         for (SimpleIDSet::iterator sit = sceneRep->partSysIDs.begin();
              sit != sceneRep->partSysIDs.end(); ++sit)
-            scene->addChangeRequest(new ParticleGeneratorRemSystemRequest(generatorId,*sit));
+            [layerThread addChangeRequest:(new ParticleGeneratorRemSystemRequest(generatorId,*sit))];
         
         sceneReps.erase(it);
         delete sceneRep;

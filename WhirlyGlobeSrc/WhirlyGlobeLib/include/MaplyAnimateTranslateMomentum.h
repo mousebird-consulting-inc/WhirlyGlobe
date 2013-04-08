@@ -30,10 +30,10 @@
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
 {
     float velocity,acceleration;
-    Eigen::Vector3f dir;
+    Eigen::Vector3d dir;
     float maxTime;
     CFTimeInterval startDate;
-    WhirlyKit::Point3f org;
+    WhirlyKit::Point3d org;
     std::vector<WhirlyKit::Point2f> bounds;
 }
 

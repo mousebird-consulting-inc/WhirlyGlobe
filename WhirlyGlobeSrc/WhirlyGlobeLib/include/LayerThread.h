@@ -46,17 +46,27 @@
     
     /// Our own EAGLContext, connected by a share group to the main one
     EAGLContext *glContext;
+    
+    /// The renderer we're working with
+    WhirlyKitSceneRendererES __weak *renderer;
         
     /// Used to keep track of things to delete
     std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
     
     /// Used to keep track of things to release
     NSMutableArray *thingsToRelease;
+    
+    /// Change requests to merge soonish
+    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
 }
 
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 @property (nonatomic,readonly) EAGLContext *glContext;
+@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+/// Turn this off to disable flushes to GL on the layer thread.
+/// The only reason to do this is going to background.  This is a temporary fix
+@property (nonatomic,assign) bool allowFlush;
 
 /// Set up with a scene and a view
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;
@@ -71,12 +81,27 @@
 - (NSInteger)activeLayers;
 
 /// Add a C++ object to be deleted after the thread has stopped
-/// Always clal this from the main thread before you cancel the layer thread
+/// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing;
 
 /// Add an Objective C object to release after the thread has stopped
 /// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToRelease:(NSObject *)thing;
+
+/// Layers need to send their change requests throgh here
+- (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest;
+
+/// Layers should send their change requests through here
+- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)changeRequests;
+
+/// Called by a layer to request a flush at the next opportunity.
+/// Presumably the layer did something worth flushing
+- (void)requestFlush;
+
+/// Explicitly flush the change requests out to the scene.
+/// Only call this if you're trying to reduce latency between the layer thread
+///  and the render.  And you know what this does.
+- (void)flushChangeRequests;
 
 /// We're overriding the main entry point
 - (void)main;

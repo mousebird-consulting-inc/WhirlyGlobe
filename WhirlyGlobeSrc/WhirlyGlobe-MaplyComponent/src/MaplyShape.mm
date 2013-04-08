@@ -34,20 +34,24 @@ using namespace WhirlyKit;
 
 @implementation MaplyShapeSphere
 
+@synthesize userObject;
 @synthesize center;
 @synthesize radius;
 @synthesize height;
 @synthesize color;
+@synthesize selectable;
 
 @end
 
 @implementation MaplyShapeCylinder
 
+@synthesize userObject;
 @synthesize baseCenter;
 @synthesize baseHeight;
 @synthesize radius;
 @synthesize height;
 @synthesize color;
+@synthesize selectable;
 
 @end
 

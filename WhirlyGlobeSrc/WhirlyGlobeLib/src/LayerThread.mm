@@ -28,16 +28,21 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
+{
+    WhirlyKitGLSetupInfo *glSetupInfo;
+}
 
 @synthesize runLoop;
 @synthesize viewWatcher;
 @synthesize glContext;
+@synthesize renderer;
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer;
 {
 	if ((self = [super init]))
 	{
 		scene = inScene;
+        renderer = inRenderer;
 		layers = [NSMutableArray array];
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
@@ -46,8 +51,14 @@ using namespace WhirlyKit;
             if (dynamic_cast<Maply::MapScene *>(scene))
                 viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
         
+        // We'll create the context here and set it in the layer thread, always
         glContext = [[EAGLContext alloc] initWithAPI:renderer.context.API sharegroup:renderer.context.sharegroup];
+
         thingsToRelease = [NSMutableArray array];
+        
+        glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
+        glSetupInfo->minZres = [inView calcZbufferRes];
+        _allowFlush = true;
 	}
 	
 	return self;
@@ -107,13 +118,86 @@ using namespace WhirlyKit;
     [thingsToRelease addObject:thing];
 }
 
+- (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest
+{
+    std::vector<WhirlyKit::ChangeRequest *> requests;
+    requests.push_back(changeRequest);
+    
+    [self addChangeRequests:requests];
+}
+
+- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
+{
+    if ([NSThread currentThread] != self)
+    {
+        NSLog(@"WhirlyKitLayerThread::addChangeRequests called outside of layer thread.  Dropping requests on floor.");
+        for (unsigned int ii=0;ii<changeRequests.size();ii++)
+            delete changeRequests[ii];
+        return;
+    }
+
+    // If we don't have one coming, schedule a merge
+    if (changeRequests.empty())
+        [self performSelector:@selector(runAddChangeRequests) withObject:nil afterDelay:0.0];
+    
+    changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
+}
+
+- (void)flushChangeRequests
+{
+    if ([NSThread currentThread] != self)
+        return;
+    
+    [self runAddChangeRequests];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(runAddChangeRequests) object:nil];
+}
+
+- (void)requestFlush
+{
+    if ([NSThread currentThread] != self)
+        return;
+    
+    [self addChangeRequest:NULL];
+}
+
+- (void)runAddChangeRequests
+{
+    [EAGLContext setCurrentContext:glContext];
+
+    bool requiresFlush = false;
+    // Set up anything that needs to be set up
+    std::vector<ChangeRequest *> changesToAdd;
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *change = changeRequests[ii];
+        if (change)
+        {
+            requiresFlush |= change->needsFlush();
+            change->setupGL(glSetupInfo, scene->getMemManager());
+            changesToAdd.push_back(changeRequests[ii]);
+        } else
+            // A NULL change request is just a flush request
+            requiresFlush = true;
+    }
+    
+    // If anything needed a flush after that, let's do it
+    if (requiresFlush && _allowFlush)
+        glFlush();
+    
+    scene->addChangeRequests(changesToAdd);
+    changeRequests.clear();
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main
 {
     @autoreleasepool {
         runLoop = [NSRunLoop currentRunLoop];
-        
+
+        // This should be the default context.  If you change it yourself, change it back
+        [EAGLContext setCurrentContext:glContext];
+
         // Wake up our layers.  It's up to them to do the rest
         for (unsigned int ii=0;ii<[layers count];ii++)
         {
@@ -139,12 +223,19 @@ using namespace WhirlyKit;
         layers = nil;
     }
 
+    // Delete outstanding change requests
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+        delete changeRequests[ii];
+    changeRequests.clear();
+
     // Clean up the things the main thread has asked us to
     for (unsigned int ii=0;ii<thingsToDelete.size();ii++)
         delete thingsToDelete[ii];
     thingsToDelete.clear();
     while ([thingsToRelease count] > 0)
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
+    
+    glContext = nil;
 }
 
 @end

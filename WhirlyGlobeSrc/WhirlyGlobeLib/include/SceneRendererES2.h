@@ -44,4 +44,9 @@
 /// Set the default material
 - (void)setDefaultMaterial:(WhirlyKitMaterial *)mat;
 
+/// If set, we'll let the render run on a dispatch queue.
+/// This lets the UI run in the main thread without interference,
+///  but it does mean you can't mess with the rendering context.
+@property (nonatomic,assign) bool dispatchRendering;
+
 @end

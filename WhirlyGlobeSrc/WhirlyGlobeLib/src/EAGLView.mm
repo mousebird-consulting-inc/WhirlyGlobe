@@ -22,6 +22,10 @@
 #import <QuartzCore/QuartzCore.h>
 
 @implementation WhirlyKitEAGLView 
+{
+    bool resizeFail;
+    int resizeFailRetry;
+}
 
 @synthesize renderer;
 @synthesize animating;
@@ -50,9 +54,16 @@
 		animating = FALSE;
 		frameInterval = 1;
         self.useRetina = TRUE;
+        resizeFail = false;
+        resizeFailRetry = 0;
     }
     
     return self;
+}
+
+- (void)dealloc
+{
+    [displayLink invalidate];
 }
 
 - (void)setUseRetina:(BOOL)newVal
@@ -78,12 +89,7 @@
     if (newFrameInterval >= 1)
     {
         frameInterval = newFrameInterval;
-        
-        if (animating)
-        {
-            [self stopAnimation];
-            [self startAnimation];
-        }
+        [displayLink setFrameInterval:frameInterval];
     }
 }
 
@@ -91,9 +97,13 @@
 {
     if (!animating)
     {
-        displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+        if (!displayLink)
+        {
+            displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
         [displayLink setFrameInterval:frameInterval];
         [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+        } else
+            displayLink.paused = NO;
         
         animating = TRUE;
     }
@@ -103,14 +113,20 @@
 {
     if (animating)
     {
-        [displayLink invalidate];
-        displayLink = nil;
+        displayLink.paused = YES;
         animating = FALSE;
     }
 }
 
 - (void) drawView:(id)sender
 {
+    // Tried to resize and failed too many times
+    if (resizeFail && resizeFailRetry <= 0)
+        return;
+    
+    if (resizeFail)
+        [self layoutSubviews];
+
     [renderer render:displayLink.duration*displayLink.frameInterval];
 }
 
@@ -121,8 +137,24 @@
 
 - (void) layoutSubviews
 {
+    // Try to resize the renderer, multiple times if necessary
+	if (![renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+    {
+        if (!resizeFail)
+        {
+            resizeFail = true;
+            resizeFailRetry = 10;
+        } else
+            resizeFailRetry--;
+        
+        return;
+    }
+    resizeFail = false;
+    resizeFailRetry = 0;
+
 	[renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
+
 
 @end
