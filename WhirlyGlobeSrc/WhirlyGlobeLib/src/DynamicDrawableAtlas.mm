@@ -75,6 +75,9 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     if (!foundBigDraw)
     {
         BigDrawable *newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
+        // Note: Debugging
+//        NSLog(@"Added new big drawable (%ld)",bigDrawables.size());
+
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
@@ -112,11 +115,12 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<Chan
     
     // Find the big drawable and remove it from that
     BigDrawable *bigDraw = NULL;
-    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+    BigDrawableSet::iterator bit;
+    for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
     {
-        if ((*it)->getId() == represent.bigDrawId)
+        if ((*bit)->getId() == represent.bigDrawId)
         {
-            bigDraw = *it;
+            bigDraw = *bit;
             break;
         }
     }
@@ -126,6 +130,15 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<Chan
     
     // Set up the requests to clear the region
     bigDraw->clearRegion(represent.vertexPos, represent.vertexSize, represent.elementChunkId);
+    
+    // And if there's nothing in that drawable, get rid of it
+    if (bigDraw->empty())
+    {
+        changes.push_back(new RemDrawableReq(bigDraw->getId()));
+        bigDrawables.erase(bit);
+        // Note: Debugging
+//        NSLog(@"Removed big drawable (%ld)",bigDrawables.size());
+    }
     
     return true;
 }

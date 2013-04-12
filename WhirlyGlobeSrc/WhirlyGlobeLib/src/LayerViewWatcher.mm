@@ -62,6 +62,7 @@ using namespace WhirlyKit;
     watch->minTime = minTime;
     [watchers addObject:watch];
     
+    // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState)
     {
         WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
@@ -109,7 +110,7 @@ using namespace WhirlyKit;
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
     WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
-    lastViewState = viewState;
+//    lastViewState = viewState;
     [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
     [self performSelector:@selector(kickoffViewUpdated:) onThread:layerThread withObject:viewState waitUntilDone:NO];
 }

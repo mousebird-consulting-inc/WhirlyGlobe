@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     bool doingUpdate;
     // Number of border texels we need in an image
     int borderTexel;
+    int texelBinSize;
 }
 
 - (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData;
@@ -260,18 +261,19 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
     }
+    if (loader->texAtlas)
+    {
+        if (subTex.texId != EmptyIdentity)
+        {
+            loader->texAtlas->removeTexture(subTex, changeRequests);
+            subTex.texId = EmptyIdentity;
+        }
+    } else {
     if (texId != EmptyIdentity)
     {
         changeRequests.push_back(new RemTextureReq(texId));
         texId = EmptyIdentity;
     }
-    if (subTex.texId != EmptyIdentity)
-    {
-        std::vector<ChangeRequest *> texChanges;
-        loader->texAtlas->removeTexture(subTex, texChanges);
-        if (loader->drawAtlas)
-            loader->drawAtlas->addSwapChanges(texChanges);
-        subTex.texId = EmptyIdentity;
     }
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -493,6 +495,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize imageType;
 @synthesize useDynamicAtlas;
 @synthesize tileScale;
+@synthesize fixedTileSize;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -515,6 +518,8 @@ void LoadedTile::Print(Quadtree *tree)
         doingUpdate = false;
         borderTexel = 0;
         tileScale = WKTileScaleNone;
+        fixedTileSize = 256;
+        texelBinSize = 64;
     }
     
     return self;
@@ -669,6 +674,9 @@ void LoadedTile::Print(Quadtree *tree)
             *destWidth = upWidth;
             *destHeight = upHeight;
         }
+            break;
+        case WKTileScaleFixed:
+            *destWidth = *destHeight = fixedTileSize;
             break;
     }
 }
@@ -1081,7 +1089,8 @@ static const int SingleElementSize = sizeof(GLushort);
             int DrawBufferSize = ceil((2 * (sphereTessX + 1) * (sphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
             // Two triangles per grid cell in a tile
             int ElementBufferSize = ceil((2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
-            texAtlas = new DynamicTextureAtlas(2048,64,[self glFormat]);
+            int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
+            texAtlas = new DynamicTextureAtlas(2048,texSortSize,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
             
             // We want some room around these

@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
  
 DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
@@ -118,6 +118,7 @@ void DynamicTexture::destroyInGL(OpenGLMemManager *memManager)
 {
 	if (glId)
         memManager->removeTexID(glId);    
+    glId = 0;
 }
     
 void DynamicTexture::addTexture(Texture *tex,const Region &region)
@@ -135,6 +136,9 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
 {
     if (data)
     {
+//        if (startX+width > texSize || startY+height > texSize)
+//            NSLog(@"Pixels outside bounds in dynamic texture.");
+        
         glBindTexture(GL_TEXTURE_2D, glId);
         CheckGLError("DynamicTexture::createInGL() glBindTexture()");
         if (compressed)
@@ -158,11 +162,6 @@ void DynamicTexture::setRegion(const Region &region, bool enable)
         {
             layoutGrid[iy*numCell+ix] = enable;
         }
-    
-    if (enable)
-        numRegions++;
-    else
-        numRegions--;
 }
     
 bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
@@ -215,6 +214,12 @@ void DynamicTexture::addRegionToClear(const Region &region)
     releasedRegions.push_back(region);
     pthread_mutex_unlock(&regionLock);
 }
+    
+bool DynamicTexture::empty()
+{
+    return numRegions == 0;
+}
+
     
 void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
@@ -284,6 +289,8 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
     if (!found)
     {
         dynTex = new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format);
+        // Note: Debugging
+//        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         dynTex->createInGL(memManager);
         textures.insert(dynTex);
         DynamicTexture::Region thisRegion;
@@ -300,6 +307,7 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
     if (found)
     {
         dynTex->setRegion(texRegion.region, true);
+        dynTex->getNumRegions()++;
 //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
         // Note: Making the main thread do the merge
         if (MainThreadMerge)
@@ -347,6 +355,22 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,std::vector<Cha
         //  the renderer so we can be sure we're not still using it
         changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region));
         regions.erase(it);
+        
+        // See if that texture is now empty
+        DynamicTexture searchTex(theRegion.dynTexId);
+        DynamicTextureSet::iterator it = textures.find(&searchTex);
+        if (it != textures.end())
+        {
+            DynamicTexture *tex = *it;
+            tex->getNumRegions()--;
+            if (tex->getNumRegions() == 0)
+            {
+                changes.push_back(new RemTextureReq(tex->getId()));
+                textures.erase(it);
+                // Note: Debugging
+//                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
+            }
+        }
     }
 }
     

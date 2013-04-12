@@ -67,6 +67,7 @@ public:
     public:
         NodeInfo() { attrs = [NSMutableDictionary dictionary]; }
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        ~NodeInfo() { }
         
         /// Compare based on importance.  Used for sorting
         bool operator < (const NodeInfo &that) const;

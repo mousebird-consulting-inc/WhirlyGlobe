@@ -113,7 +113,9 @@ public:
 
 - (void) dealloc
 {
-    // Clean up semaphore?
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    dispatch_release(contextQueue);
+#endif
 }
 
 static const char *vertexShaderTri =
@@ -549,14 +551,13 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            // If it has a transform, apply that
-            // Note: Put the missing local transform back
-//            const Matrix4f *thisMat = drawable->getMatrix();
-//            if (thisMat)
-//            {
-//                glPushMatrix();
-//                glMultMatrixf(thisMat->data());
-//            }
+            // If it has a local transform, apply that
+            const Matrix4f *localMat = drawable->getMatrix();
+            if (localMat)
+            {
+                Eigen::Matrix4f newMvpMat = projMat * (viewTrans * (modelTrans * (*localMat)));
+                frameInfo.mvpMat = newMvpMat;
+            }
             
             // Figure out the program to use for drawing
             SimpleIdentity drawProgramId = drawable->getProgram();
@@ -584,8 +585,9 @@ static const float ScreenOverlap = 0.1;
             // Draw using the given program
             drawable->draw(frameInfo,scene);
             
-//            if (thisMat)
-//                glPopMatrix();
+            // If we had a local matrix, set the frame info back to the general one
+            if (localMat)
+                frameInfo.mvpMat = mvpMat;
             
             numDrawables++;
             if (perfInterval > 0)
