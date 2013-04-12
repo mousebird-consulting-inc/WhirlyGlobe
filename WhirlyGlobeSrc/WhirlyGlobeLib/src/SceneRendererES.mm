@@ -271,6 +271,8 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+                if (oldContext != context)
+                   [EAGLContext setCurrentContext:oldContext];
 		return NO;
 	}
 		

@@ -170,7 +170,7 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte,WKTilePVRTC4} WhirlyKitTileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
-typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleNone} WhirlyKitTileScaleType;
+typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
     creates simple terrain (chunks of the sphere) and asks for images
@@ -235,6 +235,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleNone} WhirlyKitTileScaleT
     
     /// If set we'll scale the input images to the nearest square power of two
     WhirlyKitTileScaleType tileScale;
+    
+    /// If the tile scale is fixed, this is the size it's fixed to (256 by default)
+    int fixedTileSize;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -249,6 +252,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleNone} WhirlyKitTileScaleT
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
 @property (nonatomic,assign) bool useDynamicAtlas;
 @property (nonatomic,assign) WhirlyKitTileScaleType tileScale;
+@property (nonatomic,assign) int fixedTileSize;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

@@ -60,6 +60,7 @@
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
 }
 
+@property (nonatomic,readonly) WhirlyKit::Scene *scene;
 @property (nonatomic,readonly) NSRunLoop *runLoop;
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
 @property (nonatomic,readonly) EAGLContext *glContext;

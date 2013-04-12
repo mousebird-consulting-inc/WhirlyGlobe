@@ -37,7 +37,7 @@ class DynamicTexture : public TextureBase
 {
 public:
     /// Constructor for sorting
-    DynamicTexture(SimpleIdentity myId) : TextureBase(myId) { }
+    DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
     DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format);
     ~DynamicTexture();
@@ -72,6 +72,12 @@ public:
     /// This is called by the renderer
     void addRegionToClear(const Region &region);
     
+    /// Return true if this isn't representing any regions
+    bool empty();
+    
+    /// Number of sub textures we're currently representing
+    int &getNumRegions() { return numRegions; }
+    
 protected:
     /// Used for debugging
     std::string name;
@@ -94,7 +100,7 @@ protected:
     /// These regions have been released by the renderer
     std::vector<Region> releasedRegions;
     
-    /// Number of active regions
+    /// Number of active regions (as far as the texture is concerned)
     int numRegions;
 };
 
