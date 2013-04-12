@@ -1055,12 +1055,18 @@ public:
 // Pass off label creation to a routine in our own thread
 - (SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyKit::GeoCoord)loc desc:(NSDictionary *)desc
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling addLabel.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+    
     WhirlyKitSingleLabel *theLabel = [[WhirlyKitSingleLabel alloc] init];
     theLabel.text = str;
     [theLabel setLoc:loc];
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:theLabel] desc:desc];
     
-    if (!layerThread || ([NSThread currentThread] == layerThread))
+    if (([NSThread currentThread] == layerThread))
         [self runAddLabels:labelInfo];
     else
         [self performSelector:@selector(runAddLabels:) onThread:layerThread withObject:labelInfo waitUntilDone:NO];
@@ -1114,6 +1120,12 @@ public:
 // Change how the label is displayed
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling changeLabel.  Dropping data on floor.");
+        return;
+    }
+
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithSceneRepId:labelID desc:dict];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -1125,6 +1137,12 @@ public:
 // Set up the label to be removed in the layer thread
 - (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling removeLabel.  Dropping data on floor.");
+        return;
+    }
+
     NSNumber *num = [NSNumber numberWithUnsignedInt:labelId];
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemoveLabel:num];

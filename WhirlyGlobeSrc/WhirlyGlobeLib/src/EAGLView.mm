@@ -115,6 +115,8 @@
     {
         displayLink.paused = YES;
         animating = FALSE;
+        [displayLink invalidate];
+        displayLink = nil;
     }
 }
 

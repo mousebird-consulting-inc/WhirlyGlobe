@@ -164,7 +164,11 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     // GL Texture ID
     GLuint glTexID = 0;
     if (texId != EmptyIdentity)
+    {
         glTexID = scene->getGLTexture(texId);
+        if (!glTexID)
+            NSLog(@"Dangling texture reference.");
+    }
     
     if (!prog)
         return;
@@ -380,7 +384,10 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChu
         return;
 
     // Set up the change in the buffers
-    ChangeRef change(new Change(ChangeClear,vertPos,nil,vertSize));
+    void *emptyBytes = malloc(vertSize);
+    memset(emptyBytes, 0, vertSize);
+    NSData *emptyVerts = [[NSData alloc] initWithBytesNoCopy:emptyBytes length:vertSize freeWhenDone:YES];
+    ChangeRef change(new Change(ChangeClear,vertPos,emptyVerts,vertSize));
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
 
@@ -392,7 +399,8 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChu
     {
         elementChunkSize -= [it->elementData length];
         elementChunks.erase(it);
-    }
+    } else
+        NSLog(@"BigDrawable: Found rogue element chunk.");
     
     // This would be weird
     if (elementChunkSize < 0)
@@ -403,11 +411,9 @@ void BigDrawable::executeFlush(int whichBuffer)
 {    
     Buffer &theBuffer = buffers[whichBuffer];
     
-    if (theBuffer.changes.empty())
-        return;
-
+    if (!theBuffer.changes.empty())
+    {
     // Run the additions to the vertex buffer
-    // Note: The clears don't do anything
     glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
     for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
     {
@@ -416,15 +422,27 @@ void BigDrawable::executeFlush(int whichBuffer)
         {
             case ChangeAdd:
                 glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
+                    if (change->whereVert + [change->vertData length] > numVertexBytes)
+                    {
+                        NSLog(@"Exceeded vertex buffer size");
+                    }
+                    if (change->whereVert % singleVertexSize != 0)
+                    {
+                        NSLog(@"Offset problem in vertex buffer");
+                    }
                 break;
             case ChangeClear:
-//                memset(vertBufferPtr + change.whereVert, 0, change.clearLen);
-                //                glBufferSubData(GL_ARRAY_BUFFER, change.whereVert, [change.vertData length], [change.vertData bytes]);
+                    glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
+                    if (change->whereVert + [change->vertData length] > numVertexBytes)
+                    {
+                        NSLog(@"Exceeded vertex buffer size");
+                    }
                 break;
         }
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     theBuffer.changes.clear();
+    }
 
     // Redo the entire element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
@@ -436,6 +454,10 @@ void BigDrawable::executeFlush(int whichBuffer)
         size_t len = [it->elementData length];
         memcpy(elBufPtr, [it->elementData bytes], len);
         elBufPtr += len;
+    }
+    if (elBufPtr - elBuffer > numElementBytes)
+    {
+        NSLog(@"Exceeded element buffer size");
     }
     glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -484,6 +506,11 @@ bool BigDrawable::isWaitingOnSwap()
     ret = waitingOnSwap;
     pthread_mutex_unlock(&useMutex);
     return ret;
+}
+
+bool BigDrawable::empty()
+{
+    return elementChunks.empty();
 }
 
 void BigDrawable::swapBuffers(int whichBuffer)

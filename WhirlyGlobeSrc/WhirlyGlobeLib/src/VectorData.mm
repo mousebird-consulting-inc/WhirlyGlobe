@@ -133,6 +133,8 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
 
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
 {
+    if (!adapter || inPts.empty())
+        return;
     if (inPts.size() < 2)
     {
         const Point2f &p0 = inPts[0];

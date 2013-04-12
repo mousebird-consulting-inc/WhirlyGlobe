@@ -169,7 +169,7 @@ void OpenGLMemManager::removeTexID(GLuint texID)
 
     texIDs.insert(texID);
     
-    if (texIDs.size() > WhirlyKitOpenGLMemCacheMax)
+    if (!ReuseBuffers || texIDs.size() > WhirlyKitOpenGLMemCacheMax)
         doClear = true;
 
     pthread_mutex_unlock(&idLock);

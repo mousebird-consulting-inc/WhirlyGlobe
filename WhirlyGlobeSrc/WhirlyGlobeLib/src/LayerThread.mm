@@ -32,6 +32,7 @@ using namespace WhirlyKit;
     WhirlyKitGLSetupInfo *glSetupInfo;
 }
 
+@synthesize scene;
 @synthesize runLoop;
 @synthesize viewWatcher;
 @synthesize glContext;

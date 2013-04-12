@@ -107,6 +107,9 @@ public:
     /// Check if there are outstanding changes in either buffer
     bool hasChanges();
     
+    /// Return true if we're not representing anything
+    bool empty();
+    
     /// Only called by the renderer
     void swapBuffers(int whichBuffer);
     
