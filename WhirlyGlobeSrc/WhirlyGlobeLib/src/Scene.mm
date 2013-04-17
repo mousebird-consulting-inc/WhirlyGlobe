@@ -260,6 +260,13 @@ bool Scene::hasChanges()
         
         pthread_mutex_unlock(&changeRequestLock);            
     }        
+    if (changes)
+        return true;
+    
+    // How about the active models?
+    for (NSObject<WhirlyKitActiveModel> *model in activeModels)
+        if ([model hasUpdate])
+            return true;
     
     return changes;
 }

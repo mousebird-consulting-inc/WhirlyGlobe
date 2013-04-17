@@ -33,6 +33,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyQuadTestLayer_private.h"
+#import "MaplyActiveObject_private.h"
 
 @interface MaplyBaseViewController()
 {
@@ -84,6 +85,9 @@
     
     /// Active shaders
     NSMutableArray *shaders;
+    
+    /// Active models
+    NSMutableArray *activeObjects;
     
     /// Set if we're doing performance output
     bool perfOutput;

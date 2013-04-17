@@ -91,18 +91,18 @@ void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memM
         theBuffer.elementBufferId = memManager->getBufferID(numElementBytes,GL_DYNAMIC_DRAW);
 
         // Clear out the vertex buffer
-        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
-        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        memset(glMem, 0, numVertexBytes);
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
+//        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+//        memset(glMem, 0, numVertexBytes);
+//        glUnmapBufferOES(GL_ARRAY_BUFFER);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Clear out the element buffer
-        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.elementBufferId);
-        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        memset(glMem, 0, numElementBytes);
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.elementBufferId);
+//        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+//        memset(glMem, 0, numElementBytes);
+//        glUnmapBufferOES(GL_ARRAY_BUFFER);
+//        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     activeBuffer = 0;
 }
@@ -384,10 +384,10 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChu
         return;
 
     // Set up the change in the buffers
-    void *emptyBytes = malloc(vertSize);
-    memset(emptyBytes, 0, vertSize);
-    NSData *emptyVerts = [[NSData alloc] initWithBytesNoCopy:emptyBytes length:vertSize freeWhenDone:YES];
-    ChangeRef change(new Change(ChangeClear,vertPos,emptyVerts,vertSize));
+//    void *emptyBytes = malloc(vertSize);
+//    memset(emptyBytes, 0, vertSize);
+//    NSData *emptyVerts = [[NSData alloc] initWithBytesNoCopy:emptyBytes length:vertSize freeWhenDone:YES];
+    ChangeRef change(new Change(ChangeClear,vertPos,nil,vertSize));
     for (unsigned int ii=0;ii<2;ii++)
         buffers[ii].changes.push_back(change);
 
@@ -413,35 +413,37 @@ void BigDrawable::executeFlush(int whichBuffer)
     
     if (!theBuffer.changes.empty())
     {
-    // Run the additions to the vertex buffer
-    glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
-    for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
-    {
-        ChangeRef change = theBuffer.changes[ii];
-        switch (change->type)
+        // Run the additions to the vertex buffer
+        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
+        for (unsigned int ii=0;ii<theBuffer.changes.size();ii++)
         {
-            case ChangeAdd:
-                glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
-                    if (change->whereVert + [change->vertData length] > numVertexBytes)
-                    {
-                        NSLog(@"Exceeded vertex buffer size");
-                    }
-                    if (change->whereVert % singleVertexSize != 0)
-                    {
-                        NSLog(@"Offset problem in vertex buffer");
-                    }
-                break;
-            case ChangeClear:
+            ChangeRef change = theBuffer.changes[ii];
+            switch (change->type)
+            {
+                case ChangeAdd:
                     glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
-                    if (change->whereVert + [change->vertData length] > numVertexBytes)
-                    {
-                        NSLog(@"Exceeded vertex buffer size");
-                    }
-                break;
+//                    if (change->whereVert + [change->vertData length] > numVertexBytes)
+//                    {
+//                        NSLog(@"Exceeded vertex buffer size");
+//                    }
+//                    if (change->whereVert % singleVertexSize != 0)
+//                    {
+//                        NSLog(@"Offset problem in vertex buffer");
+//                    }
+                    break;
+                case ChangeClear:
+                    // We don't really need to clear this, just stop using it
+//                    glBufferSubData(GL_ARRAY_BUFFER, change->whereVert, [change->vertData length], [change->vertData bytes]);
+//                    if (change->whereVert + [change->vertData length] > numVertexBytes)
+//                    {
+//                        NSLog(@"Exceeded vertex buffer size");
+//                    }
+                    break;
+            }
         }
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    theBuffer.changes.clear();
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        theBuffer.changes.clear();
     }
 
     // Redo the entire element buffer

@@ -1,9 +1,9 @@
 /*
- *  MaplyComponentObject.h
+ *  MaplyActiveObject_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 9/18/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 4/3/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,15 @@
  *
  */
 
-@interface MaplyComponentObject : NSObject
-@end
+#import "MaplyActiveObject.h"
+#import "WhirlyGlobe.h"
 
-typedef MaplyComponentObject WGComponentObject;
+// Fill in the Active Model protocol from the API
+@interface MaplyActiveObject() <WhirlyKitActiveModel>
+{
+@public
+    NSDictionary *desc;
+    WhirlyKit::Scene *scene;
+}
+
+@end
