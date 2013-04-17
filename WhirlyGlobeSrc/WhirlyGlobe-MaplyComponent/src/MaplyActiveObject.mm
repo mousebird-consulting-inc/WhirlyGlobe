@@ -1,9 +1,9 @@
 /*
- *  MaplyComponentObject.h
+ *  MaplyActiveObject.mm
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 9/18/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 4/3/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,39 @@
  *
  */
 
-@interface MaplyComponentObject : NSObject
-@end
+#import "MaplyActiveObject_private.h"
 
-typedef MaplyComponentObject WGComponentObject;
+@implementation MaplyActiveObject
+
+- (id)initWithDesc:(NSDictionary *)descDict
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    desc = [NSDictionary dictionaryWithDictionary:descDict];
+    
+    return self;
+}
+
+- (void)startWithScene:(WhirlyKit::Scene *)inScene
+{
+    scene = inScene;
+}
+
+- (bool)hasUpdate
+{
+    return false;
+}
+
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+{
+    
+}
+
+- (void)shutdown
+{
+    
+}
+
+@end

@@ -70,6 +70,7 @@ using namespace WhirlyKit;
     layoutLayer = nil;
     loftLayer = nil;
     selectLayer = nil;
+    activeObjects = nil;
     
     interactLayer = nil;
     
@@ -753,6 +754,51 @@ static const float PerfOutputDelay = 15.0;
 - (void)removeObjects:(NSArray *)theObjs
 {
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs]];
+}
+
+- (void)addActiveObject:(MaplyActiveObject *)theObj
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Must call addActiveObject: on the main thread.");
+        return;
+    }
+    
+    if (!activeObjects)
+        activeObjects = [NSMutableArray array];
+
+    if (![activeObjects containsObject:theObj])
+    {
+        scene->addActiveModel(theObj);
+        [activeObjects addObject:theObj];
+    }
+}
+
+- (void)removeActiveObject:(MaplyActiveObject *)theObj
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Must call removeActiveObject: on the main thread.");
+        return;
+    }
+    
+    if ([activeObjects containsObject:theObj])
+    {
+        scene->removeActiveModel(theObj);
+        [activeObjects removeObject:theObj];
+    }
+}
+
+- (void)removeActiveObjects:(NSArray *)theObjs
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Must call removeActiveObject: on the main thread.");
+        return;
+    }
+
+    for (MaplyActiveObject *theObj in theObjs)
+        [self removeActiveObject:theObj];
 }
 
 - (void)removeLayer:(MaplyViewControllerLayer *)layer

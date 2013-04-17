@@ -24,6 +24,7 @@
 		2B62DDBA16E7F514001F52FC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */; };
 		2B62DDBC16E7F51B001F52FC /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */; };
 		2B62DDBE16E7F54B001F52FC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
+		2BEA1E6B171E0F310039F1A4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BEA1E6A171E0F300039F1A4 /* CoreText.framework */; };
 		2BEC2BB7170F9F4800D8095A /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC2BA5170F9F4800D8095A /* AFHTTPClient.m */; };
 		2BEC2BB8170F9F4800D8095A /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC2BA7170F9F4800D8095A /* AFHTTPRequestOperation.m */; };
 		2BEC2BB9170F9F4800D8095A /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEC2BA9170F9F4800D8095A /* AFImageRequestOperation.m */; };
@@ -334,6 +335,7 @@
 		2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		2BEA1E6A171E0F300039F1A4 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		2BEC2BA4170F9F4800D8095A /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPClient.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPClient.h"; sourceTree = "<group>"; };
 		2BEC2BA5170F9F4800D8095A /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFHTTPClient.m; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPClient.m"; sourceTree = "<group>"; };
 		2BEC2BA6170F9F4800D8095A /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.h"; sourceTree = "<group>"; };
@@ -624,6 +626,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BEA1E6B171E0F310039F1A4 /* CoreText.framework in Frameworks */,
 				2B62DDBE16E7F54B001F52FC /* MobileCoreServices.framework in Frameworks */,
 				2B62DD6216E7F0BC001F52FC /* CoreGraphics.framework in Frameworks */,
 				2B62DDBC16E7F51B001F52FC /* libstdc++.dylib in Frameworks */,
@@ -643,6 +646,7 @@
 		2B62DD5116E7F0BC001F52FC = {
 			isa = PBXGroup;
 			children = (
+				2BEA1E6A171E0F300039F1A4 /* CoreText.framework */,
 				2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */,
 				2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */,
 				2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */,

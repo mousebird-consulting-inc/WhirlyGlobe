@@ -28,6 +28,7 @@
 #import "MaplyViewControllerLayer.h"
 #import "MaplyLight.h"
 #import "MaplyShader.h"
+#import "MaplyActiveObject.h"
 
 /** The MaplyBaseViewController is the base class for the Maply and WhirlyGlobe
     view controllers.  Most of its functionality is private, but you can use
@@ -144,6 +145,16 @@
 
 /// Remove an array of data objects
 - (void)removeObjects:(NSArray *)theObjs;
+
+/// Add an active object.  These are used for editing and act
+///  only on the main thread.
+- (void)addActiveObject:(MaplyActiveObject *)theObj;
+
+/// Remove an active object
+- (void)removeActiveObject:(MaplyActiveObject *)theObj;
+
+/// Remove an array of active objects
+- (void)removeActiveObjects:(NSArray *)theObjs;
 
 /// Remove a single layer
 - (void)removeLayer:(MaplyViewControllerLayer *)layer;

@@ -1,9 +1,9 @@
 /*
- *  MaplyComponentObject.h
+ *  MaplyActiveObject.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 9/18/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 4/3/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,15 @@
  *
  */
 
-@interface MaplyComponentObject : NSObject
-@end
+#import <Foundation/Foundation.h>
 
-typedef MaplyComponentObject WGComponentObject;
+/** An Active object is one that can be manipulated directly on the main thread.
+    You make changes in the various subclasses and those changes are reflected
+    in the sceen on the next frame render.
+  */
+@interface MaplyActiveObject : NSObject
+
+/// Initialize with the appropriate description dictionary
+- (id)initWithDesc:(NSDictionary *)descDict;
+
+@end

@@ -27,7 +27,7 @@
     to represent something.  We pass this back to them so they can remove
     those resources later.
  */
-@interface MaplyComponentObject : NSObject
+@interface MaplyComponentObject()
 {
     WhirlyKit::SimpleIDSet markerIDs;
     WhirlyKit::SimpleIDSet labelIDs;

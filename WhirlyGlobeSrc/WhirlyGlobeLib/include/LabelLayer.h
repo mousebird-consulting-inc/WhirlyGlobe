@@ -29,30 +29,13 @@
 #import "DrawCost.h"
 #import "SelectionLayer.h"
 #import "LayoutLayer.h"
+#import "LabelRenderer.h"
 
 namespace WhirlyKit 
 {
 
 /// Default for label draw priority
 static const int LabelDrawPriority=1000;
-
-/** The Label Scene Representation is used to encapsulate a set of
-    labels that are being added or have been added to the scene and
-    their associated textures and drawable IDs.
-  */
-class LabelSceneRep : public Identifiable
-{
-public:
-    LabelSceneRep();
-    ~LabelSceneRep() { }
-    
-    float fade;          // Fade interval, for deletion
-    SimpleIDSet texIDs;  // Textures we created for this
-    SimpleIDSet drawIDs; // Drawables created for this
-    SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIDSet selectIDs;  // Selection rect
-};
-typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 
 }
 
@@ -93,6 +76,9 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
 @property (nonatomic,assign) CGSize screenOffset;
 
+/// Generates a string we can use for indexing.  Note: Don't use this yourself.
+- (std::string)keyString;
+
 /// This is used to sort out width and height from the defaults.  Pass
 ///  in the value of one and zero for the other and it will fill in the
 ///  missing one.
@@ -103,6 +89,12 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 ///  normals.  The corners are returned in counter-clockwise order.
 /// This is used for label selection
 - (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+/// Slightly more specific version
+- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm iconCorners:(WhirlyKit::Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+/// This version is for screen space labels
+- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts iconCorners:(WhirlyKit::Point3f *)iconPts useIconOffset:(bool)useIconOffset;
 
 @end
 
@@ -175,6 +167,9 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 
 /// Set this to use the layout engine for labels so marked
 @property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
+
+/// If set, we're using font textures instead of rendering each piece of text
+@property (nonatomic,assign) bool useFontManager;
 
 /// Initialize the label layer with a size for texture atlases
 /// Needs to be a power of 2

@@ -44,6 +44,9 @@
     int drawPriority;
     /// Sampling along X and Y
     int sampleX,sampleY;
+    /// If not doing static sampling, break it down until its no farther than this from the globe.
+    /// sampleX,sampleY become maximums
+    float eps;
     /// Chunk is visible this far down
     float minVis;
     /// Chunk is visible this far out
@@ -62,9 +65,14 @@
 @property (nonatomic,assign) float drawOffset;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) int sampleX,sampleY;
+@property (nonatomic,assign) float eps;
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) float minVisBand,maxVisBand;
 @property (nonatomic,assign) float rotation;
+
+// Create one or more drawables to represent the chunk.
+// Only call this if you know what you're doing
+- (void)buildDrawable:(WhirlyKit::BasicDrawable **)draw skirtDraw:(WhirlyKit::BasicDrawable **)skirtDraw enabled:(bool)enable adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 @end
 
