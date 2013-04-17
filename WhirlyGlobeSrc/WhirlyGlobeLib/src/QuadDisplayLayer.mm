@@ -445,7 +445,6 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being shutdown.");
         return;
     }
-//    NSLog(@"View state: (%f,%f,%f), height = %f",inViewState.eyePos.x(),inViewState.eyePos.y(),inViewState.eyePos.z(),inViewState->heightAboveGlobe);
     
     // Check if we should even be doing an update
     if ([loader respondsToSelector:@selector(shouldUpdate:initial:)])

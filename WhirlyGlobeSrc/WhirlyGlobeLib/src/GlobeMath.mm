@@ -174,6 +174,8 @@ Point3d FakeGeocentricDisplayAdapter::localToDisplay(Point3d geoPt)
     
 Point3f FakeGeocentricDisplayAdapter::DisplayToLocal(Point3f pt)
 {
+    pt.normalize();
+    
     GeoCoord geoCoord;
     geoCoord.lat() = asinf(pt.z());
     float rad = sqrtf(1.0-pt.z()*pt.z());

@@ -300,6 +300,12 @@
 		2BDC4AE0133404D400E25283 /* LabelLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1F06A130076C5001F33CD /* LabelLayer.mm */; };
 		2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */; };
 		2BE886D1160A863700E92A0A /* MaplyTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */; };
+		2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */; };
+		2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */; };
+		2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */; };
+		2BEA1E54171E0E280039F1A4 /* FontTextureManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */; };
+		2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */; };
+		2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */; };
 		2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE921499643000C63326 /* LoftLayer.mm */; };
 		2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE99149966F300C63326 /* GridClipper.mm */; };
 		2BEFDE9C149966F300C63326 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEFDE9A149966F300C63326 /* Tesselator.mm */; };
@@ -638,6 +644,12 @@
 		2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = SwipeDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
 		2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
+		2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
+		2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
+		2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
+		2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FontTextureManager.mm; sourceTree = "<group>"; };
+		2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelRenderer.mm; sourceTree = "<group>"; };
+		2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeDrawableBuilder.mm; sourceTree = "<group>"; };
 		2BEFDE90149963A800C63326 /* LoftLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftLayer.h; sourceTree = "<group>"; };
 		2BEFDE921499643000C63326 /* LoftLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftLayer.mm; sourceTree = "<group>"; };
 		2BEFDE95149966D400C63326 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridClipper.h; sourceTree = "<group>"; };
@@ -1043,6 +1055,9 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
+				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
+				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
+				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
 				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
 				2BCAB9A912F897E20049D73C /* DataLayer.h */,
@@ -1070,6 +1085,9 @@
 		2B951D9712F09EEC005003AE /* layers & loaders */ = {
 			isa = PBXGroup;
 			children = (
+				2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */,
+				2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */,
+				2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */,
 				2B7EF5281603F03900D4079F /* MaplyLayerViewWatcher.mm */,
 				2B7EF31A15FF95E900D4079F /* MaplyScene.mm */,
 				2BACE0661581017800E3793D /* SceneGraphGenerator.mm */,
@@ -1481,6 +1499,9 @@
 				2BB9A8B116DFFF060069E19C /* DynamicTextureAtlas.h in Headers */,
 				2B8B95EF16E80FD50039DD08 /* BigDrawable.h in Headers */,
 				2B8B95F016E80FD50039DD08 /* DynamicDrawableAtlas.h in Headers */,
+				2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */,
+				2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */,
+				2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1777,6 +1798,9 @@
 				2BB9A8B316DFFF100069E19C /* DynamicTextureAtlas.mm in Sources */,
 				2B8B95F316E80FED0039DD08 /* BigDrawable.mm in Sources */,
 				2B8B95F416E80FED0039DD08 /* DynamicDrawableAtlas.mm in Sources */,
+				2BEA1E54171E0E280039F1A4 /* FontTextureManager.mm in Sources */,
+				2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */,
+				2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

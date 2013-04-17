@@ -26,11 +26,6 @@
 
 namespace WhirlyKit
 {
-/// Default priority for shapes.
-static const int ShapeDrawPriority=1;
-
-/// Maximum number of triangles we'll stick in a drawable
-static const int MaxShapeDrawableTris=1<<15/3;
     
 /// Used internally to track shape related resources
 class ShapeSceneRep : public Identifiable

@@ -79,6 +79,7 @@
 #import "ViewPlacementGenerator.h"
 #import "ActiveModel.h"
 #import "MaplyScene.h"
+#import "ShapeDrawableBuilder.h"
 #import "ShapeLayer.h"
 #import "LayoutLayer.h"
 #import "OpenGLES2Program.h"
