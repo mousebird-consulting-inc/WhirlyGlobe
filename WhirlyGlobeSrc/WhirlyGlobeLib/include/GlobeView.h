@@ -41,53 +41,57 @@
 @interface WhirlyGlobeView : WhirlyKitView
 {
 	/// Quaternion used for rotation from origin state
-	Eigen::Quaternionf rotQuat;
+	Eigen::Quaterniond rotQuat;
 
 	/// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
-	float heightAboveGlobe;
+	double heightAboveGlobe;
+    
+    /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
+    double tilt;
 
     /// Used to update position based on time (or whatever other factor you like)
     NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;    
 }
 
-@property (nonatomic,assign) float heightAboveGlobe;
-@property (nonatomic,assign) Eigen::Quaternionf rotQuat;
+@property (nonatomic,assign) double heightAboveGlobe;
+@property (nonatomic,assign) Eigen::Quaterniond rotQuat;
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+@property (nonatomic,assign) double tilt;
 
 /// Return min/max valid heights above globe
-- (float)minHeightAboveGlobe;
-- (float)maxHeightAboveGlobe;
+- (double)minHeightAboveGlobe;
+- (double)maxHeightAboveGlobe;
 
 /// Set the height above globe, taking constraints into account
-- (void)setHeightAboveGlobe:(float)newH;
+- (void)setHeightAboveGlobe:(double)newH;
 
 /// Calculate the z offset to make the earth appear where we want it
-- (float)calcEarthZOffset;
+- (double)calcEarthZOffset;
 
 /// Return where up (0,0,1) is after model rotation
-- (Eigen::Vector3f)currentUp;
+- (Eigen::Vector3d)currentUp;
 
 /// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
+- (Eigen::Vector3d)eyePos;
 
 /// Given a rotation, where would (0,0,1) wind up
-+ (Eigen::Vector3f)prospectiveUp:(Eigen::Quaternion<float> &)prospectiveRot;
++ (Eigen::Vector3d)prospectiveUp:(Eigen::Quaterniond &)prospectiveRot;
 
 /** Given a location on the screen and the screen size, figure out where we touched the sphere
     Returns true if we hit and where
     Returns false if not and the closest point on the sphere
  */
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit;
 
 /** From a world location (3D), figure out the projection to the screen
     Returns a point within the frame
   */
-- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromSphere:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /** Construct a rotation to the given location
     and return it.  Doesn't actually do anything yet.
  */
-- (Eigen::Quaternionf) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
 
 /// Cancel any outstanding animation
 - (void)cancelAnimation;
@@ -99,7 +103,7 @@
 - (float)calcZbufferRes;
 
 /// Height above the globe
-- (float)heightAboveSurface;
+- (double)heightAboveSurface;
 
 @end
 

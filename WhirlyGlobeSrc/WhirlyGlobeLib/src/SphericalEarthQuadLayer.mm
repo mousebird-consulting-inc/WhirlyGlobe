@@ -24,7 +24,6 @@
 
 using namespace Eigen;
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 // Describes the structure of the image database
 @interface WholeEarthStructure : NSObject<WhirlyKitQuadDataStructure>
@@ -71,7 +70,7 @@ using namespace WhirlyGlobe;
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return 2;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -81,12 +80,12 @@ using namespace WhirlyGlobe;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr, ident, attrs);
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -143,7 +142,7 @@ using namespace WhirlyGlobe;
     return 1;
 }
 
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",baseName,level,col,row,ext];
 	if (self.basePath)
@@ -153,7 +152,12 @@ using namespace WhirlyGlobe;
     
     bool isPvrtc = ![ext compare:@"pvrtc"];
     
-    [quadLoader dataSource:self loadedImage:imageData pvrtcSize:(isPvrtc ? pixelsSquare : 0) forLevel:level col:col row:row];
+    WhirlyKitLoadedImage *loadImage = nil;
+    if (isPvrtc)
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithPVRTC:imageData size:pixelsSquare];
+    else
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
+    [quadLoader dataSource:self loadedImage:loadImage forLevel:level col:col row:row];
 }
 
 @end
@@ -211,6 +215,8 @@ using namespace WhirlyGlobe;
     
     // This handles the geometry and loading
     WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+    if (![theDataSource.ext compare:@"pvrtc"])
+        [theLoader setImageType:WKTilePVRTC4];
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];
     if (self)

@@ -82,6 +82,8 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
     
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);
+/// Calculate area of a loop
+float CalcLoopArea(const std::vector<Point2d> &);
 
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
@@ -161,9 +163,14 @@ typedef std::set<std::string> StringSet;
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
 
-/// Break any edge that deviates from that the given epsilon from the surface described in
+/// Break any edge that deviates by the given epsilon from the surface described in
 /// the display adapter;
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
+
+/// Break any edge that deviates by the given epsilon from the surface described in
+///  the display adapter.  But rather than using lat lon values, we'll output in
+///  display coordinates and build points along the great circle.
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

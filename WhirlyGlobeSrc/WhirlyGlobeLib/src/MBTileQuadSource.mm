@@ -24,6 +24,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitMBTileQuadSource
+{
+    bool tilesStyles;
+}
 
 - (id)initWithPath:(NSString *)path
 {
@@ -75,7 +78,12 @@ using namespace WhirlyKit;
             maxZoom = [readStmt3.getString() intValue];
                 
         // Note: We could load something and calculate this, but I don't want to slow us down here
-        pixelsPerTile = 256;        
+        pixelsPerTile = 256;
+        
+        // See if there's a tiles table or it's the older(?) style
+        sqlhelpers::StatementRead testStmt(sqlDb,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
+        if (testStmt.stepRow())
+            tilesStyles = true;
     }
     
     return self;
@@ -121,13 +129,13 @@ using namespace WhirlyKit;
     return maxZoom;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
 
-    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr, ident, attrs);
 //    if (import != 0.0)
 //        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
     return import;
@@ -140,24 +148,31 @@ using namespace WhirlyKit;
 }
 
 // Load the given tile.  We'll do that right here
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     NSData *imageData = nil;
     
-    sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_id from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
-    if (readStmt.stepRow())
+    if (tilesStyles)
     {
-        NSString *tile_id = readStmt.getString();
-        sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
-        if (readStmt2.stepRow())
-            imageData = readStmt2.getBlob();
+        sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from tiles where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
+        if (readStmt.stepRow())
+            imageData = readStmt.getBlob();
+    } else {
+        sqlhelpers::StatementRead readStmt(sqlDb,[NSString stringWithFormat:@"SELECT tile_id from map where zoom_level='%d' AND tile_column='%d' AND tile_row='%d';",level,col,row]);
+        if (readStmt.stepRow())
+        {
+            NSString *tile_id = readStmt.getString();
+            sqlhelpers::StatementRead readStmt2(sqlDb,[NSString stringWithFormat:@"SELECT tile_data from images where tile_id='%@';",tile_id]);
+            if (readStmt2.stepRow())
+                imageData = readStmt2.getBlob();
+        }
     }
     
 //    if (!imageData)
 //        NSLog(@"Missing tile: (%d,%d,%d)",col,row,level);
     
     // Tell the quad loader about the new tile data, whether its null or not
-    [quadLoader dataSource:self loadedImage:imageData pvrtcSize:0 forLevel:level col:col row:row];
+    [quadLoader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData] forLevel:level col:col row:row];
 }
 
 

@@ -58,13 +58,15 @@ using namespace Maply;
 
 - (void)dealloc
 {
-    [self clear];
+    if (mapScene)
+        [self clear];
 }
 
 - (WhirlyKitView *) loadSetup_view
 {
     coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
+    
     mapView.continuousZoom = true;
 
     return mapView;
@@ -94,10 +96,10 @@ using namespace Maply;
     panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
     boundLL = MaplyCoordinateMakeWithDegrees(-180.0,-90.0);
     boundUR = MaplyCoordinateMakeWithDegrees(180.0,90.0);
-    [self setViewExtentsLL:boundLL ur:boundUR];
     pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
     pinchDelegate.minZoom = [mapView minHeightAboveSurface];
     pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+    [self setViewExtentsLL:boundLL ur:boundUR];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -132,6 +134,11 @@ using namespace Maply;
     *ur = boundUR;
 }
 
+- (void)setHeight:(float)height
+{
+    mapView.loc.z() = height;
+}
+
 /// Set the view extents.  This is the box the view point is allowed to be within.
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
 {
@@ -149,6 +156,7 @@ using namespace Maply;
     for (unsigned int ii=0;ii<4;ii++)
         bounds[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
     [panDelegate setBounds:bounds];
+    [pinchDelegate setBounds:bounds];
 }
 
 // Internal animation handler
@@ -179,8 +187,8 @@ using namespace Maply;
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     // Figure out where the point lands on the map
-    Eigen::Matrix4f modelTrans = [mapView calcFullMatrix];
-    Point3f whereLoc;
+    Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
+    Point3d whereLoc;
     if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
     {
         Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
@@ -218,7 +226,7 @@ using namespace Maply;
 // External facing set position
 - (void)setPosition:(MaplyCoordinate)newPos
 {
-    Point3f loc = mapView.loc;
+    Point3f loc = Vector3dToVector3f(mapView.loc);
     [self setPosition:newPos height:loc.z()];
 }
 
@@ -240,14 +248,14 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
-    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView.loc = loc;
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
-    Point3f loc = mapView.loc;
+    Point3d loc = mapView.loc;
     GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
@@ -270,11 +278,11 @@ using namespace Maply;
     {
         pinchDelegate.minZoom = minHeight;
         pinchDelegate.maxZoom = maxHeight;
-        Point3f loc = mapView.loc;
+        Point3d loc = mapView.loc;
         if (mapView.heightAboveSurface < minHeight)
-            mapView.loc = Point3f(loc.x(),loc.y(),minHeight);
+            mapView.loc = Point3d(loc.x(),loc.y(),minHeight);
         if (mapView.heightAboveSurface > maxHeight)
-            mapView.loc = Point3f(loc.x(),loc.y(),maxHeight);
+            mapView.loc = Point3d(loc.x(),loc.y(),maxHeight);
     }
 }
 

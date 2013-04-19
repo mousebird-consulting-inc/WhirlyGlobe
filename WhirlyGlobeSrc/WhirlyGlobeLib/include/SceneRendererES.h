@@ -76,6 +76,27 @@ namespace WhirlyKit
     };
 }
 
+/// OpenGL ES state optimizer.  This short circuits many of the OGL state
+///  changes that would otherwise be redundant.
+@interface WhirlyKitOpenGLStateOptimizer : NSObject
+
+/// Calls glActiveTextures
+- (void)setActiveTexture:(GLenum)activeTexture;
+
+/// Calls glDepthMask
+- (void)setDepthMask:(bool)depthMask;
+
+/// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
+- (void)setEnableDepthTest:(bool)enable;
+
+/// Calls glUseProgram
+- (void)setUseProgram:(GLuint)progId;
+
+/// Called by the render to clear state
+- (void)reset;
+
+@end
+
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
  */
@@ -120,6 +141,9 @@ namespace WhirlyKit
     
     /// Lights, if applicable
     NSArray *lights;
+    
+    /// State optimizer.  Used when setting state for drawing
+    WhirlyKitOpenGLStateOptimizer *stateOpt;
 }
 
 @property (nonatomic,assign) EAGLRenderingAPI oglVersion;
@@ -135,6 +159,7 @@ namespace WhirlyKit
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 @property (nonatomic,strong) NSArray *lights;
+@property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
 
 @end
 
@@ -212,8 +237,12 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZ
     /// Something wants to make sure we render until at least this point.
     NSTimeInterval renderUntil;
     
+    /// We use this to trigger a draw at the next opportunity.
+    /// For some reason something we can't see changed.
+    bool triggerDraw;
+    
     // View state from the last render, for comparison
-    Eigen::Matrix4f modelMat,viewMat;
+    Eigen::Matrix4d modelMat,viewMat;
 }
 
 @property (nonatomic,readonly) EAGLContext *context;
@@ -253,12 +282,15 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZ
 ///  the rendering optimization from cutting off animation.
 - (void)setRenderUntil:(NSTimeInterval)newTime;
 
+/// Force a draw at the next opportunity
+- (void)setTriggerDraw;
+
 /// Call this to force a draw on the next frame.
 /// This turns off the draw optimization, but just for one frame.
 - (void)forceDrawNextFrame;
 
 /// Used by the subclasses for culling
-- (void)findDrawables:(WhirlyKit::Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(WhirlyKit::Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans eyeVec:(Eigen::Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(WhirlyKit::Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<WhirlyKit::DrawableRef> *) toDraw considered:(int *)drawablesConsidered;
+- (void)findDrawables:(WhirlyKit::Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(WhirlyKit::Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Eigen::Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(WhirlyKit::Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<WhirlyKit::DrawableRef> *) toDraw considered:(int *)drawablesConsidered;
 
 /// Used by the subclasses to determine if the view changed and needs to be updated
 - (bool) viewDidChange;

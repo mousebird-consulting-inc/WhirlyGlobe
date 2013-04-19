@@ -36,6 +36,17 @@ using namespace WhirlyGlobe;
 
 @synthesize delegate;
 
+- (id) init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _autoMoveToTap = true;
+    
+    return self;
+}
+
 // Tear down layers and layer thread
 - (void) clear
 {
@@ -53,7 +64,8 @@ using namespace WhirlyGlobe;
 
 - (void) dealloc
 {
-    [self clear];
+    if (globeScene)
+        [self clear];
 }
 
 // Create the globe view
@@ -253,6 +265,29 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
+{
+    if (pinchDelegate)
+        [pinchDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+}
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight
+{
+    if (pinchDelegate)
+        [pinchDelegate clearTiltZoom];
+}
+
+- (float)tilt
+{
+    return globeView.tilt;
+}
+
+- (void)setTilt:(float)newTilt
+{
+    globeView.tilt = newTilt;
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time
@@ -282,32 +317,32 @@ using namespace WhirlyGlobe;
     [globeView cancelAnimation];
     
     // Figure out where that points lands on the globe
-    Eigen::Matrix4f modelTrans = [globeView calcFullMatrix];
-    Point3f whereLoc;
+    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    Point3d whereLoc;
     if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc])
     {
         CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
-        Vector3f destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
-        Eigen::Quaternionf endRot;
+        Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+        Eigen::Quaterniond endRot;
         endRot = QuatFromTwoVectors(destPt, whereLoc);
-        Eigen::Quaternionf curRotQuat = globeView.rotQuat;
-        Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
+        Eigen::Quaterniond curRotQuat = globeView.rotQuat;
+        Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
         
         if (panDelegate.northUp)
         {
             // We'd like to keep the north pole pointed up
             // So we look at where the north pole is going
-            Vector3f northPole = (newRotQuat * Vector3f(0,0,1)).normalized();
+            Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
             if (northPole.y() != 0.0)
             {
                 // Then rotate it back on to the YZ axis
                 // This will keep it upward
-                float ang = atanf(northPole.x()/northPole.y());
+                float ang = atan(northPole.x()/northPole.y());
                 // However, the pole might be down now
                 // If so, rotate it back up
                 if (northPole.y() < 0.0)
                     ang += M_PI;
-                Eigen::AngleAxisf upRot(ang,destPt);
+                Eigen::AngleAxisd upRot(ang,destPt);
                 newRotQuat = newRotQuat * upRot;
             }
         }
@@ -323,6 +358,11 @@ using namespace WhirlyGlobe;
 {
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
+    // If there's a pinch delegate, ask it to calculate the height.
+    if (pinchDelegate)
+    {
+        self.tilt = [pinchDelegate calcTilt];
+    }
 }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
@@ -334,7 +374,7 @@ using namespace WhirlyGlobe;
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     *height = globeView.heightAboveGlobe;
-    Point3f localPt = [globeView currentUp];
+    Point3d localPt = [globeView currentUp];
     GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
@@ -394,22 +434,26 @@ using namespace WhirlyGlobe;
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
+    WGCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
     if (selectedObj && selection)
     {
         // The user selected something, so let the delegate know
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+            [delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+        else if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             [delegate globeViewController:self didSelect:selectedObj];
     } else {
         // The user didn't select anything, let the delegate know.
         if (delegate && [delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
         {
-            WGCoordinate coord;
-            coord.x = msg.whereGeo.lon();
-            coord.y = msg.whereGeo.lat();
             [delegate globeViewController:self didTapAt:coord];
         }
         // Didn't select anything, so rotate
-        [self rotateToPoint:msg.whereGeo time:1.0];
+        if (_autoMoveToTap)
+            [self rotateToPoint:msg.whereGeo time:1.0];
     }
 }
 
@@ -432,10 +476,20 @@ using namespace WhirlyGlobe;
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    Point3f pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4f modelTrans = [visualView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+- (void)setSunDirection:(MaplyCoordinate3d)sunDir
+{
+    
+}
+
+- (void)clearSunDirection
+{
+    
 }
 
 @end

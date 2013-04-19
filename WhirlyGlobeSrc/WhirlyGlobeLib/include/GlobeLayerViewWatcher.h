@@ -28,23 +28,20 @@
 @interface WhirlyGlobeViewState : WhirlyKitViewState
 {
 @public
-	Eigen::Quaternion<float> rotQuat;
-    float heightAboveGlobe;
+	Eigen::Quaterniond rotQuat;
+    double heightAboveGlobe;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView;
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Return where up (0,0,1) is after model rotation
-- (Eigen::Vector3f)currentUp;
-
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
+- (Eigen::Vector3d)currentUp;
 
 /** Given a location on the screen and the screen size, figure out where we touched the sphere
  Returns true if we hit and where
  Returns false if not and the closest point on the sphere
  */
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3f *)hit;
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit;
 
 @end
 

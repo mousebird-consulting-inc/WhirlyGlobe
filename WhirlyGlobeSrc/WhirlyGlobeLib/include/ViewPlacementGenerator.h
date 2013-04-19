@@ -24,7 +24,6 @@
 #import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
@@ -51,7 +50,7 @@ public:
     public:
         ViewInstance() { }
         ViewInstance(UIView *view) : view(view) { }
-        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), view(view) { }
+        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), view(view) { offset.x() = view.frame.origin.x;  offset.y() = view.frame.origin.y; }
         ~ViewInstance() { }
         
         /// Sort by UIView
@@ -59,6 +58,8 @@ public:
 
         /// Where to put the view
         WhirlyKit::GeoCoord loc;
+        /// An offset taken from the view origin when it's passed to us
+        Point2f offset;
         /// The view we're going to move around
         UIView *view;
         /// Minimum visibility above globe

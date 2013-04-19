@@ -30,6 +30,9 @@
 #import "MaplyQuadEarthWithRemoteTiles_private.h"
 #import "MaplySphericalQuadEarthWithTexGroup_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "MaplyVectorObject_private.h"
+#import "MaplyShader_private.h"
+#import "MaplyQuadTestLayer_private.h"
 
 @interface MaplyBaseViewController()
 {
@@ -47,6 +50,7 @@
     WhirlyKitSphericalChunkLayer *chunkLayer;
     WhirlyKitLayoutLayer *layoutLayer;
     WhirlyKitSelectionLayer *selectLayer;
+    WhirlyKitLoftLayer *loftLayer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
@@ -64,7 +68,7 @@
     NSDictionary *hints;
     
     // Default description dictionaries for the various data types
-    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc,*stickerDesc;
+    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc,*stickerDesc,*loftDesc;
     
     // Clear color we're using
     UIColor *theClearColor;
@@ -74,6 +78,12 @@
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
     WhirlyKitView *visualView;
+    
+    /// Active lights
+    NSMutableArray *lights;
+    
+    /// Active shaders
+    NSMutableArray *shaders;
     
     /// Set if we're doing performance output
     bool perfOutput;
@@ -85,6 +95,9 @@
 /// LoadSetup is where the Component does all the WhirlyGlobe/Maply specific setup.  If you override this,
 ///  be sure to call [super loadSetup] first and then do your thing.
 - (void) loadSetup;
+
+/// Create the EAGLView
+- (void) loadSetup_glView;
 
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
 - (WhirlyKitView *) loadSetup_view;
@@ -98,5 +111,11 @@
 
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
+
+/// Make the renderer's GL context active.  This is used internally.
+- (void) useGLContext;
+
+/// Every shader created with a view controller needs to be tracked by the view controller
+- (void) addShader:(MaplyShader *)shader;
 
 @end

@@ -31,15 +31,17 @@ using namespace WhirlyKit;
     self = [super init];
     if (!self)
         return nil;
-
-    // Note: Provide some reasonable defaults
+    
+    viewDependent = true;
     
     return self;
 }
 
-- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index
+- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index modelMatrix:(Eigen::Matrix4f &)modelMat
 {
     char name[200];
+    sprintf(name,"light[%d].viewdepend",index);
+    const OpenGLESUniform *viewDependUni = program->findUniform(name);
     sprintf(name,"light[%d].direction",index);
     const OpenGLESUniform *dirUni = program->findUniform(name);
     sprintf(name,"light[%d].halfplane",index);
@@ -54,6 +56,11 @@ using namespace WhirlyKit;
     Vector3f dir = pos.normalized();
     Vector3f halfPlane = (dir + Vector3f(0,0,1)).normalized();
     
+    if (viewDependUni)
+    {
+        glUniform1f(viewDependUni->index, (viewDependent ? 0.0 : 1.0));
+        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform1f");
+    }
     if (dirUni)
     {
         glUniform3f(dirUni->index, dir.x(), dir.y(), dir.z());

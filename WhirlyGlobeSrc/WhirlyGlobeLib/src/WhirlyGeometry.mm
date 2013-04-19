@@ -44,7 +44,27 @@ bool IntersectUnitSphere(Point3f org,Vector3f dir,Point3f &hit)
 	hit = org + dir * t;
 	return true;
 }
-    	
+
+bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
+{
+    double a = dir.dot(dir);
+    double b = 2.0f * org.dot(dir);
+    double c = org.dot(org) - 1.0;
+    
+    double sq = b*b - 4.0f * a * c;
+    if (sq < 0.0)
+        return false;
+    
+    double rt = sqrt(sq);
+    double ta = (-b + rt) / (2.0f * a);
+    double tb = (-b - rt) / (2.0f * a);
+    
+    double t = std::min(ta,tb);
+    
+    hit = org + dir * t;
+    return true;
+}
+    
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
@@ -92,5 +112,179 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
 
     return Point2f(p0.x()+dx*u,p0.y()+dy*u);
 }
+	
+bool IntersectLines(const Point2f &p1,const Point2f &p2,const Point2f &p3,const Point2f &p4,Point2f *iPt)
+{
+    float denom = (p1.x()-p2.x())*(p3.y()-p4.y()) - (p1.y() - p2.y())*(p3.x() - p4.x());
+    if (denom == 0.0)
+        return false;
+    
+    float termA = (p1.x()*p2.y() - p1.y()*p2.x());
+    float termB = (p3.x() * p4.y() - p3.y() * p4.x());
+    iPt->x() = ( termA * (p3.x() - p4.x()) - (p1.x() - p2.x()) * termB)/denom;
+    iPt->y() = ( termA * (p3.y() - p4.y()) - (p1.y() - p2.y()) * termB)/denom;
+    
+    return true;
+}
+    
+// Homogeneous clipping code credit to:
+//   http://wwwx.cs.unc.edu/~sud/courses/236/a5/softgl_homoclip_smooth.cpp
+
+// Clipping planes
+typedef enum {Left,Right,Bottom,Top,Near,Far} ClipPlane;
+    
+Eigen::Vector4d intersectPlane(const Vector4d &p1,const Vector4d &p2,ClipPlane plane)
+{
+    float t=0.0;
+    switch (plane)
+    {
+        case Left   : t=(-p1.w()-p1.x())/(p2.x()-p1.x()+p2.w()-p1.w()); break;
+        case Right  : t=(p1.w()-p1.x())/(p2.x()-p1.x()-p2.w()+p1.w());  break;
+        case Bottom : t=(-p1.w()-p1.y())/(p2.y()-p1.y()+p2.w()-p1.w()); break;
+        case Top    : t=(p1.w()-p1.y())/(p2.y()-p1.y()-p2.w()+p1.w());  break;
+        case Near   : t=(-p1.w()-p1.z())/(p2.z()-p1.z()+p2.w()-p1.w()); break;
+        case Far    : t=(p1.w()-p1.z())/(p2.z()-p1.z()-p2.w()+p1.w());  break;
+    }
+    
+    Vector4d pt = p1 + (p2-p1)*t;
+    
+    return pt;
+}
+    
+bool insidePlane(const Vector4d &pt,ClipPlane plane)
+{
+    switch (plane)
+    {
+        case Left: return pt.x()>=  -pt.w();
+        case Right: return pt.x()<=  pt.w();
+        case Bottom: return pt.y()>=-pt.w();
+        case Top: return pt.y()<=    pt.w();
+        case Near: return pt.z()>=  -pt.w();
+        case Far: return pt.z()<=    pt.w();
+    }
+    
+    // Won't get here
+    return false;
+}
+
+void ClipHomogeneousPolyToPlane(const std::vector<Eigen::Vector4d> &pts,ClipPlane plane,std::vector<Eigen::Vector4d> &outPts)
+{
+    outPts.clear();
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        const Vector4d &p0 = pts[ii];
+        const Vector4d &p1 = pts[(ii+1)%pts.size()];
+        bool p0_in = insidePlane(p0,plane);
+        bool p1_in = insidePlane(p1,plane);
+        // Edge crosses plane
+        if (p0_in != p1_in)
+        {
+            Vector4d newP = intersectPlane(p0,p1,plane);
+            outPts.push_back(newP);
+        }
+        // 2nd vertex inside, add it
+        if (p1_in)
+            outPts.push_back(p1);
+    }
+}
+    
+void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &inPts,std::vector<Eigen::Vector4d> &outPts)
+{
+    if (inPts.size() < 3)
+        return;
+    std::vector<Vector4d> pts = inPts;
+ 
+    ClipHomogeneousPolyToPlane(pts, Left, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Right, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Bottom, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Top, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Near, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Far, outPts);
+}
+
+void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly)
+{
+    std::vector<Vector4d> pts;
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        const Point3d &pt = poly[ii];
+        // Run through the model transform
+        Vector4d modPt = modelMat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        // And then the projection matrix.  Now we're in clip space
+        Vector4d projPt = projMat * modPt;
+        pts.push_back(projPt);
+    }
+
+    std::vector<Eigen::Vector4d> clipSpacePts;
+    ClipHomogeneousPolygon(pts,clipSpacePts);
+    
+    if (clipSpacePts.empty())
+        return;
+    
+    // Project to the screen
+    Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
+    for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
+    {
+        Vector4d &outPt = clipSpacePts[ii];
+        Point2f screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
+        screenPt.y() = frameSize.y() - screenPt.y();
+        screenPoly.push_back(screenPt);
+    }    
+}
+    
+// Note: Maybe finish implementing this
+bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
+{
+    return false;
+}
+    
+// Inspired by: http://geomalgorithms.com/a01-_area.html
+float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
+{
+    if (poly.size() < 3)
+        return 0.0;
+    float area = 0.0;
+
+    // Decide which coordinate to ignore
+    Point3d a(std::abs(norm.x()),std::abs(norm.y()),std::abs(norm.z()));
+    int coord = (a.x() > a.y()) ? (a.x() > a.z() ? 1 : 3) : (a.y() > a.z() ? 2 : 3);
+    
+    // Area of the 3D version
+    for (unsigned int ii=0;ii<poly.size();ii++)
+    {
+        const Point3d &p1 = poly[ii];
+        const Point3d &p2 = poly[(ii+1)%poly.size()];
+        switch (coord)
+        {
+            case 1:
+                area += p1.y()*p2.z() - p1.z()*p2.y();
+                break;
+            case 2:
+                area += p1.x()*p2.z() - p1.z()*p2.x();
+                break;
+            case 3:
+                area += p1.x()*p2.y() - p1.y()*p2.x();
+                break;
+        }
+    }
+                 
+    // Scale to get a 3D area back
+    float an = sqrtf(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
+    switch (coord)
+    {
+        case 1:
+            area *= (an / (2*a.x()));
+            break;
+        case 2:
+            area *= (an / (2*a.y()));
+            break;
+        case 3:
+            area *= (an / (2*a.z()));
+            break;
+    }
+                 
+    return area;
+}
+
 	
 }

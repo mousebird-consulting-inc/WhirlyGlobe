@@ -40,6 +40,8 @@
 @synthesize pinchSwitch;
 @synthesize rotateSwitch;
 @synthesize countrySwitch;
+@synthesize loftPolySwitch;
+@synthesize megaMarkersSwitch;
 @synthesize perfSwitch;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil

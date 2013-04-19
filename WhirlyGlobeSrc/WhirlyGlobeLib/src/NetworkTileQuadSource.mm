@@ -22,7 +22,6 @@
 #import "GlobeLayerViewWatcher.h"
 
 using namespace WhirlyKit;
-using namespace WhirlyGlobe;
 
 @implementation WhirlyKitNetworkTileQuadSourceBase
 
@@ -67,14 +66,14 @@ using namespace WhirlyGlobe;
     return maxZoom;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
     
     // For the rest,
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr, ident, attrs);
 }
 
 @end
@@ -129,7 +128,7 @@ using namespace WhirlyGlobe;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     int y = ((int)(1<<level)-row)-1;
     
@@ -187,9 +186,9 @@ using namespace WhirlyGlobe;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 
@@ -248,7 +247,7 @@ using namespace WhirlyGlobe;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     int y = ((int)(1<<level)-row)-1;
     
@@ -311,9 +310,9 @@ using namespace WhirlyGlobe;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 

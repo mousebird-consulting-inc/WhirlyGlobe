@@ -201,7 +201,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 
 // Construct the program, compile and link
 OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString)
-    : name(inName)
+    : name(inName), lightsLastUpdated(0.0)
 {
     program = glCreateProgram();
     
@@ -336,17 +336,20 @@ bool OpenGLES2Program::hasLights()
     return lightAttr != NULL;
 }
     
-bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat)
+bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
 {
     if (lightsLastUpdated >= lastUpdate)
-        return true;
-
+        return false;
     lightsLastUpdated = lastUpdate;
+    
     int numLights = [lights count];
     if (numLights > 8) numLights = 8;
     bool lightsSet = true;
     for (unsigned int ii=0;ii<numLights;ii++)
-        lightsSet &= [[lights objectAtIndex:ii] bindToProgram:this index:ii];
+    {
+        WhirlyKitDirectionalLight *light = [lights objectAtIndex:ii];
+        lightsSet &= [light bindToProgram:this index:ii modelMatrix:modelMat];
+    }
     OpenGLESUniform *lightAttr = findUniform("u_numLights");
     if (lightAttr)
         glUniform1i(lightAttr->index, numLights);

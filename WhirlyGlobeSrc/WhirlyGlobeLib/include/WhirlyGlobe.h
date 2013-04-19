@@ -59,7 +59,6 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "DrawCost.h"
-#import "RenderCache.h"
 #import "FlatMath.h"
 #import "SphericalMercator.h"
 #import "MaplyView.h"
@@ -82,3 +81,5 @@
 #import "MaplyScene.h"
 #import "ShapeLayer.h"
 #import "LayoutLayer.h"
+#import "OpenGLES2Program.h"
+

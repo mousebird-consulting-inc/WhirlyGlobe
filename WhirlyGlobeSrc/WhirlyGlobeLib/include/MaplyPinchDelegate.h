@@ -30,11 +30,16 @@
     /// If we're zooming, where we started
     float startZ;
     MaplyView *mapView;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
 }
 
 @property (nonatomic,assign) float minZoom,maxZoom;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+
+/// Set the bounding rectangle
+- (void)setBounds:(WhirlyKit::Point2f *)bounds;
 
 @end

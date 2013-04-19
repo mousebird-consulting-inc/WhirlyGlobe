@@ -22,10 +22,12 @@
 
 @implementation MaplyScreenMarker
 
+@synthesize userObject;
 @synthesize loc;
 @synthesize size;
 @synthesize image;
 @synthesize selectable;
+@synthesize layoutImportance;
 
 - (id)init
 {

@@ -35,31 +35,47 @@ using namespace WhirlyKit;
 // Sample a great circle and throw in an interpolated height at each point
 void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
 {
-    Point3f p0 = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
-    Point3f p1 = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
-    
-    // Note: Dumb approach.  Switch to an adaptive sampling
     bool isFlat = coordAdapter->isFlat();
-    int numSamples = 100;
-    for (unsigned int ii=0;ii<=numSamples;ii++)
+
+    // We can subdivide the great circle with this routine
+    if (isFlat)
     {
-        // Sample the point
-        float t = (ii/(float)numSamples);
-        Point3f pt = (p1-p0)*t + p0;
-        // This puts us on the surface of the sphere
-        if (!isFlat)
-            pt.normalize();
+        pts.resize(2);
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
+    } else {
+        VectorRing inPts;
+        inPts.push_back(Point2f(startPt.x,startPt.y));
+        inPts.push_back(Point2f(endPt.x,endPt.y));
+        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, 0.001);
+
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
         
-        // Parabolic curve
-        float b = 4*height;
-        float a = -b;
-        float thisHeight = a*(t*t) + b*t;
-        
-        if (isFlat)
-            pt.z() = thisHeight;
-        else
-            pt *= 1.0+thisHeight;
-        pts.push_back(pt);
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3f &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+                pt.z() = thisHeight;
+            else
+                pt *= 1.0+thisHeight;        
+        }
     }
 }
 
@@ -70,6 +86,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 @synthesize vectorLayer;
 @synthesize shapeLayer;
 @synthesize chunkLayer;
+@synthesize loftLayer;
 @synthesize selectLayer;
 @synthesize glView;
 
@@ -121,9 +138,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     // Add it and download it
     [EAGLContext setCurrentContext:layerThread.glContext];
-    Texture *tex = new Texture(image,true);
-    tex->createInGL(YES, scene->getMemManager());
-    scene->addChangeRequest(new AddTextureReq(tex));
+    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+    [layerThread addChangeRequest:(new AddTextureReq(tex))];
     
     // Add to our cache
     MaplyImageTexture newTex(image,tex->getId());
@@ -158,7 +174,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // Note: This is a hack to work around fade problems
 - (void)delayedRemoveTexture:(NSNumber *)texID
 {
-    scene->addChangeRequest(new RemTextureReq([texID integerValue]));
+    [layerThread addChangeRequest:(new RemTextureReq([texID integerValue]))];
 }
 
 // Actually add the markers.
@@ -190,11 +206,15 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.isSelectable = true;
             wgMarker.selectID = Identifiable::genId();
         }
+        wgMarker.layoutImportance = marker.layoutImportance;
         
         [wgMarkers addObject:wgMarker];
         
         if (marker.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            compObj.selectIDs.insert(wgMarker.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -250,7 +270,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgMarkers addObject:wgMarker];
         
         if (marker.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            compObj.selectIDs.insert(wgMarker.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -316,7 +339,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgLabels addObject:wgLabel];
         
         if (label.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            compObj.selectIDs.insert(wgLabel.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -389,7 +415,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         [wgLabels addObject:wgLabel];
         
         if (label.selectable)
+        {
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            compObj.selectIDs.insert(wgLabel.selectID);
+        }
     }
     
     // Set up a description and create the markers in the marker layer
@@ -502,6 +531,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newCircle.loc.lat() = circle.center.y;
             newCircle.radius = circle.radius;
             newCircle.height = circle.height;
+            if (circle.color)
+            {
+                newCircle.useColor = true;
+                RGBAColor color = [circle.color asRGBAColor];
+                newCircle.color = color;
+            }
             [ourShapes addObject:newCircle];
         } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
@@ -511,6 +546,19 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             newSphere.loc.lat() = sphere.center.y;
             newSphere.radius = sphere.radius;
             newSphere.height = sphere.height;
+            if (sphere.color)
+            {
+                newSphere.useColor = true;
+                RGBAColor color = [sphere.color asRGBAColor];
+                newSphere.color = color;
+            }
+            if (sphere.selectable)
+            {
+                newSphere.isSelectable = true;
+                newSphere.selectID = Identifiable::genId();
+                selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
+                compObj.selectIDs.insert(newSphere.selectID);
+            }
             [ourShapes addObject:newSphere];
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
@@ -518,8 +566,22 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
             newCyl.loc.lon() = cyl.baseCenter.x;
             newCyl.loc.lat() = cyl.baseCenter.y;
+            newCyl.baseHeight = cyl.baseHeight;
             newCyl.radius = cyl.radius;
             newCyl.height = cyl.height;
+            if (cyl.color)
+            {
+                newCyl.useColor = true;
+                RGBAColor color = [cyl.color asRGBAColor];
+                newCyl.color = color;
+            }
+            if (cyl.selectable)
+            {
+                newCyl.isSelectable = true;
+                newCyl.selectID = Identifiable::genId();
+                selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
+                compObj.selectIDs.insert(newCyl.selectID);
+            }
             [ourShapes addObject:newCyl];
         } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
         {
@@ -527,6 +589,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
             SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter);
             lin.lineWidth = gc.lineWidth;
+            if (gc.color)
+            {
+                lin.useColor = true;
+                RGBAColor color = [gc.color asRGBAColor];
+                lin.color = color;
+            }
             [ourShapes addObject:lin];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
@@ -545,6 +613,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 newLin.pts.push_back(pt);
             }
             newLin.lineWidth = lin.lineWidth;
+            if (lin.color)
+            {
+                newLin.useColor = true;
+                RGBAColor color = [lin.color asRGBAColor];
+                newLin.color = color;
+            }
             [ourShapes addObject:newLin];
         }
     }
@@ -607,6 +681,42 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually add the lofted polys.
+// Called in the layer thread.
+- (void)addLoftedPolysLayerThread:(NSArray *)argArray
+{
+    NSArray *vectors = [argArray objectAtIndex:0];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    compObj.vectors = vectors;
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSString *key = argArray[3];
+    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
+    
+    ShapeSet shapes;
+    for (MaplyVectorObject *vecObj in vectors)
+    {
+        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+    }
+    
+    SimpleIdentity loftID = [loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
+    compObj.loftIDs.insert(loftID);
+    compObj.isSelectable = false;
+    
+    [userObjects addObject:compObj];
+}
+
+// Add lofted polys
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null])];
+    [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    
+    return compObj;
+}
+
+
 // Remove the object, but do it on the layer thread
 - (void)removeObjectLayerThread:(NSArray *)userObjs
 {
@@ -628,14 +738,36 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
                  it != userObj.shapeIDs.end(); ++it)
                 [shapeLayer removeShapes:*it];
+            for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
+                 it != userObj.loftIDs.end(); ++it)
+                [loftLayer removeLoftedPoly:*it];
             for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
                  it != userObj.chunkIDs.end(); ++it)
                 [chunkLayer removeChunk:*it];
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];
+            // And associated selection mappings
+            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                 it != userObj.selectIDs.end(); ++it)
+            {
+                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                if (sit != selectObjectSet.end())
+                    selectObjectSet.erase(sit);
+            }
+            
+            // And any references to selection objects
+            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                 it != userObj.selectIDs.end(); ++it)
+            {
+                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                if (sit != selectObjectSet.end())
+                    selectObjectSet.erase(sit);
+            }
             
             [userObjects removeObject:userObj];
+        } else {
+//            NSLog(@"Tried to delete object that doesn't exist");
         }
     }
 }
@@ -661,7 +793,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     for (MaplyComponentObject *userObj in userObjects)
     {
-        if (userObj.vectors)
+        if (userObj.vectors && userObj.isSelectable)
         {
             for (MaplyVectorObject *vecObj in userObj.vectors)
             {

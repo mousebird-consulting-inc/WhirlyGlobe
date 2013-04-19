@@ -44,7 +44,7 @@ public:
     void clearContents(WhirlyKitSelectionLayer *selectLayer,std::vector<ChangeRequest *> &changeRequests);
 
     SimpleIDSet drawIDs;  // Drawables created for this
-    SimpleIdentity selectID;  // ID in the selection layer
+    SimpleIDSet selectIDs;  // IDs in the selection layer
     float fade;  // Time to fade away for removal
 };
 
@@ -63,10 +63,16 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     /// If the shape is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
     WhirlyKit::SimpleIdentity selectID;
+    /// If set, we'll use the local color
+    bool useColor;
+    /// Local color, which will override the default
+    WhirlyKit::RGBAColor color;
 }
 
 @property (nonatomic,assign) bool isSelectable;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+@property (nonatomic,assign) bool useColor;
+@property (nonatomic,assign) WhirlyKit::RGBAColor &color;
 
 @end
 
@@ -109,6 +115,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 {
     /// The location for the origin of the shape
     WhirlyKit::GeoCoord loc;
+    /// Height offset from the ground (in display units)
+    float baseHeight;
     /// Radius in display units
     float radius;
     /// Height in display units
@@ -116,6 +124,7 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 }
 
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
+@property (nonatomic,assign) float baseHeight;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
 

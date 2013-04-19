@@ -40,6 +40,9 @@ using namespace WhirlyGlobe;
     float       fade;
     float       minVis,maxVis;
     int         priority;
+    bool        top,side;
+    bool        layered;
+    NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
 
 @property (nonatomic) UIColor *color;
@@ -83,88 +86,68 @@ using namespace WhirlyGlobe;
 - (void)parseDesc:(NSDictionary *)dict key:(NSString *)inKey
 {
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"priority" default:0];
+    priority = [dict intForKey:@"drawPriority" default:0];
+    priority = [dict intForKey:@"priority" default:priority];
     height = [dict floatForKey:@"height" default:.01];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     fade = [dict floatForKey:@"fade" default:0.0];
+    top = [dict boolForKey:@"top" default:true];
+    side = [dict boolForKey:@"side" default:true];
+    layered = [dict boolForKey:@"layered" default:false];
     self.key = inKey;
 }
 
 @end
 
-namespace WhirlyGlobe
+namespace WhirlyKit
 {
     
 // Read the lofted poly representation from a cache file
 // We're just saving the MBR and triangle mesh here
-bool LoftedPolySceneRep::readFromCache(NSString *key)
-{
-    // Look for cache files in the doc and bundle dirs
-    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
-
-    NSString *cache0 = [NSString stringWithFormat:@"%@/%@.loftcache",bundleDir,key];
-    NSString *cache1 = [NSString stringWithFormat:@"%@/%@.loftcache",docDir,key];
-    
-    // Look for an existing file
-    NSString *cacheFile = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:cache0])
-        cacheFile = cache0;
-    else
-        if ([fileManager fileExistsAtPath:cache1])
-            cacheFile = cache1;
-    
-    if (!cacheFile)
+bool LoftedPolySceneRep::readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key)
+{    
+    if (!cache)
         return false;
 
-    // Let's try to read it
-    FILE *fp = fopen([cacheFile cStringUsingEncoding:NSASCIIStringEncoding],"r");
-    if (!fp)
+    NSData *data = [cache readLoftedPolyData:key];
+    if (!data)
         return false;
-
+    
     try {
         // MBR first
         float ll_x,ll_y,ur_x,ur_y;
-        if (fread(&ll_x,sizeof(float),1,fp) != 1 ||
-            fread(&ll_y,sizeof(float),1,fp) != 1 ||
-            fread(&ur_x,sizeof(float),1,fp) != 1 ||
-            fread(&ur_y,sizeof(float),1,fp) != 1)
-            throw 1;
+        unsigned int loc = 0;
+        [data getBytes:&ll_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+        [data getBytes:&ll_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+        [data getBytes:&ur_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+        [data getBytes:&ur_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
         shapeMbr.addGeoCoord(GeoCoord(ll_x,ll_y));
         shapeMbr.addGeoCoord(GeoCoord(ur_x,ur_y));
         
         // Triangle meshes
         unsigned int numMesh = 0;
-        if (fread(&numMesh,sizeof(unsigned int),1,fp) != 1)
-            throw 1;
+        [data getBytes:&numMesh range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
         triMesh.resize(numMesh);
         for (unsigned int ii=0;ii<numMesh;ii++)
         {
             VectorRing &ring = triMesh[ii];
             unsigned int numPt = 0;
-            if (fread(&numPt,sizeof(unsigned int),1,fp) != 1)
-                throw 1;
+            [data getBytes:&numPt range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
             ring.resize(numPt);
             for (unsigned int jj=0;jj<numPt;jj++)
             {
                 Point2f &pt = ring[jj];
                 float x,y;
-                if (fread(&x,sizeof(float),1,fp) != 1 ||
-                    fread(&y,sizeof(float),1,fp) != 1)
-                    throw 1;
+                [data getBytes:&x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+                [data getBytes:&y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
                 pt.x() = x;
                 pt.y() = y;                
             }
-        }
-        
-        fclose(fp);  fp = NULL;
+        }        
     }
     catch (...)
     {
-        fclose(fp);
-        fp = NULL;
         return false;
     }
     
@@ -173,52 +156,34 @@ bool LoftedPolySceneRep::readFromCache(NSString *key)
     
 // Write the lofted poly representation to a cache
 // Just the MBR and triangle mesh
-bool LoftedPolySceneRep::writeToCache(NSString *key)
+bool LoftedPolySceneRep::writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key)
 {
-    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *cacheFile = [NSString stringWithFormat:@"%@/%@.loftcache",docDir,key];
-
-    FILE *fp = fopen([cacheFile cStringUsingEncoding:NSASCIIStringEncoding],"w");
-    if (!fp)
-        return false;
+    NSMutableData *data = [NSMutableData dataWithCapacity:0];
     
-    try {
-        // MBR first
-        GeoCoord ll = shapeMbr.ll(), ur = shapeMbr.ur();
-        if (fwrite(&ll.x(),sizeof(float),1,fp) != 1 ||
-            fwrite(&ll.y(),sizeof(float),1,fp) != 1 ||
-            fwrite(&ur.x(),sizeof(float),1,fp) != 1 ||
-            fwrite(&ur.y(),sizeof(float),1,fp) != 1)
-            throw 1;
-        
-        // Triangle meshes
-        unsigned int numMesh = triMesh.size();
-        if (fwrite(&numMesh,sizeof(unsigned int),1,fp) != 1)
-            throw 1;
-        for (unsigned int ii=0;ii<numMesh;ii++)
-        {
-            VectorRing &ring = triMesh[ii];
-            unsigned int numPt = ring.size();
-            if (fwrite(&numPt,sizeof(unsigned int),1,fp) != 1)
-                throw 1;
-            for (unsigned int jj=0;jj<numPt;jj++)
-            {
-                Point2f &pt = ring[jj];
-                if (fwrite(&pt.x(),sizeof(float),1,fp) != 1 ||
-                    fwrite(&pt.y(),sizeof(float),1,fp) != 1)
-                    throw 1;
-            }
-        }
-        
-        fclose(fp);  fp = NULL;
-    }
-    catch (...)
+    // MBR first
+    GeoCoord ll = shapeMbr.ll(), ur = shapeMbr.ur();
+    [data appendBytes:&ll.x() length:sizeof(float)];
+    [data appendBytes:&ll.y() length:sizeof(float)];
+    [data appendBytes:&ur.x() length:sizeof(float)];
+    [data appendBytes:&ur.y() length:sizeof(float)];
+    
+    // Triangle meshes
+    unsigned int numMesh = triMesh.size();
+    [data appendBytes:&numMesh length:sizeof(unsigned int)];
+    for (unsigned int ii=0;ii<numMesh;ii++)
     {
-        fclose(fp);  fp = NULL;
-        return false;
+        VectorRing &ring = triMesh[ii];
+        unsigned int numPt = ring.size();
+        [data appendBytes:&numPt length:sizeof(unsigned int)];
+        for (unsigned int jj=0;jj<numPt;jj++)
+        {
+            Point2f &pt = ring[jj];
+            [data appendBytes:&pt.x() length:sizeof(float)];
+            [data appendBytes:&pt.y() length:sizeof(float)];
+        }
     }
-    
-    return true;
+
+    return [cache writeLoftedPolyData:data cacheName:key];
 }
     
 /* Drawable Builder
@@ -228,9 +193,9 @@ bool LoftedPolySceneRep::writeToCache(NSString *key)
 class DrawableBuilder2
 {
 public:
-    DrawableBuilder2(GlobeScene *scene,LoftedPolySceneRep *sceneRep,
+    DrawableBuilder2(Scene *scene,WhirlyKitLayerThread *layerThread,LoftedPolySceneRep *sceneRep,
                      LoftedPolyInfo *polyInfo,const GeoMbr &inDrawMbr)
-    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL)
+    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), layerThread(layerThread)
     {
         primType = GL_TRIANGLES;
         drawMbr = inDrawMbr;
@@ -250,15 +215,21 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Lofted Poly");
             drawable->setType(primType);
             // Adjust according to the vector info
             //            drawable->setOnOff(polyInfo->enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
             drawable->setColor([polyInfo.color asRGBAColor]);
+            if (polyInfo->layered)
+            {
+                drawable->setDrawPriority(polyInfo->priority);
+                drawable->setAlpha(true);
+            } else {
             drawable->setAlpha(true);
-            //            drawable->setDrawPriority(vecInfo->priority);
-            //            drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+            drawable->setForceZBufferOn(true);
+            }
+            drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
     }
     
@@ -274,13 +245,12 @@ public:
             // Get some real world coordinates and corresponding normal
             Point2f &geoPt = verts[ii];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f localPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoord));
+            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+            Point3f dispPt = coordAdapter->localToDisplay(localPt);
             Point3f norm = coordAdapter->normalForLocal(localPt);
-            Point3f pt1 = norm * (1.0 + polyInfo->height);
+            Point3f pt1 = dispPt + norm * polyInfo->height;
             
             drawable->addPoint(pt1);
-            if (coordAdapter->isFlat())
-                norm = Point3f(0,0,1);
             drawable->addNormal(norm);
         }
         
@@ -403,7 +373,7 @@ public:
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
-                scene->addChangeRequest(new AddDrawableReq(drawable));
+                [layerThread addChangeRequest:(new AddDrawableReq(drawable))];
             } else
                 delete drawable;
             drawable = NULL;
@@ -411,7 +381,8 @@ public:
     }
     
 protected:   
-    GlobeScene *scene;
+    Scene *scene;
+    WhirlyKitLayerThread *layerThread;
     LoftedPolySceneRep *sceneRep;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
@@ -421,17 +392,15 @@ protected:
 
 }
 
-@implementation WhirlyGlobeLoftLayer
+@implementation WhirlyKitLoftLayer
 
 @synthesize gridSize;
-@synthesize useCache;
 
 - (id)init
 {
     if ((self = [super init]))
     {
         gridSize = 10.0 / 180.0 * M_PI;  // Default to 10 degrees
-        useCache = NO;
     }
     
     return self;
@@ -452,7 +421,7 @@ protected:
     [self clear];
 }
 
-- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyGlobe::GlobeScene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
 	scene = inScene;
     layerThread = inLayerThread;
@@ -481,7 +450,7 @@ protected:
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    DrawableBuilder2 drawBuild(scene,sceneRep,polyInfo,drawMbr);
+    DrawableBuilder2 drawBuild(scene,layerThread,sceneRep,polyInfo,drawMbr);
     
     // Toss in the polygons for the sides
     if (polyInfo->height != 0.0)
@@ -494,15 +463,19 @@ protected:
             {
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    drawBuild.addSkirtPoints(theAreal->loops[ri]);
-                    numShapes++;
+                    if (polyInfo->side)
+                    {
+                        drawBuild.addSkirtPoints(theAreal->loops[ri]);
+                        numShapes++;
+                    }
                 }
             }
         }
     }
     
     // Tweak the mesh polygons and toss 'em in
-    drawBuild.addPolyGroup(sceneRep->triMesh);
+    if (polyInfo->top)
+        drawBuild.addPolyGroup(sceneRep->triMesh);
 
 //    printf("Added %d shapes and %d triangles from mesh\n",(int)numShapes,(int)sceneRep->triMesh.size());        
 }
@@ -519,7 +492,7 @@ protected:
     sceneRep->shapes = polyInfo->shapes;
     
     // Try reading from the cache
-    if (!useCache || !polyInfo.key || !sceneRep->readFromCache(polyInfo.key))
+    if (!polyInfo.key || !sceneRep->readFromCache(polyInfo->cache,polyInfo.key))
     {
         // If that fails, we'll regenerate everything
         for (ShapeSet::iterator it = polyInfo->shapes.begin();
@@ -556,8 +529,8 @@ protected:
         }
         
         // And save out to the cache if we're doing that
-        if (useCache && polyInfo.key)
-            sceneRep->writeToCache(polyInfo.key);
+        if (polyInfo->cache)
+            sceneRep->writeToCache(polyInfo->cache, polyInfo.key);
     }
     
 //    printf("runAddPoly: handing off %d clipped loops to addGeometry\n",(int)sceneRep->triMesh.size());
@@ -576,7 +549,7 @@ protected:
         // Clean out old geometry
         for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
              idIt != sceneRep->drawIDs.end(); ++idIt)
-            scene->addChangeRequest(new RemDrawableReq(*idIt));
+            [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
         sceneRep->drawIDs.clear();
         
         // And add the new back
@@ -597,7 +570,7 @@ protected:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemovePoly:) withObject:num afterDelay:sceneRep->fade];
@@ -605,7 +578,7 @@ protected:
         } else {
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             polyReps.erase(it);
         
             delete sceneRep;
@@ -614,7 +587,7 @@ protected:
 }
 
 // Add a lofted poly
-- (SimpleIdentity)addLoftedPolys:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (WhirlyKit::SimpleIdentity) addLoftedPolys:(WhirlyKit::ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName cacheHandler:(NSObject<WhirlyKitLoftedPolyCache> *)cacheHandler
 {
     if (!layerThread || !scene)
     {
@@ -622,7 +595,8 @@ protected:
         return EmptyIdentity;
     }
 
-    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:cacheName];
+    LoftedPolyInfo *polyInfo = [[LoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:([cacheName isKindOfClass:[NSNull class]] ? nil : cacheName)];
+    polyInfo->cache = ([cacheHandler isKindOfClass:[NSNull class]] ? nil :cacheHandler);
     polyInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -633,12 +607,12 @@ protected:
     return polyInfo->sceneRepId;
 }
 
-- (SimpleIdentity) addLoftedPoly:(VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (WhirlyKit::SimpleIdentity) addLoftedPoly:(WhirlyKit::VectorShapeRef)shape desc:(NSDictionary *)desc cacheName:(NSString *)cacheName cacheHandler:(NSObject<WhirlyKitLoftedPolyCache> *)cacheHandler
 {
     ShapeSet shapes;
     shapes.insert(shape);
     
-    return [self addLoftedPolys:&shapes desc:desc cacheName:(NSString *)cacheName];
+    return [self addLoftedPolys:&shapes desc:desc cacheName:(NSString *)cacheName cacheHandler:cacheHandler];
 }
 
 // Change how the lofted poly is represented

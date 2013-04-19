@@ -29,11 +29,20 @@ using namespace WhirlyKit;
 
 - (void) clear
 {
+    if (!scene)
+        return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
     
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [sceneRenderer useContext];
+    for (MaplyShader *shader in shaders)
+        [shader shutdown];
+    scene->teardownGL();
+    if (oldContext)
+        [EAGLContext setCurrentContext:oldContext];
     
     if (layerThread)
     {
@@ -59,6 +68,7 @@ using namespace WhirlyKit;
     shapeLayer = nil;
     chunkLayer = nil;
     layoutLayer = nil;
+    loftLayer = nil;
     selectLayer = nil;
     
     interactLayer = nil;
@@ -75,9 +85,20 @@ using namespace WhirlyKit;
     theClearColor = nil;
 }
 
+- (void) dealloc
+{
+    if (scene)
+        [self clear];
+}
+
 - (WhirlyKitView *) loadSetup_view
 {
     return nil;
+}
+
+- (void)loadSetup_glView
+{
+    glView = [[WhirlyKitEAGLView alloc] init];
 }
 
 - (WhirlyKit::Scene *) loadSetup_scene
@@ -92,6 +113,7 @@ static const char *vertexShaderNoLightTri =
 "attribute vec2 a_texCoord;                  \n"
 "attribute vec4 a_color;                     \n"
 "attribute vec3 a_normal;                    \n"
+"uniform float u_fade;                        \n"
 "\n"
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
@@ -99,7 +121,7 @@ static const char *vertexShaderNoLightTri =
 "void main()                                 \n"
 "{                                           \n"
 "   v_texCoord = a_texCoord;                 \n"
-"   v_color = a_color;\n"
+"   v_color = a_color * u_fade;\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
@@ -116,9 +138,10 @@ static const char *fragmentShaderNoLightTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
+"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  if (baseColor.a < 0.1)                            \n"
-"      discard;                                      \n"
+//"  if (baseColor.a < 0.1)                            \n"
+//"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
 "}                                                   \n"
 ;
@@ -128,12 +151,13 @@ static const char *vertexShaderNoLightLine =
 "\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec4 a_color;                     \n"
+"uniform float u_fade;                        \n"
 "\n"
 "varying vec4      v_color;                          \n"
 "\n"
 "void main()                                 \n"
 "{                                           \n"
-"   v_color = a_color;                       \n"
+"   v_color = a_color * u_fade;                       \n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
 ;
@@ -173,7 +197,15 @@ static const char *fragmentShaderNoLightLine =
             delete lineShader;
         } else {
             scene->setDefaultPrograms(triShader,lineShader);
-        }        
+        }
+    } else {
+        // Add a default light
+        MaplyLight *light = [[MaplyLight alloc] init];
+        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+        light.viewDependent = false;
+        [self addLight:light];
     }
 }
 
@@ -188,6 +220,8 @@ static const char *fragmentShaderNoLightLine =
 {
     userLayers = [NSMutableArray array];
     
+    [self loadSetup_glView];
+
 	// Set up the OpenGL ES renderer
     NSNumber *renderNum = hints[kWGRendererOpenGLVersion];
     int whichRenderer = 2;
@@ -215,7 +249,7 @@ static const char *fragmentShaderNoLightLine =
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
     // Note: Should be able to change this
-	glView.frameInterval = 2;  // 30 fps
+	glView.frameInterval = 1;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
@@ -265,7 +299,12 @@ static const char *fragmentShaderNoLightLine =
     // 2D layout engine layer
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
     labelLayer.layoutLayer = layoutLayer;
+    markerLayer.layoutLayer = layoutLayer;
     [layerThread addLayer:layoutLayer];
+    
+    // Lofted polygon layer
+    loftLayer = [[WhirlyKitLoftLayer alloc] init];
+    [layerThread addLayer:loftLayer];
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
@@ -275,6 +314,7 @@ static const char *fragmentShaderNoLightLine =
     interactLayer.shapeLayer = shapeLayer;
     interactLayer.chunkLayer = chunkLayer;
     interactLayer.selectLayer = selectLayer;
+    interactLayer.loftLayer = loftLayer;
     interactLayer.glView = glView;
     [layerThread addLayer:interactLayer];
     
@@ -295,45 +335,52 @@ static const char *fragmentShaderNoLightLine =
     
     // Set up default descriptions for the various data types
     NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        [NSNumber numberWithFloat:1.0], kWGFade,
+                                        [NSNumber numberWithFloat:1.0], kMaplyFade,
                                         nil];
     [self setScreenLabelDesc:newScreenLabelDesc];
     
     NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
                                   [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setLabelDesc:newLabelDesc];
     
     NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSNumber numberWithFloat:1.0], kWGFade,
+                                         [NSNumber numberWithFloat:1.0], kMaplyFade,
                                          nil];
     [self setScreenMarkerDesc:newScreenMarkerDesc];
     
     NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setMarkerDesc:newMarkerDesc];
     
     NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,
-                                   [NSNumber numberWithFloat:1.0], kWGFade,
+                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
     [self setVectorDesc:newVectorDesc];
     
     NSDictionary *newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithFloat:1.0], kWGFade,
+                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
     [self setShapeDesc:newShapeDesc];
     
     [self setStickerDesc:@{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)}];
     
+    [self setLoftedPolyDesc:@{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)}];
+    
     selection = true;
     
+}
+
+- (void) useGLContext
+{
+    [sceneRenderer useContext];
 }
 
 - (void)viewDidLoad
@@ -413,6 +460,55 @@ static const float PerfOutputDelay = 15.0;
     return perfOutput;
 }
 
+// Build an array of lights and send them down all at once
+- (void)updateLights
+{
+    NSMutableArray *theLights = [NSMutableArray array];
+    for (MaplyLight *light in lights)
+    {
+        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
+        theLight->pos.x() = light.pos.x;  theLight->pos.y() = light.pos.y;  theLight->pos.z() = light.pos.z;
+        theLight->ambient = [light.ambient asVec4];
+        theLight->diffuse = [light.diffuse asVec4];
+        theLight->viewDependent = light.viewDependent;
+        [theLights addObject:theLight];
+    }
+    if ([theLights count] == 0)
+        theLights = nil;
+    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    {
+        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
+        [rendererES2 replaceLights:theLights];
+    }
+}
+
+- (void)clearLights
+{
+    lights = nil;
+    [self updateLights];
+}
+
+- (void)addLight:(MaplyLight *)light
+{
+    if (!lights)
+        lights = [NSMutableArray array];
+    [lights addObject:light];
+    [self updateLights];
+}
+
+- (void)removeLight:(MaplyLight *)light
+{
+    [lights removeObject:light];
+    [self updateLights];
+}
+
+- (void)addShader:(MaplyShader *)shader
+{
+    if (!shaders)
+        shaders = [NSMutableArray array];
+    [shaders addObject:shader];
+}
+
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
     NSString *infoPath = [[NSBundle mainBundle] pathForResource:name ofType:@"mbtiles"];
@@ -460,6 +556,16 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet
 {
     MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer texGroup:imageSet];
+    if (!newLayer)
+        return nil;
+    [userLayers addObject:newLayer];
+    
+    return newLayer;
+}
+
+- (MaplyViewControllerLayer *)addQuadTestLayerMaxZoom:(int)maxZoom
+{
+    MaplyQuadTestLayer *newLayer = [[MaplyQuadTestLayer alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer maxZoom:maxZoom];
     if (!newLayer)
         return nil;
     [userLayers addObject:newLayer];
@@ -541,6 +647,11 @@ static const float PerfOutputDelay = 15.0;
     stickerDesc = [self mergeAndCheck:stickerDesc changeDict:desc];
 }
 
+- (void)setLoftedPolyDesc:(NSDictionary *)desc
+{
+    loftDesc = [self mergeAndCheck:loftDesc changeDict:desc];
+}
+
 #pragma mark - Geometry related methods
 
 /// Add a group of screen (2D) markers
@@ -594,6 +705,11 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addStickers:stickers desc:stickerDesc];
 }
 
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
+{
+    return [interactLayer addLoftedPolys:polys desc:loftDesc key:key cache:cacheDb];
+}
+
 /// Add a view to track to a particular location
 - (void)addViewTracker:(WGViewTracker *)viewTrack
 {
@@ -604,6 +720,7 @@ static const float PerfOutputDelay = 15.0;
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    [sceneRenderer setTriggerDraw];
     
     // And add it to the view hierarchy
     if ([viewTrack.view superview] == nil)
@@ -629,9 +746,14 @@ static const float PerfOutputDelay = 15.0;
         vpGen->removeView(theTracker.view);
         if ([theTracker.view superview] == glView)
             [theTracker.view removeFromSuperview];
+        [sceneRenderer setTriggerDraw];
     }
 }
 
+- (void)setMaxLayoutObjects:(int)maxLayoutObjects
+{
+    layoutLayer.maxDisplayObjects = maxLayoutObjects;
+}
 
 /// Remove the data associated with an object the user added earlier
 - (void)removeObject:(WGComponentObject *)theObj
@@ -641,7 +763,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeObjects:(NSArray *)theObjs
 {
-    [interactLayer removeObjects:theObjs];
+    [interactLayer removeObjects:[NSArray arrayWithArray:theObjs]];
 }
 
 - (void)removeLayer:(MaplyViewControllerLayer *)layer
@@ -692,5 +814,16 @@ static const float PerfOutputDelay = 15.0;
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
 }
+
+- (void)setDefaultPolyShader:(MaplyShader *)shader
+{
+    scene->setDefaultPrograms(shader.program, NULL);
+}
+
+- (void)setDefaultLineShader:(MaplyShader *)shader
+{
+    scene->setDefaultPrograms(NULL, shader.program);
+}
+
 
 @end

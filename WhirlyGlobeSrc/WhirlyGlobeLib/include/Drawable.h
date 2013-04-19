@@ -104,8 +104,7 @@ protected:
     std::set<GLuint> texIDs;
 };
 
-/// Mapping from Simple ID to an int.  This is used by the render cache
-///  reader and writer.
+/// Mapping from Simple ID to an int
 typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
 	
 /** This is the base clase for a change request.  Change requests
@@ -119,6 +118,12 @@ class ChangeRequest
 public:
 	ChangeRequest() { }
 	virtual ~ChangeRequest() { }
+    
+    /// Return true if this change requires a GL Flush in the thread it was executed in
+    virtual bool needsFlush() { return false; }
+    
+    /// Fill this in to set up whatever resources we need on the GL side
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
@@ -131,7 +136,7 @@ class Drawable : public Identifiable
 {
 public:
     /// Construct empty
-	Drawable();
+	Drawable(const std::string &name);
 	virtual ~Drawable();
 	    
     /// Return the local MBR, if we're working in a non-geo coordinate system
@@ -168,19 +173,12 @@ public:
 
     /// Check if the force Z buffer on mode is on
     virtual bool getForceZBufferOn() const { return false; }
-
-    /// Can this drawable respond to a caching request?
-    virtual bool canCache() const = 0;
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
-
-    /// Read this drawable from a cache file
-    /// Return the the texure IDs encountered while reading
-    virtual bool readFromFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) { return false; }
     
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp,const TextureIDMap &texIdMap, bool doTextures=true) const { return false; }
+protected:
+    std::string name;
 };
 
 /// Reference counted Drawable pointer
@@ -217,6 +215,8 @@ static const unsigned int MaxDrawablePoints = ((1<<16)-1);
 /// Maximum number of triangles we want in a drawable
 static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
     
+class SubTexture;
+    
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
     may or may not be textured.
@@ -225,10 +225,10 @@ class BasicDrawable : public Drawable
 {
 public:
     /// Construct empty
-	BasicDrawable();
+	BasicDrawable(const std::string &name);
 	/// Construct with some idea how big things are.
     /// You can violate this, but it will reserve space
-	BasicDrawable(unsigned int numVert,unsigned int numTri);
+	BasicDrawable(const std::string &name, unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
 
     /// For OpenGLES2, this is the program to use to render this drawable.
@@ -292,8 +292,8 @@ public:
 
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
-	void setDrawOffset(unsigned int newOffset) { drawOffset = newOffset; }
-	unsigned int getDrawOffset() { return drawOffset; }
+	void setDrawOffset(float newOffset) { drawOffset = newOffset; }
+	float getDrawOffset() { return drawOffset; }
 
 	/// Set the geometry type.  Probably triangles.
 	void setType(GLenum inType) { type = inType; }
@@ -344,14 +344,20 @@ public:
     /// Add a texture coordinate.
 	void addTexCoord(TexCoord coord) { texCoords.push_back(coord); }
     
+    /// Return a texture coordinate
+    TexCoord getTexCoord(int which) { if (which >= texCoords.size()) return TexCoord(0.0,0.0);  Point2f tpt = texCoords[which]; return TexCoord(tpt.x(),tpt.y()); }
+    
     /// Add a color
     void addColor(RGBAColor color) { colors.push_back(color); }
+    
+    /// Return a given color
+    RGBAColor getColor(int which) { if (which >= colors.size()) return color;  return colors[which]; }
 
     /// Add a normal
 	void addNormal(Point3f norm) { norms.push_back(norm); }
     
     /// Return a given normal
-    Point3f getNormal(int which) { if (which <= norms.size()) return Point3f(0,0,1);  return norms[which]; }
+    Point3f getNormal(int which) { if (which >= norms.size()) return Point3f(0,0,1);  return norms[which]; }
 
     /// Add a triangle.  Should point to the vertex IDs.
 	void addTriangle(Triangle tri) { tris.push_back(tri); }
@@ -394,18 +400,21 @@ public:
 
     /// Return the active transform matrix, if we have one
     const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
-
-    /// The BasicDrawable can cache
-    virtual bool canCache() const { return true; }
+    
+    /// Run the texture and texture coordinates based on a SubTexture
+    void applySubTexture(SubTexture subTex);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
-    /// Read this drawable from a cache file
-    virtual bool readFromFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true);
+    /// Copy the vertex data into an NSData object and return it
+    NSData *asData(bool dupStart,bool dupEnd);
     
-    /// Write this drawable to a cache file;
-    virtual bool writeToFile(FILE *fp, const TextureIDMap &texIdMap,bool doTextures=true) const;
+    /// Copy vertex and element data into appropriate NSData objects
+    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
+    
+    /// Assuming this is a set of triangles, convert to a triangle strip
+    void convertToTriStrip();
     
 protected:
     /// OpenGL ES 1.1 drawing routine
@@ -432,7 +441,7 @@ protected:
     bool usingBuffers;  // If set, we've downloaded the buffers already
     NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
 	unsigned int drawPriority;  // Used to sort drawables
-	unsigned int drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
+	float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type

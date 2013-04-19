@@ -22,7 +22,6 @@
 #import "VectorLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "RenderCache.h"
 #import "Tesselator.h"
 
 using namespace WhirlyKit;
@@ -37,7 +36,7 @@ using namespace WhirlyKit;
     // For creation request, the shapes
     ShapeSet                    shapes;
     BOOL                        enable;
-    int                         drawOffset;
+    float                         drawOffset;
     UIColor                     *color;
     int                         priority;
     float                       minVis,maxVis;
@@ -45,12 +44,10 @@ using namespace WhirlyKit;
     float                       lineWidth;
     BOOL                        filled;
     float                       sample;
-    NSString                    *cacheName;
     SimpleIdentity              replaceVecID;
 }
 
 @property (nonatomic) UIColor *color;
-@property (nonatomic) NSString *cacheName;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) SimpleIdentity replaceVecID;
@@ -62,7 +59,6 @@ using namespace WhirlyKit;
 @implementation VectorInfo
 
 @synthesize color;
-@synthesize cacheName;
 @synthesize fade;
 @synthesize lineWidth;
 @synthesize replaceVecID;
@@ -95,7 +91,7 @@ using namespace WhirlyKit;
 - (void)parseDict:(NSDictionary *)dict
 {
     enable = [dict boolForKey:@"enable" default:YES];
-    drawOffset = [dict intForKey:@"drawOffset" default:1];
+    drawOffset = [dict floatForKey:@"drawOffset" default:1];
     self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     priority = [dict intForKey:@"drawPriority" default:0];
     // This looks like an old bug
@@ -121,8 +117,8 @@ class DrawableBuilder
 {
 public:
     DrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
-                    VectorInfo *vecInfo,bool linesOrPoints,RenderCacheWriter *cacheWriter)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), cacheWriter(cacheWriter)
+                    VectorInfo *vecInfo,bool linesOrPoints)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -145,7 +141,7 @@ public:
             if (drawable)
                 flush();
                 
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Vector Layer");
             drawMbr.reset();
             drawable->setType(primType);
             // Adjust according to the vector info
@@ -209,10 +205,6 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
 
-                // Save to the cache
-                if (cacheWriter)
-                    cacheWriter->addDrawable(drawable);
-
                 if (vecInfo.fade > 0.0)
                 {
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -232,7 +224,6 @@ protected:
     Mbr drawMbr;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
-    RenderCacheWriter *cacheWriter;
     GLenum primType;
 };
 
@@ -279,7 +270,7 @@ public:
                 if (drawable)
                     flush();
                 
-                drawable = new BasicDrawable();
+                drawable = new BasicDrawable("Vector Layer");
                 drawMbr.reset();
                 drawable->setType(GL_TRIANGLES);
                 // Adjust according to the vector info
@@ -288,6 +279,7 @@ public:
                 drawable->setColor([vecInfo.color asRGBAColor]);
                 drawable->setDrawPriority(vecInfo->priority);
                 drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+//                drawable->setForceZBufferOn(true);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
@@ -381,7 +373,7 @@ protected:
              sit != sceneRep->drawIDs.end(); ++sit)
             changeRequests.push_back(new RemDrawableReq(*sit));
     }
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -394,12 +386,7 @@ protected:
     sceneRep->fade = vecInfo.fade;
     sceneRep->setId(vecInfo->sceneRepId);
     vectorReps[sceneRep->getId()] = sceneRep;
-    
-    // If we're writing out to a cache, set that up as well
-    RenderCacheWriter *renderCacheWriter=NULL;
-    if (vecInfo.cacheName)
-        renderCacheWriter = new RenderCacheWriter(vecInfo.cacheName);
-        
+            
     // All the shape types should be the same
     ShapeSet::iterator first = vecInfo->shapes.begin();
     if (first == vecInfo->shapes.end())
@@ -410,7 +397,7 @@ protected:
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     std::vector<ChangeRequest *> changeRequests;
-    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints,renderCacheWriter);
+    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints);
     DrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
     
     // Note: This is a duplicate of the runRemoveVector logic
@@ -487,30 +474,7 @@ protected:
     drawBuild.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);
-    
-    if (renderCacheWriter)
-        delete renderCacheWriter;
-}
-
-// Load the vector drawables from the cache
-- (void)runAddVectorsFromCache:(VectorInfo *)vecInfo
-{
-    RenderCacheReader *renderCacheReader = new RenderCacheReader(vecInfo.cacheName);
-    
-    // Load in the textures and drawables
-    // We'll hand them to the scene as we get them    
-    SimpleIDSet texIDs,drawIDs;
-    if (!renderCacheReader->getDrawablesAndTexturesAddToScene(scene,texIDs,drawIDs,vecInfo.fade))
-        NSLog(@"VectorLayer failed to load from cache: %@",vecInfo.cacheName);
-    else {
-        VectorSceneRep *sceneRep = new VectorSceneRep(vecInfo->shapes);
-        sceneRep->setId(vecInfo->sceneRepId);
-        sceneRep->drawIDs = drawIDs;
-        vectorReps[sceneRep->getId()] = sceneRep;        
-    }
-    
-    delete renderCacheReader;
+    [layerThread addChangeRequests:(changeRequests)];
 }
 
 // Change a vector representation according to the request
@@ -528,20 +492,20 @@ protected:
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Turned it on or off
-            scene->addChangeRequest(new OnOffChangeRequest(*idIt, vecInfo->enable));
+            [layerThread addChangeRequest:(new OnOffChangeRequest(*idIt, vecInfo->enable))];
     
             // Changed color
             RGBAColor newColor = [vecInfo.color asRGBAColor];
-            scene->addChangeRequest(new ColorChangeRequest(*idIt, newColor));
+            [layerThread addChangeRequest:(new ColorChangeRequest(*idIt, newColor))];
             
             // Changed visibility
-            scene->addChangeRequest(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis));
+            [layerThread addChangeRequest:(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis))];
             
             // Changed line width
-            scene->addChangeRequest(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth));
+            [layerThread addChangeRequest:(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth))];
             
             // Changed draw priority
-            scene->addChangeRequest(new DrawPriorityChangeRequest(*idIt, vecInfo->priority));
+            [layerThread addChangeRequest:(new DrawPriorityChangeRequest(*idIt, vecInfo->priority))];
         }
     }
 }
@@ -560,7 +524,7 @@ protected:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));                
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveVector:) withObject:num afterDelay:sceneRep->fade];
@@ -568,7 +532,7 @@ protected:
         } else {
             for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                  idIt != sceneRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             vectorReps.erase(it);
             
             delete sceneRep;
@@ -607,7 +571,7 @@ protected:
 }
 
 // Add a group of vectors and cache it to the given file, which might be on disk
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc cacheName:(NSString *)cacheName
+- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
 {
     if (!layerThread || !scene)
     {
@@ -616,34 +580,12 @@ protected:
     }
     
     VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
-    vecInfo.cacheName = cacheName;
     vecInfo->sceneRepId = Identifiable::genId();
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddVector:vecInfo];
     else
         [self performSelector:@selector(runAddVector:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
-    
-    return vecInfo->sceneRepId;
-}
-
-// Add a group of vectors.  These will all be referred to by the same ID.
-- (SimpleIdentity)addVectors:(ShapeSet *)shapes desc:(NSDictionary *)desc
-{
-    return [self addVectors:shapes desc:desc cacheName:nil];
-}
-
-// Load the drawables in from a cache
-- (SimpleIdentity)addVectorsFromCache:(NSString *)cacheName
-{
-    VectorInfo *vecInfo = [[VectorInfo alloc] init];
-    vecInfo.cacheName = cacheName;
-    vecInfo->sceneRepId = Identifiable::genId();
-    
-    if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runAddVectorsFromCache:vecInfo];
-    else
-        [self performSelector:@selector(runAddVectorsFromCache:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
     
     return vecInfo->sceneRepId;
 }

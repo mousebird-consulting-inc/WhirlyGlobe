@@ -146,12 +146,15 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
     WhirlyKitSceneRendererES *renderer;
 }
 
+@synthesize maxDisplayObjects;
+
 - (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
 {
     self = [super init];
     if (!self)
         return nil;
     renderer = inRenderer;
+    maxDisplayObjects = 0;
     
     return self;
 }
@@ -245,7 +248,7 @@ static const float DelayPeriod = 0.1;
         }
     }
     
-    scene->addChangeRequest(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes));
+    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
 }
 
 // Sort more important things to the front
@@ -305,68 +308,78 @@ static const float ScreenBuffer = 0.1;
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
 
-    Matrix4f modelTrans = viewState->fullMatrix;
+    Matrix4d modelTrans = viewState->fullMatrix;
+    int numSoFar = 0;
     for (WhirlyKitLayoutObjectSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
     {
         WhirlyKitLayoutObject *layoutObj = *it;
-
+        
+        // Start with a max objects check
+        bool isActive = true;
+        if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
+            isActive = false;
         // Start with a back face check
         // Note: Doesn't take projection into account, but close enough
-        bool isActive = true;
-        if (globeViewState)
-            isActive = layoutObj->dispLoc.dot(viewState->eyeVec) > 0.0;
+        if (isActive && globeViewState)
+            isActive = layoutObj->dispLoc.dot(Vector3dToVector3f(viewState->eyeVec)) > 0.0;
         Point2f objOffset(0.0,0.0);
         if (isActive)
         {
             // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromDisplay:layoutObj->dispLoc transform:&modelTrans frameSize:frameBufferSize];
+            CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->dispLoc) transform:&modelTrans frameSize:frameBufferSize];
             isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
             // Now for the overlap checks
             if (isActive)
             {
                 // Try the four diffierent orientations
-                bool validOrient = false;
-                Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f((objPt.x+layoutObj->size.x()*resScale),(objPt.y+layoutObj->size.y()*resScale)));
-                for (unsigned int orient=0;orient<4;orient++)
+                if (layoutObj->size.x() != 0.0 && layoutObj->size.y() != 0.0)
                 {
-                    // May only want to be placed certain ways.  Fair enough.
-                    if (!(layoutObj->acceptablePlacement & (1<<orient)))
-                        continue;
-                    
-                    // Set up the offset for this orientation
-                    switch (orient)
+                    bool validOrient = false;
+                    Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f((objPt.x+layoutObj->size.x()*resScale),(objPt.y+layoutObj->size.y()*resScale)));
+                    for (unsigned int orient=0;orient<4;orient++)
                     {
-                        // Right
-                        case 0:
-                            objOffset = Point2f(layoutObj->iconSize.x(),0.0);
+                        // May only want to be placed certain ways.  Fair enough.
+                        if (!(layoutObj->acceptablePlacement & (1<<orient)))
+                            continue;
+                        
+                        // Set up the offset for this orientation
+                        switch (orient)
+                        {
+                            // Right
+                            case 0:
+                                objOffset = Point2f(layoutObj->iconSize.x(),0.0);
+                                break;
+                            // Left
+                            case 1:
+                                objOffset = Point2f(-(layoutObj->size.x()+layoutObj->iconSize.x()/2.0),0.0);
+                                break;
+                            // Above
+                            case 2:
+                                objOffset = Point2f(-layoutObj->size.x()/2.0,-(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
+                                break;
+                            // Below
+                            case 3:
+                                objOffset = Point2f(-layoutObj->size.x()/2.0,(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
+                                break;
+                        }
+                        
+                        // Now try it
+                        Mbr tryMbr(objMbr.ll()+objOffset*resScale,objMbr.ur()+objOffset*resScale);
+                        if (overlapMan.addObject(tryMbr, layoutObj))
+                        {
+                            validOrient = true;
                             break;
-                        // Left
-                        case 1:
-                            objOffset = Point2f(-(layoutObj->size.x()+layoutObj->iconSize.x()/2.0),0.0);
-                            break;
-                        // Above
-                        case 2:
-                            objOffset = Point2f(-layoutObj->size.x()/2.0,-(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
-                            break;
-                        // Below
-                        case 3:
-                            objOffset = Point2f(-layoutObj->size.x()/2.0,(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
-                            break;
+                        }
                     }
                     
-                    // Now try it
-                    Mbr tryMbr(objMbr.ll()+objOffset*resScale,objMbr.ur()+objOffset*resScale);
-                    if (overlapMan.addObject(tryMbr, layoutObj))
-                    {
-                        validOrient = true;
-                        break;
-                    }
+                    isActive = validOrient;
                 }
-                
-                isActive = validOrient;
             }
         }
+        
+        if (isActive)
+            numSoFar++;
 
         // See if we've changed any of the state
         layoutObj->changed = (layoutObj->currentEnable != isActive);
@@ -426,7 +439,7 @@ static float const DisappearFade = 0.1;
         }
     }
     
-    scene->addChangeRequest(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes));
+    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
 }
 
 - (void)addLayoutObjects:(NSArray *)newObjects

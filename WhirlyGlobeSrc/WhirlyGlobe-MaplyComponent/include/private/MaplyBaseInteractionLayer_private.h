@@ -33,6 +33,7 @@
     WhirlyKitVectorLayer * __weak vectorLayer;
     WhirlyKitShapeLayer * __weak shapeLayer;
     WhirlyKitSphericalChunkLayer * __weak chunkLayer;
+    WhirlyKitLoftLayer * __weak loftLayer;
     WhirlyKitSelectionLayer * __weak selectLayer;
     // Note: Not a great idea to be passing this in
     UIView * __weak glView;
@@ -60,6 +61,7 @@
 @property (nonatomic,weak) WhirlyKitVectorLayer * vectorLayer;
 @property (nonatomic,weak) WhirlyKitShapeLayer * shapeLayer;
 @property (nonatomic,weak) WhirlyKitSphericalChunkLayer *chunkLayer;
+@property (nonatomic,weak) WhirlyKitLoftLayer *loftLayer;
 @property (nonatomic,weak) WhirlyKitSelectionLayer * selectLayer;
 @property (nonatomic,weak) UIView * glView;
 
@@ -92,6 +94,9 @@
 
 // Add stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
+
+// Add lofted polys
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache;
 
 // Remove objects associated with the user object
 - (void)removeObject:(MaplyComponentObject *)userObj;

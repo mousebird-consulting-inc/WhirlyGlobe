@@ -31,7 +31,6 @@ namespace WhirlyKit
 {
 LabelSceneRep::LabelSceneRep() 
 { 
-    selectID = EmptyIdentity; 
 }
 
 // We use these for labels that have icons
@@ -534,7 +533,7 @@ public:
                 if (!labelInfo.screenObject)
                 {
                     // And a corresponding drawable
-                    BasicDrawable *drawable = new BasicDrawable();
+                    BasicDrawable *drawable = new BasicDrawable("Label Layer");
                     drawable->setDrawOffset(labelInfo.drawOffset);
                     drawable->setType(GL_TRIANGLES);
                     drawable->setColor(RGBAColor(255,255,255,255));
@@ -551,7 +550,7 @@ public:
             if (!labelInfo.screenObject)
             {
                 // Add a drawable for just the one label because it's too big
-                drawable = new BasicDrawable();
+                drawable = new BasicDrawable("Label Layer");
                 drawable->setDrawOffset(labelInfo.drawOffset);
                 drawable->setType(GL_TRIANGLES);
                 drawable->setColor(RGBAColor(255,255,255,255));
@@ -630,7 +629,7 @@ public:
             if (!texAtlas)
             {
                 // This texture was unique to the object
-                Texture *tex = new Texture(textImage);
+                Texture *tex = new Texture("Label Layer",textImage);
                 if (labelInfo.screenObject)
                     tex->setUsesMipmaps(false);
                 changeRequests.push_back(new AddTextureReq(tex));
@@ -697,7 +696,7 @@ public:
             //  the drawable and make a new texture
             if (!texAtlas)
             {
-                Texture *tex = new Texture(textImage);
+                Texture *tex = new Texture("Label Layer",textImage);
                 drawable->setTexId(tex->getId());
                 
                 if (labelInfo.fade > 0.0)
@@ -730,14 +729,14 @@ public:
                 select2d.minVis = labelInfo.minVis;
                 select2d.maxVis = labelInfo.maxVis;
                 selectables2D.push_back(select2d);
-                labelRep->selectID = label.selectID;
+                labelRep->selectIDs.insert(label.selectID);
             } else {
                 RectSelectable3D select3d;
                 select3d.selectID = label.selectID;
                 for (unsigned int jj=0;jj<4;jj++)
                     select3d.pts[jj] = pts[jj];
                 selectables3D.push_back(select3d);
-                labelRep->selectID = label.selectID;
+                labelRep->selectIDs.insert(label.selectID);
             }
         }
         
@@ -785,7 +784,7 @@ public:
                 if (it == iconDrawables.end())
                 {
                     // Create one
-                    iconDrawable = new BasicDrawable();
+                    iconDrawable = new BasicDrawable("Label Layer");
                     iconDrawable->setDrawOffset(labelInfo.drawOffset);
                     iconDrawable->setType(GL_TRIANGLES);
                     iconDrawable->setColor(RGBAColor(255,255,255,255));
@@ -932,15 +931,16 @@ public:
             changeRequests.push_back(new RemTextureReq(*idIt));
         for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
              idIt != labelRep->screenIDs.end(); ++idIt)
-            scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
+            [layerThread addChangeRequest:(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt))];
         
-        if (labelRep->selectID != EmptyIdentity && selectLayer)
-            [self.selectLayer removeSelectable:labelRep->selectID];
+        for (SimpleIDSet::iterator idIt = labelRep->selectIDs.begin();
+             idIt != labelRep->selectIDs.end(); ++idIt)
+            [self.selectLayer removeSelectable:*idIt];
         
         if (layoutLayer && !labelRep->screenIDs.empty())
             [layoutLayer removeLayoutObjects:labelRep->screenIDs];
     }
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:changeRequests];
     
     [self clear];
 }
@@ -976,22 +976,9 @@ public:
 }
 
 - (void)mergeRenderedLabels:(LabelRenderer *)labelRenderer
-{
-    // We'll run through the textures and create them here
-    [EAGLContext setCurrentContext:layerThread.glContext];
-    for (unsigned int ii=0;ii<labelRenderer->changeRequests.size();ii++)
-    {
-        ChangeRequest *cr = labelRenderer->changeRequests[ii];
-        AddTextureReq *texReq = dynamic_cast<AddTextureReq *>(cr);
-        if (texReq)
-        {
-            Texture *tex = texReq->getTex();
-            tex->createInGL(true, scene->getMemManager());
-        }
-    }
-    
+{    
     // Flush out the changes
-    scene->addChangeRequests(labelRenderer->changeRequests);
+    [layerThread addChangeRequests:labelRenderer->changeRequests];
     
     // And any layout constraints to the layout engine
     if (layoutLayer && ([labelRenderer->layoutObjects count] > 0))
@@ -1033,11 +1020,11 @@ public:
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
+                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade))];
             
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
-                scene->addChangeRequest(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
+                [layerThread addChangeRequest:(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade))];
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveLabel:) withObject:num afterDelay:labelRep->fade];
@@ -1045,16 +1032,16 @@ public:
         } else {
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                scene->addChangeRequest(new RemDrawableReq(*idIt));
+                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
             for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                  idIt != labelRep->texIDs.end(); ++idIt)        
-                scene->addChangeRequest(new RemTextureReq(*idIt));
+                [layerThread addChangeRequest:(new RemTextureReq(*idIt))];
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
                 scene->addChangeRequest(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
-            
-            if (labelRep->selectID != EmptyIdentity && selectLayer)
-                [self.selectLayer removeSelectable:labelRep->selectID];
+            for (SimpleIDSet::iterator idIt = labelRep->selectIDs.begin();
+                 idIt != labelRep->selectIDs.end(); ++idIt)
+                [self.selectLayer removeSelectable:*idIt];
             
             if (layoutLayer && !labelRep->screenIDs.empty())
                 [layoutLayer removeLayoutObjects:labelRep->screenIDs];
@@ -1068,12 +1055,18 @@ public:
 // Pass off label creation to a routine in our own thread
 - (SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyKit::GeoCoord)loc desc:(NSDictionary *)desc
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling addLabel.  Dropping data on floor.");
+        return EmptyIdentity;
+    }
+    
     WhirlyKitSingleLabel *theLabel = [[WhirlyKitSingleLabel alloc] init];
     theLabel.text = str;
     [theLabel setLoc:loc];
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithStrs:[NSArray arrayWithObject:theLabel] desc:desc];
     
-    if (!layerThread || ([NSThread currentThread] == layerThread))
+    if (([NSThread currentThread] == layerThread))
         [self runAddLabels:labelInfo];
     else
         [self performSelector:@selector(runAddLabels:) onThread:layerThread withObject:labelInfo waitUntilDone:NO];
@@ -1119,7 +1112,7 @@ public:
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Changed visibility
-            scene->addChangeRequest(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
+            [layerThread addChangeRequest:(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis))];
         }
     }    
 }
@@ -1127,6 +1120,12 @@ public:
 // Change how the label is displayed
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling changeLabel.  Dropping data on floor.");
+        return;
+    }
+
     LabelInfo *labelInfo = [[LabelInfo alloc] initWithSceneRepId:labelID desc:dict];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -1138,6 +1137,12 @@ public:
 // Set up the label to be removed in the layer thread
 - (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId
 {
+    if (!layerThread || !scene)
+    {
+        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling removeLabel.  Dropping data on floor.");
+        return;
+    }
+
     NSNumber *num = [NSNumber numberWithUnsignedInt:labelId];
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemoveLabel:num];

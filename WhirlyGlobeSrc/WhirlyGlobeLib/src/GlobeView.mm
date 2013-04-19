@@ -29,12 +29,12 @@ using namespace Eigen;
 @interface WhirlyGlobeView()
 {
     // These are all for continuous zoom mode
-    float absoluteMinHeight;
-    float heightInflection;
-    float defaultNearPlane;
-    float absoluteMinNearPlane;
-    float defaultFarPlane;
-    float absoluteMinFarPlane;
+    double absoluteMinHeight;
+    double heightInflection;
+    double defaultNearPlane;
+    double absoluteMinNearPlane;
+    double defaultFarPlane;
+    double absoluteMinFarPlane;
 }
 @end
 
@@ -43,12 +43,13 @@ using namespace Eigen;
 @synthesize heightAboveGlobe;
 @synthesize delegate;
 @synthesize rotQuat;
+@synthesize tilt;
 
 - (id)init
 {
 	if ((self = [super init]))
 	{
-		rotQuat = Eigen::AngleAxisf(0.0f,Vector3f(0.0f,0.0f,1.0f));
+		rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
         coordAdapter = new FakeGeocentricDisplayAdapter();
         defaultNearPlane = nearPlane;
         defaultFarPlane = farPlane;
@@ -58,6 +59,7 @@ using namespace Eigen;
         absoluteMinHeight = 0.00005;
         heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
+        tilt = 0.0;
 	}
 	
 	return self;
@@ -71,14 +73,19 @@ using namespace Eigen;
 }
 
 // Set the new rotation, but also keep track of when we did it
-- (void)setRotQuat:(Eigen::Quaternionf)newRotQuat
+- (void)setRotQuat:(Eigen::Quaterniond)newRotQuat
 {
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
     [self runViewUpdates];
 }
+
+- (void)setTilt:(double)newTilt
+{
+    tilt = newTilt;
+}
 	
-- (float)minHeightAboveGlobe
+- (double)minHeightAboveGlobe
 {
     if (continuousZoom)
         return absoluteMinHeight;
@@ -86,17 +93,17 @@ using namespace Eigen;
         return 1.01*nearPlane;
 }
 
-- (float)heightAboveSurface
+- (double)heightAboveSurface
 {
     return self.heightAboveGlobe;
 }
 	
-- (float)maxHeightAboveGlobe
+- (double)maxHeightAboveGlobe
 {
     return (farPlane - 1.0);
 }
 	
-- (float)calcEarthZOffset
+- (double)calcEarthZOffset
 {
 	float minH = [self minHeightAboveGlobe];
 	if (heightAboveGlobe < minH)
@@ -111,12 +118,12 @@ using namespace Eigen;
 
 // Set the height above the globe, but constrain it
 // Also keep track of when we did it
-- (void)setHeightAboveGlobe:(float)newH
+- (void)setHeightAboveGlobe:(double)newH
 {
-	float minH = [self minHeightAboveGlobe];
+	double minH = [self minHeightAboveGlobe];
 	heightAboveGlobe = std::max(newH,minH);
     
-	float maxH = [self maxHeightAboveGlobe];
+	double maxH = [self maxHeightAboveGlobe];
 	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
 
     // If we get down below the inflection point we'll start messing
@@ -125,14 +132,14 @@ using namespace Eigen;
     {
         if (heightAboveGlobe < heightInflection)
         {
-            float t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
             nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
 //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
             nearPlane = defaultNearPlane;
 //            farPlane = defaultFarPlane;
         }
-		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
         
 
@@ -141,79 +148,86 @@ using namespace Eigen;
     [self runViewUpdates];
 }
 	
-- (Eigen::Matrix4f)calcModelMatrix
+- (Eigen::Matrix4d)calcModelMatrix
 {
-	Eigen::Affine3f trans(Eigen::Translation3f(0,0,-[self calcEarthZOffset]));
-	Eigen::Affine3f rot(rotQuat);
+	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
+	Eigen::Affine3d rot(rotQuat);
 	
 	return (trans * rot).matrix();
 }
 
-- (Vector3f)currentUp
+- (Eigen::Matrix4d)calcViewMatrix
 {
-	Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
-	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,0);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());
+    Eigen::Quaterniond selfRotPitch(AngleAxisd(-tilt, Vector3d::UnitX()));
+    
+    return ((Affine3d)selfRotPitch).matrix();
 }
 
-+ (Vector3f)prospectiveUp:(Eigen::Quaternion<float> &)prospectiveRot
+- (Vector3d)currentUp
 {
-    Eigen::Affine3f rot(prospectiveRot);
-    Eigen::Matrix4f modelMat = rot.inverse().matrix();
-    Vector4f newUp = modelMat *Vector4f(0,0,1,0);
-    return Vector3f(newUp.x(),newUp.y(),newUp.z());
+	Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
+	
+	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
+	return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
++ (Vector3d)prospectiveUp:(Eigen::Quaterniond &)prospectiveRot
+{
+    Eigen::Affine3d rot(prospectiveRot);
+    Eigen::Matrix4d modelMat = rot.inverse().matrix();
+    Vector4d newUp = modelMat *Vector4d(0,0,1,0);
+    return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 	
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
 {
 	// Back project the point from screen space into model space
-	Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+	Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
-	Eigen::Matrix4f modelTrans = *transform;
-	Matrix4f invModelMat = modelTrans.inverse();
-	Point3f eyePt(0,0,0);
-	Vector4f modelEye = invModelMat * Vector4f(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
-	Vector4f modelScreenPt = invModelMat * Vector4f(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+	Eigen::Matrix4d modelTrans = *transform;
+	Matrix4d invModelMat = modelTrans.inverse();
+	Point3d eyePt(0,0,0);
+	Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+	Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
 	
 	// Now intersect that with a unit sphere to see where we hit
-	Vector4f dir4 = modelScreenPt - modelEye;
-	Vector3f dir(dir4.x(),dir4.y(),dir4.z());
-	if (IntersectUnitSphere(Vector3f(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+	Vector4d dir4 = modelScreenPt - modelEye;
+	Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
 		return true;
 	
 	// We need the closest pass, if that didn't work out
-	Vector3f orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+	Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
 	orgDir.normalize();
 	dir.normalize();
-	Vector3f tmpDir = orgDir.cross(dir);
-	Vector3f resVec = dir.cross(tmpDir);
+	Vector3d tmpDir = orgDir.cross(dir);
+	Vector3d resVec = dir.cross(tmpDir);
 	*hit = -resVec.normalized();
 	
 	return false;
 }
 
-- (CGPoint)pointOnScreenFromSphere:(const Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize
+- (CGPoint)pointOnScreenFromSphere:(const Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4f modelTrans = *transform;
-    Matrix4f modelMat = modelTrans;
-    Vector4f screenPt = modelMat * Vector4f(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d modelMat = modelTrans;
+    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
 
     // Intersection with near gives us the same plane as the screen 
-    Point3f ray;  
+    Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
     ray *= -nearPlane/ray.z();
 
     // Now we need to scale that to the frame
-    Point2f ll,ur;
-    float near,far;
+    Point2d ll,ur;
+    double near,far;
     [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
-    float u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    float v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
     
     CGPoint retPt;
@@ -251,34 +265,34 @@ using namespace Eigen;
 
 // Construct a rotation to the given location
 //  and return it.  Doesn't actually do anything yet.
-- (Eigen::Quaternionf) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3f worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
+    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
-    Vector3f curUp = [self currentUp];
+    Vector3d curUp = [self currentUp];
     
     // The rotation from where we are to where we tapped
-    Eigen::Quaternionf endRot;
+    Eigen::Quaterniond endRot;
     endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaternionf curRotQuat = rotQuat;
-    Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
+    Eigen::Quaterniond curRotQuat = rotQuat;
+    Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
     
     if (northUp)
     {
         // We'd like to keep the north pole pointed up
         // So we look at where the north pole is going
-        Vector3f northPole = (newRotQuat * Vector3f(0,0,1)).normalized();
+        Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
         if (northPole.y() != 0.0)
         {
             // Then rotate it back on to the YZ axis
             // This will keep it upward
-            float ang = atanf(northPole.x()/northPole.y());
+            float ang = atan(northPole.x()/northPole.y());
             // However, the pole might be down now
             // If so, rotate it back up
             if (northPole.y() < 0.0)
                 ang += M_PI;
-            Eigen::AngleAxisf upRot(ang,worldLoc);
+            Eigen::AngleAxisd upRot(ang,worldLoc);
             newRotQuat = newRotQuat * upRot;
         }
     }
@@ -286,12 +300,47 @@ using namespace Eigen;
     return newRotQuat;
 }
 
-- (Eigen::Vector3f)eyePos
+- (Eigen::Quaterniond) makeRotationToGeoCoordd:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-	Eigen::Matrix4f modelMat = [self calcModelMatrix].inverse();
+    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    
+    // Let's rotate to where they tapped over a 1sec period
+    Vector3d curUp = [self currentUp];
+    
+    // The rotation from where we are to where we tapped
+    Eigen::Quaterniond endRot;
+    endRot = QuatFromTwoVectors(worldLoc,curUp);
+    Eigen::Quaterniond curRotQuat = rotQuat;
+    Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
+    
+    if (northUp)
+    {
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
+        {
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,worldLoc);
+            newRotQuat = newRotQuat * upRot;
+        }
+    }
+    
+    return newRotQuat;
+}
+
+- (Eigen::Vector3d)eyePos
+{
+	Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
 	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());    
+	Vector4d newUp = modelMat * Vector4d(0,0,1,1);
+	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
 @end

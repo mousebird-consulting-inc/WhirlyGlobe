@@ -24,7 +24,6 @@
 #import "TextureGroup.h"
 #import "Scene.h"
 #import "DataLayer.h"
-#import "RenderCache.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
@@ -42,8 +41,33 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr);
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3d eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
 }
+
+/// A solid volume used to describe the display space a tile takes up.
+/// We use these for screen space calculations and cache them in the tile
+///  idents.
+@interface WhirlyKitDisplaySolid : NSObject
+{
+@public
+    /// The actual polygons for the side (we are lazy)
+    std::vector<std::vector<WhirlyKit::Point3d> > polys;
+    /// Normals for all 5 or 6 planes
+    std::vector<Eigen::Vector3d> normals;
+    /// Normals for the surface.  We use these to make sure the solid is pointing towards us.
+    std::vector<Eigen::Vector3d> surfNormals;
+}
+
+/// Look for an existing display solid or create one for the node ident
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+/// Returns true if the given point (in display space) is inside the volume
+- (bool)isInside:(WhirlyKit::Point3d)pt;
+
+/// Calculate the importance for this display solid given the user's eye position
+- (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+
+@end
 
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
@@ -67,7 +91,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;
@@ -211,6 +235,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
+
+/// Call this to nudge the quad display layer awake.
+- (void)wakeUp;
 
 @end
 

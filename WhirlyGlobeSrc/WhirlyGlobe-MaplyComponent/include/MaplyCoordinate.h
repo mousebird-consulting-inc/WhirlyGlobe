@@ -25,17 +25,20 @@ typedef struct
     float x,y;
 } MaplyCoordinate;
 
-/// Construct a MaplyGeoCoordinate with longitude and latitude values in degrees
-#if __cplusplus
-extern "C" {
-#endif
-MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
-#if __cplusplus
-}
-#endif
-
+/// The standard 3-space coordinate
 typedef struct
 {
     float x,y,z;
 } MaplyCoordinate3d;
+
+#if __cplusplus
+extern "C" {
+#endif
+/// Construct a MaplyGeoCoordinate with longitude and latitude values in degrees
+MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
+/// Convenience function for creating a 3D Maply coordinate
+MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
+#if __cplusplus
+}
+#endif
 

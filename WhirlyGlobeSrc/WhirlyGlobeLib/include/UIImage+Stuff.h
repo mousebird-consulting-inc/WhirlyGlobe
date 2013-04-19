@@ -26,4 +26,7 @@
 /// Pull the raw data, width, and height out of a UIImage
 -(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp;
 
+/// Generate raw data for the image at the given resolution, with the given replicated border
+-(NSData *)rawDataScaleWidth:(unsigned int)width height:(unsigned int)height border:(int)border;
+
 @end

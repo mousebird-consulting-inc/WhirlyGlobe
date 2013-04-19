@@ -34,6 +34,12 @@
 /// You're given the object you passed in originally, such as a WGScreenMarker.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
+/// Called when the user taps on or near an object.
+/// You're given the object you passed in originally, such as a WGScreenMarker.
+/// This version is called if it's available in the delegate, otherwise the simpler version is called,
+///  if it's available.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /// Called when the user taps outside the globe.
 /// Passes in the location on the view.
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;
@@ -71,6 +77,10 @@
 /// On by default.
 @property(nonatomic,assign) bool rotateGesture;
 
+/// Set this to move to a location where the user tapped
+/// On by default
+@property(nonatomic,assign) bool autoMoveToTap;
+
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
@@ -78,11 +88,22 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
+/// This is in radians.  0 is looking straight down (the default)
+///  PI/2 is looking toward the horizon.
+@property(nonatomic,assign) float tilt;
+
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
 
 /// Set the min and max heights above the globe for zooming
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
+/// Set the height range over which to modify tilt.  We'll
+///  vary the tilt between the given values over the given height range, if set.
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt;
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight;
 
 /// Set this to something other than zero and it will autorotate
 ///  after that interval the given number of degrees per second
@@ -112,5 +133,12 @@
 
 /// This utility routine returns the on screen location for a coordinate in lat/lon
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/// Set the direction the sun is coming from.  This makes lighting independent of the viewing
+///  angle as well.
+- (void)setSunDirection:(MaplyCoordinate3d)sunDir;
+
+/// Turn off the sun direction and go back to view dependent lighting (the default).
+- (void)clearSunDirection;
 
 @end

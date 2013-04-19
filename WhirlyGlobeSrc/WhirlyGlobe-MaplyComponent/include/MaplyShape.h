@@ -33,11 +33,14 @@
     float radius;
     /// Height above the globe.  This is in units of radius = 1.0
     float height;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
 
 @end
 
@@ -48,17 +51,26 @@ typedef MaplyShapeCircle WGShapeCircle;
   */
 @interface MaplyShapeSphere : NSObject
 {
+    /// Put yer user data here
+    NSObject *userObject;
     /// Center of the sphere in local coordinates
     MaplyCoordinate center;
     /// Radius in display units (1.0 is the size of the earth)
     float radius;
     /// Offset from the globe (in display units)
     float height;
+    /// Optional color
+    UIColor *color;
+    /// If set, this cylinder can be selected.  On by default.
+    bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate center;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,assign) bool selectable;
 
 @end
 
@@ -69,17 +81,29 @@ typedef MaplyShapeSphere WGShapeSphere;
  */
 @interface MaplyShapeCylinder : NSObject
 {
+    /// Put yer user data here
+    NSObject *userObject;
     /// Center of the base in local coordinates
     MaplyCoordinate baseCenter;
+    /// An optional height offset for the base (e.g. cylinder starts at this height)
+    float baseHeight;
     /// Radius in display units (1.0 is the size of the earth)
     float radius;
     /// Height in display units
     float height;
+    /// Optional color
+    UIColor *color;
+    /// If set, this cylinder can be selected.  On by default.
+    bool selectable;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate baseCenter;
+@property (nonatomic,assign) float baseHeight;
 @property (nonatomic,assign) float radius;
 @property (nonatomic,assign) float height;
+@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,assign) bool selectable;
 
 @end
 
@@ -96,11 +120,14 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     float height;
     /// Line width is in pixels
     float lineWidth;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) MaplyCoordinate startPt,endPt;
 @property (nonatomic,assign) float height;
 @property (nonatomic,assign) float lineWidth;
+@property (nonatomic,strong) UIColor *color;
 
 /// Return the angle between the two points in radians
 - (float)calcAngleBetween;
@@ -120,9 +147,12 @@ typedef MaplyShapeCylinder WGShapeCylinder;
     MaplyCoordinate3d *coords;
     /// Line width in pixels
     float lineWidth;
+    /// Optional color
+    UIColor *color;
 }
 
 @property (nonatomic,assign) float lineWidth;
+@property (nonatomic,strong) UIColor *color;
 
 /// Initialize with the coordinate data (will be copied in)
 - (id)initWithCoords:(MaplyCoordinate3d *)coords numCoords:(int)numCoords;

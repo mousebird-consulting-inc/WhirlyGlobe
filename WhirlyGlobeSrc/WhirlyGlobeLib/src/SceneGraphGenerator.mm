@@ -136,7 +136,7 @@ void SceneGraphGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInf
         return;
     
 //    Point3f localPt = [globeView eyePos];
-    Point3f localPt = [globeView currentUp];
+    Point3f localPt = Vector3dToVector3f([globeView currentUp]);
     
     // Traverse the various top level nodes, gathering as we go
     for (NodeRefSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)

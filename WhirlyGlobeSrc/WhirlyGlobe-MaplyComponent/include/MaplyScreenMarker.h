@@ -26,6 +26,8 @@
  */
 @interface MaplyScreenMarker : NSObject
 {
+    /// For user data
+    NSObject *userObject;
     /// Location in geographic (lat/lon) in radians
     MaplyCoordinate loc;
     /// Size on the screen, in points
@@ -34,12 +36,18 @@
     UIImage *image;
     /// If set, this label can be selected.  On by default.
     bool selectable;
+    /// For the layout engine, this is the importance of this particular
+    ///  marker.  It's set to MAXFLOAT by defaut, which means it always shows up.
+    /// Set it to another value to actually be laid out with constraints.
+    float layoutImportance;
 }
 
+@property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate loc;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) UIImage *image;
 @property (nonatomic,assign) bool selectable;
+@property (nonatomic,assign) float layoutImportance;
 
 @end
 

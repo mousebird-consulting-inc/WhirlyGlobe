@@ -37,6 +37,8 @@
     IBOutlet UISwitch *pinchSwitch;
     IBOutlet UISwitch *rotateSwitch;
     IBOutlet UISwitch *countrySwitch;
+    IBOutlet UISwitch *loftPolySwitch;
+    IBOutlet UISwitch *megaMarkersSwitch;
     IBOutlet UISwitch *perfSwitch;
 }
 
@@ -54,6 +56,8 @@
 @property (nonatomic,readonly) UISwitch *pinchSwitch;
 @property (nonatomic,readonly) UISwitch *rotateSwitch;
 @property (nonatomic,readonly) UISwitch *countrySwitch;
+@property (nonatomic,readonly) UISwitch *loftPolySwitch;
+@property (nonatomic,readonly) UISwitch *megaMarkersSwitch;
 @property (nonatomic,readonly) UISwitch *perfSwitch;
 
 @end

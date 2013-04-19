@@ -42,7 +42,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const RectSelectable3D &that) const;
     
-    // Used to identify this selectable
+    /// Used to identify this selectable
     SimpleIdentity selectID;
     Point3f pts[4];  // Geometry
     Eigen::Vector3f norm;   // Calculate normal
@@ -50,6 +50,25 @@ public:
 };
 
 typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
+
+/** This is 3D rectangular solid.
+  */
+class PolytopeSelectable
+{
+public:
+    PolytopeSelectable() { }
+    PolytopeSelectable(SimpleIdentity theID) : selectID(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const PolytopeSelectable &that) const;
+    
+    /// Used to identify the selectable
+    SimpleIdentity selectID;
+    std::vector<std::vector<Point3f> > polys;
+    Point3f midPt;        // Point right in the middle of the polytope
+    float minVis,maxVis;  // Range over which this is visible    
+};
+
+typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
     
 /** Rectangle Selectable (screen space version).
  */
@@ -93,6 +112,7 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
+    WhirlyKit::PolytopeSelectableSet polytopeSelectables;
 }
 
 /// Construct with a globe view.  Need that for screen space calculations
@@ -109,6 +129,9 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
 - (void)addSelectableScreenRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point2f *)pts minVis:(float)minVis maxVis:(float)maxVis;
+
+/// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
+- (void)addSelectableRectSolid:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis;
 
 /// Remove the given selectable from consideration
 - (void)removeSelectable:(WhirlyKit::SimpleIdentity)selectId;

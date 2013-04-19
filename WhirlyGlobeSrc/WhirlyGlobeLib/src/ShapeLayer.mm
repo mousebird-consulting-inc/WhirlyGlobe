@@ -75,8 +75,9 @@ void ShapeSceneRep::clearContents(WhirlyKitSelectionLayer *selectLayer,std::vect
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
         changeRequests.push_back(new RemDrawableReq(*idIt));
-    if (selectLayer && selectID != EmptyIdentity)
-        [selectLayer removeSelectable:selectID];
+    if (selectLayer)
+        for (SimpleIDSet::iterator it = selectIDs.begin();it != selectIDs.end(); ++it)
+            [selectLayer removeSelectable:*it];
 }
     
 /* Drawable Builder
@@ -98,7 +99,7 @@ public:
         flush();
     }
     
-    void addPoints(std::vector<Point3f> &pts,Mbr mbr,float lineWidth,bool closed)
+    void addPoints(std::vector<Point3f> &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
@@ -111,12 +112,12 @@ public:
             if (drawable)
                 flush();
             
-            drawable = new BasicDrawable();
+            drawable = new BasicDrawable("Shape Layer");
             drawMbr.reset();
             drawable->setType(primType);
             // Adjust according to the vector info
             drawable->setDrawOffset(shapeInfo.drawOffset);
-            drawable->setColor([shapeInfo.color asRGBAColor]);
+//            drawable->setColor([shapeInfo.color asRGBAColor]);
             drawable->setLineWidth(lineWidth);
             drawable->setDrawPriority(shapeInfo.drawPriority);
             drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
@@ -142,9 +143,11 @@ public:
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
-                    drawable->addPoint(pt);
                     drawable->addNormal(prevNorm);
+                    drawable->addColor(color);
+                    drawable->addPoint(pt);
                     drawable->addNormal(norm);
+                    drawable->addColor(color);
                 } else {
                     firstPt = pt;
                     firstNorm = norm;
@@ -158,9 +161,11 @@ public:
         if (closed && primType == GL_LINES)
         {
             drawable->addPoint(prevPt);
-            drawable->addPoint(firstPt);
             drawable->addNormal(prevNorm);
+            drawable->addColor(color);
+            drawable->addPoint(firstPt);
             drawable->addNormal(firstNorm);
+            drawable->addColor(color);
         }
     }
     
@@ -185,7 +190,7 @@ public:
         }
     }
     
-protected:   
+public:
     Scene *scene;
     std::vector<ChangeRequest *> &changeRequests;
     ShapeSceneRep *sceneRep;
@@ -216,7 +221,7 @@ public:
     void setupNewDrawable()
     {
         
-        drawable = new BasicDrawable();
+        drawable = new BasicDrawable("Shape Layer");
         drawMbr.reset();
         drawable->setType(GL_TRIANGLES);
         // Adjust according to the vector info
@@ -228,7 +233,7 @@ public:
     }
     
     // Add a triangle with normals
-    void addTriangle(Point3f p0,Point3f n0,Point3f p1,Point3f n1,Point3f p2,Point3f n2,Mbr shapeMbr)
+    void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr)
     {
         if (!drawable ||
             (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
@@ -246,17 +251,20 @@ public:
         int baseVert = drawable->getNumPoints();
         drawable->addPoint(p0);
         drawable->addNormal(n0);
+        drawable->addColor(c0);
         drawable->addPoint(p1);
         drawable->addNormal(n1);
+        drawable->addColor(c1);
         drawable->addPoint(p2);
         drawable->addNormal(n2);
+        drawable->addColor(c2);
         
         drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
         drawMbr.expand(shapeMbr);
     }
     
     // Add a group of pre-build triangles
-    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<BasicDrawable::Triangle> &tris)
+    void addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
     {
         if (!drawable ||
             (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
@@ -273,6 +281,7 @@ public:
         {
             drawable->addPoint(pts[ii]);
             drawable->addNormal(norms[ii]);
+            drawable->addColor(colors[ii]);
         }
         for (unsigned int ii=0;ii<tris.size();ii++)
         {
@@ -284,11 +293,11 @@ public:
     }
     
     // Add a convex outline, triangulated
-    void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,Mbr shapeMbr)
+    void addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
     {
         // It's convex, so we'll just triangulate it dumb style
         for (unsigned int ii = 2;ii<pts.size();ii++)
-            addTriangle(pts[0], norm, pts[ii-1], norm, pts[ii], norm, shapeMbr);
+            addTriangle(pts[0], norm, color, pts[ii-1], norm, color, pts[ii], norm, color, shapeMbr);
     }
     
     void flush()
@@ -312,7 +321,7 @@ public:
         }
     }
     
-protected:   
+public:
     Scene *scene;
     std::vector<ChangeRequest *> &changeRequests;
     ShapeSceneRep *sceneRep;
@@ -330,7 +339,7 @@ protected:
 
 @interface WhirlyKitShape()
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer;
 
 @end
 
@@ -338,9 +347,11 @@ protected:
 
 @synthesize isSelectable;
 @synthesize selectID;
+@synthesize useColor;
+@synthesize color;
 
 // Base shape doesn't make anything
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
 }
 
@@ -348,7 +359,7 @@ protected:
 
 // Number of samples for a circle.
 // Note: Make this a parameter
-static int CircleSamples = 20;
+static int CircleSamples = 10;
 
 @implementation WhirlyKitCircle
 
@@ -357,9 +368,11 @@ static int CircleSamples = 20;
 @synthesize height;
 
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
     
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
@@ -395,10 +408,12 @@ static int CircleSamples = 20;
         shapeMbr.addPoint(Point2f(thisLocalPt.x(),thisLocalPt.y()));
     }
     
-    triBuilder->addConvexOutline(samples,norm,shapeMbr);
+    triBuilder->addConvexOutline(samples,norm,theColor,shapeMbr);
 }
 
 @end
+
+static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitSphere
 
@@ -410,9 +425,11 @@ static int CircleSamples = 20;
 static const float SphereTessX = 10;
 static const float SphereTessY = 10;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
 
     // Get the location in display coordinates
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
@@ -427,6 +444,8 @@ static const float SphereTessY = 10;
     std::vector<Point3f> locs,norms;
     locs.reserve((SphereTessX+1)*(SphereTessX+1));
     norms.reserve((SphereTessX+1)*(SphereTessY+1));
+    std::vector<RGBAColor> colors;
+    colors.reserve((SphereTessX+1)*(SphereTessX+1));
     Point2f geoIncr(2*M_PI/SphereTessX,M_PI/SphereTessY);
     for (unsigned int iy=0;iy<SphereTessY+1;iy++)
         for (unsigned int ix=0;ix<SphereTessX+1;ix++)
@@ -442,6 +461,7 @@ static const float SphereTessY = 10;
             
             norms.push_back(spherePt);
             locs.push_back(thisPt);
+            colors.push_back(theColor);
         }
     
     // Two triangles per cell
@@ -461,7 +481,24 @@ static const float SphereTessY = 10;
             tris.push_back(triB);
         }
     
-    triBuilder->addTriangles(locs,norms,tris);
+    triBuilder->addTriangles(locs,norms,colors,tris);
+
+    // Add a selection region
+    if (isSelectable)
+    {
+        Point3f pts[8];
+        float dist = radius * sqrt2;
+        pts[0] = dispPt + dist * Point3f(-1,-1,-1);
+        pts[1] = dispPt + dist * Point3f(1,-1,-1);
+        pts[2] = dispPt + dist * Point3f(1,1,-1);
+        pts[3] = dispPt + dist * Point3f(-1,1,-1);
+        pts[4] = dispPt + dist * Point3f(-1,-1,1);
+        pts[5] = dispPt + dist * Point3f(1,-1,1);
+        pts[6] = dispPt + dist * Point3f(1,1,1);
+        pts[7] = dispPt + dist * Point3f(-1,1,1);
+        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        triBuilder->sceneRep->selectIDs.insert(selectID);
+    }
 }
 
 @end
@@ -469,17 +506,25 @@ static const float SphereTessY = 10;
 @implementation WhirlyKitCylinder
 
 @synthesize loc;
+@synthesize baseHeight;
 @synthesize radius;
 @synthesize height;
 
+static std::vector<Point3f> circleSamples;
+
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
+
     Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
     Point3f norm = coordAdapter->normalForLocal(localPt);
+    
+    // Move up by baseHeight
+    dispPt += norm * baseHeight;
     
     // Construct a set of axes to build the circle around
     Point3f up = norm;
@@ -494,13 +539,21 @@ static const float SphereTessY = 10;
         xAxis = north.cross(up);  xAxis.normalize();
         yAxis = up.cross(xAxis);  yAxis.normalize();
     }
+    
+    // Generate the circle ones
+    if (circleSamples.empty())
+    {
+        circleSamples.resize(CircleSamples);
+        for (unsigned int ii=0;ii<CircleSamples;ii++)
+            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1));
+    }
 
     // Calculate samples around the bottom
     std::vector<Point3f> samples;
     samples.resize(CircleSamples);
     for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  xAxis * radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
-        
+        samples[ii] =  radius * circleSamples[ii] + dispPt;
+    
     // We need the bounding box in the local coordinate system
     // Note: This is not handling height correctly
     Mbr shapeMbr;
@@ -518,7 +571,7 @@ static const float SphereTessY = 10;
         Point3f &pt = top[ii];
         pt = pt + height * norm;
     }
-    triBuilder->addConvexOutline(top,norm,shapeMbr);
+    triBuilder->addConvexOutline(top,norm,theColor,shapeMbr);
     
     // For the sides we'll just run things bottom to top
     for (unsigned int ii=0;ii<CircleSamples;ii++)
@@ -530,7 +583,27 @@ static const float SphereTessY = 10;
         pts[3] = top[ii];
         Point3f thisNorm = (pts[0]-pts[1]).cross(pts[2]-pts[1]);
         thisNorm.normalize();
-        triBuilder->addConvexOutline(pts, thisNorm, shapeMbr);
+        triBuilder->addConvexOutline(pts, thisNorm, theColor, shapeMbr);
+    }
+    
+    // Note: Would be nice to keep these around
+    circleSamples.clear();
+    
+    // Add a selection region
+    if (isSelectable)
+    {
+        Point3f pts[8];
+        float dist1 = radius * sqrt2;
+        pts[0] = dispPt - dist1 * xAxis - dist1 * yAxis;
+        pts[1] = dispPt + dist1 * xAxis - dist1 * yAxis;
+        pts[2] = dispPt + dist1 * xAxis + dist1 * yAxis;
+        pts[3] = dispPt - dist1 * xAxis + dist1 * yAxis;
+        pts[4] = pts[0] + height * norm;
+        pts[5] = pts[1] + height * norm;
+        pts[6] = pts[2] + height * norm;
+        pts[7] = pts[3] + height * norm;
+        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->shapeInfo.minVis maxVis:triBuilder->shapeInfo.maxVis];
+        triBuilder->sceneRep->selectIDs.insert(selectID);
     }
 }
 
@@ -542,9 +615,11 @@ static const float SphereTessY = 10;
 @synthesize mbr;
 @synthesize lineWidth;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer
 {
-    regBuilder->addPoints(pts, mbr, lineWidth, false);
+    RGBAColor theColor = (useColor ? color : [regBuilder->shapeInfo.color asRGBAColor]);
+
+    regBuilder->addPoints(pts, theColor, mbr, lineWidth, false);
 }
 
 @end
@@ -622,7 +697,7 @@ static const float SphereTessY = 10;
          it != shapeReps.end(); ++it)
         (*it)->clearContents(selectLayer,changeRequests);
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     [self clear];
 }
@@ -636,6 +711,12 @@ static const float SphereTessY = 10;
 // Do the work for adding shapes
 - (void)runAddShapes:(ShapeInfo *)shapeInfo
 {
+    if (!scene)
+    {
+        NSLog(@"Shape layer called before initialization.  Dropping data on floor.");
+        return;
+    }
+    
     ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo.shapeId);
     sceneRep->fade = shapeInfo.fade;
 
@@ -645,13 +726,13 @@ static const float SphereTessY = 10;
 
     // Work through the shapes
     for (WhirlyKitShape *shape in shapeInfo.shapes)
-        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene];
+        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectLayer:selectLayer];
     
     // Flush out remaining geometry
     drawBuildReg.flush();
     drawBuildTri.flush();
     
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:(changeRequests)];
     
     shapeReps.insert(sceneRep);
 }
@@ -682,7 +763,7 @@ static const float SphereTessY = 10;
             delete shapeRep;
         }
         
-        scene->addChangeRequests(changeRequests);
+        [layerThread addChangeRequests:(changeRequests)];
     }
 }
 

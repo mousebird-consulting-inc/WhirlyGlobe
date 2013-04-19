@@ -36,7 +36,20 @@ float CalcLoopArea(const VectorRing &loop)
     }
     
     return area;
-}    
+}
+    
+float CalcLoopArea(const std::vector<Point2d> &loop)
+{
+    float area = 0.0;
+    for (unsigned int ii=0;ii<loop.size();ii++)
+    {
+        const Point2d &p1 = loop[ii];
+        const Point2d &p2 = loop[(ii+1)%loop.size()];
+        area += p1.x()*p2.y() - p1.y()*p2.x();
+    }
+    
+    return area;    
+}
     
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
@@ -97,6 +110,52 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
         subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
     }
 }
+    
+// Great circle version
+void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+{
+    // If the difference is greater than 180, then this is probably crossing the date line
+    //  in which case we'll just leave it alone.
+    // Note: Probably not right
+    if (std::abs(p0.x() - p1.x()) > M_PI)
+        return;
+    
+    Point3f midP = (p0+p1)/2.0;
+    Point3f midOnSphere = midP.normalized() * (1.0 + surfOffset);
+    float dist2 = (midOnSphere - midP).squaredNorm();
+    if (dist2 > eps*eps)
+    {
+        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset);
+        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset);
+    }
+    outPts.push_back(p1);
+}
+
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+{
+    if (!adapter || inPts.empty())
+        return;
+    if (inPts.size() < 2)
+    {
+        const Point2f &p0 = inPts[0];
+        Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+        outPts.push_back(dp0);        
+        return;
+    }
+    
+    for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
+    {
+        const Point2f &p0 = inPts[ii];
+        const Point2f &p1 = inPts[(ii+1)%inPts.size()];
+        Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+        dp0 = dp0.normalized() * (1.0 + surfOffset);
+        Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
+        dp1 = dp1.normalized() * (1.0 + surfOffset);
+        outPts.push_back(dp0);
+        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset);
+    }    
+}
+
     
 VectorShape::VectorShape()
 {
@@ -222,7 +281,7 @@ void VectorPoints::initGeoMbr()
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)
 {
-    if (![coords isKindOfClass:[NSArray class]] || [coords count] != 2)
+    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
         return false;
     coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
     coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
@@ -319,7 +378,6 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
         NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
         if (![coordsArray isKindOfClass:[NSArray class]])
             return false;
-        VectorArealRef ar = VectorAreal::createAreal();
         for (NSArray *coordsEntry in coordsArray)
         {
             VectorRing coords;

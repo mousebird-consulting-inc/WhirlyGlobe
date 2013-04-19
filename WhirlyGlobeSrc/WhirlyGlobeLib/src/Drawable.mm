@@ -23,6 +23,7 @@
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 
@@ -76,6 +77,7 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         which = *it;
         buffIDs.erase(it);
     }
+    pthread_mutex_unlock(&idLock);
 
     if (size != 0)
     {
@@ -86,10 +88,12 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         CheckGLError("BasicDrawable::setupGL() glBindBuffer");
     }
-    pthread_mutex_unlock(&idLock);
     
     return which;
 }
+
+// If set, we'll reuse buffers rather than allocating new ones
+static const bool ReuseBuffers = true;
 
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
@@ -98,12 +102,12 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
     pthread_mutex_lock(&idLock);
 
     // Clear out the data to save memory (Note: not sure we need this)
-    glBindBuffer(GL_ARRAY_BUFFER, bufID);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ARRAY_BUFFER, bufID);
+//    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
     buffIDs.insert(bufID);
     
-    if (buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
+    if (!ReuseBuffers || buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
         doClear = true;
 
     pthread_mutex_unlock(&idLock);
@@ -128,7 +132,7 @@ void OpenGLMemManager::clearBufferIDs()
     
     pthread_mutex_unlock(&idLock);
 }
-
+    
 GLuint OpenGLMemManager::getTexID()
 {
     pthread_mutex_lock(&idLock);
@@ -165,7 +169,7 @@ void OpenGLMemManager::removeTexID(GLuint texID)
 
     texIDs.insert(texID);
     
-    if (texIDs.size() > WhirlyKitOpenGLMemCacheMax)
+    if (!ReuseBuffers || texIDs.size() > WhirlyKitOpenGLMemCacheMax)
         doClear = true;
 
     pthread_mutex_unlock(&idLock);
@@ -204,11 +208,12 @@ void OpenGLMemManager::lock()
 
 void OpenGLMemManager::unlock()
 {
-    pthread_mutex_unlock(&idLock);
+    pthread_mutex_unlock(&idLock);    
 }
 
 		
-Drawable::Drawable()
+Drawable::Drawable(const std::string &name)
+    : name(name)
 {
 }
 	
@@ -223,7 +228,8 @@ void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *rende
 		execute2(scene,renderer,theDrawable);
 }
 	
-BasicDrawable::BasicDrawable()
+BasicDrawable::BasicDrawable(const std::string &name)
+    : Drawable(name)
 {
 	on = true;
     programId = EmptyIdentity;
@@ -253,7 +259,8 @@ BasicDrawable::BasicDrawable()
     hasMatrix = false;
 }
 	
-BasicDrawable::BasicDrawable(unsigned int numVert,unsigned int numTri)
+BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
+    : Drawable(name)
 {
 	on = true;
     programId = EmptyIdentity;
@@ -295,7 +302,7 @@ bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
 
-    float visVal = [frameInfo.theView heightAboveSurface];
+    double visVal = [frameInfo.theView heightAboveSurface];
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
              (maxVisible <= visVal && visVal <= minVisible));
@@ -393,6 +400,18 @@ void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3
 	addTriangle(Triangle(ptIdx[0],ptIdx[1],ptIdx[3]));
 	addTriangle(Triangle(ptIdx[3],ptIdx[1],ptIdx[2]));
 }
+    
+// Move the texture coordinates around and apply a new texture
+void BasicDrawable::applySubTexture(SubTexture subTex)
+{
+    texId = subTex.texId;
+    
+    for (unsigned int ii=0;ii<texCoords.size();ii++)
+    {
+        Point2f tc = texCoords[ii];
+        texCoords[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+    }
+}
 
 // Size of a single vertex in an interleaved buffer
 // Note: We're resetting the buffers for no good reason
@@ -428,13 +447,13 @@ GLuint BasicDrawable::singleVertexSize()
 void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which)
 {
     if (!points.empty())
-        memcpy(basePtr+pointBuffer, &points[which], 3*sizeof(GLfloat));
+        memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
     if (!colors.empty())
-        memcpy(basePtr+colorBuffer, &colors[which], 4*sizeof(GLchar));
+        memcpy(basePtr+colorBuffer, &colors[which].r, 4*sizeof(GLchar));
     if (!texCoords.empty())
-        memcpy(basePtr+texCoordBuffer, &texCoords[which], 2*sizeof(GLfloat));
+        memcpy(basePtr+texCoordBuffer, &texCoords[which].x(), 2*sizeof(GLfloat));
     if (!norms.empty())
-        memcpy(basePtr+normBuffer, &norms[which], 3*sizeof(GLfloat));
+        memcpy(basePtr+normBuffer, &norms[which].x(), 3*sizeof(GLfloat));
 }
     
 void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
@@ -476,6 +495,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 	{
         sharedBuffer = externalSharedBuf;
         sharedBufferOffset = externalSharedBufOffset;
+        sharedBufferIsExternal = true;
     } else {
         // Set up the buffer
         int bufferSize = vertexSize*numVerts;
@@ -485,6 +505,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         }
         sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
         sharedBufferOffset = 0;
+        sharedBufferIsExternal = false;
 	}
     
     // Now copy in the data
@@ -517,32 +538,244 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     usingBuffers = true;
 }
-	
+
+// Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
+NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
+{
+    if (points.empty() || texCoords.empty() || norms.empty() || colors.empty())
+        return nil;
+
+    NSData *retData = nil;
+    if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
+    {
+        vertexSize = singleVertexSize();
+        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+
+        unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
+        retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
+        unsigned char *basePtr = buffer;
+        if (dupStart)
+        {
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+        }
+        for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr, ii);
+        if (dupEnd)
+        {
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+        }
+    }
+    
+    return retData;
+}
+    
+void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize)
+{
+    *retVertData = nil;
+    *retElementData = nil;
+    if (type != GL_TRIANGLES)
+        return;
+    if (points.empty() || tris.empty())
+        return;
+
+    // Note: Hack to fill out the color
+    if (colors.empty())
+        for (unsigned int ii=0;ii<points.size();ii++)
+            colors.push_back(color);
+
+    // Build up the vertices
+    vertexSize = singleVertexSize();
+    int numVerts = points.size();
+    NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
+    unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
+    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+        addPointToBuffer(basePtr, ii);
+        
+    // Build up the triangles
+    int triSize = singleElementSize * 3;
+    int numTris = tris.size();
+    int totSize = numTris*triSize;
+    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(totSize)) length:totSize freeWhenDone:YES];
+    GLushort *elPtr = (GLushort *)[elementData mutableBytes];
+    for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
+    {
+        Triangle &tri = tris[ii];
+        for (unsigned int jj=0;jj<3;jj++)
+        {
+            unsigned short vertId = tri.verts[jj];
+            elPtr[jj] = vertId;
+        }
+    }
+    
+    *retVertData = vertData;
+    *retElementData = elementData;
+}
+    
+// Combined vertex used in triangle stripping
+struct TmpVert
+{
+    TmpVert() { }
+    TmpVert(BasicDrawable *draw,int which)
+    {
+        vert = draw->getPoint(which);
+        texCoord = draw->getTexCoord(which);
+        norm = draw->getNormal(which);
+        color = draw->getColor(which);
+    }
+    bool operator == (const TmpVert &that)
+    {
+        return vert.x() == that.vert.x() && vert.y() == that.vert.y() && vert.z() == that.vert.z() &&
+                texCoord.x() == that.texCoord.x() && texCoord.y() && that.texCoord.y() &&
+                norm.x() == that.norm.x() && norm.y() == that.norm.y() && norm.z() == that.norm.z() &&
+        color.r == that.color.r && color.g == that.color.g && color.b == that.color.b && color.a == that.color.a;
+    }
+    Point3f vert;
+    Point2f texCoord;
+    Point3f norm;
+    RGBAColor color;
+};
+    
+class TriStripBuilder
+{
+public:
+    TriStripBuilder(BasicDrawable *draw) : draw(draw), flip(false) { }
+    
+    void addTriangle(TmpVert verts[3])
+    {
+        if (lastVerts.empty())
+        {
+            addVert(verts[0]);
+            addVert(verts[1]);
+            addVert(verts[2]);
+            lastVerts.push_back(verts[1]);
+            lastVerts.push_back(verts[2]);
+        } else {
+            // See if this triangle shares two vertices with the last one
+            int matchOffset = 3;
+            if (lastVerts.size() == 2)
+            {
+                // Try rotating the vertices until we find a match
+                for (matchOffset=0;matchOffset<3;matchOffset++)
+                    if (verts[matchOffset] == lastVerts[(flip ? 1 : 0)] &&
+                        verts[(matchOffset+1)%3] == lastVerts[(flip ? 0 : 1)])
+                        break;
+            }
+            
+            // Found one that worked
+            if (matchOffset != 3)
+            {
+                addVert(verts[(matchOffset+2)%3]);
+                lastVerts[0] = lastVerts[1];
+                lastVerts[1] = verts[(matchOffset+2)%3];
+            } else {
+                // Otherwise, repeat the last vertex and the first vertex of the new triangle
+                addVert(lastVerts[1]);
+                lastVerts.clear();
+                if (flip)
+                {
+                    addVert(verts[2]);
+                    addVert(verts[2]);
+                    addVert(verts[1]);
+                    addVert(verts[0]);
+                    lastVerts.push_back(verts[1]);
+                    lastVerts.push_back(verts[0]);
+                } else {
+                    addVert(verts[0]);
+                    addVert(verts[0]);
+                    addVert(verts[1]);
+                    addVert(verts[2]);
+                    lastVerts.push_back(verts[1]);
+                    lastVerts.push_back(verts[2]);
+                }
+            }
+        }
+
+        flip = !flip;
+    }
+    
+    void addVert(TmpVert vert)
+    {
+        draw->addPoint(vert.vert);
+        draw->addTexCoord(TexCoord(vert.texCoord.x(),vert.texCoord.y()));
+        draw->addNormal(vert.norm);
+        draw->addColor(vert.color);
+    }
+    
+    BasicDrawable *draw;
+    bool flip;
+    std::vector<TmpVert> lastVerts;
+};
+    
+void BasicDrawable::convertToTriStrip()
+{
+    if (type != GL_TRIANGLES)
+        return;
+    
+    if (points.empty() || tris.empty() ||
+        points.size() != texCoords.size() || points.size() != norms.size())
+        return;
+    
+    // Set up a temporary drawable to capture the data
+    BasicDrawable tmpDraw("tmp");
+    tmpDraw.setType(GL_TRIANGLE_STRIP);
+    
+    TriStripBuilder stripBuilder(&tmpDraw);
+
+    // Add the triangles one by one and let the
+    for (unsigned int ii=0;ii<tris.size();ii++)
+    {
+        Triangle &tri = tris[ii];
+        TmpVert verts[3];
+        for (unsigned int jj=0;jj<3;jj++)
+            verts[jj] = TmpVert(this,tri.verts[jj]);
+        stripBuilder.addTriangle(verts);
+    }
+    
+    setType(GL_TRIANGLE_STRIP);
+    numPoints = 0;
+    numTris = 0;
+    points = tmpDraw.points;
+    colors = tmpDraw.colors;
+    texCoords = tmpDraw.texCoords;
+    norms = tmpDraw.norms;
+    tris.clear();
+}
+
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
+    if (vertArrayObj)
+        glDeleteVertexArraysOES(1,&vertArrayObj);
+    vertArrayObj = 0;
+    
     if (sharedBuffer && !sharedBufferIsExternal)
     {
         memManager->removeBufferID(sharedBuffer);
         sharedBuffer = 0;
     } else {
-	if (pointBuffer)
-        memManager->removeBufferID(pointBuffer);
-    if (colorBuffer)
-        memManager->removeBufferID(colorBuffer);
-	if (texCoordBuffer)
-        memManager->removeBufferID(texCoordBuffer);
-	if (normBuffer)
-        memManager->removeBufferID(normBuffer);
-	if (triBuffer)
-        memManager->removeBufferID(triBuffer);
+        if (pointBuffer)
+            memManager->removeBufferID(pointBuffer);
+        if (colorBuffer)
+            memManager->removeBufferID(colorBuffer);
+        if (texCoordBuffer)
+            memManager->removeBufferID(texCoordBuffer);
+        if (normBuffer)
+            memManager->removeBufferID(normBuffer);
+        if (triBuffer)
+            memManager->removeBufferID(triBuffer);
     }
     pointBuffer = 0;
     colorBuffer = 0;
     texCoordBuffer = 0;
     normBuffer = 0;
-        triBuffer = 0;
-    }
+    triBuffer = 0;
+}
 	
 void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
@@ -555,220 +788,7 @@ void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     } else
         drawOGL2(frameInfo,scene);
 }
-    
-// Write this drawable to a cache file
-bool BasicDrawable::writeToFile(FILE *fp, const TextureIDMap &texIDMap, bool doTextures) const
-{
-    SimpleIdentity remapTexId = EmptyIdentity;
-    if (doTextures)
-    {
-        if (texId != EmptyIdentity)
-        {
-            TextureIDMap::const_iterator it = texIDMap.find(texId);
-            if (it == texIDMap.end())
-                return false;
-            remapTexId = it->second + 1;
-        }
-    }
-    
-    if (fwrite(&on,sizeof(on),1,fp) != 1 ||
-        fwrite(&drawPriority,sizeof(drawPriority),1,fp) != 1 ||
-        fwrite(&drawOffset,sizeof(drawOffset),1,fp) != 1 ||
-        fwrite(&isAlpha,sizeof(isAlpha),1,fp) != 1)
-        return false;
-    float ll_x,ll_y,ur_x,ur_y;
-    ll_x = localMbr.ll().x();    ll_y = localMbr.ll().y();
-    ur_x = localMbr.ur().x();    ur_y = localMbr.ur().y();
-    if (fwrite(&ll_x,sizeof(float),1,fp) != 1 ||
-        fwrite(&ll_y,sizeof(float),1,fp) != 1||
-        fwrite(&ur_x,sizeof(float),1,fp) != 1||
-        fwrite(&ur_y,sizeof(float),1,fp) != 1)
-        return false;
-    if (fwrite(&type,sizeof(type),1,fp) != 1 ||
-        fwrite(&remapTexId,sizeof(remapTexId),1,fp) != 1 ||
-        fwrite(&color.r,sizeof(color.r),1,fp) != 1 ||
-        fwrite(&color.g,sizeof(color.r),1,fp) != 1 ||
-        fwrite(&color.b,sizeof(color.r),1,fp) != 1 ||
-        fwrite(&minVisible,sizeof(minVisible),1,fp) != 1 ||        
-        fwrite(&maxVisible,sizeof(maxVisible),1,fp) != 1)
-        return false;
-    if (fwrite(&numPoints,sizeof(numPoints),1,fp) != 1 ||
-        fwrite(&numTris,sizeof(numTris),1,fp) != 1)
-        return false;
-    
-    unsigned int tmpNumPoints=points.size();
-    if (fwrite(&tmpNumPoints,sizeof(tmpNumPoints),1,fp) != 1)
-        return false;
-    for (unsigned int ii=0;ii<points.size();ii++)
-    {
-        const Point3f &pt = points[ii];
-        float x = pt.x(), y = pt.y(), z = pt.z();
-        if (fwrite(&x,sizeof(float),1,fp) != 1 ||
-            fwrite(&y,sizeof(float),1,fp) != 1 ||
-            fwrite(&z,sizeof(float),1,fp) != 1)
-            return false;
-    }
-    
-    unsigned int tmpNumColors=colors.size();
-    if (fwrite(&tmpNumColors,sizeof(tmpNumColors),1,fp) != 1)
-        return false;
-    for (unsigned int ii=0;ii<colors.size();ii++)
-    {
-        const RGBAColor &col = colors[ii];
-        unsigned char r = col.r, g = col.g, b = col.b;
-        if (fwrite(&r,sizeof(unsigned char),1,fp) != 1 ||
-            fwrite(&g,sizeof(unsigned char),1,fp) != 1 ||
-            fwrite(&b,sizeof(unsigned char),1,fp) != 1)
-            return false;
-    }
-
-    unsigned int tmpNumTexCoords=texCoords.size();
-    if (fwrite(&tmpNumTexCoords,sizeof(tmpNumTexCoords),1,fp) != 1)
-        return false;
-    for (unsigned int ii=0;ii<texCoords.size();ii++)
-    {
-        const Vector2f &vec = texCoords[ii];
-        float x = vec.x(), y = vec.y();
-        if (fwrite(&x,sizeof(float),1,fp) != 1 ||
-            fwrite(&y,sizeof(float),1,fp) != 1)
-            return false;
-    }
-
-    unsigned int tmpNumNorms=norms.size();
-    if (fwrite(&tmpNumNorms,sizeof(tmpNumNorms),1,fp) != 1)
-        return false;
-    for (unsigned int ii=0;ii<norms.size();ii++)
-    {
-        const Point3f &pt = norms[ii];
-        float x = pt.x(), y = pt.y(), z = pt.z();
-        if (fwrite(&x,sizeof(float),1,fp) != 1 ||
-            fwrite(&y,sizeof(float),1,fp) != 1 ||
-            fwrite(&z,sizeof(float),1,fp) != 1)
-            return false;        
-    }
-    
-    unsigned int tmpNumTris=tris.size();
-    if (fwrite(&tmpNumTris,sizeof(tmpNumTris),1,fp) != 1)
-        return false;
-    for (unsigned int ii=0;ii<tris.size();ii++)
-    {
-        const Triangle &tri = tris[ii];
-        if (fwrite(&tri.verts,sizeof(unsigned short),3,fp) != 3)
-            return false;
-    }
-    
-    return true;
-}
-
-// Read this drawable from a cache file
-bool BasicDrawable::readFromFile(FILE *fp, const TextureIDMap &texIDMap, bool doTextures)
-{
-    if (fread(&on,sizeof(on),1,fp) != 1 ||
-        fread(&drawPriority,sizeof(drawPriority),1,fp) != 1 ||
-        fread(&drawOffset,sizeof(drawOffset),1,fp) != 1 ||
-        fread(&isAlpha,sizeof(isAlpha),1,fp) != 1)
-        return false;
-    float ll_x,ll_y,ur_x,ur_y;
-    if (fread(&ll_x,sizeof(float),1,fp) != 1 ||
-        fread(&ll_y,sizeof(float),1,fp) != 1||
-        fread(&ur_x,sizeof(float),1,fp) != 1||
-        fread(&ur_y,sizeof(float),1,fp) != 1)
-        return false;
-    localMbr.addPoint(Point2f(ll_x,ll_y));
-    localMbr.addPoint(Point2f(ur_x,ur_y));
-
-    SimpleIdentity fileTexId;
-    if (fread(&type,sizeof(type),1,fp) != 1 ||
-        fread(&fileTexId,sizeof(fileTexId),1,fp) != 1 ||
-        fread(&color.r,sizeof(color.r),1,fp) != 1 ||
-        fread(&color.g,sizeof(color.r),1,fp) != 1 ||
-        fread(&color.b,sizeof(color.r),1,fp) != 1 ||
-        fread(&minVisible,sizeof(minVisible),1,fp) != 1 ||        
-        fread(&maxVisible,sizeof(maxVisible),1,fp) != 1)
-        return false;
-    // Need to remap from the file tex ID to the preallocated ID
-    if (fileTexId != EmptyIdentity && doTextures)
-    {
-        TextureIDMap::const_iterator it = texIDMap.find(fileTexId);
-        if (it == texIDMap.end())
-            return false;
-        texId = it->second;
-    } else
-        texId = EmptyIdentity;
-    
-    if (fread(&numPoints,sizeof(numPoints),1,fp) != 1 ||
-        fread(&numTris,sizeof(numTris),1,fp) != 1)
-        return false;
-    
-    unsigned int tmpNumPoints;
-    if (fread(&tmpNumPoints,sizeof(tmpNumPoints),1,fp) != 1)
-        return false;
-    points.resize(tmpNumPoints);
-    for (unsigned int ii=0;ii<points.size();ii++)
-    {
-        float x,y,z;
-        if (fread(&x,sizeof(float),1,fp) != 1 ||
-            fread(&y,sizeof(float),1,fp) != 1 ||
-            fread(&z,sizeof(float),1,fp) != 1)
-            return false;
-        points[ii] = Point3f(x,y,z);
-    }
-
-    unsigned int tmpNumColors;
-    if (fread(&tmpNumColors,sizeof(tmpNumColors),1,fp) != 1)
-        return false;
-    colors.resize(tmpNumColors);
-    for (unsigned int ii=0;ii<colors.size();ii++)
-    {
-        unsigned char r,g,b;
-        if (fread(&r,sizeof(float),1,fp) != 1 ||
-            fread(&g,sizeof(float),1,fp) != 1 ||
-            fread(&b,sizeof(float),1,fp) != 1)
-            return false;
-        colors[ii] = RGBAColor(r,g,b);
-    }
-    
-    unsigned int tmpNumTexCoords;
-    if (fread(&tmpNumTexCoords,sizeof(tmpNumTexCoords),1,fp) != 1)
-        return false;
-    texCoords.resize(tmpNumTexCoords);
-    for (unsigned int ii=0;ii<texCoords.size();ii++)
-    {
-        float x,y;
-        if (fread(&x,sizeof(float),1,fp) != 1 ||
-            fread(&y,sizeof(float),1,fp) != 1)
-            return false;
-        texCoords[ii] = Point2f(x,y);
-    }
-    
-    unsigned int tmpNumNorms;
-    if (fread(&tmpNumNorms,sizeof(tmpNumNorms),1,fp) != 1)
-        return false;
-    norms.resize(tmpNumNorms);
-    for (unsigned int ii=0;ii<norms.size();ii++)
-    {
-        float x,y,z;
-        if (fread(&x,sizeof(float),1,fp) != 1 ||
-            fread(&y,sizeof(float),1,fp) != 1 ||
-            fread(&z,sizeof(float),1,fp) != 1)
-            return false;        
-        norms[ii] = Point3f(x,y,z);
-    }
-    
-    unsigned int tmpNumTris;
-    if (fread(&tmpNumTris,sizeof(tmpNumTris),1,fp) != 1)
-        return false;
-    tris.resize(tmpNumTris);
-    for (unsigned int ii=0;ii<tris.size();ii++)
-    {
-        Triangle &tri = tris[ii];
-        if (fread(&tri.verts,sizeof(unsigned short),3,fp) != 3)
-            return false;
-    }
-    
-    return true;
-}
-    
+        
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)(base) + (off))
 
@@ -1129,8 +1149,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     bool hasTexture = glTexID != 0 && texUni;
     if (hasTexture)
     {
-        glActiveTexture(GL_TEXTURE0);
-        CheckGLError("BasicDrawable::drawVBO2() glActiveTexture");
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, glTexID);
         CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
         prog->setUniform("s_baseMap", 0);
@@ -1235,6 +1254,10 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
+            case GL_TRIANGLE_STRIP:
+                glDrawArrays(type, 0, numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
         }
         glBindVertexArrayOES(0);
     } else {
@@ -1267,13 +1290,17 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
-        }        
+            case GL_TRIANGLE_STRIP:
+                glDrawArrays(type, 0, numPoints);
+                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
+                break;
+        }
     }
     
     // Unbind any texture
     if (hasTexture)
     {
-        glActiveTexture(GL_TEXTURE0);
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 

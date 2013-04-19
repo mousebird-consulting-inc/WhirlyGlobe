@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
+#import "SceneRendererES.h"
 
 /** Animate Translate Momentum is a Maply animation delegate
     that will animate from a starting point forward in time with
@@ -29,14 +30,14 @@
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
 {
     float velocity,acceleration;
-    Eigen::Vector3f dir;
+    Eigen::Vector3d dir;
     float maxTime;
     CFTimeInterval startDate;
-    WhirlyKit::Point3f org;
+    WhirlyKit::Point3d org;
     std::vector<WhirlyKit::Point2f> bounds;
 }
 
 /// Initialize with a velocity and negative acceleration (to slow down)
-- (id)initWithView:(MaplyView *)globeView velocity:(float)velocity accel:(float)acceleration dir:(Eigen::Vector3f)dir bounds:(std::vector<WhirlyKit::Point2f> &)bounds;
+- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer;
 
 @end

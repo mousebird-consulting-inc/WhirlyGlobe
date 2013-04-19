@@ -26,9 +26,9 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeViewState
 
-- (id)initWithView:(WhirlyGlobeView *)globeView
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer
 {
-    self = [super initWithView:globeView];
+    self = [super initWithView:globeView renderer:renderer];
     if (self)
     {
         heightAboveGlobe = globeView.heightAboveGlobe;
@@ -43,47 +43,40 @@ using namespace WhirlyKit;
     
 }
 
-- (Vector3f)currentUp
+- (Vector3d)currentUp
 {
-	Eigen::Matrix4f modelMat = modelMatrix.inverse();
+	Eigen::Matrix4d modelMat = modelMatrix.inverse();
 	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,0);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());
+	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
+	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
-- (Eigen::Vector3f)eyePos
-{
-	Eigen::Matrix4f modelMat = modelMatrix.inverse();
-	
-	Vector4f newUp = modelMat * Vector4f(0,0,1,1);
-	return Vector3f(newUp.x(),newUp.y(),newUp.z());    
-}
 
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4f *)transform frameSize:(const Point2f &)frameSize hit:(Point3f *)hit
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
 {
 	// Back project the point from screen space into model space
-	Point3f screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+	Point3d screenPt = [self pointUnproject:Point2d(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
-	Eigen::Matrix4f modelTrans = *transform;
-	Matrix4f invModelMat = modelTrans.inverse();
-	Point3f eyePt(0,0,0);
-	Vector4f modelEye = invModelMat * Vector4f(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
-	Vector4f modelScreenPt = invModelMat * Vector4f(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+	Eigen::Matrix4d modelTrans = *transform;
+	Matrix4d invModelMat = modelTrans.inverse();
+	Point3d eyePt(0,0,0);
+	Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+	Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
 	
 	// Now intersect that with a unit sphere to see where we hit
-	Vector4f dir4 = modelScreenPt - modelEye;
-	Vector3f dir(dir4.x(),dir4.y(),dir4.z());
-	if (IntersectUnitSphere(Vector3f(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+	Vector4d dir4 = modelScreenPt - modelEye;
+	Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
 		return true;
 	
 	// We need the closest pass, if that didn't work out
-	Vector3f orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+	Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
 	orgDir.normalize();
 	dir.normalize();
-	Vector3f tmpDir = orgDir.cross(dir);
-	Vector3f resVec = dir.cross(tmpDir);
+	Vector3d tmpDir = orgDir.cross(dir);
+	Vector3d resVec = dir.cross(tmpDir);
 	*hit = -resVec.normalized();
 	
 	return false;

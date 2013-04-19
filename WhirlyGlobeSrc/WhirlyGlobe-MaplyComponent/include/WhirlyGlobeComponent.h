@@ -27,3 +27,4 @@
 #import <MaplySticker.h>
 #import <MaplyViewTracker.h>
 #import <WhirlyGlobeViewController.h>
+#import <MaplyViewController.h>
