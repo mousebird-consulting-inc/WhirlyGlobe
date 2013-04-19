@@ -103,6 +103,12 @@ using namespace WhirlyKit;
     }
 }
 
+/// Return count of layers.
+- (NSInteger)activeLayers
+{
+    return [layers count];
+}
+
 - (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing
 {
     thingsToDelete.push_back(thing);

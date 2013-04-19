@@ -89,6 +89,9 @@ typedef MaplyVectorObject WGVectorObject;
 /// Construct from a shapefile in the bundle
 + (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName;
 
++ (MaplyVectorDatabase *) vectorDatabaseWithShapePath:(NSString *)shapeFileName;
+
+
 /// Return vectors that match the given SQL query
 - (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery;
 

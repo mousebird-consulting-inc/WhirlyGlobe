@@ -78,6 +78,9 @@
 /// Remove the given layer.
 - (void)removeLayer:(NSObject<WhirlyKitLayer> *)layer;
 
+/// Return count of layers.
+- (NSInteger)activeLayers;
+
 /// Add a C++ object to be deleted after the thread has stopped
 /// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing;

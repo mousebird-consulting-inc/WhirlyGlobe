@@ -19,6 +19,7 @@
  */
 
 #import "MaplyQuadEarthWithMBTiles_private.h"
+#import "LayerThread.h"
 
 @implementation MaplyQuadEarthWithMBTiles
 {
@@ -27,23 +28,24 @@
     WhirlyKitMBTileQuadSource *dataSource;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbName handleEdges:(bool)edges
+- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTilesPath:(NSString *)mbPathName handleEdges:(bool)edges
 {
     self = [super init];
     if (self)
     {
-        NSString *infoPath = [[NSBundle mainBundle] pathForResource:mbName ofType:@"mbtiles"];
-        if (!infoPath)
+        if ([[NSFileManager defaultManager] fileExistsAtPath:mbPathName] == NO)
         {
             self = nil;
             return nil;
         }
-        dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
+        dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:mbPathName];
         tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
         tileLoader.coverPoles = true;
         quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
         tileLoader.ignoreEdgeMatching = !edges;
         [layerThread addLayer:quadLayer];
+
+        tileLoader.drawPriority = 1;
     }
     
     return self;

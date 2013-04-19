@@ -21,6 +21,7 @@
 #import <WhirlyGlobe.h>
 #import "WhirlyGlobeViewController.h"
 #import "WhirlyGlobeViewController_private.h"
+#import "GlobeMath.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -297,7 +298,7 @@ using namespace WhirlyGlobe;
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:[self keepNorthUp]];
     
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
@@ -376,6 +377,58 @@ using namespace WhirlyGlobe;
     Point3d localPt = [globeView currentUp];
     GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
+}
+
+// Set heading about current position
+- (void) setHeading:(CGFloat) rotationHeading position:(WGCoordinate)newPos
+{
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    Eigen::Quaternionf startQuat = [globeView rotQuat];
+    Eigen::Quaternionf northQuat;
+    {
+//        Point3f worldLoc = GeoCoordSystem::LocalToGeocentricish(GeoCoord(newPos.x,newPos.y));
+        
+        //calculate north Quaternion
+        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y));
+        Point3f worldLoc = coordAdapter->normalForLocal(localPt);
+        
+        // Let's rotate to where they tapped over a 1sec period
+        Vector3f curUp = [globeView currentUp];
+        
+        // The rotation from where we are to where we tapped
+        Eigen::Quaternionf endRot;
+        endRot = QuatFromTwoVectors(worldLoc,curUp);
+        Eigen::Quaternionf curRotQuat = startQuat;
+        Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
+        
+        
+        
+        if ( YES )
+        {
+            // We'd like to keep the north pole pointed up
+            // So we look at where the north pole is going
+            Vector3f northPole = (newRotQuat * Vector3f(0,0,1)).normalized();
+            if (northPole.y() != 0.0)
+            {
+                // Then rotate it back on to the YZ axis
+                // This will keep it upward
+                float ang = atanf(northPole.x()/northPole.y());
+                // However, the pole might be down now
+                // If so, rotate it back up
+                if (northPole.y() < 0.0)
+                    ang += M_PI;
+                Eigen::AngleAxisf upRot(ang,worldLoc);
+                newRotQuat = newRotQuat * upRot;
+            }
+        }
+        northQuat = newRotQuat;
+        
+    }
+    
+    Vector3f axis = [globeView currentUp];
+    Eigen::AngleAxisf rotQuat(rotationHeading, axis);
+    Eigen::Quaternionf newRotQuat = northQuat * rotQuat;
+    [globeView setRotQuat:newRotQuat];
 }
 
 // Called back on the main thread after the interaction thread does the selection

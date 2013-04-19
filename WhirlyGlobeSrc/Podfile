@@ -1,0 +1,75 @@
+platform :ios, '5.0'
+
+workspace 'WhirlyGlobe'
+
+inhibit_all_warnings!
+
+target 'WhirlyGlobe', :exclusive => true do
+  xcodeproj 'WhirlyGlobeApp/WhirlyGlobe.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+  pod 'WhirlyGlobe-resources/base-maps-big'
+  pod 'WhirlyGlobe-resources/shapefiles-10m'
+  pod 'WhirlyGlobe-resources/databases'
+end
+
+target 'WhirlyGlobe-MaplyComponent', :exclusive => true do
+  xcodeproj 'WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+end
+
+target 'MaplyComponentTester', :exclusive => false do
+  xcodeproj 'MaplyComponentTester/MaplyComponentTester.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+  pod 'WhirlyGlobe-resources/base-maps-lowres'
+  pod 'WhirlyGlobe-resources/base-maps-geography'
+  pod 'WhirlyGlobe-resources/country_json_50m'
+end
+
+target 'WhirlyGlobeComponentTester', :exclusive => false do
+  xcodeproj 'WhirlyGlobeComponentTester/WhirlyGlobeComponentTester.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+end
+
+target 'WhirlyGlobeTester', :exclusive => false do
+  xcodeproj 'WhirlyGlobeTester/WhirlyGlobeTester.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+end
+
+target 'ImageChopper', :exclusive => true do
+  xcodeproj 'ImageChopper/ImageChopper.xcodeproj'
+
+  platform :osx
+end
+
+target 'WhirlyGlobeLib' do
+  xcodeproj 'WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj'
+
+  pod 'eigen'
+  pod 'boost/shared_ptr-includes'
+  pod 'boost/pointer_cast-includes'
+
+  pod 'proj4'
+  pod 'shapelib'
+  pod 'clipper', '4.8.8'
+  pod 'boost/math-includes'
+
+#  link_with ['WhirlyGlobe', 'WhirlyMapWorld', 'WhirlyGlobeSimple',
+#		'WhirlyGlobe-MaplyComponent',
+#		'MaplyComponentTester', 'WhirlyGlobeComponentTester']
+end
+
