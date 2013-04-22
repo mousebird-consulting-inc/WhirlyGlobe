@@ -34,6 +34,7 @@
 #import "ActiveModel.h"
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
+#import "SelectionManager.h"
 
 /// @cond
 @class WhirlyKitSceneRendererES;
@@ -284,6 +285,9 @@ public:
     /// Get the UIView placement generator.  Only use this in the main thread.
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
+    /// Get the selection manager.  Safe in any thread.
+    SelectionManager *getSelectionManager() { return selectManager; }
+    
     /// Add an active model.  Only call this on the main thread.
     void addActiveModel(NSObject<WhirlyKitActiveModel> *);
     
@@ -363,6 +367,9 @@ public:
     
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
+    
+    /// Selection manager (created on startup)
+    SelectionManager *selectManager;
     
     /// Lock for accessing programs
     pthread_mutex_t programLock;

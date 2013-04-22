@@ -33,17 +33,18 @@ namespace WhirlyKit
 /** Information sufficient to draw a string as 3D geometry.
     All coordinates are in a local space related to the font size.
   */
-class DrawableString : Identifiable
+class DrawableString : public Identifiable
 {
 public:
-    DrawableString(WhirlyKit::SimpleIdentity theId) : Identifiable(theId) { }
+    DrawableString() { }
     
     /// A rectangle describing the placement of a single glyph and
     ///  the texture piece used to represent it
     class Rect
     {
     public:
-        Point2f pts[4];
+        Point2f pts[2];
+        TexCoord texCoords[2];
         SubTexture subTex;
     };
     std::vector<Rect> glyphPolys;
@@ -65,6 +66,9 @@ public:
 /// Add the given string.  Caller is responsible for deleting
 ///  the DrawableString
 - (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
+
+/// Remove resources associated with the given string
+- (void)removeString:(WhirlyKit::SimpleIdentity)drawStringId changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
 
 /// Tear down anything we've built
 - (void)clear:(std::vector<WhirlyKit::ChangeRequest *> &)changes;

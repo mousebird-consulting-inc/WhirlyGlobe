@@ -22,7 +22,7 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "layerThread.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 
 namespace WhirlyKit
 {
@@ -36,7 +36,7 @@ public:
     ~ShapeSceneRep();
     
     // Clear the contents out of the scene
-    void clearContents(WhirlyKitSelectionLayer *selectLayer,std::vector<ChangeRequest *> &changeRequests);
+    void clearContents(WhirlyKit::SelectionManager *selectManager,std::vector<ChangeRequest *> &changeRequests);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
@@ -166,17 +166,9 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     WhirlyKitLayerThread * __weak layerThread;    
     /// Scene the marker layer is modifying
     WhirlyKit::Scene *scene;
-    /// If set, we'll pass markers on for selection
-    WhirlyKitSelectionLayer * __weak selectLayer;
     /// Used to track the scene objects that correspond to shapes
     WhirlyKit::ShapeSceneRepSet shapeReps;
 }
-
-/// Set this for selection layer support.  If this is set
-///  and shapes are designated selectable, then the outline
-///  of each shape will be passed to the selection layer
-///  and will show up in search results.
-@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

@@ -27,7 +27,7 @@
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "DrawCost.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "LayoutLayer.h"
 
 namespace WhirlyKit
@@ -134,8 +134,6 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     WhirlyKit::SimpleIdentity generatorId;    
     /// Scene the marker layer is modifying
     WhirlyKit::Scene *scene;
-    /// If set, we'll pass markers on for selection
-    WhirlyKitSelectionLayer * __weak selectLayer;
     /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
     WhirlyKitLayoutLayer * __weak layoutLayer;
     /// Used to track what scene components correspond to which markers
@@ -143,12 +141,6 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     /// Screen space generator on the render side
     WhirlyKit::SimpleIdentity screenGenId;
 }
-
-/// Set this for selection layer support.  If this is set
-///  and markers are designated selectable, then the outline
-///  of each marker will be passed to the selection layer
-///  and will show up in search results.
-@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
 
 /// Set this to use the layout engine for markers so marked
 @property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;

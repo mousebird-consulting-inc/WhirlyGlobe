@@ -1,5 +1,5 @@
 /*
- *  SelectionLayer.mm
+ *  SelectionManager.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
@@ -18,13 +18,15 @@
  *
  */
 
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
 #import "MaplyView.h"
 #import "WhirlyGeometry.h"
+#import "Scene.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -44,35 +46,19 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     return selectID < that.selectID;
 }
 
-@implementation WhirlyKitSelectionLayer
-
-- (id)initWithView:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer
+SelectionManager::SelectionManager(Scene *scene,float viewScale)
+    : scene(scene), scale(viewScale), renderer(NULL)
 {
-    self = [super init];
-    
-    if (self)
-    {
-        theView = inView;
-        renderer = inRenderer;
-    }
-    
-    return self;
+    pthread_mutex_init(&mutex,NULL);
 }
 
-// Called in the layer thread
-- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
+SelectionManager::~SelectionManager()
 {
-    layerThread = inLayerThread;
-    scene = inScene;
-}
-
-- (void)shutdown
-{
-    // No visual representation, so nothing to do
+    pthread_mutex_destroy(&mutex);
 }
 
 // Add a rectangle (in 3-space) available for selection
-- (void)addSelectableRect:(SimpleIdentity)selectId rect:(Point3f *)pts
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -83,12 +69,14 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
-    
+
+    pthread_mutex_lock(&mutex);
     rect3Dselectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
-- (void)addSelectableRect:(SimpleIdentity)selectId rect:(Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -100,11 +88,13 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
+    pthread_mutex_lock(&mutex);
     rect3Dselectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-- (void)addSelectableScreenRect:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point2f *)pts minVis:(float)minVis maxVis:(float)maxVis
+void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -116,12 +106,14 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
+    pthread_mutex_lock(&mutex);
     rect2Dselectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
 }
 
 static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
 
-- (void)addSelectableRectSolid:(WhirlyKit::SimpleIdentity)selectId rect:(WhirlyKit::Point3f *)pts minVis:(float)minVis maxVis:(float)maxVis
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -142,12 +134,16 @@ static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7
         newSelect.polys.push_back(poly);
     }
     
+    pthread_mutex_lock(&mutex);
     polytopeSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
 }
 
 // Remove the given selectable from consideration
-- (void)removeSelectable:(SimpleIdentity)selectID
+void SelectionManager::removeSelectable(SimpleIdentity selectID)
 {
+    pthread_mutex_lock(&mutex);
+    
     RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
     
     if (it != rect3Dselectables.end())
@@ -160,20 +156,22 @@ static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7
     PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
+
+    pthread_mutex_unlock(&mutex);
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-- (SimpleIdentity)pickObject:(Point2f)touchPt view:(UIView *)view maxDist:(float)maxDist
+// Note: Should switch to a view state, rather than a view
+SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView)
 {
-    // Can only run in the layer thread
-    if ([NSThread currentThread] != layerThread)
+    if (!renderer)
         return EmptyIdentity;
     
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    Point2f frameSize(renderer.framebufferWidth/view.contentScaleFactor,renderer.framebufferHeight/view.contentScaleFactor);
+    Point2f frameSize(renderer.framebufferWidth/scale,renderer.framebufferHeight/scale);
     Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:frameSize margin:0.0];
     
     SimpleIdentity retId = EmptyIdentity;
@@ -191,15 +189,17 @@ static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7
     
     // First we need to know where the things wound up, 2D wise
     std::vector<ScreenSpaceGenerator::ProjectedPoint> projPts;
-    scene->getScreenSpaceGenerator()->getProjectedPoints(projPts);    
+    scene->getScreenSpaceGenerator()->getProjectedPoints(projPts);
+    
+    pthread_mutex_lock(&mutex);
     
     // Work through the 2D rectangles
     for (unsigned int ii=0;ii<projPts.size();ii++)
     {
         ScreenSpaceGenerator::ProjectedPoint projPt = projPts[ii];
         // If we're on a retina display, we need to scale accordingly
-        projPt.screenLoc.x() /= view.contentScaleFactor;
-        projPt.screenLoc.y() /= view.contentScaleFactor;
+        projPt.screenLoc.x() /= scale;
+        projPt.screenLoc.y() /= scale;
         
         // Look for the corresponding selectable
         RectSelectable2DSet::iterator it = rect2Dselectables.find(RectSelectable2D(projPt.shapeID));
@@ -360,8 +360,7 @@ static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7
         }
     }
     
+    pthread_mutex_unlock(&mutex);
+    
     return retId;
 }
-
-
-@end

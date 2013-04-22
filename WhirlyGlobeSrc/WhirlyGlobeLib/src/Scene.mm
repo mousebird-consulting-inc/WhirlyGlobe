@@ -29,8 +29,9 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
-    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
+    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity), selectManager(NULL)
 {
+    
 }
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
@@ -45,6 +46,9 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     // And put in a UIView placement generator for use in the main thread
     vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
     generators.insert(vpGen);
+    
+    // Selection manager is used for object selection from any thread
+    selectManager = new SelectionManager(this,[UIScreen mainScreen].scale);
     
     activeModels = [NSMutableArray array];
     
@@ -66,6 +70,12 @@ Scene::~Scene()
         delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
+    
+    if (selectManager)
+    {
+        delete selectManager;
+        selectManager = NULL;
+    }
     
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);

@@ -318,7 +318,7 @@ using namespace WhirlyGlobe;
     // Figure out where that points lands on the globe
     Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
     Point3d whereLoc;
-    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc])
+    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc normalized:true])
     {
         CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
         Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
@@ -427,6 +427,21 @@ using namespace WhirlyGlobe;
     
     Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+// Note: Finish writing this
+- (id)findObjectAtLocation:(CGPoint)screenPt
+{
+    // Look for the object, returns an ID
+    SimpleIdentity objId = scene->getSelectionManager()->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView);
+    
+    if (objId != EmptyIdentity)
+    {
+        // Now ask the interaction layer for the right object
+        return [interactLayer getSelectableObject:objId];
+    }
+    
+    return nil;
 }
 
 - (void)setSunDirection:(MaplyCoordinate3d)sunDir

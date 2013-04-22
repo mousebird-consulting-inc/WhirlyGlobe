@@ -217,7 +217,6 @@ using namespace WhirlyKit;
     WhirlyKitFontTextureManager *fontTexManager;
         }
         
-@synthesize selectLayer;
 @synthesize layoutLayer;
 
 - (id)init
@@ -270,6 +269,7 @@ using namespace WhirlyKit;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     std::vector<ChangeRequest *> changeRequests;
+    SelectionManager *selectManager = scene->getSelectionManager();
     
     for (LabelSceneRepMap::iterator it=labelReps.begin();
          it!=labelReps.end(); ++it)
@@ -284,9 +284,12 @@ using namespace WhirlyKit;
         for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
              idIt != labelRep->screenIDs.end(); ++idIt)
             [layerThread addChangeRequest:(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt))];
+        for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
+             idIt != labelRep->drawStrIDs.end(); ++idIt)
+            [fontTexManager removeString:*idIt changes:changeRequests];
 
-        if (labelRep->selectID != EmptyIdentity)
-            [self.selectLayer removeSelectable:labelRep->selectID];
+        if (labelRep->selectID != EmptyIdentity && selectManager)
+            selectManager->removeSelectable(labelRep->selectID);
         
         if (layoutLayer && !labelRep->screenIDs.empty())
             [layoutLayer removeLayoutObjects:labelRep->screenIDs];
@@ -326,12 +329,20 @@ using namespace WhirlyKit;
     labelRenderer->screenGenId = screenGenId;
     labelRenderer->fontTexManager = fontTexManager;
 
-    // Do the render somewhere else and merge in the results back on our thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
-                   {
-                       [labelRenderer render];
-                       [self performSelector:@selector(mergeRenderedLabels:) onThread:layerThread withObject:labelRenderer waitUntilDone:NO];
-                   });
+    // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
+    // Note: Need to merge from SA branch
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0 && !fontTexManager)
+    {
+        // Do the render somewhere else and merge in the results back on our thread
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
+                       {
+                           [labelRenderer render];
+                           [self performSelector:@selector(mergeRenderedLabels:) onThread:layerThread withObject:labelRenderer waitUntilDone:NO];
+                       });
+    } else {
+        [labelRenderer render];
+        [self mergeRenderedLabels:labelRenderer];        
+    }
 
     // Note: This means we can't delete the labels while they're rendering.  Bug.
 //    labelReps[labelRep->getId()] = labelRep;
@@ -339,6 +350,8 @@ using namespace WhirlyKit;
 
 - (void)mergeRenderedLabels:(WhirlyKitLabelRenderer *)labelRenderer
 {    
+    SelectionManager *selectManager = scene->getSelectionManager();
+    
     // Flush out the changes
     [layerThread addChangeRequests:labelRenderer->changeRequests];
     
@@ -349,17 +362,17 @@ using namespace WhirlyKit;
     // And set up the selectables
     //                [selectLayer addSelectableScreenRect:label.selectID rect:pts2d minVis:labelInfo.minVis maxVis:labelInfo.maxVis];
     //                [selectLayer addSelectableRect:label.selectID rect:pts];
-    if (selectLayer)
+    if (selectManager)
     {
         for (unsigned int ii=0;ii<labelRenderer->selectables2D.size();ii++)
         {
             RectSelectable2D &sel = labelRenderer->selectables2D[ii];
-            [selectLayer addSelectableScreenRect:sel.selectID rect:sel.pts minVis:sel.minVis maxVis:sel.maxVis];
+            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
         }
         for (unsigned int ii=0;ii<labelRenderer->selectables3D.size();ii++)
         {
             RectSelectable3D &sel = labelRenderer->selectables3D[ii];
-            [selectLayer addSelectableRect:sel.selectID rect:sel.pts minVis:sel.minVis maxVis:sel.maxVis];
+            selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
         }
     }
     
@@ -370,6 +383,9 @@ using namespace WhirlyKit;
 - (void)runRemoveLabel:(NSNumber *)num
 {
     SimpleIdentity labelId = [num unsignedIntValue];
+    SelectionManager *selectManager = scene->getSelectionManager();
+    
+    std::vector<ChangeRequest *> changeRequests;
     
     LabelSceneRepMap::iterator it = labelReps.find(labelId);
     if (it != labelReps.end())
@@ -382,11 +398,11 @@ using namespace WhirlyKit;
             NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                [layerThread addChangeRequest:(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade))];
+                changeRequests.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fade));
             
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
-                [layerThread addChangeRequest:(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade))];
+                changeRequests.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId, *idIt, curTime, curTime+labelRep->fade));
             
             // Reset the fade and try to delete again later
             [self performSelector:@selector(runRemoveLabel:) withObject:num afterDelay:labelRep->fade];
@@ -394,15 +410,19 @@ using namespace WhirlyKit;
         } else {
             for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                  idIt != labelRep->drawIDs.end(); ++idIt)
-                [layerThread addChangeRequest:(new RemDrawableReq(*idIt))];
+                changeRequests.push_back(new RemDrawableReq(*idIt));
             for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
                  idIt != labelRep->texIDs.end(); ++idIt)        
-                [layerThread addChangeRequest:(new RemTextureReq(*idIt))];
+                changeRequests.push_back(new RemTextureReq(*idIt));
             for (SimpleIDSet::iterator idIt = labelRep->screenIDs.begin();
                  idIt != labelRep->screenIDs.end(); ++idIt)
-                [layerThread addChangeRequest:(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt))];
-            if (labelRep->selectID != EmptyIdentity)
-                [self.selectLayer removeSelectable:labelRep->selectID];
+                changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, *idIt));
+            for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
+                 idIt != labelRep->drawStrIDs.end(); ++idIt)
+                [fontTexManager removeString:*idIt changes:changeRequests];
+            
+            if (labelRep->selectID != EmptyIdentity && selectManager)
+                selectManager->removeSelectable(labelRep->selectID);
             
             if (layoutLayer && !labelRep->screenIDs.empty())
                 [layoutLayer removeLayoutObjects:labelRep->screenIDs];
@@ -411,17 +431,13 @@ using namespace WhirlyKit;
             delete labelRep;
         }
     }
+    
+    [layerThread addChangeRequests:changeRequests];
 }
 
 // Pass off label creation to a routine in our own thread
 - (SimpleIdentity) addLabel:(NSString *)str loc:(WhirlyKit::GeoCoord)loc desc:(NSDictionary *)desc
 {
-    if (!layerThread || !scene)
-    {
-        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling addLabel.  Dropping data on floor.");
-        return EmptyIdentity;
-    }
-    
     WhirlyKitSingleLabel *theLabel = [[WhirlyKitSingleLabel alloc] init];
     theLabel.text = str;
     [theLabel setLoc:loc];
@@ -481,12 +497,6 @@ using namespace WhirlyKit;
 // Change how the label is displayed
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict
 {
-    if (!layerThread || !scene)
-    {
-        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling changeLabel.  Dropping data on floor.");
-        return;
-    }
-
     WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithSceneRepId:labelID desc:dict];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
@@ -498,12 +508,6 @@ using namespace WhirlyKit;
 // Set up the label to be removed in the layer thread
 - (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId
 {
-    if (!layerThread || !scene)
-    {
-        NSLog(@"WhirlyGlobe Label has not been initialized, yet you're calling removeLabel.  Dropping data on floor.");
-        return;
-    }
-
     NSNumber *num = [NSNumber numberWithUnsignedInt:labelId];
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemoveLabel:num];

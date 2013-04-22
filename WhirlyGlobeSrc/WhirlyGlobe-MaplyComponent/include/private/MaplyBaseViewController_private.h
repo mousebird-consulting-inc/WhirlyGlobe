@@ -50,7 +50,6 @@
     WhirlyKitShapeLayer *shapeLayer;
     WhirlyKitSphericalChunkLayer *chunkLayer;
     WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitSelectionLayer *selectLayer;
     WhirlyKitLoftLayer *loftLayer;
     
     // Our own interaction layer does most of the work
