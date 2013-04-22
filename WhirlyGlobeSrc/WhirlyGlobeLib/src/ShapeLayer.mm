@@ -43,14 +43,14 @@ ShapeSceneRep::~ShapeSceneRep()
 {
 }
     
-void ShapeSceneRep::clearContents(WhirlyKitSelectionLayer *selectLayer,std::vector<ChangeRequest *> &changeRequests)
+void ShapeSceneRep::clearContents(SelectionManager *selectManager,std::vector<ChangeRequest *> &changeRequests)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
         changeRequests.push_back(new RemDrawableReq(*idIt));
-    if (selectLayer)
+    if (selectManager)
         for (SimpleIDSet::iterator it = selectIDs.begin();it != selectIDs.end(); ++it)
-            [selectLayer removeSelectable:*it];
+            selectManager->removeSelectable(*it);
 }
 }
 
@@ -61,7 +61,7 @@ void ShapeSceneRep::clearContents(WhirlyKitSelectionLayer *selectLayer,std::vect
 
 @interface WhirlyKitShape()
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep;
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep;
 
 @end
 
@@ -73,7 +73,7 @@ void ShapeSceneRep::clearContents(WhirlyKitSelectionLayer *selectLayer,std::vect
 @synthesize color;
 
 // Base shape doesn't make anything
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
 }
 
@@ -90,7 +90,7 @@ static int CircleSamples = 10;
 @synthesize height;
 
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -147,7 +147,7 @@ static const float sqrt2 = 1.4142135623;
 static const float SphereTessX = 10;
 static const float SphereTessY = 10;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
@@ -218,7 +218,7 @@ static const float SphereTessY = 10;
         pts[5] = dispPt + dist * Point3f(1,-1,1);
         pts[6] = dispPt + dist * Point3f(1,1,1);
         pts[7] = dispPt + dist * Point3f(-1,1,1);
-        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->getShapeInfo().minVis maxVis:triBuilder->getShapeInfo().maxVis];
+        selectManager->addSelectableRectSolid(selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
         sceneRep->selectIDs.insert(selectID);
     }
 }
@@ -235,7 +235,7 @@ static const float SphereTessY = 10;
 static std::vector<Point3f> circleSamples;
 
 // Build the geometry for a circle in display space
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -324,7 +324,7 @@ static std::vector<Point3f> circleSamples;
         pts[5] = pts[1] + height * norm;
         pts[6] = pts[2] + height * norm;
         pts[7] = pts[3] + height * norm;
-        [selectLayer addSelectableRectSolid:selectID rect:pts minVis:triBuilder->getShapeInfo().minVis maxVis:triBuilder->getShapeInfo().maxVis];
+        selectManager->addSelectableRectSolid(selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
         sceneRep->selectIDs.insert(selectID);
     }
 }
@@ -337,7 +337,7 @@ static std::vector<Point3f> circleSamples;
 @synthesize mbr;
 @synthesize lineWidth;
 
-- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectLayer:(WhirlyKitSelectionLayer *)selectLayer sceneRep:(ShapeSceneRep *)sceneRep
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     RGBAColor theColor = (useColor ? color : [regBuilder->getShapeInfo().color asRGBAColor]);
 
@@ -347,8 +347,6 @@ static std::vector<Point3f> circleSamples;
 @end
 
 @implementation WhirlyKitShapeLayer
-
-@synthesize selectLayer;
 
 - (void)clear
 {
@@ -373,10 +371,11 @@ static std::vector<Point3f> circleSamples;
 - (void)shutdown
 {
     std::vector<ChangeRequest *> changeRequests;
+    SelectionManager *selectManager = scene->getSelectionManager();
     
     for (ShapeSceneRepSet::iterator it = shapeReps.begin();
          it != shapeReps.end(); ++it)
-        (*it)->clearContents(selectLayer,changeRequests);
+        (*it)->clearContents(selectManager,changeRequests);
     
     [layerThread addChangeRequests:(changeRequests)];
     
@@ -397,6 +396,7 @@ static std::vector<Point3f> circleSamples;
         NSLog(@"Shape layer called before initialization.  Dropping data on floor.");
         return;
     }
+    SelectionManager *selectManager = scene->getSelectionManager();
     
     ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo.shapeId);
     sceneRep->fade = shapeInfo.fade;
@@ -407,7 +407,7 @@ static std::vector<Point3f> circleSamples;
 
     // Work through the shapes
     for (WhirlyKitShape *shape in shapeInfo.shapes)
-        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectLayer:selectLayer sceneRep:sceneRep];
+        [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectManager:selectManager sceneRep:sceneRep];
     
     // Flush out remaining geometry
     drawBuildReg.flush();
@@ -424,6 +424,7 @@ static std::vector<Point3f> circleSamples;
 - (void)runRemoveShapes:(NSNumber *)num
 {
     SimpleIdentity shapeId = [num unsignedIntValue];
+    SelectionManager *selectManager = scene->getSelectionManager();
     
     ShapeSceneRep dummyRep(shapeId);
     ShapeSceneRepSet::iterator it = shapeReps.find(&dummyRep);
@@ -441,7 +442,7 @@ static std::vector<Point3f> circleSamples;
             [self performSelector:@selector(runRemoveShapes:) withObject:num afterDelay:shapeRep->fade];
             shapeRep->fade = 0.0;
         } else {
-            shapeRep->clearContents(selectLayer, changeRequests);
+            shapeRep->clearContents(selectManager, changeRequests);
             shapeReps.erase(it);
             delete shapeRep;
         }

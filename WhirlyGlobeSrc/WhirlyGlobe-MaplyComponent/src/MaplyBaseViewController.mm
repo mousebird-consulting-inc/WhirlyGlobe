@@ -69,7 +69,6 @@ using namespace WhirlyKit;
     chunkLayer = nil;
     layoutLayer = nil;
     loftLayer = nil;
-    selectLayer = nil;
     activeObjects = nil;
     
     interactLayer = nil;
@@ -269,17 +268,12 @@ static const char *fragmentShaderNoLightLine =
     // Need a layer thread to manage the layers
 	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer];
     
-    // Selection feedback
-    selectLayer = [[WhirlyKitSelectionLayer alloc] initWithView:visualView renderer:sceneRenderer];
-    [layerThread addLayer:selectLayer];
-    
 	// Set up the vector layer where all our outlines will go
 	vectorLayer = [[WhirlyKitVectorLayer alloc] init];
 	[layerThread addLayer:vectorLayer];
     
     // Set up the shape layer.  Manages a set of simple shapes
     shapeLayer = [[WhirlyKitShapeLayer alloc] init];
-    shapeLayer.selectLayer = selectLayer;
     [layerThread addLayer:shapeLayer];
     
     // Set up the chunk layer.  Used for stickers.
@@ -289,12 +283,10 @@ static const char *fragmentShaderNoLightLine =
     
 	// General purpose label layer.
 	labelLayer = [[WhirlyKitLabelLayer alloc] init];
-    labelLayer.selectLayer = selectLayer;
 	[layerThread addLayer:labelLayer];
     
     // Marker layer
     markerLayer = [[WhirlyKitMarkerLayer alloc] init];
-    markerLayer.selectLayer = selectLayer;
     [layerThread addLayer:markerLayer];
     
     // 2D layout engine layer
@@ -314,7 +306,6 @@ static const char *fragmentShaderNoLightLine =
     interactLayer.markerLayer = markerLayer;
     interactLayer.shapeLayer = shapeLayer;
     interactLayer.chunkLayer = chunkLayer;
-    interactLayer.selectLayer = selectLayer;
     interactLayer.loftLayer = loftLayer;
     interactLayer.glView = glView;
     [layerThread addLayer:interactLayer];

@@ -257,7 +257,7 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 // If set, we ask the main thread to do the sub texture loads
 static const bool MainThreadMerge = false;
     
-bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels)
+bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels,int bufferPixels)
 {
     // Make sure we can fit the thing
     if (tex->getWidth() > texSize || tex->getHeight() > texSize)
@@ -268,7 +268,7 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
     // Now look for space
     DynamicTexture *dynTex = NULL;
     bool found = false;
-    int numCellX = ceil(tex->getWidth() / (float)cellSize), numCellY = ceil(tex->getHeight() / (float)cellSize);
+    int numCellX = ceil((tex->getWidth()+bufferPixels) / (float)cellSize), numCellY = ceil((tex->getHeight()+bufferPixels) / (float)cellSize);
     for (DynamicTextureSet::iterator it = textures.begin();
          it != textures.end(); ++it)
     {
@@ -326,13 +326,16 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,SubTexture &subTex,OpenGLMemMa
 //                                    TexCoord(org.x() + tex->getWidth() / (float)texSize , org.y() + tex->getHeight() / (float)texSize));
         
         Point2f boundaryPix;
+        // The input textures size might not be the real size of the texture being used.
+        // Use the size they passed in specifically for this calculation
+        Point2f inTexSize = realSize ? *realSize : Point2f(tex->getWidth(),tex->getHeight());
         if (borderPixels == 0)
             boundaryPix = Point2f(0,0);
         else
 //            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
             boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);
         texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x(),org.y() + boundaryPix.y()),
-                                    TexCoord(org.x() + tex->getWidth() / (float)texSize - boundaryPix.x(), org.y() + tex->getHeight() / (float)texSize - boundaryPix.y()));
+                                    TexCoord(org.x() + inTexSize.x() / (float)texSize - boundaryPix.x(), org.y() + inTexSize.y() / (float)texSize - boundaryPix.y()));
         texRegion.subTex.texId = dynTex->getId();
         
         subTex = texRegion.subTex;

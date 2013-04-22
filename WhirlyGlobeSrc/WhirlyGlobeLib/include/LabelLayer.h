@@ -27,7 +27,7 @@
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "DrawCost.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "LabelRenderer.h"
 
@@ -150,9 +150,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     /// Screen space generator on the render side
     WhirlyKit::SimpleIdentity screenGenId;
     
-    /// If set, we register labels as selectable here
-    WhirlyKitSelectionLayer * __weak selectLayer;
-
     /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
     WhirlyKitLayoutLayer * __weak layoutLayer;
 
@@ -161,9 +158,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     
     unsigned int textureAtlasSize;
 }
-
-/// Set this to enable selection for labels
-@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
 
 /// Set this to use the layout engine for labels so marked
 @property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;

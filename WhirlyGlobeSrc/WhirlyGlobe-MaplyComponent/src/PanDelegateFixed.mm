@@ -92,7 +92,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     spinDate = CFAbsoluteTimeGetCurrent();
     lastTouch = [pan locationOfTouch:0 inView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
-                            frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere])
+                            frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
         // We'll start out letting them play with box axes
         panType = PanFree;                
     else
@@ -164,7 +164,7 @@ static const float MomentumAnimLen = 1.0;
                 CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
                 lastTouch = touchPt;
 				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
-									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit ];                
+									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];
                                                 
 				// This gives us a direction to rotate around
 				// And how far to rotate

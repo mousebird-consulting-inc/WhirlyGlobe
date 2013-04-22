@@ -125,6 +125,12 @@
 /// Get the current position and height
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
 
+/// Find a selectable object at or near the given location.
+/// Returns nil if there was no object.  The object returned
+///  is a MaplyLabel or MaplyMarker or any of the Maply objects added
+///  by the caller and marked selectable.
+- (id)findObjectAtLocation:(CGPoint)screenPt;
+
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;
 

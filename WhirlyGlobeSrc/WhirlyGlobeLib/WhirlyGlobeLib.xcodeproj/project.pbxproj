@@ -14,7 +14,8 @@
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
-		2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */; };
+		2B308B11171F638F006D7273 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B308B10171F638F006D7273 /* SelectionManager.h */; };
+		2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B308B12171F63B3006D7273 /* SelectionManager.mm */; };
 		2B35A8551337CC5F0047C705 /* GLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35A8531337CC5F0047C705 /* GLUtils.mm */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
 		2B3A0D42133405780085EF43 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC53FD212DE22FA00778431 /* WhirlyGlobe.h */; };
@@ -331,8 +332,8 @@
 		2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateViewMomentum.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceGenerator.h; sourceTree = "<group>"; };
 		2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceGenerator.mm; sourceTree = "<group>"; };
-		2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionLayer.h; sourceTree = "<group>"; };
-		2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionLayer.mm; sourceTree = "<group>"; };
+		2B308B10171F638F006D7273 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
+		2B308B12171F63B3006D7273 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectionManager.mm; sourceTree = "<group>"; };
 		2B35A8501337CC2F0047C705 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = GLUtils.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B35A8531337CC5F0047C705 /* GLUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = GLUtils.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B3890A212DF8895006FC3A1 /* SceneRendererES1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES1.h; sourceTree = "<group>"; };
@@ -1055,6 +1056,7 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
+				2B308B10171F638F006D7273 /* SelectionManager.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
@@ -1069,7 +1071,6 @@
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
 				2B93C81514522DE600D768BA /* MarkerLayer.h */,
-				2B2C1DB81458A3D500B5D61D /* SelectionLayer.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
 				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
 				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
@@ -1085,6 +1086,7 @@
 		2B951D9712F09EEC005003AE /* layers & loaders */ = {
 			isa = PBXGroup;
 			children = (
+				2B308B12171F63B3006D7273 /* SelectionManager.mm */,
 				2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */,
 				2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */,
 				2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */,
@@ -1103,7 +1105,6 @@
 				2BB1F06A130076C5001F33CD /* LabelLayer.mm */,
 				2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */,
 				2B93C817145232C800D768BA /* MarkerLayer.mm */,
-				2B2C1DBA1458A3ED00B5D61D /* SelectionLayer.mm */,
 				2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */,
 				2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */,
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
@@ -1502,6 +1503,7 @@
 				2BEA1E4E171E0E0F0039F1A4 /* FontTextureManager.h in Headers */,
 				2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */,
 				2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */,
+				2B308B11171F638F006D7273 /* SelectionManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1601,7 +1603,6 @@
 				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
 				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
 				2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */,
-				2B2C1DBB1458A3ED00B5D61D /* SelectionLayer.mm in Sources */,
 				2B80455814990A1A003FFABE /* MarkerGenerator.mm in Sources */,
 				2BEFDE931499643000C63326 /* LoftLayer.mm in Sources */,
 				2BEFDE9B149966F300C63326 /* GridClipper.mm in Sources */,
@@ -1801,6 +1802,7 @@
 				2BEA1E54171E0E280039F1A4 /* FontTextureManager.mm in Sources */,
 				2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */,
 				2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */,
+				2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
