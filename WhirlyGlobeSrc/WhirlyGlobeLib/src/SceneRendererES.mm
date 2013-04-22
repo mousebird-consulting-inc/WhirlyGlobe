@@ -241,6 +241,12 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     triggerDraw = true;
 }
 
+- (void)setScene:(WhirlyKit::Scene *)newScene
+{
+    scene = newScene;
+    scene->getSelectionManager()->setRenderer(self);
+}
+
 - (void)useContext
 {
 	if (context && [EAGLContext currentContext] != context)

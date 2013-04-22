@@ -153,7 +153,6 @@ MarkerSceneRep::MarkerSceneRep()
 
 @implementation WhirlyKitMarkerLayer
 
-@synthesize selectLayer;
 @synthesize layoutLayer;
 
 - (void)clear
@@ -184,6 +183,7 @@ MarkerSceneRep::MarkerSceneRep()
 
 - (void)shutdown
 {
+    SelectionManager *selectManager = scene->getSelectionManager();
     std::vector<ChangeRequest *> changeRequests;
     
     for (MarkerSceneRepSet::iterator it = markerReps.begin();
@@ -203,8 +203,8 @@ MarkerSceneRep::MarkerSceneRep()
             changeRequests.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDs));
         }
         
-        if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-            [self.selectLayer removeSelectable:markerRep->selectID];
+        if (selectManager && markerRep->selectID != EmptyIdentity)
+            selectManager->removeSelectable(markerRep->selectID);
         
         if (layoutLayer && !markerRep->screenShapeIDs.empty())
             [layoutLayer removeLayoutObjects:markerRep->screenShapeIDs];
@@ -224,6 +224,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // We're in the layer thread here
 - (void)runAddMarkers:(MarkerInfo *)markerInfo
 {
+    SelectionManager *selectManager = scene->getSelectionManager();
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -277,8 +278,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
             }
             
-            if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-                [self.selectLayer removeSelectable:markerRep->selectID];
+            if (selectManager && markerRep->selectID != EmptyIdentity)
+                selectManager->removeSelectable(markerRep->selectID);
             
             markerReps.erase(it);
             delete markerRep;
@@ -323,7 +324,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         }
 
         // While we're at it, let's add this to the selection layer
-        if (selectLayer && marker.isSelectable)
+        if (selectManager && marker.isSelectable)
         {
             // If the marker doesn't already have an ID, it needs one
             if (!marker.selectID)
@@ -335,9 +336,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 Point2f pts2d[4];
                 for (unsigned int jj=0;jj<4;jj++)
                     pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
-                [selectLayer addSelectableScreenRect:marker.selectID rect:pts2d minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
+                selectManager->addSelectableScreenRect(marker.selectID,pts2d,markerInfo.minVis,markerInfo.maxVis);
             } else
-                [selectLayer addSelectableRect:marker.selectID rect:pts minVis:markerInfo.minVis maxVis:markerInfo.maxVis];
+                selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis);
         }
         
         // If the marker has just one texture, we can treat it as static
@@ -518,6 +519,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // Remove the given marker(s)
 - (void)runRemoveMarkers:(NSNumber *)num
 {
+    SelectionManager *selectManager = scene->getSelectionManager();
     SimpleIdentity markerId = [num unsignedIntValue];
     
     MarkerSceneRep dummyRep;
@@ -579,8 +581,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
             }
             
-            if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-                [self.selectLayer removeSelectable:markerRep->selectID];
+            if (selectManager && markerRep->selectID != EmptyIdentity)
+                selectManager->removeSelectable(markerRep->selectID);
             
             markerReps.erase(it);
             delete markerRep;

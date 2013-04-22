@@ -27,7 +27,7 @@
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "DrawCost.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "FontTextureManager.h"
 
@@ -46,6 +46,7 @@ public:
     float fade;          // Fade interval, for deletion
     SimpleIDSet texIDs;  // Textures we created for this
     SimpleIDSet drawIDs; // Drawables created for this
+    SimpleIDSet drawStrIDs;  // Drawable strings created with the font manager
     SimpleIDSet screenIDs;  // Screen space objects
     SimpleIdentity selectID;  // Selection rect
 };

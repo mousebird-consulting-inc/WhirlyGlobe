@@ -74,7 +74,7 @@ using namespace WhirlyKit;
 			panning = NO;
             if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                            hit:&startOnSphere])
+                                            hit:&startOnSphere normalized:true])
 				panning = YES;
 		}
 			break;
@@ -88,7 +88,7 @@ using namespace WhirlyKit;
 				Point3d hit;
                 [view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                            hit:&hit ];
+                                            hit:&hit normalized:true];
 
 				// This gives us a direction to rotate around
 				// And how far to rotate

@@ -207,7 +207,7 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     {
         if (loader->texAtlas)
         {
-            loader->texAtlas->addTexture(tex, subTex, scene->getMemManager(), changeRequests, loader->borderTexel);
+            loader->texAtlas->addTexture(tex, NULL, subTex, scene->getMemManager(), changeRequests, loader->borderTexel);
             [layer.layerThread requestFlush];
             if (draw)
                 draw->applySubTexture(subTex);

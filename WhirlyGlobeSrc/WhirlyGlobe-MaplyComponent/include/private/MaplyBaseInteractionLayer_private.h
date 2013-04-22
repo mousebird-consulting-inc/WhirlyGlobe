@@ -34,12 +34,12 @@
     WhirlyKitShapeLayer * __weak shapeLayer;
     WhirlyKitSphericalChunkLayer * __weak chunkLayer;
     WhirlyKitLoftLayer * __weak loftLayer;
-    WhirlyKitSelectionLayer * __weak selectLayer;
     // Note: Not a great idea to be passing this in
     UIView * __weak glView;
 
     WhirlyKitView * __weak visualView;
 
+    pthread_mutex_t selectMutex;
     // Use to map IDs in the selection layer to objects the user passed in
     SelectObjectSet selectObjectSet;
 
@@ -62,7 +62,6 @@
 @property (nonatomic,weak) WhirlyKitShapeLayer * shapeLayer;
 @property (nonatomic,weak) WhirlyKitSphericalChunkLayer *chunkLayer;
 @property (nonatomic,weak) WhirlyKitLoftLayer *loftLayer;
-@property (nonatomic,weak) WhirlyKitSelectionLayer * selectLayer;
 @property (nonatomic,weak) UIView * glView;
 
 // Initialize with the view we'll be using
@@ -114,5 +113,9 @@
 
 // Do a point in poly check for vectors we're representing
 - (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;
+
+// Find the Maply object corresponding to the given ID (from the selection manager).
+// Thread-safe
+- (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
 
 @end

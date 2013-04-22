@@ -179,7 +179,7 @@ using namespace Eigen;
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 	
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit normalized:(bool)normalized
 {
 	// Back project the point from screen space into model space
 	Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
@@ -199,12 +199,22 @@ using namespace Eigen;
 		return true;
 	
 	// We need the closest pass, if that didn't work out
+    if (normalized)
+    {
 	Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
 	orgDir.normalize();
 	dir.normalize();
 	Vector3d tmpDir = orgDir.cross(dir);
 	Vector3d resVec = dir.cross(tmpDir);
 	*hit = -resVec.normalized();
+    } else {
+        double len2 = dir.squaredNorm();
+        double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
+        double t = 0.0;
+        if (len2 > 0.0)
+            t = top/len2;
+        *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
+    }
 	
 	return false;
 }

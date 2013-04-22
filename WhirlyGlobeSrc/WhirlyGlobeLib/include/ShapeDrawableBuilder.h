@@ -22,7 +22,6 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "layerThread.h"
-#import "SelectionLayer.h"
 
 /// Used to pass shape info between the shape layer and the drawable builder
 ///  and within the threads of the shape layer

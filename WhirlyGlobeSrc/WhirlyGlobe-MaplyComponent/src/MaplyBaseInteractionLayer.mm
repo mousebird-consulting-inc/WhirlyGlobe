@@ -87,7 +87,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 @synthesize shapeLayer;
 @synthesize chunkLayer;
 @synthesize loftLayer;
-@synthesize selectLayer;
 @synthesize glView;
 
 - (id)initWithView:(WhirlyKitView *)inVisualView
@@ -96,12 +95,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     if (!self)
         return nil;
     visualView = inVisualView;
+    pthread_mutex_init(&selectMutex, NULL);
     
     return self;
 }
 
 - (void)dealloc
 {
+    pthread_mutex_destroy(&selectMutex);
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -212,7 +213,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
         {
+            pthread_mutex_lock(&selectMutex);
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            pthread_mutex_unlock(&selectMutex);
             compObj.selectIDs.insert(wgMarker.selectID);
         }
     }
@@ -271,7 +274,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
         {
+            pthread_mutex_lock(&selectMutex);
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            pthread_mutex_unlock(&selectMutex);
             compObj.selectIDs.insert(wgMarker.selectID);
         }
     }
@@ -340,7 +345,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
         {
+            pthread_mutex_lock(&selectMutex);
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            pthread_mutex_unlock(&selectMutex);
             compObj.selectIDs.insert(wgLabel.selectID);
         }
     }
@@ -416,7 +423,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
         {
+            pthread_mutex_lock(&selectMutex);
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            pthread_mutex_unlock(&selectMutex);
             compObj.selectIDs.insert(wgLabel.selectID);
         }
     }
@@ -556,7 +565,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             {
                 newSphere.isSelectable = true;
                 newSphere.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectMutex);
                 selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
+                pthread_mutex_unlock(&selectMutex);
                 compObj.selectIDs.insert(newSphere.selectID);
             }
             [ourShapes addObject:newSphere];
@@ -579,7 +590,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             {
                 newCyl.isSelectable = true;
                 newCyl.selectID = Identifiable::genId();
+                pthread_mutex_lock(&selectMutex);
                 selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
+                pthread_mutex_unlock(&selectMutex);
                 compObj.selectIDs.insert(newCyl.selectID);
             }
             [ourShapes addObject:newCyl];
@@ -747,16 +760,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];
-            // And associated selection mappings
-            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
-                 it != userObj.selectIDs.end(); ++it)
-            {
-                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
-                if (sit != selectObjectSet.end())
-                    selectObjectSet.erase(sit);
-            }
-            
             // And any references to selection objects
+            pthread_mutex_lock(&selectMutex);
             for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
                  it != userObj.selectIDs.end(); ++it)
             {
@@ -764,6 +769,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 if (sit != selectObjectSet.end())
                     selectObjectSet.erase(sit);
             }
+            pthread_mutex_unlock(&selectMutex);
             
             [userObjects removeObject:userObj];
         } else {
@@ -818,5 +824,20 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     return selObj;
 }
+
+- (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId
+{
+    NSObject *ret = nil;
+    
+    pthread_mutex_lock(&selectMutex);
+    SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(objId));
+    if (sit != selectObjectSet.end())
+        ret = sit->obj;
+
+    pthread_mutex_unlock(&selectMutex);
+    
+    return ret;
+}
+
 
 @end

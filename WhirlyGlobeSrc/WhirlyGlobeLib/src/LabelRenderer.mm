@@ -24,6 +24,7 @@
 #import "GlobeMath.h"
 #import "NSString+Stuff.h"
 #import "NSDictionary+Stuff.h"
+#import "UIColor+Stuff.h"
 #import "ScreenSpaceGenerator.h"
 
 using namespace Eigen;
@@ -218,6 +219,173 @@ public:
 
 - (void)render
 {
+    if (fontTexManager)
+        [self renderWithFonts];
+    else
+        [self renderWithImages];
+}
+
+typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
+
+- (void)renderWithFonts
+{
+    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+
+    // Screen space objects to create
+    std::vector<ScreenSpaceGenerator::ConvexShape *> screenObjects;
+    
+    // Objects to pass to the layout engine
+    layoutObjects = [NSMutableArray array];;
+    
+    // Drawables used for the icons
+    IconDrawables iconDrawables;
+    
+    // Drawables we build up as we go
+    DrawableIDMap drawables;
+
+    for (WhirlyKitSingleLabel *label in labelInfo.strs)
+    {
+        UIColor *theTextColor = labelInfo.textColor;
+        UIColor *theBackColor = labelInfo.backColor;
+        UIFont *theFont = labelInfo.font;
+        UIColor *theShadowColor = labelInfo.shadowColor;
+        float theShadowSize = labelInfo.shadowSize;
+        if (label.desc)
+        {
+            theTextColor = [label.desc objectForKey:@"textColor" checkType:[UIColor class] default:theTextColor];
+            theBackColor = [label.desc objectForKey:@"backgroundColor" checkType:[UIColor class] default:theBackColor];
+            theFont = [label.desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
+            theShadowColor = [label.desc objectForKey:@"shadowColor" checkType:[UIColor class] default:theShadowColor];
+            theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
+        }
+        theTextColor = [UIColor whiteColor];
+
+        NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
+        NSInteger strLen = [attrStr length];
+        [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+        if (attrStr && strLen > 0)
+        {
+            DrawableString *drawStr = [fontTexManager addString:attrStr changes:changeRequests];
+            if (drawStr)
+            {
+                ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
+                WhirlyKitLayoutObject *layoutObj = nil;
+                labelRep->drawStrIDs.insert(drawStr->getId());
+
+                if (labelInfo.screenObject)
+                {
+                    // Set if we're letting the layout engine control placement
+                    bool layoutEngine = (labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false]);
+                    
+                    screenShape = new ScreenSpaceGenerator::ConvexShape();
+                    screenShape->drawPriority = labelInfo.drawPriority;
+                    screenShape->minVis = labelInfo.minVis;
+                    screenShape->maxVis = labelInfo.maxVis;
+                    screenShape->offset.x() = label.screenOffset.width;
+                    screenShape->offset.y() = label.screenOffset.height;
+                    if (labelInfo.fade > 0.0)
+                    {
+                        screenShape->fadeDown = curTime;
+                        screenShape->fadeUp = curTime+labelInfo.fade;
+                    }
+                    if (label.isSelectable && label.selectID != EmptyIdentity)
+                        screenShape->setId(label.selectID);
+                    labelRep->screenIDs.insert(screenShape->getId());
+                    screenShape->worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
+                    
+                    // Turn the glyph polys into simple geometry
+                    for (int ss=0;ss<((theShadowSize > 0.0) ? 2: 1);ss++)
+                    {
+                        Point2f soff;
+                        RGBAColor color;
+                        if (ss == 0)
+                        {
+                            soff = Point2f(0,0);
+                            color = [theTextColor asRGBAColor];
+                        } else {
+                            soff = Point2f(theShadowSize,theShadowSize);
+                            color = [theShadowColor asRGBAColor];
+                        }
+                        for (unsigned int ii=0;ii<drawStr->glyphPolys.size();ii++)
+                        {
+                            DrawableString::Rect &poly = drawStr->glyphPolys[ii];
+                            // Note: Ignoring the desired size in favor of the font size
+                            ScreenSpaceGenerator::SimpleGeometry smGeom;
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[0].y()) + soff);
+                            smGeom.texCoords.push_back(poly.texCoords[0]);
+
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[1].y()) + soff);
+                            smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].v()));
+
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[1].y()) + soff);
+                            smGeom.texCoords.push_back(poly.texCoords[1]);
+
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[0].y()) + soff);
+                            smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
+                            
+                            smGeom.texID = poly.subTex.texId;
+                            smGeom.color = color;
+                            poly.subTex.processTexCoords(smGeom.texCoords);
+                            screenShape->geom.push_back(smGeom);
+                        }
+                    }
+                    
+                    // If it's being passed to the layout engine, do that as well
+                    if (layoutEngine)
+                    {
+                        float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:labelInfo.layoutImportance];
+                        
+                        // Put together the layout info
+                        layoutObj = [[WhirlyKitLayoutObject alloc] init];
+                        layoutObj->tag = label.text;
+                        layoutObj->ssID = screenShape->getId();
+                        layoutObj->dispLoc = screenShape->worldLoc;
+                        layoutObj->size = drawStr->mbr.ur() - drawStr->mbr.ll();
+                        
+//                        layoutObj->iconSize = Point2f(iconSize,iconSize);
+                        layoutObj->importance = layoutImportance;
+                        layoutObj->minVis = labelInfo.minVis;
+                        layoutObj->maxVis = labelInfo.maxVis;
+                        // Note: Should parse out acceptable placements as well
+                        layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
+                        [layoutObjects addObject:layoutObj];
+                        
+                        // The shape starts out disabled
+                        screenShape->enable = false;
+                    } else
+                        screenShape->enable = true;
+                    
+                    screenObjects.push_back(screenShape);
+                }
+            }
+        }
+    }
+    
+    // Flush out any drawables we created for the labels
+    for (DrawableIDMap::iterator it = drawables.begin(); it != drawables.end(); ++it)
+        changeRequests.push_back(new AddDrawableReq(it->second));
+
+    // Flush out the icon drawables as well
+    for (IconDrawables::iterator it = iconDrawables.begin();
+         it != iconDrawables.end(); ++it)
+    {
+        BasicDrawable *iconDrawable = it->second;
+        
+        if (labelInfo.fade > 0.0)
+        {
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+            iconDrawable->setFade(curTime,curTime+labelInfo.fade);
+        }
+        changeRequests.push_back(new AddDrawableReq(iconDrawable));
+        labelRep->drawIDs.insert(iconDrawable->getId());
+    }
+    
+    // Send the screen objects to the generator
+    changeRequests.push_back(new ScreenSpaceGeneratorAddRequest(screenGenId,screenObjects));
+}
+
+- (void)renderWithImages
+{
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     
     // Texture atlases we're building up for the labels
@@ -249,16 +417,7 @@ public:
         BasicDrawable *drawable = NULL;
         TextureAtlas *texAtlas = nil;
         UIImage *textImage = nil;
-        if (fontTexManager)
         {
-            NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
-            NSInteger strLen = [attrStr length];
-            [attrStr addAttribute:NSFontAttributeName value:labelInfo.font range:NSMakeRange(0, strLen)];
-            if (attrStr && strLen > 0)
-            {
-                DrawableString *drawStr = [fontTexManager addString:attrStr changes:changeRequests];
-            }
-        } else {
             // Find the image (if we already rendered it) or create it as needed
             std::string labelStr = [label.text asStdString];
             std::string labelKey = [label keyString];
@@ -484,7 +643,7 @@ public:
         // Register the main label as selectable
         if (label.isSelectable)
         {
-            // If the marker doesn't already have an ID, it needs one
+            // If the label doesn't already have an ID, it needs one
             if (!label.selectID)
                 label.selectID = Identifiable::genId();
             

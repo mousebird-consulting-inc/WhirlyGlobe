@@ -121,7 +121,7 @@ using namespace WhirlyGlobe;
     }
     
     // First, we'll look for labels and markers
-    SimpleIdentity selID = [selectLayer pickObject:Point2f(msg.touchLoc.x,msg.touchLoc.y) view:glView maxDist:10.0];
+    SimpleIdentity selID = scene->getSelectionManager()->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,globeView);
 
     NSObject *selObj;
     if (selID != EmptyIdentity)
