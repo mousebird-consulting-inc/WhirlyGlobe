@@ -152,7 +152,7 @@ using namespace WhirlyKit;
                        if (!imgData)
                        {
                            NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",baseURL,level,col,y,ext];
-                           NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                           NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                                             
                            // Fetch the image synchronously
                            NSURLResponse *resp = nil;
