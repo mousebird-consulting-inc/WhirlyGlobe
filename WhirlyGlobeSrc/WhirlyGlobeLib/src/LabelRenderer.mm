@@ -122,7 +122,7 @@ namespace WhirlyKit
 // Draw into an image of the appropriate size (but no bigger)
 // Also returns the text size, for calculating texture coordinates
 // Note: We don't need a full RGBA image here
-- (UIImage *)renderToImage:(WhirlyKitSingleLabel *)label powOfTwo:(BOOL)usePowOfTwo retSize:(CGSize *)textSize texOrg:(TexCoord &)texOrg texDest:(TexCoord &)texDest
+- (UIImage *)renderToImage:(WhirlyKitSingleLabel *)label powOfTwo:(BOOL)usePowOfTwo retSize:(CGSize *)textSize texOrg:(TexCoord &)texOrg texDest:(TexCoord &)texDest useAttributedString:(bool)useAttributedString
 {
     // A single label can override a few of the label attributes
     UIColor *theTextColor = self.textColor;
@@ -139,13 +139,27 @@ namespace WhirlyKit
         theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
     }
     
-    // Figure out the size of the string
-    NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
-    NSInteger strLen = [attrStr length];
-    [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+    // We'll use attributed strings in one case and regular strings in another
+    NSMutableAttributedString *attrStr = nil;
+    NSString *regStr = nil;
+    NSInteger strLen = 0;
+    if (useAttributedString)
+    {
+        // Figure out the size of the string
+        attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
+        strLen = [attrStr length];
+        [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+    } else {
+        regStr = label.text;
+    }
     
     // Figure out how big this needs to be]
-    *textSize = [attrStr size];
+    if (attrStr)
+    {
+        *textSize = [attrStr size];
+    } else {
+        *textSize = [regStr sizeWithFont:theFont];
+    }
     textSize->width += theShadowSize;
     
     if (textSize->width == 0 || textSize->height == 0)
@@ -176,14 +190,28 @@ namespace WhirlyKit
         CGContextSetLineWidth(ctx, theShadowSize);
         CGContextSetLineJoin(ctx, kCGLineJoinRound);
         CGContextSetTextDrawingMode(ctx, kCGTextStroke);
-        [attrStr addAttribute:NSForegroundColorAttributeName value:theShadowColor range:NSMakeRange(0, strLen)];
-        [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
+        if (attrStr)
+        {
+            [attrStr addAttribute:NSForegroundColorAttributeName value:theShadowColor range:NSMakeRange(0, strLen)];
+            [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
+        } else {
+            [theShadowColor setStroke];
+            [regStr drawAtPoint:CGPointMake(theShadowSize, 0) withFont:theFont];
+        }
     }
     
 	CGContextSetTextDrawingMode(ctx, kCGTextFill);
     [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
     [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
 	
+    if (attrStr)
+    {
+        [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
+        [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
+    } else {
+        [theTextColor setFill];
+        [regStr drawAtPoint:CGPointMake(theShadowSize, 0) withFont:theFont];
+    }
 	// Grab the image and shut things down
 	UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
 	UIGraphicsEndImageContext();
@@ -217,9 +245,17 @@ public:
 
 @implementation WhirlyKitLabelRenderer
 
+- (id)init
+{
+    self = [super init];
+    useAttributedString = true;
+    
+    return self;
+}
+
 - (void)render
 {
-    if (fontTexManager)
+    if (fontTexManager && useAttributedString)
         [self renderWithFonts];
     else
         [self renderWithImages];
@@ -258,7 +294,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             theShadowColor = [label.desc objectForKey:@"shadowColor" checkType:[UIColor class] default:theShadowColor];
             theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
         }
-        theTextColor = [UIColor whiteColor];
+        if (theShadowColor == nil)
+            theShadowColor = [UIColor blackColor];
 
         NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
         NSInteger strLen = [attrStr length];
@@ -292,13 +329,37 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         screenShape->setId(label.selectID);
                     labelRep->screenIDs.insert(screenShape->getId());
                     screenShape->worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
+
+                    // Throw a rectangle in the background
+                    RGBAColor backColor = [theBackColor asRGBAColor];
+                    if (backColor.a != 0.0)
+                    {
+                        ScreenSpaceGenerator::SimpleGeometry smGeom;
+                        Point2f ll = drawStr->mbr.ll(), ur = drawStr->mbr.ur();
+                        smGeom.coords.push_back(Point2f(ll.x(),-ll.y()));
+                        smGeom.texCoords.push_back(TexCoord(0,0));
+                       
+                        smGeom.coords.push_back(Point2f(ll.x(),-ur.y()));
+                        smGeom.texCoords.push_back(TexCoord(1,0));
+
+                        smGeom.coords.push_back(Point2f(ur.x(),-ur.y()));
+                        smGeom.texCoords.push_back(TexCoord(1,1));
+
+                        smGeom.coords.push_back(Point2f(ur.x(),-ll.y()));
+                        smGeom.texCoords.push_back(TexCoord(0,1));
+
+                        smGeom.color = backColor;
+                        // Note: This would be a great place for a texture
+                        screenShape->geom.push_back(smGeom);
+                    }
                     
                     // Turn the glyph polys into simple geometry
-                    for (int ss=0;ss<((theShadowSize > 0.0) ? 2: 1);ss++)
+                    // We do this in a weird order to stick the shadow underneath
+                    for (int ss=((theShadowSize > 0.0) ? 0: 1);ss<2;ss++)
                     {
                         Point2f soff;
                         RGBAColor color;
-                        if (ss == 0)
+                        if (ss == 1)
                         {
                             soff = Point2f(0,0);
                             color = [theTextColor asRGBAColor];
@@ -354,6 +415,27 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         screenShape->enable = false;
                     } else
                         screenShape->enable = true;
+                    
+                    // Register the main label as selectable
+                    if (label.isSelectable)
+                    {
+                        // If the label doesn't already have an ID, it needs one
+                        if (!label.selectID)
+                            label.selectID = Identifiable::genId();
+                        
+                        RectSelectable2D select2d;
+                        Point2f ll = drawStr->mbr.ll(), ur = drawStr->mbr.ur();
+                        select2d.pts[0] = Point2f(ll.x(),-ll.y());
+                        select2d.pts[1] = Point2f(ll.x(),-ur.y());
+                        select2d.pts[2] = Point2f(ur.x(),-ur.y());
+                        select2d.pts[3] = Point2f(ur.x(),-ll.y());
+                        
+                        select2d.selectID = label.selectID;
+                        select2d.minVis = labelInfo.minVis;
+                        select2d.maxVis = labelInfo.maxVis;
+                        selectables2D.push_back(select2d);
+                        labelRep->selectID = label.selectID;
+                    }
                     
                     screenObjects.push_back(screenShape);
                 }
@@ -430,7 +512,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 textSize = it->second.textSize;
                 textImage = it->second.image;
             } else {
-                textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest];
+                textImage = [labelInfo renderToImage:label powOfTwo:!texAtlasOn retSize:&textSize texOrg:texOrg texDest:texDest useAttributedString:useAttributedString];
                 if (!textImage)
                     continue;
                 if (!skipReuse)

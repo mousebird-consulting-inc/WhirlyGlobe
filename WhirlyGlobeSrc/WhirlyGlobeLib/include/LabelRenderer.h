@@ -117,6 +117,7 @@ typedef enum {Middle,Left,Right} WhirlyKitLabelJustify;
     
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     WhirlyKitFontTextureManager *fontTexManager;
+    bool useAttributedString;
 }
 
 /// Renders the labels into a big texture and stores the resulting info

@@ -188,6 +188,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     DynamicTextureAtlas *texAtlas;
     FontManagerSet fontManagers;
     DrawStringRepSet drawStringReps;
+    pthread_mutex_t lock;
 }
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene
@@ -197,6 +198,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
         return nil;
     
     scene = inScene;
+    pthread_mutex_init(&lock, NULL);
     
     return self;
 }
@@ -213,10 +215,13 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
          it != fontManagers.end(); ++it)
         delete *it;
     fontManagers.clear();
+    pthread_mutex_destroy(&lock);
 }
             
 - (void)clear:(std::vector<WhirlyKit::ChangeRequest *> &)changes
 {
+    pthread_mutex_lock(&lock);
+    
     if (texAtlas)
     {
         texAtlas->shutdown(changes);
@@ -230,6 +235,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
          it != fontManagers.end(); ++it)
         delete *it;
     fontManagers.clear();
+    
+    pthread_mutex_unlock(&lock);
 }
 
 
@@ -317,9 +324,14 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
 - (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(std::vector<ChangeRequest *> &)changes
 {
+    // We could make this more granular
+    pthread_mutex_lock(&lock);
+
     if (!texAtlas)
+    {
         // Let's do the biggest possible texture with small cells 24 bits deep
         texAtlas = new DynamicTextureAtlas(2048,16,GL_UNSIGNED_BYTE);
+    }
     
     DrawableString *drawString = new DrawableString();
     
@@ -422,12 +434,16 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     // We need to track the glyphs we're using
     drawStringReps.insert(drawStringRep);
-    
+
+    pthread_mutex_unlock(&lock);
+
     return drawString;
 }
             
 - (void)removeString:(SimpleIdentity)drawStringId changes:(std::vector<ChangeRequest *> &)changes
 {
+    pthread_mutex_lock(&lock);
+    
     DrawStringRep dummyRep(drawStringId);
     DrawStringRepSet::iterator it = drawStringReps.find(&dummyRep);
     if (it == drawStringReps.end())
@@ -463,6 +479,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
         }
     }
     
+    pthread_mutex_unlock(&lock);
+
     delete theRep;
 }
 
