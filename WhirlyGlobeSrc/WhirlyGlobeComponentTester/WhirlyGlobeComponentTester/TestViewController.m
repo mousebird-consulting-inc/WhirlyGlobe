@@ -565,6 +565,7 @@ LocationInfo locations[NumLocations] =
                              screenLabel.layoutImportance = 1.0;
                              screenLabel.text = vecName;
                              screenLabel.userObject = screenLabel.text;
+                             screenLabel.selectable = true;
                              if (screenLabel.text)
                                  [locAutoLabels addObject:screenLabel];
                              if (compObj)
@@ -580,9 +581,9 @@ LocationInfo locations[NumLocations] =
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [UIColor whiteColor], kMaplyBackgroundColor: [UIColor clearColor], kMaplyShadowSize: @(4.0)}];
+                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [UIColor whiteColor], kMaplyFont: [UIFont systemFontOfSize:24.0], kMaplyBackgroundColor: [UIColor clearColor], kMaplyShadowSize: @(1.0)}];
                                 MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels];
-                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [NSNull null], kMaplyBackgroundColor: [NSNull null], kMaplyShadowSize: [NSNull null]}];
+                                [baseViewC setScreenLabelDesc:@{kMaplyTextColor: [NSNull null], kMaplyFont: [NSNull null], kMaplyBackgroundColor: [NSNull null], kMaplyShadowSize: [NSNull null]}];
 
                                 vecObjects = locVecObjects;
                                 autoLabels = autoLabelObj;

@@ -38,6 +38,7 @@
 
 /// @cond
 @class WhirlyKitSceneRendererES;
+@class WhirlyKitFontTextureManager;
 /// @endcond
 
 namespace WhirlyKit
@@ -370,6 +371,12 @@ public:
     
     /// Selection manager (created on startup)
     SelectionManager *selectManager;
+    
+    /// Returns the font texture manager, which is thread safe
+    WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }
+    
+    /// Font texture manager (created on startup)
+    WhirlyKitFontTextureManager *fontTexManager;
     
     /// Lock for accessing programs
     pthread_mutex_t programLock;

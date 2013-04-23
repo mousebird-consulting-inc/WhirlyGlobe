@@ -24,6 +24,7 @@
 #import "TextureAtlas.h"
 #import "ScreenSpaceGenerator.h"
 #import "ViewPlacementGenerator.h"
+#import "FontTextureManager.h"
 
 namespace WhirlyKit
 {
@@ -49,6 +50,9 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     
     // Selection manager is used for object selection from any thread
     selectManager = new SelectionManager(this,[UIScreen mainScreen].scale);
+    
+    // Font Texture manager is used from any thread
+    fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
     
@@ -76,6 +80,8 @@ Scene::~Scene()
         delete selectManager;
         selectManager = NULL;
     }
+    
+    fontTexManager = nil;
     
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
