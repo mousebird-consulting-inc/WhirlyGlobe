@@ -117,6 +117,7 @@ using namespace WhirlyKit;
         labelRenderer->coordAdapter = scene->getCoordAdapter();
         labelRenderer->labelRep = labelRep;
         labelRenderer->scene = scene;
+        labelRenderer->fontTexManager = scene->getFontTextureManager();
         labelRenderer->screenGenId = scene->getScreenSpaceGeneratorID();
         
         [labelRenderer render];

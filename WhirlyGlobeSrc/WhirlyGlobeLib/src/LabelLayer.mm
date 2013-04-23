@@ -213,9 +213,9 @@ using namespace WhirlyKit;
 @end
 
 @implementation WhirlyKitLabelLayer
-            {
+{
     WhirlyKitFontTextureManager *fontTexManager;
-        }
+}
         
 @synthesize layoutLayer;
 
@@ -317,7 +317,7 @@ using namespace WhirlyKit;
     labelRep->setId(labelInfo.labelId);
 
     if (_useFontManager && !fontTexManager)
-        fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:scene];
+        fontTexManager = scene->getFontTextureManager();
         
     // Set up the label renderer
     WhirlyKitLabelRenderer *labelRenderer = [[WhirlyKitLabelRenderer alloc] init];
@@ -327,11 +327,11 @@ using namespace WhirlyKit;
     labelRenderer->labelRep = labelRep;
     labelRenderer->scene = scene;
     labelRenderer->screenGenId = screenGenId;
-    labelRenderer->fontTexManager = fontTexManager;
+    labelRenderer->fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
 
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
-    // Note: Need to merge from SA branch
-    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 6.0 && !fontTexManager)
+    bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
+    if (!oldiOS && !labelRenderer->fontTexManager)
     {
         // Do the render somewhere else and merge in the results back on our thread
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
@@ -340,6 +340,9 @@ using namespace WhirlyKit;
                            [self performSelector:@selector(mergeRenderedLabels:) onThread:layerThread withObject:labelRenderer waitUntilDone:NO];
                        });
     } else {
+        // For old iOS versions and for font texture rendering, we'll do the work on this thread.
+        // The former can't handle it and the latter is fast enough to not need it
+        labelRenderer->useAttributedString = !oldiOS;
         [labelRenderer render];
         [self mergeRenderedLabels:labelRenderer];        
     }
