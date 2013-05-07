@@ -55,6 +55,8 @@
 		2B4504B714BCB7EA00C99306 /* WhirlyKitView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */; };
 		2B4504B914BCC29D00C99306 /* FlatMath.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504B814BCC29D00C99306 /* FlatMath.mm */; };
 		2B4504E114BD126400C99306 /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */; };
+		2B4730171732DEF9000507E9 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4730161732DEF9000507E9 /* MaplyFlatView.h */; };
+		2B4730191732DF0E000507E9 /* MaplyFlatView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4730181732DF0E000507E9 /* MaplyFlatView.mm */; };
 		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
 		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
 		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
@@ -363,6 +365,8 @@
 		2B4504B814BCC29D00C99306 /* FlatMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FlatMath.mm; sourceTree = "<group>"; };
 		2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPinchDelegate.h; sourceTree = "<group>"; };
 		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; };
+		2B4730161732DEF9000507E9 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyFlatView.h; sourceTree = "<group>"; };
+		2B4730181732DF0E000507E9 /* MaplyFlatView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyFlatView.mm; sourceTree = "<group>"; };
 		2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemLayer.mm; path = src/ParticleSystemLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
 		2B58C6921445439700EEF3C3 /* Generator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Generator.mm; sourceTree = "<group>"; };
@@ -1037,6 +1041,7 @@
 			isa = PBXGroup;
 			children = (
 				2B4504AC14BBAC0100C99306 /* MaplyView.h */,
+				2B4730161732DEF9000507E9 /* MaplyFlatView.h */,
 			);
 			name = view;
 			sourceTree = "<group>";
@@ -1239,6 +1244,7 @@
 				2B8B95F216E80FED0039DD08 /* DynamicDrawableAtlas.mm */,
 				2BFC34DA13CBFA9A00403799 /* DrawCost.mm */,
 				2B7EF31E15FF96D100D4079F /* MaplyView.mm */,
+				2B4730181732DF0E000507E9 /* MaplyFlatView.mm */,
 			);
 			name = "scene & view";
 			sourceTree = "<group>";
@@ -1504,6 +1510,7 @@
 				2BEA1E4F171E0E0F0039F1A4 /* LabelRenderer.h in Headers */,
 				2BEA1E50171E0E0F0039F1A4 /* ShapeDrawableBuilder.h in Headers */,
 				2B308B11171F638F006D7273 /* SelectionManager.h in Headers */,
+				2B4730171732DEF9000507E9 /* MaplyFlatView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1803,6 +1810,7 @@
 				2BEA1E55171E0E280039F1A4 /* LabelRenderer.mm in Sources */,
 				2BEA1E56171E0E280039F1A4 /* ShapeDrawableBuilder.mm in Sources */,
 				2B308B13171F63B3006D7273 /* SelectionManager.mm in Sources */,
+				2B4730191732DF0E000507E9 /* MaplyFlatView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

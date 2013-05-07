@@ -230,6 +230,9 @@ static const char *fragmentShaderLine =
 {
     scene = inScene;
 
+    if (!scene)
+        return;
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
@@ -317,6 +320,9 @@ static const float ScreenOverlap = 0.1;
 
 - (void) renderAsync
 {
+    if (!scene)
+        return;
+    
     frameCount++;
     
     if (framebufferWidth <= 0 || framebufferHeight <= 0)
@@ -376,7 +382,12 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
-    
+
+    // Note: Debugging
+    Eigen::Vector4f testPt0 = modelTrans * Vector4f(0,0,0,1);
+    Eigen::Vector4f testPt1 = modelTrans * Vector4f(M_PI,M_PI,0,1);
+    Eigen::Vector4f testPt2 = modelTrans * Vector4f(-M_PI,-M_PI,0,1);
+
     switch (zBufferMode)
     {
         case zBufferOn:
