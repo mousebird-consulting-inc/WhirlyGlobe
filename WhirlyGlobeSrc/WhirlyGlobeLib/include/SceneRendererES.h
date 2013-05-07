@@ -239,10 +239,7 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZ
     
     /// We use this to trigger a draw at the next opportunity.
     /// For some reason something we can't see changed.
-    bool triggerDraw;
-    
-    // View state from the last render, for comparison
-    Eigen::Matrix4d modelMat,viewMat;
+    bool triggerDraw;    
 }
 
 @property (nonatomic,readonly) EAGLContext *context;

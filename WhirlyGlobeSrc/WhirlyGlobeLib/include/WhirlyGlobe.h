@@ -62,6 +62,7 @@
 #import "FlatMath.h"
 #import "SphericalMercator.h"
 #import "MaplyView.h"
+#import "MaplyFlatView.h"
 #import "MaplyPinchDelegate.h"
 #import "MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
