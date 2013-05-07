@@ -130,6 +130,10 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 @end
 
 @implementation WhirlyKitSceneRendererES
+{
+    // View state from the last render, for comparison
+    Eigen::Matrix4d modelMat,viewMat,projMat;    
+}
 
 @synthesize context;
 @synthesize scene,theView;
@@ -402,13 +406,15 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     
     Matrix4d newModelMat = [theView calcModelMatrix];
     Matrix4d newViewMat = [theView calcViewMatrix];
+    Matrix4d newProjMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
     // Should be exactly the same
-    if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat))
+    if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat) && matrixAisSameAsB(newProjMat, projMat))
         return false;
     
     modelMat = newModelMat;
     viewMat = newViewMat;
+    projMat = newProjMat;
     return true;
 }
 

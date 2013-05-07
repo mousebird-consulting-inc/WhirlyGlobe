@@ -123,7 +123,7 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
     Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
     Point3f ur3d = smCoordSys.geographicToLocal(geoUR);
     ll.x() = ll3d.x();  ll.y() = ll3d.y();
-    ur.x() = ur3d.x();  ur.y() = ll3d.y();
+    ur.x() = ur3d.x();  ur.y() = ur3d.y();
     
     org = (ll+ur)/2.0;
 }

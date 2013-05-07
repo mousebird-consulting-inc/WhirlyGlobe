@@ -55,6 +55,19 @@
     NSObject<MaplyViewControllerDelegate> * __weak delegate;
 }
 
+/// Create a tethered flat map that obeys the given scroll view
+- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+
+/// Called when the owner resets the tpo level scroll and tether view
+- (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView;
+
+/// If we're in tethered flat map mode, this is the view we're monitoring
+///  for size and offset changes
+@property(nonatomic,readonly) UIView *tetherView;
+
+/// If set before load, we'll turn off all gestures and work only in tethered mode
+@property(nonatomic,assign) bool tetheredMode;
+
 /// Set this to trun on/off the pinch (zoom) gesture recognizer
 /// On by default
 @property(nonatomic,assign) bool pinchGesture;

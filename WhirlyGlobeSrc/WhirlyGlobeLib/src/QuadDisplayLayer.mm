@@ -287,13 +287,13 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 {
     Point3d eyePos = viewState.eyePos;
     
-    // If the viewer is inside the bounds, the node is maximimally important (duh)
-    if ([self isInside:eyePos])
-        return MAXFLOAT;
-    
-    // Make sure that we're pointed toward the eye, even a bit
     if (!viewState->coordAdapter->isFlat())
     {
+        // If the viewer is inside the bounds, the node is maximimally important (duh)
+        if ([self isInside:eyePos])
+            return MAXFLOAT;
+
+        // Make sure that we're pointed toward the eye, even a bit
         bool isFacing = false;
         for (unsigned int ii=0;ii<surfNormals.size();ii++)
         {
@@ -338,7 +338,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         return 0.0;
 
     float import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
-        // The system is expecting an estimate of pixel size on screen
+    // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
 //    NSLog(@"Import: %d: (%d,%d)  %f",nodeIdent.level,nodeIdent.x,nodeIdent.y,import);

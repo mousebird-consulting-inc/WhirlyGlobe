@@ -34,18 +34,80 @@ using namespace Maply;
 @end
 
 @implementation MaplyViewController
+{
+    UIScrollView * __weak scrollView;
+    MaplyFlatView *flatView;
+    // Content scale for scroll view mode
+    float scale;
+    bool scheduledToDraw;
+}
 
 @synthesize delegate;
+
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    return self;
+}
+
+- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tetheredMode = true;
+    scrollView = inScrollView;
+    _tetherView = inTetherView;
+//    _tetherView = [[UIView alloc] init];
+//    _tetherView.userInteractionEnabled = false;
+//    [scrollView addSubview:_tetherView];
+    // Turn off lighting
+    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+    
+    // Watch changes to the tethered view.  The scroll view is making these, presumably.
+    [_tetherView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
+    
+    scale = [UIScreen mainScreen].scale;
+        
+    return self;
+}
+
+- (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+{
+    [_tetherView removeObserver:self forKeyPath:@"frame"];
+
+    scrollView = inScrollView;
+    _tetherView = inTetherView;
+    
+    // Watch changes to the tethered view.  The scroll view is making these, presumably.
+    [_tetherView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
+}
 
 // Tear down layers and layer thread
 - (void) clear
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [self stopAnimation];
+    
     [layerThread addThingToDelete:coordAdapter];
+    
+    if (scrollView)
+    {
+        [_tetherView removeObserver:self forKeyPath:@"frame"];
+        scrollView = nil;
+        [_tetherView removeFromSuperview];
+        _tetherView = nil;
+    }
 
     [super clear];
     
     mapScene = NULL;
     mapView = nil;
+    flatView = nil;
 
     mapInteractLayer = nil;
     
@@ -54,6 +116,7 @@ using namespace Maply;
     pinchDelegate = nil;
 
     coordAdapter = NULL;
+    _tetherView = NULL;
 }
 
 - (void)dealloc
@@ -62,12 +125,43 @@ using namespace Maply;
         [self clear];
 }
 
+- (void)setupFlatView:(CGRect)newFrame
+{
+    if (!flatView)
+        return;
+    
+    // Change the flat view's window
+    CGPoint contentOffset = scrollView.contentOffset;
+    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];    
+}
+
+// Called when something changes the tethered view's frame
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if([keyPath isEqualToString:@"frame"]) {
+        CGRect newFrame = CGRectNull;
+        if([object valueForKeyPath:keyPath] != [NSNull null])
+        {
+            newFrame = [[object valueForKeyPath:keyPath] CGRectValue];
+            
+            [self setupFlatView:newFrame];
+        }
+    }
+}
+
 - (WhirlyKitView *) loadSetup_view
 {
     coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
-    mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
     
-    mapView.continuousZoom = true;
+    if (scrollView)
+    {
+        flatView = [[MaplyFlatView alloc] initWithCoordAdapater:coordAdapter];
+        [self setupFlatView:_tetherView.frame];
+        mapView = flatView;
+    } else {
+        mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
+        mapView.continuousZoom = true;
+    }    
 
     return mapView;
 }
@@ -91,14 +185,20 @@ using namespace Maply;
 {
     [super loadSetup];
     
-    // Wire up the gesture recognizers
-    tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
-    panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
-    boundLL = MaplyCoordinateMakeWithDegrees(-180.0,-90.0);
-    boundUR = MaplyCoordinateMakeWithDegrees(180.0,90.0);
-    pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
-    pinchDelegate.minZoom = [mapView minHeightAboveSurface];
-    pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+    Point3f ll,ur;
+    coordAdapter->getBounds(ll, ur);
+    boundLL.x = ll.x();  boundLL.y = ll.y();
+    boundUR.x = ur.x();  boundUR.y = ur.y();
+    if (!_tetheredMode)
+    {
+        // Wire up the gesture recognizers
+        tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
+        panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView];
+        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
+        pinchDelegate.minZoom = [mapView minHeightAboveSurface];
+        pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+    }
+
     [self setViewExtentsLL:boundLL ur:boundUR];
 }
 
@@ -109,14 +209,23 @@ using namespace Maply;
     [self registerForEvents];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
-    [super viewWillDisappear:animated];
+    // This keeps us from ending the animation in tether mode
+    // The display link will still be active, not much will happen
+    if (!_tetheredMode)
+        [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
     [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
+
 
 // Register for interesting tap events and others
 // Note: Fill this in
@@ -155,13 +264,24 @@ using namespace Maply;
     bounds3d[3] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ur.y)));
     for (unsigned int ii=0;ii<4;ii++)
         bounds[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
-    [panDelegate setBounds:bounds];
-    [pinchDelegate setBounds:bounds];
+    
+    if (flatView)
+    {
+        [flatView setExtents:Mbr(Point2f(ll.x,ll.y),Point2f(ur.x,ur.y))];
+    }
+    
+    if (panDelegate)
+        [panDelegate setBounds:bounds];
+    if (pinchDelegate)
+        [pinchDelegate setBounds:bounds];
 }
 
 // Internal animation handler
 - (void)animateToPoint:(Point3f)newLoc time:(NSTimeInterval)howLong
 {
+    if (_tetheredMode)
+        return;
+    
     [mapView cancelAnimation];
 
     MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:howLong];
@@ -172,6 +292,9 @@ using namespace Maply;
 // External facing version of rotateToPoint
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong
 {
+    if (_tetheredMode)
+        return;
+
     // Snap to the bounds
     if (newPos.x > boundUR.x)  newPos.x = boundUR.x;
     if (newPos.y > boundUR.y)  newPos.y = boundUR.y;
@@ -186,6 +309,9 @@ using namespace Maply;
 // Note: This may not work with a tilt
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
+    if (_tetheredMode)
+        return;
+    
     // Figure out where the point lands on the map
     Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
     Point3d whereLoc;
@@ -203,6 +329,9 @@ using namespace Maply;
 // This version takes a height as well
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong
 {
+    if (_tetheredMode)
+        return;
+
     if (pinchDelegate)
     {
         if (newHeight < pinchDelegate.minZoom)
@@ -226,12 +355,18 @@ using namespace Maply;
 // External facing set position
 - (void)setPosition:(MaplyCoordinate)newPos
 {
+    if (scrollView)
+        return;
+
     Point3f loc = Vector3dToVector3f(mapView.loc);
     [self setPosition:newPos height:loc.z()];
 }
 
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height
 {
+    if (scrollView)
+        return;
+
     [mapView cancelAnimation];
     
     if (pinchDelegate)

@@ -100,8 +100,8 @@
         if (!displayLink)
         {
             displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
-        [displayLink setFrameInterval:frameInterval];
-        [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+            [displayLink setFrameInterval:frameInterval];
+            [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         } else
             displayLink.paused = NO;
         

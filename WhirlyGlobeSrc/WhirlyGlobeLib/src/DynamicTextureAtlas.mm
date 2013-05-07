@@ -255,7 +255,11 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 }
     
 // If set, we ask the main thread to do the sub texture loads
+#if TARGET_IPHONE_SIMULATOR
+static const bool MainThreadMerge = true;
+#else
 static const bool MainThreadMerge = false;
+#endif
     
 bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels,int bufferPixels)
 {

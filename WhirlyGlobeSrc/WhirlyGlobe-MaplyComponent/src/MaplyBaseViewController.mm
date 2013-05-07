@@ -43,6 +43,7 @@ using namespace WhirlyKit;
     scene->teardownGL();
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
+    sceneRenderer.scene = nil;
     
     if (layerThread)
     {
@@ -113,7 +114,6 @@ static const char *vertexShaderNoLightTri =
 "attribute vec2 a_texCoord;                  \n"
 "attribute vec4 a_color;                     \n"
 "attribute vec3 a_normal;                    \n"
-"uniform float u_fade;                        \n"
 "\n"
 "varying vec2 v_texCoord;                    \n"
 "varying vec4 v_color;                       \n"
@@ -139,7 +139,7 @@ static const char *fragmentShaderNoLightTri =
 "void main()                                         \n"
 "{                                                   \n"
 "  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
+//"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
 "  gl_FragColor = v_color * baseColor;  \n"
@@ -401,7 +401,7 @@ static const char *fragmentShaderNoLightLine =
 
 - (void)viewWillAppear:(BOOL)animated
 {
-	[glView startAnimation];
+	[self startAnimation];
 	
 	[super viewWillAppear:animated];
 }
@@ -410,7 +410,7 @@ static const char *fragmentShaderNoLightLine =
 {
 	[super viewWillDisappear:animated];
 
-	[glView stopAnimation];
+	[self stopAnimation];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
