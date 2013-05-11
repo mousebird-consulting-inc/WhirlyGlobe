@@ -130,6 +130,8 @@ LocationInfo locations[NumLocations] =
         [baseViewC.view removeFromSuperview];
         [baseViewC removeFromParentViewController];
         baseViewC = nil;
+        mapViewC = nil;
+        globeViewC = nil;
     }    
 }
 
