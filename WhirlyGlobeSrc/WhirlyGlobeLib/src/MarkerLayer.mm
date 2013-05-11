@@ -33,7 +33,6 @@ namespace WhirlyKit
 
 MarkerSceneRep::MarkerSceneRep()
 {
-    selectID = EmptyIdentity;
 }
 
 }
@@ -203,8 +202,9 @@ MarkerSceneRep::MarkerSceneRep()
             changeRequests.push_back(new MarkerGeneratorRemRequest(generatorId,markerIDs));
         }
         
-        if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-            [self.selectLayer removeSelectable:markerRep->selectID];
+        for (SimpleIDSet::iterator idIt = markerRep->selectIDs.begin();
+             idIt != markerRep->selectIDs.end(); ++idIt)
+            [self.selectLayer removeSelectable:*idIt];
         
         if (layoutLayer && !markerRep->screenShapeIDs.empty())
             [layoutLayer removeLayoutObjects:markerRep->screenShapeIDs];
@@ -277,8 +277,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
             }
             
-            if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-                [self.selectLayer removeSelectable:markerRep->selectID];
+            for (SimpleIDSet::iterator idIt = markerRep->selectIDs.begin();
+                 idIt != markerRep->selectIDs.end(); ++idIt)
+                [self.selectLayer removeSelectable:*idIt];
             
             markerReps.erase(it);
             delete markerRep;
@@ -329,7 +330,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
             if (!marker.selectID)
                 marker.selectID = Identifiable::genId();
             
-            markerRep->selectID = marker.selectID;
+            markerRep->selectIDs.insert(marker.selectID);
             if (markerInfo.screenObject)
             {
                 Point2f pts2d[4];
@@ -579,8 +580,9 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 changeRequests.push_back(new ScreenSpaceGeneratorRemRequest(screenGenId, screenIDs));
             }
             
-            if (self.selectLayer && markerRep->selectID != EmptyIdentity)
-                [self.selectLayer removeSelectable:markerRep->selectID];
+            for (SimpleIDSet::iterator idIt = markerRep->selectIDs.begin();
+                 idIt != markerRep->selectIDs.end(); ++idIt)
+                [self.selectLayer removeSelectable:*idIt];
             
             markerReps.erase(it);
             delete markerRep;
