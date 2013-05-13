@@ -185,8 +185,10 @@ static const float SkirtFactor = 0.95;
             thisSampleY = angY/minAng;
         thisSampleX = std::max(1,thisSampleX);
         thisSampleY = std::max(1,thisSampleY);
-        thisSampleX = std::min(thisSampleX,sampleX);
-        thisSampleY = std::min(thisSampleY,sampleY);
+        if (sampleX > 0)
+            thisSampleX = std::min(thisSampleX,sampleX);
+        if (sampleY > 0)
+            thisSampleY = std::min(thisSampleY,sampleY);
     }    
 }
 
@@ -463,6 +465,9 @@ static const int SingleElementSize = sizeof(GLushort);
 // Add chunks to the outstanding list and possibly execute the list
 - (void)runAddChunk:(SphericalChunkInfo *)chunkInfo
 {
+    if (!scene)
+        return;
+    
     std::vector<ChangeRequest *> changes;
     
     ChunkRequest request(ChunkAdd,chunkInfo,chunkInfo->chunk);
@@ -487,6 +492,9 @@ static const int SingleElementSize = sizeof(GLushort);
 // Process outstanding requests
 - (void)processQueue
 {
+    if (!scene)
+        return;
+    
     // Nothing to do
     if (requests.empty())
         return;
@@ -657,6 +665,8 @@ static const int SingleElementSize = sizeof(GLushort);
         NSLog(@"WhirlyKitSphericalChunk: addChunk called before layer initialized.");
         return EmptyIdentity;
     }
+    if (!scene)
+        return EmptyIdentity;
 
     SphericalChunkInfo *chunkInfo = [[SphericalChunkInfo alloc] init];
     chunkInfo->enable = enable;
@@ -678,6 +688,8 @@ static const int SingleElementSize = sizeof(GLushort);
         NSLog(@"WhirlyKitSphericalChunk: removeChunk called before layer initialized.");
         return;
     }
+    if (!scene)
+        return;
     
     NSNumber *numId = [NSNumber numberWithInt:chunkId];
     if ([NSThread currentThread] == layerThread)
@@ -693,6 +705,8 @@ static const int SingleElementSize = sizeof(GLushort);
         NSLog(@"WhirlyKitSphericalChunk: toogleChunk called before layer initialized.");
         return;
     }
+    if (!scene)
+        return;
     
     NSArray *args = [NSArray arrayWithObjects:[NSNumber numberWithInt:chunkId],[NSNumber numberWithBool:enable],nil];    
     if ([NSThread currentThread] == layerThread)
@@ -703,7 +717,7 @@ static const int SingleElementSize = sizeof(GLushort);
 
 - (int)numChunk
 {
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != layerThread || !scene)
         return 0;
     
     return chunkReps.size();

@@ -44,12 +44,16 @@ void GlobeScene::addDrawable(DrawableRef draw)
 
     // Account for the geo coordinate wrapping
     Mbr localMbr = draw->getLocalMbr();
-    GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
-    std::vector<Mbr> localMbrs;
-    geoMbr.splitIntoMbrs(localMbrs);
-    
-    for (unsigned int ii=0;ii<localMbrs.size();ii++)
-        cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
+    if (localMbr.valid())
+    {
+        GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
+        std::vector<Mbr> localMbrs;
+        geoMbr.splitIntoMbrs(localMbrs);
+        
+        for (unsigned int ii=0;ii<localMbrs.size();ii++)
+            cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
+    } else
+        cullTree->getTopCullable()->addDrawable(cullTree, localMbr, draw);
 }
 
 void GlobeScene::remDrawable(DrawableRef draw)

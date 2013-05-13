@@ -589,6 +589,16 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
         for (unsigned int ii=0;ii<points.size();ii++)
             colors.push_back(color);
 
+    // Note: Hack to fill out the texture coordinates
+    if (texCoords.empty())
+        for (unsigned int ii=0;ii<points.size();ii++)
+            texCoords.push_back(Point2f(0,0));
+    
+    // Note: Hack to fill out the normals
+    if (norms.empty())
+        for (unsigned int ii=0;ii<points.size();ii++)
+            norms.push_back(Point3f(0,0,1));
+
     // Build up the vertices
     vertexSize = singleVertexSize();
     int numVerts = points.size();

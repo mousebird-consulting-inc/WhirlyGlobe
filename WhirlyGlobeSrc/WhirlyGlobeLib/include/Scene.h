@@ -218,6 +218,8 @@ protected:
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
+typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
+
 /** This is the top level scene object for WhirlyKit.
     It keeps track of the drawables by sorting them into
      cullables and it handles the change requests, which
@@ -333,7 +335,6 @@ public:
     /// Top level of Cullable quad tree
     CullTree *cullTree;
 	
-	typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	

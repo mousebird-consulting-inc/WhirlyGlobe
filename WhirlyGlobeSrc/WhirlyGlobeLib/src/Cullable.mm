@@ -173,7 +173,8 @@ void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
     childDrawables.insert(draw);
     
     // If it's got a matrix, that can be changed and we have no clue where it might end up
-    if (draw->getMatrix())
+    // Same for drawables without a valid local MBR
+    if (draw->getMatrix() || !drawLocalMbr.valid())
     {
         drawables.insert(draw);
         return;

@@ -300,12 +300,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
         NSInteger strLen = [attrStr length];
         [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+        Point2f iconOff(0,0);
+        ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
         if (attrStr && strLen > 0)
         {
             DrawableString *drawStr = [fontTexManager addString:attrStr changes:changeRequests];
             if (drawStr)
             {
-                ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
                 WhirlyKitLayoutObject *layoutObj = nil;
                 labelRep->drawStrIDs.insert(drawStr->getId());
 
@@ -330,12 +331,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     labelRep->screenIDs.insert(screenShape->getId());
                     screenShape->worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
 
+                    // If there's an icon, we need to offset
+                    float height = drawStr->mbr.ur().y()-drawStr->mbr.ll().y();
+                    float iconSize = (label.iconTexture==EmptyIdentity ? 0.f : height);
+                    iconOff = Point2f(iconSize,iconSize);
+                    
                     // Throw a rectangle in the background
                     RGBAColor backColor = [theBackColor asRGBAColor];
                     if (backColor.a != 0.0)
                     {
                         ScreenSpaceGenerator::SimpleGeometry smGeom;
-                        Point2f ll = drawStr->mbr.ll(), ur = drawStr->mbr.ur();
+                        Point2f ll = drawStr->mbr.ll()+iconOff, ur = drawStr->mbr.ur()+iconOff;
                         smGeom.coords.push_back(Point2f(ll.x(),-ll.y()));
                         smGeom.texCoords.push_back(TexCoord(0,0));
                        
@@ -372,16 +378,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                             // Note: Ignoring the desired size in favor of the font size
                             ScreenSpaceGenerator::SimpleGeometry smGeom;
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[0].y()) + soff);
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[0].y()) + soff + iconOff);
                             smGeom.texCoords.push_back(poly.texCoords[0]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[1].y()) + soff);
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[1].y()) + soff + iconOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].v()));
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[1].y()) + soff);
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[1].y()) + soff + iconOff);
                             smGeom.texCoords.push_back(poly.texCoords[1]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[0].y()) + soff);
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[0].y()) + soff + iconOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
                             
                             smGeom.texID = poly.subTex.texId;
@@ -440,6 +446,48 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     screenObjects.push_back(screenShape);
                 }
             }
+        }
+        
+        if (label.iconTexture != EmptyIdentity && screenShape)
+        {
+            SubTexture subTex = scene->getSubTexture(label.iconTexture);
+            std::vector<TexCoord> texCoord;
+            texCoord.resize(4);
+            texCoord[0].u() = 0.0;  texCoord[0].v() = 0.0;
+            texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
+            texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
+            texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
+            subTex.processTexCoords(texCoord);
+
+            // Note: We're not registering icons correctly with the selection layer
+            ScreenSpaceGenerator::SimpleGeometry iconGeom;
+            iconGeom.texID = subTex.texId;
+            Point2f iconPts[4];
+            iconPts[0] = Point2f(0,0);
+            iconPts[1] = Point2f(iconOff.x(),0);
+            iconPts[2] = iconOff;
+            iconPts[3] = Point2f(0,iconOff.y());
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y()));
+                iconGeom.texCoords.push_back(texCoord[ii]);
+            }
+            // For layout objects, we'll put the icons on their own
+//            if (layoutObj)
+//            {
+//                ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
+//                SimpleIdentity iconId = iconScreenShape->getId();
+//                *iconScreenShape = *screenShape;
+//                iconScreenShape->setId(iconId);
+//                iconScreenShape->geom.clear();
+//                iconScreenShape->geom.push_back(iconGeom);
+//                screenObjects.push_back(iconScreenShape);
+//                labelRep->screenIDs.insert(iconScreenShape->getId());
+//                layoutObj->auxIDs.insert(iconScreenShape->getId());
+//            } else {
+                screenShape->geom.push_back(iconGeom);
+//            }
+            
         }
     }
     

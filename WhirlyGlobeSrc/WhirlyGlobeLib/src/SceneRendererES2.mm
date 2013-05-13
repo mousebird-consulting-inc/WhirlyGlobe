@@ -383,11 +383,6 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
 
-    // Note: Debugging
-    Eigen::Vector4f testPt0 = modelTrans * Vector4f(0,0,0,1);
-    Eigen::Vector4f testPt1 = modelTrans * Vector4f(M_PI,M_PI,0,1);
-    Eigen::Vector4f testPt2 = modelTrans * Vector4f(-M_PI,-M_PI,0,1);
-
     switch (zBufferMode)
     {
         case zBufferOn:
@@ -580,7 +575,8 @@ static const float ScreenOverlap = 0.1;
                 OpenGLES2Program *program = scene->getProgram(drawProgramId);
                 if (program)
                 {
-                    [renderStateOptimizer setUseProgram:program->getProgram()];
+//                    [renderStateOptimizer setUseProgram:program->getProgram()];
+                    glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
                         program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
@@ -670,7 +666,8 @@ static const float ScreenOverlap = 0.1;
                         OpenGLES2Program *program = scene->getProgram(drawProgramId);
                         if (program)
                         {
-                            [renderStateOptimizer setUseProgram:program->getProgram()];
+//                            [renderStateOptimizer setUseProgram:program->getProgram()];
+                            glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
                             frameInfo.program = program;

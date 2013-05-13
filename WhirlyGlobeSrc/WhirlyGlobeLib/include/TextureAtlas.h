@@ -42,7 +42,7 @@ namespace WhirlyKit
 class SubTexture : public Identifiable
 {
 public:
-    SubTexture() : texId(0) { }
+    SubTexture() : texId(EmptyIdentity) { trans.setIdentity(); }
     
     /// Set up the transform from destination texture coordinates
     void setFromTex(const TexCoord &texOrg,const TexCoord &texDest);
