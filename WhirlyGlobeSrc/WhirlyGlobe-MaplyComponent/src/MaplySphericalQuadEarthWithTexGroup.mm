@@ -26,22 +26,29 @@ using namespace WhirlyGlobe;
 
 @implementation MaplySphericalQuadEarthWithTexGroup
 {
+    NSString *texGroupName;
     WhirlyKitSphericalEarthQuadLayer *earthLayer;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer texGroup:(NSString *)texGroupName
+- (id)initWithWithTexGroup:(NSString *)inTexGroupName
 {
     self = [super init];
+    if (!self)
+        return nil;
     
-    if (self)
-    {
-        earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
-        if (!earthLayer)
-            return nil;
-        [layerThread addLayer:earthLayer];
-    }
+    texGroupName = inTexGroupName;
     
     return self;
+}
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer
+{
+    earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
+    if (!earthLayer)
+        return nil;
+    [layerThread addLayer:earthLayer];
+    
+    return true;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene

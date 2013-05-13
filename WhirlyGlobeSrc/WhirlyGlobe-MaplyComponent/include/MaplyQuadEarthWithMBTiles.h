@@ -1,9 +1,9 @@
 /*
- *  MaplyQuadTestLayer_private.h
+ *  MaplyQuadEarthWithMBTiles.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 3/19/13.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 5/13/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,13 +19,16 @@
  */
 
 #import "MaplyViewControllerLayer.h"
-#import <WhirlyGlobe.h>
-#import "MaplyQuadTestLayer.h"
 
-@interface MaplyQuadTestLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+/** The Quad Earth with MBTiles layer implements a layer that pages from a local MBTiles
+    archive.  Create one of these and then add it to a view controller.
+  */
+@interface MaplyQuadEarthWithMBTiles : MaplyViewControllerLayer
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
+/// Create with the name of the local MBTiles archive.
+- (id)initWithMbTiles:(NSString *)mbTilesName;
 
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+/// Off by default, if set the layer will create skirts to handle edge gaps in tiles
+@property (nonatomic,assign) bool handleEdges;
 
 @end

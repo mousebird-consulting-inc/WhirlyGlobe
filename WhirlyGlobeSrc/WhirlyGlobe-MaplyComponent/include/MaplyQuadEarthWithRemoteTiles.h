@@ -19,19 +19,24 @@
  */
 
 #import "MaplyViewControllerLayer.h"
-#import <WhirlyGlobe.h>
 
+/** The Quad Earth With Remote Tiles object represents a pageable map layer which pulles
+    tiles form a remote source
+  */
 @interface MaplyQuadEarthWithRemoteTiles : MaplyViewControllerLayer
 
 /// Set up a spherical earth layer with a remote set of tiles.
 /// Returns nil on failure.
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges;
+- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
 /// Set up a spherical earth layer with a remote set of tiles defined by the tilespec
 ///  in JSON (that's been parsed into an NSDictionary).
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer tilespec:(NSDictionary *)jsonDict handleEdges:(bool)edges;
+- (id)initWithTilespec:(NSDictionary *)jsonDict;
 
-/// Clean up any and all resources
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+/// Off by default, if set this will create skirts around the tiles
+@property (nonatomic,assign) bool handleEdges;
+
+/// If set, the directory to cache tiles in.  There's no cleanup, so beware
+@property (nonatomic,strong) NSString *cacheDir;
 
 @end

@@ -504,55 +504,59 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
 {
-    MaplyViewControllerLayer *newLayer = (MaplyViewControllerLayer *)[[MaplyQuadEarthWithMBTiles alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer mbTiles:name handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
+    MaplyQuadEarthWithMBTiles *newLayer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:name];
+    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
     if (!newLayer)
         return nil;
     
-    [userLayers addObject:newLayer];
+    if ([self addLayer:newLayer])
+        return newLayer;
     
-    return newLayer;
+    return nil;
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer baseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
+    newLayer.cacheDir = cacheDir;
+
     if (!newLayer)
         return nil;
-    newLayer.cacheDir = cacheDir;
-    [userLayers addObject:newLayer];
+
+    if ([self addLayer:newLayer])
+        return newLayer;
     
-    return newLayer;
+    return nil;
 }
 
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir
 {
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer tilespec:jsonDict handleEdges:(sceneRenderer.zBufferMode != zBufferOff)];
+    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:jsonDict];
+    
+    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
+    newLayer.cacheDir = cacheDir;
+    
     if (!newLayer)
         return nil;
-    newLayer.cacheDir = cacheDir;
-    [userLayers addObject:newLayer];
     
-    return newLayer;
+    if ([self addLayer:newLayer])
+        return newLayer;
+    
+    return nil;
 }
 
 - (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet
 {
-    MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:scene renderer:sceneRenderer texGroup:imageSet];
+    MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithTexGroup:imageSet];
+    
     if (!newLayer)
         return nil;
-    [userLayers addObject:newLayer];
     
-    return newLayer;
-}
-
-- (MaplyViewControllerLayer *)addQuadTestLayerMaxZoom:(int)maxZoom
-{
-    MaplyQuadTestLayer *newLayer = [[MaplyQuadTestLayer alloc] initWithLayerThread:layerThread scene:scene renderer:sceneRenderer maxZoom:maxZoom];
-    if (!newLayer)
-        return nil;
-    [userLayers addObject:newLayer];
+    if ([self addLayer:newLayer])
+        return newLayer;
     
-    return newLayer;
+    return nil;
 }
 
 #pragma mark - Defaults and descriptions
@@ -791,6 +795,20 @@ static const float PerfOutputDelay = 15.0;
 
     for (MaplyActiveObject *theObj in theObjs)
         [self removeActiveObject:theObj];
+}
+
+- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
+{
+    if (newLayer && ![userLayers containsObject:newLayer])
+    {
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer])
+        {
+            [userLayers addObject:newLayer];
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 - (void)removeLayer:(MaplyViewControllerLayer *)layer

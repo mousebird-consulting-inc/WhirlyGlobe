@@ -28,3 +28,7 @@
 #import <MaplyViewTracker.h>
 #import <WhirlyGlobeViewController.h>
 #import <MaplyViewController.h>
+#import <MaplyQuadEarthWithMBTiles.h>
+#import <MaplyQuadEarthWithRemoteTiles.h>
+#import <MaplySphericalQuadEarthWithTexGroup.h>
+#import <MaplyQuadTestLayer.h>

@@ -206,15 +206,18 @@ LocationInfo locations[NumLocations] =
             }
             break;
         case GeographyClassMBTilesLocal:
+        {
             self.title = @"Geography Class - MBTiles Local";
             // This is the Geography Class MBTiles data set from MapBox
-            [baseViewC addQuadEarthLayerWithMBTiles:@"geography-class"];
+            MaplyQuadEarthWithMBTiles *layer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:@"geography-class"];
+            [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
             vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
             vecWidth = 4.0;
+        }
             break;
         case StamenWatercolorRemote:
         {
@@ -222,7 +225,9 @@ LocationInfo locations[NumLocations] =
             // These are the Stamen Watercolor tiles.
             // They're beautiful, but the server isn't so great.
             thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-            [baseViewC addQuadEarthLayerWithRemoteSource:@"http://tile.stamen.com/watercolor/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:10];
+            MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+            layer.cacheDir = thisCacheDir;
+            [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
@@ -236,7 +241,9 @@ LocationInfo locations[NumLocations] =
             self.title = @"OpenStreetMap - Remote";
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
             thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-            [baseViewC addQuadEarthLayerWithRemoteSource:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" imageExt:@"png" cache:thisCacheDir minZoom:0 maxZoom:17];
+            MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+            layer.cacheDir = thisCacheDir;
+            [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
@@ -293,7 +300,8 @@ LocationInfo locations[NumLocations] =
             labelBackColor = [UIColor whiteColor];
             vecColor = [UIColor blackColor];
             vecWidth = 4.0;
-            [baseViewC addQuadTestLayerMaxZoom:17];
+            MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
+            [baseViewC addLayer:layer];
         }
             break;
         default:
@@ -317,7 +325,9 @@ LocationInfo locations[NumLocations] =
                                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
         {
             // Add a quad earth paging layer based on the tile spec we just fetched
-            [baseViewC addQuadEarthLayerWithRemoteSource:JSON cache:thisCacheDir];
+            MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:JSON];
+            layer.cacheDir = thisCacheDir;
+            [baseViewC addLayer:layer];
         }
                                                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
         {
