@@ -171,7 +171,7 @@ DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
     BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawId);
-    Scene::DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
+    DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
     if (it != drawables.end())
         return *it;
     
@@ -258,8 +258,10 @@ void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rendere
         for (unsigned int ii=0;ii<changeRequests.size();ii++)
         {
             ChangeRequest *req = changeRequests[ii];
-            req->execute(this,renderer,view);
-            delete req;
+            if (req) {
+                req->execute(this,renderer,view);
+                delete req;
+            }
         }
         changeRequests.clear();
         
@@ -460,7 +462,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 {
     BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawable);
-    Scene::DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
+    DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())
     {
         // Teardown OpenGL foo

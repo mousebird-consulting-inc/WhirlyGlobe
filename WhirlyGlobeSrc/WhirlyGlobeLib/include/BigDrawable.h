@@ -27,7 +27,7 @@ namespace WhirlyKit
 class BigDrawableSwap;
     
 /** The Big Drawable is a double buffered drawable we can use to make changes
-    in one thread and have them reflected in the renderer without slowing
+    in one thread and have them reflected in the visuals without slowing
     the renderer down.
   */
 class BigDrawable : public Drawable
@@ -35,7 +35,7 @@ class BigDrawable : public Drawable
 public:
     /// Construct with a debuggign name and the total number of bytes
     BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
-    ~BigDrawable();
+    virtual ~BigDrawable();
 
     /// See if this big drawable can represent data in the given drawable.
     /// We check various modes (e.g. draw priority, z buffer on, etc)
@@ -56,8 +56,11 @@ public:
     SimpleIdentity getTexId() const { return texId; }
     void setTexId(SimpleIdentity newTexId) { texId = newTexId; }
 
-    /// Use the default OpenGL ES shader program
-    SimpleIdentity getProgram() const { return EmptyIdentity; }
+    /// Program to use for rendering
+    virtual SimpleIdentity getProgram() const { return programId; }
+    
+    /// Set the shader program.  Empty (default) by default
+    virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
 
     /// Always on for the moment
     bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
@@ -125,6 +128,9 @@ protected:
     int drawPriority;
     bool forceZBuffer;
     float minVis,maxVis;
+    
+    /// Called when a new VAO is bound.  Set up your VAO-related state here.
+    virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
     
     typedef enum {ChangeAdd,ChangeClear} ChangeType;
     /// Used to represent an outstanding change to the buffer

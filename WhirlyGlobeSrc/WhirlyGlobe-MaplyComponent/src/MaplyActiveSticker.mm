@@ -74,13 +74,13 @@ using namespace WhirlyKit;
         changes.push_back(new RemDrawableReq(*it));
     drawIDs.clear();
 
-    SimpleIdentity removeImageId = EmptyIdentity;
+    SimpleIdentity removeTexId = EmptyIdentity;
     if (_sticker)
     {
         // Possibly get rid of the image too
         if (image && _sticker.image != image)
         {
-            removeImageId = texId;
+            removeTexId = texId;
             texId = EmptyIdentity;
             image = nil;
         }
@@ -92,13 +92,21 @@ using namespace WhirlyKit;
             texId = tex->getId();
             image = _sticker.image;
             changes.push_back(new AddTextureReq(tex));
+            
+            // Note: Debugging
+//            NSData *imageData = UIImagePNGRepresentation(image);
+//            if (imageData)
+//            {
+//                NSArray *myPathList = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+//                NSString *myPath    = [myPathList  objectAtIndex:0];
+//                [imageData writeToFile:[NSString stringWithFormat:@"%@/%ld.png",myPath,texId] atomically:YES];
+//            }
         }
         
         // Make some new drawables
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
         GeoMbr geoMbr = GeoMbr(GeoCoord(_sticker.ll.x,_sticker.ll.y), GeoCoord(_sticker.ur.x,_sticker.ur.y));
         chunk.mbr = geoMbr;
-        // Note: Need to create texture
         chunk.texId = texId;
         chunk.drawOffset = [desc[@"drawOffset"] floatValue];
         chunk.drawPriority = [desc[@"drawPriority"] floatValue];
@@ -120,8 +128,8 @@ using namespace WhirlyKit;
         }
     }
 
-    if (removeImageId != EmptyIdentity)
-        changes.push_back(new RemTextureReq(texId));
+    if (removeTexId != EmptyIdentity)
+        changes.push_back(new RemTextureReq(removeTexId));
     
     scene->addChangeRequests(changes);
     

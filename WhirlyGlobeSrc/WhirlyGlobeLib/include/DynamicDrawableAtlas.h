@@ -31,7 +31,7 @@ class DynamicDrawableAtlas
 public:
     /// Construct with a name (for debugging), individual vertex size, and
     ///  number of bytes for each big drawable
-    DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager);
+    DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes) = NULL,SimpleIdentity shaderId = EmptyIdentity);
     ~DynamicDrawableAtlas();
     
     /// Add the given drawable to the drawable atlas.
@@ -60,6 +60,9 @@ public:
     /// Remove anything associated with the drawable atlas
     void shutdown(std::vector<ChangeRequest *> &changes);
     
+    /// Print some status info to the log
+    void log();
+    
 protected:
     /// Used to track where a drawable wound up in a big drawable
     class DrawRepresent : public Identifiable
@@ -76,6 +79,8 @@ protected:
         SimpleIdentity elementChunkId;
     };
 
+    BigDrawable *(*newBigDrawable)(int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
+    SimpleIdentity shaderId;
     OpenGLMemManager *memManager;
     std::string name;
     int singleVertexSize;
