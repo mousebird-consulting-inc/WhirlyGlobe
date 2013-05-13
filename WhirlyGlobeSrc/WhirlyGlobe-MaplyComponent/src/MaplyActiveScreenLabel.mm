@@ -28,8 +28,10 @@ using namespace WhirlyKit;
 {
     bool changed;
     NSDictionary *desc;
-    SimpleIDSet texIDs;
+    UIImage *iconImage;
     SimpleIDSet drawIDs;
+    SimpleIDSet screenIDs;
+    SimpleIdentity iconTexId;
 }
 
 - (id)initWithDesc:(NSDictionary *)descDict
@@ -71,22 +73,35 @@ using namespace WhirlyKit;
          it != drawIDs.end(); ++it)
         changes.push_back(new RemDrawableReq(*it));
     drawIDs.clear();
-    for (SimpleIDSet::iterator it = texIDs.begin();
-         it != texIDs.end(); ++it)
-        changes.push_back(new RemTextureReq(*it));
-    texIDs.clear();        
+    for (SimpleIDSet::iterator it = screenIDs.begin();
+         it != screenIDs.end(); ++it)
+        changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
 
+    SimpleIdentity removeTexId = EmptyIdentity;
     if (_screenLabel)
     {
+        // Possibly get rid of the image too
+        if (iconImage && _screenLabel.iconImage != iconImage)
+        {
+            removeTexId = iconTexId;
+            iconTexId = EmptyIdentity;
+            iconImage = nil;
+        }
+
+        // And make a new one
+        if (_screenLabel.iconImage != iconImage)
+        {
+            Texture *tex = new Texture("Active ScreenLabel",_screenLabel.iconImage);
+            iconTexId = tex->getId();
+            iconImage = _screenLabel.iconImage;
+            changes.push_back(new AddTextureReq(tex));            
+        }
+        
         WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
         NSMutableDictionary *locDesc = [NSMutableDictionary dictionary];
         wgLabel.loc = GeoCoord(_screenLabel.loc.x,_screenLabel.loc.y);
         wgLabel.text = _screenLabel.text;
-        if (_screenLabel.iconImage)
-        {
-            // Note: Not handling this case yet
-        }
-//        wgLabel.iconTexture = texID;
+        wgLabel.iconTexture = iconTexId;
         if (_screenLabel.size.width > 0.0)
             [locDesc setObject:[NSNumber numberWithFloat:_screenLabel.size.width] forKey:@"width"];
         if (_screenLabel.size.height > 0.0)
@@ -103,7 +118,8 @@ using namespace WhirlyKit;
         if ([locDesc count] > 0)
             wgLabel.desc = locDesc;
 
-        WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:_screenLabel.text] desc:desc];
+        WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:wgLabel] desc:desc];
+        labelInfo.screenObject = true;
 
         // Set up the representation (but then hand it off)
         LabelSceneRep *labelRep = new LabelSceneRep();
@@ -124,10 +140,33 @@ using namespace WhirlyKit;
         
         // Now harvest the results
         changes.insert(changes.end(), labelRenderer->changeRequests.begin(), labelRenderer->changeRequests.end());
+        labelRenderer->changeRequests.clear();
         drawIDs = labelRep->drawIDs;
-        texIDs = labelRep->texIDs;
+        screenIDs = labelRep->screenIDs;
+        // Note: Not expecting textures from the label renderer
     }
+    
+    scene->addChangeRequests(changes);
+    
+    changed = false;
 }
+
+- (void)shutdown
+{
+    std::vector<ChangeRequest *> changes;
+
+    // Get rid of drawables and screen objects
+    for (SimpleIDSet::iterator it = drawIDs.begin();it != drawIDs.end(); ++it)
+        changes.push_back(new RemDrawableReq(*it));
+    drawIDs.clear();
+    for (SimpleIDSet::iterator it = screenIDs.begin();it != screenIDs.end(); ++it)
+        changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
+    if (iconTexId != EmptyIdentity)
+        changes.push_back(new RemTextureReq(iconTexId));
+    
+    scene->addChangeRequests(changes);
+}
+
 
 @end
 

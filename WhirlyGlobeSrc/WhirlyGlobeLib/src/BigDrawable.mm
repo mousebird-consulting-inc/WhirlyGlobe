@@ -90,6 +90,7 @@ void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memM
         theBuffer.vertexBufferId = memManager->getBufferID(numVertexBytes,GL_DYNAMIC_DRAW);
         theBuffer.elementBufferId = memManager->getBufferID(numElementBytes,GL_DYNAMIC_DRAW);
 
+        // Note: Clearing out the buffers will reduce warnings from Instruments
         // Clear out the vertex buffer
 //        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
 //        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
@@ -210,8 +211,8 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     // Set up a VAO for this buffer, if there isn't one
     if (theBuffer.vertexArrayObj == 0)
     {
-//        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
-//        glBindVertexArrayOES(theBuffer.vertexArrayObj);
+        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
+        glBindVertexArrayOES(theBuffer.vertexArrayObj);
 
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
@@ -244,8 +245,10 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glEnableVertexAttribArray(normAttr->index);
         }
         
-//        glBindVertexArrayOES(0);
-        glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
+        glBindVertexArrayOES(0);
+        
+        // Let a subclass set up their own VAO state
+        setupAdditionalVAO(prog,theBuffer.vertexArrayObj);
 
         // Tear it all down
         if (vertAttr)
@@ -262,9 +265,9 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Draw it
-//    glBindVertexArrayOES(theBuffer.vertexArrayObj);
-//    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
-//    glBindVertexArrayOES(0);
+    glBindVertexArrayOES(theBuffer.vertexArrayObj);
+    glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
+    glBindVertexArrayOES(0);
     
     if (hasTexture)
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -313,15 +316,22 @@ SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMut
 
     // We know the element data needs to be offset from the position, so let's do that
     int vertOffset = vertPos/singleVertexSize;
+    int maxVert = 0;
     if (singleElementSize == sizeof(GLushort))
     {
         GLushort *elPtr = (GLushort *)[elementData mutableBytes];
         for (unsigned int ii=0;ii<elementSize/2;ii++,elPtr++)
+        {
             *elPtr += vertOffset;
+            maxVert = std::max((int)*elPtr,maxVert);
+        }
     } else {
         GLuint *elPtr = (GLuint *)[elementData mutableBytes];
         for (unsigned int ii=0;ii<elementSize/4;ii++,elPtr++)
+        {
             *elPtr += vertOffset;
+            maxVert = std::max((int)*elPtr,maxVert);
+        }
     }
 
     // Toss the element chunk into the set.  It'll be dealt with during the next flush
@@ -347,7 +357,7 @@ void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
     
     RegionSet::iterator prevIt = regions.end();
     RegionSet::iterator nextIt = regions.begin();
-    while (nextIt->pos < thisRegion.pos)
+    while (nextIt->pos < thisRegion.pos && nextIt != regions.end())
     {
         prevIt = nextIt;
         nextIt++;
@@ -384,12 +394,13 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChu
         return;
 
     // Set up the change in the buffers
+    // Note: Don't actually need to clear out the data, just reuse the space
 //    void *emptyBytes = malloc(vertSize);
 //    memset(emptyBytes, 0, vertSize);
 //    NSData *emptyVerts = [[NSData alloc] initWithBytesNoCopy:emptyBytes length:vertSize freeWhenDone:YES];
-    ChangeRef change(new Change(ChangeClear,vertPos,nil,vertSize));
-    for (unsigned int ii=0;ii<2;ii++)
-        buffers[ii].changes.push_back(change);
+//    ChangeRef change(new Change(ChangeClear,vertPos,emptyVerts,vertSize));
+//    for (unsigned int ii=0;ii<2;ii++)
+//        buffers[ii].changes.push_back(change);
 
     removeRegion(vertexRegions,vertPos,vertSize);
 
