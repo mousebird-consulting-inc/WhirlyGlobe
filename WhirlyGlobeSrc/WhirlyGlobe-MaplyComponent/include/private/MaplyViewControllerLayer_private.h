@@ -26,6 +26,9 @@
 /// Don't mess with these directly.
 @interface MaplyViewControllerLayer()
 
+/// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
+
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 

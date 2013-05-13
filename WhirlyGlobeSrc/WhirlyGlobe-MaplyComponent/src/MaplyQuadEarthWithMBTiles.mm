@@ -22,31 +22,43 @@
 
 @implementation MaplyQuadEarthWithMBTiles
 {
+    NSString *mbTilesName;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitMBTileQuadSource *dataSource;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbName handleEdges:(bool)edges
+- (id)initWithMbTiles:(NSString *)inMbTilesName
 {
     self = [super init];
-    if (self)
-    {
-        NSString *infoPath = [[NSBundle mainBundle] pathForResource:mbName ofType:@"mbtiles"];
-        if (!infoPath)
-        {
-            self = nil;
-            return nil;
-        }
-        dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
-        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
-        tileLoader.coverPoles = true;
-        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
-        tileLoader.ignoreEdgeMatching = !edges;
-        [layerThread addLayer:quadLayer];
-    }
+    if (!self)
+        return nil;
+    
+    mbTilesName = inMbTilesName;
     
     return self;
+}
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer
+{
+    NSString *infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
+    if (!infoPath)
+        return false;
+    dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
+    tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
+    tileLoader.coverPoles = true;
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
+    tileLoader.ignoreEdgeMatching = !_handleEdges;
+    [layerThread addLayer:quadLayer];
+
+    return true;
+}
+
+- (void)setHandleEdges:(bool)handleEdges
+{
+    _handleEdges = handleEdges;
+    if (tileLoader)
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene

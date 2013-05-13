@@ -23,7 +23,7 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyQuadTestLayer
+@implementation MaplyQuadTestLayer 
 {
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
@@ -33,30 +33,41 @@ using namespace WhirlyKit;
     Mbr extents;
 }
 
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread  scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer maxZoom:(int)inMaxZoom
+- (id)initWithMaxZoom:(int)inMaxZoom
 {
     self = [super init];
     
-    if (self)
-    {
-        maxZoom = inMaxZoom;
-        scene = inScene;
-
-        // Cover the whole earth
-        GeoCoord ll = GeoCoord::CoordFromDegrees(-180, -90);
-        GeoCoord ur = GeoCoord::CoordFromDegrees(180, 90);
-        extents.addPoint(Point2f(ll.x(),ll.y()));
-        extents.addPoint(Point2f(ur.x(),ur.y()));
-
-        // Set up tile and and quad layer with us as the data source
-        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
-        tileLoader.ignoreEdgeMatching = true;
-        tileLoader.coverPoles = true;
-        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-        [layerThread addLayer:quadLayer];
-    }
+    if (!self)
+        return nil;
+    
+    maxZoom = inMaxZoom;
     
     return self;
+}
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer;
+{
+    scene = inScene;
+
+    // Cover the whole earth
+    GeoCoord ll = GeoCoord::CoordFromDegrees(-180, -90);
+    GeoCoord ur = GeoCoord::CoordFromDegrees(180, 90);
+    extents.addPoint(Point2f(ll.x(),ll.y()));
+    extents.addPoint(Point2f(ur.x(),ur.y()));
+
+    // Set up tile and and quad layer with us as the data source
+    tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
+    tileLoader.ignoreEdgeMatching = true;
+    tileLoader.coverPoles = true;
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    [layerThread addLayer:quadLayer];
+    
+    return true;
+}
+
+- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene
+{
+    [layerThread removeLayer:quadLayer];
 }
 
 /// Return the coordinate system we're working in

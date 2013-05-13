@@ -19,14 +19,10 @@
  */
 
 #import "MaplyViewControllerLayer.h"
-#import <WhirlyGlobe.h>
 
 @interface MaplySphericalQuadEarthWithTexGroup : MaplyViewControllerLayer
 
 /// Initialize with a texture group.  Ideally the quad tree kind
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread  scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer texGroup:(NSString *)texGroupName;
-
-/// Clean up any and all resources
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+- (id)initWithWithTexGroup:(NSString *)texGroupName;
 
 @end
