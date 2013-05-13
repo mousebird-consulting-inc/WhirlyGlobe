@@ -23,4 +23,8 @@
 
 @interface MaplySphericalQuadEarthWithTexGroup()
 
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
+
+- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+
 @end

@@ -22,50 +22,89 @@
 
 @implementation MaplyQuadEarthWithRemoteTiles
 {
+    NSDictionary *jsonDict;
+    NSString *baseURL,*ext;
+    int minZoom,maxZoom;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitNetworkTileQuadSourceBase *dataSource;
 }
 
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer baseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom handleEdges:(bool)edges
+/// Set up a spherical earth layer with a remote set of tiles.
+/// Returns nil on failure.
+- (id)initWithBaseURL:(NSString *)inBaseURL ext:(NSString *)inExt minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
 {
     self = [super init];
-    if (self)
+    if (!self)
+        return nil;
+    
+    baseURL = inBaseURL;
+    ext = inExt;
+    minZoom = inMinZoom;
+    maxZoom = inMaxZoom;
+    
+    return self;
+}
+
+/// Set up a spherical earth layer with a remote set of tiles defined by the tilespec
+///  in JSON (that's been parsed into an NSDictionary).
+- (id)initWithTilespec:(NSDictionary *)inJsonDict
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    jsonDict = inJsonDict;
+    
+    return self;
+}
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer
+{
+    if (jsonDict)
     {
+        WhirlyKitNetworkTileSpecQuadSource *theDataSource = [[WhirlyKitNetworkTileSpecQuadSource alloc] initWithTileSpec:jsonDict];
+        if (!theDataSource)
+            return nil;
+        dataSource = theDataSource;
+        dataSource.cacheDir = _cacheDir;
+        // Note: Should make this flexible
+        theDataSource.numSimultaneous = 8;
+        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
+        tileLoader.coverPoles = true;
+        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
+        [layerThread addLayer:quadLayer];
+    } else {
         WhirlyKitNetworkTileQuadSource *theDataSource = [[WhirlyKitNetworkTileQuadSource alloc] initWithBaseURL:baseURL ext:ext];
         dataSource = theDataSource;
         theDataSource.minZoom = minZoom;
         theDataSource.maxZoom = maxZoom;
         // Note: Should make this flexible
         dataSource.numSimultaneous = 8;
+        dataSource.cacheDir = _cacheDir;
         tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
-        tileLoader.ignoreEdgeMatching = !edges;
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
         tileLoader.coverPoles = true;
         quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
-        [layerThread addLayer:quadLayer];
+        [layerThread addLayer:quadLayer];        
     }
     
-    return self;
+    return true;
 }
 
-- (id)initWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer tilespec:(NSDictionary *)jsonDict handleEdges:(bool)edges
+- (void)setHandleEdges:(bool)handleEdges
 {
-    self = [super init];
-    if (self)
-    {
-        WhirlyKitNetworkTileSpecQuadSource *theDataSource = [[WhirlyKitNetworkTileSpecQuadSource alloc] initWithTileSpec:jsonDict];
-        if (!theDataSource)
-            return nil;
-        dataSource = theDataSource;
-        theDataSource.numSimultaneous = 8;
-        tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
-        tileLoader.ignoreEdgeMatching = !edges;
-        tileLoader.coverPoles = true;
-        quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
-        [layerThread addLayer:quadLayer];
-    }
-    
-    return self;
+    _handleEdges = handleEdges;
+    if (tileLoader)
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
+}
+
+- (void)setCacheDir:(NSString *)cacheDir
+{
+    _cacheDir = cacheDir;
+    if (tileLoader)
+        dataSource.cacheDir = _cacheDir;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene
@@ -74,16 +113,6 @@
     tileLoader = nil;
     quadLayer = nil;
     dataSource = nil;
-}
-
-- (NSString *)cacheDir
-{
-    return dataSource.cacheDir;
-}
-
-- (void)setCacheDir:(NSString *)cacheDir
-{
-    dataSource.cacheDir = cacheDir;
 }
 
 @end

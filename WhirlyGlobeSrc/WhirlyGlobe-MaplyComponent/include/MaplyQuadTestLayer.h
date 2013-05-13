@@ -1,8 +1,8 @@
 /*
- *  MaplyQuadEarthWithMBTiles_private.h
+ *  MaplyQuadTestLayer.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 7/24/12.
+ *  Created by Steve Gifford on 5/13/13.
  *  Copyright 2011-2012 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,13 +18,14 @@
  *
  */
 
-#import "MaplyViewControllerLayer_private.h"
-#import "MaplyQuadEarthWithMBTiles.h"
+#import "MaplyViewControllerLayer.h"
 
-@interface MaplyQuadEarthWithMBTiles()
+/** The quad test layer dislays a quad tree of empty tiles with only color
+    and the ID of each tile.  Very useful for debugging.
+  */
+@interface MaplyQuadTestLayer : MaplyViewControllerLayer
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
-
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+/// Construct with just the maximum zoom level
+- (id)initWithMaxZoom:(int)maxZoom;
 
 @end

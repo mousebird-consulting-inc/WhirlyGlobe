@@ -23,9 +23,8 @@
 
 @interface MaplyQuadEarthWithRemoteTiles()
 
-@property (nonatomic,strong) NSString *cacheDir;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
 
-/// Clean up any and all resources 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 @end
