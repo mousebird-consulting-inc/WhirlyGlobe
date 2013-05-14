@@ -18,10 +18,18 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+/// Simple tile IDentifier
+typedef struct
+{
+    int x, y, level;
+} MaplyTileID;
 
 /** The protocol for a Maply Tile Source.  Fill these calls in and your can
-    pass in your own data.
+    pass in your own data tile by tile.
+    The tile source should know its coordinate system, which is handed to
+    Maply separately.
   */
 @protocol MaplyTileSource
 
@@ -31,10 +39,10 @@
 /// Maximum zoom level (e.g. 17)
 - (int)maxZoom;
 
-/// Number of pixels in a single tile
-- (int)numPixels;
+/// Number of pixels on the side of a single tile (e.g. 128, 256)
+- (int)tileSize;
 
-/// Return the image for a given 
-- (UIImage *)
+/// Return the image for a given tile
+- (UIImage *)imageForTile:(MaplyTileID)tileID;
 
 @end

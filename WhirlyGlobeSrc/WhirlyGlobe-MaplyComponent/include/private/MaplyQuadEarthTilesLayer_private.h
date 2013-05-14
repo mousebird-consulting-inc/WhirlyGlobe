@@ -1,9 +1,9 @@
 /*
- *  MaplyComponent.h
- *  MaplyComponent
+ *  MaplyQuadEarthTilesLayer_private.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012 mousebird consulting
+ *  Created by Steve Gifford on 5/13/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,17 +18,13 @@
  *
  */
 
-#import <MaplyCoordinateSystem.h>
-#import <MaplyLabel.h>
-#import <MaplyScreenLabel.h>
-#import <MaplyMarker.h>
-#import <MaplyScreenMarker.h>
-#import <MaplyShape.h>
-#import <MaplySticker.h>
-#import <MaplyViewTracker.h>
-#import <MaplyViewController.h>
-#import <MaplyQuadEarthWithMBTiles.h>
-#import <MaplyQuadEarthWithRemoteTiles.h>
-#import <MaplySphericalQuadEarthWithTexGroup.h>
-#import <MaplyQuadTestLayer.h>
-#import <MaplyQuadEarthTilesLayer.h>
+#import "MaplyQuadEarthTilesLayer.h"
+#import "WhirlyGlobe.h"
+
+@interface MaplyQuadEarthTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
+
+- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+
+@end
