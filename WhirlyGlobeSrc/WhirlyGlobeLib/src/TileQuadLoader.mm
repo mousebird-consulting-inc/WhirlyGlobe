@@ -743,7 +743,8 @@ void LoadedTile::Print(Quadtree *tree)
             {
                 newTex->setFormat([self glFormat]);
                 *tex = newTex;
-            }
+            } else
+                NSLog(@"Got bad image in quad tile loader.  Skipping.");
         } else
             *tex = NULL;
     }

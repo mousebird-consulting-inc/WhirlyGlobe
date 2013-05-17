@@ -228,10 +228,7 @@ using namespace WhirlyKit;
 
 - (Eigen::Vector3d)eyePos
 {
-	Eigen::Matrix4d modelMat = modelMatrix.inverse();
-	
-	Vector4d newUp = modelMat * Vector4d(0,0,0,1);
-	return Vector3d(newUp.x(),newUp.y(),newUp.z());
+    return eyeVec;
 }
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight

@@ -169,7 +169,7 @@ bool insidePlane(const Vector4d &pt,ClipPlane plane)
 
 void ClipHomogeneousPolyToPlane(const std::vector<Eigen::Vector4d> &pts,ClipPlane plane,std::vector<Eigen::Vector4d> &outPts)
 {
-    outPts.clear();
+    outPts.reserve(pts.size());
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
         const Vector4d &p0 = pts[ii];
@@ -194,11 +194,11 @@ void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &inPts,std::vecto
         return;
     std::vector<Vector4d> pts = inPts;
  
-    ClipHomogeneousPolyToPlane(pts, Left, outPts);  pts = outPts;
-    ClipHomogeneousPolyToPlane(pts, Right, outPts);  pts = outPts;
-    ClipHomogeneousPolyToPlane(pts, Bottom, outPts);  pts = outPts;
-    ClipHomogeneousPolyToPlane(pts, Top, outPts);  pts = outPts;
-    ClipHomogeneousPolyToPlane(pts, Near, outPts);  pts = outPts;
+    ClipHomogeneousPolyToPlane(pts, Left, outPts);  pts = outPts;  outPts.clear();
+    ClipHomogeneousPolyToPlane(pts, Right, outPts);  pts = outPts;  outPts.clear();
+    ClipHomogeneousPolyToPlane(pts, Bottom, outPts);  pts = outPts;  outPts.clear();
+    ClipHomogeneousPolyToPlane(pts, Top, outPts);  pts = outPts;  outPts.clear();
+    ClipHomogeneousPolyToPlane(pts, Near, outPts);  pts = outPts;  outPts.clear();
     ClipHomogeneousPolyToPlane(pts, Far, outPts);
 }
 

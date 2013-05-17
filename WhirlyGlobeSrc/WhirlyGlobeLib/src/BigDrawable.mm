@@ -273,7 +273,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         glBindTexture(GL_TEXTURE_2D, 0);
 }
     
-SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData)
+SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled)
 {
     size_t vertexSize = [vertData length];
     size_t elementSize = [elementData length];
@@ -336,10 +336,28 @@ SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMut
 
     // Toss the element chunk into the set.  It'll be dealt with during the next flush
     ElementChunk elementChunk(elementData);
+    elementChunk.enabled = enabled;
     elementChunks.insert(elementChunk);
     elementChunkSize += elementSize;
 
     return elementChunk.getId();
+}
+ 
+void BigDrawable::setEnableRegion(SimpleIdentity elementChunkId, bool enabled)
+{
+    ElementChunkSet::iterator it = elementChunks.find(ElementChunk(elementChunkId));
+    if (it == elementChunks.end())
+        return;
+    
+    ElementChunk theChunk(*it);
+    elementChunks.erase(it);
+    theChunk.enabled = enabled;
+    elementChunks.insert(theChunk);
+    
+    // We just want to force an element rebuild
+    ChangeRef change (new Change(ChangeElements,0,nil));
+    for (unsigned int ii=0;ii<2;ii++)
+        buffers[ii].changes.push_back(change);
 }
  
 void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
@@ -450,6 +468,9 @@ void BigDrawable::executeFlush(int whichBuffer)
 //                        NSLog(@"Exceeded vertex buffer size");
 //                    }
                     break;
+                case ChangeElements:
+                    // This is just here to nudge the element rebuild
+                    break;
             }
         }
 
@@ -461,12 +482,15 @@ void BigDrawable::executeFlush(int whichBuffer)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
     GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
     GLubyte *elBufPtr = elBuffer;
+    int elBufferSize = 0;
     for (ElementChunkSet::iterator it = elementChunks.begin();
          it != elementChunks.end(); ++it)
+        if (it->enabled)
     {
         size_t len = [it->elementData length];
         memcpy(elBufPtr, [it->elementData bytes], len);
         elBufPtr += len;
+            elBufferSize += len;
     }
     if (elBufPtr - elBuffer > numElementBytes)
     {
@@ -474,7 +498,7 @@ void BigDrawable::executeFlush(int whichBuffer)
     }
     glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    theBuffer.numElement = elementChunkSize / singleElementSize;
+    theBuffer.numElement = elBufferSize / singleElementSize;
 }
     
 // If set, we'll do the flushes on the main thread
