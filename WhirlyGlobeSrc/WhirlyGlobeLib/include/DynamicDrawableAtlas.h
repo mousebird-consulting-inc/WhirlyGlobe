@@ -36,11 +36,14 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-    bool addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes);
+    bool addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes,bool enabled=true);
     
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes);
     
+    /// Enable/disable a drawable we're representing
+    void setEnableDrawable(SimpleIdentity drawId,bool enabled);
+        
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
     

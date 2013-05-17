@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes,bool enabled)
 {
     // See if we're already representing it
     {
@@ -67,7 +67,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         BigDrawable *bigDraw = *it;
         if (bigDraw->isCompatible(draw))
         {
-            if ((represent.elementChunkId = bigDraw->addRegion(vertData, represent.vertexPos, elementData)) != EmptyIdentity)
+            if ((represent.elementChunkId = bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
                 represent.vertexSize = [vertData length];
                 represent.bigDrawId = bigDraw->getId();
@@ -92,7 +92,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         changes.push_back(new AddDrawableReq(newBigDraw));
         bigDrawables.insert(newBigDraw);
         represent.bigDrawId = newBigDraw->getId();
-        if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData)) != EmptyIdentity)
+        if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
             represent.vertexSize = [vertData length];
             represent.bigDrawId = newBigDraw->getId();
@@ -108,6 +108,33 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     drawables.insert(represent);
 
     return true;
+}
+
+void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
+{
+    // Look for the representation
+    DrawRepresent represent(drawId);
+
+    // Find it
+    DrawRepresentSet::iterator it = drawables.find(represent);
+    if (it == drawables.end())
+        return;
+    represent = *it;
+    
+    // Find the big drawable enable/disable it in there
+    BigDrawable *bigDraw = NULL;
+    BigDrawableSet::iterator bit;
+    for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
+    {
+        if ((*bit)->getId() == represent.bigDrawId)
+        {
+            bigDraw = *bit;
+            break;
+        }
+    }
+
+    if (bigDraw)
+        bigDraw->setEnableRegion(represent.elementChunkId,enabled);
 }
 
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes)
