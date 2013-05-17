@@ -313,7 +313,7 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,SubTexture &
         dynTex->setRegion(texRegion.region, true);
         dynTex->getNumRegions()++;
 //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
-        // Note: Making the main thread do the merge
+        // Make the main thread do the merge
         if (MainThreadMerge)
             changes.push_back(new DynamicTextureAddRegion(dynTex->getId(),
                                                           texRegion.region.sx * cellSize, texRegion.region.sy * cellSize, tex->getWidth(), tex->getHeight(),

@@ -210,6 +210,7 @@ LocationInfo locations[NumLocations] =
             self.title = @"Geography Class - MBTiles Local";
             // This is the Geography Class MBTiles data set from MapBox
             MaplyQuadEarthWithMBTiles *layer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:@"geography-class"];
+            layer.handleEdges = true;
             [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
             screenLabelBackColor = [UIColor whiteColor];
@@ -226,6 +227,7 @@ LocationInfo locations[NumLocations] =
             // They're beautiful, but the server isn't so great.
             thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
             MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+            layer.handleEdges = true;
             layer.cacheDir = thisCacheDir;
             [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
@@ -242,6 +244,7 @@ LocationInfo locations[NumLocations] =
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
             thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
             MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+            layer.handleEdges = true;
             layer.cacheDir = thisCacheDir;
             [baseViewC addLayer:layer];
             screenLabelColor = [UIColor blackColor];
@@ -326,6 +329,7 @@ LocationInfo locations[NumLocations] =
         {
             // Add a quad earth paging layer based on the tile spec we just fetched
             MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:JSON];
+            layer.handleEdges = true;
             layer.cacheDir = thisCacheDir;
             [baseViewC addLayer:layer];
         }

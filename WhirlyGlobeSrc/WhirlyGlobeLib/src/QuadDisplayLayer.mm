@@ -49,7 +49,9 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Figure out where the bounds drop in display space
     std::vector<Point3d> dispBounds;
+    dispBounds.reserve(4);
     std::vector<Point3d> srcPts;
+    srcPts.reserve(4);
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcBounds[ii]);
@@ -86,6 +88,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     // Project the corner points onto the plane
     // We'll collect height at the same time
     std::vector<Point2d> planePts;
+    planePts.reserve(dispBounds.size());
     double minZ=MAXFLOAT,maxZ =-MAXFLOAT;
     Point2d minPt,maxPt;
     for (unsigned int ii=0;ii<dispBounds.size();ii++)
@@ -108,6 +111,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
 
     // Now sample the edges back in the source coordinate system
     //  and see where they land in here
+    dispSolid->surfNormals.reserve(srcPts.size());
     for (unsigned int ii=0;ii<srcPts.size();ii++)
     {
 //        Point2f &planePt0 = planePts[ii], &planePt1 = planePts[(ii+1)%planePts.size()];
@@ -155,11 +159,13 @@ static float const BoundsEps = 10.0 / EarthRadius;
     // Now convert the plane points back into display space for the volume
     std::vector<WhirlyKit::Point3d> botCorners;
     std::vector<WhirlyKit::Point3d> topCorners;
-    std::vector<WhirlyKit::Point2d> planeMbrPts;
+    std::vector<WhirlyKit::Point2d> planeMbrPts;  planeMbrPts.reserve(4);
     planeMbrPts.push_back(minPt);
     planeMbrPts.push_back(Point2d(maxPt.x(),minPt.y()));
     planeMbrPts.push_back(maxPt);
     planeMbrPts.push_back(Point2d(minPt.x(),maxPt.y()));
+    botCorners.reserve(planeMbrPts.size());
+    topCorners.reserve(planeMbrPts.size());
 //    for (unsigned int ii=0;ii<planePts.size();ii++)
     for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
     {
@@ -175,11 +181,12 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Now let's go ahead and form the polygons for the planes
     // First the ones around the outside
+    dispSolid->polys.reserve(planePts.size()+2);
     for (unsigned int ii=0;ii<planePts.size();ii++)
     {
         int thisPt = ii;
         int nextPt = (ii+1)%planePts.size();
-        std::vector<Point3d> poly;
+        std::vector<Point3d> poly;  poly.reserve(4);
         poly.push_back(botCorners[thisPt]);
         poly.push_back(botCorners[nextPt]);
         poly.push_back(topCorners[nextPt]);
@@ -192,6 +199,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     dispSolid->polys.push_back(botCorners);
     
     // Now calculate normals for each of those
+    dispSolid->normals.reserve(dispSolid->polys.size());
     for (unsigned int ii=0;ii<dispSolid->polys.size();ii++)
     {
         if (coordAdapter->isFlat())
@@ -216,6 +224,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     origArea = std::abs(origArea);
     
     std::vector<Eigen::Vector4d> pts;
+    pts.reserve(poly.size());
     for (unsigned int ii=0;ii<poly.size();ii++)
     {
         const Point3d &pt = poly[ii];
@@ -228,6 +237,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     
     // The points are in clip space, so clip!
     std::vector<Eigen::Vector4d> clipSpacePts;
+    clipSpacePts.reserve(2*pts.size());
     ClipHomogeneousPolygon(pts,clipSpacePts);
     
     // Outside the viewing frustum, so ignore it
@@ -236,6 +246,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     
     // Project to the screen
     std::vector<Point2d> screenPts;
+    screenPts.reserve(clipSpacePts.size());
     Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
     for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
     {
@@ -251,6 +262,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     
     // Now project the screen points back into model space
     std::vector<Point3d> backPts;
+    backPts.reserve(screenPts.size());
     for (unsigned int ii=0;ii<screenPts.size();ii++)
     {
         Vector4d modelPt = viewState->invProjMatrix * clipSpacePts[ii];
@@ -275,7 +287,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     // We should be on the inside of each plane
     for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        const Point3d &org = (polys[ii])[0];
+        Point3d org = (polys[ii])[0];
         if ((pt-org).dot(normals[ii]) > 0.0)
             return false;
     }
@@ -285,6 +297,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 
 - (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
+    // Note: Cache this
     Point3d eyePos = viewState.eyePos;
     
     if (!viewState->coordAdapter->isFlat())
@@ -298,7 +311,8 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
         for (unsigned int ii=0;ii<surfNormals.size();ii++)
         {
             const Vector3d &surfNorm = surfNormals[ii];
-            isFacing |= surfNorm.dot(eyePos) >= 0.0;
+            if ((isFacing |= (surfNorm.dot(eyePos) >= 0.0)))
+                break;
         }
         if (!isFacing)
             return 0.0;
