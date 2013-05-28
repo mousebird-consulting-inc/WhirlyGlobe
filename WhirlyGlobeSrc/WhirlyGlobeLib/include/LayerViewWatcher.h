@@ -86,7 +86,7 @@
 - (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Calculate where the eye is in model coordinates
-- (Eigen::Vector3d)eyePos;
+@property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

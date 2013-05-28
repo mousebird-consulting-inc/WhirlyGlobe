@@ -19,10 +19,11 @@
  */
 
 #import "MaplyViewControllerLayer_private.h"
+#import "MaplyBaseViewController_private.h"
 
 @implementation MaplyViewControllerLayer
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
     return true;
 }

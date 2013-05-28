@@ -658,6 +658,11 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addScreenLabels:labels desc:screenLabelDesc];
 }
 
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
+{
+    return [interactLayer addScreenLabels:labels desc:desc];    
+}
+
 /// Add a group of 3D labels
 - (MaplyComponentObject *)addLabels:(NSArray *)labels
 {
@@ -668,6 +673,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors
 {
     return [interactLayer addVectors:vectors desc:vectorDesc];
+}
+
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+{
+    return [interactLayer addVectors:vectors desc:desc];
 }
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
@@ -694,6 +704,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
 {
     return [interactLayer addLoftedPolys:polys desc:loftDesc key:key cache:cacheDb];
+}
+
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
+{
+    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb];
 }
 
 /// Add a view to track to a particular location
@@ -801,7 +816,7 @@ static const float PerfOutputDelay = 15.0;
 {
     if (newLayer && ![userLayers containsObject:newLayer])
     {
-        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer])
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
             [userLayers addObject:newLayer];
             return true;

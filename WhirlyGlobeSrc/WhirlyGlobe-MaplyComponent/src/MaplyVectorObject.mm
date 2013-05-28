@@ -38,20 +38,33 @@ using namespace WhirlyGlobe;
 {
     if([geoJSON length] > 0)
     {
-    NSError *error = nil;
-    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
-    if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
-        return nil;
-    
-    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+        NSError *error = nil;
+        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
+        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
+            return nil;
+        
+        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
 
-    if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
-        return nil;
+        if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
+            return nil;
 
       return vecObj;
     }
     
     return nil;
+}
+
++ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
+{
+    if (![jsonDict isKindOfClass:[NSDictionary class]])
+        return nil;
+    
+    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+    
+    if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
+        return nil;
+    
+    return vecObj;
 }
 
 - (NSDictionary *)attributes
