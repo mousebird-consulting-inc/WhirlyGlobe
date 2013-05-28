@@ -86,6 +86,9 @@
 /// Add a group of screen (2D) labels
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels;
 
+/// This version takes a dictionary.  Thread safe.
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+
 /// Add visual defaults for the labels
 - (void)setLabelDesc:(NSDictionary *)desc;
 
@@ -97,6 +100,10 @@
 
 /// Add one or more vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors;
+
+/// Add one or more vectors with the given description dictionary.
+/// This version is thread safe.
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
 
 /// Add one or more vectors, but only for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors;
@@ -125,6 +132,9 @@
 ///  the generated data with 'key' for speed.  The vector database should
 ///  be where the polys originated.  nil is acceptable for both key and cacheDb.
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
+
+/// This version takes a description dictionary to use as override.  This is thread safe.
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc;
 
 /// Add a view to track to a particular location
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;

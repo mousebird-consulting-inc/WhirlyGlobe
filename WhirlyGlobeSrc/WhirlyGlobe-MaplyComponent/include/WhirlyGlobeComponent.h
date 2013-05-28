@@ -32,3 +32,4 @@
 #import <MaplyQuadEarthWithRemoteTiles.h>
 #import <MaplySphericalQuadEarthWithTexGroup.h>
 #import <MaplyQuadTestLayer.h>
+#import <MaplyQuadPagingLayer.h>

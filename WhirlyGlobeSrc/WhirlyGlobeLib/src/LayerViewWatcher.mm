@@ -218,17 +218,15 @@ using namespace WhirlyKit;
     // Also a version for the model matrix (e.g. just location, not direction)
     eyeVec4 = invModelMatrix * Vector4d(0,0,1,0);
     eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    // And calculate where the eye actually is
+    Vector4d eyePos4 = invModelMatrix * Vector4d(0,0,0,1);
+    _eyePos = Vector3d(eyePos4.x(),eyePos4.y(),eyePos4.z());
     
     ll.x() = ur.x() = 0.0;
     
     coordAdapter = view.coordAdapter;
     
     return self;
-}
-
-- (Eigen::Vector3d)eyePos
-{
-    return eyeVec;
 }
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight

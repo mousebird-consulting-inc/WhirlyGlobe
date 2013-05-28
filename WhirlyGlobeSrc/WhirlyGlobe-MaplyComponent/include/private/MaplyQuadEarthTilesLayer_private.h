@@ -19,11 +19,12 @@
  */
 
 #import "MaplyQuadEarthTilesLayer.h"
+#import "MaplyViewControllerLayer_private.h"
 #import "WhirlyGlobe.h"
 
 @interface MaplyQuadEarthTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 

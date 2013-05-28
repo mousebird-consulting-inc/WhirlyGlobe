@@ -553,7 +553,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
                     for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
                     {
                         Quadtree::Identifier &thisIdent = tilesToRemove[ii];
-                        //                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
+//                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
                         
                         Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
                         [loader quadDisplayLayer:self unloadTile:remNodeInfo];           
