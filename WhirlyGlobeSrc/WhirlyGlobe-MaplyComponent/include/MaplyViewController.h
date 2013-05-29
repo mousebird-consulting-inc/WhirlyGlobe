@@ -58,7 +58,7 @@
 /// Create a tethered flat map that obeys the given scroll view
 - (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
 
-/// Called when the owner resets the tpo level scroll and tether view
+/// Called when the owner resets the top level scroll and tether view
 - (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView;
 
 /// If we're in tethered flat map mode, this is the view we're monitoring
