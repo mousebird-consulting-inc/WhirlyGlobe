@@ -743,7 +743,8 @@ void LoadedTile::Print(Quadtree *tree)
             {
                 newTex->setFormat([self glFormat]);
                 *tex = newTex;
-            }
+            } else
+                NSLog(@"Got bad image in quad tile loader.  Skipping.");
         } else
             *tex = NULL;
     }
@@ -997,7 +998,12 @@ void LoadedTile::Print(Quadtree *tree)
             theTile->updateContents(self, layer, layer.quadtree, changeRequests);
         }
     }
-    parents.clear();    
+    parents.clear();
+}
+
+// This is not used, but it gets rid of the @selector warning below
+- (void)wakeUp
+{
 }
 
 // Flush out any outstanding updates saved in the changeRequests

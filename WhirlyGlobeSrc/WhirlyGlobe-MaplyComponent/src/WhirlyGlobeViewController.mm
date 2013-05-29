@@ -370,6 +370,27 @@ using namespace WhirlyGlobe;
     globeView.heightAboveGlobe = height;
 }
 
+- (void)setHeading:(float)heading
+{
+    Point3d localPt = [globeView currentUp];
+    Eigen::AngleAxisd rot(heading,localPt);
+    Quaterniond newRotQuat = globeView.rotQuat * rot;
+    
+    globeView.rotQuat = newRotQuat;
+}
+
+- (float)heading
+{
+    float retHeading = 0.0;
+
+    // Figure out where the north pole went
+    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    if (northPole.y() != 0.0)
+        retHeading = atan(northPole.x()/northPole.y());
+    
+    return retHeading;
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     *height = globeView.heightAboveGlobe;

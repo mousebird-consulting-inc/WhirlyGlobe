@@ -1,8 +1,8 @@
 /*
- *  MaplyQuadEarthTilesLayer_private.h
+ *  MaplyActiveScreenMarker.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 5/13/13.
+ *  Created by Steve Gifford on 5/21/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,21 @@
  *
  */
 
-#import "MaplyQuadEarthTilesLayer.h"
-#import "MaplyViewControllerLayer_private.h"
-#import "WhirlyGlobe.h"
+#import "MaplyActiveObject.h"
+#import "MaplyCoordinate.h"
+#import "MaplyScreenMarker.h"
 
-@interface MaplyQuadEarthTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+/** An active screen marker allows for changes
+ */
+@interface MaplyActiveScreenMarker : MaplyActiveObject
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+/// This is what the current screen marker looks like.
+/// Assign a new one to change things.  Don't just change
+///  the screen marker itself.  If you do, just assign it here again
+///  so we know that you did.
+@property (nonatomic,strong) MaplyScreenMarker *screenMarker;
 
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+/// Initialize with various visual constraints
+- (id)initWithDesc:(NSDictionary *)descDict;
 
 @end

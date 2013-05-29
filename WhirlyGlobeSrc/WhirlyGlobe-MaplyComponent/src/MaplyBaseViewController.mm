@@ -24,6 +24,10 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation MaplyBaseViewController
+{
+    NSDictionary *newScreenLabelDesc,*newLabelDesc,*newScreenMarkerDesc,*newMarkerDesc,
+    *newVectorDesc,*newShapeDesc,*newStickerDesc,*newLoftPolyDesc;
+}
 
 @synthesize selection;
 
@@ -326,45 +330,39 @@ static const char *fragmentShaderNoLightLine =
     [self setHints:newHints];
     
     // Set up default descriptions for the various data types
-    NSDictionary *newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                         [NSNumber numberWithFloat:1.0], kMaplyFade,
                                         nil];
-    [self setScreenLabelDesc:newScreenLabelDesc];
     
-    NSDictionary *newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
                                   [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
-    [self setLabelDesc:newLabelDesc];
     
-    NSDictionary *newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                          [NSNumber numberWithFloat:1.0], kMaplyFade,
                                          nil];
-    [self setScreenMarkerDesc:newScreenMarkerDesc];
     
-    NSDictionary *newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,
                                    [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
-    [self setMarkerDesc:newMarkerDesc];
     
-    NSDictionary *newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                    [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,
                                    [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,
                                    [NSNumber numberWithFloat:1.0], kMaplyFade,
                                    nil];
-    [self setVectorDesc:newVectorDesc];
     
-    NSDictionary *newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
+    newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
                                   nil];
-    [self setShapeDesc:newShapeDesc];
     
-    [self setStickerDesc:@{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)}];
+    newStickerDesc = @{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)};
     
-    [self setLoftedPolyDesc:@{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)}];
+    newLoftPolyDesc = @{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)};
     
     selection = true;
     
@@ -645,10 +643,20 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addScreenMarkers:markers desc:screenMarkerDesc];
 }
 
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+{
+    return [interactLayer addScreenMarkers:markers desc:desc];
+}
+
 /// Add a group of 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers
 {
     return [interactLayer addMarkers:markers desc:markerDesc];
+}
+
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+{
+    return [interactLayer addMarkers:markers desc:desc];
 }
 
 /// Add a group of screen (2D) labels
@@ -657,16 +665,31 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addScreenLabels:labels desc:screenLabelDesc];
 }
 
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
+{
+    return [interactLayer addScreenLabels:labels desc:desc];    
+}
+
 /// Add a group of 3D labels
 - (MaplyComponentObject *)addLabels:(NSArray *)labels
 {
     return [interactLayer addLabels:labels desc:labelDesc];
 }
 
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
+{
+    return [interactLayer addLabels:labels desc:desc];
+}
+
 /// Add one or more vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors
 {
     return [interactLayer addVectors:vectors desc:vectorDesc];
+}
+
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+{
+    return [interactLayer addVectors:vectors desc:desc];
 }
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
@@ -685,14 +708,29 @@ static const float PerfOutputDelay = 15.0;
     return [interactLayer addShapes:shapes desc:shapeDesc];
 }
 
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
+{
+    return [interactLayer addShapes:shapes desc:desc];
+}
+
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers
 {
     return [interactLayer addStickers:stickers desc:stickerDesc];
 }
 
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
+{
+    return [interactLayer addStickers:stickers desc:desc];
+}
+
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb;
 {
     return [interactLayer addLoftedPolys:polys desc:loftDesc key:key cache:cacheDb];
+}
+
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
+{
+    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb];
 }
 
 /// Add a view to track to a particular location
@@ -800,7 +838,7 @@ static const float PerfOutputDelay = 15.0;
 {
     if (newLayer && ![userLayers containsObject:newLayer])
     {
-        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer])
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
             [userLayers addObject:newLayer];
             return true;

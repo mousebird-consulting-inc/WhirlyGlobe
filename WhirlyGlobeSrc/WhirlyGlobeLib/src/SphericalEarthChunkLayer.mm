@@ -36,25 +36,17 @@ class ChunkSceneRep : public Identifiable
 public:
     ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
-    ~ChunkSceneRep()
-    {
-        for (unsigned int ii=0;ii<drawables.size();ii++)
-            delete drawables[ii];
-    }
     SimpleIDSet drawIDs;
+    SimpleIDSet texIDs;
     bool usesAtlas;
     // Set if we're using a dynamic texture atlas
     SubTexture subTex;
-    // If we're using atlases, we have to keep the geometry around for enable/disable
-    std::vector<BasicDrawable *> drawables;
     
     // Remove elements from the scene
     void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changeRequests)
     {
-        if (usesAtlas)
+        if (usesAtlas && drawAtlas)
         {
-            if (subTex.texId != EmptyIdentity)
-                texAtlas->removeTexture(subTex, changeRequests);
             for (SimpleIDSet::iterator it = drawIDs.begin();
                  it != drawIDs.end(); ++it)
                 drawAtlas->removeDrawable(*it, changeRequests);
@@ -63,15 +55,25 @@ public:
                  it != drawIDs.end(); ++it)
                 changeRequests.push_back(new RemDrawableReq(*it));
         }
+        if (usesAtlas && texAtlas)
+        {
+            if (subTex.texId != EmptyIdentity)
+                texAtlas->removeTexture(subTex, changeRequests);
+        } else {
+            for (SimpleIDSet::iterator it = texIDs.begin();
+                 it != texIDs.end(); ++it)
+                changeRequests.push_back(new RemTextureReq(*it));
+        }
     }
     
     // Enable drawables
     void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
     {
-        if (usesAtlas)
+        if (usesAtlas && drawAtlas)
         {
-            for (unsigned int ii=0;ii<drawables.size();ii++)
-                drawAtlas->addDrawable(drawables[ii], changes);
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->setEnableDrawable(*it, true);
         } else {
             for (SimpleIDSet::iterator it = drawIDs.begin();
                  it != drawIDs.end(); ++it)
@@ -82,10 +84,11 @@ public:
     // Disable drawables
     void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
     {
-        if (usesAtlas)
+        if (usesAtlas && drawAtlas)
         {
-            for (unsigned int ii=0;ii<drawables.size();ii++)
-                drawAtlas->removeDrawable(drawables[ii]->getId(), changes);
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->setEnableDrawable(*it, false);
         } else {
             for (SimpleIDSet::iterator it = drawIDs.begin();
                  it != drawIDs.end(); ++it)
@@ -107,6 +110,7 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 @synthesize drawOffset;
 @synthesize drawPriority;
 @synthesize sampleX,sampleY;
+@synthesize minSampleX,minSampleY;
 @synthesize eps;
 @synthesize minVis,maxVis;
 @synthesize minVisBand,maxVisBand;
@@ -120,6 +124,7 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
     
     // Adaptive sample is the default
     sampleX = sampleY = 12;
+    minSampleX = minSampleY = 1;
     eps = 0.0005;
     minVis = DrawVisibleInvalid;
     maxVis = DrawVisibleInvalid;
@@ -183,13 +188,16 @@ static const float SkirtFactor = 0.95;
             thisSampleX = angX/minAng;
         if (minAng < angY)
             thisSampleY = angY/minAng;
-        thisSampleX = std::max(1,thisSampleX);
-        thisSampleY = std::max(1,thisSampleY);
+        thisSampleX = std::max(minSampleX,thisSampleX);
+        thisSampleY = std::max(minSampleY,thisSampleY);
         if (sampleX > 0)
             thisSampleX = std::min(thisSampleX,sampleX);
         if (sampleY > 0)
             thisSampleY = std::min(thisSampleY,sampleY);
     }    
+    
+    // Note: Debugging
+//    NSLog(@"Sampling: (%d,%d)",thisSampleX,thisSampleY);
 }
 
 - (void)buildDrawable:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw enabled:(bool)enable adapter:(CoordSystemDisplayAdapter *)coordAdapter
@@ -406,6 +414,9 @@ public:
     // Outstanding requests to process
     std::queue<ChunkRequest> requests;
     int borderTexel;
+    // We gather changes between swaps when we're using atlases
+    std::vector<ChangeRequest *> changes;
+    bool sleeping;
 }
 
 @synthesize ignoreEdgeMatching;
@@ -424,6 +435,13 @@ public:
     return self;
 }
 
+- (void)dealloc
+{
+    for (unsigned int ii=0;ii<changes.size();ii++)
+        delete changes[ii];
+    changes.clear();
+}
+
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     layerThread = inLayerThread;
@@ -432,28 +450,27 @@ public:
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
-
     for (ChunkRepSet::iterator it = chunkReps.begin();
          it != chunkReps.end(); ++it)
-        (*it)->clear(scene,texAtlas,drawAtlas,changeRequests);
+        (*it)->clear(scene,texAtlas,drawAtlas,changes);
     chunkReps.clear();
 
     if (texAtlas)
     {
-        texAtlas->shutdown(changeRequests);
+        texAtlas->shutdown(changes);
         delete texAtlas;
         texAtlas = NULL;
     }
     
     if (drawAtlas)
     {
-        drawAtlas->shutdown(changeRequests);
+        drawAtlas->shutdown(changes);
         delete drawAtlas;
         drawAtlas = NULL;
     }
 
-    [layerThread addChangeRequests:(changeRequests)];
+    [layerThread addChangeRequests:changes];
+    changes.clear();
     
     scene = NULL;
 }
@@ -468,22 +485,17 @@ static const int SingleElementSize = sizeof(GLushort);
     if (!scene)
         return;
     
-    std::vector<ChangeRequest *> changes;
-    
     ChunkRequest request(ChunkAdd,chunkInfo,chunkInfo->chunk);
     // If it needs the altases, just queue it up
     if (chunkInfo->chunk.loadImage)
         requests.push(request);
     else {
         // If it doesn't, just run it right now
-        [self processChunkRequest:request changes:changes];
+        [self processChunkRequest:request];
     }
     
     // Get rid of an unnecessary circularity
     chunkInfo->chunk = nil;
-    
-    // Push out changes (if there are any)
-    [layerThread addChangeRequests:changes];
     
     // And possibly run the outstanding request queue
     [self processQueue];
@@ -494,29 +506,36 @@ static const int SingleElementSize = sizeof(GLushort);
 {
     if (!scene)
         return;
-    
-    // Nothing to do
-    if (requests.empty())
-        return;
-    
+        
     // If there's an outstanding swap going on, can't do this now, wait for the wakeUp
-    if (drawAtlas && drawAtlas->waitingOnSwap())
+    if (sleeping || (drawAtlas && drawAtlas->waitingOnSwap()))
         return;
     
     // Process the changes and then flush them out
-    std::vector<ChangeRequest *> changes;
     while (!requests.empty())
     {
         ChunkRequest request = requests.front();
         requests.pop();
-        [self processChunkRequest:request changes:changes];
+        [self processChunkRequest:request];
     }
     
+    bool addChanges = false;
     if (drawAtlas)
+    {
         if (drawAtlas->hasUpdates() && !drawAtlas->waitingOnSwap())
+        {
             drawAtlas->swap(changes, self, @selector(wakeUp));
+            sleeping = true;
+            addChanges = true;
+        }
+    } else
+        addChanges = true;
     
-    [layerThread addChangeRequests:changes];
+    if (addChanges)
+    {
+        [layerThread addChangeRequests:changes];
+            changes.clear();
+    }
 }
 
 // Called by the main thread to wake us up after a buffer swap
@@ -528,11 +547,12 @@ static const int SingleElementSize = sizeof(GLushort);
         return;
     }
     
+    sleeping = false;
     [self processQueue];
 }
 
 // Process a single chunk request (add, enable, disable)
-- (void)processChunkRequest:(ChunkRequest &)request changes:(std::vector<ChangeRequest *> &)changes
+- (void)processChunkRequest:(ChunkRequest &)request
 {
     switch (request.type)
     {
@@ -547,54 +567,79 @@ static const int SingleElementSize = sizeof(GLushort);
             // If the atlases aren't initialized, do that
             if (chunk.loadImage && useDynamicAtlas && !texAtlas)
             {
+                texAtlas = new DynamicTextureAtlas(2048,64,GL_UNSIGNED_BYTE);
+                borderTexel = 1;
+
                 // At 256 pixels square we can hold 64 tiles in a texture atlas
                 int DrawBufferSize = 2 * (8 + 1) * (8 + 1) * SingleVertexSize * 64;
                 // Two triangles per grid cell in a tile
                 int ElementBufferSize = 2 * 6 * (8 + 1) * (8 + 1) * SingleElementSize * 64;
-                // Note: We should be able to set one of the compressed texture formats on the layer
-                texAtlas = new DynamicTextureAtlas(2048,64,GL_UNSIGNED_BYTE);
                 drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager());
-                borderTexel = 1;
             }
             
             // May need to set up the texture
             SimpleIdentity texId = EmptyIdentity;
             chunkRep->usesAtlas = false;
-            if (chunk.loadImage && texAtlas)
+            Texture *newTex = NULL;
+            if (chunk.loadImage)
+                newTex = [chunk.loadImage buildTexture:borderTexel destWidth:0 destHeight:0];
+            if (texAtlas)
             {
-                Texture *newTex = [chunk.loadImage buildTexture:borderTexel destWidth:0 destHeight:0];
                 if (newTex)
                 {
-                        texAtlas->addTexture(newTex, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    texAtlas->addTexture(newTex, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
+                    delete newTex;
                 }
-            } else
+            } else {
+                if (newTex)
+                {
+                    chunk.texId = newTex->getId();
+                    chunkRep->texIDs.insert(newTex->getId());
+                    changes.push_back(new AddTextureReq(newTex));
+                }
                 texId = chunk.texId;
+            }
 
             // Build the main drawable and possibly skirt
             BasicDrawable *drawable = nil,*skirtDraw = nil;
             [chunk buildDrawable:&drawable skirtDraw:(ignoreEdgeMatching ? nil : &skirtDraw) enabled:request.chunkInfo->enable adapter:coordAdapter];
             
+            // Note: Debugging
+//            int color = drand48()*50+205;
+//            RGBAColor randomColor(color/4,color/4,color/4,255/4);
+//            drawable->setColor(randomColor);
+            
             if (skirtDraw)
             {
                 chunkRep->drawIDs.insert(skirtDraw->getId());
-                if (chunkRep->usesAtlas)
+                if (chunkRep->usesAtlas && drawAtlas)
                 {
                     skirtDraw->applySubTexture(chunkRep->subTex);
                     drawAtlas->addDrawable(skirtDraw, changes);
-                    chunkRep->drawables.push_back(skirtDraw);
-                } else
+                    delete skirtDraw;
+                } else {
+                    if (texAtlas)
+                        skirtDraw->applySubTexture(chunkRep->subTex);
+                    else
+                        skirtDraw->setTexId(texId);
                     changes.push_back(new AddDrawableReq(skirtDraw));
+                }
             }
 
             chunkRep->drawIDs.insert(drawable->getId());
-            if (chunkRep->usesAtlas)
+            if (chunkRep->usesAtlas && drawAtlas)
             {
                 drawable->applySubTexture(chunkRep->subTex);
-                    drawAtlas->addDrawable(drawable, changes);
-                chunkRep->drawables.push_back(drawable);
-            } else
+                drawAtlas->addDrawable(drawable, changes);
+                delete drawable;
+            } else {
+                if (texAtlas)
+                    drawable->applySubTexture(chunkRep->subTex);
+                else
+                    drawable->setTexId(texId);
                 changes.push_back(new AddDrawableReq(drawable));
+            }
         
             chunkReps.insert(chunkRep);
         }
@@ -624,9 +669,7 @@ static const int SingleElementSize = sizeof(GLushort);
             if (it == chunkReps.end())
                 return;
     
-            std::vector<ChangeRequest *> changeRequests;
-            (*it)->clear(scene,texAtlas,drawAtlas,changeRequests);
-            [layerThread addChangeRequests:(changeRequests)];
+            (*it)->clear(scene,texAtlas,drawAtlas,changes);
             
             chunkReps.erase(it);
         }
@@ -647,7 +690,6 @@ static const int SingleElementSize = sizeof(GLushort);
     SimpleIdentity chunkId = [[args objectAtIndex:0] integerValue];
     bool enable = [[args objectAtIndex:1] boolValue];
     
-    std::vector<ChangeRequest *> changes;
     if (enable)
         requests.push(ChunkRequest(ChunkEnable,chunkId));
     else
