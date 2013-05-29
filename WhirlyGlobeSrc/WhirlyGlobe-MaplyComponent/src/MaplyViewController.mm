@@ -125,6 +125,7 @@ using namespace Maply;
         [self clear];
 }
 
+// Change the view window and force a draw
 - (void)setupFlatView:(CGRect)newFrame
 {
     if (!flatView)
@@ -188,7 +189,8 @@ using namespace Maply;
     [super loadSetup];
     
     // The gl view won't spontaneously draw
-    glView.parentScrollView = scrollView;
+    if (scrollView)
+        glView.reactiveMode = true;
     
     Point3f ll,ur;
     coordAdapter->getBounds(ll, ur);
