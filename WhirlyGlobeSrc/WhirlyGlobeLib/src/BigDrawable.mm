@@ -517,10 +517,12 @@ void BigDrawable::swap(std::vector<ChangeRequest *> &changes,BigDrawableSwap *sw
     // That's the one we modify
     int whichBuffer = (activeBuffer == 0 ? 1 : 0);
     
+    // Note: In theory we shouldn't need to swap if there are no changes.
+    //       However, this doesn't work right if we turn on this optimization.
     // No changes, no work
-    Buffer &theBuffer = buffers[whichBuffer];
-    if (theBuffer.changes.empty())
-        return;
+//    Buffer &theBuffer = buffers[whichBuffer];
+//    if (theBuffer.changes.empty())
+//        return;
     
     executeFlush(whichBuffer);
     

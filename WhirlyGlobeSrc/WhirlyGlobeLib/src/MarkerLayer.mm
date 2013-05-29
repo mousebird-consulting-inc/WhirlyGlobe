@@ -72,39 +72,7 @@ MarkerSceneRep::MarkerSceneRep()
 
 @end
 
-// Used to pass marker information between threads
-@interface MarkerInfo : NSObject
-{
-    NSArray         *markers;  // Individual marker objects
-    UIColor         *color;
-    int             drawOffset;
-    float           minVis,maxVis;
-    bool            screenObject;
-    float           width,height;
-    int             drawPriority;
-    float           fade;
-    SimpleIdentity  markerId;
-    SimpleIdentity  replaceID;
-}
-
-@property (nonatomic) NSArray *markers;
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) int drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) bool screenObject;
-@property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) SimpleIdentity markerId;
-@property (nonatomic,assign) SimpleIdentity replaceID;
-
-- (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
-
-- (void)parseDesc:(NSDictionary *)desc;
-
-@end
-
-@implementation MarkerInfo
+@implementation WhirlyKitMarkerInfo
 
 @synthesize markers;
 @synthesize color;
@@ -133,7 +101,6 @@ MarkerSceneRep::MarkerSceneRep()
     
     return self;
 }
-
 
 - (void)parseDesc:(NSDictionary *)desc
 {
@@ -222,7 +189,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
 // Add a bunch of markers at once
 // We're in the layer thread here
-- (void)runAddMarkers:(MarkerInfo *)markerInfo
+- (void)runAddMarkers:(WhirlyKitMarkerInfo *)markerInfo
 {
     SelectionManager *selectManager = scene->getSelectionManager();
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -596,7 +563,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // Add a single marker 
 - (SimpleIdentity) addMarker:(WhirlyKitMarker *)marker desc:(NSDictionary *)desc
 {
-    MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:[NSArray arrayWithObject:marker] desc:desc];
+    WhirlyKitMarkerInfo *markerInfo = [[WhirlyKitMarkerInfo alloc] initWithMarkers:[NSArray arrayWithObject:marker] desc:desc];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddMarkers:markerInfo];
@@ -620,7 +587,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
         return EmptyIdentity;
     }
     
-    MarkerInfo *markerInfo = [[MarkerInfo alloc] initWithMarkers:markers desc:desc];
+    WhirlyKitMarkerInfo *markerInfo = [[WhirlyKitMarkerInfo alloc] initWithMarkers:markers desc:desc];
     markerInfo.replaceID = oldMarkerID;
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
