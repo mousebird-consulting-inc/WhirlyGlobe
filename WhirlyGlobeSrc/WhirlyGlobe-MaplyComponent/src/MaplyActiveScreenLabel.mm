@@ -1,5 +1,5 @@
 /*
- *  MaplyActiveSticker.mm
+ *  MaplyActiveScreenLabel.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/8/13.
