@@ -42,7 +42,7 @@ using namespace WhirlyKit;
     
     coordSys = inCoordSys;
     tileSource = inTileSource;
-    _numSimultaneousFetches = 8;
+    _numSimultaneousFetches = 16;
     
     return self;
 }
