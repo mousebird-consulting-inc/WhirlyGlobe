@@ -92,6 +92,9 @@
 ///  PI/2 is looking toward the horizon.
 @property(nonatomic,assign) float tilt;
 
+/// Rotation from north
+@property(nonatomic,assign) float heading;
+
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
 
