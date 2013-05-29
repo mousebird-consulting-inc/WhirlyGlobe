@@ -187,11 +187,11 @@ using namespace WhirlyKit;
 // We'll just spend our time in here
 - (void)main
 {
+    // This should be the default context.  If you change it yourself, change it back
+    [EAGLContext setCurrentContext:glContext];
+
     @autoreleasepool {
         runLoop = [NSRunLoop currentRunLoop];
-
-        // This should be the default context.  If you change it yourself, change it back
-        [EAGLContext setCurrentContext:glContext];
 
         // Wake up our layers.  It's up to them to do the rest
         for (unsigned int ii=0;ii<[layers count];ii++)
@@ -218,6 +218,9 @@ using namespace WhirlyKit;
         layers = nil;
     }
 
+    // Tear the scene down.  It's unsafe to do it elsewhere
+    scene->teardownGL();
+    
     // Delete outstanding change requests
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
         delete changeRequests[ii];
