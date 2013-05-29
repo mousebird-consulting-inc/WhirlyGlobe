@@ -382,7 +382,7 @@ public:
     
 protected:   
     Scene *scene;
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     LoftedPolySceneRep *sceneRep;
     GeoMbr drawMbr;
     BasicDrawable *drawable;

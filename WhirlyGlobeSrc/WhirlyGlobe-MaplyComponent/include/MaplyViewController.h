@@ -63,7 +63,7 @@
 
 /// If we're in tethered flat map mode, this is the view we're monitoring
 ///  for size and offset changes
-@property(nonatomic,readonly) UIView *tetherView;
+@property(nonatomic,weak) UIView *tetherView;
 
 /// If set before load, we'll turn off all gestures and work only in tethered mode
 @property(nonatomic,assign) bool tetheredMode;

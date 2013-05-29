@@ -36,7 +36,7 @@ using namespace Maply;
 @implementation MaplyViewController
 {
     UIScrollView * __weak scrollView;
-    MaplyFlatView *flatView;
+    MaplyFlatView * flatView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
@@ -70,7 +70,7 @@ using namespace Maply;
     
     // Watch changes to the tethered view.  The scroll view is making these, presumably.
     [_tetherView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
-    
+        
     scale = [UIScreen mainScreen].scale;
         
     return self;
@@ -132,7 +132,9 @@ using namespace Maply;
     
     // Change the flat view's window
     CGPoint contentOffset = scrollView.contentOffset;
-    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];    
+    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];
+    
+    [glView drawView:self];
 }
 
 // Called when something changes the tethered view's frame
@@ -184,6 +186,9 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
+    
+    // The gl view won't spontaneously draw
+    glView.parentScrollView = scrollView;
     
     Point3f ll,ur;
     coordAdapter->getBounds(ll, ur);
