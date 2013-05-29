@@ -44,7 +44,6 @@ using namespace WhirlyKit;
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
         [shader shutdown];
-    scene->teardownGL();
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
