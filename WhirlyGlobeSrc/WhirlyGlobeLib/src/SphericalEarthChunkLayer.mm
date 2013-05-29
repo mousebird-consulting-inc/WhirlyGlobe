@@ -506,11 +506,7 @@ static const int SingleElementSize = sizeof(GLushort);
 {
     if (!scene)
         return;
-    
-    // Nothing to do
-    if (requests.empty())
-        return;
-    
+        
     // If there's an outstanding swap going on, can't do this now, wait for the wakeUp
     if (sleeping || (drawAtlas && drawAtlas->waitingOnSwap()))
         return;
@@ -537,8 +533,8 @@ static const int SingleElementSize = sizeof(GLushort);
     
     if (addChanges)
     {
-    [layerThread addChangeRequests:changes];
-        changes.clear();
+        [layerThread addChangeRequests:changes];
+            changes.clear();
     }
 }
 
@@ -596,13 +592,13 @@ static const int SingleElementSize = sizeof(GLushort);
                     delete newTex;
                 }
             } else {
-                chunk.texId = newTex->getId();
-                texId = chunk.texId;
                 if (newTex)
                 {
+                    chunk.texId = newTex->getId();
                     chunkRep->texIDs.insert(newTex->getId());
                     changes.push_back(new AddTextureReq(newTex));
                 }
+                texId = chunk.texId;
             }
 
             // Build the main drawable and possibly skirt
