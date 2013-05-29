@@ -1,9 +1,9 @@
 /*
- *  MaplyQuadTestLayer_private.h
+ *  MaplyQuadPagingLayer_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 3/19/13.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 5/20/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,10 @@
  *
  */
 
-#import "MaplyViewControllerLayer.h"
-#import <WhirlyGlobe.h>
-#import "MaplyQuadTestLayer.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyQuadPagingLayer.h"
+#import "WhirlyGlobe.h"
 
-@interface MaplyQuadTestLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+@interface MaplyQuadPagingLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadLoader>
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 

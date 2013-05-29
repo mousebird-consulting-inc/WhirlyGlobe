@@ -45,6 +45,9 @@
 /// We assume the geoJSON is all in decimal degrees in WGS84. 
 + (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
 
+/// This version takes a dictionary
++ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
+
 /// Construct with a single point
 - (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;
 /// Construct with a linear feature (e.g. line string)

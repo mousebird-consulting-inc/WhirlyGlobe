@@ -42,8 +42,11 @@
     float drawOffset;
     /// Sorting priority for the generated geometry
     int drawPriority;
-    /// Sampling along X and Y
+    /// Sampling along X and Y.
+    /// If the eps is set, this is the maximum sampling in x/y
     int sampleX,sampleY;
+    /// When eps is set, this is the minimum sampling in x/y
+    int minSampleX,minSampleY;
     /// If not doing static sampling, break it down until its no farther than this from the globe.
     /// sampleX,sampleY become maximums
     float eps;
@@ -65,6 +68,7 @@
 @property (nonatomic,assign) float drawOffset;
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) int sampleX,sampleY;
+@property (nonatomic,assign) int minSampleX,minSampleY;
 @property (nonatomic,assign) float eps;
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) float minVisBand,maxVisBand;
