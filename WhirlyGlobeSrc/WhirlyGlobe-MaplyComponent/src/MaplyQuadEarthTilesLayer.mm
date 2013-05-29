@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadEarthTilesLayer
 {
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
