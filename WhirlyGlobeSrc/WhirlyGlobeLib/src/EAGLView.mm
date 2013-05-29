@@ -99,9 +99,15 @@
     {
         if (!displayLink)
         {
-            displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+            if (_parentScrollView)
+                displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
+            else
+                displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
             [displayLink setFrameInterval:frameInterval];
-            [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+            if (_parentScrollView)
+                [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+            else
+                [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];            
         } else
             displayLink.paused = NO;
         
@@ -130,6 +136,11 @@
         [self layoutSubviews];
 
     [renderer render:displayLink.duration*displayLink.frameInterval];
+}
+
+// In this mode we're just letting the system know we'd like to be redrawn
+- (void) drawViewReactive:(id)sender
+{
 }
 
 - (void) setFrame:(CGRect)newFrame

@@ -43,7 +43,7 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
  */
 @interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyKitLayer>
 {
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
 	WhirlyKitTextureGroup *texGroup;
 	WhirlyGlobe::GlobeScene *scene;
 	unsigned int xDim,yDim;
