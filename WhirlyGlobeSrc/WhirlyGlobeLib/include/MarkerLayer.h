@@ -60,6 +60,38 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
     
 }
 
+// Used to pass marker information between threads
+@interface WhirlyKitMarkerInfo : NSObject
+{
+    NSArray         *markers;  // Individual marker objects
+    UIColor         *color;
+    int             drawOffset;
+    float           minVis,maxVis;
+    bool            screenObject;
+    float           width,height;
+    int             drawPriority;
+    float           fade;
+    WhirlyKit::SimpleIdentity  markerId;
+    WhirlyKit::SimpleIdentity  replaceID;
+}
+
+@property (nonatomic) NSArray *markers;
+@property (nonatomic) UIColor *color;
+@property (nonatomic,assign) int drawOffset;
+@property (nonatomic,assign) float minVis,maxVis;
+@property (nonatomic,assign) bool screenObject;
+@property (nonatomic,assign) float width,height;
+@property (nonatomic,assign) int drawPriority;
+@property (nonatomic,assign) float fade;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity markerId;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity replaceID;
+
+- (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+
+- (void)parseDesc:(NSDictionary *)desc;
+
+@end
+
 /** WhirlyGlobe Marker
     A single marker object to be placed on the globe.  It will show
     up with the given width and height and be selectable if so desired.

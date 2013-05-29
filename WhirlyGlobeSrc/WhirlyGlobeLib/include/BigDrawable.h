@@ -33,7 +33,7 @@ class BigDrawableSwap;
 class BigDrawable : public Drawable
 {
 public:
-    /// Construct with a debuggign name and the total number of bytes
+    /// Construct with a debugging name and the total number of bytes
     BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
     virtual ~BigDrawable();
 
@@ -96,7 +96,10 @@ public:
     /// Look for a region of the given size for the given data.
     /// This places the vertex data and adds the element data to the set
     ///  of element chunks we consolidate during a flush.
-    SimpleIdentity addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData);
+    SimpleIdentity addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled);
+    
+    /// Enable/Disable a given region
+    void setEnableRegion(SimpleIdentity elementChunkId,bool enabled);
     
     /// Clear the region referred to by position and size (in bytes)
     void clearRegion(int vertPos,int vertSize,SimpleIdentity elementChunkId);
@@ -132,7 +135,7 @@ protected:
     /// Called when a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
     
-    typedef enum {ChangeAdd,ChangeClear} ChangeType;
+    typedef enum {ChangeAdd,ChangeClear,ChangeElements} ChangeType;
     /// Used to represent an outstanding change to the buffer
     class Change
     {
@@ -206,9 +209,10 @@ protected:
     class ElementChunk : public Identifiable
     {
     public:
-        ElementChunk(NSData *elementData) : elementData(elementData) { }
+        ElementChunk(NSData *elementData) : elementData(elementData), enabled(true) { }
         ElementChunk(SimpleIdentity theId) : Identifiable(theId) { }
         NSData *elementData;
+        bool enabled;
     };
     typedef std::set<ElementChunk> ElementChunkSet;
     
