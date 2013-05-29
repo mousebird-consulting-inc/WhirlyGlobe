@@ -46,8 +46,9 @@
 @property (nonatomic) NSInteger frameInterval;
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
 @property (nonatomic, assign) BOOL useRetina;
-/// If set, we're not forcing a draw with our display link, just setting the view to be redrawn
-@property (nonatomic) UIScrollView *parentScrollView;
+/// If set, we'll expect to respond to outside calls to drawView: and our own
+///  display link will be less aggressive.  This works well with UIScrollView.
+@property (nonatomic) bool reactiveMode;
 
 /// Start animating.  Typically right before we're displayed
 - (void) startAnimation;
