@@ -25,6 +25,41 @@ using namespace WhirlyKit;
 
 @implementation UIImage(Stuff)
 
+// Courtesy: http://forum.sparrow-framework.org/topic/create-uiimage-from-pixel-data-problems
++ (id)imageWithRawData:(NSData *)imageData width:(unsigned int)width height:(unsigned int)height
+{
+    unsigned char *rawImageData = (unsigned char *)[imageData bytes];
+    UIImage *newImage = nil;
+    
+    int nrOfColorComponents = 4; //RGBA
+    int bitsPerColorComponent = 8;
+    int rawImageDataLength = width * height * nrOfColorComponents;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+    
+    CGDataProviderRef dataProviderRef;
+    CGColorSpaceRef colorSpaceRef;
+    CGImageRef imageRef;
+    
+    @try
+    {
+        GLubyte *rawImageDataBuffer = rawImageData;
+        
+        dataProviderRef = CGDataProviderCreateWithData(NULL, rawImageDataBuffer, rawImageDataLength, nil);
+        colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+        imageRef = CGImageCreate(width, height, bitsPerColorComponent, bitsPerColorComponent * nrOfColorComponents, width * nrOfColorComponents, colorSpaceRef, bitmapInfo, dataProviderRef, NULL, NO, renderingIntent);
+        newImage = [UIImage imageWithCGImage:imageRef];
+    }
+    @finally
+    {
+        CGDataProviderRelease(dataProviderRef);
+        CGColorSpaceRelease(colorSpaceRef);
+        CGImageRelease(imageRef);
+    }
+    
+    return newImage;
+}
+
 -(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp
 {
 	CGImageRef cgImage = self.CGImage;
