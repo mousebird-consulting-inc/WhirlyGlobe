@@ -261,7 +261,7 @@ static const bool MainThreadMerge = true;
 static const bool MainThreadMerge = false;
 #endif
     
-bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels,int bufferPixels)
+bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels,int bufferPixels)
 {
     // Make sure we can fit the thing
     if (tex->getWidth() > texSize || tex->getHeight() > texSize)
@@ -333,13 +333,15 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,SubTexture &
         // The input textures size might not be the real size of the texture being used.
         // Use the size they passed in specifically for this calculation
         Point2f inTexSize = realSize ? *realSize : Point2f(tex->getWidth(),tex->getHeight());
+        Point2f offset = realOffset ? *realOffset : Point2f(0,0);
         if (borderPixels == 0)
             boundaryPix = Point2f(0,0);
         else
 //            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
             boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);
-        texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x(),org.y() + boundaryPix.y()),
-                                    TexCoord(org.x() + inTexSize.x() / (float)texSize - boundaryPix.x(), org.y() + inTexSize.y() / (float)texSize - boundaryPix.y()));
+        texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x() + offset.x() / (float)texSize ,org.y() + boundaryPix.y() + offset.y() / (float)texSize),
+                                    TexCoord(org.x() + inTexSize.x() / (float)texSize - boundaryPix.x(),
+                                             org.y() + inTexSize.y() / (float)texSize - boundaryPix.y()));
         texRegion.subTex.texId = dynTex->getId();
         
         subTex = texRegion.subTex;

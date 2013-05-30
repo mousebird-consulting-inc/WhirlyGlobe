@@ -248,7 +248,12 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 - (void)setScene:(WhirlyKit::Scene *)newScene
 {
     scene = newScene;
-    scene->getSelectionManager()->setRenderer(self);
+    if (scene)
+    {
+        SelectionManager *selManager = scene->getSelectionManager();
+        if (selManager)
+            selManager->setRenderer(self);
+    }
 }
 
 - (void)useContext

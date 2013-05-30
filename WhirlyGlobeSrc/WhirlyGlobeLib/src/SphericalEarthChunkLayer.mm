@@ -587,7 +587,7 @@ static const int SingleElementSize = sizeof(GLushort);
             {
                 if (newTex)
                 {
-                    texAtlas->addTexture(newTex, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    texAtlas->addTexture(newTex, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
                     delete newTex;
                 }
