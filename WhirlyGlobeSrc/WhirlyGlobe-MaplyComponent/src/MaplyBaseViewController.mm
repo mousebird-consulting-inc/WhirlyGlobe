@@ -18,6 +18,7 @@
  *
  */
 
+#import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
 
 using namespace Eigen;
@@ -28,8 +29,6 @@ using namespace WhirlyKit;
     NSDictionary *newScreenLabelDesc,*newLabelDesc,*newScreenMarkerDesc,*newMarkerDesc,
     *newVectorDesc,*newShapeDesc,*newStickerDesc,*newLoftPolyDesc;
 }
-
-@synthesize selection;
 
 - (void) clear
 {
@@ -365,7 +364,7 @@ static const char *fragmentShaderNoLightLine =
     
     newLoftPolyDesc = @{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)};
     
-    selection = true;
+    _selection = true;
     
 }
 
@@ -421,11 +420,11 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setPerformanceOutput:(bool)performanceOutput
 {
-    if (perfOutput == performanceOutput)
+    if (_performanceOutput == performanceOutput)
         return;
     
-    perfOutput = performanceOutput;
-    if (perfOutput)
+    _performanceOutput = performanceOutput;
+    if (_performanceOutput)
     {
         sceneRenderer.perfInterval = 100;
         [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];
@@ -448,7 +447,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (bool)performanceOutput
 {
-    return perfOutput;
+    return _performanceOutput;
 }
 
 // Build an array of lights and send them down all at once

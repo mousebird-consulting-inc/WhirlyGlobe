@@ -81,14 +81,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
 @implementation MaplyBaseInteractionLayer
 
-@synthesize markerLayer;
-@synthesize labelLayer;
-@synthesize vectorLayer;
-@synthesize shapeLayer;
-@synthesize chunkLayer;
-@synthesize loftLayer;
-@synthesize glView;
-
 - (id)initWithView:(WhirlyKitView *)inVisualView
 {
     self = [super init];
@@ -223,7 +215,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     // Set up a description and create the markers in the marker layer
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-    SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:desc];
+    SimpleIdentity markerID = [_markerLayer addMarkers:wgMarkers desc:desc];
     compObj.markerIDs.insert(markerID);
     
     [userObjects addObject:compObj];
@@ -282,7 +274,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     }
     
     // Set up a description and create the markers in the marker layer
-    SimpleIdentity markerID = [markerLayer addMarkers:wgMarkers desc:inDesc];
+    SimpleIdentity markerID = [_markerLayer addMarkers:wgMarkers desc:inDesc];
     compObj.markerIDs.insert(markerID);
     
     [userObjects addObject:compObj];
@@ -355,7 +347,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     // Set up a description and create the markers in the marker layer
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:desc];
+    SimpleIdentity labelID = [_labelLayer addLabels:wgLabels desc:desc];
     compObj.labelIDs.insert(labelID);
     
     [userObjects addObject:compObj];
@@ -431,7 +423,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     }
     
     // Set up a description and create the markers in the marker layer
-    SimpleIdentity labelID = [labelLayer addLabels:wgLabels desc:inDesc];
+    SimpleIdentity labelID = [_labelLayer addLabels:wgLabels desc:inDesc];
     compObj.labelIDs.insert(labelID);
     
     [userObjects addObject:compObj];
@@ -466,7 +458,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     if (makeVisible)
     {
-        SimpleIdentity vecID = [vectorLayer addVectors:&shapes desc:inDesc];
+        SimpleIdentity vecID = [_vectorLayer addVectors:&shapes desc:inDesc];
         compObj.vectorIDs.insert(vecID);
     }
     
@@ -504,7 +496,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
          it != vecObj.vectorIDs.end(); ++it)
-        [vectorLayer changeVector:*it desc:desc];
+        [_vectorLayer changeVector:*it desc:desc];
 }
 
 // Change vector representation
@@ -636,7 +628,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         }
     }
     
-    SimpleIdentity shapeID = [shapeLayer addShapes:ourShapes desc:inDesc];
+    SimpleIdentity shapeID = [_shapeLayer addShapes:ourShapes desc:inDesc];
     compObj.shapeIDs.insert(shapeID);
     
     [userObjects addObject:compObj];
@@ -676,7 +668,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         chunk.sampleX = [inDesc[@"sampleX"] intValue];
         chunk.sampleY = [inDesc[@"sampleY"] intValue];
         chunk.rotation = sticker.rotation;
-        SimpleIdentity chunkId = [chunkLayer addChunk:chunk enable:true];
+        SimpleIdentity chunkId = [_chunkLayer addChunk:chunk enable:true];
         compObj.chunkIDs.insert(chunkId);
     }
     
@@ -711,7 +703,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
     }
     
-    SimpleIdentity loftID = [loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
+    SimpleIdentity loftID = [_loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
     compObj.loftIDs.insert(loftID);
     compObj.isSelectable = false;
     
@@ -741,22 +733,22 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             // Get rid of the various layer objects
             for (SimpleIDSet::iterator it = userObj.markerIDs.begin();
                  it != userObj.markerIDs.end(); ++it)
-                [markerLayer removeMarkers:*it];
+                [_markerLayer removeMarkers:*it];
             for (SimpleIDSet::iterator it = userObj.labelIDs.begin();
                  it != userObj.labelIDs.end(); ++it)
-                [labelLayer removeLabel:*it];
+                [_labelLayer removeLabel:*it];
             for (SimpleIDSet::iterator it = userObj.vectorIDs.begin();
                  it != userObj.vectorIDs.end(); ++it)
-                [vectorLayer removeVector:*it];
+                [_vectorLayer removeVector:*it];
             for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
                  it != userObj.shapeIDs.end(); ++it)
-                [shapeLayer removeShapes:*it];
+                [_shapeLayer removeShapes:*it];
             for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
                  it != userObj.loftIDs.end(); ++it)
-                [loftLayer removeLoftedPoly:*it];
+                [_loftLayer removeLoftedPoly:*it];
             for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
                  it != userObj.chunkIDs.end(); ++it)
-                [chunkLayer removeChunk:*it];
+                [_chunkLayer removeChunk:*it];
             // And associated textures
             for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                 [self removeImage:*it];

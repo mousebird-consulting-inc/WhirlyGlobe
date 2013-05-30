@@ -228,6 +228,7 @@ static const char *fragmentShaderLine =
 // When the scene is set, we'll compile our shaders
 - (void)setScene:(WhirlyKit::Scene *)inScene
 {
+    [super setScene:inScene];
     scene = inScene;
 
     if (!scene)

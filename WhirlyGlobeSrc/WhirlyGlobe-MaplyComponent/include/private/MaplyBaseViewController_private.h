@@ -60,10 +60,7 @@
     
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
-    
-    // If set we'll look for selectables
-    bool selection;
-    
+        
     // General rendering and other display hints
     NSDictionary *hints;
     
@@ -88,8 +85,8 @@
     /// Active models
     NSMutableArray *activeObjects;
     
-    /// Set if we're doing performance output
-    bool perfOutput;
+    /// Set if we're dumping out performance output
+    bool _performanceOutput;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

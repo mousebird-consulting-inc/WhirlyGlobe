@@ -133,7 +133,7 @@ public:
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
     
     /// Someone needs to set the renderer before we can select things
-    void setRenderer(WhirlyKitSceneRendererES *renderer) { renderer = renderer; }
+    void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
 
 protected:
     WhirlyKitSceneRendererES * __weak renderer;
