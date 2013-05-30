@@ -424,7 +424,7 @@ using namespace Maply;
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
-    if (selectedObj && selection)
+    if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
         if (delegate && [delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
