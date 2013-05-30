@@ -23,6 +23,9 @@
 
 @interface UIImage(Stuff)
 
+/// Construct with raw pixel data (row)+(row)+(row)....  32 bit RGBA
++ (UIImage *)imageWithRawData:(NSData *)data width:(unsigned int)width height:(unsigned int)height;
+
 /// Pull the raw data, width, and height out of a UIImage
 -(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp;
 
