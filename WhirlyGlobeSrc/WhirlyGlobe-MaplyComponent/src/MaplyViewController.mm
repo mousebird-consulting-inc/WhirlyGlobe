@@ -36,7 +36,7 @@ using namespace Maply;
 @implementation MaplyViewController
 {
     UIScrollView * __weak scrollView;
-    MaplyFlatView *flatView;
+    MaplyFlatView * flatView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
@@ -69,22 +69,22 @@ using namespace Maply;
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     
     // Watch changes to the tethered view.  The scroll view is making these, presumably.
-    [_tetherView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
+    [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
     
     scale = [UIScreen mainScreen].scale;
-        
+    
     return self;
 }
 
 - (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
 {
-    [_tetherView removeObserver:self forKeyPath:@"frame"];
+    [scrollView removeObserver:self forKeyPath:@"contentOffset"];
 
     scrollView = inScrollView;
     _tetherView = inTetherView;
     
     // Watch changes to the tethered view.  The scroll view is making these, presumably.
-    [_tetherView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:NULL];
+    [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
 }
 
 // Tear down layers and layer thread
@@ -97,7 +97,7 @@ using namespace Maply;
     
     if (scrollView)
     {
-        [_tetherView removeObserver:self forKeyPath:@"frame"];
+        [scrollView removeObserver:self forKeyPath:@"contentOffset"];
         scrollView = nil;
         [_tetherView removeFromSuperview];
         _tetherView = nil;
@@ -125,28 +125,28 @@ using namespace Maply;
         [self clear];
 }
 
-- (void)setupFlatView:(CGRect)newFrame
+// Change the view window and force a draw
+- (void)setupFlatView
 {
     if (!flatView)
         return;
     
+    CGRect newFrame = _tetherView.frame;
+//    NSLog(@"newFrame = (%f,%f)->(%f,%f)",newFrame.origin.x,newFrame.origin.y,newFrame.size.width,newFrame.size.height);
     // Change the flat view's window
     CGPoint contentOffset = scrollView.contentOffset;
-    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];    
+    [flatView setWindowSize:Point2f(newFrame.size.width*scale,newFrame.size.height*scale) contentOffset:Point2f(contentOffset.x*scale,contentOffset.y*scale)];
+    
+    [glView drawView:self];
 }
 
 // Called when something changes the tethered view's frame
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
-    if([keyPath isEqualToString:@"frame"]) {
-        CGRect newFrame = CGRectNull;
-        if([object valueForKeyPath:keyPath] != [NSNull null])
-        {
-            newFrame = [[object valueForKeyPath:keyPath] CGRectValue];
-            
-            [self setupFlatView:newFrame];
-        }
-    }
+//    NSLog(@"Changed: %@",keyPath);
+
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(setupFlatView) object:nil];
+    [self performSelector:@selector(setupFlatView) withObject:nil afterDelay:0.0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -156,7 +156,7 @@ using namespace Maply;
     if (scrollView)
     {
         flatView = [[MaplyFlatView alloc] initWithCoordAdapater:coordAdapter];
-        [self setupFlatView:_tetherView.frame];
+        [self setupFlatView];
         mapView = flatView;
     } else {
         mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
@@ -184,6 +184,10 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
+    
+    // The gl view won't spontaneously draw
+    if (scrollView)
+        glView.reactiveMode = true;
     
     Point3f ll,ur;
     coordAdapter->getBounds(ll, ur);
