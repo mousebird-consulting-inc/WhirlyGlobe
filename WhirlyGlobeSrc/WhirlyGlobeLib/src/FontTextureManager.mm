@@ -252,6 +252,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CGRect boundRect = CTFontGetBoundingRectsForGlyphs(font,kCTFontDefaultOrientation,&glyph,NULL,1);
     size.width = ceilf(boundRect.size.width)+2*textureOffset.x;  size.height = ceilf(boundRect.size.height)+2*textureOffset.y;
     width = size.width;  height = size.height;
+    float yDiff = ceilf(boundRect.size.height)-boundRect.size.height;
 
     if (width <= 0 || height <= 0)
         return nil;
@@ -268,7 +269,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     offset = boundRect.origin;
     glyphSize = boundRect.size;
-    CGPoint pos = CGPointMake(-boundRect.origin.x+textureOffset.x,-boundRect.origin.y+textureOffset.x);
+    CGPoint pos = CGPointMake(-boundRect.origin.x+textureOffset.x,-boundRect.origin.y+textureOffset.x+yDiff);
     CTFontDrawGlyphs(font,&glyph,&pos,1,theContext);
     
     // Note: Debugging
