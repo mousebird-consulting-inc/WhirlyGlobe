@@ -407,7 +407,7 @@ public:
 @implementation WhirlyKitSphericalChunkLayer
 {
     ChunkRepSet chunkReps;
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKit::Scene *scene;
     DynamicTextureAtlas *texAtlas;
     DynamicDrawableAtlas *drawAtlas;

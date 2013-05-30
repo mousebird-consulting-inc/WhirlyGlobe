@@ -27,7 +27,7 @@ using namespace WhirlyGlobe;
 
 @implementation WhirlyKitGridLayer
 {
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
 }
 
 - (id)initWithX:(unsigned int)inNumX Y:(unsigned int)inNumY

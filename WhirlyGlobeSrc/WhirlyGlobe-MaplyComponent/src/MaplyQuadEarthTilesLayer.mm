@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadEarthTilesLayer
 {
-    WhirlyKitLayerThread *layerThread;
+    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
@@ -42,7 +42,7 @@ using namespace WhirlyKit;
     
     coordSys = inCoordSys;
     tileSource = inTileSource;
-    _numSimultaneousFetches = 8;
+    _numSimultaneousFetches = 16;
     
     return self;
 }
