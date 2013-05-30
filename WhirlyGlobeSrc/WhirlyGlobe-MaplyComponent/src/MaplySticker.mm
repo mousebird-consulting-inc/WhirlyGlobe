@@ -22,8 +22,4 @@
 
 @implementation MaplySticker
 
-@synthesize ll,ur;
-@synthesize rotation;
-@synthesize image;
-
 @end
