@@ -36,6 +36,8 @@
     NSString *text;
     /// If set, this is the image to use for the marker
     UIImage *iconImage;
+    /// Size of the icon on screen
+    CGSize iconSize;
     /// Offset the text on screen by this amount.  Defaults to zero.
     CGSize offset;
     /// If set, this color overrides the default
@@ -53,6 +55,7 @@
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) NSString *text;
 @property (nonatomic,strong) UIImage *iconImage;
+@property (nonatomic,assign) CGSize iconSize;
 @property (nonatomic,assign) CGSize offset;
 @property (nonatomic,strong) UIColor *color;
 @property (nonatomic,assign) bool selectable;

@@ -27,6 +27,7 @@
 @synthesize size;
 @synthesize text;
 @synthesize iconImage;
+@synthesize iconSize;
 @synthesize offset;
 @synthesize color;
 @synthesize selectable;

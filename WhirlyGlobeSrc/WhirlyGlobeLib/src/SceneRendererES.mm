@@ -57,6 +57,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 @synthesize frameLen;
 @synthesize currentTime;
 @synthesize eyeVec;
+@synthesize heightAboveSurface;
 @synthesize viewAndModelMat;
 @synthesize program;
 @synthesize lights;

@@ -406,7 +406,7 @@ using namespace Maply;
     if (pinchDelegate)
     {
         *minHeight = pinchDelegate.minZoom;
-        *minHeight = pinchDelegate.maxZoom;
+        *maxHeight = pinchDelegate.maxZoom;
     }
 }
 

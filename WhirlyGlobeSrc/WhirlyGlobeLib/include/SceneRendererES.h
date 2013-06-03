@@ -130,6 +130,9 @@ namespace WhirlyKit
     /// Vector pointing up from the globe describing where the view point is
     Eigen::Vector3f eyeVec;
     
+    /// Height above surface, if that makes sense
+    float heightAboveSurface;
+    
     /// Expected length of the current frame
     float frameLen;
     
@@ -157,6 +160,7 @@ namespace WhirlyKit
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
+@property (nonatomic,assign) float heightAboveSurface;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 @property (nonatomic,strong) NSArray *lights;
 @property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
