@@ -102,6 +102,7 @@ using namespace WhirlyKit;
         wgLabel.loc = GeoCoord(_screenLabel.loc.x,_screenLabel.loc.y);
         wgLabel.text = _screenLabel.text;
         wgLabel.iconTexture = iconTexId;
+        wgLabel.iconSize = _screenLabel.iconSize;
         if (_screenLabel.size.width > 0.0)
             [locDesc setObject:[NSNumber numberWithFloat:_screenLabel.size.width] forKey:@"width"];
         if (_screenLabel.size.height > 0.0)

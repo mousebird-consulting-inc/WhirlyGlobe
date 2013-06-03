@@ -252,7 +252,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CGRect boundRect = CTFontGetBoundingRectsForGlyphs(font,kCTFontDefaultOrientation,&glyph,NULL,1);
     size.width = ceilf(boundRect.size.width)+2*textureOffset.x;  size.height = ceilf(boundRect.size.height)+2*textureOffset.y;
     width = size.width;  height = size.height;
-    float yDiff = ceilf(boundRect.size.height)-boundRect.size.height;
 
     if (width <= 0 || height <= 0)
         return nil;
@@ -267,10 +266,21 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     // Now draw it
     CGContextSetFillColorWithColor(theContext, [UIColor whiteColor].CGColor);
     
-    offset = boundRect.origin;
+    int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
+    int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
+    
+    offset = CGPointMake(baselineOffX,baselineOffY);
     glyphSize = boundRect.size;
-    CGPoint pos = CGPointMake(-boundRect.origin.x+textureOffset.x,-boundRect.origin.y+textureOffset.x+yDiff);
+    CGPoint pos = CGPointMake(-baselineOffX+textureOffset.x,-baselineOffY+textureOffset.y);
     CTFontDrawGlyphs(font,&glyph,&pos,1,theContext);
+    
+    // Note: Debugging
+    // Draw the baseline
+//    CGContextSetStrokeColorWithColor(theContext,[UIColor whiteColor].CGColor);
+//    CGContextBeginPath(theContext);
+//    CGContextMoveToPoint(theContext, 0.0f, -baselineOffY+textureOffset.y);
+//    CGContextAddLineToPoint(theContext, width, -baselineOffY+textureOffset.y);
+//    CGContextStrokePath(theContext);
     
     // Note: Debugging
 //    UIImage *theImage = [UIImage imageWithRawData:retData width:width height:height];
