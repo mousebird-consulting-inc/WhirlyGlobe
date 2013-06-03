@@ -101,8 +101,6 @@ using namespace WhirlyKit;
     if (!changed)
         return;
     
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    
     std::vector<ChangeRequest *> changes;
     // Get rid of the old drawables
     for (SimpleIDSet::iterator it = drawIDs.begin();
@@ -114,8 +112,7 @@ using namespace WhirlyKit;
     if (srcPts.size() > 0)
     {
         float drawOffset = shapeInfo.drawOffset;
-        float zScale = [frameInfo.theView calcZbufferRes] * drawOffset;
-        VectorRing outPts;
+        std::vector<Point3f> outPts;
         VectorRing inPts;
         inPts.resize(srcPts.size());
         for (unsigned int ii=0;ii<srcPts.size();ii++)
@@ -124,25 +121,18 @@ using namespace WhirlyKit;
             inPts[ii] = Point2f(coord.x(),coord.y());
         }
         if (_globeEps > 0.0)
-            SubdivideEdgesToSurface(inPts, outPts, false, scene->getCoordAdapter(), _globeEps);
-        else
-            outPts = inPts;
+            // Note: Z buffer res at the end is a hack
+            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, drawOffset*0.0001);
+        else {
+            // Just use a really large number to at least run it through the reprojection
+            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, 1.0);
+        }
+            
         Mbr drawMbr;
         drawMbr.addPoints(inPts);
         
-        std::vector<Point3f> pts3d;
-        pts3d.resize(outPts.size());
-        for (unsigned int ii=0;ii<outPts.size();ii++)
-        {
-            Point2f &pt = outPts[ii];
-            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(pt.x(),pt.y()));
-            Point3f norm = coordAdapter->normalForLocal(localPt);
-            Point3f dispPt = coordAdapter->localToDisplay(localPt) + norm * zScale;
-            pts3d[ii] = dispPt;
-        }
-                
         ShapeDrawableBuilder drawBuild(scene->getCoordAdapter(),shapeInfo,true);
-        drawBuild.addPoints(pts3d, [shapeInfo.color asRGBAColor], drawMbr, shapeInfo.lineWidth, false);
+        drawBuild.addPoints(outPts, [shapeInfo.color asRGBAColor], drawMbr, shapeInfo.lineWidth, false);
         drawBuild.flush();
         drawBuild.getChanges(changes, drawIDs);
     }

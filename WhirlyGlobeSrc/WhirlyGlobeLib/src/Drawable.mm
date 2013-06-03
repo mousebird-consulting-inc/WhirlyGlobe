@@ -1139,6 +1139,25 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                     fade = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
         }
     }
+    // Deal with the range based fade
+    if (frameInfo.heightAboveSurface > 0.0)
+    {
+        float factor = 1.0;
+        if (minVisibleFadeBand != 0.0)
+        {
+            float a = (frameInfo.heightAboveSurface - minVisible)/minVisibleFadeBand;
+            if (a >= 0.0 && a < 1.0)
+                factor = a;
+        }
+        if (maxVisibleFadeBand != 0.0)
+        {
+            float b = (maxVisible - frameInfo.heightAboveSurface)/maxVisibleFadeBand;
+            if (b >= 0.0 && b < 1.0)
+                factor = b;
+        }
+        
+        fade = fade * factor;
+    }
     
     // GL Texture ID
     GLuint glTexID = 0;

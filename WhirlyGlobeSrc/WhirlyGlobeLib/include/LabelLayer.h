@@ -64,6 +64,8 @@ static const int LabelDrawPriority=1000;
     NSDictionary *desc;
     /// If non-zero, this is the texture to use as an icon
     WhirlyKit::SimpleIdentity iconTexture;
+    /// If the texture is set and this is non-zero the size of the image
+    CGSize iconSize;
     /// If set, this moves the label if displayed in screen (2D) mode
     CGSize screenOffset;
 }
@@ -74,6 +76,7 @@ static const int LabelDrawPriority=1000;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
 @property (nonatomic,retain) NSDictionary *desc;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
+@property (nonatomic,assign) CGSize iconSize;
 @property (nonatomic,assign) CGSize screenOffset;
 
 /// Generates a string we can use for indexing.  Note: Don't use this yourself.
@@ -91,10 +94,10 @@ static const int LabelDrawPriority=1000;
 - (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// Slightly more specific version
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm iconCorners:(WhirlyKit::Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(WhirlyKit::Point2f)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm iconCorners:(WhirlyKit::Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// This version is for screen space labels
-- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts iconCorners:(WhirlyKit::Point3f *)iconPts useIconOffset:(bool)useIconOffset;
+- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(WhirlyKit::Point2f)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts iconCorners:(WhirlyKit::Point3f *)iconPts useIconOffset:(bool)useIconOffset;
 
 @end
 
