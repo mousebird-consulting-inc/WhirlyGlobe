@@ -103,7 +103,7 @@ using namespace WhirlyGlobe;
     self.pinchGesture = true;
     self.rotateGesture = true;
         
-    selection = true;
+    self.selection = true;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -406,7 +406,7 @@ using namespace WhirlyGlobe;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
 
-    if (selectedObj && selection)
+    if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
         if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
@@ -438,7 +438,7 @@ using namespace WhirlyGlobe;
 // Called when the user taps outside the globe.
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
-    if (selection && delegate && [delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+    if (self.selection && delegate && [delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
         [delegate globeViewControllerDidTapOutside:self];
 }
 

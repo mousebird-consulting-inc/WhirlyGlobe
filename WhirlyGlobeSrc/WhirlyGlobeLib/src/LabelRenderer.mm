@@ -333,8 +333,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
 
                     // If there's an icon, we need to offset
                     float height = drawStr->mbr.ur().y()-drawStr->mbr.ll().y();
-                    float iconSize = (label.iconTexture==EmptyIdentity ? 0.f : height);
-                    iconOff = Point2f(iconSize,iconSize);
+                    Point2f iconSize = (label.iconTexture==EmptyIdentity ? Point2f(0,0) : (label.iconSize.width == 0.0 ? Point2f(height,height) : Point2f(label.iconSize.width,label.iconSize.height)));
+                    iconOff = iconSize;
                     
                     // Throw a rectangle in the background
                     RGBAColor backColor = [theBackColor asRGBAColor];
@@ -642,7 +642,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         }
         
         // If there's an icon, we need to offset the label
-        float iconSize = (label.iconTexture==EmptyIdentity ? 0.f : 2*height2);
+        Point2f iconSize = (label.iconTexture==EmptyIdentity ? Point2f(0,0) : (label.iconSize.width == 0.0 ? Point2f(2*height2,2*height2) : Point2f(label.iconSize.width,label.iconSize.height)));
         
         Point3f norm;
         Point3f pts[4],iconPts[4];
@@ -707,7 +707,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 layoutObj->ssID = screenShape->getId();
                 layoutObj->dispLoc = screenShape->worldLoc;
                 layoutObj->size = Point2f(width2*2.0,height2*2.0);
-                layoutObj->iconSize = Point2f(iconSize,iconSize);
+                layoutObj->iconSize = iconSize;
                 layoutObj->importance = layoutImportance;
                 layoutObj->minVis = labelInfo.minVis;
                 layoutObj->maxVis = labelInfo.maxVis;

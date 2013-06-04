@@ -228,6 +228,7 @@ static const char *fragmentShaderLine =
 // When the scene is set, we'll compile our shaders
 - (void)setScene:(WhirlyKit::Scene *)inScene
 {
+    [super setScene:inScene];
     scene = inScene;
 
     if (!scene)
@@ -466,6 +467,10 @@ static const float ScreenOverlap = 0.1;
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
         frameInfo.eyeVec = eyeVec3;
+        frameInfo.heightAboveSurface = 0.0;
+        // Note: Should deal with map view as well
+        if (globeView)
+            frameInfo.heightAboveSurface = globeView.heightAboveSurface;
 		
         // If we're looking at a globe, run the culling
         std::set<DrawableRef> toDraw;

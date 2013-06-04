@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), forceZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0)
 {
     activeBuffer = -1;
     
@@ -62,9 +62,10 @@ bool BigDrawable::isCompatible(BasicDrawable *draw)
     if (getTexId() == draw->getTexId() && getForceZBufferOn() == draw->getForceZBufferOn() &&
         getDrawPriority() == draw->getDrawPriority())
     {
-        float minVis,maxVis;
-        draw->getVisibleRange(minVis, maxVis);
-        if (this->minVis == minVis && this->maxVis == maxVis)
+        float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
+        draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
+        if (this->minVis == minVis && this->maxVis == maxVis && this->minVisibleFadeBand == minVisibleFadeBand &&
+            this->maxVisibleFadeBand == maxVisibleFadeBand)
             return true;
     }
     
@@ -76,7 +77,7 @@ void BigDrawable::setModes(BasicDrawable *draw)
     texId = draw->getTexId();
     forceZBuffer = draw->getForceZBufferOn();
     drawPriority = draw->getDrawPriority();
-    draw->getVisibleRange(minVis, maxVis);
+    draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
 }
 
 void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
@@ -174,11 +175,32 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     if (!prog)
         return;
 
+    float fade = 1.0;
+
+    // Only range based fade on the big drawables
+    if (frameInfo.heightAboveSurface > 0.0)
+    {
+        float factor = 1.0;
+        if (minVisibleFadeBand != 0.0)
+        {
+            float a = (frameInfo.heightAboveSurface - minVis)/minVisibleFadeBand;
+            if (a >= 0.0 && a < 1.0)
+                factor = a;
+        }
+        if (maxVisibleFadeBand != 0.0)
+        {
+            float b = (maxVis - frameInfo.heightAboveSurface)/maxVisibleFadeBand;
+            if (b >= 0.0 && b < 1.0)
+                factor = b;
+        }
+        
+        fade = fade * factor;
+    }
+
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     
     // Fade is always mixed in
-    float fade = 1.0;
     prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture

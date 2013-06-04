@@ -25,17 +25,12 @@
     and then slap an optional image on top of.
   */
 @interface MaplySticker : NSObject
-{
-    /// Extents of the stick
-    MaplyCoordinate ll,ur;
-    /// Angle of rotation around center
-    float rotation;
-    /// Image to stretch over the sticker
-    UIImage *image;
-}
 
+/// Extents of the stick
 @property (nonatomic,assign) MaplyCoordinate ll,ur;
+/// Angle of rotation around center
 @property (nonatomic,assign) float rotation;
+/// Image to stretch over the sticker
 @property (nonatomic,strong) UIImage *image;
 
 @end

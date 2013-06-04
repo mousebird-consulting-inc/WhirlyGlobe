@@ -83,9 +83,6 @@ public:
     /// For now, just using these with globe layers
     bool getForceZBufferOn() const { return forceZBuffer; }
 
-    /// Set the visible range for all drawables we produce
-    void setVisibleRange(float minVis,float maxVis);
-
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
@@ -130,7 +127,7 @@ protected:
     SimpleIdentity texId;
     int drawPriority;
     bool forceZBuffer;
-    float minVis,maxVis;
+    float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
     /// Called when a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
