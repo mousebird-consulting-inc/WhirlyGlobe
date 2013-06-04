@@ -184,10 +184,14 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
-    
+
     // The gl view won't spontaneously draw
+    // Let's just do priority rendering
     if (scrollView)
+    {
         glView.reactiveMode = true;
+        sceneRenderer.zBufferMode = zBufferOff;
+    }
     
     Point3f ll,ur;
     coordAdapter->getBounds(ll, ur);
