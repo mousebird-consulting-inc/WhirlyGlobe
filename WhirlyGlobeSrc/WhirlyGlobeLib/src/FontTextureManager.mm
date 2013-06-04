@@ -19,6 +19,7 @@
  */
 
 #import "FontTextureManager.h"
+#import "UIImage+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -241,12 +242,15 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
 
 // Render the glyph into a buffer
-- (NSData *)renderGlyph:(CGGlyph)glyph font:(CTFontRef)font texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset
+- (NSData *)renderGlyph:(CGGlyph)glyph font:(CTFontRef)font texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset textureOffset:(CGPoint &)textureOffset;
 {
     int width,height;
-        
+    
+    // Boundary around the image to capture the full data
+    textureOffset = CGPointMake(1, 1);
+
     CGRect boundRect = CTFontGetBoundingRectsForGlyphs(font,kCTFontDefaultOrientation,&glyph,NULL,1);
-    size.width = (int)(boundRect.size.width+0.5);  size.height = (int)(boundRect.size.height+0.5);
+    size.width = ceilf(boundRect.size.width)+2*textureOffset.x;  size.height = ceilf(boundRect.size.height)+2*textureOffset.y;
     width = size.width;  height = size.height;
 
     if (width <= 0 || height <= 0)
@@ -255,28 +259,31 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     // Set up a real context for the glyph rendering
     NSMutableData *retData = [NSMutableData dataWithLength:width*height*4];
     CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], width, height, 8, width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
-//    UIGraphicsBeginImageContext(size);
-//    CGContextRef theContext = UIGraphicsGetCurrentContext();
     
-//    CGContextSetFillColorWithColor(theContext, [UIColor whiteColor].CGColor);
-//    CGContextFillRect(theContext, CGRectMake(0, 0, width, height));
-    
+    // Flip
+    CGContextTranslateCTM(theContext, 0.0f, height);
+    CGContextScaleCTM(theContext, 1.0f, -1.0f);
     // Now draw it
     CGContextSetFillColorWithColor(theContext, [UIColor whiteColor].CGColor);
-//    CGContextMoveToPoint(theContext, 0, 0);
-//    CGContextAddPath(theContext, paths);
-//    CGContextFillPath(theContext);
-
-//    CGPathRelease(path);
-//    CGPathRelease(paths);
     
-    offset = boundRect.origin;
+    int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
+    int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
+    
+    offset = CGPointMake(baselineOffX,baselineOffY);
     glyphSize = boundRect.size;
-    CGPoint pos = CGPointMake(-boundRect.origin.x,-boundRect.origin.y);
+    CGPoint pos = CGPointMake(-baselineOffX+textureOffset.x,-baselineOffY+textureOffset.y);
     CTFontDrawGlyphs(font,&glyph,&pos,1,theContext);
     
-    // Note: Output Debugging
-//    UIImage *theImage=UIGraphicsGetImageFromCurrentImageContext();
+    // Note: Debugging
+    // Draw the baseline
+//    CGContextSetStrokeColorWithColor(theContext,[UIColor whiteColor].CGColor);
+//    CGContextBeginPath(theContext);
+//    CGContextMoveToPoint(theContext, 0.0f, -baselineOffY+textureOffset.y);
+//    CGContextAddLineToPoint(theContext, width, -baselineOffY+textureOffset.y);
+//    CGContextStrokePath(theContext);
+    
+    // Note: Debugging
+//    UIImage *theImage = [UIImage imageWithRawData:retData width:width height:height];
 //    if (theImage)
 //    {
 //        NSData *imageData = UIImagePNGRepresentation(theImage);
@@ -289,7 +296,6 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 //    }
 
 	CGContextRelease(theContext);
-//    UIGraphicsEndImageContext();
     
     CGColorSpaceRelease(colorSpace);
     
@@ -379,16 +385,16 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                 {
                     // We need to render that Glyph and add it
                     CGSize texSize,glyphSize;
-                    CGPoint offset;
-                    NSData *glyphImage = [self renderGlyph:glyph font:fm->font texSize:texSize glyphSize:glyphSize offset:offset];
+                    CGPoint offset,textureOffset;
+                    NSData *glyphImage = [self renderGlyph:glyph font:fm->font texSize:texSize glyphSize:glyphSize offset:offset textureOffset:textureOffset];
                     if (glyphImage)
                     {
                         Texture *tex = new Texture("Font Texture Manager",glyphImage,false);
                         tex->setWidth(texSize.width);
                         tex->setHeight(texSize.height);
                         SubTexture subTex;
-                        Point2f realSize(glyphSize.width,glyphSize.height);
-                        if (texAtlas->addTexture(tex, &realSize, subTex, scene->getMemManager(), changes, 0))
+                        Point2f realSize(glyphSize.width+2,glyphSize.height+2);
+                        if (texAtlas->addTexture(tex, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
                             glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset);
                     }
                 }
@@ -398,10 +404,10 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                     // Now we make a rectangle that covers the glyph in its texture atlas
                     DrawableString::Rect rect;
                     CGPoint &offset = offsets[jj];
-                    rect.pts[0] = Point2f(glyphInfo->offset.x,glyphInfo->offset.y)+Point2f(offset.x,offset.y);
-                    rect.texCoords[0] = TexCoord(0.0,1.0);
-                    rect.pts[1] = Point2f(glyphInfo->size.width,glyphInfo->size.height)+rect.pts[0];
-                    rect.texCoords[1] = TexCoord(1.0,0.0);
+                    rect.pts[0] = Point2f(glyphInfo->offset.x-1,glyphInfo->offset.y-1)+Point2f(offset.x,offset.y);
+                    rect.texCoords[0] = TexCoord(0.0,0.0);
+                    rect.pts[1] = Point2f(glyphInfo->size.width+2,glyphInfo->size.height+2)+rect.pts[0];
+                    rect.texCoords[1] = TexCoord(1.0,1.0);
                     rect.subTex = glyphInfo->subTex;
                     drawString->glyphPolys.push_back(rect);
                     

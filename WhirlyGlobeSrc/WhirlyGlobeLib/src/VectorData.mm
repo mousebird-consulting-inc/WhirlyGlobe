@@ -117,8 +117,8 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
     // Note: Probably not right
-    if (std::abs(p0.x() - p1.x()) > M_PI)
-        return;
+//    if (std::abs(p0.x() - p1.x()) > M_PI)
+//        return;
     
     Point3f midP = (p0+p1)/2.0;
     Point3f midOnSphere = midP.normalized() * (1.0 + surfOffset);
