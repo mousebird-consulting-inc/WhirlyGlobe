@@ -297,7 +297,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 
 - (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
-    // Note: Cache this
+    Point3d eyeVec = viewState->eyeVec;
     Point3d eyePos = viewState.eyePos;
     
     if (!viewState->coordAdapter->isFlat())
@@ -311,7 +311,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
         for (unsigned int ii=0;ii<surfNormals.size();ii++)
         {
             const Vector3d &surfNorm = surfNormals[ii];
-            if ((isFacing |= (surfNorm.dot(eyePos) >= 0.0)))
+            if ((isFacing |= (surfNorm.dot(eyeVec) >= 0.0)))
                 break;
         }
         if (!isFacing)

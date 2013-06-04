@@ -28,15 +28,6 @@
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    WhirlyKitMarkerLayer * __weak markerLayer;
-    WhirlyKitLabelLayer * __weak labelLayer;
-    WhirlyKitVectorLayer * __weak vectorLayer;
-    WhirlyKitShapeLayer * __weak shapeLayer;
-    WhirlyKitSphericalChunkLayer * __weak chunkLayer;
-    WhirlyKitLoftLayer * __weak loftLayer;
-    // Note: Not a great idea to be passing this in
-    UIView * __weak glView;
-
     WhirlyKitView * __weak visualView;
 
     pthread_mutex_t selectMutex;
@@ -62,6 +53,7 @@
 @property (nonatomic,weak) WhirlyKitShapeLayer * shapeLayer;
 @property (nonatomic,weak) WhirlyKitSphericalChunkLayer *chunkLayer;
 @property (nonatomic,weak) WhirlyKitLoftLayer *loftLayer;
+// Note: Not a great idea to be passing this in
 @property (nonatomic,weak) UIView * glView;
 
 // Initialize with the view we'll be using

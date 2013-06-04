@@ -37,6 +37,7 @@ using namespace WhirlyKit;
 @synthesize iconTexture;
 @synthesize isSelectable;
 @synthesize selectID;
+@synthesize iconSize;
 @synthesize screenOffset;
 
 // Generate a key string to uniquely identify this label for reuse
@@ -65,7 +66,7 @@ using namespace WhirlyKit;
 }
 
 // Calculate the corners in this order:  (ll,lr,ur,ul)
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
+- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(Point2f)theIconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
 {
     Point3f center = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(loc));
     Point3f up(0,0,1);
@@ -86,10 +87,10 @@ using namespace WhirlyKit;
     switch (justify)
     {
         case Left:
-            ll = center + iconSize * horiz - height2 * vert;
+            ll = center + theIconSize.x() * horiz - height2 * vert;
             break;
         case Middle:
-            ll = center - (width2 + iconSize/2) * horiz - height2 * vert;
+            ll = center - (width2 + theIconSize.x()/2) * horiz - height2 * vert;
             break;
         case Right:
             ll = center - 2*width2 * horiz - height2 * vert;
@@ -107,34 +108,34 @@ using namespace WhirlyKit;
             ll = center - height2*vert;
             break;
         case Middle:
-            ll = center - (width2 + iconSize) * horiz - height2*vert;
+            ll = center - (width2 + theIconSize.x()) * horiz - height2*vert;
             break;
         case Right:
-            ll = center - (2*width2 + iconSize) * horiz - height2*vert;
+            ll = center - (2*width2 + theIconSize.x()) * horiz - height2*vert;
             break;
     }
     iconPts[0] = ll;
-    iconPts[1] = ll + iconSize*horiz;
-    iconPts[2] = ll + iconSize*horiz + iconSize*vert;
-    iconPts[3] = ll + iconSize*vert;
+    iconPts[1] = ll + theIconSize.x()*horiz;
+    iconPts[2] = ll + theIconSize.x()*horiz + theIconSize.y()*vert;
+    iconPts[3] = ll + theIconSize.y()*vert;
 }
 
 // This version calculates extents for a screen space label
-- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(float)iconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts useIconOffset:(bool)useIconOffset
+- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(Point2f)theIconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts useIconOffset:(bool)useIconOffset
 {
     Point3f center(0,0,0);
     Point3f ll;
     Point3f horiz = Point3f(1,0,0);
     Point3f vert = Point3f(0,1,0);
     
-    float iconSizeForLabel = (useIconOffset ? iconSize : 0.0);
+    Point2f iconSizeForLabel = (useIconOffset ? theIconSize : Point2f(0,0));
     switch (justify)
     {
         case Left:
-            ll = center + iconSizeForLabel * horiz - height2 * vert;
+            ll = center + iconSizeForLabel.x() * horiz - height2 * vert;
             break;
         case Middle:
-            ll = center - (width2 + iconSizeForLabel/2) * horiz - height2 * vert;
+            ll = center - (width2 + iconSizeForLabel.x()/2) * horiz - height2 * vert;
             break;
         case Right:
             ll = center - 2*width2 * horiz - height2 * vert;
@@ -152,16 +153,16 @@ using namespace WhirlyKit;
             ll = center - height2*vert;
             break;
         case Middle:
-            ll = center - (width2 + iconSize) * horiz - height2*vert;
+            ll = center - (width2 + iconSizeForLabel.x()) * horiz - height2*vert;
             break;
         case Right:
-            ll = center - (2*width2 + iconSize) * horiz - height2*vert;
+            ll = center - (2*width2 + iconSizeForLabel.x()) * horiz - height2*vert;
             break;
     }
     iconPts[0] = ll;
-    iconPts[1] = ll + iconSize*horiz;
-    iconPts[2] = ll + iconSize*horiz + iconSize*vert;
-    iconPts[3] = ll + iconSize*vert;
+    iconPts[1] = ll + iconSizeForLabel.x()*horiz;
+    iconPts[2] = ll + iconSizeForLabel.x()*horiz + iconSizeForLabel.y()*vert;
+    iconPts[3] = ll + iconSizeForLabel.y()*vert;
 }
 
 - (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
@@ -190,10 +191,10 @@ using namespace WhirlyKit;
     }
     
     // If there's an icon, we need to offset the label
-    float iconSize = (iconTexture==EmptyIdentity ? 0.f : 2*height2);
+    Point2f theIconSize = (iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
 
     Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:iconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
+    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
     
     // If we have an icon, we need slightly different corners
     if (iconTexture)

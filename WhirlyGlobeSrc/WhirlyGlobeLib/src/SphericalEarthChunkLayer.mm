@@ -582,12 +582,16 @@ static const int SingleElementSize = sizeof(GLushort);
             chunkRep->usesAtlas = false;
             Texture *newTex = NULL;
             if (chunk.loadImage)
-                newTex = [chunk.loadImage buildTexture:borderTexel destWidth:0 destHeight:0];
+            {
+                // Let's just deal with square images
+                int square = std::max(chunk.loadImage->width,chunk.loadImage->height);
+                newTex = [chunk.loadImage buildTexture:borderTexel destWidth:square destHeight:square];
+            }
             if (texAtlas)
             {
                 if (newTex)
                 {
-                    texAtlas->addTexture(newTex, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    texAtlas->addTexture(newTex, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
                     delete newTex;
                 }
