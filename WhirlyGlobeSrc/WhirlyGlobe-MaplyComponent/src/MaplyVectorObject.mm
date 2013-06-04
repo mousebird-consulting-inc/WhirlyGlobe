@@ -277,29 +277,32 @@ using namespace WhirlyGlobe;
     return valid;
 }
 
-- (NSArray *)asCLLocationArray
+- (NSArray *)asCLLocationArrays
 {
     if (shapes.size() < 1)
         return nil;
 
-    NSMutableArray *pts = [NSMutableArray array];
+    NSMutableArray *loops = [NSMutableArray array];
     
     ShapeSet::iterator it = shapes.begin();
     VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
     if (ar)
     {
-        if (ar->loops.size() < 1)
-            return nil;
-        const VectorRing &loop = ar->loops[0];
-        for (unsigned int ii=0;ii<loop.size();ii++)
+        for (unsigned int ii=0;ii<ar->loops.size();ii++)
         {
-            const Point2f &coord = loop[ii];
-            CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
-            [pts addObject:loc];
+            const VectorRing &loop = ar->loops[ii];
+            NSMutableArray *pts = [NSMutableArray array];
+            for (unsigned int ii=0;ii<loop.size();ii++)
+            {
+                const Point2f &coord = loop[ii];
+                CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
+                [pts addObject:loc];
+            }
+            [loops addObject:pts];
         }
     }
     
-    return pts;
+    return loops;
 }
 
 - (NSArray *)splitVectors
