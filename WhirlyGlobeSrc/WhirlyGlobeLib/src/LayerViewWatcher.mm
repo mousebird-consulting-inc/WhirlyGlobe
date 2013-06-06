@@ -63,7 +63,7 @@ using namespace WhirlyKit;
     [watchers addObject:watch];
     
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
-    if (!lastViewState)
+    if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
     {
         WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
@@ -109,6 +109,10 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
+    // The view has to be valid first
+    if (layerThread.renderer.framebufferWidth <= 0.0)
+        return;
+    
     WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
 //    lastViewState = viewState;
     [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
@@ -144,12 +148,15 @@ using namespace WhirlyKit;
         return;
     }
     
+    if (lastViewState)
+    {
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"    
-    [watch->target performSelector:watch->selector withObject:lastViewState];
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [watch->target performSelector:watch->selector withObject:lastViewState];
 #pragma clang diagnostic pop
 //    [layerThread.runLoop performSelector:watch->selector target:watch->target argument:lastViewState order:0 modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
-    watch->lastUpdated = lastUpdate;
+        watch->lastUpdated = lastUpdate;
+    }
 }
 
 // This version is called in the layer thread
