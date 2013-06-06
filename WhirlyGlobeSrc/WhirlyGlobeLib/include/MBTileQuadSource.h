@@ -37,15 +37,18 @@
     WhirlyKit::Mbr mbr;
     /// Bounds in geographic
     WhirlyKit::GeoMbr geoMbr;
-    /// Available levels, as read from the database.
-    /// You can modify these yourself as well, to limit what's loaded
-    int minZoom,maxZoom;
     /// Size of a tile in pixels square.  256 is the usual.
     int pixelsPerTile;   
 }
 
 /// Initialize the data source with the full path to the SQLite DB
 - (id)initWithPath:(NSString *)path;
+
+/// Minimum available zoom level.  Can be read from mb tiles db or assigned
+@property (nonatomic,assign) int minZoom;
+
+/// Maximum available zoom level.  Can be read from mb tiles db or assigned
+@property (nonatomic,assign) int maxZoom;
 
 /// Called by the layer to shut things down
 - (void)shutdown;

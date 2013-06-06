@@ -34,6 +34,8 @@
     if (!self)
         return nil;
     
+    _minZoom = -1;
+    _maxZoom = -1;
     mbTilesName = inMbTilesName;
     
     return self;
@@ -45,6 +47,10 @@
     if (!infoPath)
         return false;
     dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
+    if (_minZoom != -1)
+        dataSource.minZoom = _minZoom;
+    if (_maxZoom != -1)
+        dataSource.maxZoom = _maxZoom;
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
     tileLoader.coverPoles = true;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
