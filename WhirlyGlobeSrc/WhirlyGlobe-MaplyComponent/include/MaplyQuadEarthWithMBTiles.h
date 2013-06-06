@@ -31,4 +31,10 @@
 /// Off by default, if set the layer will create skirts to handle edge gaps in tiles
 @property (nonatomic,assign) bool handleEdges;
 
+/// Override the minzoom
+@property (nonatomic,assign) int minZoom;
+
+/// Override the maxzoom
+@property (nonatomic,assign) int maxZoom;
+
 @end
