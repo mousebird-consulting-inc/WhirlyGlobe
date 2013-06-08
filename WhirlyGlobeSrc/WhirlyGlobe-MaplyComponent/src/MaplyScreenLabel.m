@@ -24,6 +24,7 @@
 
 @synthesize userObject;
 @synthesize loc;
+@synthesize rotation;
 @synthesize size;
 @synthesize text;
 @synthesize iconImage;
@@ -32,6 +33,7 @@
 @synthesize color;
 @synthesize selectable;
 @synthesize layoutImportance;
+@synthesize layoutPlacement;
 
 - (id)init
 {
@@ -41,6 +43,7 @@
     
     selectable = true;
     layoutImportance = MAXFLOAT;
+    layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
     
     return self;
 }

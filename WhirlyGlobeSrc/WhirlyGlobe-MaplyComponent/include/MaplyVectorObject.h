@@ -64,6 +64,9 @@
 /// Calculate and return the center of the whole object
 - (MaplyCoordinate)center;
 
+/// For a linear feature, calculate the point and rotation (in radians) in the middle
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot;
+
 /// Calculate the center and extents of the largest loop.
 /// Returns false if there was no loop
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
@@ -78,6 +81,10 @@
 /// This will break up long edges in a vector until they lie flat on a globe to a given
 ///  epsilon.  The epislon is in display coordinates (radius = 1.0).
 - (void)subdivideToGlobe:(float)epsilon;
+
+/// Return the input areals tesselated into triangles without attribution.
+/// Note: Doesn't handle holes correctly
+- (MaplyVectorObject *) tesselate;
 
 @end
 
