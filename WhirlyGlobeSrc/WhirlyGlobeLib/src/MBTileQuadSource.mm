@@ -43,25 +43,28 @@ using namespace WhirlyKit;
         
         // Look at the metadata
         sqlhelpers::StatementRead readStmt(sqlDb,@"select value from metadata where name='bounds';");
-        if (!readStmt.stepRow())
+        if (readStmt.stepRow())
         {
-            return nil;
+            NSString *bounds = readStmt.getString();
+            NSScanner *scan = [NSScanner scannerWithString:bounds];
+            NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
+            [charSet addCharactersInString:@","];
+            [scan setCharactersToBeSkipped:charSet];
+            double ll_lat,ll_lon,ur_lat,ur_lon;
+            if (![scan scanDouble:&ll_lon] ||
+                ![scan scanDouble:&ll_lat] ||
+                ![scan scanDouble:&ur_lon] ||
+                ![scan scanDouble:&ur_lat])
+            {
+                return nil;
+            }
+            geoMbr.ll() = GeoCoord::CoordFromDegrees(ll_lon,ll_lat);
+            geoMbr.ur() = GeoCoord::CoordFromDegrees(ur_lon,ur_lat);
+        } else {
+            // No bounds implies it covers the whole earth
+            geoMbr.ll() = GeoCoord::CoordFromDegrees(-180, -85.0511);
+            geoMbr.ur() = GeoCoord::CoordFromDegrees(180, 85.0511);
         }
-        NSString *bounds = readStmt.getString();
-        NSScanner *scan = [NSScanner scannerWithString:bounds];
-        NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
-        [charSet addCharactersInString:@","];
-        [scan setCharactersToBeSkipped:charSet];
-        double ll_lat,ll_lon,ur_lat,ur_lon;
-        if (![scan scanDouble:&ll_lon] ||
-            ![scan scanDouble:&ll_lat] ||
-            ![scan scanDouble:&ur_lon] ||
-            ![scan scanDouble:&ur_lat])
-        {
-            return nil;
-        }
-        geoMbr.ll() = GeoCoord::CoordFromDegrees(ll_lon,ll_lat);
-        geoMbr.ur() = GeoCoord::CoordFromDegrees(ur_lon,ur_lat);
         
         // And let's convert that over to spherical mercator
         Point3f ll = coordSys->geographicToLocal(geoMbr.ll());
@@ -69,14 +72,26 @@ using namespace WhirlyKit;
         Point3f ur = coordSys->geographicToLocal(geoMbr.ur());
         mbr.ur() = Point2f(ur.x(),ur.y());
         
-        minZoom = 0;  maxZoom = 8;
+        _minZoom = 0;  _maxZoom = 8;
         sqlhelpers::StatementRead readStmt2(sqlDb,@"select value from metadata where name='minzoom';");
         if (readStmt2.stepRow())
-            minZoom = [readStmt2.getString() intValue];
+            _minZoom = [readStmt2.getString() intValue];
+        else {
+            // Read it the hard way
+            sqlhelpers::StatementRead readStmt3(sqlDb,@"select min(zoom_level) from tiles;");
+            if (readStmt3.stepRow())
+                _minZoom = [readStmt3.getString() intValue];
+        }
         sqlhelpers::StatementRead readStmt3(sqlDb,@"select value from metadata where name='maxzoom';");
         if (readStmt3.stepRow())
-            maxZoom = [readStmt3.getString() intValue];
-                
+            _maxZoom = [readStmt3.getString() intValue];
+        else {
+            // Read it the hard way
+            sqlhelpers::StatementRead readStmt3(sqlDb,@"select max(zoom_level) from tiles;");
+            if (readStmt3.stepRow())
+                _maxZoom = [readStmt3.getString() intValue];
+        }
+        
         // Note: We could load something and calculate this, but I don't want to slow us down here
         pixelsPerTile = 256;
         
@@ -119,20 +134,10 @@ using namespace WhirlyKit;
     return mbr;
 }
 
-- (int)minZoom
-{
-    return minZoom;
-}
-
-- (int)maxZoom
-{
-    return maxZoom;
-}
-
 - (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // Everything at the top is loaded in, so be careful
-    if (ident.level == minZoom)
+    if (ident.level == _minZoom)
         return MAXFLOAT;
 
     float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr, ident, attrs);
