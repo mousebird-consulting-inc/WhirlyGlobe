@@ -22,6 +22,7 @@
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
 #import "Tesselator.h"
+#import <CoreLocation/CoreLocation.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -320,6 +321,34 @@ using namespace WhirlyGlobe;
     }
     
     return valid;
+}
+
+- (NSArray *)asCLLocationArrays
+{
+    if (shapes.size() < 1)
+        return nil;
+
+    NSMutableArray *loops = [NSMutableArray array];
+    
+    ShapeSet::iterator it = shapes.begin();
+    VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+    if (ar)
+    {
+        for (unsigned int ii=0;ii<ar->loops.size();ii++)
+        {
+            const VectorRing &loop = ar->loops[ii];
+            NSMutableArray *pts = [NSMutableArray array];
+            for (unsigned int ii=0;ii<loop.size();ii++)
+            {
+                const Point2f &coord = loop[ii];
+                CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
+                [pts addObject:loc];
+            }
+            [loops addObject:pts];
+        }
+    }
+    
+    return loops;
 }
 
 - (NSArray *)splitVectors

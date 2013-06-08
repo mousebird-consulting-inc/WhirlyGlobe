@@ -74,6 +74,10 @@
 /// Bounding box for all the data in the vector
 - (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
+/// Return an NSArray of NSArrays of CLLocation points.
+/// One array per loop in the areal, so assumes this is an areal
+- (NSArray *)asCLLocationArrays;
+
 /// Vector objects can encapsulate multiple objects since they're read from GeoJSON.
 /// This splits any multiples into single objects.
 - (NSArray *)splitVectors;
