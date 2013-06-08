@@ -104,6 +104,12 @@
 /// Remove an array of data objects
 - (void)removeObjects:(NSArray *)theObjs;
 
+/// Disable a group of objects all at once
+- (void)disableObjects:(NSArray *)theObjs;
+
+/// Enable a group of objects all at once
+- (void)enableObjects:(NSArray *)theObjs;
+
 /// Add an active object.  These are used for editing and act
 ///  only on the main thread.
 - (void)addActiveObject:(MaplyActiveObject *)theObj;

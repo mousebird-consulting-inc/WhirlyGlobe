@@ -58,6 +58,8 @@ static const int LabelDrawPriority=1000;
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
     WhirlyKit::GeoCoord loc;
+    /// Rotation around the origin
+    float rotation;
     /// This dictionary contains overrides for certain attributes
     ///  for just this label.  Only width, height, icon, text color, and
     ///  background color supported.
@@ -74,6 +76,7 @@ static const int LabelDrawPriority=1000;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 @property (nonatomic,retain) NSString *text;
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+@property (nonatomic,assign) float rotation;
 @property (nonatomic,retain) NSDictionary *desc;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
 @property (nonatomic,assign) CGSize iconSize;

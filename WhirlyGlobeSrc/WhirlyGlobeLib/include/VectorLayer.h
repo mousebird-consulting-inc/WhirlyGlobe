@@ -119,6 +119,10 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 /// Only enable, color, line width, draw priority, and visibility range are supported
 - (void)changeVector:(WhirlyKit::SimpleIdentity)vecID desc:(NSDictionary *)dict;
 
+/// Enable or disable a group of vectors.
+/// Must be called on layer thread.
+- (void)enableVector:(WhirlyKit::SimpleIdentity)vecID enable:(bool)enable;
+
 /// Removes a group of vectors from the display
 - (void)removeVector:(WhirlyKit::SimpleIdentity)vecID;
 

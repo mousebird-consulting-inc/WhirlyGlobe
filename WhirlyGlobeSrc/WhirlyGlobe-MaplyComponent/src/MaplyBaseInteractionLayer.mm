@@ -306,6 +306,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
+        wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
@@ -323,6 +324,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         {
             [desc setObject:@(YES) forKey:@"layout"];
             [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
+            [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
         }
         wgLabel.screenOffset = label.offset;
         if (label.selectable)
@@ -782,6 +784,45 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
 }
+
+// Enable objects
+- (void)enableObjects:(NSArray *)userObjs
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(enableObjects:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
+        return;
+    }
+    
+    for (MaplyComponentObject *compObj in userObjs)
+    {
+        // Enable vectors
+        for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
+             it != compObj.vectorIDs.end(); ++it)
+            [_vectorLayer enableVector:*it enable:true];
+        // Note: Need to implement the rest of the enable/disables
+    }
+}
+
+// Disable objects
+- (void)disableObjects:(NSArray *)userObjs
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(disableObjects:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
+        return;
+    }
+
+    for (MaplyComponentObject *compObj in userObjs)
+    {
+        // Enable vectors
+        for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
+             it != compObj.vectorIDs.end(); ++it)
+            [_vectorLayer enableVector:*it enable:false];
+        // Note: Need to implement the rest of the enable/disables
+    }
+}
+
 
 // Search for a point inside any of our vector objects
 // Runs in layer thread

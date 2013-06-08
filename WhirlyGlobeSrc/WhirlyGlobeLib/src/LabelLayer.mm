@@ -33,6 +33,7 @@ using namespace WhirlyKit;
 @implementation WhirlyKitSingleLabel
 @synthesize text;
 @synthesize loc;
+@synthesize rotation;
 @synthesize desc;
 @synthesize iconTexture;
 @synthesize isSelectable;

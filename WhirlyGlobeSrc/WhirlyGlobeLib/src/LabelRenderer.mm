@@ -321,6 +321,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     screenShape->maxVis = labelInfo.maxVis;
                     screenShape->offset.x() = label.screenOffset.width;
                     screenShape->offset.y() = label.screenOffset.height;
+                    if (label.rotation != 0.0)
+                    {
+                        screenShape->useRotation = true;
+                        screenShape->rotation = label.rotation;
+                    }
                     if (labelInfo.fade > 0.0)
                     {
                         screenShape->fadeDown = curTime;
@@ -401,6 +406,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     if (layoutEngine)
                     {
                         float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:labelInfo.layoutImportance];
+                        int layoutPlacement = [label.desc intForKey:@"layoutPlacement" default:(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)];
                         
                         // Put together the layout info
                         layoutObj = [[WhirlyKitLayoutObject alloc] init];
@@ -413,8 +419,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         layoutObj->importance = layoutImportance;
                         layoutObj->minVis = labelInfo.minVis;
                         layoutObj->maxVis = labelInfo.maxVis;
-                        // Note: Should parse out acceptable placements as well
-                        layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
+                        layoutObj->acceptablePlacement = layoutPlacement;
                         [layoutObjects addObject:layoutObj];
                         
                         // The shape starts out disabled

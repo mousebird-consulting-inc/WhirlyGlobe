@@ -787,6 +787,16 @@ static const float PerfOutputDelay = 15.0;
     [interactLayer removeObjects:[NSArray arrayWithArray:theObjs]];
 }
 
+- (void)disableObjects:(NSArray *)theObjs
+{
+    [interactLayer disableObjects:theObjs];
+}
+
+- (void)enableObjects:(NSArray *)theObjs
+{
+    [interactLayer enableObjects:theObjs];
+}
+
 - (void)addActiveObject:(MaplyActiveObject *)theObj
 {
     if ([NSThread currentThread] != [NSThread mainThread])
