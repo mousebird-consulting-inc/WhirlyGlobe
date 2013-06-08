@@ -21,6 +21,7 @@
 #import "MaplyVectorObject.h"
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
+#import "Tesselator.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -205,6 +206,51 @@ using namespace WhirlyGlobe;
     return ctr;
 }
 
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot
+{
+    if (shapes.empty())
+        return false;
+    
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(shapes.begin()));
+    if (!lin)
+        return false;
+    
+    VectorRing pts = lin->pts;
+    float totLen = 0;
+    for (int ii=0;ii<pts.size()-1;ii++)
+    {
+        float len = (pts[ii+1]-pts[ii]).norm();
+        totLen += len;
+    }
+    float halfLen = totLen / 2.0;
+    
+    // Now we'll walk along, looking for the middle
+    float lenSoFar = 0.0;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
+        float len = (pt1-pt0).norm();
+        if (halfLen <= lenSoFar+len)
+        {
+            float t = (halfLen-lenSoFar)/len;
+            Point2f thePt = (pt1-pt0)*t + pt0;
+            middle->x = thePt.x();
+            middle->y = thePt.y();
+            *rot = M_PI/2.0-atan2f(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+            return true;
+        }
+
+        lenSoFar += len;
+    }
+    
+    middle->x = pts.back().x();
+    middle->y = pts.back().y();
+    *rot = 0.0;
+    
+    return true;
+}
+
+
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
     // Find the loop with the larest area
@@ -316,6 +362,37 @@ using namespace WhirlyGlobe;
             }
         }
     }
+}
+
+- (MaplyVectorObject *) tesselate
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    {
+        VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (unsigned int ii=0;ii<ar->loops.size();ii++)
+            {
+                std::vector<WhirlyKit::VectorRing> tris;
+                TesselateRing(ar->loops[ii], tris);
+                for (unsigned int jj=0;jj<tris.size();jj++)
+                {
+                    VectorRing &tri = tris[jj];
+//                        verts[2] = tri[0];  verts[1] = tri[1];  verts[0] = tri[2];
+                    
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->loops.push_back(tri);
+                    newVec->shapes.insert(newAr);
+                }
+//                for (unsigned int jj=0;jj<tris.size();jj++)
+//                    std::reverse(tris[jj].begin(), tris[jj].end());
+            }
+        }
+    }
+    
+    return newVec;
 }
 
 @end

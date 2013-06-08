@@ -21,6 +21,15 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
+/// Okay to place to the right of a point
+#define kMaplyLayoutRight  (1<<0)
+/// Okay to place it to the left of a point
+#define kMaplyLayoutLeft   (1<<1)
+/// Okay to place on top of a point
+#define kMaplyLayoutAbove  (1<<2)
+/// Okay to place below a point
+#define kMaplyLayoutBelow  (1<<3)
+
 /** Screen Space (2D) Label.
     Set this is up and hand it over to the WhirlyGlobeViewController for display.
  */
@@ -30,6 +39,8 @@
     NSObject *userObject;
     /// Location in geographic (lat/lon) in radians
     MaplyCoordinate loc;
+    /// Optional rotation
+    float rotation;
     /// Size on the screen, in points.  In general, set the height, but not the width.
     CGSize size;
     /// Text to display
@@ -48,10 +59,13 @@
     ///  label.  It's set to MAXFLOAT by defaut, which means it always shows up.
     /// Set it to another value to actually be laid out with constraints.
     float layoutImportance;
+    /// If we're using label importance, how we're allowed to place the label in the layout engine
+    int layoutPlacement;
 }
 
 @property (nonatomic,strong) NSObject *userObject;
 @property (nonatomic,assign) MaplyCoordinate loc;
+@property (nonatomic,assign) float rotation;
 @property (nonatomic,assign) CGSize size;
 @property (nonatomic,strong) NSString *text;
 @property (nonatomic,strong) UIImage *iconImage;
@@ -60,6 +74,7 @@
 @property (nonatomic,strong) UIColor *color;
 @property (nonatomic,assign) bool selectable;
 @property (nonatomic,assign) float layoutImportance;
+@property (nonatomic,assign) int layoutPlacement;
 
 @end
 

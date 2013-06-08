@@ -601,6 +601,23 @@ protected:
         [self performSelector:@selector(runChangeVector:) onThread:layerThread withObject:vecInfo waitUntilDone:NO];
 }
 
+- (void)enableVector:(WhirlyKit::SimpleIdentity)vecID enable:(bool)enable
+{
+    if (!layerThread || !scene || [NSThread currentThread] != layerThread)
+        return;
+    
+    VectorSceneRepMap::iterator it = vectorReps.find(vecID);
+    
+    if (it != vectorReps.end())
+    {
+        VectorSceneRep *sceneRep = it->second;
+        
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+            [layerThread addChangeRequest:(new OnOffChangeRequest(*idIt,enable))];
+    }
+}
+
 // Remove the vector
 - (void)removeVector:(SimpleIdentity)vecID
 {

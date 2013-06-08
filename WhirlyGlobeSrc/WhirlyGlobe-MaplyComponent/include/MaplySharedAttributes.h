@@ -50,6 +50,8 @@
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define kMaplyFade @"fade"
 #define kWGFade kMaplyFade
+/// Enable or disable an object.  This can be used to create an object disabled.
+#define kMaplyEnable @"enable"
 
 /// Default draw offset for 3D markers.  Set to avoid label/marker intererence
 #define kMaplyMarkerDrawOffsetDefault 1

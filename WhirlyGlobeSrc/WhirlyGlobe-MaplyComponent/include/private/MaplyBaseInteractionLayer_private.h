@@ -95,6 +95,12 @@
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs;
 
+// Enable objects
+- (void)enableObjects:(NSArray *)userObjs;
+
+// Disable objects
+- (void)disableObjects:(NSArray *)userObjs;
+
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
