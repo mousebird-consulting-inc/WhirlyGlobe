@@ -118,6 +118,11 @@ public:
 #endif
 }
 
+- (void)forceRenderSetup
+{
+    renderSetup = false;
+}
+
 static const char *vertexShaderTri =
 "struct directional_light {\n"
 "  vec3 direction;\n"
@@ -383,6 +388,7 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
+    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
     switch (zBufferMode)
     {
@@ -436,6 +442,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
+        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
         frameInfo.viewAndModelMat = modelAndViewMat;
         frameInfo.lights = lights;
         frameInfo.stateOpt = renderStateOptimizer;
@@ -467,6 +474,10 @@ static const float ScreenOverlap = 0.1;
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
         frameInfo.eyeVec = eyeVec3;
+        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
+        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
+        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
+        frameInfo.fullEyeVec = -fullEyeVec3;
         frameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
@@ -563,11 +574,12 @@ static const float ScreenOverlap = 0.1;
             }
             
             // If it has a local transform, apply that
-            const Matrix4f *localMat = drawable->getMatrix();
+            const Matrix4d *localMat = drawable->getMatrix();
             if (localMat)
             {
-                Eigen::Matrix4f newMvpMat = projMat * (viewTrans * (modelTrans * (*localMat)));
-                frameInfo.mvpMat = newMvpMat;
+                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
+                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+                frameInfo.mvpMat = newMvpMat4f;
             }
             
             // Figure out the program to use for drawing

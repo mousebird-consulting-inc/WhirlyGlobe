@@ -96,15 +96,15 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 - (bool)isValid;
 
 /// Apply the given tranformation matrix to the geometry (and normals)
-- (void)applyTransform:(Eigen::Matrix4f &)mat;
+- (void)applyTransform:(Eigen::Matrix4d &)mat;
 
 /// Apply a transform that orients the geometry as if it were a model at the given
 ///  position with its nose pointed along forward.  You can also rotate (clockwise)
 ///  around up.
-- (void)applyPosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+- (void)applyPosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang;
 
 /// Same thing as applyPosition, but it returns the matrix instead of applying it
-+ (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
++ (Eigen::Matrix4d)makePosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang;
 
 /// Construct the drawables for this raw geometry object.
 /// Adds them to the drawable array passed in.

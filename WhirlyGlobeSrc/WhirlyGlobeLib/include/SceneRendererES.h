@@ -124,11 +124,17 @@ namespace WhirlyKit
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
     
+    /// Model, and view matrix but for normal transformation
+    Eigen::Matrix4f viewModelNormalMat;
+    
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     
     /// Vector pointing up from the globe describing where the view point is
     Eigen::Vector3f eyeVec;
+    
+        /// Vector out from the eye point, including tilt
+    Eigen::Vector3f fullEyeVec;    
     
     /// Height above surface, if that makes sense
     float heightAboveSurface;
@@ -156,10 +162,12 @@ namespace WhirlyKit
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
+@property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
+@property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
 @property (nonatomic,assign) float heightAboveSurface;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 @property (nonatomic,strong) NSArray *lights;

@@ -62,6 +62,7 @@ public:
         
     WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
     WhirlyKit::ShapeSet shapes;    // The shapes for the outlines
+    std::vector<WhirlyKit::VectorRing>  outlines;  // If we're displaying outlines, the shapes for that
     WhirlyKit::GeoMbr shapeMbr;       // Overall bounding box
     float fade;            // Fade out, used for delete
     std::vector<WhirlyKit::VectorRing> triMesh;  // The post-clip triangle mesh, pre-loft
@@ -86,6 +87,9 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
      <item>top         [NSNumber bool]
      <item>side        [NSNumber bool]
      <item>layered     [NSNumber bool]
+     <item>outline     [NSNumber bool]
+     <item>outlineColor [UIColor]
+     <item>outlineWidth [NSNumber float]
      </list>
  */
 @interface WhirlyKitLoftLayer : NSObject<WhirlyKitLayer>

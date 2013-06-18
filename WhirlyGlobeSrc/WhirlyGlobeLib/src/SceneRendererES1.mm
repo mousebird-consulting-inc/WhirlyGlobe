@@ -332,11 +332,11 @@ static const float ScreenOverlap = 0.1;
             }
             
             // If it has a transform, apply that
-            const Matrix4f *thisMat = drawable->getMatrix();
+            const Matrix4d *thisMat = drawable->getMatrix();
             if (thisMat)
             {
                 glPushMatrix();
-                glMultMatrixf(thisMat->data());
+                glMultMatrixf(Matrix4dToMatrix4f(*thisMat).data());
             }
             drawable->draw(frameInfo,scene);
             

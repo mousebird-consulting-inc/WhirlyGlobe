@@ -35,7 +35,7 @@
 /// Okay to place below a point
 #define WhirlyKitLayoutPlacementBelow  (1<<3)
 
-/** This represents an object in the screen space generator to be laid out
+/** This represents an object in the screen space generator to be laid ouit
     by the layout engine.  We'll manipulate its offset and enable/disable it
     but won't otherwise change it.
  */

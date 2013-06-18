@@ -53,10 +53,12 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 @synthesize viewTrans;
 @synthesize projMat;
 @synthesize mvpMat;
+@synthesize viewModelNormalMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
 @synthesize eyeVec;
+@synthesize fullEyeVec;
 @synthesize heightAboveSurface;
 @synthesize viewAndModelMat;
 @synthesize program;

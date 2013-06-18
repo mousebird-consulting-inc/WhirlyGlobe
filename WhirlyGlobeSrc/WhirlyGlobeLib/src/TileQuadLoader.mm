@@ -532,6 +532,17 @@ void LoadedTile::Print(Quadtree *tree)
         delete *it;    
     tileSet.clear();
     
+    if (texAtlas)
+    {
+        delete texAtlas;
+        texAtlas = NULL;
+    }
+    if (drawAtlas)
+    {
+        delete drawAtlas;
+        drawAtlas = NULL;
+    }
+    
     numFetches = 0;
 
     parents.clear();
