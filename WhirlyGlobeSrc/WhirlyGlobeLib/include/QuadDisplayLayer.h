@@ -41,7 +41,11 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3d eyeVec,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+
+/// Utility function to calculate importance based on pixel screen size.
+/// This version takes a min/max height and is optimized for volumes.
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, double minZ,double maxZ, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
 }
 
 /// A solid volume used to describe the display space a tile takes up.
@@ -58,8 +62,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     std::vector<Eigen::Vector3d> surfNormals;
 }
 
-/// Look for an existing display solid or create one for the node ident
-+ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+/// Create a display solid, including height.
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)minZ maxZ:(float)maxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// Returns true if the given point (in display space) is inside the volume
 - (bool)isInside:(WhirlyKit::Point3d)pt;

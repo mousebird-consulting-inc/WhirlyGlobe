@@ -213,6 +213,7 @@ using namespace WhirlyKit;
     invFullMatrix = fullMatrix.inverse();
     projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
     invProjMatrix = projMatrix.inverse();
+    fullNormalMatrix = fullMatrix.inverse().transpose();
     
     fieldOfView = view.fieldOfView;
     imagePlaneSize = view.imagePlaneSize;

@@ -20,8 +20,10 @@
 
 
 #import "GlobeMath.h"
+#import "FlatMath.h"
 #import "proj_api.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 // These are just pointers and they won't change
@@ -217,4 +219,66 @@ Point3d FakeGeocentricDisplayAdapter::normalForLocal(Point3d pt)
 }
     
 	
+Point3f GeocentricDisplayAdapter::LocalToDisplay(Point3f geoPt)
+{
+    Point3f geoCpt = GeoCoordSystem::LocalToGeocentric(geoPt);
+    return Point3f(geoCpt.x()/EarthRadius,geoCpt.y()/EarthRadius,geoCpt.z()/EarthRadius);
+}
+
+Point3d GeocentricDisplayAdapter::LocalToDisplay(Point3d geoPt)
+{
+    Point3d geoCpt = GeoCoordSystem::LocalToGeocentric(geoPt);
+    return Point3d(geoCpt.x()/EarthRadius,geoCpt.y()/EarthRadius,geoCpt.z()/EarthRadius);
+}
+
+Point3f GeocentricDisplayAdapter::localToDisplay(Point3f geoPt)
+{
+    return LocalToDisplay(geoPt);
+}
+
+Point3d GeocentricDisplayAdapter::localToDisplay(Point3d geoPt)
+{
+    return LocalToDisplay(geoPt);
+}
+
+Point3f GeocentricDisplayAdapter::DisplayToLocal(Point3f pt)
+{
+    Point3f geoCpt = pt * EarthRadius;
+    return GeoCoordSystem::GeocentricToLocal(geoCpt);
+}
+
+Point3d GeocentricDisplayAdapter::DisplayToLocal(Point3d pt)
+{
+    Point3d geoCpt = pt * EarthRadius;
+    return GeoCoordSystem::GeocentricToLocal(geoCpt);
+}
+
+Point3f GeocentricDisplayAdapter::displayToLocal(Point3f pt)
+{
+    return DisplayToLocal(pt);
+}
+
+Point3d GeocentricDisplayAdapter::displayToLocal(Point3d pt)
+{
+    return DisplayToLocal(pt);
+}
+
+Point3f GeocentricDisplayAdapter::normalForLocal(Point3f pt)
+{
+    return LocalToDisplay(pt);
+}
+
+Point3d GeocentricDisplayAdapter::normalForLocal(Point3d pt)
+{
+    return LocalToDisplay(pt);
+}
+    
+float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const Matrix4f &viewAndModelMat,const Matrix4f &viewModelNormalMat)
+{
+    Vector4f pt = viewAndModelMat * Vector4f(dispLoc.x(),dispLoc.y(),dispLoc.z(),1.0);
+    pt /= pt.w();
+    Vector4f testDir = viewModelNormalMat * Vector4f(norm.x(),norm.y(),norm.z(),0.0);
+    return Vector3f(-pt.x(),-pt.y(),-pt.z()).dot(Vector3f(testDir.x(),testDir.y(),testDir.z()));
+}
+    
 }

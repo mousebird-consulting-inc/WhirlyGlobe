@@ -85,5 +85,6 @@
 #import "ShapeDrawableBuilder.h"
 #import "ShapeLayer.h"
 #import "LayoutLayer.h"
+#import "BillboardLayer.h"
 #import "OpenGLES2Program.h"
 

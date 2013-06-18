@@ -1166,12 +1166,17 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture
     prog->setUniform("u_hasTexture", (glTexID != 0));
+    
+    // If this is present, the drawable wants to do something based where the viewer is looking
+    prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
     
     // Texture
     const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
@@ -1413,7 +1418,7 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
     basicDrawable->setTexId(newTexId);
 }
 
-TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat)
+TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)
     : DrawableChangeRequest(drawId), newMat(*newMat)
 {
 }

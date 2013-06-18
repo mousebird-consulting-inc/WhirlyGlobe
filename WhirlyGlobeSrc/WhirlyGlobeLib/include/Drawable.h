@@ -169,7 +169,7 @@ public:
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4f *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
 
     /// Check if the force Z buffer on mode is on
     virtual bool getForceZBufferOn() const { return false; }
@@ -396,10 +396,10 @@ public:
 	void addRect(const Point3f &l0, const Eigen::Vector3f &ln0, const Point3f &l1, const Eigen::Vector3f &ln1,float width);
     
     /// Set the active transform matrix
-    void setMatrix(const Eigen::Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+    void setMatrix(const Eigen::Matrix4d *inMat) { mat = *inMat; hasMatrix = true; }
 
     /// Return the active transform matrix, if we have one
-    const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
+    const Eigen::Matrix4d *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
     
     /// Run the texture and texture coordinates based on a SubTexture
     void applySubTexture(SubTexture subTex);
@@ -462,7 +462,7 @@ protected:
     
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
-    Eigen::Matrix4f mat;
+    Eigen::Matrix4d mat;
 	
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
@@ -539,12 +539,12 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
-    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4f *newMat);
+    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    Eigen::Matrix4f newMat;
+    Eigen::Matrix4d newMat;
 };
     
 /// Change the drawPriority on a drawable
