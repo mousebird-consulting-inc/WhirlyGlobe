@@ -72,12 +72,18 @@ using namespace Eigen;
     coordAdapter = nil;
 }
 
-// Set the new rotation, but also keep track of when we did it
 - (void)setRotQuat:(Eigen::Quaterniond)newRotQuat
+{
+    [self setRotQuat:newRotQuat updateWatchers:true];
+}
+
+// Set the new rotation, but also keep track of when we did it
+- (void)setRotQuat:(Eigen::Quaterniond)newRotQuat updateWatchers:(bool)updateWatchers
 {
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     rotQuat = newRotQuat;
-    [self runViewUpdates];
+    if (updateWatchers)
+       [self runViewUpdates];
 }
 
 - (void)setTilt:(double)newTilt
@@ -116,9 +122,14 @@ using namespace Eigen;
 	return 1.0 + heightAboveGlobe;
 }
 
+- (void)setHeightAboveGlobe:(double)newH
+{
+    [self setHeightAboveGlobe:newH updateWatchers:true];
+}
+
 // Set the height above the globe, but constrain it
 // Also keep track of when we did it
-- (void)setHeightAboveGlobe:(double)newH
+- (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
 {
 	double minH = [self minHeightAboveGlobe];
 	heightAboveGlobe = std::max(newH,minH);
@@ -145,7 +156,8 @@ using namespace Eigen;
 
     lastChangedTime = CFAbsoluteTimeGetCurrent();
     
-    [self runViewUpdates];
+    if (updateWatchers)
+       [self runViewUpdates];
 }
 	
 - (Eigen::Matrix4d)calcModelMatrix

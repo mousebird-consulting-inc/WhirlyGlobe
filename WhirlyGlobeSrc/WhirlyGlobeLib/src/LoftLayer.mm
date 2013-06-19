@@ -583,11 +583,7 @@ protected:
 
                         // May need to add the outline as well
                         if (polyInfo->outline)
-                        {
-                            VectorRing newOutline;
-                            SubdivideEdgesToSurface(ring,newOutline,true,coordAdapter,0.000005);
-                            sceneRep->outlines.push_back(newOutline);
-                        }
+                            sceneRep->outlines.push_back(ring);
 
                         for (unsigned int ii=0;ii<clippedMesh.size();ii++)
                         {
