@@ -512,7 +512,7 @@ void BigDrawable::executeFlush(int whichBuffer)
         size_t len = [it->elementData length];
         memcpy(elBufPtr, [it->elementData bytes], len);
         elBufPtr += len;
-            elBufferSize += len;
+        elBufferSize += len;
     }
     if (elBufPtr - elBuffer > numElementBytes)
     {

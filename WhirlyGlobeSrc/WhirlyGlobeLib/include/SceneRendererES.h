@@ -92,6 +92,9 @@ namespace WhirlyKit
 /// Calls glUseProgram
 - (void)setUseProgram:(GLuint)progId;
 
+/// Calls glLineWidth
+- (void)setLineWidth:(GLfloat)lineWidth;
+
 /// Called by the render to clear state
 - (void)reset;
 

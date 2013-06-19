@@ -73,6 +73,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     int depthMask;
     int depthTest;
     int progId;
+    GLfloat lineWidth;
 }
 
 - (id)init
@@ -89,6 +90,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     depthMask = 0;
     depthTest = -1;
     progId = -1;
+    lineWidth = -1.0;
 }
 
 - (void)setActiveTexture:(GLenum)newActiveTexture
@@ -123,10 +125,19 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 
 - (void)setUseProgram:(GLuint)newProgId
 {
-    if (progId != newProgId)
-    {
+//    if (progId != newProgId)
+//    {
         glUseProgram(newProgId);
         progId = newProgId;
+//    }
+}
+
+- (void)setLineWidth:(GLfloat)newLineWidth
+{
+    if (lineWidth != newLineWidth || lineWidth == -1.0)
+    {
+        glLineWidth(newLineWidth);
+        lineWidth = newLineWidth;
     }
 }
 
