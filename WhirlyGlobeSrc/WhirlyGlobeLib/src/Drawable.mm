@@ -1283,9 +1283,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                glLineWidth(lineWidth);
+                [frameInfo.stateOpt setLineWidth:lineWidth];
                 glDrawArrays(type, 0, numPoints);
-                glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
             case GL_TRIANGLE_STRIP:
@@ -1317,11 +1316,9 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                glLineWidth(lineWidth);
+                [frameInfo.stateOpt setLineWidth:lineWidth];
                 CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                 glDrawArrays(type, 0, numPoints);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
             case GL_TRIANGLE_STRIP:
