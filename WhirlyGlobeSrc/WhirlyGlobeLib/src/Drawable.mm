@@ -255,6 +255,7 @@ BasicDrawable::BasicDrawable(const std::string &name)
     vertArrayObj = 0;
     sharedBufferIsExternal = false;
     requestZBuffer = false;
+    writeZBuffer = true;
 
     hasMatrix = false;
 }
@@ -280,6 +281,7 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
     requestZBuffer = false;
+    writeZBuffer = true;
 
     numTris = 0;
     numPoints = 0;
