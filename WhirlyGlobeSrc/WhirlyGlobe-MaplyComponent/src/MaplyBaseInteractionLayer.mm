@@ -28,6 +28,7 @@
 #import "MaplySticker.h"
 #import "MaplyCoordinate.h"
 #import "ImageTexture_private.h"
+#import "MaplySharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -670,6 +671,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
         chunk.sampleX = [inDesc[@"sampleX"] intValue];
         chunk.sampleY = [inDesc[@"sampleY"] intValue];
+        NSNumber *bufRead = inDesc[kMaplyZBufferRead];
+        if (bufRead)
+            chunk.readZBuffer = [bufRead boolValue];
+        NSNumber *bufWrite = inDesc[kMaplyZBufferWrite];
+        if (bufWrite)
+            chunk.writeZBuffer = [bufWrite boolValue];
         chunk.rotation = sticker.rotation;
         SimpleIdentity chunkId = [_chunkLayer addChunk:chunk enable:true];
         compObj.chunkIDs.insert(chunkId);

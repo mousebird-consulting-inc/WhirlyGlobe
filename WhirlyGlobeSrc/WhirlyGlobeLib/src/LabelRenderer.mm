@@ -450,6 +450,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     
                     screenObjects.push_back(screenShape);
                 }
+            
+                delete drawStr;
             }
         }
         

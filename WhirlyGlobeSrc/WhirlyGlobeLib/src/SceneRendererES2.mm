@@ -49,6 +49,13 @@ public:
     }
     bool operator()(Drawable *a,Drawable *b)
     {
+        // We may or may not sort all alpha containing drawables to the end
+        if (useAlpha)
+            if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
+                return !a->hasAlpha(frameInfo);
+ 
+        if (a->getDrawPriority() == b->getDrawPriority())
+        {
         if (useZBuffer)
         {
             bool bufferA = a->getRequestZBuffer();
@@ -56,10 +63,7 @@ public:
             if (bufferA != bufferB)
                 return !bufferA;
         }
-        // We may or may not sort all alpha containing drawables to the end
-        if (useAlpha)
-            if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
-                return !a->hasAlpha(frameInfo);
+        }
                 
         return a->getDrawPriority() < b->getDrawPriority();
     }
@@ -412,7 +416,7 @@ static const float ScreenOverlap = 0.1;
         case zBufferOffDefault:
             [renderStateOptimizer setDepthMask:GL_TRUE];
             [renderStateOptimizer setEnableDepthTest:true];
-            glDepthFunc(GL_ALWAYS);
+            [renderStateOptimizer setDepthFunc:GL_ALWAYS];
             break;
     }
     
@@ -574,10 +578,12 @@ static const float ScreenOverlap = 0.1;
             // For this mode we turn the z buffer off until we get a request to turn it on
             if (zBufferMode == zBufferOffDefault)
             {
-                if (!depthMaskOn && drawable->getRequestZBuffer())
+                if (drawable->getRequestZBuffer())
                 {
-                    glDepthFunc(GL_LESS);
+                    [renderStateOptimizer setDepthFunc:GL_LESS];
                     depthMaskOn = true;
+                } else {
+                    [renderStateOptimizer setDepthFunc:GL_ALWAYS];
                 }
             }
 

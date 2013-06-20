@@ -115,6 +115,8 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 @synthesize minVis,maxVis;
 @synthesize minVisBand,maxVisBand;
 @synthesize rotation;
+@synthesize readZBuffer;
+@synthesize writeZBuffer;
 
 - (id)init
 {
@@ -128,6 +130,8 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
     eps = 0.0005;
     minVis = DrawVisibleInvalid;
     maxVis = DrawVisibleInvalid;
+    readZBuffer = false;
+    writeZBuffer = true;
     
     return self;
 }
@@ -212,7 +216,8 @@ static const float SkirtFactor = 0.95;
     drawable->setTexId(texId);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(minVis, maxVis, minVisBand, maxVisBand);
-    drawable->setWriteZBuffer(false);
+    drawable->setRequestZBuffer(self.readZBuffer);
+    drawable->setWriteZBuffer(self.writeZBuffer);
     
     int thisSampleX = sampleX, thisSampleY = sampleY;
     
