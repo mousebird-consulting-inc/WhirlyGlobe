@@ -54,6 +54,17 @@ using namespace WhirlyKit;
     _sticker = newSticker;
 }
 
+- (void)updateWithDesc:(NSDictionary *)descDict
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+    
+    changed = true;
+    NSMutableDictionary *temp = [desc mutableCopy];
+    [temp setValuesForKeysWithDictionary:descDict];
+    desc = [temp copy];
+}
+
 - (bool)hasUpdate
 {
     return changed;

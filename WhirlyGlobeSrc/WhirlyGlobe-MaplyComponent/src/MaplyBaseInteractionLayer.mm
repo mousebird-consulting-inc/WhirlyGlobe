@@ -314,6 +314,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
+        wgLabel.iconSize = label.iconSize;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
         if (label.size.height > 0.0)

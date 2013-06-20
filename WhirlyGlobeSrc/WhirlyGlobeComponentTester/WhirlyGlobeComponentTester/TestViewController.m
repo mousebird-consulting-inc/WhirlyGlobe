@@ -348,10 +348,9 @@ LocationInfo locations[NumLocations] =
                  labelColor,kMaplyTextColor,
                  labelBackColor,kMaplyBackgroundColor,
                  nil];
-    vectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                vecColor,kMaplyColor,
-                                [NSNumber numberWithFloat:vecWidth],kMaplyVecWidth,
-                                nil];
+    vectorDesc = @{kMaplyColor: vecColor,
+                   kMaplyVecWidth: @(vecWidth),
+                   kMaplyDrawPriority: @(100)};
     
     // Maximum number of objects for the layout engine to display
     [baseViewC setMaxLayoutObjects:1000];

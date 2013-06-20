@@ -167,7 +167,7 @@ static const float ScreenOverlap = 0.1;
             glDepthMask(GL_FALSE);
             glDisable(GL_DEPTH_TEST);
             break;
-        case zBufferOffUntilLines:
+        case zBufferOffDefault:
             glDepthMask(GL_TRUE);
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_ALWAYS);
@@ -289,7 +289,7 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        bool sortLinesToEnd = (zBufferMode == zBufferOffUntilLines);
+        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct(sortAlphaToEnd,sortLinesToEnd,frameInfo));
         
         if (perfInterval > 0)
@@ -320,11 +320,11 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            // For this mode we turn the z buffer off until we get our first lines
-            // This assumes we're sorting lines to the end
-            if (zBufferMode == zBufferOffUntilLines)
+            // For this mode we turn the z buffer off until we get something that wants it
+            // We're sorting those things to the end
+            if (zBufferMode == zBufferOffDefault)
             {
-                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getForceZBufferOn()))
+                if (drawable->getRequestZBuffer())
                 {
                     glDepthFunc(GL_LESS);
                     depthMaskOn = true;
