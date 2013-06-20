@@ -87,13 +87,13 @@ using namespace WhirlyKit;
     
     switch (justify)
     {
-        case Left:
+        case WhirlyKitLabelLeft:
             ll = center + theIconSize.x() * horiz - height2 * vert;
             break;
-        case Middle:
+        case WhirlyKitLabelMiddle:
             ll = center - (width2 + theIconSize.x()/2) * horiz - height2 * vert;
             break;
-        case Right:
+        case WhirlyKitLabelRight:
             ll = center - 2*width2 * horiz - height2 * vert;
             break;
     }
@@ -105,13 +105,13 @@ using namespace WhirlyKit;
     // Now add the quad for the icon
     switch (justify)
     {
-        case Left:
+        case WhirlyKitLabelLeft:
             ll = center - height2*vert;
             break;
-        case Middle:
+        case WhirlyKitLabelMiddle:
             ll = center - (width2 + theIconSize.x()) * horiz - height2*vert;
             break;
-        case Right:
+        case WhirlyKitLabelRight:
             ll = center - (2*width2 + theIconSize.x()) * horiz - height2*vert;
             break;
     }
@@ -132,13 +132,13 @@ using namespace WhirlyKit;
     Point2f iconSizeForLabel = (useIconOffset ? theIconSize : Point2f(0,0));
     switch (justify)
     {
-        case Left:
+        case WhirlyKitLabelLeft:
             ll = center + iconSizeForLabel.x() * horiz - height2 * vert;
             break;
-        case Middle:
+        case WhirlyKitLabelMiddle:
             ll = center - (width2 + iconSizeForLabel.x()/2) * horiz - height2 * vert;
             break;
-        case Right:
+        case WhirlyKitLabelRight:
             ll = center - 2*width2 * horiz - height2 * vert;
             break;
     }
@@ -150,13 +150,13 @@ using namespace WhirlyKit;
     // Now add the quad for the icon
     switch (justify)
     {
-        case Left:
+        case WhirlyKitLabelLeft:
             ll = center - height2*vert;
             break;
-        case Middle:
+        case WhirlyKitLabelMiddle:
             ll = center - (width2 + iconSizeForLabel.x()) * horiz - height2*vert;
             break;
-        case Right:
+        case WhirlyKitLabelRight:
             ll = center - (2*width2 + iconSizeForLabel.x()) * horiz - height2*vert;
             break;
     }

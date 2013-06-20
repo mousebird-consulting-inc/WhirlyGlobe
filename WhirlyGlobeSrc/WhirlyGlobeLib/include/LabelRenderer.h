@@ -55,7 +55,7 @@ typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
 }
 
 // How a label is justified for display
-typedef enum {Middle,Left,Right} WhirlyKitLabelJustify;
+typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
 
 // Label spec passed around between threads
 @interface WhirlyKitLabelInfo : NSObject
