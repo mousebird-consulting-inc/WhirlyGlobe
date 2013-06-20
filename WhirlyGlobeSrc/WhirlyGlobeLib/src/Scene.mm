@@ -226,7 +226,11 @@ void Scene::teardownGL()
     drawables.clear();
     for (TextureSet::iterator it = textures.begin();
          it != textures.end(); ++it)
-        (*it)->destroyInGL(&memManager);
+    {
+        TextureBase *texture = *it;
+        texture->destroyInGL(&memManager);
+        delete texture;
+    }
     textures.clear();
     
     memManager.clearBufferIDs();
