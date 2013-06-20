@@ -312,6 +312,10 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
+
+    // We don't need to get tricky unless we're z buffering this data
+    if (!requestZBuffer)
+        return false;
     
     if (fadeDown < fadeUp)
     {
