@@ -212,6 +212,7 @@ static const float SkirtFactor = 0.95;
     drawable->setTexId(texId);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(minVis, maxVis, minVisBand, maxVisBand);
+    drawable->setWriteZBuffer(false);
     
     int thisSampleX = sampleX, thisSampleY = sampleY;
     
@@ -330,6 +331,7 @@ static const float SkirtFactor = 0.95;
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(minVis, maxVis);
         skirtDrawable->setRequestZBuffer(true);
+        skirtDrawable->setWriteZBuffer(false);
         
         // Bottom skirt
         std::vector<Point3f> skirtLocs;
