@@ -89,6 +89,9 @@ namespace WhirlyKit
 /// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
 - (void)setEnableDepthTest:(bool)enable;
 
+/// Calls glDepthFunc
+- (void)setDepthFunc:(GLenum)depthFuncVal;
+
 /// Calls glUseProgram
 - (void)setUseProgram:(GLuint)progId;
 

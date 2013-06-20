@@ -396,6 +396,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                         Point2f realSize(glyphSize.width+2,glyphSize.height+2);
                         if (texAtlas->addTexture(tex, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
                             glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset);
+                        delete tex;
                     }
                 }
                 

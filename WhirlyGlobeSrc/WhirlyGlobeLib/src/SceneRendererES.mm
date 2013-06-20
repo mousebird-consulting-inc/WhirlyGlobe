@@ -73,6 +73,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     int depthMask;
     int depthTest;
     int progId;
+    int depthFunc;
     GLfloat lineWidth;
 }
 
@@ -91,6 +92,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     depthTest = -1;
     progId = -1;
     lineWidth = -1.0;
+    depthFunc = -1;
 }
 
 - (void)setActiveTexture:(GLenum)newActiveTexture
@@ -120,6 +122,15 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
         else
             glDisable(GL_DEPTH_TEST);
         depthTest = newEnable;
+    }
+}
+
+- (void)setDepthFunc:(GLenum)newDepthFunc
+{
+    if (depthFunc == -1 || newDepthFunc != depthFunc)
+    {
+        glDepthFunc(newDepthFunc);
+        depthFunc = newDepthFunc;
     }
 }
 

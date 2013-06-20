@@ -499,6 +499,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         return;
     }
     
+    // Just put ourselves on hold for a while
+    if (!inViewState)
+        return;
+
     // Check if we should even be doing an update
     if ([loader respondsToSelector:@selector(shouldUpdate:initial:)])
         if (![loader shouldUpdate:inViewState initial:(viewState == nil)])
@@ -541,7 +545,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     bool didSomething = false;
     
     // If the renderer hasn't been set up, punt and try again later
-    if (renderer.framebufferWidth == 0 || renderer.framebufferHeight == 0)
+    if (renderer.framebufferWidth == 0 || renderer.framebufferHeight == 0 || viewState == nil)
     {
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.1];
         return;
