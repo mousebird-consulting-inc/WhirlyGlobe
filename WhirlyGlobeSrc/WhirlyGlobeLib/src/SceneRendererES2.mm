@@ -582,8 +582,13 @@ static const float ScreenOverlap = 0.1;
             }
 
             // If we're drawing lines or points we don't want to update the z buffer
-            if (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getType() == GL_POINTS)
-                [renderStateOptimizer setDepthMask:GL_FALSE];
+            if (zBufferMode != zBufferOff)
+            {
+                if (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getType() == GL_POINTS)
+                    [renderStateOptimizer setDepthMask:GL_FALSE];
+                else
+                    [renderStateOptimizer setDepthMask:GL_TRUE];
+            }
             
             // If it has a local transform, apply that
             const Matrix4d *localMat = drawable->getMatrix();
