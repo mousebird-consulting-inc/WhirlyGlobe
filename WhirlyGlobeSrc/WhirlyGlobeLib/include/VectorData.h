@@ -170,7 +170,7 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0);
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

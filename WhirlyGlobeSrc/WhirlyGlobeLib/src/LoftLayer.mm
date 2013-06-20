@@ -233,8 +233,8 @@ public:
                 drawable->setDrawPriority(polyInfo->priority);
                 drawable->setAlpha(true);
             } else {
-            drawable->setAlpha(true);
-            drawable->setForceZBufferOn(true);
+                drawable->setAlpha(true);
+                drawable->setRequestZBuffer(true);
             }
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }

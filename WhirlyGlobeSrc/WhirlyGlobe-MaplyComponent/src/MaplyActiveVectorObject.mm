@@ -23,13 +23,70 @@
 #import "MaplyActiveVectorObject.h"
 #import "WhirlyGlobe.h"
 #import "MaplyVectorObject_private.h"
+#import "MaplySharedAttributes.h"
 
 using namespace WhirlyKit;
+
+// Sample a great circle and throw in an interpolated height at each point
+// Note: Borrowed from the interaction layer
+static void SampleGreatCircle(const VectorRing &inPts,std::vector<Point3f> &pts,float height,float eps,int minPts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+{
+    bool isFlat = coordAdapter->isFlat();
+    
+    // We can subdivide the great circle with this routine
+    if (isFlat)
+    {
+        pts.reserve(inPts.size());
+        for (unsigned int ii=0;ii<inPts.size();ii++)
+        {
+            const Point2f &pt = inPts[ii];
+            pts.push_back(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(pt.x(),pt.y()))));
+        }
+    } else {
+        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, eps, 0.0, minPts);
+        
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        
+        // Note: Hack!
+        if (totLen < 0.009)
+            height = height / 10;
+        if (totLen < 0.0009)
+            height = height / 10;
+        
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3f &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+                pt.z() = thisHeight;
+            else
+                pt *= 1.0+thisHeight;
+        }
+    }
+}
 
 @implementation MaplyActiveLinearVectorObject
 {
     bool changed;
     WhirlyKitShapeInfo *shapeInfo;
+    float height;
+    int minSample;
     bool closed;
     std::vector<Point3f> srcPts;
     // IDs for the drawables we're using
@@ -46,6 +103,8 @@ using namespace WhirlyKit;
     changed = false;
     desc = descDict;
     shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:nil desc:desc];
+    height = [desc floatForKey:kMaplyVecHeight default:0.0];
+    minSample = [desc intForKey:kMaplyVecMinSample default:1];
     
     return self;
 }
@@ -111,7 +170,6 @@ using namespace WhirlyKit;
     // Construct new ones
     if (srcPts.size() > 0)
     {
-        float drawOffset = shapeInfo.drawOffset;
         std::vector<Point3f> outPts;
         VectorRing inPts;
         inPts.resize(srcPts.size());
@@ -121,11 +179,13 @@ using namespace WhirlyKit;
             inPts[ii] = Point2f(coord.x(),coord.y());
         }
         if (_globeEps > 0.0)
+        {
+            SampleGreatCircle(inPts, outPts, height, _globeEps, minSample, scene->getCoordAdapter());
             // Note: Z buffer res at the end is a hack
-            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, drawOffset*0.0001);
-        else {
+//            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, drawOffset*0.0001);
+        } else {
             // Just use a really large number to at least run it through the reprojection
-            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, 1.0);
+            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, 1.0, minSample);
         }
             
         Mbr drawMbr;

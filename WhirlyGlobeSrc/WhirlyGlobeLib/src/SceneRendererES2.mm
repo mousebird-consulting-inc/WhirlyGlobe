@@ -33,28 +33,28 @@ namespace WhirlyKit
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
     {
     }
     DrawListSortStruct2 & operator = (const DrawListSortStruct &that)
     {
         useAlpha = that.useAlpha;
-        useLines= that.useLines;
+        useZBuffer= that.useZBuffer;
         frameInfo = that.frameInfo;
         return *this;
     }
     bool operator()(Drawable *a,Drawable *b)
     {
-        if (useLines)
+        if (useZBuffer)
         {
-            bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || (a->getType() == GL_POINTS) || a->getForceZBufferOn();
-            bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || (b->getType() == GL_POINTS) || b->getForceZBufferOn();
-            if (linesA != linesB)
-                return !linesA;
+            bool bufferA = a->getRequestZBuffer();
+            bool bufferB = b->getRequestZBuffer();
+            if (bufferA != bufferB)
+                return !bufferA;
         }
         // We may or may not sort all alpha containing drawables to the end
         if (useAlpha)
@@ -64,7 +64,7 @@ public:
         return a->getDrawPriority() < b->getDrawPriority();
     }
     
-    bool useAlpha,useLines;
+    bool useAlpha,useZBuffer;
     WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
     
@@ -409,7 +409,7 @@ static const float ScreenOverlap = 0.1;
             [renderStateOptimizer setDepthMask:GL_FALSE];
             [renderStateOptimizer setEnableDepthTest:false];
             break;
-        case zBufferOffUntilLines:
+        case zBufferOffDefault:
             [renderStateOptimizer setDepthMask:GL_TRUE];
             [renderStateOptimizer setEnableDepthTest:true];
             glDepthFunc(GL_ALWAYS);
@@ -538,7 +538,7 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        bool sortLinesToEnd = (zBufferMode == zBufferOffUntilLines);
+        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,frameInfo));
                 
         if (perfInterval > 0)
@@ -562,7 +562,7 @@ static const float ScreenOverlap = 0.1;
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffUntilLines))
+            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
             {
                 if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
@@ -571,16 +571,19 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            // For this mode we turn the z buffer off until we get our first lines
-            // This assumes we're sorting lines to the end
-            if (zBufferMode == zBufferOffUntilLines)
+            // For this mode we turn the z buffer off until we get a request to turn it on
+            if (zBufferMode == zBufferOffDefault)
             {
-                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getForceZBufferOn()))
+                if (!depthMaskOn && drawable->getRequestZBuffer())
                 {
                     glDepthFunc(GL_LESS);
                     depthMaskOn = true;
                 }
             }
+
+            // If we're drawing lines or points we don't want to update the z buffer
+            if (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getType() == GL_POINTS)
+                [renderStateOptimizer setDepthMask:GL_FALSE];
             
             // If it has a local transform, apply that
             const Matrix4d *localMat = drawable->getMatrix();

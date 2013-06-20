@@ -112,7 +112,7 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 }
     
 // Great circle version
-void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -123,15 +123,15 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
     Point3f midP = (p0+p1)/2.0;
     Point3f midOnSphere = midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
-    if (dist2 > eps*eps)
+    if (dist2 > eps*eps || minPts > 0)
     {
-        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset);
-        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset);
+        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset,minPts/2);
+        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset,minPts/2);
     }
     outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;
@@ -152,7 +152,7 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &out
         Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
         dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
-        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset);
+        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
     }    
 }
 

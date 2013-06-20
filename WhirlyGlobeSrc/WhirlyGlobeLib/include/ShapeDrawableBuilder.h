@@ -35,6 +35,7 @@
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float lineWidth;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity shapeId;
+@property (nonatomic,assign) bool zBuffer;
 
 - (id)initWithShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 

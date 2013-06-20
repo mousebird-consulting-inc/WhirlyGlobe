@@ -37,7 +37,7 @@ BigDrawable::Buffer::Buffer()
 }
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
-    : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), forceZBuffer(false),
+    : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), requestZBuffer(false),
     waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0)
 {
     activeBuffer = -1;
@@ -59,7 +59,7 @@ BigDrawable::~BigDrawable()
     
 bool BigDrawable::isCompatible(BasicDrawable *draw)
 {
-    if (getTexId() == draw->getTexId() && getForceZBufferOn() == draw->getForceZBufferOn() &&
+    if (getTexId() == draw->getTexId() && getRequestZBuffer() == draw->getRequestZBuffer() &&
         getDrawPriority() == draw->getDrawPriority())
     {
         float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
@@ -75,7 +75,7 @@ bool BigDrawable::isCompatible(BasicDrawable *draw)
 void BigDrawable::setModes(BasicDrawable *draw)
 {
     texId = draw->getTexId();
-    forceZBuffer = draw->getForceZBufferOn();
+    requestZBuffer = draw->getRequestZBuffer();
     drawPriority = draw->getDrawPriority();
     draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
 }

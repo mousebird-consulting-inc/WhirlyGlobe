@@ -62,6 +62,7 @@ static const int MaxShapeDrawableTris=1<<15/3;
     _drawPriority = [desc intForKey:@"drawPriority" default:ShapeDrawPriority];
     _lineWidth = [desc floatForKey:@"width" default:1.0];
     _fade = [desc floatForKey:@"fade" default:0.0];
+    _zBuffer = [desc floatForKey:@"zbuffer" default:true];
 }
 
 @end
@@ -102,7 +103,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         drawable->setLineWidth(lineWidth);
         drawable->setDrawPriority(shapeInfo.drawPriority);
         drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
-        drawable->setForceZBufferOn(true);
+        drawable->setRequestZBuffer(shapeInfo.zBuffer);
     }
     drawMbr.expand(mbr);
     
@@ -204,7 +205,7 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setColor([shapeInfo.color asRGBAColor]);
     drawable->setDrawPriority(shapeInfo.drawPriority);
     drawable->setVisibleRange(shapeInfo.minVis,shapeInfo.maxVis);
-    drawable->setForceZBufferOn(true);
+    drawable->setRequestZBuffer(shapeInfo.zBuffer);
 }
     
 // Add a triangle with normals

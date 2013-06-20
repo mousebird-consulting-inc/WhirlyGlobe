@@ -172,7 +172,7 @@ public:
     virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
 
     /// Check if the force Z buffer on mode is on
-    virtual bool getForceZBufferOn() const { return false; }
+    virtual bool getRequestZBuffer() const { return false; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
@@ -330,10 +330,10 @@ public:
     float getLineWidth() { return lineWidth; }
 
     /// Used to sort a Drawable in with the lines in zBufferOffUntilLines mode
-    void setForceZBufferOn(bool val) { forceZBufferOn = val; }
+    void setRequestZBuffer(bool val) { requestZBuffer = val; }
     
     /// Check if the force Z buffer on mode is on
-    bool getForceZBufferOn() const { return forceZBufferOn; }
+    bool getRequestZBuffer() const { return requestZBuffer; }
 
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
@@ -450,8 +450,8 @@ protected:
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
     float lineWidth;
-    // For zBufferOffUntilLines mode we'll sort this with the lines
-    bool forceZBufferOn;
+    // For zBufferOffDefault mode we'll sort this to the end
+    bool requestZBuffer;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
 	std::vector<Eigen::Vector3f> points;

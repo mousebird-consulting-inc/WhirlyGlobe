@@ -324,12 +324,12 @@ static const float SkirtFactor = 0.95;
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
         skirtDrawable->setType(GL_TRIANGLES);
         skirtDrawable->setLocalMbr(mbr);
-        skirtDrawable->setDrawPriority(drawPriority);
+        skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(drawOffset);
         skirtDrawable->setTexId(texId);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(minVis, maxVis);
-        skirtDrawable->setForceZBufferOn(true);
+        skirtDrawable->setRequestZBuffer(true);
         
         // Bottom skirt
         std::vector<Point3f> skirtLocs;
