@@ -40,28 +40,28 @@ namespace WhirlyKit
     class DrawListSortStruct
     {
     public:
-        DrawListSortStruct(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
+        DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
         {
         }
         ~DrawListSortStruct() { }
-        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
+        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
         {
         }
         DrawListSortStruct & operator = (const DrawListSortStruct &that)
         {
             useAlpha = that.useAlpha;
-            useLines= that.useLines;
+            useZBuffer= that.useZBuffer;
             frameInfo = that.frameInfo;
             return *this;
         }
         bool operator()(Drawable *a,Drawable *b)
         {
-            if (useLines)
+            if (useZBuffer)
             {
-                bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || (a->getType() == GL_POINTS) || a->getForceZBufferOn();
-                bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || (b->getType() == GL_POINTS) || b->getForceZBufferOn();
-                if (linesA != linesB)
-                    return !linesA;
+                bool bufferA = a->getRequestZBuffer();
+                bool bufferB = b->getRequestZBuffer();
+                if (bufferA != bufferB)
+                    return !bufferA;
             }
             // We may or may not sort all alpha containing drawables to the end
             if (useAlpha)
@@ -71,7 +71,7 @@ namespace WhirlyKit
             return a->getDrawPriority() < b->getDrawPriority();
         }
         
-        bool useAlpha,useLines;
+        bool useAlpha,useZBuffer;
         WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
     };
 }
@@ -179,10 +179,10 @@ namespace WhirlyKit
 @end
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
-    (2) Completely off, priority sorting only.  (3) Priority sorting, but lines are sorted to
-    the back, the z buffer is turned on and then they're drawn.
+    (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
+        are allowed to force the z buffer on temporarily.
   */
-typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZBufferMode;
+typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBufferMode;
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES

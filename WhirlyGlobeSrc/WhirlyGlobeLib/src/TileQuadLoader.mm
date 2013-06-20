@@ -847,14 +847,14 @@ void LoadedTile::Print(Quadtree *tree)
                 // We'll set up and fill in the drawable
                 BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
                 skirtChunk->setDrawOffset(drawOffset);
-                skirtChunk->setDrawPriority(drawPriority);
+                skirtChunk->setDrawPriority(0);
                 skirtChunk->setVisibleRange(minVis, maxVis);
                 skirtChunk->setAlpha(hasAlpha);
                 skirtChunk->setColor(color);
                 skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
                 skirtChunk->setType(GL_TRIANGLES);
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
-                skirtChunk->setForceZBufferOn(true);
+                skirtChunk->setRequestZBuffer(true);
                 
                 // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
                 //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small

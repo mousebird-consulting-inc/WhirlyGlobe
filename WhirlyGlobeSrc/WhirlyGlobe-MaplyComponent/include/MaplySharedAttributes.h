@@ -52,6 +52,8 @@
 #define kWGFade kMaplyFade
 /// Enable or disable an object.  This can be used to create an object disabled.
 #define kMaplyEnable @"enable"
+/// Request a given object turn on the z buffer for drawing
+#define kMaplyZBuffer @"zbuffer"
 
 /// Default draw offset for 3D markers.  Set to avoid label/marker intererence
 #define kMaplyMarkerDrawOffsetDefault 1
@@ -142,3 +144,7 @@
 #define kMaplyLoftedPolyTop @"top"
 /// Boolean that turns on/off sides (on by default)
 #define kMaplyLoftedPolySide @"side"
+
+/// These are used by active vector objects
+#define kMaplyVecHeight @"height"
+#define kMaplyVecMinSample @"minSample"
