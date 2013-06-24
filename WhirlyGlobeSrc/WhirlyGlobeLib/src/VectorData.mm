@@ -500,13 +500,25 @@ NSMutableDictionary *VectorParseProperties(JSONNode node)
         std::string name = it->name();
         if (!name.empty())
         {
-            NSString *nameStr = [NSString stringWithCString:name.c_str() encoding:NSUnicodeStringEncoding];
+            NSString *nameStr = [NSString stringWithCString:name.c_str() encoding:NSUTF8StringEncoding];
             switch (it->type())
             {
                 case JSON_STRING:
                 {
                     std::string val = it->as_string();
-                    dict[nameStr] = [NSString stringWithCString:val.c_str() encoding:NSUnicodeStringEncoding];
+                    NSString *valStr = nil;
+                    @try {
+                        valStr = [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
+                    }
+                    @catch (NSException *exception) {
+                        @try {
+                            valStr = [NSString stringWithCString:val.c_str() encoding:NSUnicodeStringEncoding];
+                        }
+                        @catch (NSException *exception) {
+                        }
+                    }
+                    if (valStr)
+                        dict[nameStr] = valStr;
                 }
                     break;
                 case JSON_NUMBER:

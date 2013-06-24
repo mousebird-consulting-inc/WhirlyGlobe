@@ -147,8 +147,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 {
     if (lineWidth != newLineWidth || lineWidth == -1.0)
     {
-        glLineWidth(newLineWidth);
-        lineWidth = newLineWidth;
+        if (newLineWidth > 0.0)
+        {
+            glLineWidth(newLineWidth);
+            lineWidth = newLineWidth;
+        }
     }
 }
 
