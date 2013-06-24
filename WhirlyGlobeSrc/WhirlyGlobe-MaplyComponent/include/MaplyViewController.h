@@ -92,6 +92,9 @@
 /// Animate to the given position over the given amount of time
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
 
+/// Animate to the given extents over time (only for flat view mode)
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
+
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will do nothing
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
