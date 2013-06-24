@@ -371,7 +371,7 @@ static const char *fragmentShaderNoLightLine =
     
     newLoftPolyDesc = @{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)};
     
-    _selection = true;    
+    _selection = true;
 }
 
 - (void) useGLContext
