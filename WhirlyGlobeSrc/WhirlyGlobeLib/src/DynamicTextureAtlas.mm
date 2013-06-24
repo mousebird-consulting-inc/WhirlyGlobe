@@ -248,10 +248,7 @@ DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format)
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
-    // Note: It's up to the scene to clear the textures
-//    for (DynamicTextureSet::iterator it = textures.begin();
-//         it != textures.end(); ++it)
-//        delete *it;
+    // It's up to the scene to actually delete the textures
     textures.clear();
 }
     
