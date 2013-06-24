@@ -42,11 +42,21 @@
 
 /// Parse vector data from geoJSON.  Returns one object to represent
 ///  the whole thing, which might include multiple different vectors.
-/// We assume the geoJSON is all in decimal degrees in WGS84. 
+/// We assume the geoJSON is all in decimal degrees in WGS84.
 + (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
+
+/// Parse vector data from geoJSON.  Returns one object to represent
+///  the whole thing, which might include multiple different vectors.
+/// We assume the geoJSON is all in decimal degrees in WGS84.
+/// This version uses the Apple JSON parser.  Slow, since it creates a dictionary.
++ (MaplyVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON;
 
 /// This version takes a dictionary
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
+
+/// This version can deal with non-compliant assemblies returned by the experimental
+///  OSM server
++ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON;
 
 /// Construct with a single point
 - (id)initWithPoint:(MaplyCoordinate *)coord attributes:(NSDictionary *)attr;

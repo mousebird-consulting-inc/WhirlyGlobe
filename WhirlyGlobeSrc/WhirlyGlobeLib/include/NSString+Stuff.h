@@ -22,6 +22,9 @@
 
 @interface NSString(Stuff)
 
+/// Build an NSString from a std::wstring
++(NSString*) stringWithwstring:(const std::wstring&)ws;
+
 /// Convert and return a std::string
 - (std::string) asStdString;
 
