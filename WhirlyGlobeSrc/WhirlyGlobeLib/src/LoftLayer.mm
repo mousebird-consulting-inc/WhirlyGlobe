@@ -42,6 +42,9 @@ using namespace WhirlyGlobe;
     int         priority;
     bool        top,side;
     bool        layered;
+    bool        outline;
+    UIColor     *outlineColor;
+    float       outlineWidth;
     NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
 
@@ -95,6 +98,9 @@ using namespace WhirlyGlobe;
     top = [dict boolForKey:@"top" default:true];
     side = [dict boolForKey:@"side" default:true];
     layered = [dict boolForKey:@"layered" default:false];
+    outline = [dict boolForKey:@"outline" default:false];
+    outlineColor = [dict objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor whiteColor]];
+    outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
     self.key = inKey;
 }
 
@@ -194,10 +200,9 @@ class DrawableBuilder2
 {
 public:
     DrawableBuilder2(Scene *scene,WhirlyKitLayerThread *layerThread,LoftedPolySceneRep *sceneRep,
-                     LoftedPolyInfo *polyInfo,const GeoMbr &inDrawMbr)
-    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), layerThread(layerThread)
+                     LoftedPolyInfo *polyInfo,int primType,const GeoMbr &inDrawMbr)
+    : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), layerThread(layerThread), primType(primType)
     {
-        primType = GL_TRIANGLES;
         drawMbr = inDrawMbr;
     }
     
@@ -220,14 +225,16 @@ public:
             // Adjust according to the vector info
             //            drawable->setOnOff(polyInfo->enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor([polyInfo.color asRGBAColor]);
+            drawable->setColor([((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo->outlineColor) asRGBAColor]);
+            if (primType == GL_LINES)
+                drawable->setLineWidth(polyInfo->outlineWidth);
             if (polyInfo->layered)
             {
                 drawable->setDrawPriority(polyInfo->priority);
                 drawable->setAlpha(true);
             } else {
-            drawable->setAlpha(true);
-            drawable->setForceZBufferOn(true);
+                drawable->setAlpha(true);
+                drawable->setRequestZBuffer(true);
             }
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
@@ -273,6 +280,55 @@ public:
                 Point2f verts[3];
                 verts[2] = tri[0];  verts[1] = tri[1];  verts[0] = tri[2];
                 addLoftTriangle(verts);
+            }
+        }
+    }
+    
+    // Add a set of outlines
+    void addOutline(std::vector<VectorRing> &rings)
+    {
+        if (primType != GL_LINES)
+            return;
+        
+        setupDrawable(0);
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+        
+        for (unsigned int ii=0;ii<rings.size();ii++)
+        {
+            VectorRing &verts = rings[ii];
+            Point3f prevPt,prevNorm,firstPt,firstNorm;
+            for (unsigned int jj=0;jj<verts.size();jj++)
+            {
+                // Convert to real world coordinates and offset from the globe
+                Point2f &geoPt = verts[jj];
+                GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
+                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
+                Point3f norm = coordAdapter->normalForLocal(localPt);
+                Point3f pt = coordAdapter->localToDisplay(localPt);
+                pt += norm * polyInfo->height;
+                
+                // Add to drawable
+                // Depending on the type, we do this differently
+                if (jj > 0)
+                {
+                    drawable->addPoint(prevPt);
+                    drawable->addPoint(pt);
+                    drawable->addNormal(prevNorm);
+                    drawable->addNormal(norm);
+                } else {
+                    firstPt = pt;
+                    firstNorm = norm;
+                }
+                prevPt = pt;
+                prevNorm = norm;
+            }
+            
+            // Close the loop
+            {
+                drawable->addPoint(prevPt);
+                drawable->addPoint(firstPt);
+                drawable->addNormal(prevNorm);
+                drawable->addNormal(firstNorm);
             }
         }
     }
@@ -382,7 +438,7 @@ public:
     
 protected:   
     Scene *scene;
-    WhirlyKitLayerThread * __weak layerThread;
+    WhirlyKitLayerThread *layerThread;
     LoftedPolySceneRep *sceneRep;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
@@ -450,7 +506,7 @@ protected:
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    DrawableBuilder2 drawBuild(scene,layerThread,sceneRep,polyInfo,drawMbr);
+    DrawableBuilder2 drawBuild(scene,layerThread,sceneRep,polyInfo,GL_TRIANGLES,drawMbr);
     
     // Toss in the polygons for the sides
     if (polyInfo->height != 0.0)
@@ -476,6 +532,14 @@ protected:
     // Tweak the mesh polygons and toss 'em in
     if (polyInfo->top)
         drawBuild.addPolyGroup(sceneRep->triMesh);
+
+    // And do the top outline if it's there
+    if (polyInfo->top && polyInfo->outline)
+    {
+        DrawableBuilder2 drawBuild2(scene,layerThread,sceneRep,polyInfo,GL_LINES,drawMbr);
+        drawBuild2.addOutline(sceneRep->outlines);
+        sceneRep->outlines.clear();
+    }
 
 //    printf("Added %d shapes and %d triangles from mesh\n",(int)numShapes,(int)sceneRep->triMesh.size());        
 }
@@ -516,6 +580,10 @@ protected:
                         // Clip the polys for the top
                         std::vector<VectorRing> clippedMesh;
                         ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
+
+                        // May need to add the outline as well
+                        if (polyInfo->outline)
+                            sceneRep->outlines.push_back(ring);
 
                         for (unsigned int ii=0;ii<clippedMesh.size();ii++)
                         {

@@ -65,6 +65,12 @@
 /// Set the height above globe, taking constraints into account
 - (void)setHeightAboveGlobe:(double)newH;
 
+/// This version allows you to not update the watchers, if you're doing a bunch of updates at once
+- (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
+
+/// This version allows you to not update the watchers.
+- (void)setRotQuat:(Eigen::Quaterniond)rotQuat updateWatchers:(bool)updateWatchers;
+
 /// Calculate the z offset to make the earth appear where we want it
 - (double)calcEarthZOffset;
 

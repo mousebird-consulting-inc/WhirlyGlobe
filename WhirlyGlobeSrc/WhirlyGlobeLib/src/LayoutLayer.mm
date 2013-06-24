@@ -22,6 +22,7 @@
 #import "LayoutLayer.h"
 #import "GlobeLayerViewWatcher.h"
 #import "ScreenSpaceGenerator.h"
+#import "GlobeMath.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -309,6 +310,8 @@ static const float ScreenBuffer = 0.1;
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
 
     Matrix4d modelTrans = viewState->fullMatrix;
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrix);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrix);
     int numSoFar = 0;
     for (WhirlyKitLayoutObjectSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
@@ -320,9 +323,11 @@ static const float ScreenBuffer = 0.1;
         if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
             isActive = false;
         // Start with a back face check
-        // Note: Doesn't take projection into account, but close enough
         if (isActive && globeViewState)
-            isActive = layoutObj->dispLoc.dot(Vector3dToVector3f(viewState->eyeVec)) > 0.0;
+        {
+            // Make sure this one is facing toward the viewer
+            isActive = CheckPointAndNormFacing(layoutObj->dispLoc,layoutObj->dispLoc.normalized(),fullMatrix4f,fullNormalMatrix4f) > 0.0;
+        }
         Point2f objOffset(0.0,0.0);
         if (isActive)
         {

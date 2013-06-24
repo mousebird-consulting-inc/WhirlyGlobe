@@ -74,7 +74,7 @@
 #import "TileQuadLoader.h"
 #import "NetworkTileQuadSource.h"
 #import "ScreenSpaceGenerator.h"
-#import "SceneGraphGenerator.h"
+#import "SceneGraphManager.h"
 #import "SphericalEarthChunkLayer.h"
 #import "SphericalEarthQuadLayer.h"
 #import "UpdateDisplayLayer.h"
@@ -85,5 +85,6 @@
 #import "ShapeDrawableBuilder.h"
 #import "ShapeLayer.h"
 #import "LayoutLayer.h"
+#import "BillboardLayer.h"
 #import "OpenGLES2Program.h"
 

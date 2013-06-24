@@ -98,34 +98,14 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             // Note: Calculate this ahead of time
             Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(viewInst.loc));
      
-            // Note: Need to fix this logic
-#if 0
             // Check that it's not behind the globe
             if (globeView)
             {
-                // Note: Copied from the ScreenSpaceGenerator.  Still dumb here.
-                Point3f testPts[2];
-                testPts[0] = Vector3dToVector3f(worldLoc);
-                testPts[1] = Vector3dToVector3f(worldLoc*1.5);
-                for (unsigned int ii=0;ii<2;ii++)
-                {
-                    Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-                    modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-                    Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-                    //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-                    testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
-                }
-                Vector3f testDir = testPts[1] - testPts[0];
-                testDir.normalize();
-
-                // Note: This is so dumb it hurts.  Figure out why the math is broken.
-                if (testDir.z() > -0.33)
+                // Make sure this one is facing toward the viewer
+                Point3f worldLoc3f(worldLoc.x(),worldLoc.y(),worldLoc.z());
+                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
                     hidden = YES;
-                    // If it's pointed away from the user, don't bother
-                    //            if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
-                    //                hidden = YES;
             }
-#endif
 
             if (!hidden)
             {

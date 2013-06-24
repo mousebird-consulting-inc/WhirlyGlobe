@@ -33,38 +33,42 @@ namespace WhirlyKit
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
     {
     }
     DrawListSortStruct2 & operator = (const DrawListSortStruct &that)
     {
         useAlpha = that.useAlpha;
-        useLines= that.useLines;
+        useZBuffer= that.useZBuffer;
         frameInfo = that.frameInfo;
         return *this;
     }
     bool operator()(Drawable *a,Drawable *b)
     {
-        if (useLines)
-        {
-            bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || (a->getType() == GL_POINTS) || a->getForceZBufferOn();
-            bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || (b->getType() == GL_POINTS) || b->getForceZBufferOn();
-            if (linesA != linesB)
-                return !linesA;
-        }
         // We may or may not sort all alpha containing drawables to the end
         if (useAlpha)
             if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
                 return !a->hasAlpha(frameInfo);
+ 
+        if (a->getDrawPriority() == b->getDrawPriority())
+        {
+        if (useZBuffer)
+        {
+            bool bufferA = a->getRequestZBuffer();
+            bool bufferB = b->getRequestZBuffer();
+            if (bufferA != bufferB)
+                return !bufferA;
+        }
+        }
                 
         return a->getDrawPriority() < b->getDrawPriority();
     }
     
-    bool useAlpha,useLines;
+    bool useAlpha,useZBuffer;
     WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
     
@@ -116,6 +120,11 @@ public:
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
     dispatch_release(contextQueue);
 #endif
+}
+
+- (void)forceRenderSetup
+{
+    renderSetup = false;
 }
 
 static const char *vertexShaderTri =
@@ -199,30 +208,39 @@ static const char *fragmentShaderTri =
 ;
 
 static const char *vertexShaderLine =
-"uniform mat4  u_mvpMatrix;                   \n"
-"uniform float u_fade;                        \n"
-"\n"
-"attribute vec3 a_position;                  \n"
-"attribute vec4 a_color;                     \n"
-"\n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                 \n"
-"{                                           \n"
-"   v_color = a_color * u_fade;                       \n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
-"}                                           \n"
+"uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;"
+""
+"attribute vec3 a_position;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+""
+"varying vec4      v_color;"
+"varying float      v_dot;"
+""
+"void main()"
+"{"
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
+"   pt /= pt.w;"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
+"   v_dot = dot(-pt.xyz,testNorm.xyz);"
+"   v_color = a_color * u_fade;"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
+"}"
 ;
 
 static const char *fragmentShaderLine =
-"precision mediump float;                            \n"
-"\n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  gl_FragColor = v_color;  \n"
-"}                                                   \n"
+"precision mediump float;"
+""
+"varying vec4      v_color;"
+"varying float      v_dot;"
+""
+"void main()"
+"{"
+"  gl_FragColor = (v_dot > 0.0 ? v_color : vec4(0.0,0.0,0.0,0.0));"
+"}"
 ;
 
 // When the scene is set, we'll compile our shaders
@@ -383,6 +401,7 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
+    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
     switch (zBufferMode)
     {
@@ -394,10 +413,10 @@ static const float ScreenOverlap = 0.1;
             [renderStateOptimizer setDepthMask:GL_FALSE];
             [renderStateOptimizer setEnableDepthTest:false];
             break;
-        case zBufferOffUntilLines:
+        case zBufferOffDefault:
             [renderStateOptimizer setDepthMask:GL_TRUE];
             [renderStateOptimizer setEnableDepthTest:true];
-            glDepthFunc(GL_ALWAYS);
+            [renderStateOptimizer setDepthFunc:GL_ALWAYS];
             break;
     }
     
@@ -436,6 +455,7 @@ static const float ScreenOverlap = 0.1;
         frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         frameInfo.projMat = projMat;
         frameInfo.mvpMat = mvpMat;
+        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
         frameInfo.viewAndModelMat = modelAndViewMat;
         frameInfo.lights = lights;
         frameInfo.stateOpt = renderStateOptimizer;
@@ -467,6 +487,10 @@ static const float ScreenOverlap = 0.1;
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
         frameInfo.eyeVec = eyeVec3;
+        Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
+        Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
+        Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
+        frameInfo.fullEyeVec = -fullEyeVec3;
         frameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
@@ -518,7 +542,7 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        bool sortLinesToEnd = (zBufferMode == zBufferOffUntilLines);
+        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,frameInfo));
                 
         if (perfInterval > 0)
@@ -542,7 +566,7 @@ static const float ScreenOverlap = 0.1;
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffUntilLines))
+            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
             {
                 if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
@@ -551,23 +575,34 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            // For this mode we turn the z buffer off until we get our first lines
-            // This assumes we're sorting lines to the end
-            if (zBufferMode == zBufferOffUntilLines)
+            // For this mode we turn the z buffer off until we get a request to turn it on
+            if (zBufferMode == zBufferOffDefault)
             {
-                if (!depthMaskOn && (drawable->getType() == GL_LINES || drawable->getType() == GL_LINE_LOOP || drawable->getForceZBufferOn()))
+                if (drawable->getRequestZBuffer())
                 {
-                    glDepthFunc(GL_LESS);
+                    [renderStateOptimizer setDepthFunc:GL_LESS];
                     depthMaskOn = true;
+                } else {
+                    [renderStateOptimizer setDepthFunc:GL_ALWAYS];
                 }
+            }
+
+            // If we're drawing lines or points we don't want to update the z buffer
+            if (zBufferMode != zBufferOff)
+            {
+                if (drawable->getWriteZbuffer())
+                    [renderStateOptimizer setDepthMask:GL_TRUE];
+                else
+                    [renderStateOptimizer setDepthMask:GL_FALSE];
             }
             
             // If it has a local transform, apply that
-            const Matrix4f *localMat = drawable->getMatrix();
+            const Matrix4d *localMat = drawable->getMatrix();
             if (localMat)
             {
-                Eigen::Matrix4f newMvpMat = projMat * (viewTrans * (modelTrans * (*localMat)));
-                frameInfo.mvpMat = newMvpMat;
+                Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
+                Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+                frameInfo.mvpMat = newMvpMat4f;
             }
             
             // Figure out the program to use for drawing
@@ -709,11 +744,11 @@ static const float ScreenOverlap = 0.1;
     glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
-//    if (!renderSetup)
-//    {
+    if (!renderSetup)
+    {
         glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
         CheckGLError("SceneRendererES2: glBindRenderbuffer");
-//    }
+    }
 
     [context presentRenderbuffer:GL_RENDERBUFFER];
     CheckGLError("SceneRendererES2: presentRenderbuffer");

@@ -454,7 +454,13 @@ static std::vector<Point3f> circleSamples;
 // Add a whole bunch of shapes
 - (SimpleIdentity) addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
 {
-    WhirlyKitShapeInfo *shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:shapes desc:desc];
+   if (!layerThread)
+   {
+       NSLog(@"ShapeLayer: Tried to call shape layer before it was initialized.  Dropping shapes on floor.");
+       return EmptyIdentity;
+   }
+
+   WhirlyKitShapeInfo *shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:shapes desc:desc];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runAddShapes:shapeInfo];

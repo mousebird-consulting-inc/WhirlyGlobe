@@ -80,15 +80,12 @@ public:
     /// At the moment, no alpha
     bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
     
-    /// For now, just using these with globe layers
-    bool getForceZBufferOn() const { return forceZBuffer; }
-
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
     /// If set, we want the z buffer used
-    bool getForceZBufferOn() { return forceZBuffer; }
-    void setForceZBufferOn(bool enable) { forceZBuffer = enable; }
+    bool getRequestZBuffer() const { return requestZBuffer; }
+    void setRequestZBuffer(bool enable) { requestZBuffer = enable; }
 
     /// Look for a region of the given size for the given data.
     /// This places the vertex data and adds the element data to the set
@@ -126,7 +123,7 @@ protected:
     GLuint programId;
     SimpleIdentity texId;
     int drawPriority;
-    bool forceZBuffer;
+    bool requestZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
     /// Called when a new VAO is bound.  Set up your VAO-related state here.

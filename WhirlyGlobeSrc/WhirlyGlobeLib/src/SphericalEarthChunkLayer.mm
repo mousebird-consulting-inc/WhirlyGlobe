@@ -115,6 +115,8 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
 @synthesize minVis,maxVis;
 @synthesize minVisBand,maxVisBand;
 @synthesize rotation;
+@synthesize readZBuffer;
+@synthesize writeZBuffer;
 
 - (id)init
 {
@@ -128,6 +130,8 @@ typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
     eps = 0.0005;
     minVis = DrawVisibleInvalid;
     maxVis = DrawVisibleInvalid;
+    readZBuffer = false;
+    writeZBuffer = true;
     
     return self;
 }
@@ -212,6 +216,8 @@ static const float SkirtFactor = 0.95;
     drawable->setTexId(texId);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(minVis, maxVis, minVisBand, maxVisBand);
+    drawable->setRequestZBuffer(self.readZBuffer);
+    drawable->setWriteZBuffer(self.writeZBuffer);
     
     int thisSampleX = sampleX, thisSampleY = sampleY;
     
@@ -324,12 +330,13 @@ static const float SkirtFactor = 0.95;
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
         skirtDrawable->setType(GL_TRIANGLES);
         skirtDrawable->setLocalMbr(mbr);
-        skirtDrawable->setDrawPriority(drawPriority);
+        skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(drawOffset);
         skirtDrawable->setTexId(texId);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(minVis, maxVis);
-        skirtDrawable->setForceZBufferOn(true);
+        skirtDrawable->setRequestZBuffer(true);
+        skirtDrawable->setWriteZBuffer(false);
         
         // Bottom skirt
         std::vector<Point3f> skirtLocs;
