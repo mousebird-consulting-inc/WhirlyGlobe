@@ -21,6 +21,7 @@
 #import "MaplyActiveSticker.h"
 #import "WhirlyGlobe.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplySharedAttributes.h"
 
 using namespace WhirlyKit;
 
@@ -52,6 +53,17 @@ using namespace WhirlyKit;
     
     changed = true;
     _sticker = newSticker;
+}
+
+- (void)updateWithDesc:(NSDictionary *)descDict
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
+    
+    changed = true;
+    NSMutableDictionary *temp = [desc mutableCopy];
+    [temp setValuesForKeysWithDictionary:descDict];
+    desc = [temp copy];
 }
 
 - (bool)hasUpdate
@@ -113,19 +125,26 @@ using namespace WhirlyKit;
         chunk.sampleX = [desc[@"sampleX"] intValue];
         chunk.sampleY = [desc[@"sampleY"] intValue];
         chunk.rotation = _sticker.rotation;
+        NSNumber *bufRead = desc[kMaplyZBufferRead];
+        if (bufRead)
+            chunk.readZBuffer = [bufRead boolValue];
+        NSNumber *bufWrite = desc[kMaplyZBufferWrite];
+        if (bufWrite)
+            chunk.writeZBuffer = [bufWrite boolValue];
         
-        BasicDrawable *drawable=nil,*skirtDrawable=nil;
-        [chunk buildDrawable:&drawable skirtDraw:&skirtDrawable enabled:true adapter:coordAdapter];
+        BasicDrawable *drawable=nil;
+        [chunk buildDrawable:&drawable skirtDraw:nil enabled:true adapter:coordAdapter];
         if (drawable)
         {
             changes.push_back(new AddDrawableReq(drawable));
             drawIDs.insert(drawable->getId());
         }
-        if (skirtDrawable)
-        {
-            changes.push_back(new AddDrawableReq(skirtDrawable));
-            drawIDs.insert(skirtDrawable->getId());
-        }
+        // No skirts for these
+//        if (skirtDrawable)
+//        {
+//            changes.push_back(new AddDrawableReq(skirtDrawable));
+//            drawIDs.insert(skirtDrawable->getId());
+//        }
     }
 
     if (removeTexId != EmptyIdentity)

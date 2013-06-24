@@ -40,28 +40,28 @@ namespace WhirlyKit
     class DrawListSortStruct
     {
     public:
-        DrawListSortStruct(bool useAlpha,bool useLines,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useLines(useLines), frameInfo(frameInfo)
+        DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
         {
         }
         ~DrawListSortStruct() { }
-        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useLines(that.useLines), frameInfo(that.frameInfo)
+        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
         {
         }
         DrawListSortStruct & operator = (const DrawListSortStruct &that)
         {
             useAlpha = that.useAlpha;
-            useLines= that.useLines;
+            useZBuffer= that.useZBuffer;
             frameInfo = that.frameInfo;
             return *this;
         }
         bool operator()(Drawable *a,Drawable *b)
         {
-            if (useLines)
+            if (useZBuffer)
             {
-                bool linesA = (a->getType() == GL_LINES) || (a->getType() == GL_LINE_LOOP) || (a->getType() == GL_POINTS) || a->getForceZBufferOn();
-                bool linesB = (b->getType() == GL_LINES) || (b->getType() == GL_LINE_LOOP) || (b->getType() == GL_POINTS) || b->getForceZBufferOn();
-                if (linesA != linesB)
-                    return !linesA;
+                bool bufferA = a->getRequestZBuffer();
+                bool bufferB = b->getRequestZBuffer();
+                if (bufferA != bufferB)
+                    return !bufferA;
             }
             // We may or may not sort all alpha containing drawables to the end
             if (useAlpha)
@@ -71,7 +71,7 @@ namespace WhirlyKit
             return a->getDrawPriority() < b->getDrawPriority();
         }
         
-        bool useAlpha,useLines;
+        bool useAlpha,useZBuffer;
         WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
     };
 }
@@ -89,8 +89,14 @@ namespace WhirlyKit
 /// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
 - (void)setEnableDepthTest:(bool)enable;
 
+/// Calls glDepthFunc
+- (void)setDepthFunc:(GLenum)depthFuncVal;
+
 /// Calls glUseProgram
 - (void)setUseProgram:(GLuint)progId;
+
+/// Calls glLineWidth
+- (void)setLineWidth:(GLfloat)lineWidth;
 
 /// Called by the render to clear state
 - (void)reset;
@@ -124,11 +130,17 @@ namespace WhirlyKit
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
     
+    /// Model, and view matrix but for normal transformation
+    Eigen::Matrix4f viewModelNormalMat;
+    
     /// Scene itself.  Don't mess with this
     WhirlyKit::Scene *scene;
     
     /// Vector pointing up from the globe describing where the view point is
     Eigen::Vector3f eyeVec;
+    
+        /// Vector out from the eye point, including tilt
+    Eigen::Vector3f fullEyeVec;    
     
     /// Height above surface, if that makes sense
     float heightAboveSurface;
@@ -156,10 +168,12 @@ namespace WhirlyKit
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
+@property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 @property (nonatomic,assign) float frameLen;
 @property (nonatomic,assign) NSTimeInterval currentTime;
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
+@property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
 @property (nonatomic,assign) float heightAboveSurface;
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 @property (nonatomic,strong) NSArray *lights;
@@ -168,10 +182,10 @@ namespace WhirlyKit
 @end
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
-    (2) Completely off, priority sorting only.  (3) Priority sorting, but lines are sorted to
-    the back, the z buffer is turned on and then they're drawn.
+    (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
+        are allowed to force the z buffer on temporarily.
   */
-typedef enum {zBufferOn,zBufferOff,zBufferOffUntilLines} WhirlyKitSceneRendererZBufferMode;
+typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBufferMode;
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES

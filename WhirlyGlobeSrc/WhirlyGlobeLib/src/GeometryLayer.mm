@@ -157,44 +157,44 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
     return true;
 }
 
-- (void)applyTransform:(Matrix4f &)mat
+- (void)applyTransform:(Matrix4d &)mat
 {
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
         Point3f &pt = pts[ii];
-        Vector4f outPt = mat * Eigen::Vector4f(pt.x(),pt.y(),pt.z(),1.0);
+        Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
         pt = Point3f(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
     }
     
     for (unsigned int ii=0;ii<norms.size();ii++)
     {
         Point3f &norm = norms[ii];
-        Vector4f projNorm = mat * Eigen::Vector4f(norm.x(),norm.y(),norm.z(),0.0);
+        Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
         norm = Point3f(projNorm.x(),projNorm.y(),projNorm.z()).normalized();
     }
 }
 
-+ (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang
++ (Eigen::Matrix4d)makePosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang
 {
-    Point3f yaxis = forward.normalized();
-    Point3f xaxis = yaxis.cross(up).normalized();
-    Point3f zaxis = xaxis.cross(yaxis);
+    Point3d yaxis = forward.normalized();
+    Point3d xaxis = yaxis.cross(up).normalized();
+    Point3d zaxis = xaxis.cross(yaxis);
     
-    Matrix4f mat;
+    Matrix4d mat;
     mat(0,0) = xaxis.x();  mat(1,0) = xaxis.y();  mat(2,0) = xaxis.z();  mat(3,0) = 0.0;
     mat(0,1) = yaxis.x();  mat(1,1) = yaxis.y();  mat(2,1) = yaxis.z();  mat(3,1) = 0.0;
     mat(0,2) = zaxis.x();  mat(1,2) = zaxis.y();  mat(2,2) = zaxis.z();  mat(3,2) = 0.0;
     mat(0,3) = pos.x();  mat(1,3) = pos.y();  mat(2,3) = pos.z();  mat(3,3) = 1.0;
     
-    Eigen::AngleAxisf rot(-ang,up);
-    Matrix4f resMat = ((Affine3f)rot).matrix() * mat;
+    Eigen::AngleAxisd rot(-ang,up);
+    Matrix4d resMat = ((Affine3d)rot).matrix() * mat;
     
     return resMat;
 }
 
-- (void)applyPosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+- (void)applyPosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang;
 {
-    Matrix4f theMat = [WhirlyGlobeGeometryRaw makePosition:pos up:up forward:forward heading:ang];
+    Matrix4d theMat = [WhirlyGlobeGeometryRaw makePosition:pos up:up forward:forward heading:ang];
     [self applyTransform:theMat];
 }
 

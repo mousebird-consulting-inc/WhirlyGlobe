@@ -169,10 +169,13 @@ public:
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4f *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
 
     /// Check if the force Z buffer on mode is on
-    virtual bool getForceZBufferOn() const { return false; }
+    virtual bool getRequestZBuffer() const { return false; }
+    
+    /// Check if we're supposed to write to the z buffer
+    virtual bool getWriteZbuffer() const { return true; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
@@ -329,11 +332,17 @@ public:
     /// Return the line width (1.0 is the default)
     float getLineWidth() { return lineWidth; }
 
-    /// Used to sort a Drawable in with the lines in zBufferOffUntilLines mode
-    void setForceZBufferOn(bool val) { forceZBufferOn = val; }
+    /// We can ask to use the z buffer
+    void setRequestZBuffer(bool val) { requestZBuffer = val; }
     
     /// Check if the force Z buffer on mode is on
-    bool getForceZBufferOn() const { return forceZBufferOn; }
+    bool getRequestZBuffer() const { return requestZBuffer; }
+    
+    /// Set the z buffer mode for this drawable
+    void setWriteZBuffer(bool val) { writeZBuffer = val; }
+    
+    /// Check if we want to write to the z buffer
+    bool getWriteZbuffer() const { if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
 
 	/// Add a point when building up geometry.  Returns the index.
 	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
@@ -396,10 +405,10 @@ public:
 	void addRect(const Point3f &l0, const Eigen::Vector3f &ln0, const Point3f &l1, const Eigen::Vector3f &ln1,float width);
     
     /// Set the active transform matrix
-    void setMatrix(const Eigen::Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+    void setMatrix(const Eigen::Matrix4d *inMat) { mat = *inMat; hasMatrix = true; }
 
     /// Return the active transform matrix, if we have one
-    const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
+    const Eigen::Matrix4d *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
     
     /// Run the texture and texture coordinates based on a SubTexture
     void applySubTexture(SubTexture subTex);
@@ -450,8 +459,10 @@ protected:
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
     float lineWidth;
-    // For zBufferOffUntilLines mode we'll sort this with the lines
-    bool forceZBufferOn;
+    // For zBufferOffDefault mode we'll sort this to the end
+    bool requestZBuffer;
+    // When this is set we'll update the z buffer with our geometry.
+    bool writeZBuffer;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
 	std::vector<Eigen::Vector3f> points;
@@ -462,7 +473,7 @@ protected:
     
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
-    Eigen::Matrix4f mat;
+    Eigen::Matrix4d mat;
 	
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
@@ -539,12 +550,12 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
-    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4f *newMat);
+    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    Eigen::Matrix4f newMat;
+    Eigen::Matrix4d newMat;
 };
     
 /// Change the drawPriority on a drawable

@@ -60,6 +60,10 @@
     float maxVisBand;
     /// Rotation around the middle of the chunk
     float rotation;
+    /// This chunk takes the z buffer into account
+    bool readZBuffer;
+    /// This chunk writes itself to the z buffer
+    bool writeZBuffer;
 }
 
 @property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
@@ -73,6 +77,7 @@
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) float minVisBand,maxVisBand;
 @property (nonatomic,assign) float rotation;
+@property (nonatomic,assign) bool readZBuffer,writeZBuffer;
 
 // Create one or more drawables to represent the chunk.
 // Only call this if you know what you're doing

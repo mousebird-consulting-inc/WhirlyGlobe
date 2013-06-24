@@ -149,30 +149,39 @@ static const char *fragmentShaderNoLightTri =
 ;
 
 static const char *vertexShaderNoLightLine =
-"uniform mat4  u_mvpMatrix;                   \n"
-"\n"
-"attribute vec3 a_position;                  \n"
-"attribute vec4 a_color;                     \n"
-"uniform float u_fade;                        \n"
-"\n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                 \n"
-"{                                           \n"
-"   v_color = a_color * u_fade;                       \n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
-"}                                           \n"
+"uniform mat4  u_mvpMatrix;"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;"
+""
+"attribute vec3 a_position;"
+"attribute vec4 a_color;"
+"attribute vec3 a_normal;"
+""
+"varying vec4      v_color;"
+"varying float      v_dot;"
+""
+"void main()"
+"{"
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
+"   pt /= pt.w;"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
+"   v_dot = dot(-pt.xyz,testNorm.xyz);"
+"   v_color = a_color * u_fade;"
+"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
+"}"
 ;
 
 static const char *fragmentShaderNoLightLine =
-"precision mediump float;                            \n"
-"\n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  gl_FragColor = v_color;  \n"
-"}                                                   \n"
+"precision mediump float;"
+""
+"varying vec4      v_color;"
+"varying float      v_dot;"
+""
+"void main()"
+"{"
+"  gl_FragColor = (v_dot > 0.0 ? v_color : vec4(0.0,0.0,0.0,0.0));"
+"}"
 ;
 
 - (void) loadSetup_lighting
@@ -239,7 +248,7 @@ static const char *fragmentShaderNoLightLine =
             sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
             break;
     }
-    sceneRenderer.zBufferMode = zBufferOffUntilLines;
+    sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
 	[sceneRenderer useContext];
@@ -583,7 +592,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOffUntilLines : zBufferOff);
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOffDefault : zBufferOff);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }

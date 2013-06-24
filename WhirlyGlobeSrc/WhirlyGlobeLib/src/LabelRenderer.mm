@@ -80,13 +80,13 @@ namespace WhirlyKit
     shadowColor = [desc objectForKey:@"shadowColor"];
     shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     if (![justifyStr compare:@"middle"])
-        justify = Middle;
+        justify = WhirlyKitLabelMiddle;
     else {
         if (![justifyStr compare:@"left"])
-            justify = Left;
+            justify = WhirlyKitLabelLeft;
         else {
             if (![justifyStr compare:@"right"])
-                justify = Right;
+                justify = WhirlyKitLabelRight;
         }
     }
     drawPriority = [desc intForKey:@"drawPriority" default:LabelDrawPriority];
@@ -450,6 +450,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     
                     screenObjects.push_back(screenShape);
                 }
+            
+                delete drawStr;
             }
         }
         
