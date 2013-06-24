@@ -113,17 +113,17 @@ namespace WhirlyKit
     Used to construct drawables with multiple shapes in them.
     Eventually, we'll move this out to be a more generic object.
  */
-class DrawableBuilder
+class VectorDrawableBuilder
 {
 public:
-    DrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
+    VectorDrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
                     VectorInfo *vecInfo,bool linesOrPoints)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
     
-    ~DrawableBuilder()
+    ~VectorDrawableBuilder()
     {
         flush();
     }
@@ -231,16 +231,16 @@ protected:
  Used to construct drawables with multiple shapes in them.
  Eventually, we'll move this out to be a more generic object.
  */
-class DrawableBuilderTri
+class VectorDrawableBuilderTri
 {
 public:
-    DrawableBuilderTri(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
+    VectorDrawableBuilderTri(Scene *scene,std::vector<ChangeRequest *> &changeRequests,VectorSceneRep *sceneRep,
                        VectorInfo *vecInfo)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
     }
     
-    ~DrawableBuilderTri()
+    ~VectorDrawableBuilderTri()
     {
         flush();
     }
@@ -397,8 +397,8 @@ protected:
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     std::vector<ChangeRequest *> changeRequests;
-    DrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints);
-    DrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
+    VectorDrawableBuilder drawBuild(scene,changeRequests,sceneRep,vecInfo,linesOrPoints);
+    VectorDrawableBuilderTri drawBuildTri(scene,changeRequests,sceneRep,vecInfo);
     
     // Note: This is a duplicate of the runRemoveVector logic
     if (vecInfo.replaceVecID)

@@ -254,7 +254,8 @@ BasicDrawable::BasicDrawable(const std::string &name)
     vertexSize = 0;
     vertArrayObj = 0;
     sharedBufferIsExternal = false;
-    forceZBufferOn = false;
+    requestZBuffer = false;
+    writeZBuffer = true;
 
     hasMatrix = false;
 }
@@ -279,7 +280,8 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
 	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
-    forceZBufferOn = false;
+    requestZBuffer = false;
+    writeZBuffer = true;
 
     numTris = 0;
     numPoints = 0;
@@ -312,6 +314,10 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
+
+    // We don't need to get tricky unless we're z buffering this data
+    if (!requestZBuffer)
+        return false;
     
     if (fadeDown < fadeUp)
     {
@@ -1166,12 +1172,17 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture
     prog->setUniform("u_hasTexture", (glTexID != 0));
+    
+    // If this is present, the drawable wants to do something based where the viewer is looking
+    prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
     
     // Texture
     const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
@@ -1278,9 +1289,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                glLineWidth(lineWidth);
+                [frameInfo.stateOpt setLineWidth:lineWidth];
                 glDrawArrays(type, 0, numPoints);
-                glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
             case GL_TRIANGLE_STRIP:
@@ -1312,11 +1322,9 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                glLineWidth(lineWidth);
+                [frameInfo.stateOpt setLineWidth:lineWidth];
                 CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                 glDrawArrays(type, 0, numPoints);
-                CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
-                glLineWidth(1.0);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
             case GL_TRIANGLE_STRIP:
@@ -1413,7 +1421,7 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
     basicDrawable->setTexId(newTexId);
 }
 
-TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4f *newMat)
+TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)
     : DrawableChangeRequest(drawId), newMat(*newMat)
 {
 }

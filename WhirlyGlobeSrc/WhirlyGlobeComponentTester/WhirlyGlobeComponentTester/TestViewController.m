@@ -165,6 +165,11 @@ LocationInfo locations[NumLocations] =
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
 
+    // Test the tilt
+//    if (globeViewC)
+//        [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+
+
     // For network paging layers, where we'll store temp files
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 
@@ -335,18 +340,16 @@ LocationInfo locations[NumLocations] =
     }
     
     // Set up some defaults for display
-    screenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
-                       screenLabelColor,kMaplyTextColor,
-                       screenLabelBackColor,kMaplyBackgroundColor,
-                       nil];
-    labelDesc = [NSDictionary dictionaryWithObjectsAndKeys: 
-                 labelColor,kMaplyTextColor,
-                 labelBackColor,kMaplyBackgroundColor,
-                 nil];
-    vectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-                                vecColor,kMaplyColor,
-                                [NSNumber numberWithFloat:vecWidth],kMaplyVecWidth,
-                                nil];
+    screenLabelDesc = @{kMaplyTextColor: screenLabelColor,
+                        kMaplyBackgroundColor: screenLabelBackColor,
+                        kMaplyFade: @(1.0)};
+    labelDesc = @{kMaplyTextColor: labelColor,
+                  kMaplyBackgroundColor: labelBackColor,
+                  kMaplyFade: @(1.0)};
+    vectorDesc = @{kMaplyColor: vecColor,
+                   kMaplyVecWidth: @(vecWidth),
+                   kMaplyDrawPriority: @(100),
+                   kMaplyFade: @(1.0)};
     
     // Maximum number of objects for the layout engine to display
     [baseViewC setMaxLayoutObjects:1000];
@@ -676,7 +679,7 @@ static const int NumMegaMarkers = 40000;
     if (configViewC.stickerSwitch.on)
     {
         if (!stickersObj)
-            [self addStickers:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyDrawPriority: @(100), kMaplyDrawOffset: @(5.0)}];
+            [self addStickers:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyDrawPriority: @(200), kMaplyFade: @(1.0)}];
     } else {
         if (stickersObj)
         {
@@ -689,7 +692,7 @@ static const int NumMegaMarkers = 40000;
     {
         if (!shapeCylObj)
         {
-            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8]}];
+            [self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)}];
         }
     } else {
         if (shapeCylObj)
@@ -703,7 +706,7 @@ static const int NumMegaMarkers = 40000;
     {
         if (!shapeSphereObj)
         {
-            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8]}];
+            [self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0)}];
         }
     } else {
         if (shapeSphereObj)
@@ -717,7 +720,7 @@ static const int NumMegaMarkers = 40000;
     {
         if (!greatCircleObj)
         {
-            [self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0]}];
+            [self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)}];
         }
     } else {
         if (greatCircleObj)

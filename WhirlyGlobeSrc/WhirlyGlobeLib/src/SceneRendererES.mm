@@ -53,10 +53,12 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 @synthesize viewTrans;
 @synthesize projMat;
 @synthesize mvpMat;
+@synthesize viewModelNormalMat;
 @synthesize scene;
 @synthesize frameLen;
 @synthesize currentTime;
 @synthesize eyeVec;
+@synthesize fullEyeVec;
 @synthesize heightAboveSurface;
 @synthesize viewAndModelMat;
 @synthesize program;
@@ -71,6 +73,8 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     int depthMask;
     int depthTest;
     int progId;
+    int depthFunc;
+    GLfloat lineWidth;
 }
 
 - (id)init
@@ -87,6 +91,8 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     depthMask = 0;
     depthTest = -1;
     progId = -1;
+    lineWidth = -1.0;
+    depthFunc = -1;
 }
 
 - (void)setActiveTexture:(GLenum)newActiveTexture
@@ -119,12 +125,30 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
+- (void)setDepthFunc:(GLenum)newDepthFunc
+{
+    if (depthFunc == -1 || newDepthFunc != depthFunc)
+    {
+        glDepthFunc(newDepthFunc);
+        depthFunc = newDepthFunc;
+    }
+}
+
 - (void)setUseProgram:(GLuint)newProgId
 {
-    if (progId != newProgId)
-    {
+//    if (progId != newProgId)
+//    {
         glUseProgram(newProgId);
         progId = newProgId;
+//    }
+}
+
+- (void)setLineWidth:(GLfloat)newLineWidth
+{
+    if (lineWidth != newLineWidth || lineWidth == -1.0)
+    {
+        glLineWidth(newLineWidth);
+        lineWidth = newLineWidth;
     }
 }
 

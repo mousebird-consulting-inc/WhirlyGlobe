@@ -26,11 +26,6 @@
 	accordingly.
  */
 @interface WhirlyGlobePinchDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    /// If we're in the process of zooming in, where we started
-	float startZ;
-	WhirlyGlobeView *globeView;
-}
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView

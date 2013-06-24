@@ -36,4 +36,6 @@
 /// Initialize with various visual constraints
 - (id)initWithDesc:(NSDictionary *)descDict;
 
+- (void)updateWithDesc:(NSDictionary *)descDict;
+
 @end

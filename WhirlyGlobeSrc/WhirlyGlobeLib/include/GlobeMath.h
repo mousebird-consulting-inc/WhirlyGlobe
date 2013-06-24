@@ -60,7 +60,7 @@ public:
 /** The Fake Geocentric Display Adapter is used by WhirlyGlobe to represent
     a scene that's nominally in lat/lon + elevation but displayed in a fake
     geocentric.  Fake geocentric is just a projection onto a sphere of radius 1.0.
-    This is the one used by WhirlyGlobe, unless you're doing something trikcy.
+    This is the one used by WhirlyGlobe, unless you're doing something tricky.
     Maply uses flat coordinte systems.
  */
 class FakeGeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
@@ -99,5 +99,50 @@ public:
 protected:
     GeoCoordSystem geoCoordSys;
 };
+
+/** The (real) geocentric display adapter is used to represent a globe with
+    a WGS84 elipsoid.  Only use this one if you've got your data set up to
+    deal with it.  We scale to EarthRadius to approximate the radius of 1.0
+    we're more or less expecting in other places.
+  */
+class GeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
+{
+public:
+    GeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys) { }
+
+    /// There are no bounds in fake geocentric since it's not a flat system
+    virtual bool getBounds(Point3f &ll,Point3f &ur) { return false; }
+    
+    /// Convert from geographic+height to fake display geocentric
+    virtual Point3f localToDisplay(Point3f);
+    virtual Point3d localToDisplay(Point3d);
+    /// Static version
+    static Point3f LocalToDisplay(Point3f);
+    static Point3d LocalToDisplay(Point3d);
+    
+    /// Convert from fake display geocentric to geographic+height
+    virtual Point3f displayToLocal(Point3f);
+    virtual Point3d displayToLocal(Point3d);
+    /// Static version
+    static Point3f DisplayToLocal(Point3f);
+    static Point3d DisplayToLocal(Point3d);
+    
+    /// Return a normal for the given point
+    virtual Point3f normalForLocal(Point3f);
+    virtual Point3d normalForLocal(Point3d);
+    
+    /// Get a reference to the coordinate system
+    virtual CoordSystem *getCoordSystem() { return &geoCoordSys; }
+    
+    /// This system is round
+    bool isFlat() { return false; }
+
+protected:
+    GeoCoordSystem geoCoordSys;
+};
+    
+
+// Returns negative if the given location (with its normal) is currently facing away from the viewer
+float CheckPointAndNormFacing(const Point3f &dispLoc,const Point3f &norm,const Eigen::Matrix4f &viewAndModelMat,const Eigen::Matrix4f &viewModelNormalMat);
 
 }
