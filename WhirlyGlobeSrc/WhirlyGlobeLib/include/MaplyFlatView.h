@@ -49,7 +49,13 @@
 - (void)setLoc:(WhirlyKit::Point3d)newLoc;
 
 /// This view tries to display the given extents in display space
-- (void)setExtents:(WhirlyKit::Mbr)extents;
+@property (nonatomic,assign) WhirlyKit::Mbr extents;
+
+/// Size of the overall window we're simulating
+@property (nonatomic,readonly) WhirlyKit::Point2f windowSize;
+
+/// Content offset within the overall window
+@property (nonatomic,readonly) WhirlyKit::Point2f contentOffset;
 
 /// Sets the total window size and the region we're looking at within it.
 /// This just gets converted to model and projection matrix parameters

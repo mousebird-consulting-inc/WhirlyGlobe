@@ -19,3 +19,6 @@
 [submodule "third-party/AFNetworking"]
 	path = third-party/AFNetworking
 	url = https://github.com/AFNetworking/AFNetworking
+[submodule "third-party/libjson"]
+	path = third-party/libjson
+	url = https://github.com/mousebird/libjson.git

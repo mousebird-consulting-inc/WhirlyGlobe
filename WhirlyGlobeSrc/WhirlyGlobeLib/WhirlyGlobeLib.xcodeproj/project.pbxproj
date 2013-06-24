@@ -292,6 +292,8 @@
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
+		2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */; };
+		2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
 		2BB0717F1676B5EE00DE387D /* SphericalEarthChunkLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */; };
 		2BB071821676B5FE00DE387D /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071811676B5FE00DE387D /* LayoutLayer.h */; };
@@ -663,6 +665,8 @@
 		2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeLayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
+		2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateFlat.h; sourceTree = "<group>"; };
+		2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyAnimateFlat.mm; sourceTree = "<group>"; };
 		2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
 		2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalMercator.mm; sourceTree = "<group>"; };
 		2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkLayer.h; sourceTree = "<group>"; };
@@ -1188,6 +1192,7 @@
 		2B7EF5261603EF1A00D4079F /* interaction */ = {
 			isa = PBXGroup;
 			children = (
+				2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */,
 				2B03701314C9FA9000A51AC4 /* MaplyAnimateTranslation.h */,
 				2B03701214C9FA9000A51AC4 /* MaplyAnimateTranslateMomentum.h */,
 				2B92105314BD1A8100653536 /* MaplyPanDelegate.h */,
@@ -1573,6 +1578,7 @@
 		2BE6EE5312E4F3D100415490 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
+				2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */,
 				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
 				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
 				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
@@ -1690,6 +1696,7 @@
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
 				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
 				2B4AE4001766610900850F3F /* NumberToString.h in Headers */,
+				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2003,6 +2010,7 @@
 				2B4AE3FC1766610900850F3F /* JSONWorker.cpp in Sources */,
 				2B4AE3FE1766610900850F3F /* JSONWriter.cpp in Sources */,
 				2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */,
+				2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
