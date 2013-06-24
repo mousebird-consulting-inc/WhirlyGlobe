@@ -31,4 +31,14 @@
     return newStr;
 }
 
+// Courtesy: http://stackoverflow.com/questions/3552195/how-to-convert-stdstring-to-nsstring
++(NSString*) stringWithwstring:(const std::wstring&)ws
+{
+    char* data = (char*)ws.data();
+    unsigned size = ws.size() * sizeof(wchar_t);
+    
+    NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE)];
+    return result;
+}
+
 @end

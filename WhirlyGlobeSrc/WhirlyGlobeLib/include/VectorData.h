@@ -21,6 +21,7 @@
 #import <math.h>
 #import <vector>
 #import <set>
+#import <map>
 #import <boost/shared_ptr.hpp>
 #import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
@@ -200,12 +201,24 @@ public:
     /// The filter works the same as for getNextObect()
     virtual VectorShapeRef getObjectByIndex(unsigned int vecIndex,const StringSet *filter)  { return VectorShapeRef(); }
 };
-    
+
+/** Helper routine to parse geoJSON into a collection of vectors.
+    We don't know for sure what we'll get back, so you have to go
+    looking through it.  Return false on parse failure.
+ */
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+ 
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
 bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
-        		
+    
+/** Helper routine to parse a GeoJSON assembly into an array of
+    collections of vectors.  This format is returned by the experimental
+    OSM server for vectors.
+  */
+bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+    
 }
 

@@ -20,6 +20,8 @@
 
 #import "VectorData.h"
 #import "ShapeReader.h"
+#import "libjson.h"
+#import "NSString+Stuff.h"
 
 namespace WhirlyKit
 {
@@ -456,7 +458,7 @@ bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
     return true;
 }
     
-// Parse a set of features out of GeoJSON
+// Parse a set of features out of GeoJSON using an NSDictionary
 bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
 {
     NSString *type = [jsonDict objectForKey:@"type"];
@@ -482,6 +484,326 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
         }
     } 
         
+    return true;
+}
+    
+using namespace libjson;
+    
+// Parse properties out of a node
+NSMutableDictionary *VectorParseProperties(JSONNode node)
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    
+    for (JSONNode::const_iterator it = node.begin();
+         it != node.end(); ++it)
+    {
+        std::string name = it->name();
+        if (!name.empty())
+        {
+            NSString *nameStr = [NSString stringWithCString:name.c_str() encoding:NSUnicodeStringEncoding];
+            switch (it->type())
+            {
+                case JSON_STRING:
+                {
+                    std::string val = it->as_string();
+                    dict[nameStr] = [NSString stringWithCString:val.c_str() encoding:NSUnicodeStringEncoding];
+                }
+                    break;
+                case JSON_NUMBER:
+                {
+                    double val = it->as_float();
+                    dict[nameStr] = @(val);
+                }
+                    break;
+                case JSON_BOOL:
+                {
+                    bool val = it->as_bool();
+                    dict[nameStr] = @(val);
+                }
+                    break;
+            }
+        }
+    }
+    
+    return dict;
+}
+    
+// Parse coordinate list out of a node
+bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
+{
+    for (JSONNode::const_iterator it = node.begin();
+         it != node.end(); ++it)
+    {
+        if (it->type() == JSON_ARRAY)
+        {
+            if (!VectorParseCoordinates(*it, pts))
+                return false;
+            continue;
+        }
+
+        // We're expecting two numbers here
+        if (it->type() == JSON_NUMBER)
+        {
+            if (node.size() != 2)
+                return false;
+            
+            float lon = it->as_float();  ++it;
+            float lat = it->as_float();
+            pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
+
+            continue;
+        }
+        
+        // Got something unexpected
+        return false;
+    }
+    
+    return true;
+}
+
+// Parse geometry out of a node
+bool VectorParseGeometry(JSONNode node,ShapeSet &shapes)
+{
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    
+    std::string type = typeIt->as_string();
+    if (!type.compare("Point"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+
+        VectorPointsRef pts = VectorPoints::createPoints();
+        if (!VectorParseCoordinates(*coordIt,pts->pts))
+            return false;
+        pts->initGeoMbr();
+        shapes.insert(pts);
+        
+        return true;
+    } else if (!type.compare("LineString"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        
+        VectorLinearRef lin = VectorLinear::createLinear();
+        if (!VectorParseCoordinates(*coordIt,lin->pts))
+            return false;
+        lin->initGeoMbr();
+        shapes.insert(lin);
+
+        return true;
+    } else if (!type.compare("Polygon"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        VectorArealRef ar = VectorAreal::createAreal();
+        int numLoops = 0;
+        for (JSONNode::const_iterator coordEntryIt = coordIt->begin();
+             coordEntryIt != coordIt->end(); ++coordEntryIt, numLoops++)
+        {
+            if (coordEntryIt->type() != JSON_ARRAY)
+                return false;
+        
+            ar->loops.resize(numLoops+1);
+            if (!VectorParseCoordinates(*coordEntryIt,ar->loops[numLoops]))
+                return false;
+        }
+        
+        ar->initGeoMbr();
+        shapes.insert(ar);
+        
+        return true;
+    } else if (!type.compare("MultiPoint"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        
+        VectorPointsRef pts = VectorPoints::createPoints();
+        if (!VectorParseCoordinates(*coordIt,pts->pts))
+            return false;
+        pts->initGeoMbr();
+        shapes.insert(pts);
+        
+        return true;        
+    } else if (!type.compare("MultiLineString"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+            if (coordIt->type() != JSON_ARRAY)
+                return false;
+        for (JSONNode::const_iterator coordEntryIt = coordIt->begin();
+             coordEntryIt != coordIt->end(); ++coordEntryIt)
+        {
+            if (coordEntryIt->type() != JSON_ARRAY)
+                return false;
+            
+            VectorLinearRef lin = VectorLinear::createLinear();
+            if (!VectorParseCoordinates(*coordEntryIt, lin->pts))
+                return false;
+            lin->initGeoMbr();
+            shapes.insert(lin);
+        }
+        
+        return true;
+    } else if (!type.compare("MultiPolygon"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+
+        for (JSONNode::const_iterator polyIt = coordIt->begin();
+             polyIt != coordIt->end(); ++polyIt)
+        {
+            VectorArealRef ar = VectorAreal::createAreal();
+            int numLoops = 0;
+            for (JSONNode::const_iterator coordEntryIt = polyIt->begin();
+                 coordEntryIt != polyIt->end(); ++coordEntryIt, numLoops++)
+            {
+                if (coordEntryIt->type() != JSON_ARRAY)
+                    return false;
+                
+                ar->loops.resize(numLoops+1);
+                if (!VectorParseCoordinates(*coordEntryIt,ar->loops[numLoops]))
+                    return false;
+            }
+            
+            ar->initGeoMbr();
+            shapes.insert(ar);
+        }
+        
+        return true;        
+    } else if (!type.compare("GeometryCollection"))
+    {
+        JSONNode::const_iterator geomCollectIt = node.find("geometries");
+        if (geomCollectIt->type() != JSON_ARRAY)
+            return false;
+        for (JSONNode::const_iterator geomIt = geomCollectIt->begin();
+             geomIt != geomCollectIt->end(); ++geomIt)
+            if (!VectorParseGeometry(*geomIt,shapes))
+                return false;
+        
+        return true;
+    }
+    
+    return false;
+}
+    
+// Parse a single feature
+bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
+{
+    // Expecting this to be a feature with a geometry and properties node
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    std::string type = typeIt->as_string();
+    if (type.compare("Feature"))
+        return false;
+    
+    JSONNode::const_iterator geomIt = node.find("geometry");
+    if (geomIt == node.end())
+        return false;
+    
+    JSONNode::const_iterator propIt = node.find("properties");
+    if (propIt == node.end())
+        return false;
+
+    // Parse the properties, then the geometry
+    NSMutableDictionary *properties = VectorParseProperties(*propIt);
+    ShapeSet newShapes;
+    if (!VectorParseGeometry(*geomIt,newShapes))
+        return false;
+    // Apply the properties to the geometry
+    for (ShapeSet::iterator sit = newShapes.begin(); sit != newShapes.end(); ++sit)
+        (*sit)->setAttrDict(properties);
+    
+    shapes.insert(newShapes.begin(), newShapes.end());
+    return true;
+}
+
+// Parse an array of features
+bool VectorParseFeatures(JSONNode node,ShapeSet &shapes)
+{
+    for (JSONNode::const_iterator it = node.begin();it != node.end(); ++it)
+    {
+        // Not sure what this would be
+        if (it->type() != JSON_NODE)
+            return false;
+        if (!VectorParseFeature(*it,shapes))
+            return false;
+    }
+    
+    return true;
+}
+
+// Recursively parse a feature collection
+bool VectorParseTopNode(JSONNode node,ShapeSet &shapes)
+{
+    std::string type;
+    
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    type = typeIt->as_string();
+    if (!type.compare("FeatureCollection"))
+    {
+        // Expecting a features node
+        JSONNode::const_iterator featIt = node.find("features");
+        if (featIt == node.end() || featIt->type() != JSON_ARRAY)
+            return false;
+        return VectorParseFeatures(*featIt,shapes);
+    } else
+        return false;
+
+    return false;
+}
+    
+// Parse a set of features out of GeoJSON, using libjson
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data)
+{
+    // Note: Kind of an extra step here
+    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    std::string json = [str UTF8String];
+    
+    JSONNode topNode = libjson::parse(json);
+
+    if (!VectorParseTopNode(topNode,shapes))
+    {
+        NSLog(@"Failed to parse JSON in VectorParseGeoJSON");
+        return false;
+    }
+    
+    return true;
+}
+    
+bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes)
+{
+    // Note: Kind of an extra step here
+    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    std::string json = [str UTF8String];
+    
+    JSONNode topNode = libjson::parse(json);
+
+    for (JSONNode::iterator nodeIt = topNode.begin();
+         nodeIt != topNode.end(); ++nodeIt)
+    {
+        if (nodeIt->type() == JSON_NODE)
+        {
+            ShapeSet theseShapes;
+            if (VectorParseTopNode(*nodeIt,theseShapes))
+            {
+                shapes[nodeIt->name()] = theseShapes;
+            } else
+                return false;
+        }
+    }
+    
     return true;
 }
     

@@ -34,9 +34,51 @@ using namespace WhirlyGlobe;
 @synthesize selectable;
 @synthesize shapes;
 
++ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
+{
+    if ([geoJSON length] > 0)
+    {
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+        
+        if (!VectorParseGeoJSON(vecObj->shapes, geoJSON))
+            return nil;
+        
+        return vecObj;
+    }
+    
+    return nil;
+}
+
++ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
+{
+    if ([geoJSON length] > 0)
+    {
+        std::map<std::string,ShapeSet> shapes;
+        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
+            return nil;
+        
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        for (std::map<std::string,ShapeSet>::iterator it = shapes.begin();
+             it != shapes.end(); ++it)
+        {
+            NSString *str = [NSString stringWithFormat:@"%s",it->first.c_str()];
+            if (str)
+            {
+                MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+                vecObj.shapes = it->second;
+                dict[str] = vecObj;
+            }
+        }
+        
+        return dict;
+    }
+    
+    return nil;
+}
+
 /// Parse vector data from geoJSON.  Returns one object to represent
 //   the whole thing, which might include multiple different vectors.
-+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
++ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
 {
     if([geoJSON length] > 0)
     {
