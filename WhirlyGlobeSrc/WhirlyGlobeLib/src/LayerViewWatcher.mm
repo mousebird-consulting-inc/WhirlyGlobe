@@ -71,7 +71,8 @@ using namespace WhirlyKit;
     
     // Make sure it gets a starting update
     // The trick here is we need to let the main thread finish setting up first
-    [self performSelectorOnMainThread:@selector(updateSingleWatcherDelay:) withObject:watch waitUntilDone:NO];
+    if (lastViewState)
+        [self performSelectorOnMainThread:@selector(updateSingleWatcherDelay:) withObject:watch waitUntilDone:NO];
 }
 
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector
