@@ -132,7 +132,7 @@ void OpenGLMemManager::clearBufferIDs()
     
     pthread_mutex_unlock(&idLock);
 }
-    
+
 GLuint OpenGLMemManager::getTexID()
 {
     pthread_mutex_lock(&idLock);
@@ -208,7 +208,7 @@ void OpenGLMemManager::lock()
 
 void OpenGLMemManager::unlock()
 {
-    pthread_mutex_unlock(&idLock);    
+    pthread_mutex_unlock(&idLock);
 }
 
 		
@@ -226,6 +226,344 @@ void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *rende
 	DrawableRef theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
 		execute2(scene,renderer,theDrawable);
+}
+    
+VertexAttribute::VertexAttribute(BDAttributeDataType dataType,const std::string &name)
+    : dataType(dataType), name(name), data(NULL), buffer(0)
+{
+    defaultData.vec3[0] = 0.0;
+    defaultData.vec3[1] = 0.0;
+    defaultData.vec3[2] = 0.0;
+}
+    
+VertexAttribute::~VertexAttribute()
+{
+    clear();
+}
+    
+VertexAttribute::VertexAttribute(const VertexAttribute &that)
+    : dataType(that.dataType), name(that.name), data(NULL), buffer(that.buffer), defaultData(that.defaultData)
+{
+}
+    
+VertexAttribute VertexAttribute::templateCopy() const
+{
+    VertexAttribute newAttr(*this);
+    return newAttr;
+}
+    
+BDAttributeDataType VertexAttribute::getDataType() const
+{
+    return dataType;
+}
+    
+void VertexAttribute::setDefaultColor(const RGBAColor &color)
+{
+    defaultData.color[0] = color.r;
+    defaultData.color[1] = color.g;
+    defaultData.color[2] = color.b;
+    defaultData.color[3] = color.a;
+}
+
+void VertexAttribute::setDefaultVector2f(const Eigen::Vector2f &vec)
+{
+    defaultData.vec2[0] = vec.x();
+    defaultData.vec2[1] = vec.y();
+}
+
+void VertexAttribute::setDefaultVector3f(const Eigen::Vector3f &vec)
+{
+    defaultData.vec3[0] = vec.x();
+    defaultData.vec3[1] = vec.y();
+    defaultData.vec3[2] = vec.z();
+}
+
+void VertexAttribute::setDefaultFloat(float val)
+{
+    defaultData.floatVal = val;
+}
+
+void VertexAttribute::addColor(const RGBAColor &color)
+{
+    if (dataType != BDChar4Type)
+        return;
+    
+    if (!data)
+        data = new std::vector<RGBAColor>();
+    std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
+    (*colors).push_back(color);
+}
+
+void VertexAttribute::addVector2f(const Eigen::Vector2f &vec)
+{
+    if (dataType != BDFloat2Type)
+        return;
+    
+    if (!data)
+        data = new std::vector<Vector2f>();
+    std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
+    (*vecs).push_back(vec);
+}
+
+void VertexAttribute::addVector3f(const Eigen::Vector3f &vec)
+{
+    if (dataType != BDFloat3Type)
+        return;
+    
+    if (!data)
+        data = new std::vector<Vector3f>();
+    std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
+    (*vecs).push_back(vec);
+}
+
+void VertexAttribute::addFloat(float val)
+{
+    if (dataType != BDFloatType)
+        return;
+    
+    if (!data)
+        data = new std::vector<float>();
+    std::vector<float> *floats = (std::vector<float> *)data;
+    (*floats).push_back(val);
+}
+    
+/// Reserve size in the data array
+void VertexAttribute::reserve(int size)
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+        {
+            if (!data)
+                data = new std::vector<Vector3f>();
+            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
+            vecs->reserve(size);
+        }
+            break;
+        case BDFloat2Type:
+        {
+            if (!data)
+                data = new std::vector<Vector2f>();
+            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
+            vecs->reserve(size);
+        }
+            break;
+        case BDChar4Type:
+        {
+            if (!data)
+                data = new std::vector<RGBAColor>();
+            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
+            colors->reserve(size);
+        }
+            break;
+        case BDFloatType:
+        {
+            if (!data)
+                data = new std::vector<float>();
+            std::vector<float> *floats = (std::vector<float> *)data;
+            floats->reserve(size);
+        }
+            break;
+    }    
+}
+
+/// Number of elements in our array
+int VertexAttribute::numElements() const
+{
+    if (!data)
+        return 0;
+    
+    switch (dataType)
+    {
+        case BDFloat3Type:
+        {
+            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
+            return vecs->size();
+        }
+            break;
+        case BDFloat2Type:
+        {
+            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
+            return vecs->size();
+        }
+            break;
+        case BDChar4Type:
+        {
+            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
+            return colors->size();
+        }
+            break;
+        case BDFloatType:
+        {
+            std::vector<float> *floats = (std::vector<float> *)data;
+            return floats->size();
+        }
+            break;
+    }    
+}
+
+/// Return the size of a single element
+int VertexAttribute::size() const
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+            return sizeof(GLfloat)*3;
+            break;
+        case BDFloat2Type:
+            return sizeof(GLfloat)*2;
+            break;
+        case BDChar4Type:
+            return sizeof(unsigned char)*4;
+            break;
+        case BDFloatType:
+            return sizeof(GLfloat);
+            break;
+    }    
+}
+
+/// Clean out the data array
+void VertexAttribute::clear()
+{
+    if (data)
+    {
+        switch (dataType)
+        {
+            case BDFloat3Type:
+            {
+                std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
+                delete vecs;
+            }
+                break;
+            case BDFloat2Type:
+            {
+                std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
+                delete vecs;
+            }
+                break;
+            case BDChar4Type:
+            {
+                std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
+                delete colors;
+            }
+                break;
+            case BDFloatType:
+            {
+                std::vector<float> *floats = (std::vector<float> *)data;
+                delete floats;
+            }
+                break;
+        }
+    }
+    data = NULL;    
+}
+
+/// Return a pointer to the given element
+void *VertexAttribute::addressForElement(int which)
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+        {
+            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
+            return &(*vecs)[which];;
+        }
+            break;
+        case BDFloat2Type:
+        {
+            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
+            return &(*vecs)[which];
+        }
+            break;
+        case BDChar4Type:
+        {
+            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
+            return &(*colors)[which];
+        }
+            break;
+        case BDFloatType:
+        {
+            std::vector<float> *floats = (std::vector<float> *)data;
+            return &(*floats)[which];
+        }
+            break;
+    }
+    
+    return NULL;
+}
+
+/// Return the number of components as needed by glVertexAttribPointer
+GLuint VertexAttribute::glEntryComponents() const
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+            return 3;
+            break;
+        case BDFloat2Type:
+            return 2;
+            break;
+        case BDChar4Type:
+            return 4;
+            break;
+        case BDFloatType:
+            return 1;
+            break;
+    }
+    
+    return 0;
+}
+
+/// Return the data type as required by glVertexAttribPointer
+GLenum VertexAttribute::glType() const
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+        case BDFloat2Type:
+        case BDFloatType:
+            return GL_FLOAT;
+            break;
+        case BDChar4Type:
+            return GL_UNSIGNED_BYTE;
+            break;
+    }
+    return GL_UNSIGNED_BYTE;
+}
+
+/// Whether or not glVertexAttribPointer will normalize the data
+GLboolean VertexAttribute::glNormalize() const
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+        case BDFloat2Type:
+        case BDFloatType:
+            return GL_FALSE;
+            break;
+        case BDChar4Type:
+            return GL_TRUE;
+            break;
+    }
+}
+    
+void VertexAttribute::glSetDefault(int index) const
+{
+    switch (dataType)
+    {
+        case BDFloat3Type:
+            glVertexAttrib3f(index, defaultData.vec3[0], defaultData.vec3[1], defaultData.vec3[2]);
+            break;
+        case BDFloat2Type:
+            glVertexAttrib2f(index, defaultData.vec2[0], defaultData.vec2[1]);
+            break;
+        case BDFloatType:
+            glVertexAttrib1f(index, defaultData.floatVal);
+            break;
+        case BDChar4Type:
+            glVertexAttrib4f(index, defaultData.color[0] / 255.0, defaultData.color[1] / 255.0, defaultData.color[2] / 255.0, defaultData.color[3] / 255.0);
+            break;
+    }
 }
 	
 BasicDrawable::BasicDrawable(const std::string &name)
@@ -249,7 +587,7 @@ BasicDrawable::BasicDrawable(const std::string &name)
     numTris = 0;
     numPoints = 0;
     
-    pointBuffer = colorBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+    pointBuffer = triBuffer = 0;
     sharedBuffer = 0;
     vertexSize = 0;
     vertArrayObj = 0;
@@ -258,6 +596,8 @@ BasicDrawable::BasicDrawable(const std::string &name)
     writeZBuffer = true;
 
     hasMatrix = false;
+    
+    setupStandardAttributes();
 }
 	
 BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
@@ -270,8 +610,7 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
     drawPriority = 0;
     drawOffset = 0;
 	points.reserve(numVert);
-	texCoords.reserve(numVert);
-	norms.reserve(numVert);
+    setupStandardAttributes(numVert);
 	tris.reserve(numTri);
     fadeDown = fadeUp = 0.0;
 	color.r = color.g = color.b = color.a = 255;
@@ -286,7 +625,7 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
     numTris = 0;
     numPoints = 0;
     
-    pointBuffer = colorBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+    pointBuffer = triBuffer = 0;
     sharedBuffer = 0;
     vertexSize = 0;
     vertArrayObj = 0;
@@ -294,9 +633,42 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
 
     hasMatrix = false;
 }
-	
+    
 BasicDrawable::~BasicDrawable()
 {
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        delete vertexAttributes[ii];
+    vertexAttributes.clear();
+}
+    
+void BasicDrawable::setupStandardAttributes(int numReserve)
+{
+    texCoordEntry = addAttribute(BDFloat2Type,"a_texCoord");
+    vertexAttributes[texCoordEntry]->setDefaultVector2f(Vector2f(0.0,0.0));
+    vertexAttributes[texCoordEntry]->reserve(numReserve);
+    
+    colorEntry = addAttribute(BDChar4Type,"a_color");
+    vertexAttributes[colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
+    vertexAttributes[colorEntry]->reserve(numReserve);
+    
+    normalEntry = addAttribute(BDFloat3Type,"a_normal");
+    vertexAttributes[normalEntry]->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
+    vertexAttributes[normalEntry]->reserve(numReserve);
+}
+
+SimpleIdentity BasicDrawable::getProgram() const
+{
+    return programId;
+}
+    
+void BasicDrawable::setProgram(SimpleIdentity progId)
+{
+    programId = progId;
+}
+    
+unsigned int BasicDrawable::getDrawPriority() const
+{
+    return drawPriority;
 }
     
 bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
@@ -310,11 +682,16 @@ bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
              (maxVisible <= visVal && visVal <= minVisible));
 }
     
+void BasicDrawable::setOnOff(bool onOff)
+{
+    on = onOff;
+}
+    
 bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
-
+    
     // We don't need to get tricky unless we're z buffering this data
     if (!requestZBuffer)
         return false;
@@ -359,6 +736,139 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
     
     return false;
 }
+    
+void BasicDrawable::setAlpha(bool onOff)
+{
+    isAlpha = onOff;
+}
+    
+Mbr BasicDrawable::getLocalMbr() const
+{
+    return localMbr;
+}
+    
+    
+void BasicDrawable::setLocalMbr(Mbr mbr)
+{
+    localMbr = mbr;
+}
+    
+void BasicDrawable::setDrawPriority(unsigned int newPriority)
+{
+    drawPriority = newPriority;
+}
+
+unsigned int BasicDrawable::getDrawPriority()
+{
+    return drawPriority;
+}
+    
+void BasicDrawable::setDrawOffset(float newOffset)
+{
+    drawOffset = newOffset;
+}
+    
+float BasicDrawable::getDrawOffset()
+{
+    return drawOffset;
+}
+
+void BasicDrawable::setType(GLenum inType)
+{
+    type = inType;
+}
+
+GLenum BasicDrawable::getType() const
+{
+    return type;
+}
+    
+void BasicDrawable::setTexId(SimpleIdentity inId)
+{
+    texId = inId;
+}
+    
+void BasicDrawable::setColor(RGBAColor inColor)
+{
+    color = inColor;
+    vertexAttributes[colorEntry]->setDefaultColor(color);
+}
+
+/// Set the color as an array.
+void BasicDrawable::setColor(unsigned char inColor[])
+{
+    color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3];
+    vertexAttributes[colorEntry]->setDefaultColor(color);
+}
+
+RGBAColor BasicDrawable::getColor() const
+{
+    return color;
+}
+    
+void BasicDrawable::setVisibleRange(float minVis,float maxVis,float minVisBand,float maxVisBand)
+{ minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
+
+void BasicDrawable::getVisibleRange(float &minVis,float &maxVis)
+{ minVis = minVisible;  maxVis = maxVisible; }
+
+void BasicDrawable::getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand)
+{ minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
+
+void BasicDrawable::setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp)
+{ fadeUp = inFadeUp;  fadeDown = inFadeDown; }
+
+void BasicDrawable::setLineWidth(float inWidth)
+{ lineWidth = inWidth; }
+
+float BasicDrawable::getLineWidth()
+{ return lineWidth; }
+
+void BasicDrawable::setRequestZBuffer(bool val)
+{ requestZBuffer = val; }
+
+bool BasicDrawable::getRequestZBuffer() const
+{ return requestZBuffer; }
+
+void BasicDrawable::setWriteZBuffer(bool val)
+{ writeZBuffer = val; }
+
+bool BasicDrawable::getWriteZbuffer() const
+{ if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
+
+unsigned int BasicDrawable::addPoint(Point3f pt)
+{ points.push_back(pt); return points.size()-1; }
+
+Point3f BasicDrawable::getPoint(int which)
+{ if (which >= points.size()) return Point3f(0,0,0);  return points[which]; }
+
+void BasicDrawable::addTexCoord(TexCoord coord)
+{ vertexAttributes[texCoordEntry]->addVector2f(coord); }
+
+void BasicDrawable::addColor(RGBAColor color)
+{ vertexAttributes[colorEntry]->addColor(color); }
+
+void BasicDrawable::addNormal(Point3f norm)
+{ vertexAttributes[normalEntry]->addVector3f(norm); }
+
+void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector2f vec)
+{ vertexAttributes[attrId]->addVector2f(vec); }
+
+void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector3f vec)
+{ vertexAttributes[attrId]->addVector3f(vec); }
+
+void BasicDrawable::addAttributeValue(int attrId,RGBAColor color)
+{ vertexAttributes[attrId]->addColor(color); }
+
+void BasicDrawable::addAttributeValue(int attrId,float val)
+{ vertexAttributes[attrId]->addFloat(val); }
+
+void BasicDrawable::addTriangle(Triangle tri)
+{ tris.push_back(tri); }
+
+SimpleIdentity BasicDrawable::getTexId()
+{ return texId; }
+
 
 // If we're fading in or out, update the rendering window
 void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
@@ -377,47 +887,58 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
             programId = triShaderId;
     }
 }
-    
-// Widen a line and turn it into a rectangle of the given width
-void BasicDrawable::addRect(const Point3f &l0, const Vector3f &nl0, const Point3f &l1, const Vector3f &nl1,float width)
-{
-	Vector3f dir = l1-l0;
-	if (dir.isZero())
-		return;
-	dir.normalize();
-
-	float width2 = width/2.0;
-	Vector3f c0 = dir.cross(nl0);
-	c0.normalize();
-	
-	Point3f pt[3];
-	pt[0] = l0 + c0 * width2;
-	pt[1] = l1 + c0 * width2;
-	pt[2] = l1 - c0 * width2;
-	pt[3] = l0 - c0 * width2;
-
-	unsigned short ptIdx[4];
-	for (unsigned int ii=0;ii<4;ii++)
-	{
-		ptIdx[ii] = addPoint(pt[ii]);
-		addNormal(nl0);
-	}
-	
-	addTriangle(Triangle(ptIdx[0],ptIdx[1],ptIdx[3]));
-	addTriangle(Triangle(ptIdx[3],ptIdx[1],ptIdx[2]));
-}
-    
+        
 // Move the texture coordinates around and apply a new texture
 void BasicDrawable::applySubTexture(SubTexture subTex)
 {
     texId = subTex.texId;
     
-    for (unsigned int ii=0;ii<texCoords.size();ii++)
+    std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[texCoordEntry]->data;
+    
+    for (unsigned int ii=0;ii<texCoords->size();ii++)
     {
-        Point2f tc = texCoords[ii];
-        texCoords[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+        Point2f tc = (*texCoords)[ii];
+        (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
     }
 }
+    
+int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name)
+{
+    VertexAttribute *attr = new VertexAttribute(dataType,name);
+    vertexAttributes.push_back(attr);
+    
+    return vertexAttributes.size()-1;
+}
+    
+unsigned int BasicDrawable::getNumPoints() const
+{ return points.size(); }
+
+unsigned int BasicDrawable::getNumTris() const
+{ return tris.size(); }
+
+void BasicDrawable::reserveNumPoints(int numPoints)
+{ points.reserve(points.size()+numPoints); }
+
+void BasicDrawable::reserveNumTris(int numTris)
+{ tris.reserve(tris.size()+numTris); }
+
+void BasicDrawable::reserveNumTexCoords(int numCoords)
+{ vertexAttributes[texCoordEntry]->reserve(numCoords); }
+    
+void BasicDrawable::reserveNumNorms(int numNorms)
+{ vertexAttributes[normalEntry]->reserve(numNorms); }
+
+void BasicDrawable::reserveNumColors(int numColors)
+{
+    vertexAttributes[colorEntry]->reserve(numColors);
+}
+    
+void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
+{ mat = *inMat; hasMatrix = true; }
+
+/// Return the active transform matrix, if we have one
+const Eigen::Matrix4d *BasicDrawable::getMatrix() const
+{ if (hasMatrix) return &mat;  return NULL; }
 
 // Size of a single vertex in an interleaved buffer
 // Note: We're resetting the buffers for no good reason
@@ -425,25 +946,22 @@ GLuint BasicDrawable::singleVertexSize()
 {
     GLuint singleVertSize = 0;
 
+    // Always have points
     if (!points.empty())
     {
         pointBuffer = singleVertSize;
         singleVertSize += 3*sizeof(GLfloat);
     }
-    if (!colors.empty())
+    
+    // Now for the rest of the buffers
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
-        colorBuffer = singleVertSize;
-        singleVertSize += 4*sizeof(GLchar);
-    }
-    if (!texCoords.empty())
-    {
-        texCoordBuffer = singleVertSize;
-        singleVertSize += 2*sizeof(GLfloat);
-    }
-    if (!norms.empty())
-    {
-        normBuffer = singleVertSize;
-        singleVertSize += 3*sizeof(GLfloat);
+        VertexAttribute *attr = vertexAttributes[ii];
+        if (attr->numElements() != 0)
+        {
+            attr->buffer = singleVertSize;
+            singleVertSize += attr->size();
+        }
     }
     
     return singleVertSize;
@@ -454,12 +972,13 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which)
 {
     if (!points.empty())
         memcpy(basePtr+pointBuffer, &points[which].x(), 3*sizeof(GLfloat));
-    if (!colors.empty())
-        memcpy(basePtr+colorBuffer, &colors[which].r, 4*sizeof(GLchar));
-    if (!texCoords.empty())
-        memcpy(basePtr+texCoordBuffer, &texCoords[which].x(), 2*sizeof(GLfloat));
-    if (!norms.empty())
-        memcpy(basePtr+normBuffer, &norms[which].x(), 3*sizeof(GLfloat));
+    
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute *attr = vertexAttributes[ii];
+        if (attr->numElements() != 0)
+            memcpy(basePtr+attr->buffer, attr->addressForElement(which), attr->size());
+    }    
 }
     
 void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
@@ -477,9 +996,11 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 	// Offset the geometry upward by minZres units along the normals
 	// Only do this once, obviously
     // Note: Probably replace this with a shader program at some point
-	if (drawOffset != 0 && (points.size() == norms.size()))
+	if (drawOffset != 0 && (points.size() == vertexAttributes[normalEntry]->numElements()))
 	{
 		float scale = setupInfo->minZres*drawOffset;
+        std::vector<Point3f> &norms = *(std::vector<Point3f> *)vertexAttributes[normalEntry]->data;
+        
 		for (unsigned int ii=0;ii<points.size();ii++)
 		{
 			Vector3f pt = points[ii];
@@ -487,7 +1008,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 		}
 	}
 	
-	pointBuffer = texCoordBuffer = normBuffer = triBuffer = 0;
+	pointBuffer = triBuffer = 0;
     sharedBuffer = 0;
     
     // We'll set up a single buffer for everything.
@@ -536,11 +1057,10 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     // Clear out the arrays, since we won't need them again
     numPoints = points.size();
     points.clear();
-    texCoords.clear();
-    norms.clear();
     numTris = tris.size();
     tris.clear();
-    colors.clear();
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        vertexAttributes[ii]->clear();
     
     usingBuffers = true;
 }
@@ -548,8 +1068,18 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 // Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
 NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
 {
-    if (points.empty() || texCoords.empty() || norms.empty() || colors.empty())
+    if (points.empty())
         return nil;
+    
+    // Verify that everything else (that has data) has the same amount)
+    int numElements = points.size();
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute *attr = vertexAttributes[ii];
+        int theseElements = attr->numElements();
+        if (theseElements != 0 && theseElements != numElements)
+            return nil;
+    }
 
     NSData *retData = nil;
     if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
@@ -590,20 +1120,15 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     if (points.empty() || tris.empty())
         return;
 
-    // Note: Hack to fill out the color
-    if (colors.empty())
-        for (unsigned int ii=0;ii<points.size();ii++)
-            colors.push_back(color);
-
-    // Note: Hack to fill out the texture coordinates
-    if (texCoords.empty())
-        for (unsigned int ii=0;ii<points.size();ii++)
-            texCoords.push_back(Point2f(0,0));
-    
-    // Note: Hack to fill out the normals
-    if (norms.empty())
-        for (unsigned int ii=0;ii<points.size();ii++)
-            norms.push_back(Point3f(0,0,1));
+    // Verify that everything else (that has data) has the same amount)
+    int numElements = points.size();
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute *attr = vertexAttributes[ii];
+        int theseElements = attr->numElements();
+        if (theseElements != 0 && theseElements != numElements)
+            return;
+    }
 
     // Build up the vertices
     vertexSize = singleVertexSize();
@@ -632,7 +1157,14 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     *retVertData = vertData;
     *retElementData = elementData;
 }
+
+const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
+{
+    return vertexAttributes;
+}
     
+// Note: Closed for repaiars
+#if 0
 // Combined vertex used in triangle stripping
 struct TmpVert
 {
@@ -762,6 +1294,7 @@ void BasicDrawable::convertToTriStrip()
     norms = tmpDraw.norms;
     tris.clear();
 }
+#endif
 
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
@@ -777,276 +1310,28 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
     } else {
         if (pointBuffer)
             memManager->removeBufferID(pointBuffer);
-        if (colorBuffer)
-            memManager->removeBufferID(colorBuffer);
-        if (texCoordBuffer)
-            memManager->removeBufferID(texCoordBuffer);
-        if (normBuffer)
-            memManager->removeBufferID(normBuffer);
         if (triBuffer)
             memManager->removeBufferID(triBuffer);
     }
     pointBuffer = 0;
-    colorBuffer = 0;
-    texCoordBuffer = 0;
-    normBuffer = 0;
     triBuffer = 0;
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        vertexAttributes[ii]->buffer = 0;
 }
 	
 void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
-    if (frameInfo.oglVersion == kEAGLRenderingAPIOpenGLES1)
-    {
-        if (usingBuffers)
-            drawVBO(frameInfo,scene);
-        else
-            drawReg(frameInfo,scene);
-    } else
-        drawOGL2(frameInfo,scene);
+    drawOGL2(frameInfo,scene);
 }
         
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)(base) + (off))
 
-
-// VBO based drawing, OpenGL 1.1
-void BasicDrawable::drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
-{
-	GLuint textureId = scene->getGLTexture(texId);
-    
-    // Note: This is slightly bogus
-    if (!sharedBuffer)
-        return;
-	
-	if (type == GL_TRIANGLES)
-		glEnable(GL_LIGHTING);
-	else
-		glDisable(GL_LIGHTING);
-    CheckGLError("BasicDrawable::drawVBO() lighting");
-	
-    if (!colorBuffer)
-    {
-        float timeScale = 1.0;
-        if (fadeDown < fadeUp)
-        {
-            // Heading to 1
-            if (frameInfo.currentTime < fadeDown)
-                timeScale = 0.0;
-            else
-                if (frameInfo.currentTime > fadeUp)
-                    timeScale = 1.0;
-                else
-                    timeScale = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
-        } else
-            if (fadeUp < fadeDown)
-            {
-                // Heading to 0
-                if (frameInfo.currentTime < fadeUp)
-                    timeScale = 1.0;
-                else
-                    if (frameInfo.currentTime > fadeDown)
-                        timeScale = 0.0;
-                    else
-                        timeScale = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
-            }
-        
-        // Note: Need to move this elsewhere
-        float rangeScale = 1.0;
-        if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
-            [frameInfo.theView isKindOfClass:[WhirlyGlobeView class]])
-        {
-            WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-            float height = globeView.heightAboveGlobe;
-            if (height > minVisible && height < minVisible + minVisibleFadeBand)
-            {
-                rangeScale = (height-minVisible)/minVisibleFadeBand;
-            } else if (height > maxVisible - maxVisibleFadeBand && height < maxVisible)
-            {
-                rangeScale = (height-(maxVisible-maxVisibleFadeBand))/maxVisibleFadeBand;
-            }
-        }
-
-        float scale = timeScale * rangeScale;
-        RGBAColor newColor = color;
-        newColor.r = color.r * scale;
-        newColor.g = color.g * scale;
-        newColor.b = color.b * scale;
-        newColor.a = color.a * scale;
-        glColor4ub(newColor.r, newColor.g, newColor.b, newColor.a);
-        CheckGLError("BasicDrawable::drawVBO() glColor4ub");
-    }
-    
-    if (sharedBuffer)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
-        CheckGLError("BasicDrawable::drawVBO() shared glBindBuffer");
-        
-        glEnableClientState(GL_VERTEX_ARRAY);
-        CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-        glVertexPointer(3, GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
-        CheckGLError("BasicDrawable::drawVBO() glVertexPointer");
-        
-        glEnableClientState(GL_NORMAL_ARRAY);
-        CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-        glNormalPointer(GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,normBuffer));
-        CheckGLError("BasicDrawable::drawVBO() glNormalPointer");
-        
-        if (colorBuffer)
-        {
-            glEnableClientState(GL_COLOR_ARRAY);
-            CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-            
-            glColorPointer(4, GL_UNSIGNED_BYTE, vertexSize, CALCBUFOFF(sharedBufferOffset,colorBuffer));
-            CheckGLError("BasicDrawable::drawVBO() glVertexPointer");
-        }
-        
-        if (textureId)
-        {
-            glEnable(GL_TEXTURE_2D);
-            CheckGLError("BasicDrawable::drawVBO() glEnable");
-            glBindTexture(GL_TEXTURE_2D, textureId);
-            CheckGLError("BasicDrawable::drawVBO() glBindTexture");
-
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            CheckGLError("BasicDrawable::drawVBO() glEnableClientState");
-            glTexCoordPointer(2, GL_FLOAT, vertexSize, CALCBUFOFF(sharedBufferOffset,texCoordBuffer));
-            CheckGLError("BasicDrawable::drawVBO() glTexCoordPointer");
-        }
-    }
-    
-    if (!textureId && (type == GL_TRIANGLES))
-    {
-//        NSLog(@"No texture for: %lu",getId());
-		glDisable(GL_TEXTURE_2D);
-        CheckGLError("BasicDrawable::drawVBO() glDisable");
-    }
-	
-	switch (type)
-	{
-		case GL_TRIANGLES:
-		{
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
-            CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-			glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(sharedBufferOffset,triBuffer));
-            CheckGLError("BasicDrawable::drawVBO() glDrawElements");
-		}
-			break;
-		case GL_POINTS:
-		case GL_LINES:
-		case GL_LINE_STRIP:
-		case GL_LINE_LOOP:
-            glLineWidth(lineWidth);
-			glDrawArrays(type, 0, numPoints);
-            glLineWidth(1.0);
-            CheckGLError("BasicDrawable::drawVBO() glDrawArrays");
-			break;
-	}
-    
-    if (colorBuffer)
-    {
-        glDisableClientState(GL_COLOR_ARRAY);
-        CheckGLError("BasicDrawable::drawVBO() glDisableClientState");
-    }
-	
-	if (textureId)
-	{
-		glDisable(GL_TEXTURE_2D);
-        CheckGLError("BasicDrawable::drawVBO() glDisable");
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        CheckGLError("BasicDrawable::drawVBO() glDisableClientState");
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-    CheckGLError("BasicDrawable::drawVBO() glDisableClientState");
-	glDisableClientState(GL_NORMAL_ARRAY);
-    CheckGLError("BasicDrawable::drawVBO() glDisableClientState");
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-    CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    CheckGLError("BasicDrawable::drawVBO() glBindBuffer");
-	
-	glDisable(GL_LIGHTING);
-    CheckGLError("BasicDrawable::drawVBO() glDisable");
-}
-
-// Non-VBO based drawing, OpenGL 1.1
-void BasicDrawable::drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
-{
-	if (type == GL_TRIANGLES)
-		glEnable(GL_LIGHTING);
-	else
-		glDisable(GL_LIGHTING);
-
-	GLuint textureId = scene->getGLTexture(texId);
-	
-	if (textureId)
-	{
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	} else {
-		glDisable(GL_TEXTURE_2D);
-	}
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-    if (!norms.empty())
-        glEnableClientState(GL_NORMAL_ARRAY);
-    if (!colors.empty())
-        glEnableClientState(GL_COLOR_ARRAY);
-	
-	glVertexPointer(3, GL_FLOAT, 0, &points[0]);
-    if (!norms.empty())
-        glNormalPointer(GL_FLOAT, 0, &norms[0]);
-    if (!colors.empty())
-    {
-        glColorPointer(4, GL_UNSIGNED_BYTE, 0, &colors[0]);
-    }
-	if (textureId)
-	{
-		glTexCoordPointer(2, GL_FLOAT, 0, &texCoords[0]);
-		glBindTexture(GL_TEXTURE_2D, textureId);
-	}
-    if (colors.empty())
-        glColor4ub(color.r, color.g, color.b, color.a);
-	
-	switch (type)
-	{
-		case GL_TRIANGLES:
-			glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, (unsigned short *)&tris[0]);
-			break;
-		case GL_POINTS:
-		case GL_LINES:
-		case GL_LINE_STRIP:
-		case GL_LINE_LOOP:
-            glLineWidth(lineWidth);
-			glDrawArrays(type, 0, points.size());
-            glLineWidth(1.0);
-			break;
-	}
-	
-	if (textureId)
-	{
-		glDisable(GL_TEXTURE_2D);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-    if (!norms.empty())
-        glDisableClientState(GL_NORMAL_ARRAY);
-    if (!colors.empty())
-        glDisableClientState(GL_COLOR_ARRAY);
-    
-    glDisable(GL_LIGHTING);
-}
     
 // Called once to set up a Vertex Array Object
 void BasicDrawable::setupVAO(OpenGLES2Program *prog)
 {
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    bool hasTexCoords = (texCoordBuffer != 0 || !texCoords.empty());
-    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
-    bool hasColors = (colorBuffer != 0 || !colors.empty());
-    const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
-    bool hasNormals = (normBuffer != 0 || !norms.empty());
 
     glGenVertexArraysOES(1, &vertArrayObj);
     glBindVertexArrayOES(vertArrayObj);
@@ -1065,27 +1350,21 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
         glEnableVertexAttribArray ( vertAttr->index );
     }
     
-    // Texture coordinates
-    if (texAttr && hasTexCoords && texCoordBuffer)
+    // All the rest of the attributes
+    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
-        glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,texCoordBuffer));
-        glEnableVertexAttribArray ( texAttr->index );
+        progAttrs[ii] = NULL;
+        VertexAttribute *attr = vertexAttributes[ii];
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->name);
+        if (thisAttr && (attr->buffer != 0 || attr->numElements() != 0))
+        {
+            glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+            glEnableVertexAttribArray(thisAttr->index);
+            progAttrs[ii] = thisAttr;
+        }
     }
     
-    // Per vertex colors
-    if (colorAttr && hasColors && colorBuffer)
-    {
-        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertexSize, CALCBUFOFF(sharedBufferOffset,colorBuffer));
-        glEnableVertexAttribArray(colorAttr->index);
-    }
-    
-    // Per vertex normals
-    if (normAttr && hasNormals && normBuffer)
-    {
-        glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,normBuffer));
-        glEnableVertexAttribArray(normAttr->index);
-    }
-
     // Bind the element array
     bool boundElements = false;
     if (type == GL_TRIANGLES && triBuffer)
@@ -1103,12 +1382,9 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
     // Now tear down all that state
     if (vertAttr)
         glDisableVertexAttribArray(vertAttr->index);
-    if (texAttr && hasTexCoords && texCoordBuffer)
-        glDisableVertexAttribArray(texAttr->index);
-    if (colorAttr && hasColors && colorBuffer)
-        glDisableVertexAttribArray(colorAttr->index);
-    if (normAttr && hasNormals && normBuffer)
-        glDisableVertexAttribArray(normAttr->index);
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        if (progAttrs[ii])
+            glDisableVertexAttribArray(progAttrs[ii]->index);    
     if (boundElements)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     if (sharedBuffer)
@@ -1202,76 +1478,49 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    bool hasTexCoords = (texCoordBuffer != 0 || !texCoords.empty());
-    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
-    bool hasColors = (colorBuffer != 0 || !colors.empty());
-    const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
-    bool hasNormals = (normBuffer != 0 || !norms.empty());
-        
+    
     // Vertex array
     bool usedLocalVertices = false;
     if (vertAttr && !(sharedBuffer || pointBuffer))
-        {
+    {
         usedLocalVertices = true;
-            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
-            glEnableVertexAttribArray ( vertAttr->index );            
-        }
+        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+        glEnableVertexAttribArray ( vertAttr->index );            
+        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+    }
     
-    // Texture coordinates
-    bool usedLocalTexCoords = false;
-    if (texAttr)
+    // Other vertex attributes
+    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
-        if (hasTexCoords)
+        VertexAttribute *attr = vertexAttributes[ii];
+        const OpenGLESAttribute *progAttr = prog->findAttribute(attr->name);
+        progAttrs[ii] = NULL;
+        if (progAttr)
         {
-            if (!texCoordBuffer)
+            // The data hasn't been downloaded, so hook it up directly here
+            if (attr->buffer == 0)
             {
-                usedLocalTexCoords = true;
-                glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, 0, &texCoords[0]);
-                glEnableVertexAttribArray ( texAttr->index );                
+                // We have a data array for it, so hand that over
+                if (attr->numElements() != 0)
+                {
+                    glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                    glEnableVertexAttribArray ( progAttr->index );
+                    CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+                    
+                    progAttrs[ii] = progAttr;
+                } else {
+                    // The program is expecting it, so we need a default
+                    // Note: Could be doing this in the VAO
+                    attr->glSetDefault(progAttr->index);
+                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                }
             }
-        } else {
-            glVertexAttrib2f(texAttr->index, 0.0, 0.0);
-            CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib2f");
         }
     }
     
-    // Per vertex colors
-    bool usedLocalColors = false;
-    if (colorAttr)
-    {
-        if (hasColors)
-        {
-            if (!colorBuffer)
-            {
-                usedLocalColors = true;
-                glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, &colors[0]);
-                glEnableVertexAttribArray ( colorAttr->index );                
-            }
-        } else {
-            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
-            CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib4f");
-        }
-    }
-    
-    // Per vertex normals
-    bool usedLocalNorms = false;
-    if (normAttr)
-    {
-        if (hasNormals)
-        {
-            if (!normBuffer)
-            {
-                usedLocalNorms = true;
-                glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &norms[0]);
-                glEnableVertexAttribArray ( normAttr->index );                
-            }
-        } else {
-            glVertexAttrib3f(normAttr->index, 1.0, 1.0, 1.0);
-            CheckGLError("BasicDrawable::drawVBO2() glVertexAttrib3f");            
-        }
-    }
-
     // Let a subclass bind anything additional
     bindAdditionalRenderObjects(frameInfo,scene);
     
@@ -1342,14 +1591,11 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
 
     // Tear down the various arrays, if we stood them up
-    if (usedLocalNorms)
-        glDisableVertexAttribArray(normAttr->index);
-    if (usedLocalColors)
-        glDisableVertexAttribArray(colorAttr->index);
-    if (usedLocalTexCoords)
-        glDisableVertexAttribArray(texAttr->index);
     if (usedLocalVertices)
         glDisableVertexAttribArray(vertAttr->index);
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        if (progAttrs[ii])
+            glDisableVertexAttribArray(progAttrs[ii]->index);
 
     // Let a subclass clean up any remaining state
     postDrawCallback(frameInfo,scene);

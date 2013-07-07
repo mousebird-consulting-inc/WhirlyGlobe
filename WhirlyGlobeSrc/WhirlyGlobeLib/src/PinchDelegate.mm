@@ -36,8 +36,9 @@ using namespace WhirlyKit;
 	WhirlyKit::Point3d startOnSphere;
 	/// Rotation when we started
 	Eigen::Quaterniond startQuat;
-    bool valid;
+        bool valid;
 	WhirlyGlobeView *globeView;
+       double startRot;
 }
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
@@ -47,6 +48,7 @@ using namespace WhirlyKit;
 		globeView = inView;
 		startZ = 0.0;
                 valid = false;
+                _doRotation = true;
 	}
 	
 	return self;
@@ -94,6 +96,15 @@ using namespace WhirlyKit;
             
             if (valid)
                 [globeView cancelAnimation];
+            
+            // Calculate a starting rotation
+            if (_doRotation)
+            {
+                CGPoint center = [pinch locationInView:glView];
+                CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                startRot = atan2(dy, dx);
+            }
 			break;
 		case UIGestureRecognizerStateChanged:
             if (valid)
@@ -110,6 +121,8 @@ using namespace WhirlyKit;
                 Eigen::Quaterniond oldQuat = globeView.rotQuat;
                 [globeView setRotQuat:startQuat updateWatchers:false];
                 Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
+                Eigen::Quaterniond newRotQuat;
+                Point3d axis = [globeView currentUp];
                 if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                                    hit:&hit normalized:true])
@@ -118,10 +131,24 @@ using namespace WhirlyKit;
                     // And how far to rotate
                     Eigen::Quaterniond endRot;
                     endRot.setFromTwoVectors(startOnSphere,hit);
-                    Eigen::Quaterniond newRotQuat = startQuat * endRot;
+                    axis = hit.normalized();
+                    newRotQuat = startQuat * endRot;
+                } else {
+                    newRotQuat = oldQuat;
+                }
+                
+                // And do a rotation around the pinch
+                if (_doRotation)
+                {
+                    CGPoint center = [pinch locationInView:glView];
+                    CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                    float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                    double curRot = atan2(dy, dx);
+                    double diffRot = curRot-startRot;
+                    Eigen::AngleAxisd rotQuat(-diffRot,axis);
+                    newRotQuat = newRotQuat * rotQuat;
+                }
                     [globeView setRotQuat:(newRotQuat) updateWatchers:false];
-                } else
-                    [globeView setRotQuat:oldQuat updateWatchers:false];
                 
                 [globeView runViewUpdates];
             }

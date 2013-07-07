@@ -194,7 +194,7 @@ LocationInfo locations[NumLocations] =
             {
                 // This is the static image set, included with the app, built with ImageChopper
                 [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
-                screenLabelColor = [UIColor blackColor];
+                screenLabelColor = [UIColor whiteColor];
                 screenLabelBackColor = [UIColor whiteColor];
                 labelColor = [UIColor blackColor];
                 labelBackColor = [UIColor whiteColor];
@@ -209,12 +209,17 @@ LocationInfo locations[NumLocations] =
             MaplyQuadEarthWithMBTiles *layer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:@"geography-class"];
             layer.handleEdges = true;
             [baseViewC addLayer:layer];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
             vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
             vecWidth = 4.0;
+            
+            // Note: Testing
+            MaplyQuadEarthWithRemoteTiles *weatherLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:15];
+            weatherLayer.handleEdges = false;
+            [baseViewC addLayer:weatherLayer];
         }
             break;
         case StamenWatercolorRemote:
@@ -227,7 +232,7 @@ LocationInfo locations[NumLocations] =
             layer.handleEdges = true;
             layer.cacheDir = thisCacheDir;
             [baseViewC addLayer:layer];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor blackColor];
@@ -244,7 +249,7 @@ LocationInfo locations[NumLocations] =
             layer.handleEdges = true;
             layer.cacheDir = thisCacheDir;
             [baseViewC addLayer:layer];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
@@ -257,7 +262,7 @@ LocationInfo locations[NumLocations] =
             self.title = @"MapBox Tiles Satellite - Remote";
             jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
@@ -270,7 +275,7 @@ LocationInfo locations[NumLocations] =
             self.title = @"MapBox Tiles Terrain - Remote";
             jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
@@ -283,7 +288,7 @@ LocationInfo locations[NumLocations] =
             self.title = @"MapBox Tiles Regular - Remote";
             jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
             thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
@@ -294,7 +299,7 @@ LocationInfo locations[NumLocations] =
         case QuadTestLayer:
         {
             self.title = @"Quad Paging Test Layer";
-            screenLabelColor = [UIColor blackColor];
+            screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
             labelColor = [UIColor blackColor];
             labelBackColor = [UIColor whiteColor];
@@ -341,8 +346,11 @@ LocationInfo locations[NumLocations] =
     
     // Set up some defaults for display
     screenLabelDesc = @{kMaplyTextColor: screenLabelColor,
-                        kMaplyBackgroundColor: screenLabelBackColor,
-                        kMaplyFade: @(1.0)};
+//                        kMaplyBackgroundColor: screenLabelBackColor,
+                        kMaplyFade: @(1.0),
+                        kMaplyTextOutlineSize: @(1.5),
+                        kMaplyTextOutlineColor: [UIColor blackColor],
+                        };
     labelDesc = @{kMaplyTextColor: labelColor,
                   kMaplyBackgroundColor: labelBackColor,
                   kMaplyFade: @(1.0)};
@@ -587,7 +595,13 @@ LocationInfo locations[NumLocations] =
              dispatch_async(dispatch_get_main_queue(),
                             ^{
                                 // Toss in all the labels at once, more efficient
-                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:@{kMaplyTextColor: [UIColor whiteColor], kMaplyFont: [UIFont systemFontOfSize:24.0], kMaplyBackgroundColor: [UIColor clearColor], kMaplyShadowSize: @(1.0)}];
+                                MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
+                                                                      @{kMaplyTextColor: [UIColor whiteColor],
+                                                                            kMaplyFont: [UIFont systemFontOfSize:24.0],
+                                                                         kMaplyTextOutlineColor: [UIColor redColor],
+                                                                          kMaplyTextOutlineSize: @(1.0),
+//                                                                               kMaplyShadowSize: @(1.0)
+                                                                      }];
 
                                 vecObjects = locVecObjects;
                                 autoLabels = autoLabelObj;

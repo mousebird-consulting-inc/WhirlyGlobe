@@ -31,7 +31,7 @@ class DynamicDrawableAtlas
 public:
     /// Construct with a name (for debugging), individual vertex size, and
     ///  number of bytes for each big drawable
-    DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes) = NULL,SimpleIdentity shaderId = EmptyIdentity);
+    DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes) = NULL,SimpleIdentity shaderId = EmptyIdentity);
     ~DynamicDrawableAtlas();
     
     /// Add the given drawable to the drawable atlas.
@@ -82,13 +82,15 @@ protected:
         SimpleIdentity elementChunkId;
     };
 
-    BigDrawable *(*newBigDrawable)(int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
+    BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
     OpenGLMemManager *memManager;
     std::string name;
     int singleVertexSize;
     int singleElementSize;
     int numVertexBytes,numElementBytes;
+    // The vertex attributes we expect to see on a drawable
+    std::vector<VertexAttribute> vertexAttributes;
     
     typedef std::set<BigDrawable *,IdentifiableSorter> BigDrawableSet;
     BigDrawableSet bigDrawables;

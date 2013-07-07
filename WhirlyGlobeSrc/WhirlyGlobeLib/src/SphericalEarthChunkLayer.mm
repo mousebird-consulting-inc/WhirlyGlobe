@@ -482,7 +482,7 @@ public:
     scene = NULL;
 }
 
-// Note: This is the hardcoded vertex size for our case.  Should make this flexible.
+// The vertex size is used for estimating
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
 
@@ -581,7 +581,7 @@ static const int SingleElementSize = sizeof(GLushort);
                 int DrawBufferSize = 2 * (8 + 1) * (8 + 1) * SingleVertexSize * 64;
                 // Two triangles per grid cell in a tile
                 int ElementBufferSize = 2 * 6 * (8 + 1) * (8 + 1) * SingleElementSize * 64;
-                drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager());
+                drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager());
             }
             
             // May need to set up the texture

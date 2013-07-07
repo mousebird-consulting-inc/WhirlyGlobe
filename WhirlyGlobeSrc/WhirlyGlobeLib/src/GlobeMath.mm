@@ -153,6 +153,11 @@ Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f geoPt)
     float z = sinf(geoPt.y());
     float rad = sqrtf(1.0-z*z);
     Point3f pt(rad*cosf(geoPt.x()),rad*sinf(geoPt.x()),z);
+    // Scale outward with the z value
+    if (geoPt.z() != 0.0)
+    {
+        pt *= 1.0 + geoPt.z() / EarthRadius;
+    }
     return pt;
 }
 
@@ -161,6 +166,11 @@ Point3d FakeGeocentricDisplayAdapter::LocalToDisplay(Point3d geoPt)
     float z = sinf(geoPt.y());
     float rad = sqrtf(1.0-z*z);
     Point3d pt(rad*cosf(geoPt.x()),rad*sinf(geoPt.x()),z);
+    // Scale outward with the z value
+    if (geoPt.z() != 0.0)
+    {
+        pt *= 1.0 + geoPt.z() / EarthRadius;
+    }
     return pt;
 }
     

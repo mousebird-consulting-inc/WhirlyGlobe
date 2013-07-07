@@ -61,7 +61,7 @@ using namespace WhirlyKit;
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     tileLoader.ignoreEdgeMatching = true;
     tileLoader.coverPoles = true;
-    tileLoader.drawPriority = _drawPriority;
+    tileLoader.drawPriority = super.drawPriority;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
 
     [layerThread addLayer:quadLayer];

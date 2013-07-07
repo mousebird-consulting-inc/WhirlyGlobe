@@ -29,6 +29,12 @@
 
 namespace WhirlyKit
 {
+    
+/// Defines the outline size (if present) of an NSAttributedString
+#define kOutlineAttributeSize @"MaplyOutlineAttributeSize"
+/// Defines the outline color of an NSAttributedString
+#define kOutlineAttributeColor @"MaplyOutlineAttributeColor"
+
 
 /** Information sufficient to draw a string as 3D geometry.
     All coordinates are in a local space related to the font size.

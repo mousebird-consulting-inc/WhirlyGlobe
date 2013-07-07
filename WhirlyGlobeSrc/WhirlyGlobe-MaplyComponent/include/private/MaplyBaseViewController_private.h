@@ -39,7 +39,7 @@
 {
 @public
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES *sceneRenderer;
+    WhirlyKitSceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *layerThread;
 
@@ -84,6 +84,9 @@
     
     /// Active models
     NSMutableArray *activeObjects;
+    
+    /// Current draw priority if we're assigning them ourselves
+    int layerDrawPriority;
     
     /// Set if we're dumping out performance output
     bool _performanceOutput;
