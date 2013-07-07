@@ -36,8 +36,8 @@ BigDrawable::Buffer::Buffer()
 {
 }
 
-BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes)
-    : Drawable(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), requestZBuffer(false),
+BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
+    : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), requestZBuffer(false),
     waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0)
 {
     activeBuffer = -1;
@@ -56,7 +56,7 @@ BigDrawable::~BigDrawable()
     pthread_mutex_destroy(&useMutex);
     pthread_cond_destroy(&useCondition);
 }
-    
+
 bool BigDrawable::isCompatible(BasicDrawable *draw)
 {
     if (getTexId() == draw->getTexId() && getRequestZBuffer() == draw->getRequestZBuffer() &&
@@ -90,7 +90,7 @@ void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memM
         Buffer &theBuffer = buffers[ii];
         theBuffer.vertexBufferId = memManager->getBufferID(numVertexBytes,GL_DYNAMIC_DRAW);
         theBuffer.elementBufferId = memManager->getBufferID(numElementBytes,GL_DYNAMIC_DRAW);
-
+        
         // Note: Clearing out the buffers will reduce warnings from Instruments
         // Clear out the vertex buffer
 //        glBindBuffer(GL_ARRAY_BUFFER, theBuffer.vertexBufferId);
@@ -137,7 +137,7 @@ void BigDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
         programId = triShaderId;
     }
 }
-    
+
 bool BigDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
 {
     if (minVis == DrawVisibleInvalid)
@@ -212,6 +212,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     if (hasTexture)
     {
         [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
+        CheckGLError("BigDrawable::draw() setActiveTexture");
         glBindTexture(GL_TEXTURE_2D, glTexID);
         CheckGLError("BigDrawable::draw() glBindTexture");
         prog->setUniform("s_baseMap", 0);
@@ -220,15 +221,6 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
-    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
-    bool hasColors = true;
-    int colorOffset = 3*sizeof(float);
-    const OpenGLESAttribute *texAttr = prog->findAttribute("a_texCoord");
-    bool hasTexCoords = true;
-    int texCoordOffset = colorOffset+ 4*sizeof(unsigned char);
-    const OpenGLESAttribute *normAttr = prog->findAttribute("a_normal");
-    bool hasNormals = true;
-    int normOffset = texCoordOffset + 2*sizeof(float);
         
     // Set up a VAO for this buffer, if there isn't one
     if (theBuffer.vertexArrayObj == 0)
@@ -246,25 +238,23 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glEnableVertexAttribArray ( vertAttr->index );
         }
         
-        // Texture coordinates
-        if (texAttr && hasTexCoords)
+        const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
-            glVertexAttribPointer(texAttr->index, 2, GL_FLOAT, GL_FALSE, singleVertexSize, CALCBUFOFF(0,texCoordOffset));
-            glEnableVertexAttribArray ( texAttr->index );
-        }
-        
-        // Per vertex colors
-        if (colorAttr && hasColors)
-        {
-            glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, singleVertexSize, CALCBUFOFF(0,colorOffset));
-            glEnableVertexAttribArray(colorAttr->index);
-        }
-        
-        // Per vertex normals
-        if (normAttr && hasNormals)
-        {
-            glVertexAttribPointer(normAttr->index, 3, GL_FLOAT, GL_FALSE, singleVertexSize, CALCBUFOFF(0,normOffset));
-            glEnableVertexAttribArray(normAttr->index);
+            progAttrs[ii] = NULL;
+            VertexAttribute &attr = vertexAttributes[ii];
+            const OpenGLESAttribute *progAttr = prog->findAttribute(attr.name);
+            // The program is looking for this one, so we need to set up something
+            if (progAttr)
+            {
+                // We have data for it in the interleaved vertices
+                if (attr.buffer != 0)
+                {
+                    progAttrs[ii] = progAttr;
+                    glVertexAttribPointer(progAttr->index, attr.glEntryComponents(), attr.glType(), attr.glNormalize(), singleVertexSize, CALCBUFOFF(0, attr.buffer));
+                    glEnableVertexAttribArray(progAttr->index);
+                }
+            }
         }
         
         glBindVertexArrayOES(0);
@@ -275,15 +265,21 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         // Tear it all down
         if (vertAttr)
             glDisableVertexAttribArray(vertAttr->index);
-        if (texAttr && hasTexCoords)
-            glDisableVertexAttribArray(texAttr->index);
-        if (colorAttr && hasColors)
-            glDisableVertexAttribArray(colorAttr->index);
-        if (normAttr && hasNormals)
-            glDisableVertexAttribArray(normAttr->index);
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (progAttrs[ii])
+                glDisableVertexAttribArray(progAttrs[ii]->index);
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
+    
+    // For the program attributes that we're not filling in, we need to provide defaults
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute &attr = vertexAttributes[ii];
+        const OpenGLESAttribute *progAttr = prog->findAttribute(attr.name);
+        if (progAttr && attr.buffer == 0)
+            attr.glSetDefault(progAttr->index);
     }
     
     // Draw it
@@ -291,8 +287,12 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
     glBindVertexArrayOES(0);
     
+    // Unbind any texture
     if (hasTexture)
+    {
+        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
         glBindTexture(GL_TEXTURE_2D, 0);
+}
 }
     
 SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled)
@@ -361,7 +361,7 @@ SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMut
     elementChunk.enabled = enabled;
     elementChunks.insert(elementChunk);
     elementChunkSize += elementSize;
-
+    
     return elementChunk.getId();
 }
  
@@ -425,7 +425,7 @@ void BigDrawable::removeRegion(RegionSet &regions,int pos,int size)
         }
     }
     
-    regions.insert(thisRegion);    
+    regions.insert(thisRegion);
 }
 
 void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChunkId)
@@ -568,7 +568,7 @@ bool BigDrawable::isWaitingOnSwap()
     pthread_mutex_unlock(&useMutex);
     return ret;
 }
-
+    
 bool BigDrawable::empty()
 {
     return elementChunks.empty();

@@ -60,6 +60,8 @@ namespace WhirlyKit
 @synthesize fade;
 @synthesize shadowColor;
 @synthesize shadowSize;
+@synthesize outlineColor;
+@synthesize outlineSize;
 
 // Parse label info out of a description
 - (void)parseDesc:(NSDictionary *)desc
@@ -79,6 +81,8 @@ namespace WhirlyKit
     fade = [desc floatForKey:@"fade" default:0.0];
     shadowColor = [desc objectForKey:@"shadowColor"];
     shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
+    outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
+    outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
     if (![justifyStr compare:@"middle"])
         justify = WhirlyKitLabelMiddle;
     else {
@@ -286,6 +290,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         UIFont *theFont = labelInfo.font;
         UIColor *theShadowColor = labelInfo.shadowColor;
         float theShadowSize = labelInfo.shadowSize;
+        UIColor *theOutlineColor = labelInfo.outlineColor;
+        float theOutlineSize = labelInfo.outlineSize;
         if (label.desc)
         {
             theTextColor = [label.desc objectForKey:@"textColor" checkType:[UIColor class] default:theTextColor];
@@ -293,13 +299,28 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             theFont = [label.desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
             theShadowColor = [label.desc objectForKey:@"shadowColor" checkType:[UIColor class] default:theShadowColor];
             theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
+            theOutlineColor = [label.desc objectForKey:@"outlineColor" checkType:[UIColor class] default:theOutlineColor];
+            theOutlineSize = [label.desc floatForKey:@"outlineSize" default:theOutlineSize];
         }
         if (theShadowColor == nil)
             theShadowColor = [UIColor blackColor];
+        if (theOutlineColor == nil)
+            theOutlineColor = [UIColor blackColor];
+        
+        // We set this if the color is embedded in the "font"
+        bool embeddedColor = false;
 
+        // Build the attributed string
         NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:label.text];
         NSInteger strLen = [attrStr length];
         [attrStr addAttribute:NSFontAttributeName value:theFont range:NSMakeRange(0, strLen)];
+        if (theOutlineSize > 0.0)
+        {
+            embeddedColor = true;
+            [attrStr addAttribute:kOutlineAttributeSize value:[NSNumber numberWithFloat:theOutlineSize] range:NSMakeRange(0, strLen)];
+            [attrStr addAttribute:kOutlineAttributeColor value:theOutlineColor range:NSMakeRange(0, strLen)];
+            [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
+        }
         Point2f iconOff(0,0);
         ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
         if (attrStr && strLen > 0)
@@ -373,7 +394,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         if (ss == 1)
                         {
                             soff = Point2f(0,0);
-                            color = [theTextColor asRGBAColor];
+                            color = embeddedColor ? [[UIColor whiteColor] asRGBAColor] : [theTextColor asRGBAColor];
                         } else {
                             soff = Point2f(theShadowSize,theShadowSize);
                             color = [theShadowColor asRGBAColor];

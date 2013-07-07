@@ -34,4 +34,7 @@
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
+/// Set the priority for drawing
+@property (nonatomic,assign) int drawPriority;
+
 @end

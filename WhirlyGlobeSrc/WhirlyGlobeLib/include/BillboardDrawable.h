@@ -41,26 +41,8 @@ public:
     /// Each vertex has an offset in 3-space
     void addOffset(Point3f offset);
     
-    /// Size is always the same
-    static GLuint SingleVertexSize();
-    
 protected:
-    // Vertex size calculation
-    virtual GLuint singleVertexSize();
-    
-    // Called by the superclass to add a single point to the interleaved vertex buffer
-    void addPointToBuffer(unsigned char *basePtr,int which);
-    
-    // Set up local data for fast rendering
-	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,WhirlyKit::OpenGLMemManager *memManage);
-    
-    // Tear down our data
-    virtual void teardownGL(WhirlyKit::OpenGLMemManager *memManage);
-    
-    // Called by the superclass to set up Vertex Array Object state
-    virtual void setupAdditionalVAO(WhirlyKit::OpenGLES2Program *prog,GLuint vertArrayObj);
-    
-    std::vector<Point3f> offsets;
+    int offsetIndex;
 };
 
 }

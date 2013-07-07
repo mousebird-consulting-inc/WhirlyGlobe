@@ -107,6 +107,13 @@
         dataSource.cacheDir = _cacheDir;
 }
 
+- (void)setDrawPriority:(int)drawPriority
+{
+    super.drawPriority = drawPriority;
+    if (tileLoader)
+        tileLoader.drawPriority = drawPriority;
+}
+
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene
 {
     [layerThread removeLayer:quadLayer];

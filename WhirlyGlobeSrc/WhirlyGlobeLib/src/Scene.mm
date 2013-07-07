@@ -378,6 +378,23 @@ OpenGLES2Program *Scene::getProgram(const std::string &name)
     return prog;
 }
 
+SimpleIdentity Scene::getProgramId(const std::string &name)
+{
+    pthread_mutex_lock(&programLock);
+    
+    OpenGLES2Program *prog = NULL;
+    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        if ((*it)->getName() == name)
+            prog = *it;
+    
+    pthread_mutex_unlock(&programLock);
+    
+    if (prog)
+        return prog->getId();
+    return EmptyIdentity;
+}
+
 void Scene::addProgram(OpenGLES2Program *prog)
 {
     pthread_mutex_lock(&programLock);

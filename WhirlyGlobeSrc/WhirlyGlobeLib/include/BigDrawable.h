@@ -33,8 +33,8 @@ class BigDrawableSwap;
 class BigDrawable : public Drawable
 {
 public:
-    /// Construct with a debugging name and the total number of bytes
-    BigDrawable(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes);
+    /// Construct with a debugging name, a compatible drawable, and the total number of bytes
+    BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes ,int singleElementSize,int numVertexBytes,int numElementBytes);
     virtual ~BigDrawable();
 
     /// See if this big drawable can represent data in the given drawable.
@@ -125,6 +125,9 @@ protected:
     int drawPriority;
     bool requestZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
+    
+    // The vertex attributes we're representing in the buffers
+    std::vector<VertexAttribute> vertexAttributes;
     
     /// Called when a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }

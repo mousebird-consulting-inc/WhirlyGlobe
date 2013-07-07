@@ -234,20 +234,7 @@ static const char *fragmentShaderNoLightLine =
     [self loadSetup_glView];
 
 	// Set up the OpenGL ES renderer
-    NSNumber *renderNum = hints[kWGRendererOpenGLVersion];
-    int whichRenderer = 2;
-    if ([renderNum respondsToSelector:@selector(integerValue)])
-        whichRenderer = [renderNum integerValue];
-    switch (whichRenderer)
-    {
-        case 1:
-            sceneRenderer = [[WhirlyKitSceneRendererES1 alloc] init];
-            break;
-        case 2:
-        default:
-            sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
-            break;
-    }
+    sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
@@ -856,6 +843,7 @@ static const float PerfOutputDelay = 15.0;
     {
         if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
+            newLayer.drawPriority = layerDrawPriority++;
             [userLayers addObject:newLayer];
             return true;
         }

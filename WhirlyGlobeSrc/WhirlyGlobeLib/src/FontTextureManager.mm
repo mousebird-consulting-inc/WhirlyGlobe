@@ -20,6 +20,8 @@
 
 #import "FontTextureManager.h"
 #import "UIImage+Stuff.h"
+#import "UIColor+Stuff.h"
+#import "WhirlyVector.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -33,7 +35,7 @@ typedef std::set<CGGlyph> GlyphSet;
 class FontManager
 {
 public:
-    FontManager(CTFontRef theFont) : font(theFont),refCount(0) { CFRetain(font); }
+    FontManager(CTFontRef theFont) : font(theFont),refCount(0),color(nil),outlineColor(nil),outlineSize(0.0) { CFRetain(font); }
     ~FontManager()
     {
         CFRelease(font);
@@ -58,6 +60,7 @@ public:
         CGGlyph glyph;
         CGSize size;
         CGPoint offset;
+        CGPoint textureOffset;
         SubTexture subTex;
         int refCount;
     };
@@ -83,11 +86,12 @@ public:
     }
 
     // Add the given glyph info
-    GlyphInfo *addGlyph(CGGlyph glyph,SubTexture subTex,CGSize size,CGPoint offset)
+    GlyphInfo *addGlyph(CGGlyph glyph,SubTexture subTex,CGSize size,CGPoint offset,CGPoint textureOffset)
     {
         GlyphInfo *info = new GlyphInfo(glyph);
         info->size = size;
         info->offset = offset;
+        info->textureOffset = textureOffset;
         info->subTex = subTex;
         glyphs.insert(info);
         
@@ -136,7 +140,10 @@ public:
     }
 
     int refCount;
+    UIColor *color;
     NSString *fontName;
+    UIColor *outlineColor;
+    float outlineSize;
     float pointSize;
             
 protected:
@@ -242,14 +249,19 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
 
 // Render the glyph into a buffer
-- (NSData *)renderGlyph:(CGGlyph)glyph font:(CTFontRef)font texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset textureOffset:(CGPoint &)textureOffset;
+- (NSData *)renderGlyph:(CGGlyph)glyph font:(FontManager *)fm texSize:(CGSize &)size glyphSize:(CGSize &)glyphSize offset:(CGPoint &)offset textureOffset:(CGPoint &)textureOffset
 {
     int width,height;
     
     // Boundary around the image to capture the full data
-    textureOffset = CGPointMake(1, 1);
+    if (fm->outlineSize > 0.0)
+    {
+        int outlineUp = ceilf(fm->outlineSize);
+        textureOffset = CGPointMake(1+outlineUp, 1+outlineUp);
+    } else
+        textureOffset = CGPointMake(1, 1);
 
-    CGRect boundRect = CTFontGetBoundingRectsForGlyphs(font,kCTFontDefaultOrientation,&glyph,NULL,1);
+    CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontDefaultOrientation,&glyph,NULL,1);
     size.width = ceilf(boundRect.size.width)+2*textureOffset.x;  size.height = ceilf(boundRect.size.height)+2*textureOffset.y;
     width = size.width;  height = size.height;
 
@@ -264,15 +276,31 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CGContextTranslateCTM(theContext, 0.0f, height);
     CGContextScaleCTM(theContext, 1.0f, -1.0f);
     // Now draw it
-    CGContextSetFillColorWithColor(theContext, [UIColor whiteColor].CGColor);
-    
     int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
     int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
     
     offset = CGPointMake(baselineOffX,baselineOffY);
     glyphSize = boundRect.size;
     CGPoint pos = CGPointMake(-baselineOffX+textureOffset.x,-baselineOffY+textureOffset.y);
-    CTFontDrawGlyphs(font,&glyph,&pos,1,theContext);
+
+    // Generate an outline around the glyph
+    if (fm->outlineSize > 0.0)
+    {
+        CGPathRef path = CTFontCreatePathForGlyph(fm->font, glyph, NULL);
+        CGContextTranslateCTM(theContext, pos.x, pos.y);
+        CGContextAddPath(theContext, path);
+        CGContextSetLineWidth(theContext, 2.0*fm->outlineSize);
+        CGContextSetStrokeColorWithColor(theContext, fm->outlineColor.CGColor);
+        CGContextStrokePath(theContext);
+        CGPathRelease(path);
+        CGContextTranslateCTM(theContext, -pos.x, -pos.y);
+    }
+
+    UIColor *textColor = fm->color;
+    if (textColor == nil)
+        textColor = [UIColor whiteColor];
+    CGContextSetFillColorWithColor(theContext, textColor.CGColor);
+    CTFontDrawGlyphs(fm->font,&glyph,&pos,1,theContext);
     
     // Note: Debugging
     // Draw the baseline
@@ -303,7 +331,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 }
             
 // Look for an existing font that will match the UIFont given
-- (FontManager *)findFontManagerForFont:(UIFont *)uiFont
+- (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
@@ -312,7 +340,12 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
          it != fontManagers.end(); ++it)
     {
         FontManager *fm = *it;
-        if (![fontName compare:fm->fontName] && pointSize == fm->pointSize)
+        if (![fontName compare:fm->fontName] && pointSize == fm->pointSize &&
+            ((!fm->color && !color) ||
+             ([fm->color asRGBAColor]) == [color asRGBAColor]) &&
+            ((!fm->outlineColor && !outlineColor) ||
+             ([fm->outlineColor asRGBAColor] == [outlineColor asRGBAColor])) &&
+            (fm->outlineSize == [outlineSize floatValue]))
             return fm;
     }
     
@@ -320,7 +353,10 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)fontName, pointSize, NULL);
     FontManager *fm = new FontManager(font);
     fm->fontName = fontName;
+    fm->color = color;
     fm->pointSize = pointSize;
+    fm->outlineColor = outlineColor;
+    fm->outlineSize = [outlineSize floatValue];
     fontManagers.insert(fm);
     if (font)
         CFRelease(font);
@@ -335,7 +371,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
     if (!texAtlas)
     {
-        // Let's do the biggest possible texture with small cells 24 bits deep
+        // Let's do the biggest possible texture with small cells 32 bits deep
         texAtlas = new DynamicTextureAtlas(2048,16,GL_UNSIGNED_BYTE);
     }
     
@@ -367,11 +403,22 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             CTRunGetPositions(run,range,offsets);
 
             // Need the font manager for this run
-            CFDictionaryRef attrs = CTRunGetAttributes(run);
-            UIFont *uiFont = (UIFont *)CFDictionaryGetValue(attrs,kCTFontAttributeName);
+            NSDictionary *attrs = (__bridge NSDictionary*)CTRunGetAttributes(run);
+            UIFont *uiFont = attrs[NSFontAttributeName];
+            
+            // And outline parameters, if they exist
+            UIColor *outlineColor = attrs[kOutlineAttributeColor];
+            NSNumber *outlineSize = attrs[kOutlineAttributeSize];
+            if (!outlineSize || !outlineColor)
+            {
+                outlineSize = nil;
+                outlineColor = nil;
+            }
+            UIColor *foregroundColor = attrs[NSForegroundColorAttributeName];
+
             FontManager *fm = nil;
             if ([uiFont isKindOfClass:[UIFont class]])
-                fm = [self findFontManagerForFont:uiFont];
+                fm = [self findFontManagerForFont:uiFont color:foregroundColor outlineColor:outlineColor outlineSize:outlineSize];
             
             GlyphSet glyphsUsed;
             
@@ -386,16 +433,16 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                     // We need to render that Glyph and add it
                     CGSize texSize,glyphSize;
                     CGPoint offset,textureOffset;
-                    NSData *glyphImage = [self renderGlyph:glyph font:fm->font texSize:texSize glyphSize:glyphSize offset:offset textureOffset:textureOffset];
+                    NSData *glyphImage = [self renderGlyph:glyph font:fm texSize:texSize glyphSize:glyphSize offset:offset textureOffset:textureOffset];
                     if (glyphImage)
                     {
                         Texture *tex = new Texture("Font Texture Manager",glyphImage,false);
                         tex->setWidth(texSize.width);
                         tex->setHeight(texSize.height);
                         SubTexture subTex;
-                        Point2f realSize(glyphSize.width+2,glyphSize.height+2);
+                        Point2f realSize(glyphSize.width+2*textureOffset.x,glyphSize.height+2*textureOffset.y);
                         if (texAtlas->addTexture(tex, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
-                            glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset);
+                            glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset, textureOffset);
                         delete tex;
                     }
                 }
@@ -405,9 +452,11 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                     // Now we make a rectangle that covers the glyph in its texture atlas
                     DrawableString::Rect rect;
                     CGPoint &offset = offsets[jj];
-                    rect.pts[0] = Point2f(glyphInfo->offset.x-1,glyphInfo->offset.y-1)+Point2f(offset.x,offset.y);
+                    // Note: was -1,-1
+                    rect.pts[0] = Point2f(glyphInfo->offset.x-glyphInfo->textureOffset.x,glyphInfo->offset.y-glyphInfo->textureOffset.y)+Point2f(offset.x,offset.y);
                     rect.texCoords[0] = TexCoord(0.0,0.0);
-                    rect.pts[1] = Point2f(glyphInfo->size.width+2,glyphInfo->size.height+2)+rect.pts[0];
+                    // Note: was 2,2
+                    rect.pts[1] = Point2f(glyphInfo->size.width+2*glyphInfo->textureOffset.x,glyphInfo->size.height+2*glyphInfo->textureOffset.y)+rect.pts[0];
                     rect.texCoords[1] = TexCoord(1.0,1.0);
                     rect.subTex = glyphInfo->subTex;
                     drawString->glyphPolys.push_back(rect);

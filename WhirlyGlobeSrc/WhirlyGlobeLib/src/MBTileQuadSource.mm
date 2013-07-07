@@ -177,7 +177,11 @@ using namespace WhirlyKit;
 //        NSLog(@"Missing tile: (%d,%d,%d)",col,row,level);
     
     // Tell the quad loader about the new tile data, whether its null or not
-    [quadLoader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData] forLevel:level col:col row:row];
+    WhirlyKitLoadedImage *loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
+    WhirlyKitLoadedTile *tileData = [[WhirlyKitLoadedTile alloc] init];
+    [tileData.images addObject:loadImage];
+//    tileData.elevChunk = [WhirlyKitElevationChunk ElevationChunkWithRandomData];
+    [quadLoader dataSource:self loadedImage:tileData forLevel:level col:col row:row];
 }
 
 

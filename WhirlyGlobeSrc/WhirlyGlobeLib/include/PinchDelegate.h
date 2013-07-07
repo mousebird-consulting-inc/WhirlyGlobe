@@ -27,6 +27,9 @@
  */
 @interface WhirlyGlobePinchDelegate : NSObject <UIGestureRecognizerDelegate>
 
+/// If set, we'll also handle rotation.  On by default.
+@property (nonatomic,assign) bool doRotation;
+
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
 + (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

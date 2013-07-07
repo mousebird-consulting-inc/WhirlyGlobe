@@ -33,6 +33,7 @@
 
 namespace WhirlyKit
 {
+    
 /** The Label Scene Representation is used to encapsulate a set of
     labels that are being added or have been added to the scene and
     their associated textures and drawable IDs.
@@ -76,6 +77,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
     float                   fade;
     UIColor                 *shadowColor;
     float                   shadowSize;
+    UIColor                 *outlineColor;
+    float                   outlineSize;
 }
 
 @property (nonatomic) NSArray *strs;
@@ -93,6 +96,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float fade;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
+@property (nonatomic) UIColor *outlineColor;
+@property (nonatomic,assign) float outlineSize;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
 - (id)initWithSceneRepId:(WhirlyKit::SimpleIdentity)inLabelId desc:(NSDictionary *)desc;
