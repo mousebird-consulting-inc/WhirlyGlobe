@@ -24,9 +24,9 @@
 namespace WhirlyKit
 {
     
-DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(int singleVertexSize,int singleElementSize,int numVertexBytes,int numElementBytes),
+DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(singleVertexSize), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId)
 {
 }
     
@@ -48,14 +48,38 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
         }
     }
     
-    // Turn the vertex and element data in to NSData objects
-    NSMutableData *vertData = nil, *elementData = nil;
-    draw->asVertexAndElementData(&vertData,&elementData,singleElementSize);
-    if (singleVertexSize != draw->singleVertexSize())
+    // Only doing triangles at the moment
+    if (draw->getType() != GL_TRIANGLES)
+        return false;
+    
+    // If this is the first one we've seen, we'll configure ourselves to match it
+    const std::vector<VertexAttribute *> &drawVertexAttributes = draw->getVertexAttributes();
+    if (singleVertexSize == 0)
+    {
+        singleVertexSize = draw->singleVertexSize();
+        vertexAttributes.clear();
+        for (unsigned int ii=0;ii<drawVertexAttributes.size();ii++)
+        {
+            vertexAttributes.push_back(drawVertexAttributes[ii]->templateCopy());
+        }
+    }
+
+    if (singleVertexSize != draw->singleVertexSize() || vertexAttributes.size() != drawVertexAttributes.size() || shaderId != draw->getProgram())
     {
         NSLog(@"DynamicDrawableAtlas::addDrawable(): Drawable mismatch.  Punting drawable.");
         return false;
     }
+    for (unsigned int ii=0;ii<drawVertexAttributes.size();ii++)
+        // Note: Comparison could be more comprehensive
+        if (vertexAttributes[ii].getDataType() != drawVertexAttributes[ii]->getDataType())
+        {
+            NSLog(@"DynamicDrawableAtlas::addDrawable(): Drawable mismatch.  Punting drawable.");
+            return false;
+        }
+
+    // Turn the vertex and element data in to NSData objects
+    NSMutableData *vertData = nil, *elementData = nil;
+    draw->asVertexAndElementData(&vertData,&elementData,singleElementSize);
     if (!vertData || !elementData)
         return false;
     
@@ -82,9 +106,9 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     {
         BigDrawable *newBigDraw = NULL;
         if (newBigDrawable)
-            newBigDraw = (*newBigDrawable)(singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
+            newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
-            newBigDraw = new BigDrawable(name,singleVertexSize,singleElementSize,numVertexBytes,numElementBytes);
+            newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
         newBigDraw->setProgram(shaderId);
 
         newBigDraw->setModes(draw);
@@ -103,7 +127,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeReq
     // This drawable is probably too big.  Punt
     if (!foundBigDraw)
         return false;
-    
+
     // This tracks the region by drawable ID so we can get to it later
     drawables.insert(represent);
 

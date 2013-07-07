@@ -31,6 +31,7 @@
 #import "SceneRendererES.h"
 #import "QuadDisplayLayer.h"
 #import "TextureAtlas.h"
+#import "ElevationChunk.h"
 
 /// @cond
 @class WhirlyKitQuadTileLoader;
@@ -82,6 +83,18 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
 
 @end
 
+/** This is a more generic version of the Loaded Image.  It can be a single
+    loaded image, a stack of them (for animation) and/or a terrain chunk.
+    If you're doing a stack of images, make sure you set up the tile quad loader
+    that way.
+  */
+@interface WhirlyKitLoadedTile : NSObject
+
+@property (nonatomic,readonly) NSMutableArray *images;
+@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+
+@end
+
 namespace WhirlyKit
 {
     
@@ -97,7 +110,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,WhirlyKitLoadedImage *loadImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,WhirlyKitLoadedImage *loadImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -124,6 +137,8 @@ public:
     WhirlyKit::SimpleIdentity texId;
     /// If set, this is a subset of a larger dynamic texture
     WhirlyKit::SubTexture subTex;
+    /// If here, the elevation data needed to build geometry
+    WhirlyKitElevationChunk *elevData;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
@@ -211,6 +226,12 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
     /// If set, the point at which we'll stop doing updates (separate from maxVis)
     float maxPageVis;
     
+    /// If set, the program to use for rendering
+    WhirlyKit::SimpleIdentity programId;
+    
+    /// If set, we'll include elevation (Z) in the drawables for shaders to use
+    bool includeElev;
+    
     /// Base color for the drawables created by the layer
     WhirlyKit::RGBAColor color;
     
@@ -244,6 +265,8 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) int drawPriority;
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) float minPageVis,maxPageVis;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity programId;
+@property (nonatomic,assign) bool includeElev;
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 @property (nonatomic,assign) bool hasAlpha;
 @property (nonatomic,weak) WhirlyKitQuadDisplayLayer *quadLayer;
@@ -265,9 +288,11 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// If this isn't called in the layer thread, it will switch over to that thread first.
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(NSData *)image pvrtcSize:(int)pvrtcSize forLevel:(int)level col:(int)col row:(int)row __deprecated;
 
-/// When a data source has finished its fetch for a given image, it
-///  calls this method to hand the image (along with key info) back to the
+/// When a data source has finished its fetch for a given tile, it
+///  calls this method to hand the data (along with key info) back to the
 ///  quad tile loader.
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(WhirlyKitLoadedImage *)loadImage forLevel:(int)level col:(int)col row:(int)row;
+/// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
+///  just a WhirlyKitElevationChunk.
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
 
 @end

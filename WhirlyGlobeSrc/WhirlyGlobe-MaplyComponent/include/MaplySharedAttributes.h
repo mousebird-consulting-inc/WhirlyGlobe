@@ -24,9 +24,6 @@
 /// Use this hint to turn culling optimization on or off.  Pass in an NSNumber boolean.
 #define kMaplyRenderHintCulling @"culling"
 #define kWGRenderHintCulling kMaplyRenderHintCulling
-/// This is an NSNumber specifying the WhirlyKitSceneRenderer to use (1 or 2).  Default is 2
-#define kMaplyRendererOpenGLVersion @"sceneRendererVersion"
-#define kWGRendererOpenGLVersion kMaplyRendererOpenGLVersion
 /// These are options for lighting modes, basically different default shader programs.  Only works with OpenGL ES 2.0 mode.
 /// Accepted values are: none,regular
 #define kMaplyRendererLightingMode @"rendererLightingMode"
@@ -103,6 +100,10 @@
 /// If shadow size is being used, we can control the shadow color like so
 #define kMaplyShadowColor @"shadowColor"
 #define kWGShadowColor kMaplyShadowColor
+/// If outline is being used, we can control the color
+#define kMaplyTextOutlineSize @"outlineSize"
+/// If outline is being used, we can control the stroke size
+#define kMaplyTextOutlineColor @"outlineColor"
 
 /// Default draw offset for 3D labels.  This is set to avoid label/marker interference
 #define kMaplyLabelDrawOffsetDefault 2

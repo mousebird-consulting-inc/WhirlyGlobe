@@ -32,7 +32,7 @@ using namespace WhirlyKit;
 @interface WhirlyKitQuadTileLoader()
 {
 @public
-    int sphereTessX,sphereTessY;
+    int defaultSphereTessX,defaultSphereTessY;
     DynamicTextureAtlas *texAtlas;
     DynamicDrawableAtlas *drawAtlas;
     bool doingUpdate;
@@ -41,9 +41,23 @@ using namespace WhirlyKit;
     int texelBinSize;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
+@end
+
+@implementation WhirlyKitLoadedTile
+
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    _images = [NSMutableArray array];
+    
+    return self;
+}
+
 @end
 
 @implementation WhirlyKitLoadedImage
@@ -175,6 +189,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
     texId = EmptyIdentity;
+    elevData = nil;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
@@ -183,10 +198,10 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
-    if (loadImage->type == WKLoadedImagePlaceholder)
+    if (loadImage && loadImage->type == WKLoadedImagePlaceholder)
     {
         placeholder = true;
         return;
@@ -195,7 +210,7 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
     Texture *tex = NULL;
-    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:&tex texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:loadImage];
+    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(loadImage ? &tex : NULL) texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:loadImage elevData:loadElev];
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
     if (tex)
@@ -347,7 +362,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:((texId == EmptyIdentity)||layer.lineMode) layer:layer imageData:nil];
+                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
                         // Set this to change the color of child drawables.  Helpfull for debugging
 //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -394,7 +409,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil];
+            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
             draw->setTexId(texId);
             if (skirtDraw)
@@ -487,6 +502,8 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize drawPriority;
 @synthesize minVis,maxVis;
 @synthesize minPageVis,maxPageVis;
+@synthesize programId;
+@synthesize includeElev;
 @synthesize color;
 @synthesize hasAlpha;
 @synthesize quadLayer;
@@ -517,6 +534,7 @@ void LoadedTile::Print(Quadtree *tree)
         useDynamicAtlas = true;
         doingUpdate = false;
         borderTexel = 0;
+        includeElev = false;
         tileScale = WKTileScaleNone;
         fixedTileSize = 256;
         texelBinSize = 64;
@@ -556,7 +574,7 @@ void LoadedTile::Print(Quadtree *tree)
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
     quadLayer = layer;
-    sphereTessX = sphereTessY = 10;
+    defaultSphereTessX = defaultSphereTessY = 10;
 }
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
@@ -692,7 +710,7 @@ void LoadedTile::Print(Quadtree *tree)
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)loadImage
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)loadImage elevData:(WhirlyKitElevationChunk *)elevData
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -721,6 +739,13 @@ void LoadedTile::Print(Quadtree *tree)
     
     // Size of each chunk
     Point2f chunkSize = theMbr.ur() - theMbr.ll();
+        
+    int sphereTessX = defaultSphereTessX,sphereTessY = defaultSphereTessY;
+    if (elevData)
+    {
+        sphereTessX = elevData.numX-1;
+        sphereTessY = elevData.numY-1;
+    }
         
     // Unit size of each tesselation in spherical mercator
     Point2f incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
@@ -770,6 +795,10 @@ void LoadedTile::Print(Quadtree *tree)
         chunk->setAlpha(hasAlpha);
         chunk->setColor(color);
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
+        chunk->setProgram(programId);
+        int elevEntry = 0;
+        if (includeElev)
+            elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
         
         // We're in line mode or the texture didn't load
         if (buildLines || (tex && !(*tex)))
@@ -804,41 +833,144 @@ void LoadedTile::Print(Quadtree *tree)
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
             std::vector<Point3f> locs((sphereTessX+1)*(sphereTessY+1));
+            std::vector<float> elevs((sphereTessX+1)*(sphereTessY+1));
             std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
             for (unsigned int iy=0;iy<sphereTessY+1;iy++)
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
-                    Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                    float locZ = 0.0;
+                    if (elevData)
+                    {
+                        float whereX = ix*texScale.x() + elevData.numX*texOffset.x();
+                        float whereY = iy*texScale.y() + elevData.numY*texOffset.y();
+                        locZ = [elevData interpolateElevationAtX:whereX y:whereY];
+                    }
+                    Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                     if (coordAdapter->isFlat())
-                        loc3D.z() = 0.0;
+                        loc3D.z() = locZ;
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
+                    elevs[iy*(sphereTessX+1)+ix] = locZ;
                     
                     // Do the texture coordinate seperately
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
                     texCoords[iy*(sphereTessX+1)+ix] = texCoord;
-                    
-                    chunk->addPoint(loc3D);
-                    chunk->addTexCoord(texCoord);
-                    if (coordAdapter->isFlat())
-                        chunk->addNormal(coordAdapter->normalForLocal(loc3D));
-                    else
-                        chunk->addNormal(loc3D);
                 }
             
-            // Two triangles per cell
-            for (unsigned int iy=0;iy<sphereTessY;iy++)
+            // If there's elevation data, we need per triangle normals, which means more vertices
+            if (elevData)
             {
-                for (unsigned int ix=0;ix<sphereTessX;ix++)
+                // Two triangles per cell
+                for (unsigned int iy=0;iy<sphereTessY;iy++)
                 {
-                    BasicDrawable::Triangle triA,triB;
-                    triA.verts[0] = (iy+1)*(sphereTessX+1)+ix;
-                    triA.verts[1] = iy*(sphereTessX+1)+ix;
-                    triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
-                    triB.verts[0] = triA.verts[2];
-                    triB.verts[1] = triA.verts[1];
-                    triB.verts[2] = iy*(sphereTessX+1)+(ix+1);
-                    chunk->addTriangle(triA);
-                    chunk->addTriangle(triB);
+                    for (unsigned int ix=0;ix<sphereTessX;ix++)
+                    {
+                        int startPt = chunk->getNumPoints();
+                        int idx0 = (iy+1)*(sphereTessX+1)+ix;
+                        Point3f ptA_0 = locs[idx0];
+                        int idx1 = iy*(sphereTessX+1)+ix;
+                        Point3f ptA_1 = locs[idx1];
+                        int idx2 = (iy+1)*(sphereTessX+1)+(ix+1);
+                        Point3f ptA_2 = locs[idx2];
+                        Point3f normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
+                        normA.normalize();
+                        chunk->addPoint(ptA_0);
+                        chunk->addTexCoord(texCoords[idx0]);
+                        chunk->addNormal(normA);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx0]);
+
+                        chunk->addPoint(ptA_1);
+                        chunk->addTexCoord(texCoords[idx1]);
+                        chunk->addNormal(normA);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx1]);
+                        
+                        chunk->addPoint(ptA_2);
+                        chunk->addTexCoord(texCoords[idx2]);
+                        chunk->addNormal(normA);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx2]);
+
+                        BasicDrawable::Triangle triA,triB;
+                        triA.verts[0] = startPt;
+                        triA.verts[1] = startPt+1;
+                        triA.verts[2] = startPt+2;
+                        chunk->addTriangle(triA);
+                        
+                        startPt = chunk->getNumPoints();
+                        idx0 = idx2;
+                        Point3f ptB_0 = ptA_2;
+                        idx1 = idx1;
+                        Point3f ptB_1 = ptA_1;
+                        idx2 = iy*(sphereTessX+1)+(ix+1);
+                        Point3f ptB_2 = locs[idx2];
+                        Point3f normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
+                        normB.normalize();
+                        chunk->addPoint(ptB_0);
+                        chunk->addTexCoord(texCoords[idx0]);
+                        chunk->addNormal(normB);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx0]);
+
+                        chunk->addPoint(ptB_1);
+                        chunk->addTexCoord(texCoords[idx1]);
+                        chunk->addNormal(normB);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx1]);
+                        
+                        chunk->addPoint(ptB_2);
+                        chunk->addTexCoord(texCoords[idx2]);
+                        chunk->addNormal(normB);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elevs[idx2]);
+                        
+                        triB.verts[0] = startPt;
+                        triB.verts[1] = startPt+1;
+                        triB.verts[2] = startPt+2;
+                        chunk->addTriangle(triB);
+                    }
+                }
+
+                
+            } else {
+                // Without elevation data we can share the vertices
+                for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+                    for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+                    {
+                        Point3f &loc3D = locs[iy*(sphereTessX+1)+ix];
+                        float elev = elevs[iy*(sphereTessX+1)+ix];
+                        
+                        // And the normal
+                        Point3f norm3D;
+                        if (coordAdapter->isFlat())
+                            norm3D = coordAdapter->normalForLocal(loc3D);
+                        else
+                            norm3D = loc3D;
+                        
+                        TexCoord &texCoord = texCoords[iy*(sphereTessX+1)+ix];
+                        
+                        chunk->addPoint(loc3D);
+                        chunk->addNormal(norm3D);
+                        chunk->addTexCoord(texCoord);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elev);                    
+                    }
+
+                // Two triangles per cell
+                for (unsigned int iy=0;iy<sphereTessY;iy++)
+                {
+                    for (unsigned int ix=0;ix<sphereTessX;ix++)
+                    {
+                        BasicDrawable::Triangle triA,triB;
+                        triA.verts[0] = (iy+1)*(sphereTessX+1)+ix;
+                        triA.verts[1] = iy*(sphereTessX+1)+ix;
+                        triA.verts[2] = (iy+1)*(sphereTessX+1)+(ix+1);
+                        triB.verts[0] = triA.verts[2];
+                        triB.verts[1] = triA.verts[1];
+                        triB.verts[2] = iy*(sphereTessX+1)+(ix+1);
+                        chunk->addTriangle(triA);
+                        chunk->addTriangle(triB);
+                    }
                 }
             }
             
@@ -855,6 +987,7 @@ void LoadedTile::Print(Quadtree *tree)
                 skirtChunk->setType(GL_TRIANGLES);
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
                 skirtChunk->setRequestZBuffer(true);
+                skirtChunk->setProgram(programId);
                 
                 // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
                 //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -916,6 +1049,8 @@ void LoadedTile::Print(Quadtree *tree)
                     chunk->addPoint(northPt);
                     chunk->addTexCoord(singleTexCoord);
                     chunk->addNormal(Point3f(0,0,1.0));
+                    if (elevEntry != 0)
+                        chunk->addAttributeValue(elevEntry, 0.0);
                     int northVert = chunk->getNumPoints()-1;
                     
                     // A line of points for the outer ring, but we can copy them
@@ -923,10 +1058,13 @@ void LoadedTile::Print(Quadtree *tree)
                     int iy = sphereTessY;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
-                        Point3f pt = chunk->getPoint(iy*(sphereTessX+1)+ix);
+                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
+                        float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,1.0));
                         chunk->addTexCoord(singleTexCoord);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elev);
                     }
 
                     // And define the triangles
@@ -948,6 +1086,8 @@ void LoadedTile::Print(Quadtree *tree)
                     chunk->addPoint(southPt);
                     chunk->addTexCoord(singleTexCoord);
                     chunk->addNormal(Point3f(0,0,-1.0));
+                    if (elevEntry != 0)
+                        chunk->addAttributeValue(elevEntry, 0.0);
                     int southVert = chunk->getNumPoints()-1;
                     
                     // A line of points for the outside ring, which we can copy
@@ -955,10 +1095,13 @@ void LoadedTile::Print(Quadtree *tree)
                     int iy = 0;
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
-                        Point3f pt = chunk->getPoint(iy*(sphereTessX+1)+ix);
+                        Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
+                        float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,-1.0));
                         chunk->addTexCoord(singleTexCoord);
+                        if (elevEntry != 0)
+                            chunk->addAttributeValue(elevEntry, elev);
                     }
                     
                     // And define the triangles
@@ -1073,7 +1216,7 @@ void LoadedTile::Print(Quadtree *tree)
     return !tile->isLoading;
 }
 
-// Note: This is the hardcoded vertex size for our case.  Should make this flexible.
+// The vertex size is just used for buffer size estimates
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
 
@@ -1094,27 +1237,8 @@ static const int SingleElementSize = sizeof(GLushort);
     [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
 }
 
-- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(WhirlyKitLoadedImage *)loadImage forLevel:(int)level col:(int)col row:(int)row
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
-    // Create the dynamic texture atlas before we need it
-    if (useDynamicAtlas && !texAtlas)
-    {
-        // Note: Trouble with PVRTC sub texture loading
-        if (imageType != WKTilePVRTC4)
-        {
-            // At 256 pixels square we can hold 64 tiles in a texture atlas.  Round up to 1k.
-            int DrawBufferSize = ceil((2 * (sphereTessX + 1) * (sphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
-            // Two triangles per grid cell in a tile
-            int ElementBufferSize = ceil((2 * 6 * (sphereTessX + 1) * (sphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
-            int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
-            texAtlas = new DynamicTextureAtlas(2048,texSortSize,[self glFormat]);
-            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleVertexSize,SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager());
-            
-            // We want some room around these
-            borderTexel = 1;
-        }
-    }
-    
     // Look for the tile
     // If it's not here, just drop this on the floor
     LoadedTile dummyTile(Quadtree::Identifier(col,row,level));
@@ -1123,11 +1247,45 @@ static const int SingleElementSize = sizeof(GLushort);
     if (it == tileSet.end())
         return;
     
+    WhirlyKitLoadedImage *loadImage = nil;
+    WhirlyKitElevationChunk *loadElev = nil;
+    if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
+        loadImage = loadTile;
+    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+        loadElev = loadTile;
+    else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
+    {
+        WhirlyKitLoadedTile *toLoad = loadTile;
+        if ([toLoad.images count] > 0)
+            loadImage = toLoad.images[0];
+        loadElev = toLoad.elevChunk;
+    }
+    
+    // Create the dynamic texture atlas before we need it
+    if (useDynamicAtlas && !texAtlas && loadImage)
+    {
+        // Note: Trouble with PVRTC sub texture loading
+        if (imageType != WKTilePVRTC4)
+        {
+            // At 256 pixels square we can hold 64 tiles in a texture atlas.  Round up to 1k.
+            int DrawBufferSize = ceil((2 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
+            // Two triangles per grid cell in a tile
+            int ElementBufferSize = ceil((2 * 6 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
+            int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
+            texAtlas = new DynamicTextureAtlas(2048,texSortSize,[self glFormat]);
+            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager(),NULL,programId);
+            
+            // We want some room around these
+            borderTexel = 1;
+        }
+    }
+    
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    if (loadImage)
+    if (loadImage || loadElev)
     {
-        tile->addToScene(self,quadLayer,quadLayer.scene,loadImage,changeRequests);
+        tile->elevData = loadElev;
+        tile->addToScene(self,quadLayer,quadLayer.scene,loadImage,loadElev,changeRequests);
         [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it

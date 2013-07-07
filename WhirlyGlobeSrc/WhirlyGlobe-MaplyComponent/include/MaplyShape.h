@@ -91,6 +91,8 @@ typedef MaplyShapeCylinder WGShapeCylinder;
  */
 @interface MaplyShapeGreatCircle : NSObject
 
+/// Put yer user data here
+@property (nonatomic,strong) NSObject *userObject;
 /// Start and end points in geographic
 @property (nonatomic,assign) MaplyCoordinate startPt,endPt;
 /// Height is related to radius == 1.0 for the earth

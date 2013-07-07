@@ -26,72 +26,12 @@ namespace WhirlyKit
 
 BillboardDrawable::BillboardDrawable() : BasicDrawable("Billboard")
 {
+    offsetIndex = addAttribute(BDFloat3Type, "a_offset");
 }
     
 void BillboardDrawable::addOffset(Point3f offset)
 {
-    offsets.push_back(offset);
-}
-
-// We tack the equivalent of another vertex on
-// But we're assuming absolutely everything is filled in
-GLuint BillboardDrawable::SingleVertexSize()
-{
-    GLuint singleVertSize = 0;
-    
-    singleVertSize += 3*sizeof(GLfloat);
-    singleVertSize += 4*sizeof(GLchar);
-    singleVertSize += 2*sizeof(GLfloat);
-    singleVertSize += 3*sizeof(GLfloat);
-    singleVertSize += 3*sizeof(GLfloat);
-    
-    return singleVertSize;
-}
-
-GLuint BillboardDrawable::singleVertexSize()
-{
-    // Note: This sets up the buffer offsets.  Ick, this is messy.
-    BasicDrawable::singleVertexSize();
-    
-    return SingleVertexSize();
-}
-    
-void BillboardDrawable::addPointToBuffer(unsigned char *basePtr,int which)
-{
-    // Don't forget to have the superclass put everything else in
-    BasicDrawable::addPointToBuffer(basePtr, which);
-    
-    // Now copy our own extra floats
-    int offset = vertexSize - 3*sizeof(GLfloat);
-    memcpy(basePtr+offset, &offsets[which], 3*sizeof(GLfloat));
-}
-
-void BillboardDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,WhirlyKit::OpenGLMemManager *memManager)
-{
-    // Our data becomes part of the interleaved vertex buffer, so we don't need anything else
-    BasicDrawable::setupGL(setupInfo,memManager);
-    
-    offsets.clear();
-}
-
-void BillboardDrawable::teardownGL(OpenGLMemManager *memManager)
-{
-    BasicDrawable::teardownGL(memManager);
-}
-
-void BillboardDrawable::setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj)
-{
-    const OpenGLESAttribute *offAttr = prog->findAttribute("a_offset");
-    if (!offAttr)
-        return;
-    
-    glBindVertexArrayOES(vertArrayObj);
-    GLuint stride = vertexSize - 3*sizeof(GLfloat);
-    glVertexAttribPointer(offAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, (void *)(sharedBufferOffset + stride));
-    glEnableVertexAttribArray(offAttr->index);
-    glBindVertexArrayOES(0);
-    
-    glDisableVertexAttribArray(offAttr->index);
+    addAttributeValue(offsetIndex, offset);
 }
 
 static const char *vertexShaderTri =
