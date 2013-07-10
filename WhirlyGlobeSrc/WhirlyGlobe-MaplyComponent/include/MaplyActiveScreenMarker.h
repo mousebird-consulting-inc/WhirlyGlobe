@@ -22,11 +22,12 @@
 #import "MaplyCoordinate.h"
 #import "MaplyScreenMarker.h"
 
-/** An active screen marker allows for changes
+/** An active screen marker allows for changes made in the main thread.
+    The point of this is that they're immediate and show up on the next
+    frame.  You can use these for animation.
  */
 @interface MaplyActiveScreenMarker : MaplyActiveObject
 
-/// This is what the current screen marker looks like.
 /// Assign a new one to change things.  Don't just change
 ///  the screen marker itself.  If you do, just assign it here again
 ///  so we know that you did.
