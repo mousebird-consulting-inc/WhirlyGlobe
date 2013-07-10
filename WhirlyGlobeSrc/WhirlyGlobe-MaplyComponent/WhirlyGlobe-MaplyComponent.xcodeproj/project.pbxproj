@@ -356,8 +356,8 @@
 		2B1D061215B5CE0300B844C4 /* object wrappers */ = {
 			isa = PBXGroup;
 			children = (
-				2B627A0E17559DAC00284366 /* MaplyActiveScreenMarker.mm */,
 				2B627A0B17559D9E00284366 /* MaplyActiveScreenMarker.h */,
+				2B627A0E17559DAC00284366 /* MaplyActiveScreenMarker.mm */,
 				2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */,
 				2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */,
 				2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */,
