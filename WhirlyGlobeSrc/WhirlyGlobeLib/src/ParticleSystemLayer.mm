@@ -249,7 +249,7 @@ using namespace WhirlyKit;
 /// Remove one or more particle systems
 - (void) removeParticleSystems:(WhirlyKit::SimpleIdentity)partSysId
 {
-    NSNumber *num = [NSNumber numberWithInt:partSysId];
+    NSNumber *num = [NSNumber numberWithLongLong:partSysId];
     
     if (!layerThread || ([NSThread currentThread] == layerThread))
         [self runRemoveSystems:num];

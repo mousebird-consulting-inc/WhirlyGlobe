@@ -27,7 +27,7 @@
 @class MaplyQuadPagingLayer;
 
 /** The protocol for the Maply Paging Delegate.  Fill this in to
-    provide per tile data for loading in features.
+    provide per tile data for features that you're loading.
   */
 @protocol MaplyPagingDelegate
 
@@ -37,15 +37,18 @@
 /// Maximum zoom level (e.g. 17)
 - (int)maxZoom;
 
-/// Start fetching data for the given tile.  This will not be called on the main thread.
-/// We're assuming you're going to do an async call and then call
-/// After you're done you MUST call tileDidLoad in the layer.
+/** Start fetching data for the given tile.  This will not be called on the 
+    main thread so be prepared for that.  You should immediatley to an
+    async call to your own loading logic and then merge in your results.
+    If you do your loading calls in line you'll slow down the loading thread.
+    After you're done you MUST call tileDidLoad in the layer.
+  */
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer;
 
 @end
 
 /** This is a generic quad earth paging interface.  Hand it your coordinate system,
- bounds, and tile source object and it will page tiles for you.
+    bounds, and tile source object and it will page tiles for you.
  */
 @interface MaplyQuadPagingLayer : MaplyViewControllerLayer
 

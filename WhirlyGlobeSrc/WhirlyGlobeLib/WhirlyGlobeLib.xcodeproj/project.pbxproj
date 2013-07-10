@@ -357,7 +357,6 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
-		2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC34DA13CBFA9A00403799 /* DrawCost.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -755,8 +754,6 @@
 		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
-		2BFC34D513CBF9F500403799 /* DrawCost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DrawCost.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2BFC34DA13CBFA9A00403799 /* DrawCost.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = DrawCost.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -1383,7 +1380,6 @@
 				2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */,
 				2B8B95ED16E80FD50039DD08 /* BigDrawable.h */,
 				2B8B95EE16E80FD50039DD08 /* DynamicDrawableAtlas.h */,
-				2BFC34D513CBF9F500403799 /* DrawCost.h */,
 				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
 				2B40467715F9B4CB00937923 /* ActiveModel.h */,
 			);
@@ -1423,7 +1419,6 @@
 				2BB9A8B216DFFF100069E19C /* DynamicTextureAtlas.mm */,
 				2B8B95F116E80FED0039DD08 /* BigDrawable.mm */,
 				2B8B95F216E80FED0039DD08 /* DynamicDrawableAtlas.mm */,
-				2BFC34DA13CBFA9A00403799 /* DrawCost.mm */,
 				2B7EF31E15FF96D100D4079F /* MaplyView.mm */,
 				2B4730181732DF0E000507E9 /* MaplyFlatView.mm */,
 			);
@@ -1747,7 +1742,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0500;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1811,7 +1806,6 @@
 				2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */,
 				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
 				2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */,
-				2BFC34DC13CBFA9A00403799 /* DrawCost.mm in Sources */,
 				2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */,
 				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
 				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
@@ -2044,7 +2038,6 @@
 		1DEB922308733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
@@ -2059,6 +2052,7 @@
 					../../../utilities/clipper_ver4.3.0/,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2068,7 +2062,6 @@
 		1DEB922408733DC00010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_THUMB_SUPPORT = YES;

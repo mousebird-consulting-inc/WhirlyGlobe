@@ -520,26 +520,4 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runRemoveLabel:) onThread:layerThread withObject:num waitUntilDone:NO];
 }
 
-// Return the cost of the given label group
-// Can only do this if the label(s) have been created, so only from the layer thread
-- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)labelId
-{
-    WhirlyKitDrawCost *cost = [[WhirlyKitDrawCost alloc] init];
-    
-    if (!layerThread || ([NSThread currentThread] == layerThread))
-    {
-        LabelSceneRepMap::iterator it = labelReps.find(labelId);
-        
-        if (it != labelReps.end())
-        {    
-            LabelSceneRep *sceneRep = it->second;        
-            // These were all created for this group of labels
-            cost.numDrawables = sceneRep->drawIDs.size();
-            cost.numTextures = sceneRep->texIDs.size();
-        }
-    }
-        
-    return cost;
-}
-
 @end

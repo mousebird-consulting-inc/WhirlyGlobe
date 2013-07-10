@@ -22,17 +22,11 @@
 #import <WhirlyGlobe.h>
 
 @interface MaplyVectorObject()
-{
-    WhirlyKit::ShapeSet shapes;
-}
 
 @property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
 
 @end
 
 @interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
-{
-    
-}
 
 @end

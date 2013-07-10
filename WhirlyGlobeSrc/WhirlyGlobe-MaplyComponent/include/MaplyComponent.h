@@ -18,19 +18,24 @@
  *
  */
 
+#import <MaplyCoordinate.h>
 #import <MaplyCoordinateSystem.h>
 #import <MaplyLabel.h>
 #import <MaplyScreenLabel.h>
 #import <MaplyMarker.h>
 #import <MaplyScreenMarker.h>
+#import <MaplyActiveScreenMarker.h>
 #import <MaplyShape.h>
 #import <MaplySticker.h>
+#import <MaplyActiveSticker.h>
+#import <MaplyVectorObject.h>
+#import <MaplyActiveVectorObject.h>
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
+#import <MaplyQuadEarthPagingLayer.h>
+#import <MaplyQuadEarthTilesLayer.h>
 #import <MaplyQuadEarthWithMBTiles.h>
 #import <MaplyQuadEarthWithRemoteTiles.h>
 #import <MaplySphericalQuadEarthWithTexGroup.h>
 #import <MaplyQuadTestLayer.h>
-#import <MaplyQuadEarthTilesLayer.h>
-#import <MaplyQuadPagingLayer.h>
 

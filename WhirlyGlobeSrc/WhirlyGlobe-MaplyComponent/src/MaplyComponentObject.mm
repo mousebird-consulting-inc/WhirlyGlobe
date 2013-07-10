@@ -22,21 +22,10 @@
 
 @implementation MaplyComponentObject
 
-@synthesize markerIDs;
-@synthesize labelIDs;
-@synthesize vectorIDs;
-@synthesize shapeIDs;
-@synthesize chunkIDs;
-@synthesize loftIDs;
-@synthesize selectIDs;
-@synthesize vectors;
-@synthesize images;
-@synthesize isSelectable;
-
 - (id)init
 {
     self = [super init];
-    isSelectable = true;
+    _isSelectable = true;
     
     return self;
 }

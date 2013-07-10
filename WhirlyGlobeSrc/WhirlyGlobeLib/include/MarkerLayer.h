@@ -26,7 +26,6 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
 #import "SelectionManager.h"
 #import "LayoutLayer.h"
 

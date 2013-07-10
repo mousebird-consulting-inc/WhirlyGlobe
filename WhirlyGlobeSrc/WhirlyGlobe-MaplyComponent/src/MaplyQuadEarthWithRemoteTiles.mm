@@ -55,6 +55,7 @@
         return nil;
     
     jsonDict = inJsonDict;
+    _numSimultaneousFetches = 8;
     
     return self;
 }
@@ -68,8 +69,7 @@
             return nil;
         dataSource = theDataSource;
         dataSource.cacheDir = _cacheDir;
-        // Note: Should make this flexible
-        theDataSource.numSimultaneous = 8;
+        theDataSource.numSimultaneous = _numSimultaneousFetches;
         tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
         tileLoader.ignoreEdgeMatching = !_handleEdges;
         tileLoader.coverPoles = true;
@@ -80,8 +80,7 @@
         dataSource = theDataSource;
         theDataSource.minZoom = minZoom;
         theDataSource.maxZoom = maxZoom;
-        // Note: Should make this flexible
-        dataSource.numSimultaneous = 8;
+        dataSource.numSimultaneous = _numSimultaneousFetches;
         dataSource.cacheDir = _cacheDir;
         tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
         tileLoader.ignoreEdgeMatching = !_handleEdges;
@@ -105,6 +104,12 @@
     _cacheDir = cacheDir;
     if (tileLoader)
         dataSource.cacheDir = _cacheDir;
+}
+
+- (void)setNumSimultaneous:(int)numSimultaneous
+{
+    _numSimultaneousFetches = numSimultaneous;
+    dataSource.numSimultaneous = numSimultaneous;
 }
 
 - (void)setDrawPriority:(int)drawPriority

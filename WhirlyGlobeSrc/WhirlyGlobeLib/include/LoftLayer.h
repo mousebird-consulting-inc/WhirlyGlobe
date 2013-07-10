@@ -27,7 +27,6 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
 #import "SelectionManager.h"
 #import "ShapeReader.h"
 #import "DataLayer.h"

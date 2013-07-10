@@ -36,6 +36,9 @@
 /// Off by default, if set this will create skirts around the tiles
 @property (nonatomic,assign) bool handleEdges;
 
+/// The number of simultaneous fetches allowed at once
+@property (nonatomic,assign) int numSimultaneousFetches;
+
 /// If set, the directory to cache tiles in.  There's no cleanup, so beware
 @property (nonatomic,strong) NSString *cacheDir;
 

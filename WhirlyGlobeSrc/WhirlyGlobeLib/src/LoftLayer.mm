@@ -698,9 +698,9 @@ protected:
 - (void)removeLoftedPoly:(SimpleIdentity)polyID
 {
     if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runRemovePoly:[NSNumber numberWithInt:polyID]];
+        [self runRemovePoly:[NSNumber numberWithLongLong:polyID]];
     else
-        [self performSelector:@selector(runRemovePoly:) onThread:layerThread withObject:[NSNumber numberWithInt:polyID] waitUntilDone:NO];
+        [self performSelector:@selector(runRemovePoly:) onThread:layerThread withObject:[NSNumber numberWithLongLong:polyID] waitUntilDone:NO];
 }
 
 @end

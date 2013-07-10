@@ -28,7 +28,6 @@
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "LayerThread.h"
-#import "DrawCost.h"
 
 namespace WhirlyKit
 {
@@ -125,9 +124,5 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 
 /// Removes a group of vectors from the display
 - (void)removeVector:(WhirlyKit::SimpleIdentity)vecID;
-
-/// Returns a cost estimate for the given vectors referred to by
-///  ID.  This must be called in the layer thread
-- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)vecID;
 
 @end
