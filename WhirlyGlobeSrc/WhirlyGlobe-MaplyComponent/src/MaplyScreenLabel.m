@@ -22,28 +22,15 @@
 
 @implementation MaplyScreenLabel
 
-@synthesize userObject;
-@synthesize loc;
-@synthesize rotation;
-@synthesize size;
-@synthesize text;
-@synthesize iconImage;
-@synthesize iconSize;
-@synthesize offset;
-@synthesize color;
-@synthesize selectable;
-@synthesize layoutImportance;
-@synthesize layoutPlacement;
-
 - (id)init
 {
     self = [super init];
     if (!self)
         return nil;
     
-    selectable = true;
-    layoutImportance = MAXFLOAT;
-    layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
+    _selectable = true;
+    _layoutImportance = MAXFLOAT;
+    _layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
     
     return self;
 }

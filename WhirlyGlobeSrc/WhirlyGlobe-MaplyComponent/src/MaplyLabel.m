@@ -22,23 +22,14 @@
 
 @implementation MaplyLabel
 
-@synthesize userObject;
-@synthesize loc;
-@synthesize size;
-@synthesize text;
-@synthesize iconImage;
-@synthesize color;
-@synthesize selectable;
-@synthesize justify;
-
 - (id)init
 {
     self = [super init];
     if (!self)
         return nil;
     
-    selectable = true;
-    justify = MaplyLabelJustiyMiddle;
+    _selectable = true;
+    _justify = MaplyLabelJustiyMiddle;
     
     return self;
 }

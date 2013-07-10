@@ -21,23 +21,20 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-/** The Maply Light can be used to control lighting with the globe or map.
+/** The Maply Light is a simple interface to the basic lighting supported
+    provided by WhirlyGlobe-Maply.  You can set one of these up and add it
+    to the mix for a globe or map.
   */
 @interface MaplyLight : NSObject
-{
-    /// Light position relative to the globe or map
-    MaplyCoordinate3d pos;
-    /// If set, this light moves with the model (usually the globe).  You'd use this for a real sun position.
-    /// If not set, the light is static and does not move or rotate.
-    bool viewDependent;
-    /// Ambient color.  This is always present so no pixel should be darker than this
-    UIColor *ambient;
-    /// The diffuse color is multiplied with the light vector and so is directional.
-    UIColor *diffuse;
-}
 
+/// Light position relative to the globe or map
 @property (nonatomic,assign) MaplyCoordinate3d pos;
+/// If set, this light moves with the model (usually the globe).  You'd use this for a real sun position.
+/// If not set, the light is static and does not move or rotate.
 @property (nonatomic,assign) bool viewDependent;
-@property (nonatomic,strong) UIColor *ambient,*diffuse;
+/// Ambient color.  This is always present so no pixel should be darker than this
+@property (nonatomic,strong) UIColor *ambient;
+/// The diffuse color is multiplied with the light vector and so is directional.
+@property (nonatomic,strong) UIColor *diffuse;
 
 @end

@@ -24,10 +24,12 @@
 
 /** This is a generic quad earth paging interface.  Hand it your coordinate system,
     bounds, and tile source object and it will page tiles for you.
+    In general this is useful for feature data, such as vector features.  The image
+    base maps have their own layers.
   */
 @interface MaplyQuadEarthTilesLayer : MaplyViewControllerLayer
 
-/// Construct with the coordinate system (which contains bounds) and the tile source
+/// Construct with the coordinate system and the tile source
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
 /// Change the number of fetches allowed at once

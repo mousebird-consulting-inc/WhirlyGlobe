@@ -30,50 +30,36 @@
 /// Okay to place below a point
 #define kMaplyLayoutBelow  (1<<3)
 
-/** Screen Space (2D) Label.
-    Set this is up and hand it over to the WhirlyGlobeViewController for display.
- */
+/** The Maply Screen Label is a 2D label that tracks a certain position on the globe (or map).
+    It's an overlay and will always stay the same size no matter the position.
+  */
 @interface MaplyScreenLabel : NSObject
-{
-    /// Put yer user data here
-    NSObject *userObject;
-    /// Location in geographic (lat/lon) in radians
-    MaplyCoordinate loc;
-    /// Optional rotation
-    float rotation;
-    /// Size on the screen, in points.  In general, set the height, but not the width.
-    CGSize size;
-    /// Text to display
-    NSString *text;
-    /// If set, this is the image to use for the marker
-    UIImage *iconImage;
-    /// Size of the icon on screen
-    CGSize iconSize;
-    /// Offset the text on screen by this amount.  Defaults to zero.
-    CGSize offset;
-    /// If set, this color overrides the default
-    UIColor *color;
-    /// If set, this label can be selected.  On by default.
-    bool selectable;
-    /// For the label layout engine, this is the importance of this particular
-    ///  label.  It's set to MAXFLOAT by defaut, which means it always shows up.
-    /// Set it to another value to actually be laid out with constraints.
-    float layoutImportance;
-    /// If we're using label importance, how we're allowed to place the label in the layout engine
-    int layoutPlacement;
-}
 
+/// Put yer user data here
 @property (nonatomic,strong) NSObject *userObject;
+/// Location in geographic (lat/lon) in radians
 @property (nonatomic,assign) MaplyCoordinate loc;
+/// Optional rotation
 @property (nonatomic,assign) float rotation;
+/// Size on the screen, in points.  In general, set the height, but not the width.
 @property (nonatomic,assign) CGSize size;
+/// Text to display
 @property (nonatomic,strong) NSString *text;
+/// If set, this is the image to use for the marker
 @property (nonatomic,strong) UIImage *iconImage;
+/// Size of the icon on screen
 @property (nonatomic,assign) CGSize iconSize;
+/// Offset the text on screen by this amount.  Defaults to zero.
 @property (nonatomic,assign) CGSize offset;
+/// If set, this color overrides the default
 @property (nonatomic,strong) UIColor *color;
+/// If set, this label can be selected.  On by default.
 @property (nonatomic,assign) bool selectable;
+/// For the label layout engine, this is the importance of this particular
+///  label.  It's set to MAXFLOAT by defaut, which means it always shows up.
+/// Set it to another value to actually be laid out with constraints.
 @property (nonatomic,assign) float layoutImportance;
+/// If we're using label importance, how we're allowed to place the label in the layout engine
 @property (nonatomic,assign) int layoutPlacement;
 
 @end

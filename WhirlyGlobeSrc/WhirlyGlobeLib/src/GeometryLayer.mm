@@ -644,9 +644,9 @@ static unsigned short CacheFileVersion = 1;
 - (void)removeGeometry:(WhirlyKit::SimpleIdentity)geomID
 {
     if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runRemoveGeometry:[NSNumber numberWithInt:geomID]];
+        [self runRemoveGeometry:[NSNumber numberWithLongLong:geomID]];
     else
-        [self performSelector:@selector(runRemoveGeometry:) onThread:layerThread withObject:[NSNumber numberWithInt:geomID] waitUntilDone:NO];
+        [self performSelector:@selector(runRemoveGeometry:) onThread:layerThread withObject:[NSNumber numberWithLongLong:geomID] waitUntilDone:NO];
 }
 
 @end

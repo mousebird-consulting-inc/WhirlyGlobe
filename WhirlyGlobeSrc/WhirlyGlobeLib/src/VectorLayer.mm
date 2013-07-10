@@ -622,30 +622,9 @@ protected:
 - (void)removeVector:(SimpleIdentity)vecID
 {
     if (!layerThread || ([NSThread currentThread] == layerThread))
-        [self runRemoveVector:[NSNumber numberWithInt:vecID]];
+        [self runRemoveVector:[NSNumber numberWithLongLong:vecID]];
     else
-        [self performSelector:@selector(runRemoveVector:) onThread:layerThread withObject:[NSNumber numberWithInt:vecID] waitUntilDone:NO];
-}
-
-// Return the cost of the given vector represenation
-// Can only do this if the vectors(s) have been created, so only from the layer thread
-- (WhirlyKitDrawCost *)getCost:(SimpleIdentity)vecId
-{
-    WhirlyKitDrawCost *cost = [[WhirlyKitDrawCost alloc] init];
-    
-    if (!layerThread || ([NSThread currentThread] == layerThread))
-    {
-        VectorSceneRepMap::iterator it = vectorReps.find(vecId);
-        
-        if (it != vectorReps.end())
-        {    
-            VectorSceneRep *sceneRep = it->second;        
-            // These were all created for this group of labels
-            cost.numDrawables = sceneRep->drawIDs.size();
-        }
-    }
-    
-    return cost;
+        [self performSelector:@selector(runRemoveVector:) onThread:layerThread withObject:[NSNumber numberWithLongLong:vecID] waitUntilDone:NO];
 }
 
 @end

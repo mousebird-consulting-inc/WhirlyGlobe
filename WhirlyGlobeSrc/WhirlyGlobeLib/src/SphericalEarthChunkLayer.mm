@@ -744,7 +744,7 @@ static const int SingleElementSize = sizeof(GLushort);
     if (!scene)
         return;
     
-    NSNumber *numId = [NSNumber numberWithInt:chunkId];
+    NSNumber *numId = [NSNumber numberWithLongLong:chunkId];
     if ([NSThread currentThread] == layerThread)
         [self runRemoveChunk:numId];
     else
@@ -761,7 +761,7 @@ static const int SingleElementSize = sizeof(GLushort);
     if (!scene)
         return;
     
-    NSArray *args = [NSArray arrayWithObjects:[NSNumber numberWithInt:chunkId],[NSNumber numberWithBool:enable],nil];    
+    NSArray *args = [NSArray arrayWithObjects:[NSNumber numberWithLongLong:chunkId],[NSNumber numberWithBool:enable],nil];
     if ([NSThread currentThread] == layerThread)
         [self runToggleChunk:args];
     else

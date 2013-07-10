@@ -22,19 +22,13 @@
 
 @implementation MaplyMarker
 
-@synthesize userObject;
-@synthesize loc;
-@synthesize size;
-@synthesize image;
-@synthesize selectable;
-
 - (id)init
 {
     self = [super init];
     if (!self)
         return nil;
     
-    selectable = true;
+    _selectable = true;
     
     return self;
 }

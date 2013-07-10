@@ -22,15 +22,17 @@
 #import "MaplyCoordinate.h"
 #import "MaplySticker.h"
 
-/** An active sticker allows for changes on
-    the main thread.
- */
+/** The Active Sticker can be modified on the main thread.
+    Changes will shown up in the next frame.  You can use
+    this for animation.
+  */
 @interface MaplyActiveSticker : MaplyActiveObject
 
-/// This is what the current sticker looks like.
-/// Assign a new one to change things.  Don't just change
-///  the sticker itself.  If you do, assign it here again
-///  so we know that you did.
+/** This is what the current sticker looks like.
+    Assign a new one to change things.  Don't just change
+     the sticker itself.  If you do, assign it here again
+     so we know that you did.
+  */
 @property (nonatomic,strong) MaplySticker *sticker;
 
 /// Initialize with various visual constraints

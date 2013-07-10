@@ -22,7 +22,7 @@
 
 /** An Active object is one that can be manipulated directly on the main thread.
     You make changes in the various subclasses and those changes are reflected
-    in the sceen on the next frame render.
+    on the sceen on the next frame render.
   */
 @interface MaplyActiveObject : NSObject
 

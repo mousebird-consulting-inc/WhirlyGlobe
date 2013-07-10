@@ -26,7 +26,6 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
 #import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "LabelRenderer.h"
@@ -198,10 +197,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// Change the display of a given label accordingly to the desc dictionary.
 /// Only minVis and maxVis are supported
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict;
-
-/// Return the cost of a given label group (number of drawables and textures).
-/// Only call this in the layer thread
-- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)labelID;
 
 /// Remove the given label group by ID
 - (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId;

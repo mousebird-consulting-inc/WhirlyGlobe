@@ -20,6 +20,9 @@
 
 #import "MaplyViewControllerLayer.h"
 
+/** The Spherical Quad Earth layer is used to load an older style
+    base map data set produced by ImageChopper.
+  */
 @interface MaplySphericalQuadEarthWithTexGroup : MaplyViewControllerLayer
 
 /// Initialize with a texture group.  Ideally the quad tree kind

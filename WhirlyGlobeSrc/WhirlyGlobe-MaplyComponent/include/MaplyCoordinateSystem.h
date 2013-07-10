@@ -21,8 +21,11 @@
 #import <Foundation/Foundation.h>
 
 /** The coordinate system is an opaque object representing a particular
-    coordinate system (e.g. Plate Caree or Spherical Mercator) and a bounding
-    box.
+    spatial coordinate system (e.g. Plate Caree or Spherical Mercator)
+    and bounding box.
+    At present most users just need a couple of different coordinate systems,
+    even though WhirlyGlobe-Maply has much more flexible support.  Obviously,
+    this can be expanded in the future.
   */
 @interface MaplyCoordinateSystem : NSObject
 @end
