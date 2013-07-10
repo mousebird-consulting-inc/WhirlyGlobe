@@ -22,18 +22,16 @@
 #import <MaplyCoordinate.h>
 
 /** Maply Component Vector Object.
-    This can represent one or more vector features parsed out of GeoJSON.
+    This can represent one or more vector features parsed out of GeoJSON or
+    coming from a Vector Database Source.  You can also just make these
+    up yourself wit the init calls.
   */
 @interface MaplyVectorObject : NSObject
-{
-    /// For user data
-    NSObject *userObject;
-    /// Turn this off to make this vector invisible to selection.
-    /// On by default.
-    bool selectable;
-}
 
+/// For user data
 @property (nonatomic,strong) NSObject *userObject;
+/// Turn this off to make this vector invisible to selection.
+/// On by default.
 @property (nonatomic,assign) bool selectable;
 
 /// Get the attributes.  If it's a multi-object this will just return the first
@@ -106,7 +104,7 @@ typedef MaplyVectorObject WGVectorObject;
 
 
 /** Maply Vector Database.  This object encapsulates a simple database of vector features,
-    possibly a Shapefile.
+    possibly a Shapefile.  The implications is that not all the features are in memory.
  */
 @interface MaplyVectorDatabase : NSObject
 

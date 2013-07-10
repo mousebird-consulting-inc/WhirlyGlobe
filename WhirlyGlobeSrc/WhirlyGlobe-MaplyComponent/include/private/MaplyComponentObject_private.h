@@ -28,18 +28,6 @@
     those resources later.
  */
 @interface MaplyComponentObject()
-{
-    WhirlyKit::SimpleIDSet markerIDs;
-    WhirlyKit::SimpleIDSet labelIDs;
-    WhirlyKit::SimpleIDSet vectorIDs;
-    WhirlyKit::SimpleIDSet shapeIDs;
-    WhirlyKit::SimpleIDSet chunkIDs;
-    WhirlyKit::SimpleIDSet loftIDs;
-    WhirlyKit::SimpleIDSet selectIDs;
-    std::set<UIImage *> images;
-    NSArray *vectors;
-    bool isSelectable;
-}
 
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &markerIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &labelIDs;

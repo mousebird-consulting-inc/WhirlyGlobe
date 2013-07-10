@@ -23,7 +23,9 @@
 #import "MaplyShape.h"
 #import "MaplyVectorObject.h"
 
-/** An active vector object allows for changes
+/** An Active Linear Vector Object is updated on the main thread.
+    This means changes show up in the next frame.  You can use
+    these for animation.
   */
 @interface MaplyActiveLinearVectorObject : MaplyActiveObject
 

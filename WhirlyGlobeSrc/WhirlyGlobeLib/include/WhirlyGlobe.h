@@ -58,7 +58,6 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "BigDrawable.h"
-#import "DrawCost.h"
 #import "FlatMath.h"
 #import "SphericalMercator.h"
 #import "MaplyView.h"

@@ -22,14 +22,17 @@
 #import "MaplyCoordinate.h"
 #import "MaplyScreenLabel.h"
 
-/** An active screen label allows for changes
+/** The Active Screen Label object allows for immediate updates.
+    The screen label addition, removal, or change will show up on
+    in the next frame.  You use this for things like animation.
   */
 @interface MaplyActiveScreenLabel : MaplyActiveObject
 
-/// This is what the current screen label looks like.
-/// Assign a new one to change things.  Don't just change
-///  the screen label itself.  If you do, just assign it here again
-///  so we know that you did.
+/** This is what the current screen label looks like.
+    Assign a new one to change things.  Don't just change
+     the screen label itself.  If you do, just assign it here again
+     so we know that you did.
+ */
 @property (nonatomic,strong) MaplyScreenLabel *screenLabel;
 
 /// Initialize with various visual constraints

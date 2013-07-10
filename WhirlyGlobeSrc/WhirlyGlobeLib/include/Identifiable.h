@@ -31,7 +31,7 @@ namespace WhirlyKit
     an operation on a given ID rather than letting the developer muck around
     in the internals.
   */
-typedef unsigned long SimpleIdentity;
+typedef unsigned long long SimpleIdentity;
     
 /// This is the standard empty identity.  It means there were none of something
 ///  or it's just ignored.

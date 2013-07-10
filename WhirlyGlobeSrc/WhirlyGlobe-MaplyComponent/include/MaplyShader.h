@@ -22,6 +22,10 @@
 
 @class MaplyBaseViewController;
 
+/** The Maply Shader is a direct interface to the OpenGL ES 2.0 shader language.
+    You can use it to specify a custom shader program to replace an existing default
+    shader or to assign to your own data.
+  */
 @interface MaplyShader : NSObject
 
 /// Initialize a shader with the filenames of the vertex and fragment programs
