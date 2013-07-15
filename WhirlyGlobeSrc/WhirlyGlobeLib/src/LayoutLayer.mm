@@ -70,6 +70,7 @@ public:
         int newId = objects.size()-1;
         BoundedObject &newObj = objects[newId];
         newObj.obj = obj;
+        newObj.pts = pts;
         for (int ix=sx;ix<=ex;ix++)
             for (int iy=sy;iy<=ey;iy++)
             {
