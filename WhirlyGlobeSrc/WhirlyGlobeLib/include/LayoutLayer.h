@@ -53,6 +53,8 @@
     WhirlyKit::Point2f size;
     /// If we're hovering around an icon, this is its size in pixels.  Zero means its just us.
     WhirlyKit::Point2f iconSize;
+    /// Rotation of the object
+    float rotation;
     /// Minimum visiblity
     float minVis;
     /// Maximum visibility
