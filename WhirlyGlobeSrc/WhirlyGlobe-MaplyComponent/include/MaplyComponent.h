@@ -32,7 +32,7 @@
 #import <MaplyActiveVectorObject.h>
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
-#import <MaplyQuadEarthPagingLayer.h>
+#import <MaplyQuadPagingLayer.h>
 #import <MaplyQuadEarthTilesLayer.h>
 #import <MaplyQuadEarthWithMBTiles.h>
 #import <MaplyQuadEarthWithRemoteTiles.h>
