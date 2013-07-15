@@ -79,6 +79,16 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 	}
 	return c;
 }
+    
+bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1)
+{
+    // Note: Write me
+    Mbr mbr0;
+    mbr0.addPoints(pts0);
+    Mbr mbr1;
+    mbr1.addPoints(pts1);
+    return mbr0.overlaps(mbr1);
+}
 
 // Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
 unsigned int NextPowOf2(unsigned int val)

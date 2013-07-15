@@ -39,8 +39,11 @@ public:
     }
 
     // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const Mbr &objMbr,NSObject *obj)
+    bool addObject(const std::vector<Point2f> &pts,NSObject *obj)
     {
+        Mbr objMbr;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+            objMbr.addPoint(pts[ii]);
         int sx = floorf((objMbr.ll().x()-mbr.ll().x())/cellSize.x());
         if (sx < 0) sx = 0;
         int sy = floorf((objMbr.ll().y()-mbr.ll().y())/cellSize.y());
@@ -57,16 +60,15 @@ public:
                 {
                     BoundedObject &testObj = objects[objList[ii]];
                     // Note: This will result in testing the same thing multiple times
-                    if (testObj.mbr.overlaps(objMbr))
+                    if (ConvexPolyIntersect(testObj.pts,pts))
                         return false;
                 }
             }
         
-        // Okay, so it doesn't overlap.  Let's added it where needed.
+        // Okay, so it doesn't overlap.  Let's add it where needed.
         objects.resize(objects.size()+1);
         int newId = objects.size()-1;
         BoundedObject &newObj = objects[newId];
-        newObj.mbr = objMbr;
         newObj.obj = obj;
         for (int ix=sx;ix<=ex;ix++)
             for (int iy=sy;iy<=ey;iy++)
@@ -84,7 +86,7 @@ protected:
     {
     public:
         ~BoundedObject() { }
-        Mbr mbr;
+        std::vector<Point2f> pts;
         NSObject *obj;
     };
     
@@ -371,7 +373,9 @@ static const float ScreenBuffer = 0.1;
                         
                         // Now try it
                         Mbr tryMbr(objMbr.ll()+objOffset*resScale,objMbr.ur()+objOffset*resScale);
-                        if (overlapMan.addObject(tryMbr, layoutObj))
+                        std::vector<Point2f> tryPts;
+                        tryMbr.asPoints(tryPts);
+                        if (overlapMan.addObject(tryPts, layoutObj))
                         {
                             validOrient = true;
                             break;
