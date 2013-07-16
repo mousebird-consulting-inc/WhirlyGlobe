@@ -65,6 +65,8 @@ namespace WhirlyKit
     // Get us view updates, but we'll filter them
     if (layerThread.viewWatcher)
         [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0];
+    
+    [self checkUpdate];
 }
 
 - (void)shutdown
@@ -72,6 +74,9 @@ namespace WhirlyKit
     scene = NULL;
     if (layerThread.viewWatcher)
         [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkUpdate) object:nil];
 }
 
 // How long we'll wait to see if the user has stopped twitching
@@ -98,6 +103,21 @@ static const float DelayPeriod = 0.1;
     
     // Set a timer to see if we've stopped in a bit
     [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
+}
+
+// We also need to check on updates outside of the layer thread
+- (void)checkUpdate
+{
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (viewState && layoutManager && layoutManager->hasChanges())
+    {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+
+        // Set a timer to see if we've stopped in a bit
+        [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
+    }
+    
+    [self performSelector:@selector(checkUpdate) withObject:nil afterDelay:2*DelayPeriod];
 }
 
 // Called after some period to check if we've stopped moving
