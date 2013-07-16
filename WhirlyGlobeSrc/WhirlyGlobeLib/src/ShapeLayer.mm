@@ -371,7 +371,7 @@ static std::vector<Point3f> circleSamples;
 - (void)shutdown
 {
     std::vector<ChangeRequest *> changeRequests;
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     for (ShapeSceneRepSet::iterator it = shapeReps.begin();
          it != shapeReps.end(); ++it)
@@ -396,7 +396,7 @@ static std::vector<Point3f> circleSamples;
         NSLog(@"Shape layer called before initialization.  Dropping data on floor.");
         return;
     }
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo.shapeId);
     sceneRep->fade = shapeInfo.fade;
@@ -424,7 +424,7 @@ static std::vector<Point3f> circleSamples;
 - (void)runRemoveShapes:(NSNumber *)num
 {
     SimpleIdentity shapeId = [num unsignedIntValue];
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     ShapeSceneRep dummyRep(shapeId);
     ShapeSceneRepSet::iterator it = shapeReps.find(&dummyRep);
