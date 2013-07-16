@@ -150,7 +150,7 @@ MarkerSceneRep::MarkerSceneRep()
 
 - (void)shutdown
 {
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     std::vector<ChangeRequest *> changeRequests;
     
     for (MarkerSceneRepSet::iterator it = markerReps.begin();
@@ -191,7 +191,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 // We're in the layer thread here
 - (void)runAddMarkers:(WhirlyKitMarkerInfo *)markerInfo
 {
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -208,7 +208,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenShapes;
     
     // Objects to be controlled by the layout layer
-    NSMutableArray *layoutObjects = [NSMutableArray array];
+    std::vector<WhirlyKit::LayoutObject> layoutObjects;
     
     std::vector<ChangeRequest *> changeRequests;
     
@@ -358,18 +358,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
                 // Set up for the layout layer
                 if (layoutLayer && marker.layoutImportance != MAXFLOAT)
                 {
-                    WhirlyKitLayoutObject *layoutObj = [[WhirlyKitLayoutObject alloc] init];
-                    layoutObj->ssID = shape->getId();
-                    layoutObj->dispLoc = shape->worldLoc;
+                    WhirlyKit::LayoutObject layoutObj(shape->getId());
+                    layoutObj.dispLoc = shape->worldLoc;
                     // Note: This means they won't take up space
-                    layoutObj->size = Point2f(0.0,0.0);
-                    layoutObj->iconSize = Point2f(0.0,0.0);
-                    layoutObj->importance = marker.layoutImportance;
-                    layoutObj->minVis = markerInfo.minVis;
-                    layoutObj->maxVis = markerInfo.maxVis;
+                    layoutObj.size = Point2f(0.0,0.0);
+                    layoutObj.iconSize = Point2f(0.0,0.0);
+                    layoutObj.importance = marker.layoutImportance;
+                    layoutObj.minVis = markerInfo.minVis;
+                    layoutObj.maxVis = markerInfo.maxVis;
                     // No moving it around
-                    layoutObj->acceptablePlacement = 0;
-                    [layoutObjects addObject:layoutObj];
+                    layoutObj.acceptablePlacement = 0;
+                    layoutObjects.push_back(layoutObj);
                     
                     // Start out off, let the layout layer handle the rest
                     shape->enable = false;
@@ -479,14 +478,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     [layerThread addChangeRequests:(changeRequests)];
 
     // And any layout constraints to the layout engine
-    if (layoutLayer && ([layoutObjects count] > 0))
+    if (layoutLayer && !layoutObjects.empty())
         [layoutLayer addLayoutObjects:layoutObjects];
 }
 
 // Remove the given marker(s)
 - (void)runRemoveMarkers:(NSNumber *)num
 {
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     SimpleIdentity markerId = [num unsignedIntValue];
     
     MarkerSceneRep dummyRep;
