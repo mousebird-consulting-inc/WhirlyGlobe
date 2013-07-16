@@ -21,13 +21,13 @@
 #import "MaplyActiveScreenLabel.h"
 #import "WhirlyGlobe.h"
 #import "MaplyActiveObject_private.h"
+#import "LayoutManager.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyActiveScreenLabel
 {
     bool changed;
-    NSDictionary *desc;
     UIImage *iconImage;
     SimpleIDSet drawIDs;
     SimpleIDSet screenIDs;
@@ -41,7 +41,7 @@ using namespace WhirlyKit;
         return nil;
     
     changed = false;
-    desc = descDict;
+    self.desc = descDict;
     
     return self;
 }
@@ -53,6 +53,12 @@ using namespace WhirlyKit;
     
     changed = true;
     _screenLabel = newScreenLabel;
+}
+
+- (void)setDesc:(NSDictionary *)inDesc
+{
+    super.desc = inDesc;
+    changed = true;
 }
 
 - (bool)hasUpdate
@@ -76,6 +82,12 @@ using namespace WhirlyKit;
     for (SimpleIDSet::iterator it = screenIDs.begin();
          it != screenIDs.end(); ++it)
         changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager && !screenIDs.empty())
+    {
+        layoutManager->removeLayoutObjects(screenIDs);
+        screenIDs.clear();
+    }
 
     SimpleIdentity removeTexId = EmptyIdentity;
     if (_screenLabel)
@@ -111,7 +123,9 @@ using namespace WhirlyKit;
             [locDesc setObject:_screenLabel.color forKey:@"textColor"];
         if (_screenLabel.layoutImportance != MAXFLOAT)
         {
-            // Note: Not handling this case yet
+            [locDesc setObject:@(YES) forKey:@"layout"];
+            [locDesc setObject:@(_screenLabel.layoutImportance) forKey:@"layoutImportance"];
+            [locDesc setObject:@(_screenLabel.layoutPlacement) forKey:@"layoutPlacement"];
         }
         wgLabel.screenOffset = _screenLabel.offset;
         // Note: Not allowing selection for the moment
@@ -119,7 +133,7 @@ using namespace WhirlyKit;
         if ([locDesc count] > 0)
             wgLabel.desc = locDesc;
 
-        WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:wgLabel] desc:desc];
+        WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:wgLabel] desc:self.desc];
         labelInfo.screenObject = true;
 
         // Set up the representation (but then hand it off)
@@ -141,12 +155,14 @@ using namespace WhirlyKit;
         
         // Now harvest the results
         changes.insert(changes.end(), labelRenderer->changeRequests.begin(), labelRenderer->changeRequests.end());
+        scene->addChangeRequests(changes);
+        if (layoutManager)
+            layoutManager->addLayoutObjects(labelRenderer->layoutObjects);
         labelRenderer->changeRequests.clear();
         drawIDs = labelRep->drawIDs;
         screenIDs = labelRep->screenIDs;
         // Note: Not expecting textures from the label renderer
-    }
-    
+    } else
     scene->addChangeRequests(changes);
     
     changed = false;
@@ -164,6 +180,12 @@ using namespace WhirlyKit;
         changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
     if (iconTexId != EmptyIdentity)
         changes.push_back(new RemTextureReq(iconTexId));
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager && !screenIDs.empty())
+    {
+        layoutManager->removeLayoutObjects(screenIDs);
+        screenIDs.clear();
+    }
     
     scene->addChangeRequests(changes);
 }

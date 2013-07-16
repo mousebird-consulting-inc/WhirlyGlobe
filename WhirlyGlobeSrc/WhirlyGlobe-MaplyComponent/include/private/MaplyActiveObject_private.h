@@ -25,7 +25,6 @@
 @interface MaplyActiveObject() <WhirlyKitActiveModel>
 {
 @public
-    NSDictionary *desc;
     WhirlyKit::Scene *scene;
 }
 
