@@ -27,6 +27,7 @@
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
+#import "ShapeManager.h"
 
 namespace WhirlyKit
 {
@@ -34,7 +35,6 @@ namespace WhirlyKit
 Scene::Scene()
     : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
-    
 }
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
@@ -49,12 +49,16 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     // And put in a UIView placement generator for use in the main thread
     vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
     generators.insert(vpGen);
-    
+
+    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
+
     pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, new LayoutManager());
+    // Shape manager handles circles, spheres and such
+    addManager(kWKShapeManager, new ShapeManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
@@ -70,6 +74,12 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
 Scene::~Scene()
 {
+    // This should block until the queue is empty
+    dispatch_sync(dispatchQueue, ^{});
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    dispatch_release(dispatchQueue);
+#endif
+
     if (cullTree)
     {
         delete cullTree;
