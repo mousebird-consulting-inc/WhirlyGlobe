@@ -21,6 +21,7 @@
 #import "SceneRendererES.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
+#import "SelectionManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -278,9 +279,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     scene = newScene;
     if (scene)
     {
-        SelectionManager *selManager = scene->getSelectionManager();
-        if (selManager)
-            selManager->setRenderer(self);
+        scene->setRenderer(self);
     }
 }
 
