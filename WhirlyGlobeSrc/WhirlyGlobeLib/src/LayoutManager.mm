@@ -107,7 +107,7 @@ LayoutObject::LayoutObject()
 }    
     
 LayoutManager::LayoutManager()
-    : maxDisplayObjects(0)
+    : maxDisplayObjects(0), hasUpdates(false)
 {
     pthread_mutex_init(&layoutLock, NULL);
 }
@@ -136,6 +136,7 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
         entry->obj = newObjects[ii];
         layoutObjects.insert(entry);
     }
+    hasUpdates = true;
 }
     
 void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
@@ -151,6 +152,20 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
             layoutObjects.erase(eit);
         }
     }
+    hasUpdates = true;
+}
+    
+bool LayoutManager::hasChanges()
+{
+    bool ret = false;
+    
+    pthread_mutex_lock(&layoutLock);
+    
+    ret = hasUpdates;
+    
+    pthread_mutex_unlock(&layoutLock);
+    
+    return ret;
 }
     
 // Sort more important things to the front
@@ -175,13 +190,8 @@ static const float ScreenBuffer = 0.1;
 // Do the actual layout logic.  We'll modify the offset and on value in place.
 void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
 {
-    pthread_mutex_lock(&layoutLock);
-    
     if (layoutObjects.empty())
-    {
-        pthread_mutex_unlock(&layoutLock);
         return;
-    }
     
     LayoutSortingSet layoutObjs;
     
@@ -302,8 +312,6 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         layoutObj->newEnable = isActive;
         layoutObj->offset = objOffset;
     }
-    
-    pthread_mutex_unlock(&layoutLock);
 }
 
 // Time we'll take to disappear objects
@@ -312,6 +320,8 @@ static float const DisappearFade = 0.1;
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes)
 {
+    pthread_mutex_lock(&layoutLock);
+
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     
     // This will recalulate the offsets and enables
@@ -355,6 +365,9 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,std::vector<Chang
     }
     
     changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
+    hasUpdates = false;
+    
+    pthread_mutex_unlock(&layoutLock);
 }
     
 }

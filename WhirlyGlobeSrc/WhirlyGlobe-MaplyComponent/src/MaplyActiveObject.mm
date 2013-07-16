@@ -28,7 +28,7 @@
     if (!self)
         return nil;
     
-    desc = [NSDictionary dictionaryWithDictionary:descDict];
+    _desc = [NSDictionary dictionaryWithDictionary:descDict];
     
     return self;
 }

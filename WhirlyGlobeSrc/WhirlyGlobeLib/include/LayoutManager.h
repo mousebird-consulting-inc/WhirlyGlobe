@@ -124,12 +124,17 @@ public:
     /// Run the layout logic for everything we're aware of (thread safe)
     void updateLayout(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes);
         
+    /// True if we've got changes since the last update
+    bool hasChanges();
+        
 protected:
     void runLayoutRules(WhirlyKitViewState *viewState);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once
     int maxDisplayObjects;
+    /// If there were updates since the last layout
+    bool hasUpdates;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
 };

@@ -75,8 +75,7 @@ using namespace WhirlyGlobe;
 - (void) userDidTapLayerThread:(MaplyTapMessage *)msg
 {
     // First, we'll look for labels and markers
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    SimpleIdentity selID = selectManager->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,mapView);
+    SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,mapView);
 
     NSObject *selObj;
     if (selID != EmptyIdentity)
