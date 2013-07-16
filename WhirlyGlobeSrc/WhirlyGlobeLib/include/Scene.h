@@ -334,6 +334,10 @@ public:
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
+    
+    /// Return a dispatch queue that we can use for... stuff.
+    /// The idea here is we'll wait for these to drain when we tear down.
+    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
@@ -390,6 +394,9 @@ public:
     
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
+    
+    /// Dispatch queue(s) we'll use for... things
+    dispatch_queue_t dispatchQueue;
     
     /// Screen space generator created on startup
     ScreenSpaceGenerator *ssGen;

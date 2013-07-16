@@ -290,6 +290,14 @@
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
 		2B9BBCE71794E79F00A4B1A6 /* LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BBCE61794E79F00A4B1A6 /* LayoutManager.h */; };
 		2B9BBCE91794E7BB00A4B1A6 /* LayoutManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BBCE81794E7BB00A4B1A6 /* LayoutManager.mm */; };
+		2B9BBD0A1795E9CE00A4B1A6 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BBD061795E9CE00A4B1A6 /* ShapeManager.h */; };
+		2B9BBD0B1795E9CE00A4B1A6 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BBD071795E9CE00A4B1A6 /* VectorManager.h */; };
+		2B9BBD0C1795E9CE00A4B1A6 /* LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BBD081795E9CE00A4B1A6 /* LabelManager.h */; };
+		2B9BBD0D1795E9CE00A4B1A6 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BBD091795E9CE00A4B1A6 /* MarkerManager.h */; };
+		2B9BBD131795EA0E00A4B1A6 /* ShapeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BBD0F1795EA0E00A4B1A6 /* ShapeManager.mm */; };
+		2B9BBD141795EA0E00A4B1A6 /* VectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BBD101795EA0E00A4B1A6 /* VectorManager.mm */; };
+		2B9BBD151795EA0E00A4B1A6 /* LabelManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BBD111795EA0E00A4B1A6 /* LabelManager.mm */; };
+		2B9BBD161795EA0E00A4B1A6 /* MarkerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BBD121795EA0E00A4B1A6 /* MarkerManager.mm */; };
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
@@ -666,6 +674,14 @@
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
 		2B9BBCE61794E79F00A4B1A6 /* LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutManager.h; sourceTree = "<group>"; };
 		2B9BBCE81794E7BB00A4B1A6 /* LayoutManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutManager.mm; sourceTree = "<group>"; };
+		2B9BBD061795E9CE00A4B1A6 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
+		2B9BBD071795E9CE00A4B1A6 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorManager.h; sourceTree = "<group>"; };
+		2B9BBD081795E9CE00A4B1A6 /* LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelManager.h; sourceTree = "<group>"; };
+		2B9BBD091795E9CE00A4B1A6 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerManager.h; sourceTree = "<group>"; };
+		2B9BBD0F1795EA0E00A4B1A6 /* ShapeManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeManager.mm; sourceTree = "<group>"; };
+		2B9BBD101795EA0E00A4B1A6 /* VectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorManager.mm; sourceTree = "<group>"; };
+		2B9BBD111795EA0E00A4B1A6 /* LabelManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelManager.mm; sourceTree = "<group>"; };
+		2B9BBD121795EA0E00A4B1A6 /* MarkerManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerManager.mm; sourceTree = "<group>"; };
 		2BA2BB76153E08F800DAB382 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
 		2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
 		2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeLayerViewWatcher.h; sourceTree = "<group>"; };
@@ -1238,14 +1254,10 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
-				2B9BBCE61794E79F00A4B1A6 /* LayoutManager.h */,
 				2BB25921177A042F00770619 /* BillboardLayer.h */,
 				2BB25922177A042F00770619 /* BillboardDrawable.h */,
-				2BB25923177A042F00770619 /* SceneGraphManager.h */,
-				2B308B10171F638F006D7273 /* SelectionManager.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
-				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
 				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
 				2BCAB9A912F897E20049D73C /* DataLayer.h */,
@@ -1272,11 +1284,9 @@
 		2B951D9712F09EEC005003AE /* layers & loaders */ = {
 			isa = PBXGroup;
 			children = (
-				2B9BBCE81794E7BB00A4B1A6 /* LayoutManager.mm */,
 				2BB25929177A045300770619 /* BillboardLayer.mm */,
 				2BB2592A177A045300770619 /* BillboardDrawable.mm */,
 				2BB2592B177A045300770619 /* SceneGraphManager.mm */,
-				2B308B12171F63B3006D7273 /* SelectionManager.mm */,
 				2BEA1E51171E0E280039F1A4 /* FontTextureManager.mm */,
 				2BEA1E52171E0E280039F1A4 /* LabelRenderer.mm */,
 				2BEA1E53171E0E280039F1A4 /* ShapeDrawableBuilder.mm */,
@@ -1308,6 +1318,34 @@
 				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
 			);
 			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2B9BBD051795E99200A4B1A6 /* managers & builders */ = {
+			isa = PBXGroup;
+			children = (
+				2B308B10171F638F006D7273 /* SelectionManager.h */,
+				2B9BBD061795E9CE00A4B1A6 /* ShapeManager.h */,
+				2B9BBD071795E9CE00A4B1A6 /* VectorManager.h */,
+				2B9BBD081795E9CE00A4B1A6 /* LabelManager.h */,
+				2B9BBD091795E9CE00A4B1A6 /* MarkerManager.h */,
+				2BB25923177A042F00770619 /* SceneGraphManager.h */,
+				2B9BBCE61794E79F00A4B1A6 /* LayoutManager.h */,
+				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
+			);
+			name = "managers & builders";
+			sourceTree = "<group>";
+		};
+		2B9BBD0E1795E9D900A4B1A6 /* managers & builders */ = {
+			isa = PBXGroup;
+			children = (
+				2B9BBD0F1795EA0E00A4B1A6 /* ShapeManager.mm */,
+				2B9BBD101795EA0E00A4B1A6 /* VectorManager.mm */,
+				2B9BBD111795EA0E00A4B1A6 /* LabelManager.mm */,
+				2B9BBD121795EA0E00A4B1A6 /* MarkerManager.mm */,
+				2B9BBCE81794E7BB00A4B1A6 /* LayoutManager.mm */,
+				2B308B12171F63B3006D7273 /* SelectionManager.mm */,
+			);
+			name = "managers & builders";
 			sourceTree = "<group>";
 		};
 		2BA8FFDB1540E12300AEA53C /* coordinate systems */ = {
@@ -1354,6 +1392,7 @@
 				2BE6EE5312E4F3D100415490 /* interaction */,
 				2BCABA6712F8DA280049D73C /* scene & view */,
 				2BD0E69013254DCA00CD95A8 /* data */,
+				2B9BBD0E1795E9D900A4B1A6 /* managers & builders */,
 				2B951D9712F09EEC005003AE /* layers & loaders */,
 			);
 			path = src;
@@ -1453,6 +1492,7 @@
 				2B4504AE14BBACF900C99306 /* view */,
 				2BCABA5A12F8D7070049D73C /* scene */,
 				2B4504B514BCB6AF00C99306 /* interaction */,
+				2B9BBD051795E99200A4B1A6 /* managers & builders */,
 				2B951D9612F09EE1005003AE /* layers & generators */,
 			);
 			name = WhirlyKit;
@@ -1720,6 +1760,10 @@
 				2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */,
 				2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */,
 				2B9BBCE71794E79F00A4B1A6 /* LayoutManager.h in Headers */,
+				2B9BBD0A1795E9CE00A4B1A6 /* ShapeManager.h in Headers */,
+				2B9BBD0B1795E9CE00A4B1A6 /* VectorManager.h in Headers */,
+				2B9BBD0C1795E9CE00A4B1A6 /* LabelManager.h in Headers */,
+				2B9BBD0D1795E9CE00A4B1A6 /* MarkerManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2037,6 +2081,10 @@
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
 				2B9BBCE91794E7BB00A4B1A6 /* LayoutManager.mm in Sources */,
+				2B9BBD131795EA0E00A4B1A6 /* ShapeManager.mm in Sources */,
+				2B9BBD141795EA0E00A4B1A6 /* VectorManager.mm in Sources */,
+				2B9BBD151795EA0E00A4B1A6 /* LabelManager.mm in Sources */,
+				2B9BBD161795EA0E00A4B1A6 /* MarkerManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
