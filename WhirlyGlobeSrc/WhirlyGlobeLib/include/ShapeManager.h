@@ -158,7 +158,7 @@ namespace WhirlyKit
 class ShapeManager : public SceneManager
 {
 public:
-    ShapeManager() { }
+    ShapeManager();
     virtual ~ShapeManager();
     
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.

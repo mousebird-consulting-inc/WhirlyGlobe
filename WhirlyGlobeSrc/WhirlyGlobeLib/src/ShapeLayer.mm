@@ -83,8 +83,10 @@ using namespace WhirlyKit;
     if (shapeManager)
     {
         shapeID = shapeManager->addShapes(shapes, desc, changes);
-        shapeIDs.insert(shapeID);
     }
+    if (shapeID != EmptyIdentity)
+        shapeIDs.insert(shapeID);
+
     [layerThread addChangeRequests:changes];
 
     return shapeID;
