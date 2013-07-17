@@ -347,12 +347,19 @@ static std::vector<Point3f> circleSamples;
 
 @end
 
+ShapeManager::ShapeManager()
+{
+    pthread_mutex_init(&shapeLock, NULL);
+}
+
 ShapeManager::~ShapeManager()
 {
     for (ShapeSceneRepSet::iterator it = shapeReps.begin();
          it != shapeReps.end(); ++it)
         delete *it;
     shapeReps.clear();
+
+    pthread_mutex_destroy(&shapeLock);
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
@@ -376,8 +383,10 @@ SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,std::
     drawBuildReg.getChanges(changes, sceneRep->drawIDs);
     drawBuildTri.flush();
     drawBuildTri.getChanges(changes, sceneRep->drawIDs);
-        
+
+    pthread_mutex_lock(&shapeLock);
     shapeReps.insert(sceneRep);
+    pthread_mutex_unlock(&shapeLock);
     
     return shapeInfo.shapeId;
 }
@@ -387,6 +396,8 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest 
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
 
+    pthread_mutex_lock(&shapeLock);
+    
     for (SimpleIDSet::iterator it = shapeIDs.begin(); it != shapeIDs.end();++it)
     {
         SimpleIdentity shapeID = *it;
@@ -408,6 +419,9 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest 
                                ^{
                                    SimpleIDSet theseShapeIDs;
                                    theseShapeIDs.insert(shapeID);
+                                   std::vector<ChangeRequest *> delChanges;
+                                   removeShapes(theseShapeIDs, delChanges);
+                                   scene->addChangeRequests(delChanges);
                                }
                                );
                 shapeRep->fade = 0.0;
@@ -418,5 +432,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest 
             }
         }
     }
+    
+    pthread_mutex_unlock(&shapeLock);
 }
 
