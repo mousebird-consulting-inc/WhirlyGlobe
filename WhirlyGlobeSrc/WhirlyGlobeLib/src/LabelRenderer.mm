@@ -204,10 +204,7 @@ namespace WhirlyKit
         }
     }
     
-	CGContextSetTextDrawingMode(ctx, kCGTextFill);
-    [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
-    [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
-	
+	CGContextSetTextDrawingMode(ctx, kCGTextFill);	
     if (attrStr)
     {
         [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
