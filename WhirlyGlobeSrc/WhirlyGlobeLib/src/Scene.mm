@@ -28,6 +28,7 @@
 #import "SelectionManager.h"
 #import "LayoutManager.h"
 #import "ShapeManager.h"
+#import "MarkerManager.h"
 
 namespace WhirlyKit
 {
@@ -59,6 +60,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKLayoutManager, new LayoutManager());
     // Shape manager handles circles, spheres and such
     addManager(kWKShapeManager, new ShapeManager());
+    // Marker manager handles 2D and 3D markers
+    addManager(kWKMarkerManager, new MarkerManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
