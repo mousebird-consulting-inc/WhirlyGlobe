@@ -8,11 +8,173 @@
 
 #import <list>
 #import "Tesselator.h"
+#import "cpp/clipper.hpp"
+#import "glues.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+static float PolyScale = 1e14;
+    
+// Called for every vertex
+static void vertexCallback(int which,std::vector<int> *vertIDs)
+{
+    vertIDs->push_back(which);
+}
+    
+// We have this here to force pure triangles out
+static void edgeFlagCallback(GLboolean flag,std::vector<Point2f> *vertex)
+{
+}
+    
+// This is here to verify we're getting just triangles out (not strips or fans)
+static void beginCallback(GLenum type,std::vector<Point2f> *vertex)
+{
+    
+}
 
+// New tesselator uses poly2tri
 void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
+{
+    if (ring.size() < 3)
+        return;
+    
+    Mbr testMbr;
+    testMbr.addPoints(ring);
+    Point2f offset = testMbr.ll();
+    Point2f span(testMbr.ur().x()-testMbr.ll().x(),testMbr.ur().y()-testMbr.ll().y());
+    if (span.x() == 0.0 || span.y() == 0.0)
+        return;
+    float scale = 1000.0/std::max(span.x(),span.y());
+    testMbr.ll() -= 0.1 * span;
+    testMbr.ur() += 0.1 * span;
+
+    // Run the points through Clipper to clean things up
+    ClipperLib::Polygon poly(ring.size());
+    for (unsigned int ii=0;ii<ring.size();ii++)
+    {
+        const Point2f &pt = ring[ii];
+        poly[ii] = ClipperLib::IntPoint((pt.x()-offset.x())*scale*PolyScale,(pt.y()-offset.y())*scale*PolyScale);
+    }
+    
+    // We need an outline to make this work
+    std::vector<Point2f> boundPts;
+    testMbr.asPoints(boundPts);
+    ClipperLib::Polygon outline(4);
+    for (unsigned int ii=0;ii<boundPts.size();ii++)
+    {
+        const Point2f &pt = boundPts[ii];
+        outline[ii] = ClipperLib::IntPoint((pt.x()-offset.x())*scale*PolyScale,(pt.y()-offset.y())*scale*PolyScale);
+    }
+    
+    ClipperLib::Clipper clipper;
+    ClipperLib::Polygons outPolys;
+    clipper.AddPolygon(outline, ClipperLib::ptSubject);
+    clipper.AddPolygon(poly, ClipperLib::ptClip);
+    if (clipper.Execute(ClipperLib::ctDifference, outPolys, ClipperLib::pftNonZero, ClipperLib::pftNonZero))
+    {
+        for (unsigned int ii=1;ii<outPolys.size();ii++)
+        {
+            // Construct a polyline from the clipper output
+            ClipperLib::Polygon &outPoly = outPolys[ii];
+            
+            if (outPoly.size() < 3)
+                continue;
+            
+            GLUtesselator *tess = gluNewTess();
+            
+            std::vector<int> vertIDs;
+            std::vector<Point2f> pts(outPoly.size());
+            gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (GLvoid (*) ()) &vertexCallback);
+            gluTessCallback(tess, GLU_TESS_EDGE_FLAG_DATA, (GLvoid (*) ()) &edgeFlagCallback);
+//            gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (GLvoid (*) ()) &beginCallback);
+
+            gluTessBeginPolygon(tess,&vertIDs);
+            gluTessBeginContour(tess);
+
+            for (unsigned int jj=0;jj<outPoly.size();jj++)
+            {
+                float coords[3];
+                ClipperLib::IntPoint &outPt = outPoly[jj%outPoly.size()];
+                coords[0] = outPt.X/(double)(PolyScale*scale) + offset.x();
+                coords[1] = outPt.Y/(double)(PolyScale*scale) + offset.y();
+                coords[2] = 0.0;
+                gluTessVertex(tess,coords,(void *)jj);
+                pts[jj] = Point2f(coords[0],coords[1]);
+            }
+            
+            gluTessEndContour(tess);
+            gluTessEndPolygon(tess);
+            
+            gluDeleteTess(tess);
+
+            // Convert to triangles
+            for (unsigned int ii=0;ii<vertIDs.size()/3;ii++)
+            {
+                VectorRing tri(3);
+                for (unsigned int jj=0;jj<3;jj++)
+                {
+                    tri[jj] = pts[vertIDs[ii*3+jj]];
+                }
+                
+                // Make sure this is pointed up
+                Point3f pts[3];
+                for (unsigned int jj=0;jj<3;jj++)
+                    pts[jj] = Point3f(tri[jj].x(),tri[jj].y(),0.0);
+                Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
+                if (norm.z() > 0.0)
+                    std::reverse(tri.begin(),tri.end());
+                
+                rets.push_back(tri);
+            }
+            
+//            std::vector<p2t::Point *> pts(outPoly.size());
+//            
+////            NSLog(@"Points: %ld",outPoly.size());
+//
+//            for (unsigned int jj=0;jj<outPoly.size();jj++)
+//            {
+//                ClipperLib::IntPoint &outPt = outPoly[jj%outPoly.size()];
+//                p2t::Point *pt = new p2t::Point(outPt.X/(double)PolyScale,outPt.Y/(double)PolyScale);
+//                pts[pts.size()-jj-1] = pt;
+//            }
+//
+////            for (unsigned int jj=0;jj<pts.size();jj++)
+////                NSLog(@"  (%f,%f)",pts[jj]->x,pts[jj]->y);
+//                        
+//            try {
+//                // Run the tesselation
+//                p2t::CDT cdt(pts);
+//                cdt.Triangulate();
+//                
+//                // Convert back into rings
+//                std::vector<p2t::Triangle *> triangles = cdt.GetTriangles();
+//                for (unsigned int ii=0;ii<triangles.size();ii++)
+//                {
+//                    p2t::Triangle *tri = triangles[ii];
+//                    VectorRing outTri;
+//                    outTri.resize(3);
+//                    for (unsigned int jj=0;jj<3;jj++)
+//                    {
+//                        p2t::Point *pt = tri->GetPoint(jj);
+//                        outTri[2-jj] = Point2f(pt->x/scale+offset.x(),pt->y/scale+offset.y());
+//                    }
+//                    rets.push_back(outTri);
+//                }
+//            } catch (...) {
+//                NSLog(@"Tesselation failure.  Giving up on polygon.");
+//            }
+//                    
+//            // Clean up polyline
+//            for (unsigned int ii=0;ii<pts.size();ii++)
+//                delete pts[ii];
+        }
+    }
+}
+
+void TesselateRingOld(const VectorRing &ring,std::vector<VectorRing> &rets)
 {
     int startRet = rets.size();
         
