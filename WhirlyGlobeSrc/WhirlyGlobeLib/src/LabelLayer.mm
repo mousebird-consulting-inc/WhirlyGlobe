@@ -271,7 +271,7 @@ using namespace WhirlyKit;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     std::vector<ChangeRequest *> changeRequests;
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     for (LabelSceneRepMap::iterator it=labelReps.begin();
          it!=labelReps.end(); ++it)
@@ -355,13 +355,13 @@ using namespace WhirlyKit;
 
 - (void)mergeRenderedLabels:(WhirlyKitLabelRenderer *)labelRenderer
 {    
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     // Flush out the changes
     [layerThread addChangeRequests:labelRenderer->changeRequests];
     
     // And any layout constraints to the layout engine
-    if (layoutLayer && ([labelRenderer->layoutObjects count] > 0))
+    if (layoutLayer && !labelRenderer->layoutObjects.empty())
         [layoutLayer addLayoutObjects:labelRenderer->layoutObjects];
     
     // And set up the selectables
@@ -388,7 +388,7 @@ using namespace WhirlyKit;
 - (void)runRemoveLabel:(NSNumber *)num
 {
     SimpleIdentity labelId = [num unsignedIntValue];
-    SelectionManager *selectManager = scene->getSelectionManager();
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
     std::vector<ChangeRequest *> changeRequests;
     

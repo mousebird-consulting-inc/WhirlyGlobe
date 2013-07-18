@@ -25,14 +25,17 @@
 #import "ScreenSpaceGenerator.h"
 #import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
+#import "SelectionManager.h"
+#import "LayoutManager.h"
+#import "ShapeManager.h"
+#import "MarkerManager.h"
 
 namespace WhirlyKit
 {
     
 Scene::Scene()
-    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity), selectManager(NULL)
+    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
-    
 }
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
@@ -47,9 +50,18 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     // And put in a UIView placement generator for use in the main thread
     vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
     generators.insert(vpGen);
-    
+
+    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
+
+    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
-    selectManager = new SelectionManager(this,[UIScreen mainScreen].scale);
+    addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    // Layout manager handles text and icon layout
+    addManager(kWKLayoutManager, new LayoutManager());
+    // Shape manager handles circles, spheres and such
+    addManager(kWKShapeManager, new ShapeManager());
+    // Marker manager handles 2D and 3D markers
+    addManager(kWKMarkerManager, new MarkerManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
@@ -65,6 +77,12 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
 Scene::~Scene()
 {
+    // This should block until the queue is empty
+    dispatch_sync(dispatchQueue, ^{});
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    dispatch_release(dispatchQueue);
+#endif
+
     if (cullTree)
     {
         delete cullTree;
@@ -75,14 +93,14 @@ Scene::~Scene()
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
     
-    if (selectManager)
-    {
-        delete selectManager;
-        selectManager = NULL;
-    }
+    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
+         it != managers.end(); ++it)
+        delete it->second;
+    managers.clear();
     
     fontTexManager = nil;
     
+    pthread_mutex_destroy(&managerLock);
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
     pthread_mutex_destroy(&textureLock);
@@ -196,6 +214,47 @@ Generator *Scene::getGenerator(SimpleIdentity genId)
     return retGen;
 }
     
+void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
+{
+    pthread_mutex_lock(&managerLock);
+    
+    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
+         it != managers.end(); ++it)
+        it->second->setRenderer(renderer);
+    
+    pthread_mutex_unlock(&managerLock);
+}
+
+
+SceneManager *Scene::getManager(const char *name)
+{
+    SceneManager *ret = NULL;
+    
+    pthread_mutex_lock(&managerLock);
+    
+    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    if (it != managers.end())
+        ret = it->second;
+    
+    pthread_mutex_unlock(&managerLock);
+    
+    return ret;
+}
+
+void Scene::addManager(const char *name,SceneManager *manager)
+{
+    pthread_mutex_lock(&managerLock);
+
+    // If there's one here, we'll clear it out first
+    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    if (it != managers.end())
+        managers.erase(it);
+    managers[(std::string)name] = manager;
+    manager->setScene(this);
+    
+    pthread_mutex_unlock(&managerLock);
+}
+
 void Scene::addActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
 {
     [activeModels addObject:activeModel];

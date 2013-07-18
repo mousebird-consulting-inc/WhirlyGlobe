@@ -34,7 +34,6 @@
 #import "ActiveModel.h"
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
-#import "SelectionManager.h"
 
 /// @cond
 @class WhirlyKitSceneRendererES;
@@ -220,6 +219,28 @@ typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
 typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
 
+/** The scene manager is a base class for various functionality managers
+    associated with a scene.  These are the objects that build geometry,
+    manage layout, selection, and so forth for a scene.  They typically
+    do their work off of the main thread and then merge data back into
+    the scene on the main thread.
+ */
+class SceneManager
+{
+public:
+    virtual ~SceneManager() { };
+    
+    /// Set (or reset) the current renderer
+    virtual void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
+
+    /// Set the scene we're part of
+    virtual void setScene(Scene *inScene) { scene = inScene; }
+    
+protected:
+    Scene *scene;
+    WhirlyKitSceneRendererES *renderer;
+};
+
 /** This is the top level scene object for WhirlyKit.
     It keeps track of the drawables by sorting them into
      cullables and it handles the change requests, which
@@ -288,8 +309,14 @@ public:
     /// Get the UIView placement generator.  Only use this in the main thread.
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
-    /// Get the selection manager.  Safe in any thread.
-    SelectionManager *getSelectionManager() { return selectManager; }
+    /// Called once by the renderer so we can reset any managers that care
+    void setRenderer(WhirlyKitSceneRendererES *renderer);
+    
+    /// Return the given manager.  This is thread safe;
+    SceneManager *getManager(const char *name);
+    
+    /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
+    void addManager(const char *name,SceneManager *manager);
     
     /// Add an active model.  Only call this on the main thread.
     void addActiveModel(NSObject<WhirlyKitActiveModel> *);
@@ -307,6 +334,10 @@ public:
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
+    
+    /// Return a dispatch queue that we can use for... stuff.
+    /// The idea here is we'll wait for these to drain when we tear down.
+    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
@@ -364,14 +395,20 @@ public:
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
     
+    /// Dispatch queue(s) we'll use for... things
+    dispatch_queue_t dispatchQueue;
+    
     /// Screen space generator created on startup
     ScreenSpaceGenerator *ssGen;
     
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
     
-    /// Selection manager (created on startup)
-    SelectionManager *selectManager;
+    /// Lock for accessing managers
+    pthread_mutex_t managerLock;
+
+    /// Managers for various functionality
+    std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
     WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }

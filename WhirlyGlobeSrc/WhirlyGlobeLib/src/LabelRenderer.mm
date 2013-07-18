@@ -204,10 +204,7 @@ namespace WhirlyKit
         }
     }
     
-	CGContextSetTextDrawingMode(ctx, kCGTextFill);
-    [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
-    [attrStr drawAtPoint:CGPointMake(theShadowSize,0)];
-	
+	CGContextSetTextDrawingMode(ctx, kCGTextFill);	
     if (attrStr)
     {
         [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
@@ -274,9 +271,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     // Screen space objects to create
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenObjects;
     
-    // Objects to pass to the layout engine
-    layoutObjects = [NSMutableArray array];;
-    
     // Drawables used for the icons
     IconDrawables iconDrawables;
     
@@ -328,7 +322,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             DrawableString *drawStr = [fontTexManager addString:attrStr changes:changeRequests];
             if (drawStr)
             {
-                WhirlyKitLayoutObject *layoutObj = nil;
                 labelRep->drawStrIDs.insert(drawStr->getId());
 
                 if (labelInfo.screenObject)
@@ -430,18 +423,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         int layoutPlacement = [label.desc intForKey:@"layoutPlacement" default:(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)];
                         
                         // Put together the layout info
-                        layoutObj = [[WhirlyKitLayoutObject alloc] init];
-                        layoutObj->tag = label.text;
-                        layoutObj->ssID = screenShape->getId();
-                        layoutObj->dispLoc = screenShape->worldLoc;
-                        layoutObj->size = drawStr->mbr.ur() - drawStr->mbr.ll();
+                        WhirlyKit::LayoutObject layoutObj(screenShape->getId());
+//                        layoutObj.tag = label.text;
+                        layoutObj.dispLoc = screenShape->worldLoc;
+                        layoutObj.size = drawStr->mbr.ur() - drawStr->mbr.ll();
                         
 //                        layoutObj->iconSize = Point2f(iconSize,iconSize);
-                        layoutObj->importance = layoutImportance;
-                        layoutObj->minVis = labelInfo.minVis;
-                        layoutObj->maxVis = labelInfo.maxVis;
-                        layoutObj->acceptablePlacement = layoutPlacement;
-                        [layoutObjects addObject:layoutObj];
+                        layoutObj.importance = layoutImportance;
+                        layoutObj.minVis = labelInfo.minVis;
+                        layoutObj.maxVis = labelInfo.maxVis;
+                        layoutObj.acceptablePlacement = layoutPlacement;
+                        layoutObjects.push_back(layoutObj);
                         
                         // The shape starts out disabled
                         screenShape->enable = false;
@@ -552,9 +544,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     
     // Screen space objects to create
     std::vector<ScreenSpaceGenerator::ConvexShape *> screenObjects;
-    
-    // Objects to pass to the layout engine
-    layoutObjects = [NSMutableArray array];;
     
     // Drawables used for the icons
     IconDrawables iconDrawables;
@@ -675,7 +664,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         Point3f norm;
         Point3f pts[4],iconPts[4];
         ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
-        WhirlyKitLayoutObject *layoutObj = nil;
         if (labelInfo.screenObject)
         {
             // Set if we're letting the layout engine control placement
@@ -730,18 +718,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 float layoutImportance = [label.desc floatForKey:@"layoutImportance" default:labelInfo.layoutImportance];
                 
                 // Put together the layout info
-                layoutObj = [[WhirlyKitLayoutObject alloc] init];
-                layoutObj->tag = label.text;
-                layoutObj->ssID = screenShape->getId();
-                layoutObj->dispLoc = screenShape->worldLoc;
-                layoutObj->size = Point2f(width2*2.0,height2*2.0);
-                layoutObj->iconSize = iconSize;
-                layoutObj->importance = layoutImportance;
-                layoutObj->minVis = labelInfo.minVis;
-                layoutObj->maxVis = labelInfo.maxVis;
+                WhirlyKit::LayoutObject layoutObj(screenShape->getId());
+                layoutObj.dispLoc = screenShape->worldLoc;
+                layoutObj.size = Point2f(width2*2.0,height2*2.0);
+                layoutObj.iconSize = iconSize;
+                layoutObj.importance = layoutImportance;
+                layoutObj.minVis = labelInfo.minVis;
+                layoutObj.maxVis = labelInfo.maxVis;
                 // Note: Should parse out acceptable placements as well
-                layoutObj->acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
-                [layoutObjects addObject:layoutObj];
+                layoutObj.acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
+                layoutObjects.push_back(layoutObj);
                 
                 // The shape starts out disabled
                 screenShape->enable = false;
@@ -848,20 +834,20 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     iconGeom.texCoords.push_back(texCoord[ii]);
                 }
                 // For layout objects, we'll put the icons on their own
-                if (layoutObj)
-                {
-                    ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
-                    SimpleIdentity iconId = iconScreenShape->getId();
-                    *iconScreenShape = *screenShape;
-                    iconScreenShape->setId(iconId);
-                    iconScreenShape->geom.clear();
-                    iconScreenShape->geom.push_back(iconGeom);
-                    screenObjects.push_back(iconScreenShape);
-                    labelRep->screenIDs.insert(iconScreenShape->getId());
-                    layoutObj->auxIDs.insert(iconScreenShape->getId());
-                } else {
+//                if (layoutObj)
+//                {
+//                    ScreenSpaceGenerator::ConvexShape *iconScreenShape = new ScreenSpaceGenerator::ConvexShape();
+//                    SimpleIdentity iconId = iconScreenShape->getId();
+//                    *iconScreenShape = *screenShape;
+//                    iconScreenShape->setId(iconId);
+//                    iconScreenShape->geom.clear();
+//                    iconScreenShape->geom.push_back(iconGeom);
+//                    screenObjects.push_back(iconScreenShape);
+//                    labelRep->screenIDs.insert(iconScreenShape->getId());
+//                    layoutObj->auxIDs.insert(iconScreenShape->getId());
+//                } else {
                     screenShape->geom.push_back(iconGeom);
-                }
+//                }
             } else {
                 // Try to add this to an existing drawable
                 IconDrawables::iterator it = iconDrawables.find(subTex.texId);
