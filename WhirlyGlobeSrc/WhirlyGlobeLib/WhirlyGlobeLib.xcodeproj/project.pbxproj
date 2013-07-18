@@ -324,6 +324,16 @@
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
 		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
+		2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328617986ACA0063CC84 /* LabelManager.h */; };
+		2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328717986ACA0063CC84 /* LayoutManager.h */; };
+		2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328817986ACA0063CC84 /* MarkerManager.h */; };
+		2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328917986ACA0063CC84 /* ShapeManager.h */; };
+		2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2328A17986ACA0063CC84 /* VectorManager.h */; };
+		2BA2329617986AE90063CC84 /* LabelManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329117986AE90063CC84 /* LabelManager.mm */; };
+		2BA2329717986AE90063CC84 /* LayoutManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329217986AE90063CC84 /* LayoutManager.mm */; };
+		2BA2329817986AE90063CC84 /* MarkerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329317986AE90063CC84 /* MarkerManager.mm */; };
+		2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329417986AE90063CC84 /* ShapeManager.mm */; };
+		2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2329517986AE90063CC84 /* VectorManager.mm */; };
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
@@ -735,6 +745,16 @@
 		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
 		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
 		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
+		2BA2328617986ACA0063CC84 /* LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelManager.h; sourceTree = "<group>"; };
+		2BA2328717986ACA0063CC84 /* LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutManager.h; sourceTree = "<group>"; };
+		2BA2328817986ACA0063CC84 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerManager.h; sourceTree = "<group>"; };
+		2BA2328917986ACA0063CC84 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
+		2BA2328A17986ACA0063CC84 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorManager.h; sourceTree = "<group>"; };
+		2BA2329117986AE90063CC84 /* LabelManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelManager.mm; sourceTree = "<group>"; };
+		2BA2329217986AE90063CC84 /* LayoutManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutManager.mm; sourceTree = "<group>"; };
+		2BA2329317986AE90063CC84 /* MarkerManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MarkerManager.mm; sourceTree = "<group>"; };
+		2BA2329417986AE90063CC84 /* ShapeManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeManager.mm; sourceTree = "<group>"; };
+		2BA2329517986AE90063CC84 /* VectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorManager.mm; sourceTree = "<group>"; };
 		2BA2BB76153E08F800DAB382 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
 		2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
 		2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeLayerViewWatcher.h; sourceTree = "<group>"; };
@@ -1310,8 +1330,6 @@
 			children = (
 				2BB25921177A042F00770619 /* BillboardLayer.h */,
 				2BB25922177A042F00770619 /* BillboardDrawable.h */,
-				2BB25923177A042F00770619 /* SceneGraphManager.h */,
-				2B308B10171F638F006D7273 /* SelectionManager.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
@@ -1431,6 +1449,32 @@
 			path = "../../third-party/glues/source/libtess";
 			sourceTree = "<group>";
 		};
+		2BA2328517986A9F0063CC84 /* managers */ = {
+			isa = PBXGroup;
+			children = (
+				2BA2328617986ACA0063CC84 /* LabelManager.h */,
+				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
+				2BA2328817986ACA0063CC84 /* MarkerManager.h */,
+				2BA2328917986ACA0063CC84 /* ShapeManager.h */,
+				2BA2328A17986ACA0063CC84 /* VectorManager.h */,
+				2BB25923177A042F00770619 /* SceneGraphManager.h */,
+				2B308B10171F638F006D7273 /* SelectionManager.h */,
+			);
+			name = managers;
+			sourceTree = "<group>";
+		};
+		2BA2329017986AD40063CC84 /* managers */ = {
+			isa = PBXGroup;
+			children = (
+				2BA2329117986AE90063CC84 /* LabelManager.mm */,
+				2BA2329217986AE90063CC84 /* LayoutManager.mm */,
+				2BA2329317986AE90063CC84 /* MarkerManager.mm */,
+				2BA2329417986AE90063CC84 /* ShapeManager.mm */,
+				2BA2329517986AE90063CC84 /* VectorManager.mm */,
+			);
+			name = managers;
+			sourceTree = "<group>";
+		};
 		2BA8FFDB1540E12300AEA53C /* coordinate systems */ = {
 			isa = PBXGroup;
 			children = (
@@ -1475,6 +1519,7 @@
 				2BE6EE5312E4F3D100415490 /* interaction */,
 				2BCABA6712F8DA280049D73C /* scene & view */,
 				2BD0E69013254DCA00CD95A8 /* data */,
+				2BA2329017986AD40063CC84 /* managers */,
 				2B951D9712F09EEC005003AE /* layers & loaders */,
 			);
 			path = src;
@@ -1574,6 +1619,7 @@
 				2B4504AE14BBACF900C99306 /* view */,
 				2BCABA5A12F8D7070049D73C /* scene */,
 				2B4504B514BCB6AF00C99306 /* interaction */,
+				2BA2328517986A9F0063CC84 /* managers */,
 				2B951D9612F09EE1005003AE /* layers & generators */,
 			);
 			name = WhirlyKit;
@@ -1861,6 +1907,11 @@
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
+				2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */,
+				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
+				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
+				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
+				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2192,6 +2243,11 @@
 				2BA2327417984F510063CC84 /* sweep.c in Sources */,
 				2BA2327617984F510063CC84 /* tess.c in Sources */,
 				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
+				2BA2329617986AE90063CC84 /* LabelManager.mm in Sources */,
+				2BA2329717986AE90063CC84 /* LayoutManager.mm in Sources */,
+				2BA2329817986AE90063CC84 /* MarkerManager.mm in Sources */,
+				2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */,
+				2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
