@@ -444,6 +444,7 @@ LocationInfo locations[NumLocations] =
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         label.size = size;
         label.text = [NSString stringWithFormat:@"%s",location->name];
+        label.layoutImportance = 2.0;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
         [labels addObject:label];
     }
@@ -596,9 +597,9 @@ LocationInfo locations[NumLocations] =
                             ^{
                                 // Toss in all the labels at once, more efficient
                                 MaplyComponentObject *autoLabelObj = [baseViewC addScreenLabels:locAutoLabels desc:
-                                                                      @{kMaplyTextColor: [UIColor whiteColor],
+                                                                      @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
                                                                             kMaplyFont: [UIFont systemFontOfSize:24.0],
-                                                                         kMaplyTextOutlineColor: [UIColor redColor],
+                                                                         kMaplyTextOutlineColor: [UIColor blackColor],
                                                                           kMaplyTextOutlineSize: @(1.0),
 //                                                                               kMaplyShadowSize: @(1.0)
                                                                       }];

@@ -115,7 +115,7 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
     WhirlyKit::LabelSceneRep *labelRep;
     WhirlyKit::Scene *scene;
     WhirlyKit::SimpleIdentity screenGenId;
-    NSMutableArray *layoutObjects;
+    std::vector<WhirlyKit::LayoutObject> layoutObjects;
     std::vector<WhirlyKit::RectSelectable3D> selectables3D;
     std::vector<WhirlyKit::RectSelectable2D> selectables2D;
     

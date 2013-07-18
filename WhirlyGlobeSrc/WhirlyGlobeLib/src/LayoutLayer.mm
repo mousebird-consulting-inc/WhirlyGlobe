@@ -27,110 +27,10 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-// We use this to avoid overlapping labels
-class OverlapManager
-{
-public:
-    OverlapManager(const Mbr &mbr,int sizeX,int sizeY)
-    : mbr(mbr), sizeX(sizeX), sizeY(sizeY)
-    {
-        grid.resize(sizeX*sizeY);
-        cellSize = Point2f((mbr.ur().x()-mbr.ll().x())/sizeX,(mbr.ur().y()-mbr.ll().y())/sizeY);
-    }
-
-    // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const std::vector<Point2f> &pts,NSObject *obj)
-    {
-        Mbr objMbr;
-        for (unsigned int ii=0;ii<pts.size();ii++)
-            objMbr.addPoint(pts[ii]);
-        int sx = floorf((objMbr.ll().x()-mbr.ll().x())/cellSize.x());
-        if (sx < 0) sx = 0;
-        int sy = floorf((objMbr.ll().y()-mbr.ll().y())/cellSize.y());
-        if (sy < 0) sy = 0;
-        int ex = ceilf((objMbr.ur().x()-mbr.ll().x())/cellSize.x());
-        if (ex >= sizeX)  ex = sizeX-1;
-        int ey = ceilf((objMbr.ur().y()-mbr.ll().y())/cellSize.y());
-        if (ey >= sizeY)  ey = sizeY-1;
-        for (int ix=sx;ix<=ex;ix++)
-            for (int iy=sy;iy<=ey;iy++)
-            {
-                std::vector<int> &objList = grid[iy*sizeX + ix];
-                for (unsigned int ii=0;ii<objList.size();ii++)
-                {
-                    BoundedObject &testObj = objects[objList[ii]];
-                    // Note: This will result in testing the same thing multiple times
-                    if (ConvexPolyIntersect(testObj.pts,pts))
-                        return false;
-                }
-            }
-        
-        // Okay, so it doesn't overlap.  Let's add it where needed.
-        objects.resize(objects.size()+1);
-        int newId = objects.size()-1;
-        BoundedObject &newObj = objects[newId];
-        newObj.obj = obj;
-        newObj.pts = pts;
-        for (int ix=sx;ix<=ex;ix++)
-            for (int iy=sy;iy<=ey;iy++)
-            {
-                std::vector<int> &objList = grid[iy*sizeX + ix];
-                objList.push_back(newId);
-            }
-        
-        return true;
-    }
-    
-protected:
-    // Object and its bounds
-    class BoundedObject
-    {
-    public:
-        ~BoundedObject() { }
-        std::vector<Point2f> pts;
-        NSObject *obj;
-    };
-    
-    Mbr mbr;
-    std::vector<BoundedObject> objects;
-    int sizeX,sizeY;
-    Point2f cellSize;
-    std::vector<std::vector<int> > grid;
-};
 
 namespace WhirlyKit
 {
-typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMap;
 }
-
-@implementation WhirlyKitLayoutObject
-{
-@public
-    // Set if it's currently on
-    bool currentEnable;
-    // Set if it's going to be on
-    bool newEnable;
-    // The offset, as calculated
-    WhirlyKit::Point2f offset;
-    // Set if we changed something during evaluation
-    bool changed;
-}
-
-- (id)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    currentEnable = newEnable = false;
-    offset = Point2f(0.0,0.0);
-    minVis = maxVis = DrawVisibleInvalid;
-    changed = true;
-    
-    return self;
-}
-
-@end
 
 @implementation WhirlyKitLayoutLayer
 {
@@ -138,19 +38,13 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
     WhirlyKitLayerThread * __weak layerThread;
     // Scene we're updating
     Scene *scene;
-    // Screen space generator we're sending data to
-    SimpleIdentity ssGenId;
     // Set if we haven't moved for a while
     bool stopped;
     // Last view state we've seen
     WhirlyKitViewState *viewState;
-    // Objects we're controlling the placement for
-    LayoutObjectMap layoutObjects;
     // Used for sizing info
     WhirlyKitSceneRendererES *renderer;
 }
-
-@synthesize maxDisplayObjects;
 
 - (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
 {
@@ -158,7 +52,7 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
     if (!self)
         return nil;
     renderer = inRenderer;
-    maxDisplayObjects = 0;
+    _maxDisplayObjects = 0;
     
     return self;
 }
@@ -167,19 +61,22 @@ typedef std::map<SimpleIdentity,WhirlyKitLayoutObject * __strong> LayoutObjectMa
 {
     layerThread = inLayerThread;
     scene = inScene;
-    ssGenId = scene->getScreenSpaceGeneratorID();
     
     // Get us view updates, but we'll filter them
     if (layerThread.viewWatcher)
         [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0];
+    
+    [self checkUpdate];
 }
 
 - (void)shutdown
 {
     scene = NULL;
-    layoutObjects.clear();
     if (layerThread.viewWatcher)
         [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkUpdate) object:nil];
 }
 
 // How long we'll wait to see if the user has stopped twitching
@@ -208,6 +105,21 @@ static const float DelayPeriod = 0.1;
     [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
 }
 
+// We also need to check on updates outside of the layer thread
+- (void)checkUpdate
+{
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (viewState && layoutManager && layoutManager->hasChanges())
+    {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+
+        // Set a timer to see if we've stopped in a bit
+        [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
+    }
+    
+    [self performSelector:@selector(checkUpdate) withObject:nil afterDelay:2*DelayPeriod];
+}
+
 // Called after some period to check if we've stopped moving
 - (void)delayCheck
 {
@@ -220,239 +132,27 @@ static const float DelayPeriod = 0.1;
     [self updateLayout];
 }
 
-// Turn off all the objects we're tracking
-- (void)disableObjects
+- (void)setMaxDisplayObjects:(int)maxDisplayObjects
 {
-//    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-
-    std::vector<ScreenSpaceGeneratorGangChangeRequest::ShapeChange> changes;
-    changes.reserve(layoutObjects.size());
-
-    for (LayoutObjectMap::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
-    {
-        // Put in the change for the main object
-        ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-        WhirlyKitLayoutObject *layoutObj = it->second;
-        change.shapeID = layoutObj->ssID;
-        // Note: Not fading yet
-        change.fadeUp = 0.0;
-        change.fadeDown = 0.0;
-        change.enable = false;
-        changes.push_back(change);
-        
-        // And auxiliary objects
-        for (SimpleIDSet::iterator sit = layoutObj->auxIDs.begin();
-             sit != layoutObj->auxIDs.end(); ++sit)
-        {
-            ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-            change.shapeID = *sit;
-            change.enable = false;
-            changes.push_back(change);
-        }
+    _maxDisplayObjects = maxDisplayObjects;
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->setMaxDisplayObjects(_maxDisplayObjects);
     }
     
-    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
-}
-
-// Sort more important things to the front
-typedef struct
-{
-    bool operator () (const WhirlyKitLayoutObject *a,const WhirlyKitLayoutObject *b)
-    {
-        if (a->importance == b->importance)
-            return a > b;
-        return a->importance > b->importance;
-    }
-} WhirlyKitLayoutObjectSorter;
-typedef std::set<WhirlyKitLayoutObject *,WhirlyKitLayoutObjectSorter> WhirlyKitLayoutObjectSet;
-
-// Size of the overlap sampler
-static const int OverlapSampleX = 10;
-static const int OverlapSampleY = 60;
-
-// Now much around the screen we'll take into account
-static const float ScreenBuffer = 0.1;
-
-// Do the actual layout logic.  We'll modify the offset and on value in place.
-- (void)runLayoutRules
-{
-    if (layoutObjects.empty())
-        return;
-    
-    WhirlyKitLayoutObjectSet layoutObjs;
-
-    // Turn everything off and sort by importance
-    WhirlyGlobeViewState *globeViewState = nil;
-    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
-        globeViewState = (WhirlyGlobeViewState *)viewState;
-    for (LayoutObjectMap::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
-    {
-        WhirlyKitLayoutObject *obj = it->second;
-        bool use = false;
-        if (globeViewState)
-        {
-            if (obj->minVis == DrawVisibleInvalid || obj->maxVis == DrawVisibleInvalid ||
-                (obj->minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->maxVis))
-                use = true;
-        } else
-            use = true;
-        if (use)
-            layoutObjs.insert(it->second);
-    }
-    
-    // Need to scale for retina displays
-    float resScale = renderer.scale;
-
-    // Set up the overlap sampler
-    Point2f frameBufferSize;
-    frameBufferSize.x() = renderer.framebufferWidth;
-    frameBufferSize.y() = renderer.framebufferHeight;
-    Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
-    OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
-
-    Matrix4d modelTrans = viewState->fullMatrix;
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrix);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrix);
-    int numSoFar = 0;
-    for (WhirlyKitLayoutObjectSet::iterator it = layoutObjs.begin();
-         it != layoutObjs.end(); ++it)
-    {
-        WhirlyKitLayoutObject *layoutObj = *it;
-        
-        // Start with a max objects check
-        bool isActive = true;
-        if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
-            isActive = false;
-        // Start with a back face check
-        if (isActive && globeViewState)
-        {
-            // Make sure this one is facing toward the viewer
-            isActive = CheckPointAndNormFacing(layoutObj->dispLoc,layoutObj->dispLoc.normalized(),fullMatrix4f,fullNormalMatrix4f) > 0.0;
-        }
-        Point2f objOffset(0.0,0.0);
-        if (isActive)
-        {
-            // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->dispLoc) transform:&modelTrans frameSize:frameBufferSize];
-            isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
-            // Now for the overlap checks
-            if (isActive)
-            {
-                // Try the four diffierent orientations
-                if (layoutObj->size.x() != 0.0 && layoutObj->size.y() != 0.0)
-                {
-                    bool validOrient = false;
-                    Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f((objPt.x+layoutObj->size.x()*resScale),(objPt.y+layoutObj->size.y()*resScale)));
-                    for (unsigned int orient=0;orient<4;orient++)
-                    {
-                        // May only want to be placed certain ways.  Fair enough.
-                        if (!(layoutObj->acceptablePlacement & (1<<orient)))
-                            continue;
-                        
-                        // Set up the offset for this orientation
-                        switch (orient)
-                        {
-                            // Right
-                            case 0:
-                                objOffset = Point2f(layoutObj->iconSize.x(),0.0);
-                                break;
-                            // Left
-                            case 1:
-                                objOffset = Point2f(-(layoutObj->size.x()+layoutObj->iconSize.x()/2.0),0.0);
-                                break;
-                            // Above
-                            case 2:
-                                objOffset = Point2f(-layoutObj->size.x()/2.0,-(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
-                                break;
-                            // Below
-                            case 3:
-                                objOffset = Point2f(-layoutObj->size.x()/2.0,(layoutObj->size.y()+layoutObj->iconSize.y())/2.0);
-                                break;
-                        }
-                        
-                        // Now try it
-                        Mbr tryMbr(objMbr.ll()+objOffset*resScale,objMbr.ur()+objOffset*resScale);
-                        std::vector<Point2f> tryPts;
-                        tryMbr.asPoints(tryPts);
-                        if (overlapMan.addObject(tryPts, layoutObj))
-                        {
-                            validOrient = true;
-                            break;
-                        }
-                    }
-                    
-                    isActive = validOrient;
-                }
-            }
-        }
-        
-        if (isActive)
-            numSoFar++;
-
-        // See if we've changed any of the state
-        layoutObj->changed = (layoutObj->currentEnable != isActive);
-        if (!layoutObj->changed && layoutObj->newEnable &&
-            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
-            layoutObj->changed = true;
-        layoutObj->newEnable = isActive;
-        layoutObj->offset = objOffset;
-    }
-}
-
-// Time we'll take to disappear objects
-static float const DisappearFade = 0.1;
-
 // Layout all the objects we're tracking
 - (void)updateLayout
 {
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-    
-    // This will recalulate the offsets and enables
-    [self runLayoutRules];
-
-    std::vector<ScreenSpaceGeneratorGangChangeRequest::ShapeChange> changes;
-    changes.reserve(layoutObjects.size());
-    
-    for (LayoutObjectMap::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
-    {
-        WhirlyKitLayoutObject *layoutObj = it->second;
-        if (layoutObj->changed)
-        {
-            // Put in the change for the main object
-            ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-            change.shapeID = layoutObj->ssID;
-            change.offset = layoutObj->offset;
-            change.enable = layoutObj->newEnable;
-            // Fade in when we add them
-            if (!layoutObj->currentEnable)
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
             {
-                change.fadeDown = curTime;
-                change.fadeUp = curTime+DisappearFade;
-            }
-            layoutObj->currentEnable = layoutObj->newEnable;
-            changes.push_back(change);
-            
-            // And auxiliary objects
-            for (SimpleIDSet::iterator sit = layoutObj->auxIDs.begin();
-                 sit != layoutObj->auxIDs.end(); ++sit)
-            {
-                ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
-                change.shapeID = *sit;
-                change.enable = layoutObj->currentEnable;
-                changes.push_back(change);
-            }
-            
-            layoutObj->changed = false;
+        std::vector<ChangeRequest *> changes;
+        layoutManager->updateLayout(viewState,changes);
+        [layerThread addChangeRequests:changes];
         }
     }
     
-    [layerThread addChangeRequest:(new ScreenSpaceGeneratorGangChangeRequest(ssGenId,changes))];
-}
-
-- (void)addLayoutObjects:(NSArray *)newObjects
+- (void)addLayoutObjects:(const std::vector<WhirlyKit::LayoutObject> &)newObjects
 {
     if ([NSThread currentThread] != layerThread)
     {
@@ -460,8 +160,9 @@ static float const DisappearFade = 0.1;
         return;
     }
     
-    for (WhirlyKitLayoutObject *obj in newObjects)
-        layoutObjects[obj->ssID] = obj;
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->addLayoutObjects(newObjects);
 
     // Note: This is too often.  Need a better way of notifying need for an update.
     [self updateLayout];
@@ -475,12 +176,9 @@ static float const DisappearFade = 0.1;
         return;
     }
     
-    for (SimpleIDSet::iterator it = objectIDs.begin();it != objectIDs.end(); ++it)
-    {
-        LayoutObjectMap::iterator lit = layoutObjects.find(*it);
-        if (lit != layoutObjects.end())
-            layoutObjects.erase(lit);
-    }
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->removeLayoutObjects(objectIDs);
     
     // Note: This is too often.  Need a better way of notifying need for an update.
     [self updateLayout];
