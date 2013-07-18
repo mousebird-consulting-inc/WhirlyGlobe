@@ -24,6 +24,7 @@
 #import "Identifiable.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
+#import "Scene.h"
 
 @class WhirlyKitSceneRendererES;
 
@@ -31,6 +32,7 @@ namespace WhirlyKit
 {
     
 class Scene;
+class SceneManager;
 
 /// Base class for selectable geometry
 class Selectable
@@ -96,6 +98,8 @@ public:
     
 typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
     
+#define kWKSelectionManager "WKSelectionManager"
+    
 /** The selection manager tracks a variable number of objects that
      might be selectable.  These consist of a shape and an ID.
     Layers (or the caller) can register objects with the
@@ -107,7 +111,7 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
  
     The selection manager is entirely thread safe except for destruction.
  */
-class SelectionManager
+class SelectionManager : public SceneManager
 {
 public:
     /// Pass in the content scaling (not 1.0 if we're on retina)
@@ -132,9 +136,6 @@ public:
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
     
-    /// Someone needs to set the renderer before we can select things
-    void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
-
 protected:
     WhirlyKitSceneRendererES * __weak renderer;
     pthread_mutex_t mutex;

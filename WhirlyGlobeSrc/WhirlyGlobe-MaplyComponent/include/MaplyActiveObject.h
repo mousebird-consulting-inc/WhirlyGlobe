@@ -29,4 +29,7 @@
 /// Initialize with the appropriate description dictionary
 - (id)initWithDesc:(NSDictionary *)descDict;
 
+/// Description dictionary for the object
+@property (nonatomic) NSDictionary *desc;
+
 @end

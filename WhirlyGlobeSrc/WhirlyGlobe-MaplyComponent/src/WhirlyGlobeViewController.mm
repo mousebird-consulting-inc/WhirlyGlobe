@@ -462,7 +462,8 @@ using namespace WhirlyGlobe;
 - (id)findObjectAtLocation:(CGPoint)screenPt
 {
     // Look for the object, returns an ID
-    SimpleIdentity objId = scene->getSelectionManager()->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView);
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    SimpleIdentity objId = selectManager->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView);
     
     if (objId != EmptyIdentity)
     {
