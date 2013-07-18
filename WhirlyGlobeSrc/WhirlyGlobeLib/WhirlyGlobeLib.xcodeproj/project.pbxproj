@@ -288,6 +288,42 @@
 		2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF9C163760C300C5165F /* OpenGLES2Program.h */; };
 		2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
+		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
+		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
+		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
+		2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323217984F510063CC84 /* glues_mipmap.c */; };
+		2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323317984F510063CC84 /* glues_mipmap.h */; };
+		2BA2325B17984F510063CC84 /* glues_project.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323417984F510063CC84 /* glues_project.c */; };
+		2BA2325C17984F510063CC84 /* glues_project.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323517984F510063CC84 /* glues_project.h */; };
+		2BA2325D17984F510063CC84 /* glues_quad.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323617984F510063CC84 /* glues_quad.c */; };
+		2BA2325E17984F510063CC84 /* glues_quad.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323717984F510063CC84 /* glues_quad.h */; };
+		2BA2325F17984F510063CC84 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323817984F510063CC84 /* glues_registry.c */; };
+		2BA2326017984F510063CC84 /* glues_registry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323917984F510063CC84 /* glues_registry.h */; };
+		2BA2326117984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323A17984F510063CC84 /* glues.h */; };
+		2BA2326217984F510063CC84 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323D17984F510063CC84 /* dict-list.h */; };
+		2BA2326317984F510063CC84 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323E17984F510063CC84 /* dict.c */; };
+		2BA2326417984F510063CC84 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323F17984F510063CC84 /* dict.h */; };
+		2BA2326517984F510063CC84 /* geom.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324017984F510063CC84 /* geom.c */; };
+		2BA2326617984F510063CC84 /* geom.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324117984F510063CC84 /* geom.h */; };
+		2BA2326717984F510063CC84 /* memalloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324217984F510063CC84 /* memalloc.c */; };
+		2BA2326817984F510063CC84 /* memalloc.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324317984F510063CC84 /* memalloc.h */; };
+		2BA2326917984F510063CC84 /* mesh.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324417984F510063CC84 /* mesh.c */; };
+		2BA2326A17984F510063CC84 /* mesh.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324517984F510063CC84 /* mesh.h */; };
+		2BA2326B17984F510063CC84 /* normal.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324617984F510063CC84 /* normal.c */; };
+		2BA2326C17984F510063CC84 /* normal.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324717984F510063CC84 /* normal.h */; };
+		2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324817984F510063CC84 /* priorityq-heap.h */; };
+		2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324A17984F510063CC84 /* priorityq-sort.h */; };
+		2BA2327017984F510063CC84 /* priorityq.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324B17984F510063CC84 /* priorityq.c */; };
+		2BA2327117984F510063CC84 /* priorityq.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324C17984F510063CC84 /* priorityq.h */; };
+		2BA2327217984F510063CC84 /* render.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2324E17984F510063CC84 /* render.c */; };
+		2BA2327317984F510063CC84 /* render.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2324F17984F510063CC84 /* render.h */; };
+		2BA2327417984F510063CC84 /* sweep.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325017984F510063CC84 /* sweep.c */; };
+		2BA2327517984F510063CC84 /* sweep.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325117984F510063CC84 /* sweep.h */; };
+		2BA2327617984F510063CC84 /* tess.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325217984F510063CC84 /* tess.c */; };
+		2BA2327717984F510063CC84 /* tess.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325317984F510063CC84 /* tess.h */; };
+		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
+		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
+		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
@@ -662,6 +698,43 @@
 		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
 		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2BA2322F17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
+		2BA2323017984F510063CC84 /* glues_error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_error.c; path = "../../third-party/glues/source/glues_error.c"; sourceTree = "<group>"; };
+		2BA2323117984F510063CC84 /* glues_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_error.h; path = "../../third-party/glues/source/glues_error.h"; sourceTree = "<group>"; };
+		2BA2323217984F510063CC84 /* glues_mipmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_mipmap.c; path = "../../third-party/glues/source/glues_mipmap.c"; sourceTree = "<group>"; };
+		2BA2323317984F510063CC84 /* glues_mipmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_mipmap.h; path = "../../third-party/glues/source/glues_mipmap.h"; sourceTree = "<group>"; };
+		2BA2323417984F510063CC84 /* glues_project.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_project.c; path = "../../third-party/glues/source/glues_project.c"; sourceTree = "<group>"; };
+		2BA2323517984F510063CC84 /* glues_project.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_project.h; path = "../../third-party/glues/source/glues_project.h"; sourceTree = "<group>"; };
+		2BA2323617984F510063CC84 /* glues_quad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_quad.c; path = "../../third-party/glues/source/glues_quad.c"; sourceTree = "<group>"; };
+		2BA2323717984F510063CC84 /* glues_quad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_quad.h; path = "../../third-party/glues/source/glues_quad.h"; sourceTree = "<group>"; };
+		2BA2323817984F510063CC84 /* glues_registry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_registry.c; path = "../../third-party/glues/source/glues_registry.c"; sourceTree = "<group>"; };
+		2BA2323917984F510063CC84 /* glues_registry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_registry.h; path = "../../third-party/glues/source/glues_registry.h"; sourceTree = "<group>"; };
+		2BA2323A17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
+		2BA2323C17984F510063CC84 /* alg-outline */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "alg-outline"; sourceTree = "<group>"; };
+		2BA2323D17984F510063CC84 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
+		2BA2323E17984F510063CC84 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
+		2BA2323F17984F510063CC84 /* dict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dict.h; sourceTree = "<group>"; };
+		2BA2324017984F510063CC84 /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geom.c; sourceTree = "<group>"; };
+		2BA2324117984F510063CC84 /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
+		2BA2324217984F510063CC84 /* memalloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = memalloc.c; sourceTree = "<group>"; };
+		2BA2324317984F510063CC84 /* memalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memalloc.h; sourceTree = "<group>"; };
+		2BA2324417984F510063CC84 /* mesh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mesh.c; sourceTree = "<group>"; };
+		2BA2324517984F510063CC84 /* mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mesh.h; sourceTree = "<group>"; };
+		2BA2324617984F510063CC84 /* normal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = normal.c; sourceTree = "<group>"; };
+		2BA2324717984F510063CC84 /* normal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = normal.h; sourceTree = "<group>"; };
+		2BA2324817984F510063CC84 /* priorityq-heap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "priorityq-heap.h"; sourceTree = "<group>"; };
+		2BA2324A17984F510063CC84 /* priorityq-sort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "priorityq-sort.h"; sourceTree = "<group>"; };
+		2BA2324B17984F510063CC84 /* priorityq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = priorityq.c; sourceTree = "<group>"; };
+		2BA2324C17984F510063CC84 /* priorityq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = priorityq.h; sourceTree = "<group>"; };
+		2BA2324E17984F510063CC84 /* render.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = render.c; sourceTree = "<group>"; };
+		2BA2324F17984F510063CC84 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
+		2BA2325017984F510063CC84 /* sweep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sweep.c; sourceTree = "<group>"; };
+		2BA2325117984F510063CC84 /* sweep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sweep.h; sourceTree = "<group>"; };
+		2BA2325217984F510063CC84 /* tess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tess.c; sourceTree = "<group>"; };
+		2BA2325317984F510063CC84 /* tess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tess.h; sourceTree = "<group>"; };
+		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
+		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
+		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
 		2BA2BB76153E08F800DAB382 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
 		2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
 		2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeLayerViewWatcher.h; sourceTree = "<group>"; };
@@ -805,6 +878,7 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2BA2322A17984F1A0063CC84 /* glu */,
 				2B4AE3B117662D4700850F3F /* libjson */,
 				2B951D8A12F09E09005003AE /* shapelib-1.3.0b2 */,
 				2B7EF37916025D3500D4079F /* proj4 */,
@@ -1304,6 +1378,59 @@
 			name = "layers & loaders";
 			sourceTree = "<group>";
 		};
+		2BA2322A17984F1A0063CC84 /* glu */ = {
+			isa = PBXGroup;
+			children = (
+				2BA2327A179859F30063CC84 /* SDL_opengles.h */,
+				2BA2322F17984F510063CC84 /* glues.h */,
+				2BA2323017984F510063CC84 /* glues_error.c */,
+				2BA2323117984F510063CC84 /* glues_error.h */,
+				2BA2323217984F510063CC84 /* glues_mipmap.c */,
+				2BA2323317984F510063CC84 /* glues_mipmap.h */,
+				2BA2323417984F510063CC84 /* glues_project.c */,
+				2BA2323517984F510063CC84 /* glues_project.h */,
+				2BA2323617984F510063CC84 /* glues_quad.c */,
+				2BA2323717984F510063CC84 /* glues_quad.h */,
+				2BA2323817984F510063CC84 /* glues_registry.c */,
+				2BA2323917984F510063CC84 /* glues_registry.h */,
+				2BA2323A17984F510063CC84 /* glues.h */,
+				2BA2323B17984F510063CC84 /* libtess */,
+			);
+			name = glu;
+			sourceTree = "<group>";
+		};
+		2BA2323B17984F510063CC84 /* libtess */ = {
+			isa = PBXGroup;
+			children = (
+				2BA2323C17984F510063CC84 /* alg-outline */,
+				2BA2323D17984F510063CC84 /* dict-list.h */,
+				2BA2323E17984F510063CC84 /* dict.c */,
+				2BA2323F17984F510063CC84 /* dict.h */,
+				2BA2324017984F510063CC84 /* geom.c */,
+				2BA2324117984F510063CC84 /* geom.h */,
+				2BA2324217984F510063CC84 /* memalloc.c */,
+				2BA2324317984F510063CC84 /* memalloc.h */,
+				2BA2324417984F510063CC84 /* mesh.c */,
+				2BA2324517984F510063CC84 /* mesh.h */,
+				2BA2324617984F510063CC84 /* normal.c */,
+				2BA2324717984F510063CC84 /* normal.h */,
+				2BA2324817984F510063CC84 /* priorityq-heap.h */,
+				2BA2324A17984F510063CC84 /* priorityq-sort.h */,
+				2BA2324B17984F510063CC84 /* priorityq.c */,
+				2BA2324C17984F510063CC84 /* priorityq.h */,
+				2BA2324E17984F510063CC84 /* render.c */,
+				2BA2324F17984F510063CC84 /* render.h */,
+				2BA2325017984F510063CC84 /* sweep.c */,
+				2BA2325117984F510063CC84 /* sweep.h */,
+				2BA2325217984F510063CC84 /* tess.c */,
+				2BA2325317984F510063CC84 /* tess.h */,
+				2BA2325417984F510063CC84 /* tessmono.c */,
+				2BA2325517984F510063CC84 /* tessmono.h */,
+			);
+			name = libtess;
+			path = "../../third-party/glues/source/libtess";
+			sourceTree = "<group>";
+		};
 		2BA8FFDB1540E12300AEA53C /* coordinate systems */ = {
 			isa = PBXGroup;
 			children = (
@@ -1713,6 +1840,27 @@
 				2BB25924177A042F00770619 /* BillboardLayer.h in Headers */,
 				2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */,
 				2BB25926177A042F00770619 /* SceneGraphManager.h in Headers */,
+				2BA2325617984F510063CC84 /* glues.h in Headers */,
+				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
+				2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */,
+				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
+				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
+				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
+				2BA2326117984F510063CC84 /* glues.h in Headers */,
+				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
+				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				2BA2326617984F510063CC84 /* geom.h in Headers */,
+				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
+				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
+				2BA2326C17984F510063CC84 /* normal.h in Headers */,
+				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
+				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
+				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
+				2BA2327317984F510063CC84 /* render.h in Headers */,
+				2BA2327517984F510063CC84 /* sweep.h in Headers */,
+				2BA2327717984F510063CC84 /* tess.h in Headers */,
+				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
+				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2029,6 +2177,21 @@
 				2BB2592C177A045300770619 /* BillboardLayer.mm in Sources */,
 				2BB2592D177A045300770619 /* BillboardDrawable.mm in Sources */,
 				2BB2592E177A045300770619 /* SceneGraphManager.mm in Sources */,
+				2BA2325717984F510063CC84 /* glues_error.c in Sources */,
+				2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */,
+				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
+				2BA2325D17984F510063CC84 /* glues_quad.c in Sources */,
+				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
+				2BA2326317984F510063CC84 /* dict.c in Sources */,
+				2BA2326517984F510063CC84 /* geom.c in Sources */,
+				2BA2326717984F510063CC84 /* memalloc.c in Sources */,
+				2BA2326917984F510063CC84 /* mesh.c in Sources */,
+				2BA2326B17984F510063CC84 /* normal.c in Sources */,
+				2BA2327017984F510063CC84 /* priorityq.c in Sources */,
+				2BA2327217984F510063CC84 /* render.c in Sources */,
+				2BA2327417984F510063CC84 /* sweep.c in Sources */,
+				2BA2327617984F510063CC84 /* tess.c in Sources */,
+				2BA2327817984F510063CC84 /* tessmono.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
