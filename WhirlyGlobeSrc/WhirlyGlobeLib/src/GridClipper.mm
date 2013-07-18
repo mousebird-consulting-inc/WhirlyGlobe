@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 using namespace ClipperLib;
 
-float PolyScale = 1e14;
+static float PolyScale = 1e14;
 
 // Clip the given loop to the given MBR
 bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr,std::vector<VectorRing> &rets)

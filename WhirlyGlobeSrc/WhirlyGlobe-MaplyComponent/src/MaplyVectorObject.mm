@@ -444,7 +444,9 @@ using namespace WhirlyGlobe;
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            for (unsigned int ii=0;ii<ar->loops.size();ii++)
+            // Note: Debugging
+//            for (unsigned int ii=0;ii<ar->loops.size();ii++)
+            for (unsigned int ii=0;ii<1;ii++)
             {
                 std::vector<WhirlyKit::VectorRing> tris;
                 TesselateRing(ar->loops[ii], tris);
