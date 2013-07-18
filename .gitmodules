@@ -22,3 +22,6 @@
 [submodule "third-party/libjson"]
 	path = third-party/libjson
 	url = https://github.com/mousebird/libjson.git
+[submodule "third-party/glues"]
+	path = third-party/glues
+	url = https://github.com/lunixbochs/glues.git
