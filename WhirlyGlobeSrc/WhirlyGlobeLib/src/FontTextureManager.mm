@@ -134,6 +134,7 @@ public:
                 {
                     toRemove.push_back(glyphInfo->subTex);
                     glyphs.erase(git);
+                    delete glyphInfo;
                 }
             }
         }        
