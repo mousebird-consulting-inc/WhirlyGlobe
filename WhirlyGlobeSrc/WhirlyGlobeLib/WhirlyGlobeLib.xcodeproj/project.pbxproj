@@ -97,6 +97,8 @@
 		2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F8F9137DA864004326A9 /* VectorDatabase.mm */; };
 		2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */; };
 		2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66298213418D9A00A78F16 /* TextureAtlas.mm */; };
+		2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */; };
+		2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */; };
 		2B7AD8B01649DD06006C9E75 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7AD8AF1649DD06006C9E75 /* Lighting.h */; };
 		2B7AD8B31649DF80006C9E75 /* Lighting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7AD8B21649DF80006C9E75 /* Lighting.mm */; };
 		2B7EF31815FF95CF00D4079F /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7EF31715FF95CF00D4079F /* MaplyScene.h */; };
@@ -504,6 +506,8 @@
 		2B65F90D137DBEF3004326A9 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
 		2B66298013417DF700A78F16 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
 		2B66298213418D9A00A78F16 /* TextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureAtlas.mm; sourceTree = "<group>"; };
+		2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkManager.h; sourceTree = "<group>"; };
+		2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SphericalEarthChunkManager.mm; path = src/SphericalEarthChunkManager.mm; sourceTree = SOURCE_ROOT; };
 		2B6B3395147B5DE900771FEF /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
 		2B7AD8AF1649DD06006C9E75 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
 		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
@@ -1459,6 +1463,7 @@
 				2BA2328A17986ACA0063CC84 /* VectorManager.h */,
 				2BB25923177A042F00770619 /* SceneGraphManager.h */,
 				2B308B10171F638F006D7273 /* SelectionManager.h */,
+				2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1471,6 +1476,7 @@
 				2BA2329317986AE90063CC84 /* MarkerManager.mm */,
 				2BA2329417986AE90063CC84 /* ShapeManager.mm */,
 				2BA2329517986AE90063CC84 /* VectorManager.mm */,
+				2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1912,6 +1918,7 @@
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
+				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2248,6 +2255,7 @@
 				2BA2329817986AE90063CC84 /* MarkerManager.mm in Sources */,
 				2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */,
 				2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */,
+				2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
