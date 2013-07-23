@@ -31,6 +31,7 @@
 #import "MarkerManager.h"
 #import "LabelManager.h"
 #import "VectorManager.h"
+#import "SphericalEarthChunkManager.h"
 
 namespace WhirlyKit
 {
@@ -68,6 +69,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKLabelManager, new LabelManager());
     // Vector manager handes vector features
     addManager(kWKVectorManager, new VectorManager());
+    // Chunk manager handles geographic chunks that cover a large chunk of the globe
+    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
