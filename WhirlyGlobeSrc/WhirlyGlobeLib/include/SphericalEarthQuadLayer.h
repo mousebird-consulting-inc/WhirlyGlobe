@@ -46,4 +46,7 @@
 /// Initialize with name of the plist the defines the image data set
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
 
+/// Initialize with the plist and the image format for the quad loader
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)renderer;
+
 @end

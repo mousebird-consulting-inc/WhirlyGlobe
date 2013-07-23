@@ -513,6 +513,7 @@ void LoadedTile::Print(Quadtree *tree)
 @synthesize useDynamicAtlas;
 @synthesize tileScale;
 @synthesize fixedTileSize;
+@synthesize textureAtlasSize;
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -538,6 +539,7 @@ void LoadedTile::Print(Quadtree *tree)
         tileScale = WKTileScaleNone;
         fixedTileSize = 256;
         texelBinSize = 64;
+        textureAtlasSize = 2048;
     }
     
     return self;
@@ -1272,7 +1274,7 @@ static const int SingleElementSize = sizeof(GLushort);
             // Two triangles per grid cell in a tile
             int ElementBufferSize = ceil((2 * 6 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
             int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
-            texAtlas = new DynamicTextureAtlas(2048,texSortSize,[self glFormat]);
+            texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,[self glFormat]);
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager(),NULL,programId);
             
             // We want some room around these

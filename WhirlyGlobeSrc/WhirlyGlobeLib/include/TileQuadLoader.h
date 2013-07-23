@@ -259,6 +259,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
     
     /// If the tile scale is fixed, this is the size it's fixed to (256 by default)
     int fixedTileSize;
+    
+    /// If set, the default texture atlas size.  Must be a power of two.
+    int textureAtlasSize;
 }
 
 @property (nonatomic,assign) int drawOffset;
@@ -276,6 +279,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) bool useDynamicAtlas;
 @property (nonatomic,assign) WhirlyKitTileScaleType tileScale;
 @property (nonatomic,assign) int fixedTileSize;
+@property (nonatomic,assign) int textureAtlasSize;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
