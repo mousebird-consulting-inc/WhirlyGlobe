@@ -1,5 +1,5 @@
 /*
- *  WGVectorObject.h
+ *  MaplyVectorObject.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
@@ -20,6 +20,9 @@
 
 #import <Foundation/Foundation.h>
 #import <MaplyCoordinate.h>
+
+/// Data type for the vector.  Multi means it contains multiple types
+typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,MaplyVectorArealType,MaplyVectorMultiType} MaplyVectorObjectType;
 
 /** Maply Component Vector Object.
     This can represent one or more vector features parsed out of GeoJSON or
@@ -65,6 +68,9 @@
 
 /// Add a hole to an existing areal feature
 - (void)addHole:(MaplyCoordinate *)coords numCoords:(int)numCoords;
+
+/// Vector type.  Multi means it's more than one type
+- (MaplyVectorObjectType)vectorType;
 
 /// For areal features, check if the given point is inside
 - (bool)pointInAreal:(MaplyCoordinate)coord;

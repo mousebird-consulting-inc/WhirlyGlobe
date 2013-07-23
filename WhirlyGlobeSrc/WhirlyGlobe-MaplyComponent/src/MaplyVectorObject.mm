@@ -215,6 +215,39 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (MaplyVectorObjectType)vectorType
+{
+    if (shapes.empty())
+        return MaplyVectorMultiType;
+
+    MaplyVectorObjectType type = MaplyVectorNoneType;
+    for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+    {
+        MaplyVectorObjectType thisType = MaplyVectorNoneType;
+        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        if (points)
+            thisType = MaplyVectorPointType;
+        else {
+            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (lin)
+                thisType = MaplyVectorLinearType;
+            else {
+                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                    thisType = MaplyVectorArealType;
+            }
+        }
+        
+        if (type == MaplyVectorNoneType)
+            type = thisType;
+        else
+            if (type != thisType)
+                return MaplyVectorMultiType;
+    }
+    
+    return type;
+}
+
 // Look for areals that this point might be inside
 - (bool)pointInAreal:(MaplyCoordinate)coord
 {
