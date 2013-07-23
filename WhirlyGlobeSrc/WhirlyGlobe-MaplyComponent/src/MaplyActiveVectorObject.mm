@@ -24,6 +24,7 @@
 #import "WhirlyGlobe.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplySharedAttributes.h"
+#import "ShapeManager.h"
 
 using namespace WhirlyKit;
 
@@ -83,134 +84,112 @@ static void SampleGreatCircle(const VectorRing &inPts,std::vector<Point3f> &pts,
 
 @implementation MaplyActiveLinearVectorObject
 {
-    bool changed;
-    WhirlyKitShapeInfo *shapeInfo;
-    float height;
-    int minSample;
-    bool closed;
-    std::vector<Point3f> srcPts;
-    // IDs for the drawables we're using
-    SimpleIDSet drawIDs;
+    MaplyVectorObject *vecObj;
+    float globeEps;
     NSDictionary *desc;
+    SimpleIDSet shapeIDs;
 }
 
-- (id)initWithDesc:(NSDictionary *)descDict
+- (void)setWithVector:(MaplyVectorObject *)newVecObj desc:(NSDictionary *)inDesc eps:(float)inEps
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    changed = false;
-    desc = descDict;
-    shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:nil desc:desc];
-    height = [desc floatForKey:kMaplyVecHeight default:0.0];
-    minSample = [desc intForKey:kMaplyVecMinSample default:1];
-    
-    return self;
-}
-
-- (void)setPoints:(MaplyCoordinate3d *)coords numPts:(int)numPts closed:(bool)isClosed
-{
-    closed = isClosed;
-    srcPts.resize(numPts);
-    for (unsigned int ii=0;ii<numPts;ii++)
+    if (dispatchQueue)
     {
-        MaplyCoordinate3d *coord = &coords[ii];
-        srcPts[ii] = Point3f(coord->x,coord->y,coord->z);
-    }
-    changed = true;
-}
-
-- (void)setFromVector:(MaplyVectorObject *)vecObj
-{
-    changed = true;
-    srcPts.clear();
-    
-    ShapeSet &shapes = vecObj.shapes;
-    if (shapes.size() == 1)
-    {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(shapes.begin()));
-        if (lin)
+        dispatch_async(dispatchQueue,
+                       ^{
+                           @synchronized(self)
+                           {
+                               vecObj = newVecObj;
+                               desc = inDesc;
+                               globeEps = inEps;
+                               [self update];
+                           }
+                       }
+                       );
+    } else {
+        @synchronized(self)
         {
-            srcPts.reserve(lin->pts.size());
-            for (unsigned int ii=0;ii<lin->pts.size();ii++)
-            {
-                const Point2f &pt = lin->pts[ii];
-                srcPts.push_back(Point3f(pt.x(),pt.y(),0.0));
-            }
+            vecObj = newVecObj;
+            desc = inDesc;
+            globeEps = inEps;
+            [self update];
         }
     }
 }
 
-- (void)setGlobeEps:(float)globeEps
+- (void)extractPoints:(VectorRing &)pts fromVec:(MaplyVectorObject *)theVecObj
 {
-    _globeEps = globeEps;
-    changed = true;
-}
-
-- (bool)hasUpdate
-{
-    return changed;
-}
-
-
-// Flush out changes to the scene
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
-{
-    if (!changed)
+    if (theVecObj.shapes.empty())
         return;
     
-    ChangeSet changes;
-    // Get rid of the old drawables
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    drawIDs.clear();
-
-    // Construct new ones
-    if (srcPts.size() > 0)
+    VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*(theVecObj.shapes.begin()));
+    if (areal && areal->loops.size())
     {
-        std::vector<Point3f> outPts;
-        VectorRing inPts;
-        inPts.resize(srcPts.size());
-        for (unsigned int ii=0;ii<srcPts.size();ii++)
+        pts = areal->loops[0];
+        return;
+    }
+    
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(theVecObj.shapes.begin()));
+    if (lin)
+    {
+        pts.resize(lin->pts.size());
+        for (unsigned int ii=0;ii<lin->pts.size();ii++)
         {
-            Point3f &coord = srcPts[ii];
-            inPts[ii] = Point2f(coord.x(),coord.y());
+            Point2f &coord = lin->pts[ii];
+            pts[ii] = Point2f(coord.x(),coord.y());
         }
-        if (_globeEps > 0.0)
+    }
+}
+
+- (void)update
+{
+    ChangeSet changes;
+    
+    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+    
+    if (shapeManager && !shapeIDs.empty())
+        shapeManager->removeShapes(shapeIDs, changes);
+    shapeIDs.clear();
+    
+    // Construct new ones
+    if (vecObj)
+    {
+        float height = [desc floatForKey:kMaplyVecHeight default:0.0];
+        float minSample = [desc intForKey:kMaplyVecMinSample default:1];
+
+        VectorRing inPts;
+        [self extractPoints:inPts fromVec:vecObj];
+        std::vector<Point3f> outPts;
+        
+        if (globeEps > 0.0)
         {
-            SampleGreatCircle(inPts, outPts, height, _globeEps, minSample, scene->getCoordAdapter());
+            SampleGreatCircle(inPts, outPts, height, globeEps, minSample, scene->getCoordAdapter());
             // Note: Z buffer res at the end is a hack
 //            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, drawOffset*0.0001);
         } else {
             // Just use a really large number to at least run it through the reprojection
-            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), _globeEps, 1.0, minSample);
+            SubdivideEdgesToSurfaceGC(inPts, outPts, false, scene->getCoordAdapter(), globeEps, 1.0, minSample);
         }
-            
-        Mbr drawMbr;
-        drawMbr.addPoints(inPts);
         
-        ShapeDrawableBuilder drawBuild(scene->getCoordAdapter(),shapeInfo,true);
-        drawBuild.addPoints(outPts, [shapeInfo.color asRGBAColor], drawMbr, shapeInfo.lineWidth, false);
-        drawBuild.flush();
-        drawBuild.getChanges(changes, drawIDs);
+        WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
+        lin.pts = outPts;
+        if (shapeManager)
+        {
+            SimpleIdentity shapeID = shapeManager->addShapes(@[lin], desc, changes);
+            if (shapeID != EmptyIdentity)
+                shapeIDs.insert(shapeID);
+        }
     }
     
     scene->addChangeRequests(changes);
-    
-    changed = false;
 }
 
 - (void)shutdown
 {
-    ChangeSet changes;
-    // Get rid of the old drawables
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    scene->addChangeRequests(changes);
-    drawIDs.clear();
+    @synchronized(self)
+    {
+        vecObj = nil;
+        [self update];
+    }
 }
 
 @end

@@ -26,10 +26,10 @@
   */
 @interface MaplyActiveObject : NSObject
 
-/// Initialize with the appropriate description dictionary
-- (id)initWithDesc:(NSDictionary *)descDict;
+/// Default initialization.  Updates will happen on the main queue.
+- (id)init;
 
-/// Description dictionary for the object
-@property (nonatomic) NSDictionary *desc;
+/// If initialize this way the active object will be updated on the given queue
+- (id)initWithQueue:(dispatch_queue_t)dispatchQueue;
 
 @end

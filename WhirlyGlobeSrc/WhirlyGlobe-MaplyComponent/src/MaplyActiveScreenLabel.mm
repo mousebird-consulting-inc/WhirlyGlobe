@@ -22,78 +22,59 @@
 #import "WhirlyGlobe.h"
 #import "MaplyActiveObject_private.h"
 #import "LayoutManager.h"
+#import "LabelManager.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyActiveScreenLabel
 {
-    bool changed;
+    MaplyScreenLabel *screenLabel;
+    NSDictionary *desc;
     UIImage *iconImage;
-    SimpleIDSet drawIDs;
-    SimpleIDSet screenIDs;
     SimpleIdentity iconTexId;
+    SimpleIDSet labelIDs;
 }
 
-- (id)initWithDesc:(NSDictionary *)descDict
+- (void)setScreenLabel:(MaplyScreenLabel *)newLabel desc:(NSDictionary *)inDesc
 {
-    self = [super init];
-    if (!self)
-        return nil;
+    if (dispatchQueue)
+    {
+        dispatch_async(dispatchQueue,
+                       ^{
+                           @synchronized(self)
+                           {
+                               screenLabel = newLabel;
+                               desc = inDesc;
+                               [self update];
+                           }
+                       }
+                       );
+    } else {
+        @synchronized(self)
+        {
+            screenLabel = newLabel;
+            desc = inDesc;
+            [self update];
+        }
+    }
     
-    changed = false;
-    self.desc = descDict;
-    
-    return self;
-}
-
-- (void)setScreenLabel:(MaplyScreenLabel *)newScreenLabel
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
-    
-    changed = true;
-    _screenLabel = newScreenLabel;
-}
-
-- (void)setDesc:(NSDictionary *)inDesc
-{
-    super.desc = inDesc;
-    changed = true;
-}
-
-- (bool)hasUpdate
-{
-    return changed;
 }
 
 // Flush out changes to the scene
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)update
 {
-    if (!changed)
-        return;
-    
     ChangeSet changes;
     
-    // Remove the old label
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    drawIDs.clear();
-    for (SimpleIDSet::iterator it = screenIDs.begin();
-         it != screenIDs.end(); ++it)
-        changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    if (layoutManager && !screenIDs.empty())
-    {
-        layoutManager->removeLayoutObjects(screenIDs);
-        screenIDs.clear();
-    }
-
+    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    if (labelManager)
+        labelManager->removeLabels(labelIDs,changes);
+    labelIDs.clear();
+    
     SimpleIdentity removeTexId = EmptyIdentity;
-    if (_screenLabel)
+    if (screenLabel)
     {
         // Possibly get rid of the image too
-        if (iconImage && _screenLabel.iconImage != iconImage)
+        if (iconImage && screenLabel.iconImage != iconImage)
         {
             removeTexId = iconTexId;
             iconTexId = EmptyIdentity;
@@ -101,92 +82,60 @@ using namespace WhirlyKit;
         }
 
         // And make a new one
-        if (_screenLabel.iconImage != iconImage)
+        if (screenLabel.iconImage != iconImage)
         {
-            Texture *tex = new Texture("Active ScreenLabel",_screenLabel.iconImage);
+            Texture *tex = new Texture("Active ScreenLabel",screenLabel.iconImage);
             iconTexId = tex->getId();
-            iconImage = _screenLabel.iconImage;
+            iconImage = screenLabel.iconImage;
             changes.push_back(new AddTextureReq(tex));            
         }
         
         WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
         NSMutableDictionary *locDesc = [NSMutableDictionary dictionary];
-        wgLabel.loc = GeoCoord(_screenLabel.loc.x,_screenLabel.loc.y);
-        wgLabel.text = _screenLabel.text;
+        wgLabel.loc = GeoCoord(screenLabel.loc.x,screenLabel.loc.y);
+        wgLabel.text = screenLabel.text;
         wgLabel.iconTexture = iconTexId;
-        wgLabel.iconSize = _screenLabel.iconSize;
-        if (_screenLabel.size.width > 0.0)
-            [locDesc setObject:[NSNumber numberWithFloat:_screenLabel.size.width] forKey:@"width"];
-        if (_screenLabel.size.height > 0.0)
-            [locDesc setObject:[NSNumber numberWithFloat:_screenLabel.size.height] forKey:@"height"];
-        if (_screenLabel.color)
-            [locDesc setObject:_screenLabel.color forKey:@"textColor"];
-        if (_screenLabel.layoutImportance != MAXFLOAT)
+        wgLabel.iconSize = screenLabel.iconSize;
+        if (screenLabel.size.width > 0.0)
+            [locDesc setObject:[NSNumber numberWithFloat:screenLabel.size.width] forKey:@"width"];
+        if (screenLabel.size.height > 0.0)
+            [locDesc setObject:[NSNumber numberWithFloat:screenLabel.size.height] forKey:@"height"];
+        if (screenLabel.color)
+            [locDesc setObject:screenLabel.color forKey:@"textColor"];
+        if (screenLabel.layoutImportance != MAXFLOAT)
         {
             [locDesc setObject:@(YES) forKey:@"layout"];
-            [locDesc setObject:@(_screenLabel.layoutImportance) forKey:@"layoutImportance"];
-            [locDesc setObject:@(_screenLabel.layoutPlacement) forKey:@"layoutPlacement"];
+            [locDesc setObject:@(screenLabel.layoutImportance) forKey:@"layoutImportance"];
+            [locDesc setObject:@(screenLabel.layoutPlacement) forKey:@"layoutPlacement"];
         }
-        wgLabel.screenOffset = _screenLabel.offset;
-        // Note: Not allowing selection for the moment
+        wgLabel.screenOffset = screenLabel.offset;
+        if (screenLabel.selectable)
+        {
+            wgLabel.isSelectable = true;
+            wgLabel.selectID = Identifiable::genId();
+        }
         wgLabel.isSelectable = false;
         if ([locDesc count] > 0)
             wgLabel.desc = locDesc;
-
-        WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:wgLabel] desc:self.desc];
-        labelInfo.screenObject = true;
-
-        // Set up the representation (but then hand it off)
-        LabelSceneRep *labelRep = new LabelSceneRep();
-        labelRep->fade = labelInfo.fade;
         
-        // Set up the label renderer
-        WhirlyKitLabelRenderer *labelRenderer = [[WhirlyKitLabelRenderer alloc] init];
-        labelRenderer->labelInfo = labelInfo;
-        labelRenderer->textureAtlasSize = 0;
-        labelRenderer->coordAdapter = scene->getCoordAdapter();
-        labelRenderer->labelRep = labelRep;
-        labelRenderer->scene = scene;
-        labelRenderer->fontTexManager = scene->getFontTextureManager();
-        labelRenderer->screenGenId = scene->getScreenSpaceGeneratorID();
-        
-        [labelRenderer render];
-        
-        // Now harvest the results
-        changes.insert(changes.end(), labelRenderer->changeRequests.begin(), labelRenderer->changeRequests.end());
-        scene->addChangeRequests(changes);
-        if (layoutManager)
-            layoutManager->addLayoutObjects(labelRenderer->layoutObjects);
-        labelRenderer->changeRequests.clear();
-        drawIDs = labelRep->drawIDs;
-        screenIDs = labelRep->screenIDs;
-        // Note: Not expecting textures from the label renderer
-    } else
-    scene->addChangeRequests(changes);
+        if (labelManager)
+        {
+            SimpleIdentity labelID = labelManager->addLabels(@[wgLabel], desc, changes);
+            if (labelID != EmptyIdentity)
+                labelIDs.insert(labelID);
+        }
+    }
     
-    changed = false;
+    scene->addChangeRequests(changes);
 }
 
 - (void)shutdown
 {
-    ChangeSet changes;
-
-    // Get rid of drawables and screen objects
-    for (SimpleIDSet::iterator it = drawIDs.begin();it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    drawIDs.clear();
-    for (SimpleIDSet::iterator it = screenIDs.begin();it != screenIDs.end(); ++it)
-        changes.push_back(new ScreenSpaceGeneratorRemRequest(scene->getScreenSpaceGeneratorID(), *it));
-    if (iconTexId != EmptyIdentity)
-        changes.push_back(new RemTextureReq(iconTexId));
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    if (layoutManager && !screenIDs.empty())
+    @synchronized(self)
     {
-        layoutManager->removeLayoutObjects(screenIDs);
-        screenIDs.clear();
+        screenLabel = nil;
+        [self update];
     }
-    
-    scene->addChangeRequests(changes);
 }
 
 
