@@ -42,14 +42,14 @@ BillboardSceneRep::~BillboardSceneRep()
 {    
 }
     
-void BillboardSceneRep::clearContents(std::vector<ChangeRequest *> &changes)
+void BillboardSceneRep::clearContents(ChangeSet &changes)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
         changes.push_back(new RemDrawableReq(*it));
 }
     
-BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId)
+BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId)
     : scene(scene), changes(changes), sceneRep(sceneRep), billInfo(billInfo), drawable(NULL), billboardProgram(billboardProgram), texId(texId)
 {
 }
@@ -197,7 +197,7 @@ void BillboardDrawableBuilder::flush()
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     
     for (BillboardSceneRepSet::iterator it = sceneReps.begin();
          it != sceneReps.end(); ++it)
@@ -215,7 +215,7 @@ typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
     BillboardSceneRep *sceneRep = new BillboardSceneRep(billboardInfo.billboardId);
     sceneRep->fade = billboardInfo.fade;
     
-    std::vector<ChangeRequest *>changes;
+    ChangeSet changes;
     
     // Might need to remove an old set of billboards
     if (billboardInfo.replaceId != EmptyIdentity)
@@ -267,7 +267,7 @@ typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
 - (void)runRemoveBillboards:(NSNumber *)num
 {
     SimpleIdentity billId = [num unsignedIntValue];
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     
     BillboardSceneRep dummyRep(billId);
     BillboardSceneRepSet::iterator it = sceneReps.find(&dummyRep);

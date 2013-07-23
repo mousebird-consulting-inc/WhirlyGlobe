@@ -161,7 +161,7 @@ using namespace WhirlyKit;
 
     bool requiresFlush = false;
     // Set up anything that needs to be set up
-    std::vector<ChangeRequest *> changesToAdd;
+    ChangeSet changesToAdd;
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
     {
         ChangeRequest *change = changeRequests[ii];

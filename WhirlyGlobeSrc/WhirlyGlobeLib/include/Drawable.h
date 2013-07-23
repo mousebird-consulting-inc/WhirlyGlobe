@@ -128,6 +128,9 @@ public:
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
 };
+    
+/// Representation of a list of changes.  Might get more complex in the future.
+typedef std::vector<ChangeRequest *> ChangeSet;
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
     methods.  In general, use the BasicDrawable.

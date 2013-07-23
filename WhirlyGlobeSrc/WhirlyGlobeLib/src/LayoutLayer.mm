@@ -146,7 +146,7 @@ static const float DelayPeriod = 0.1;
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)
             {
-        std::vector<ChangeRequest *> changes;
+        ChangeSet changes;
         layoutManager->updateLayout(viewState,changes);
         [layerThread addChangeRequests:changes];
         }

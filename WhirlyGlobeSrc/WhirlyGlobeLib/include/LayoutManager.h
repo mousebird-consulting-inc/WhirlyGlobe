@@ -47,7 +47,7 @@ class LayoutObject : public Identifiable
 {
 public:
     LayoutObject();
-    LayoutObject(SimpleIdentity theId) : Identifiable(theId) { }
+    LayoutObject(SimpleIdentity theId);
     
     /// Any other objects we want to enable or disable in connection with this one.
     /// Think map icon.
@@ -122,7 +122,7 @@ public:
     void removeLayoutObjects(const SimpleIDSet &oldObjects);
     
     /// Run the layout logic for everything we're aware of (thread safe)
-    void updateLayout(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes);
+    void updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes);
         
     /// True if we've got changes since the last update
     bool hasChanges();

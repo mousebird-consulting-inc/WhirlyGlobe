@@ -508,7 +508,7 @@ static unsigned short CacheFileVersion = 1;
 - (void)shutdown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     
     for (GeomSceneRepSet::iterator it = geomReps.begin();
          it != geomReps.end(); ++it)
@@ -523,7 +523,7 @@ static unsigned short CacheFileVersion = 1;
 // In the layer thread here
 - (void)runAddGeometry:(GeomInfo *)geomInfo
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     GeomSceneRepRef geomRep(new GeomSceneRep());
     geomRep->setId(geomInfo->sceneRepId);
     

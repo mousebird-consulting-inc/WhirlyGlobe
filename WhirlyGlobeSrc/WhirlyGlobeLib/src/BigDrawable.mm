@@ -526,7 +526,7 @@ void BigDrawable::executeFlush(int whichBuffer)
 // If set, we'll do the flushes on the main thread
 static const bool MainThreadFlush = false;
     
-void BigDrawable::swap(std::vector<ChangeRequest *> &changes,BigDrawableSwap *swapRequest)
+void BigDrawable::swap(ChangeSet &changes,BigDrawableSwap *swapRequest)
 {
     // If we're waiting on a swap, no flushing
     if (isWaitingOnSwap())

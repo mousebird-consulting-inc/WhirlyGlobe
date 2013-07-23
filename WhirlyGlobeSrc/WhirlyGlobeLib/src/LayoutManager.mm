@@ -106,6 +106,13 @@ LayoutObject::LayoutObject()
 {
 }    
     
+LayoutObject::LayoutObject(SimpleIdentity theId) : Identifiable(theId),
+    dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
+    maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+{
+    
+}
+    
 LayoutManager::LayoutManager()
     : maxDisplayObjects(0), hasUpdates(false)
 {
@@ -318,7 +325,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
 static float const DisappearFade = 0.1;
 
 // Layout all the objects we're tracking
-void LayoutManager::updateLayout(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes)
+void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
 {
     pthread_mutex_lock(&layoutLock);
 

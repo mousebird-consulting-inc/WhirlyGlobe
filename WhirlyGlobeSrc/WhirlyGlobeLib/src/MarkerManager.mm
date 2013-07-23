@@ -36,7 +36,7 @@ MarkerSceneRep::MarkerSceneRep()
     selectID = EmptyIdentity;
 }
     
-void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,std::vector<ChangeRequest *> &changes)
+void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes)
 {
     // Just delete everything
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
@@ -169,7 +169,7 @@ MarkerManager::~MarkerManager()
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
-SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,std::vector<ChangeRequest *> &changes)
+SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,ChangeSet &changes)
 {
     WhirlyKitMarkerInfo *markerInfo = [[WhirlyKitMarkerInfo alloc] initWithMarkers:markers desc:desc];
 
@@ -425,7 +425,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,std
     return markerInfo.markerId;
 }
 
-void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,std::vector<ChangeRequest *> &changes)
+void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
@@ -472,7 +472,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,std::vector<ChangeReque
                                ^{
                                    SimpleIDSet theseMarkerIDs;
                                    theseMarkerIDs.insert(markerID);
-                                   std::vector<ChangeRequest *> delChanges;
+                                   ChangeSet delChanges;
                                    removeMarkers(theseMarkerIDs,delChanges);
                                    scene->addChangeRequests(delChanges);
                                }

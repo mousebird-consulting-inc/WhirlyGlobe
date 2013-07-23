@@ -56,7 +56,7 @@ public:
     ~BillboardSceneRep();
     
     // Clear the contents out of the scene
-    void clearContents(std::vector<ChangeRequest *> &changes);
+    void clearContents(ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     float fade;  // Time to fade away for removal
@@ -68,7 +68,7 @@ typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
 class BillboardDrawableBuilder
 {
 public:
-    BillboardDrawableBuilder(Scene *scene,std::vector<ChangeRequest *> &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
+    BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
     
     void addBillboard(Point3f center,float width,float height,UIColor *color);
@@ -77,7 +77,7 @@ public:
     
 protected:
     Scene *scene;
-    std::vector<ChangeRequest *> &changes;
+    ChangeSet &changes;
     Mbr drawMbr;
     BillboardDrawable *drawable;
     WhirlyKitBillboardInfo *billInfo;

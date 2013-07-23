@@ -37,7 +37,7 @@ public:
     ~ShapeSceneRep();
     
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManager *selectManager,std::vector<ChangeRequest *> &changeRequests);
+    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests);
     
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
@@ -162,10 +162,10 @@ public:
     virtual ~ShapeManager();
     
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-    SimpleIdentity addShapes(NSArray *shapes,NSDictionary * desc,std::vector<ChangeRequest *> &changes);
+    SimpleIdentity addShapes(NSArray *shapes,NSDictionary * desc,ChangeSet &changes);
     
     /// Remove a group of shapes named by the given ID
-    void removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest *> &changes);
+    void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);
     
 protected:
     pthread_mutex_t shapeLock;

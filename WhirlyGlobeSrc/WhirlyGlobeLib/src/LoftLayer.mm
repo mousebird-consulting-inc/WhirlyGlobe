@@ -485,7 +485,7 @@ protected:
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     
     for (LoftedPolySceneRepMap::iterator it = polyReps.begin();
          it != polyReps.end(); ++it)

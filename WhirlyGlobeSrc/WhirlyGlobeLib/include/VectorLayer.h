@@ -1,5 +1,5 @@
 /*
- *  ShapeDisplay.h
+ *  VectorLayer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
@@ -28,31 +28,7 @@
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "LayerThread.h"
-
-namespace WhirlyKit
-{
-
-/*  This is the representation of a group of vectors
-    in the scene.  You do not want to create individual
-    vector features on the globe one by one, that's too expensive.
-    It needs to be batched and that's how we do this.
-    The VectorSceneRep keeps track of what shapes are being
-    represented by what drawables in the scene.  We use this
-    for modifications or deletions later on.
- */
-class VectorSceneRep : public Identifiable
-{
-public:
-    VectorSceneRep() { }
-    VectorSceneRep(ShapeSet &inShapes) : shapes(inShapes) { };
-    
-    ShapeSet shapes;  // Shapes associated with this
-    SimpleIDSet drawIDs;    // The drawables we created
-    float fade;       // If set, the amount of time to fade out before deletion
-};
-typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
-
-}
+#import "VectorManager.h"
 
 /** The Vector Display Layer will add vector objects on top of the
     globe as requested by a caller.  To keep things efficient, you
@@ -86,9 +62,6 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 @private
     WhirlyKit::Scene *scene;
     WhirlyKitLayerThread * __weak layerThread;
-    
-    // Visual representations of vectors
-    WhirlyKit::VectorSceneRepMap vectorReps;    
 }
 
 /// Called in the layer thread

@@ -97,17 +97,17 @@ public:
     virtual ~SceneGraphManager();
     
     /// Add a drawable to be referenced by the scenegraph
-    void addDrawable(Drawable *draw,std::vector<ChangeRequest *> &changes);
+    void addDrawable(Drawable *draw,ChangeSet &changes);
     
     /// Add the given scenegraph fragment
     void attachSceneFragment(SimpleIdentity attachID,SceneGraphNode *node);
 
     /// Remove the given scenegraph fragment (by ID)
-    void removeSceneFragment(SimpleIdentity nodeID,std::vector<ChangeRequest *> &changes);
+    void removeSceneFragment(SimpleIdentity nodeID,ChangeSet &changes);
     
     /// Run the position calculations and update what we'll display.
     /// The changes need to be flushed by the caller
-    void update(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes);
+    void update(WhirlyKitViewState *viewState,ChangeSet &changes);
     
     /// Print out stats for debugging
     void dumpStats();
@@ -120,13 +120,13 @@ protected:
     void traverseAddNodeIDs(SceneGraphNode *node);
     
     // Remove the various Node IDS from our full set
-    void traverseRemNodeIDs(SceneGraphNode *node,std::vector<ChangeRequest *> &changes);
+    void traverseRemNodeIDs(SceneGraphNode *node,ChangeSet &changes);
     
     // Look for a drawable by ID
     Drawable *getDrawable(SimpleIdentity drawID);
     
     // Remove the given drawable by ID (if it's there)
-    void removeDrawable(SimpleIdentity drawID,std::vector<ChangeRequest *> &changes);
+    void removeDrawable(SimpleIdentity drawID,ChangeSet &changes);
     
     // Top level nodes in the scenegraph
     typedef std::set<SceneGraphGroup *,WhirlyKit::IdentifiableSorter> NodeSet;
