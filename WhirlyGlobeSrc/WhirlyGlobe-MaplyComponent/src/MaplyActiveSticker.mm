@@ -79,7 +79,7 @@ using namespace WhirlyKit;
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     // Get rid of the old drawables
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
@@ -157,7 +157,7 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     // Get rid of the old drawables
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)

@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes,bool enabled)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled)
 {
     // See if we're already representing it
     {
@@ -161,7 +161,7 @@ void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
         bigDraw->setEnableRegion(represent.elementChunkId,enabled);
 }
 
-bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes)
+bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation
     DrawRepresent represent(drawId);
@@ -214,7 +214,7 @@ bool DynamicDrawableAtlas::hasUpdates()
     return false;
 }
     
-void DynamicDrawableAtlas::swap(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel)
+void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL sel)
 {
     BigDrawableSwap *swapRequest = new BigDrawableSwap(target,sel);
     changes.push_back(swapRequest);
@@ -240,12 +240,12 @@ bool DynamicDrawableAtlas::waitingOnSwap()
     return false;
 }
     
-void DynamicDrawableAtlas::addSwapChanges(const std::vector<ChangeRequest *> &inSwapChanges)
+void DynamicDrawableAtlas::addSwapChanges(const ChangeSet &inSwapChanges)
 {
     swapChanges.insert(swapChanges.end(), inSwapChanges.begin(), inSwapChanges.end());
 }
     
-void DynamicDrawableAtlas::shutdown(std::vector<ChangeRequest *> &changes)
+void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new RemDrawableReq((*it)->getId()));

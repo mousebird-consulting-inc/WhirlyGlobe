@@ -173,7 +173,7 @@ void ShapeDrawableBuilder::flush()
     }
 }
 
-void ShapeDrawableBuilder::getChanges(std::vector<ChangeRequest *> &changeRequests,SimpleIDSet &drawIDs)
+void ShapeDrawableBuilder::getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs)
 {
     flush();
     for (unsigned int ii=0;ii<drawables.size();ii++)
@@ -299,7 +299,7 @@ void ShapeDrawableBuilderTri::flush()
     }
 }
     
-void ShapeDrawableBuilderTri::getChanges(std::vector<ChangeRequest *> &changeRequests,SimpleIDSet &drawIDs)
+void ShapeDrawableBuilderTri::getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs)
 {
     flush();
     for (unsigned int ii=0;ii<drawables.size();ii++)

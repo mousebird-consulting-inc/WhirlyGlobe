@@ -289,7 +289,6 @@ static const char *fragmentShaderNoLightLine =
     
     // 2D layout engine layer
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
-    labelLayer.layoutLayer = layoutLayer;
     [layerThread addLayer:layoutLayer];
     
     // Lofted polygon layer

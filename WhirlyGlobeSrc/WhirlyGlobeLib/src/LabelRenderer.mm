@@ -56,7 +56,6 @@ namespace WhirlyKit
 @synthesize minVis,maxVis;
 @synthesize justify;
 @synthesize drawPriority;
-@synthesize labelId;
 @synthesize fade;
 @synthesize shadowColor;
 @synthesize shadowSize;
@@ -103,25 +102,10 @@ namespace WhirlyKit
     {
         self.strs = inStrs;
         [self parseDesc:desc];
-        
-        labelId = WhirlyKit::Identifiable::genId();
     }
     
     return self;
 }
-
-// Initialize a label with data from the description dictionary
-- (id)initWithSceneRepId:(SimpleIdentity)inLabelId desc:(NSDictionary *)desc
-{
-    if ((self = [super init]))
-    {
-        [self parseDesc:desc];
-        labelId = inLabelId;
-    }
-    
-    return self;
-}
-
 
 // Draw into an image of the appropriate size (but no bigger)
 // Also returns the text size, for calculating texture coordinates
@@ -333,8 +317,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     screenShape->drawPriority = labelInfo.drawPriority;
                     screenShape->minVis = labelInfo.minVis;
                     screenShape->maxVis = labelInfo.maxVis;
-                    screenShape->offset.x() = label.screenOffset.width;
-                    screenShape->offset.y() = label.screenOffset.height;
+                    screenShape->offset.x() = 0.0;
+                    screenShape->offset.y() = 0.0;
                     if (label.rotation != 0.0)
                     {
                         screenShape->useRotation = true;
@@ -361,16 +345,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     {
                         ScreenSpaceGenerator::SimpleGeometry smGeom;
                         Point2f ll = drawStr->mbr.ll()+iconOff, ur = drawStr->mbr.ur()+iconOff;
-                        smGeom.coords.push_back(Point2f(ll.x(),-ll.y()));
+                        smGeom.coords.push_back(Point2f(ll.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height));
                         smGeom.texCoords.push_back(TexCoord(0,0));
                        
-                        smGeom.coords.push_back(Point2f(ll.x(),-ur.y()));
+                        smGeom.coords.push_back(Point2f(ll.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height));
                         smGeom.texCoords.push_back(TexCoord(1,0));
 
-                        smGeom.coords.push_back(Point2f(ur.x(),-ur.y()));
+                        smGeom.coords.push_back(Point2f(ur.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height));
                         smGeom.texCoords.push_back(TexCoord(1,1));
 
-                        smGeom.coords.push_back(Point2f(ur.x(),-ll.y()));
+                        smGeom.coords.push_back(Point2f(ur.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height));
                         smGeom.texCoords.push_back(TexCoord(0,1));
 
                         smGeom.color = backColor;
@@ -397,16 +381,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                             // Note: Ignoring the desired size in favor of the font size
                             ScreenSpaceGenerator::SimpleGeometry smGeom;
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[0].y()) + soff + iconOff);
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff);
                             smGeom.texCoords.push_back(poly.texCoords[0]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x(),-poly.pts[1].y()) + soff + iconOff);
+                            smGeom.coords.push_back(Point2f(poly.pts[0].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].v()));
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[1].y()) + soff + iconOff);
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff);
                             smGeom.texCoords.push_back(poly.texCoords[1]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x(),-poly.pts[0].y()) + soff + iconOff);
+                            smGeom.coords.push_back(Point2f(poly.pts[1].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
                             
                             smGeom.texID = poly.subTex.texId;
@@ -489,7 +473,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             iconPts[3] = Point2f(0,iconOff.y());
             for (unsigned int ii=0;ii<4;ii++)
             {
-                iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y()));
+                iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y())+Point2f(label.screenOffset.width,label.screenOffset.height));
                 iconGeom.texCoords.push_back(texCoord[ii]);
             }
             // For layout objects, we'll put the icons on their own

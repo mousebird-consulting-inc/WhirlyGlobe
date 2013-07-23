@@ -51,7 +51,7 @@ using namespace WhirlyGlobe;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     for (unsigned int ii=0;ii<drawIDs.size();ii++)
         changeRequests.push_back(new RemDrawableReq(drawIDs[ii]));
     [layerThread addChangeRequests:changeRequests];

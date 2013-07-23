@@ -41,6 +41,7 @@ class LabelSceneRep : public Identifiable
 {
 public:
     LabelSceneRep();
+    LabelSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LabelSceneRep() { }
     
     float fade;          // Fade interval, for deletion
@@ -50,7 +51,7 @@ public:
     SimpleIDSet screenIDs;  // Screen space objects
     SimpleIdentity selectID;  // Selection rect
 };
-typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
+typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
 }
 
@@ -72,7 +73,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
     float                   minVis,maxVis;
     WhirlyKitLabelJustify            justify;
     int                     drawPriority;
-    WhirlyKit::SimpleIdentity labelId;
     float                   fade;
     UIColor                 *shadowColor;
     float                   shadowSize;
@@ -91,7 +91,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) WhirlyKitLabelJustify justify;
 @property (nonatomic,assign) int drawPriority;
-@property (nonatomic,readonly) WhirlyKit::SimpleIdentity labelId;
 @property (nonatomic,assign) float fade;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
@@ -99,7 +98,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) float outlineSize;
 
 - (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
-- (id)initWithSceneRepId:(WhirlyKit::SimpleIdentity)inLabelId desc:(NSDictionary *)desc;
 
 @end
 

@@ -54,7 +54,7 @@ using namespace WhirlyKit;
 - (void)shutdown
 {
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     
     if (markerManager)
         markerManager->removeMarkers(markerIDs,changes);
@@ -79,7 +79,7 @@ using namespace WhirlyKit;
         return EmptyIdentity;
     }
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     SimpleIdentity markerID = EmptyIdentity;
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     if (markerManager)
@@ -99,7 +99,7 @@ using namespace WhirlyKit;
         return EmptyIdentity;
     }
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     SimpleIdentity markerID = EmptyIdentity;
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     if (markerManager)
@@ -125,7 +125,7 @@ using namespace WhirlyKit;
         return;
     }
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
 
     SimpleIDSet::iterator it = markerIDs.find(markerID);
     if (it != markerIDs.end())

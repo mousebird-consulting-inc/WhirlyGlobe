@@ -74,7 +74,7 @@ using namespace WhirlyGlobe;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     
     for (unsigned int ii=0;ii<drawIDs.size();ii++)
         changeRequests.push_back(new RemDrawableReq(drawIDs[ii]));
@@ -168,7 +168,7 @@ using namespace WhirlyGlobe;
 	}
 	
 	// Now for the changes to the scenegraph
-	std::vector<ChangeRequest *> changeRequests;
+	ChangeSet changeRequests;
 	
 	// Ask for a new texture and wire it to the drawable
 	Texture *tex = new Texture("Spherical Earth Layer",[texGroup generateFileNameX:chunkX y:chunkY],texGroup.ext);

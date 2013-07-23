@@ -259,7 +259,7 @@ static const bool MainThreadMerge = true;
 static const bool MainThreadMerge = false;
 #endif
     
-bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,std::vector<ChangeRequest *> &changes,int borderPixels,int bufferPixels)
+bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels)
 {
     // Make sure we can fit the thing
     if (tex->getWidth() > texSize || tex->getHeight() > texSize)
@@ -349,7 +349,7 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,Point2f *rea
     return found;
 }
     
-void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,std::vector<ChangeRequest *> &changes)
+void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes)
 {
     TextureRegion texRegion;
     texRegion.subTex.setId(subTex.getId());
@@ -381,7 +381,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,std::vector<Cha
     }
 }
     
-void DynamicTextureAtlas::shutdown(std::vector<ChangeRequest *> &changes)
+void DynamicTextureAtlas::shutdown(ChangeSet &changes)
 {
     for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
     {

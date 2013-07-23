@@ -29,6 +29,8 @@
 #import "LayoutManager.h"
 #import "ShapeManager.h"
 #import "MarkerManager.h"
+#import "LabelManager.h"
+#import "VectorManager.h"
 
 namespace WhirlyKit
 {
@@ -62,6 +64,10 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKShapeManager, new ShapeManager());
     // Marker manager handles 2D and 3D markers
     addManager(kWKMarkerManager, new MarkerManager());
+    // Label manager handes 2D and 3D labels
+    addManager(kWKLabelManager, new LabelManager());
+    // Vector manager handes vector features
+    addManager(kWKVectorManager, new VectorManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
@@ -146,7 +152,7 @@ SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
 }
 
 // Add change requests to our list
-void Scene::addChangeRequests(const std::vector<ChangeRequest *> &newChanges)
+void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
     pthread_mutex_lock(&changeRequestLock);
     

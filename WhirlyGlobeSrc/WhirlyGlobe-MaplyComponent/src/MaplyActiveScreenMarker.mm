@@ -66,7 +66,7 @@ using namespace WhirlyKit;
     if (!changed)
         return;
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
 
     // Remove the old marker
     for (SimpleIDSet::iterator it = screenIDs.begin();it != screenIDs.end(); ++it)
@@ -170,7 +170,7 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     
     // Get rid of drawables and screen objects
     for (SimpleIDSet::iterator it = screenIDs.begin();it != screenIDs.end(); ++it)

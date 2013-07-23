@@ -51,7 +51,7 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     if (shapeManager)
         shapeManager->removeShapes(shapeIDs, changes);
@@ -77,7 +77,7 @@ using namespace WhirlyKit;
        return EmptyIdentity;
     }
 
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SimpleIdentity shapeID = EmptyIdentity;
     if (shapeManager)
@@ -101,7 +101,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     if (shapeManager)
     {

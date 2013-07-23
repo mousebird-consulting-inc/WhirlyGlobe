@@ -258,7 +258,7 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
 }
 
 // Clean out the geometry and texture associated with the given tile
-void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<ChangeRequest *> &changeRequests)
+void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,ChangeSet &changeRequests)
 {
     if (drawId != EmptyIdentity)
     {
@@ -316,7 +316,7 @@ bool isValidTile(WhirlyKitQuadDisplayLayer *layer,Mbr theMbr)
 }
 
 // Update based on what children are doing
-void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Quadtree *tree,std::vector<ChangeRequest *> &changeRequests)
+void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Quadtree *tree,ChangeSet &changeRequests)
 {
     bool childrenExist = false;
     
@@ -581,7 +581,7 @@ void LoadedTile::Print(Quadtree *tree)
 {
     [self flushUpdates:layer.layerThread];
     
-    std::vector<ChangeRequest *> theChangeRequests;
+    ChangeSet theChangeRequests;
     
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)

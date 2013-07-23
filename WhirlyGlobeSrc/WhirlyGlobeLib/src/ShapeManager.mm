@@ -43,7 +43,7 @@ ShapeSceneRep::~ShapeSceneRep()
 {
 }
 
-void ShapeSceneRep::clearContents(SelectionManager *selectManager,std::vector<ChangeRequest *> &changeRequests)
+void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changeRequests)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
@@ -363,7 +363,7 @@ ShapeManager::~ShapeManager()
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,std::vector<ChangeRequest *> &changes)
+SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,ChangeSet &changes)
 {
     WhirlyKitShapeInfo *shapeInfo = [[WhirlyKitShapeInfo alloc] initWithShapes:shapes desc:desc];
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
@@ -392,18 +392,18 @@ SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,std::
 }
 
 /// Remove a group of shapes named by the given ID
-void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest *> &changes)
+void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
 
     pthread_mutex_lock(&shapeLock);
     
+    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     for (SimpleIDSet::iterator it = shapeIDs.begin(); it != shapeIDs.end();++it)
     {
         SimpleIdentity shapeID = *it;
         ShapeSceneRep dummyRep(shapeID);
         ShapeSceneRepSet::iterator sit = shapeReps.find(&dummyRep);
-        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (sit != shapeReps.end())
         {
             ShapeSceneRep *shapeRep = *sit;
@@ -419,7 +419,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,std::vector<ChangeRequest 
                                ^{
                                    SimpleIDSet theseShapeIDs;
                                    theseShapeIDs.insert(shapeID);
-                                   std::vector<ChangeRequest *> delChanges;
+                                   ChangeSet delChanges;
                                    removeShapes(theseShapeIDs, delChanges);
                                    scene->addChangeRequests(delChanges);
                                }

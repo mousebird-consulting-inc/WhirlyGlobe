@@ -160,7 +160,7 @@ static void SampleGreatCircle(const VectorRing &inPts,std::vector<Point3f> &pts,
     if (!changed)
         return;
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     // Get rid of the old drawables
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
@@ -204,7 +204,7 @@ static void SampleGreatCircle(const VectorRing &inPts,std::vector<Point3f> &pts,
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     // Get rid of the old drawables
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)

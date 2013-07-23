@@ -65,7 +65,7 @@ public:
     void flush();
     
     /// Retrieve the scene changes and the list of drawable IDs for later
-    void getChanges(std::vector<ChangeRequest *> &changeRequests,SimpleIDSet &drawIDs);
+    void getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs);
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
     
@@ -101,7 +101,7 @@ public:
     void flush();
     
     /// Retrieve the scene changes and the list of drawable IDs for later
-    void getChanges(std::vector<ChangeRequest *> &changeRequests,SimpleIDSet &drawIDs);
+    void getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs);
     
     WhirlyKitShapeInfo *getShapeInfo() { return shapeInfo; }
 
