@@ -389,6 +389,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
     
+    drawString->mbr.reset();
     for (unsigned int ii=0;ii<CFArrayGetCount(runs);ii++)
     {
         CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs,ii);
@@ -461,6 +462,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                     rect.texCoords[1] = TexCoord(1.0,1.0);
                     rect.subTex = glyphInfo->subTex;
                     drawString->glyphPolys.push_back(rect);
+                    drawString->mbr.addPoint(rect.pts[0]);
+                    drawString->mbr.addPoint(rect.pts[1]);
                     
                     glyphsUsed.insert(glyphInfo->glyph);
                 }
@@ -476,8 +479,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     }
     
     // Need the extents for the whole line
-    drawString->mbr.ll() = Point2f(0,-descent);
-    drawString->mbr.ur() = Point2f(lineWidth,ascent);
+//    drawString->mbr.ll() = Point2f(0,-descent);
+//    drawString->mbr.ur() = Point2f(lineWidth,ascent);
     
     CFRelease(line);
 

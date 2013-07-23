@@ -205,6 +205,11 @@ using namespace WhirlyKit;
 
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
+    return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
+}
+
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
+{
     // Data source serves the tiles
     ImageDataSource *theDataSource = [[ImageDataSource alloc] initWithInfo:infoName];
     if (!theDataSource)
@@ -217,6 +222,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
     if (![theDataSource.ext compare:@"pvrtc"])
         [theLoader setImageType:WKTilePVRTC4];
+    theLoader.imageType = imageType;
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];
     if (self)
