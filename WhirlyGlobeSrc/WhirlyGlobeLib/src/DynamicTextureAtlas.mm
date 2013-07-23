@@ -35,8 +35,11 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
     // Check for the formats we'll accept
     switch (inFormat)
     {
-        case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_SHORT_5_6_5:
+            format = GL_RGB;
+            type = inFormat;
+            break;
+        case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_SHORT_4_4_4_4:
         case GL_UNSIGNED_SHORT_5_5_5_1:
             format = GL_RGBA;

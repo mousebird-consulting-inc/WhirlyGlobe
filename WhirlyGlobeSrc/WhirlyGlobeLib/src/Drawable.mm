@@ -889,13 +889,13 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 }
         
 // Move the texture coordinates around and apply a new texture
-void BasicDrawable::applySubTexture(SubTexture subTex)
+void BasicDrawable::applySubTexture(SubTexture subTex,int startingAt)
 {
     texId = subTex.texId;
     
     std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[texCoordEntry]->data;
     
-    for (unsigned int ii=0;ii<texCoords->size();ii++)
+    for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
     {
         Point2f tc = (*texCoords)[ii];
         (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));

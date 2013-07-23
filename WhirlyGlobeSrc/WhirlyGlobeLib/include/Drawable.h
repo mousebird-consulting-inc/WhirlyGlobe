@@ -492,7 +492,7 @@ public:
     const Eigen::Matrix4d *getMatrix() const;
 
     /// Run the texture and texture coordinates based on a SubTexture
-    void applySubTexture(SubTexture subTex);
+    void applySubTexture(SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
