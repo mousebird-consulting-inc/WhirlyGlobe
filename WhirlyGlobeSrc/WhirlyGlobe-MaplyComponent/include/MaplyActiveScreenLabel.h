@@ -33,9 +33,6 @@
      the screen label itself.  If you do, just assign it here again
      so we know that you did.
  */
-@property (nonatomic) MaplyScreenLabel *screenLabel;
-
-/// Initialize with various visual constraints
-- (id)initWithDesc:(NSDictionary *)descDict;
+- (void)setScreenLabel:(MaplyScreenLabel *)newLabel desc:(NSDictionary *)desc;
 
 @end

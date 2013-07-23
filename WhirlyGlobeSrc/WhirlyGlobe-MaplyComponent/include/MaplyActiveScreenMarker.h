@@ -31,9 +31,6 @@
 /// Assign a new one to change things.  Don't just change
 ///  the screen marker itself.  If you do, just assign it here again
 ///  so we know that you did.
-@property (nonatomic,strong) MaplyScreenMarker *screenMarker;
-
-/// Initialize with various visual constraints
-- (id)initWithDesc:(NSDictionary *)descDict;
+- (void)setScreenMarker:(MaplyScreenMarker *)newMarker desc:(NSDictionary *)desc;
 
 @end

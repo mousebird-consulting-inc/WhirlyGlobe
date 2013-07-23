@@ -22,75 +22,58 @@
 #import "WhirlyGlobe.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplySharedAttributes.h"
+#import "SphericalEarthChunkManager.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyActiveSticker
 {
-    bool changed;
-    SimpleIDSet drawIDs;
+    MaplySticker *sticker;
     NSDictionary *desc;
     UIImage *image;
     SimpleIdentity texId;
+    SimpleIDSet chunkIDs;
 }
 
-- (id)initWithDesc:(NSDictionary *)descDict
+- (void)setActiveSticker:(MaplySticker *)newSticker desc:(NSDictionary *)inDesc
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    changed = false;
-    desc = descDict;
-    
-    return self;
-}
-
-- (void)setSticker:(MaplySticker *)newSticker
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
-    
-    changed = true;
-    _sticker = newSticker;
-}
-
-- (void)updateWithDesc:(NSDictionary *)descDict
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
-    
-    changed = true;
-    NSMutableDictionary *temp = [desc mutableCopy];
-    [temp setValuesForKeysWithDictionary:descDict];
-    desc = [temp copy];
-}
-
-- (bool)hasUpdate
-{
-    return changed;
+    if (dispatchQueue)
+    {
+        dispatch_async(dispatchQueue,
+                       ^{
+                           @synchronized(self)
+                           {
+                               sticker = newSticker;
+                               desc = inDesc;
+                               [self update];
+                           }
+                       }
+                       );
+    } else {
+        @synchronized(self)
+        {
+            sticker = newSticker;
+            desc = inDesc;
+            [self update];
+        }
+    }
 }
 
 // Flush out changes to the scene
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)update
 {
-    if (!changed)
-        return;
-
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     ChangeSet changes;
-    // Get rid of the old drawables
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    drawIDs.clear();
+    if (chunkManager && !chunkIDs.empty())
+        chunkManager->removeChunks(chunkIDs, changes);
+    chunkIDs.clear();
 
     SimpleIdentity removeTexId = EmptyIdentity;
-    if (_sticker)
+    if (sticker)
     {
         // Possibly get rid of the image too
-        if (image && _sticker.image != image)
+        if (image && sticker.image != image)
         {
             removeTexId = texId;
             texId = EmptyIdentity;
@@ -98,11 +81,11 @@ using namespace WhirlyKit;
         }
         
         // And make a new one
-        if (_sticker.image != image)
+        if (sticker.image != image)
         {
-            Texture *tex = new Texture("Active Sticker",_sticker.image);
+            Texture *tex = new Texture("Active Sticker",sticker.image);
             texId = tex->getId();
-            image = _sticker.image;
+            image = sticker.image;
             changes.push_back(new AddTextureReq(tex));
             
             // Note: Debugging
@@ -114,17 +97,17 @@ using namespace WhirlyKit;
 //                [imageData writeToFile:[NSString stringWithFormat:@"%@/%ld.png",myPath,texId] atomically:YES];
 //            }
         }
-        
-        // Make some new drawables
+
+        // Build the chunk
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
-        GeoMbr geoMbr = GeoMbr(GeoCoord(_sticker.ll.x,_sticker.ll.y), GeoCoord(_sticker.ur.x,_sticker.ur.y));
+        GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
         chunk.mbr = geoMbr;
         chunk.texId = texId;
         chunk.drawOffset = [desc[@"drawOffset"] floatValue];
         chunk.drawPriority = [desc[@"drawPriority"] floatValue];
         chunk.sampleX = [desc[@"sampleX"] intValue];
         chunk.sampleY = [desc[@"sampleY"] intValue];
-        chunk.rotation = _sticker.rotation;
+        chunk.rotation = sticker.rotation;
         NSNumber *bufRead = desc[kMaplyZBufferRead];
         if (bufRead)
             chunk.readZBuffer = [bufRead boolValue];
@@ -132,44 +115,28 @@ using namespace WhirlyKit;
         if (bufWrite)
             chunk.writeZBuffer = [bufWrite boolValue];
         
-        BasicDrawable *drawable=nil;
-        [chunk buildDrawable:&drawable skirtDraw:nil enabled:true adapter:coordAdapter];
-        if (drawable)
+        if (chunkManager)
         {
-            changes.push_back(new AddDrawableReq(drawable));
-            drawIDs.insert(drawable->getId());
+            SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
+            if (chunkID != EmptyIdentity)
+                chunkIDs.insert(chunkID);
         }
-        // No skirts for these
-//        if (skirtDrawable)
-//        {
-//            changes.push_back(new AddDrawableReq(skirtDrawable));
-//            drawIDs.insert(skirtDrawable->getId());
-//        }
     }
 
     if (removeTexId != EmptyIdentity)
         changes.push_back(new RemTextureReq(removeTexId));
     
     scene->addChangeRequests(changes);
-    
-    changed = false;
 }
 
 - (void)shutdown
 {
-    ChangeSet changes;
-    // Get rid of the old drawables
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
-    drawIDs.clear();
-    if (texId != EmptyIdentity)
+    @synchronized(self)
     {
-        changes.push_back(new RemTextureReq(texId));
-        texId = EmptyIdentity;
+        sticker = nil;
+        desc = nil;
+        [self update];
     }
-
-    scene->addChangeRequests(changes);
 }
 
 @end

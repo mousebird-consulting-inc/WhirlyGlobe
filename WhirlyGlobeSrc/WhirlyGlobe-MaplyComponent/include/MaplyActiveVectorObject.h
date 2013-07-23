@@ -29,15 +29,8 @@
   */
 @interface MaplyActiveLinearVectorObject : MaplyActiveObject
 
-/// Replace the current set of points in the linear
-- (void)setPoints:(MaplyCoordinate3d *)coords numPts:(int)numPts closed:(bool)isClosed;
-
 /// Replace the current set of points with what's in the vector.
 /// We're expecting one linear feature and that's it.
-- (void)setFromVector:(MaplyVectorObject *)vecObj;
-
-/// How close we're trying to get to the globe when subdividing.
-/// 0 means don't bother breaking up the line
-@property (nonatomic) float globeEps;
+- (void)setWithVector:(MaplyVectorObject *)newVecObj desc:(NSDictionary *)inDesc eps:(float)inEps;
 
 @end

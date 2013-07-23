@@ -26,6 +26,7 @@
 {
 @public
     WhirlyKit::Scene *scene;
+    dispatch_queue_t dispatchQueue;
 }
 
 @end

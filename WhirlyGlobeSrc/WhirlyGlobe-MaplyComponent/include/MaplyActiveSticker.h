@@ -33,11 +33,6 @@
      the sticker itself.  If you do, assign it here again
      so we know that you did.
   */
-@property (nonatomic,strong) MaplySticker *sticker;
-
-/// Initialize with various visual constraints
-- (id)initWithDesc:(NSDictionary *)descDict;
-
-- (void)updateWithDesc:(NSDictionary *)descDict;
+- (void)setActiveSticker:(MaplySticker *)newSticker desc:(NSDictionary *)desc;
 
 @end

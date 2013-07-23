@@ -22,13 +22,20 @@
 
 @implementation MaplyActiveObject
 
-- (id)initWithDesc:(NSDictionary *)descDict
+
+/// Default initialization.  Updates will happen on the main queue.
+- (id)init
 {
     self = [super init];
-    if (!self)
-        return nil;
     
-    _desc = [NSDictionary dictionaryWithDictionary:descDict];
+    return self;
+}
+
+/// If initialize this way the active object will be updated on the given queue
+- (id)initWithQueue:(dispatch_queue_t)inDispatchQueue
+{
+    self = [super init];
+    dispatchQueue = inDispatchQueue;
     
     return self;
 }
