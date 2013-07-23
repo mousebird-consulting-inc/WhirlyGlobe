@@ -268,7 +268,7 @@ public:
 	void addChangeRequest(ChangeRequest *newChange);
     /// Add a list of change requets.  You can call this from any thread.
     /// This is the faster option if you have more than one change request
-	void addChangeRequests(const std::vector<ChangeRequest *> &newchanges);
+	void addChangeRequests(const ChangeSet &newchanges);
 	
 	/// Look for a valid texture
     /// If it's missing, we probably won't draw the associated geometry
@@ -379,7 +379,7 @@ public:
 	pthread_mutex_t changeRequestLock;
 	/// We keep a list of change requests to execute
 	/// This can be accessed in multiple threads, so we lock it
-	std::vector<ChangeRequest *> changeRequests;
+	ChangeSet changeRequests;
     
     pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;

@@ -43,7 +43,7 @@ public:
     SubTexture subTex;
     
     // Remove elements from the scene
-    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changeRequests)
+    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changeRequests)
     {
         if (usesAtlas && drawAtlas)
         {
@@ -67,7 +67,7 @@ public:
     }
     
     // Enable drawables
-    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
+    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
     {
         if (usesAtlas && drawAtlas)
         {
@@ -82,7 +82,7 @@ public:
     }
     
     // Disable drawables
-    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,std::vector<ChangeRequest *> &changes)
+    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
     {
         if (usesAtlas && drawAtlas)
         {
@@ -422,7 +422,7 @@ public:
     std::queue<ChunkRequest> requests;
     int borderTexel;
     // We gather changes between swaps when we're using atlases
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     bool sleeping;
 }
 

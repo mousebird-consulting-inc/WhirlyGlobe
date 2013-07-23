@@ -106,7 +106,7 @@ void SceneGraphManager::traverseAddNodeIDs(SceneGraphNode *node)
     }
 }
     
-void SceneGraphManager::traverseRemNodeIDs(SceneGraphNode *node,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::traverseRemNodeIDs(SceneGraphNode *node,ChangeSet &changes)
 {
     SceneGraphGroup *group = dynamic_cast<SceneGraphGroup *>(node);
     
@@ -139,7 +139,7 @@ Drawable *SceneGraphManager::getDrawable(SimpleIdentity drawID)
         return *it;
 }
     
-void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::removeDrawable(SimpleIdentity drawID,ChangeSet &changes)
 {
     BasicDrawable dumbDraw("None");
     dumbDraw.setId(drawID);
@@ -155,7 +155,7 @@ void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeR
     }
 }
 
-void SceneGraphManager::update(WhirlyKitViewState *viewState,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
 {
     Point3f localPt = Vector3dToVector3f([viewState eyePos]);
     
@@ -202,7 +202,7 @@ void SceneGraphManager::update(WhirlyKitViewState *viewState,std::vector<ChangeR
     activeDrawIDs = shouldBeOn;
 }
         
-void SceneGraphManager::addDrawable(Drawable *draw,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::addDrawable(Drawable *draw,ChangeSet &changes)
 {
     drawables.insert(draw);
     if (!drawAtlas)
@@ -238,7 +238,7 @@ void SceneGraphManager::attachSceneFragment(SimpleIdentity attachID,SceneGraphNo
     traverseAddNodeIDs(node);
 }
     
-void SceneGraphManager::removeSceneFragment(SimpleIdentity nodeID,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::removeSceneFragment(SimpleIdentity nodeID,ChangeSet &changes)
 {
     SceneGraphGroup top(nodeID);
     NodeSet::iterator it = allNodes.find(&top);

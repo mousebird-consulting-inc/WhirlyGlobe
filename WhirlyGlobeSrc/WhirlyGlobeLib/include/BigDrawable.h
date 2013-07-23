@@ -99,7 +99,7 @@ public:
     void clearRegion(int vertPos,int vertSize,SimpleIdentity elementChunkId);
     
     /// Flush out changes to the inactive buffer and request a switch
-    void swap(std::vector<ChangeRequest *> &changes,BigDrawableSwap *swapRequest);
+    void swap(ChangeSet &changes,BigDrawableSwap *swapRequest);
     
     /// Return true if we're waiting on a buffer swap, but don't block
     bool isWaitingOnSwap();

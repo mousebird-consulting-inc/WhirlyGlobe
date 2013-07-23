@@ -72,7 +72,7 @@ using namespace WhirlyKit;
     if (!changed)
         return;
     
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
     
     // Remove the old label
     for (SimpleIDSet::iterator it = drawIDs.begin();
@@ -139,7 +139,6 @@ using namespace WhirlyKit;
         // Set up the representation (but then hand it off)
         LabelSceneRep *labelRep = new LabelSceneRep();
         labelRep->fade = labelInfo.fade;
-        labelRep->setId(labelInfo.labelId);
         
         // Set up the label renderer
         WhirlyKitLabelRenderer *labelRenderer = [[WhirlyKitLabelRenderer alloc] init];
@@ -170,7 +169,7 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changes;
+    ChangeSet changes;
 
     // Get rid of drawables and screen objects
     for (SimpleIDSet::iterator it = drawIDs.begin();it != drawIDs.end(); ++it)

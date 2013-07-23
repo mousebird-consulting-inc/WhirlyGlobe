@@ -365,7 +365,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     return fm;
 }
 
-- (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(std::vector<ChangeRequest *> &)changes
+- (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(ChangeSet &)changes
 {
     // We could make this more granular
     pthread_mutex_lock(&lock);
@@ -497,7 +497,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     return drawString;
 }
             
-- (void)removeString:(SimpleIdentity)drawStringId changes:(std::vector<ChangeRequest *> &)changes
+- (void)removeString:(SimpleIdentity)drawStringId changes:(ChangeSet &)changes
 {
     pthread_mutex_lock(&lock);
     

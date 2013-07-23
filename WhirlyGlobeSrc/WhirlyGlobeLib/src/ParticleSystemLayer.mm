@@ -110,7 +110,7 @@ using namespace WhirlyKit;
 // Remove outstanding particle systems
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     
     for (ParticleSysSceneRepSet::iterator it = sceneReps.begin();
          it != sceneReps.end(); ++it)

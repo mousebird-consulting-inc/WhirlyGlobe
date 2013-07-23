@@ -51,7 +51,7 @@ public:
     ~MarkerSceneRep() { };
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,std::vector<ChangeRequest *> &changes);
+    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIdentity selectID;  // ID used for selection
@@ -160,10 +160,10 @@ public:
     virtual ~MarkerManager();
     
     /// Add an array of markers, returning the identity that corresponds
-    SimpleIdentity addMarkers(NSArray *markers,NSDictionary *desc,std::vector<ChangeRequest *> &changes);
+    SimpleIdentity addMarkers(NSArray *markers,NSDictionary *desc,ChangeSet &changes);
     
     /// Remove the given set of markers
-    void removeMarkers(SimpleIDSet &markerIDs,std::vector<ChangeRequest *> &changes);
+    void removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes);
     
     /// Called by the scene once things are set up
     virtual void setScene(Scene *inScene);

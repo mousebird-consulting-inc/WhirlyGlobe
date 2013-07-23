@@ -36,10 +36,10 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-    bool addDrawable(BasicDrawable *draw,std::vector<ChangeRequest *> &changes,bool enabled=true);
+    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true);
     
     /// Remove the data for a drawable by ID
-    bool removeDrawable(SimpleIdentity drawId,std::vector<ChangeRequest *> &changes);
+    bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
     
     /// Enable/disable a drawable we're representing
     void setEnableDrawable(SimpleIdentity drawId,bool enabled);
@@ -51,17 +51,17 @@ public:
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
     ///  thing on the main thread.  Use this to wake yourself up on another thread.
-    void swap(std::vector<ChangeRequest *> &changes,NSObject * __weak target,SEL sel);
+    void swap(ChangeSet &changes,NSObject * __weak target,SEL sel);
     
     /// Check if we're waiting on an active drawable buffer swap
     bool waitingOnSwap();
     
     /// Add changes to be executed with the next buffer swap.
     /// These are things like the removal of textures that we're using.
-    void addSwapChanges(const std::vector<ChangeRequest *> &swapChanges);
+    void addSwapChanges(const ChangeSet &swapChanges);
     
     /// Remove anything associated with the drawable atlas
-    void shutdown(std::vector<ChangeRequest *> &changes);
+    void shutdown(ChangeSet &changes);
     
     /// Print some status info to the log
     void log();
@@ -100,7 +100,7 @@ protected:
     DrawRepresentSet drawables;
     
     // Changes to be swept out with the next swap
-    std::vector<ChangeRequest *> swapChanges;
+    ChangeSet swapChanges;
 };
     
 }

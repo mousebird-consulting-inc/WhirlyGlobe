@@ -29,88 +29,7 @@
 #import "SelectionManager.h"
 #import "LayoutLayer.h"
 #import "LabelRenderer.h"
-
-namespace WhirlyKit 
-{
-
-/// Default for label draw priority
-static const int LabelDrawPriority=1000;
-
-}
-
-/** The Single Label represents one label with its text, location,
-    and an NSDictionary that can be used to override some attributes.
-    In general we don't want to create just one label, we want to
-    create a large number of labels at once.  We use an array of
-    these single labels to do that.
-  */
-@interface WhirlyKitSingleLabel : NSObject
-{
-    /// If set, this marker should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the marker is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// The text we want to see
-    NSString *text;
-    /// A geolocation for the middle, left or right of the label
-    ///  depending on the justification
-    WhirlyKit::GeoCoord loc;
-    /// Rotation around the origin
-    float rotation;
-    /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, icon, text color, and
-    ///  background color supported.
-    NSDictionary *desc;
-    /// If non-zero, this is the texture to use as an icon
-    WhirlyKit::SimpleIdentity iconTexture;
-    /// If the texture is set and this is non-zero the size of the image
-    CGSize iconSize;
-    /// If set, this moves the label if displayed in screen (2D) mode
-    CGSize screenOffset;
-}
-
-@property (nonatomic,assign) bool isSelectable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
-@property (nonatomic,retain) NSString *text;
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,assign) float rotation;
-@property (nonatomic,retain) NSDictionary *desc;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
-@property (nonatomic,assign) CGSize iconSize;
-@property (nonatomic,assign) CGSize screenOffset;
-
-/// Generates a string we can use for indexing.  Note: Don't use this yourself.
-- (std::string)keyString;
-
-/// This is used to sort out width and height from the defaults.  Pass
-///  in the value of one and zero for the other and it will fill in the
-///  missing one.
-- (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font;
-
-/// This will calculate the real extents in 3D over the globe.
-/// Pass in an array of 3 point3f structures for the points and
-///  normals.  The corners are returned in counter-clockwise order.
-/// This is used for label selection
-- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
-
-/// Slightly more specific version
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(WhirlyKit::Point2f)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm iconCorners:(WhirlyKit::Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
-
-/// This version is for screen space labels
-- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(WhirlyKit::Point2f)iconSize justify:(WhirlyKitLabelJustify)justify corners:(WhirlyKit::Point3f *)pts iconCorners:(WhirlyKit::Point3f *)iconPts useIconOffset:(bool)useIconOffset;
-
-@end
-
-namespace WhirlyKit
-{
-
-/// Size of one side of the texture atlases built for labels
-/// You can also specify this at startup
-static const unsigned int LabelTextureAtlasSizeDefault = 512;
-    
-}
+#import "LabelManager.h"
 
 /** The Label Layer will represent and manage groups of labels.  You
     can hand it a list of labels to display and it will group those
@@ -150,29 +69,8 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
 {
 	WhirlyKitLayerThread * __weak layerThread;
-	WhirlyKit::Scene *scene;
-    
-    /// Screen space generator on the render side
-    WhirlyKit::SimpleIdentity screenGenId;
-    
-    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
-    WhirlyKitLayoutLayer * __weak layoutLayer;
-
-    /// Keep track of labels (or groups of labels) by ID for deletion
-    WhirlyKit::LabelSceneRepMap labelReps;
-    
-    unsigned int textureAtlasSize;
+	WhirlyKit::Scene *scene;    
 }
-
-/// Set this to use the layout engine for labels so marked
-@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
-
-/// If set, we're using font textures instead of rendering each piece of text
-@property (nonatomic,assign) bool useFontManager;
-
-/// Initialize the label layer with a size for texture atlases
-/// Needs to be a power of 2
-- (id)initWithTexAtlasSize:(unsigned int)textureAtlasSize;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
