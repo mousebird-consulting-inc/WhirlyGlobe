@@ -473,9 +473,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
 
     if ([toEnable count] > 0)
-        [_viewC enableObjects:toEnable];
+        [_viewC enableObjects:toEnable mode:MaplyThreadAny];
     if ([toDisable count] > 0)
-        [_viewC disableObjects:toDisable];
+        [_viewC disableObjects:toDisable mode:MaplyThreadAny];
 }
 
 // Notify the quad paging layer that we loaded, but do it on the layer thread

@@ -30,6 +30,10 @@
 #import "MaplyShader.h"
 #import "MaplyActiveObject.h"
 
+/// Where we'd like an add to be executed.  If you need immediate feedback,
+///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
+typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
+
 /** The MaplyBaseViewController is the base class for the Maply and WhirlyGlobe
     view controllers.  Most of its functionality is private, but you can use
     those view controllers instead.
@@ -59,18 +63,44 @@
 /// Add a group of screen (2D) markers with description dictionary
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
-/// Add a group of 3D markers
+/// Add a group of screen (2D) markers with description dictionary using the given thread mode
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add a group of 3D markers 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
-/// Add a group of screen (2D) labels with description dictionary.
+/// Add a group of 3D markers using the given thread mode
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add a group of screen (2D) labels with description dictionary 
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
-/// Add a group of 3D labels with description dictionary
+/// Add a group of screen (2D) labels with description dictionary using the given thread mode
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add a group of 3D labels with description dictionary 
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
-/// Add one or more vectors with the given description dictionary.
-/// This version is thread safe.
+/// Add a group of 3D labels with description dictionary using the given thread mode
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add one or more vectors with the given description dictionary 
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+
+/// Add one or more vectors with the given description dictionary using the given thread mode
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add one or more shapes with a description dictionary
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
+
+/// Add one or more shapes with a description dictionary using the given thread mode
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/// Add one or more stickers with a description dictionary.
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
+
+/// Add one or more stickers with a description dictionary using the given thread mode
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// Add one or more vectors, but only for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors;
@@ -78,12 +108,6 @@
 /// Change the representation for the given vector object(s).
 /// Only a few things are changeable, such as color
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc;
-
-/// Add one or more shapes with a description dictionary
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
-
-/// Add one or more stickers with a description dictionary.
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
 
 /// This version takes a description dictionary to use as override.  This is thread safe.
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc;
@@ -98,17 +122,20 @@
 /// This will only affect objects that have an importance set
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects;
 
-/// Remove the data associated with an object the user added earlier
+/// Remove a single object
 - (void)removeObject:(MaplyComponentObject *)theObj;
 
-/// Remove an array of data objects
+/// Remove the given objects
 - (void)removeObjects:(NSArray *)theObjs;
 
+/// Remove an array of data objects using the given thread mode
+- (void)removeObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode;
+
 /// Disable a group of objects all at once
-- (void)disableObjects:(NSArray *)theObjs;
+- (void)disableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode;
 
 /// Enable a group of objects all at once
-- (void)enableObjects:(NSArray *)theObjs;
+- (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode;
 
 /// Add an active object.  These are used for editing and act
 ///  only on the main thread.
@@ -148,6 +175,7 @@
 /// Turn on/off performance output (goes to the log periodically)
 @property (nonatomic,assign) bool performanceOutput;
 
+
 /// Add a quad tree paged earth layer with MapBox Tiles on top.
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name __deprecated;
 
@@ -161,54 +189,54 @@
 - (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet __deprecated;
 
 /// Add visual defaults for the screen markers
-- (void)setScreenMarkerDesc:(NSDictionary *)desc __deprecated;
+//- (void)setScreenMarkerDesc:(NSDictionary *)desc __deprecated;
 
 /// Add visual defaults for the markers
-- (void)setMarkerDesc:(NSDictionary *)desc __deprecated;
+//- (void)setMarkerDesc:(NSDictionary *)desc __deprecated;
 
 /// Add a group of 3D markers
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers __deprecated;
+//- (MaplyComponentObject *)addMarkers:(NSArray *)markers __deprecated;
 
 /// Add visual defaults for the screen labels
-- (void)setScreenLabelDesc:(NSDictionary *)desc __deprecated;
+//- (void)setScreenLabelDesc:(NSDictionary *)desc __deprecated;
 
 /// Add a group of screen (2D) labels
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels __deprecated;
+//- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels __deprecated;
 
 /// Add visual defaults for the labels
-- (void)setLabelDesc:(NSDictionary *)desc __deprecated;
+//- (void)setLabelDesc:(NSDictionary *)desc __deprecated;
 
 /// Add a group of 3D labels
-- (MaplyComponentObject *)addLabels:(NSArray *)labels __deprecated;
+//- (MaplyComponentObject *)addLabels:(NSArray *)labels __deprecated;
 
 /// Add visual defaults for the vectors
-- (void)setVectorDesc:(NSDictionary *)desc __deprecated;
+//- (void)setVectorDesc:(NSDictionary *)desc __deprecated;
 
 /// Add one or more vectors
-- (MaplyComponentObject *)addVectors:(NSArray *)vectors __deprecated;
+//- (MaplyComponentObject *)addVectors:(NSArray *)vectors __deprecated;
 
 /// Add visual defaults for the shapes
-- (void)setShapeDesc:(NSDictionary *)desc __deprecated;
+//- (void)setShapeDesc:(NSDictionary *)desc __deprecated;
 
 /// Add one or more shapes
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes __deprecated;
+//- (MaplyComponentObject *)addShapes:(NSArray *)shapes __deprecated;
 
 /// Add visual defaults for the stickers
-- (void)setStickerDesc:(NSDictionary *)desc __deprecated;
+//- (void)setStickerDesc:(NSDictionary *)desc __deprecated;
 
 /// Add one or more stickers
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers __deprecated;
+//- (MaplyComponentObject *)addStickers:(NSArray *)stickers __deprecated;
 
 /// Add visual defaults for the lofted polys
-- (void)setLoftedPolyDesc:(NSDictionary *)desc __deprecated;
+//- (void)setLoftedPolyDesc:(NSDictionary *)desc __deprecated;
 
 /// Add one or more lofted polys.
 /// If you pass in a vector database, we'll attempt to cache
 ///  the generated data with 'key' for speed.  The vector database should
 ///  be where the polys originated.  nil is acceptable for both key and cacheDb.
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb __deprecated;
+//- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb __deprecated;
 
 /// Add a group of screen (2D) markers
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers __deprecated;
+//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers __deprecated;
 
 @end

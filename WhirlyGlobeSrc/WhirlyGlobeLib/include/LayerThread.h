@@ -58,6 +58,9 @@
     
     /// Change requests to merge soonish
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
+    
+    /// We can get change requests from other threads (!)
+    pthread_mutex_t changeLock;
 }
 
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
@@ -86,14 +89,17 @@
 /// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToRelease:(NSObject *)thing;
 
-/// Layers need to send their change requests throgh here
+/// Layers need to send their change requests throgh here.
+/// You can call this from any thread.
 - (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest;
 
 /// Layers should send their change requests through here
+/// You can call this from any thread.
 - (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)changeRequests;
 
 /// Called by a layer to request a flush at the next opportunity.
 /// Presumably the layer did something worth flushing
+/// You can call this from any thread.
 - (void)requestFlush;
 
 /// Explicitly flush the change requests out to the scene.
