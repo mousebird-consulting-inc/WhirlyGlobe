@@ -88,14 +88,19 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     if (!self)
         return nil;
     visualView = inVisualView;
-    pthread_mutex_init(&selectMutex, NULL);
+    pthread_mutex_init(&selectLock, NULL);
+    pthread_mutex_init(&imageLock, NULL);
+    pthread_mutex_init(&userLock, NULL);
     
     return self;
 }
 
 - (void)dealloc
 {
-    pthread_mutex_destroy(&selectMutex);
+    pthread_mutex_destroy(&selectLock);
+    pthread_mutex_destroy(&imageLock);
+    pthread_mutex_destroy(&userLock);
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -116,8 +121,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (SimpleIdentity)addImage:(UIImage *)image
+- (SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
 {
+    SimpleIdentity texID = EmptyIdentity;
+    
+    pthread_mutex_lock(&imageLock);
+    
     // Look for an existing one
     MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
     if (it != imageTextures.end())
@@ -127,25 +136,44 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         copyTex.refCount++;
         imageTextures.erase(it);
         imageTextures.insert(copyTex);
-        return copyTex.texID;
+        
+        texID = copyTex.texID;
     }
+
+    if (texID == EmptyIdentity)
+    {
+        // Add it and download it
+        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        
+        ChangeSet changes;
+        changes.push_back(new AddTextureReq(tex));
+        switch (threadMode)
+        {
+            case MaplyThreadCurrent:
+                scene->addChangeRequests(changes);
+                break;
+            case MaplyThreadAny:
+                [layerThread addChangeRequests:changes];
+                break;
+        }
+        
+        // Add to our cache
+        MaplyImageTexture newTex(image,tex->getId());
+        newTex.refCount = 1;
+        imageTextures.insert(newTex);
+        texID = newTex.texID;
+    }
+
+    pthread_mutex_unlock(&imageLock);
     
-    // Add it and download it
-    [EAGLContext setCurrentContext:layerThread.glContext];
-    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
-    [layerThread addChangeRequest:(new AddTextureReq(tex))];
-    
-    // Add to our cache
-    MaplyImageTexture newTex(image,tex->getId());
-    newTex.refCount = 1;
-    imageTextures.insert(newTex);
-    
-    return newTex.texID;
+    return texID;
 }
 
 // Remove an image for the cache, or just decrement its reference count
 - (void)removeImage:(UIImage *)image
 {
+    pthread_mutex_lock(&imageLock);
+    
     // Look for an existing one
     MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
     if (it != imageTextures.end())
@@ -162,6 +190,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             imageTextures.erase(it);
         }
     }
+    
+    pthread_mutex_unlock(&imageLock);
 }
 
 // Remove the given Texture ID after a delay
@@ -171,13 +201,28 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     [layerThread addChangeRequest:(new RemTextureReq([texID integerValue]))];
 }
 
+// We flush out changes in different ways depending on the thread mode
+- (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
+{
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            scene->addChangeRequests(changes);
+            break;
+        case MaplyThreadAny:
+            [layerThread addChangeRequests:changes];
+            break;
+    }
+}
+
 // Actually add the markers.
-// Called in the layer thread.
-- (void)addScreenMarkersLayerThread:(NSArray *)argArray
+// Called in an unknown thread
+- (void)addScreenMarkersRun:(NSArray *)argArray
 {
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -188,7 +233,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image];
+            texID = [self addImage:marker.image mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
@@ -206,41 +251,61 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
         {
-            pthread_mutex_lock(&selectMutex);
+            pthread_mutex_lock(&selectLock);
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
-            pthread_mutex_unlock(&selectMutex);
+            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgMarker.selectID);
         }
     }
     
-    // Set up a description and create the markers in the marker layer
-    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-    [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-    SimpleIdentity markerID = [_markerLayer addMarkers:wgMarkers desc:desc];
-    compObj.markerIDs.insert(markerID);
+    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     
+    if (markerManager)
+    {
+        // Set up a description and create the markers in the marker layer
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
+        ChangeSet changes;
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, desc, changes);
+        if (markerID != EmptyIdentity)
+            compObj.markerIDs.insert(markerID);
+        [self flushChanges:changes mode:threadMode];
+    }
+    
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Called in the main thread.
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:markers, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
-    [self performSelector:@selector(addScreenMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addScreenMarkersRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addScreenMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
 
 // Actually add the markers.
-// Called in the layer thread.
-- (void)addMarkersLayerThread:(NSArray *)argArray
+// Called in an unknown thread.
+- (void)addMarkersRun:(NSArray *)argArray
 {
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
-    
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
     for (MaplyMarker *marker in markers)
@@ -250,7 +315,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image];
+            texID = [self addImage:marker.image mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
@@ -267,38 +332,56 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (marker.selectable)
         {
-            pthread_mutex_lock(&selectMutex);
+            pthread_mutex_lock(&selectLock);
             selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
-            pthread_mutex_unlock(&selectMutex);
+            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgMarker.selectID);
         }
     }
     
     // Set up a description and create the markers in the marker layer
-    SimpleIdentity markerID = [_markerLayer addMarkers:wgMarkers desc:inDesc];
-    compObj.markerIDs.insert(markerID);
+    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+    if (markerManager)
+    {
+        ChangeSet changes;
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, inDesc, changes);
+        if (markerID != EmptyIdentity)
+            compObj.markerIDs.insert(markerID);
+        [self flushChanges:changes mode:threadMode];
+    }
     
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add 3D markers
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:markers, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
-    [self performSelector:@selector(addMarkersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addMarkersRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
 
 // Actually add the labels.
-// Called in the layer thread.
-- (void)addScreenLabelsLayerThread:(NSArray *)argArray
+// Called in an unknown thread.
+- (void)addScreenLabelsRun:(NSArray *)argArray
 {
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Convert to WG markers
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -311,7 +394,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage];
+            texID = [self addImage:label.iconImage mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -341,40 +424,59 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
         {
-            pthread_mutex_lock(&selectMutex);
+            pthread_mutex_lock(&selectLock);
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
-            pthread_mutex_unlock(&selectMutex);
+            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgLabel.selectID);
         }
     }
     
-    // Set up a description and create the markers in the marker layer
-    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-    [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-    SimpleIdentity labelID = [_labelLayer addLabels:wgLabels desc:desc];
-    compObj.labelIDs.insert(labelID);
-    
+    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    if (labelManager)
+    {
+        // Set up a description and create the markers in the marker layer
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
+        ChangeSet changes;
+        SimpleIdentity labelID = labelManager->addLabels(wgLabels, desc, changes);
+        [self flushChanges:changes mode:threadMode];
+        if (labelID != EmptyIdentity)
+            compObj.labelIDs.insert(labelID);
+    }
+
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add screen space (2D) labels
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:labels, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
-    [self performSelector:@selector(addScreenLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addScreenLabelsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addScreenLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
 
 // Actually add the labels.
-// Called in the layer thread.
-- (void)addLabelsLayerThread:(NSArray *)argArray
+// Called in an unknown thread.
+- (void)addLabelsRun:(NSArray *)argArray
 {
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Convert to WG markers
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -386,7 +488,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage];
+            texID = [self addImage:label.iconImage mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -419,40 +521,60 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         
         if (label.selectable)
         {
-            pthread_mutex_lock(&selectMutex);
+            pthread_mutex_lock(&selectLock);
             selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
-            pthread_mutex_unlock(&selectMutex);
+            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgLabel.selectID);
         }
     }
     
-    // Set up a description and create the markers in the marker layer
-    SimpleIdentity labelID = [_labelLayer addLabels:wgLabels desc:inDesc];
-    compObj.labelIDs.insert(labelID);
+    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     
+    if (labelManager)
+    {
+        ChangeSet changes;
+        // Set up a description and create the markers in the marker layer
+        SimpleIdentity labelID = labelManager->addLabels(wgLabels, inDesc, changes);
+        [self flushChanges:changes mode:threadMode];
+        if (labelID != EmptyIdentity)
+            compObj.labelIDs.insert(labelID);
+    }
+    
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add 3D labels
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:labels, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
-    [self performSelector:@selector(addLabelsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addLabelsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
 
 // Actually add the vectors.
-// Called in the layer thread.
-- (void)addVectorsLayerThread:(NSArray *)argArray
+// Called in an unknown.
+- (void)addVectorsRun:(NSArray *)argArray
 {
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -462,20 +584,38 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     if (makeVisible)
     {
-        SimpleIdentity vecID = [_vectorLayer addVectors:&shapes desc:inDesc];
-        compObj.vectorIDs.insert(vecID);
+        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+        
+        if (vectorManager)
+        {
+            ChangeSet changes;
+            SimpleIdentity vecID = vectorManager->addVectors(&shapes, inDesc, changes);
+            [self flushChanges:changes mode:threadMode];
+            if (vecID != EmptyIdentity)
+                compObj.vectorIDs.insert(vecID);
+        }
     }
     
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add vectors
-- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], nil];
-    [self performSelector:@selector(addVectorsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addVectorsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addVectorsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
@@ -485,44 +625,74 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], nil];
-    [self performSelector:@selector(addVectorsLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
+    [self addVectorsRun:argArray];
     
     return compObj;
 }
 
 // Actually do the vector change
 // Called in the layer thread
-- (void)changeVectorLayerThread:(NSArray *)argArray
+- (void)changeVectorRun:(NSArray *)argArray
 {
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
     NSDictionary *desc = [argArray objectAtIndex:1];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+
+    // Note: Should check if object is being constructed
     
-    for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
-         it != vecObj.vectorIDs.end(); ++it)
-        [_vectorLayer changeVector:*it desc:desc];
+    @synchronized(vecObj)
+    {
+        bool isHere = false;
+        pthread_mutex_lock(&userLock);
+        isHere = [userObjects containsObject:vecObj];
+        pthread_mutex_unlock(&userLock);
+        
+        if (isHere)
+            return;
+
+        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+
+        if (vectorManager)
+        {
+            ChangeSet changes;
+            for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
+                 it != vecObj.vectorIDs.end(); ++it)
+                vectorManager->changeVectors(*it, desc, changes);
+            [self flushChanges:changes mode:threadMode];
+        }
+    }
 }
 
 // Change vector representation
-- (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc
+- (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     if (!vecObj)
         return;
     
     if (!desc)
         desc = [NSDictionary dictionary];
-    NSArray *argArray = [NSArray arrayWithObjects:vecObj, desc, nil];
+    NSArray *argArray = @[vecObj, desc, @(threadMode)];
     
-    [self performSelector:@selector(changeVectorLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self changeVectorRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(changeVectorRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
 }
 
 // Called in the layer thread
-- (void)addShapesLayerThread:(NSArray *)argArray
+- (void)addShapesRun:(NSArray *)argArray
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
@@ -561,9 +731,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             {
                 newSphere.isSelectable = true;
                 newSphere.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectMutex);
+                pthread_mutex_lock(&selectLock);
                 selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
-                pthread_mutex_unlock(&selectMutex);
+                pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(newSphere.selectID);
             }
             [ourShapes addObject:newSphere];
@@ -586,9 +756,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             {
                 newCyl.isSelectable = true;
                 newCyl.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectMutex);
+                pthread_mutex_lock(&selectLock);
                 selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
-                pthread_mutex_unlock(&selectMutex);
+                pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(newCyl.selectID);
             }
             [ourShapes addObject:newCyl];
@@ -632,35 +802,55 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         }
     }
     
-    SimpleIdentity shapeID = [_shapeLayer addShapes:ourShapes desc:inDesc];
-    compObj.shapeIDs.insert(shapeID);
+    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+    if (shapeManager)
+    {
+        ChangeSet changes;
+        SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
+        if (shapeID != EmptyIdentity)
+            compObj.shapeIDs.insert(shapeID);
+        [self flushChanges:changes mode:threadMode];
+    }
     
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add shapes
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = [NSArray arrayWithObjects:shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], nil];
-    [self performSelector:@selector(addShapesLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addShapesRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addShapesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
 
 // Called in the layer thread
-- (void)addStickersLayerThread:(NSArray *)argArray
+- (void)addStickersRun:(NSArray *)argArray
 {
     NSArray *stickers = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     for (MaplySticker *sticker in stickers)
     {
         SimpleIdentity texId = EmptyIdentity;
         if (sticker.image) {
-            texId = [self addImage:sticker.image];
+            texId = [self addImage:sticker.image mode:threadMode];
             compObj.images.insert(sticker.image);
         }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
@@ -678,20 +868,36 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         if (bufWrite)
             chunk.writeZBuffer = [bufWrite boolValue];
         chunk.rotation = sticker.rotation;
-        SimpleIdentity chunkId = [_chunkLayer addChunk:chunk enable:true];
-        compObj.chunkIDs.insert(chunkId);
+        if (chunkManager)
+        {
+            ChangeSet changes;
+            SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
+            if (chunkID != EmptyIdentity)
+                compObj.chunkIDs.insert(chunkID);
+            [self flushChanges:changes mode:threadMode];
+        }
     }
     
+    pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add stickers
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     
-    NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc]];
-    [self performSelector:@selector(addStickersLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+    NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addStickersRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addStickersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
     
     return compObj;
 }
@@ -700,134 +906,179 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // Called in the layer thread.
 - (void)addLoftedPolysLayerThread:(NSArray *)argArray
 {
-    NSArray *vectors = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = vectors;
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
-    NSString *key = argArray[3];
-    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
-    
-    ShapeSet shapes;
-    for (MaplyVectorObject *vecObj in vectors)
-    {
-        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
-    }
-    
-    SimpleIdentity loftID = [_loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
-    compObj.loftIDs.insert(loftID);
-    compObj.isSelectable = false;
-    
-    [userObjects addObject:compObj];
+//    NSArray *vectors = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    compObj.vectors = vectors;
+//    NSDictionary *inDesc = [argArray objectAtIndex:2];
+//    NSString *key = argArray[3];
+//    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
+//    
+//    ShapeSet shapes;
+//    for (MaplyVectorObject *vecObj in vectors)
+//    {
+//        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+//    }
+//    
+//    SimpleIdentity loftID = [_loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
+//    compObj.loftIDs.insert(loftID);
+//    compObj.isSelectable = false;
+//    
+//    [userObjects addObject:compObj];
 }
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache
+// Note: Need to handle the thread mode
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    return nil;
     
-    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null])];
-    [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-    
-    return compObj;
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    
+//    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null])];
+//    [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//    
+//    return compObj;
 }
 
 
 // Remove the object, but do it on the layer thread
-- (void)removeObjectLayerThread:(NSArray *)userObjs
+- (void)removeObjectRun:(NSArray *)argArray
 {
+    NSArray *userObjs = argArray[0];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
+    
+    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+
+    ChangeSet changes;
+    
     // First, let's make sure we're representing it
     for (MaplyComponentObject *userObj in userObjs)
     {
         if ([userObjects containsObject:userObj])
         {
-            // Get rid of the various layer objects
-            for (SimpleIDSet::iterator it = userObj.markerIDs.begin();
-                 it != userObj.markerIDs.end(); ++it)
-                [_markerLayer removeMarkers:*it];
-            for (SimpleIDSet::iterator it = userObj.labelIDs.begin();
-                 it != userObj.labelIDs.end(); ++it)
-                [_labelLayer removeLabel:*it];
-            for (SimpleIDSet::iterator it = userObj.vectorIDs.begin();
-                 it != userObj.vectorIDs.end(); ++it)
-                [_vectorLayer removeVector:*it];
-            for (SimpleIDSet::iterator it = userObj.shapeIDs.begin();
-                 it != userObj.shapeIDs.end(); ++it)
-                [_shapeLayer removeShapes:*it];
-            for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
-                 it != userObj.loftIDs.end(); ++it)
-                [_loftLayer removeLoftedPoly:*it];
-            for (SimpleIDSet::iterator it = userObj.chunkIDs.begin();
-                 it != userObj.chunkIDs.end(); ++it)
-                [_chunkLayer removeChunk:*it];
-            // And associated textures
-            for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
-                [self removeImage:*it];
-            // And any references to selection objects
-            pthread_mutex_lock(&selectMutex);
-            for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
-                 it != userObj.selectIDs.end(); ++it)
+            @synchronized(userObj)
             {
-                SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
-                if (sit != selectObjectSet.end())
-                    selectObjectSet.erase(sit);
+                // Get rid of the various layer objects
+                if (markerManager)
+                    markerManager->removeMarkers(userObj.markerIDs, changes);
+                if (labelManager)
+                    labelManager->removeLabels(userObj.labelIDs, changes);
+                if (vectorManager)
+                    vectorManager->removeVectors(userObj.vectorIDs, changes);
+                if (shapeManager)
+                    shapeManager->removeShapes(userObj.shapeIDs, changes);
+//                for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
+//                     it != userObj.loftIDs.end(); ++it)
+//                    [_loftLayer removeLoftedPoly:*it];
+                if (chunkManager)
+                    chunkManager->removeChunks(userObj.chunkIDs, changes);
+                // And associated textures
+                for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
+                    [self removeImage:*it];
+                // And any references to selection objects
+                pthread_mutex_lock(&selectLock);
+                for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
+                     it != userObj.selectIDs.end(); ++it)
+                {
+                    SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
+                    if (sit != selectObjectSet.end())
+                        selectObjectSet.erase(sit);
+                }
+                pthread_mutex_unlock(&selectLock);
+                
             }
-            pthread_mutex_unlock(&selectMutex);
             
+            pthread_mutex_lock(&userLock);
             [userObjects removeObject:userObj];
+            pthread_mutex_unlock(&userLock);
         } else {
 //            NSLog(@"Tried to delete object that doesn't exist");
         }
     }
-}
-
-// Remove data associated with a user object
-- (void)removeObject:(MaplyComponentObject *)userObj
-{
-    if (userObj != nil)
-        [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:[NSArray arrayWithObject:userObj] waitUntilDone:NO];
+    
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Remove a group of objects at once
-- (void)removeObjects:(NSArray *)userObjs
+- (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
-    [self performSelector:@selector(removeObjectLayerThread:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
+    NSArray *argArray = @[userObjs, @(threadMode)];
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self removeObjectRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(removeObjectRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
+
+- (void)enableObjectsRun:(NSArray *)argArray
+{
+    NSArray *theObjs = argArray[0];
+    bool enable = [argArray[1] boolValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+
+    VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+
+    ChangeSet changes;
+    for (MaplyComponentObject *compObj in theObjs)
+    {
+        // Note: Should check if this is under construction
+        
+        bool isHere = false;
+        pthread_mutex_lock(&userLock);
+        isHere = [userObjects containsObject:compObj];
+        pthread_mutex_unlock(&userLock);
+
+        if (isHere)
+        {
+            // Enable vectors
+            for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
+                 it != compObj.vectorIDs.end(); ++it)
+                vectorManager->enableVector(*it, enable, changes);
+            // Note: Need to implement the rest of the enable/disables
+        }
+    }
+
+    [self flushChanges:changes mode:threadMode];
 }
 
 // Enable objects
-- (void)enableObjects:(NSArray *)userObjs
+- (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
-    if ([NSThread currentThread] != layerThread)
-    {
-        [self performSelector:@selector(enableObjects:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
-        return;
-    }
+    NSArray *argArray = @[userObjs, @(true), @(threadMode)];
     
-    for (MaplyComponentObject *compObj in userObjs)
+    switch (threadMode)
     {
-        // Enable vectors
-        for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
-             it != compObj.vectorIDs.end(); ++it)
-            [_vectorLayer enableVector:*it enable:true];
-        // Note: Need to implement the rest of the enable/disables
-    }
+        case MaplyThreadCurrent:
+            [self enableObjectsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(enableObjectsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }    
 }
 
 // Disable objects
-- (void)disableObjects:(NSArray *)userObjs
+- (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
-    if ([NSThread currentThread] != layerThread)
+    NSArray *argArray = @[userObjs, @(false), @(threadMode)];
+    
+    switch (threadMode)
     {
-        [self performSelector:@selector(disableObjects:) onThread:layerThread withObject:userObjs waitUntilDone:NO];
-        return;
-    }
-
-    for (MaplyComponentObject *compObj in userObjs)
-    {
-        // Enable vectors
-        for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
-             it != compObj.vectorIDs.end(); ++it)
-            [_vectorLayer enableVector:*it enable:false];
-        // Note: Need to implement the rest of the enable/disables
+        case MaplyThreadCurrent:
+            [self enableObjectsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(enableObjectsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
     }
 }
 
@@ -870,12 +1121,12 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSObject *ret = nil;
     
-    pthread_mutex_lock(&selectMutex);
+    pthread_mutex_lock(&selectLock);
     SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(objId));
     if (sit != selectObjectSet.end())
         ret = sit->obj;
 
-    pthread_mutex_unlock(&selectMutex);
+    pthread_mutex_unlock(&selectLock);
     
     return ret;
 }
