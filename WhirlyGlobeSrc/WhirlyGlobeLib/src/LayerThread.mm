@@ -60,6 +60,8 @@ using namespace WhirlyKit;
         glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
         glSetupInfo->minZres = [inView calcZbufferRes];
         _allowFlush = true;
+        
+        pthread_mutex_init(&changeLock,NULL);
 	}
 	
 	return self;
@@ -67,6 +69,7 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
+    pthread_mutex_destroy(&changeLock);
     // Note: It's not clear why we'd do this here.
     //       What run loop would it be referring to?
 //    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
@@ -123,35 +126,29 @@ using namespace WhirlyKit;
 
 - (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
 {
-    if ([NSThread currentThread] != self)
-    {
-        NSLog(@"WhirlyKitLayerThread::addChangeRequests called outside of layer thread.  Dropping requests on floor.");
-        for (unsigned int ii=0;ii<changeRequests.size();ii++)
-            delete changeRequests[ii];
-        return;
-    }
+    pthread_mutex_lock(&changeLock);
 
     // If we don't have one coming, schedule a merge
     if (changeRequests.empty())
         [self performSelector:@selector(runAddChangeRequests) withObject:nil afterDelay:0.0];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
+    
+    pthread_mutex_unlock(&changeLock);
 }
 
 - (void)flushChangeRequests
 {
-    if ([NSThread currentThread] != self)
-        return;
+    pthread_mutex_lock(&changeLock);
     
     [self runAddChangeRequests];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(runAddChangeRequests) object:nil];
+    
+    pthread_mutex_unlock(&changeLock);
 }
 
 - (void)requestFlush
 {
-    if ([NSThread currentThread] != self)
-        return;
-    
     [self addChangeRequest:NULL];
 }
 
