@@ -274,6 +274,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -281,6 +282,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     
@@ -352,6 +354,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -359,6 +362,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -446,6 +450,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -453,6 +458,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
@@ -542,6 +548,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -549,6 +556,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
@@ -598,6 +606,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -605,6 +614,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
@@ -624,11 +634,27 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = false;
     
     NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
     [self addVectorsRun:argArray];
     
     return compObj;
+}
+
+// Wait for the layer thread to catch up
+- (void)syncToLayerThread
+{
+    // Uh, what?
+    if ([NSThread currentThread] != layerThread)
+        return;
+    
+    [self performSelector:@selector(nothingMethod) onThread:layerThread withObject:nil waitUntilDone:YES];
+}
+
+// Does nothing
+- (void)nothingMethod
+{
 }
 
 // Actually do the vector change
@@ -639,7 +665,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
-    // Note: Should check if object is being constructed
+    // If the object is still being built, we have to wait a bit
+    if (vecObj.underConstruction)
+        [self syncToLayerThread];
     
     @synchronized(vecObj)
     {
@@ -814,6 +842,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -821,6 +850,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -880,6 +910,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
+    compObj.underConstruction = false;
     pthread_mutex_unlock(&userLock);
 }
 
@@ -887,6 +918,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
     NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -954,6 +986,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
 
     ChangeSet changes;
+    
+    // See if any are under construction
+    bool anyUnderConstruction = false;
+    for (MaplyComponentObject *userObj in userObjs)
+        if (userObj.underConstruction)
+            anyUnderConstruction = true;
+    if (anyUnderConstruction)
+        [self syncToLayerThread];
     
     // First, let's make sure we're representing it
     for (MaplyComponentObject *userObj in userObjs)
@@ -1027,11 +1067,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
 
+    // See if any are under construction
+    bool anyUnderConstruction = false;
+    for (MaplyComponentObject *userObj in theObjs)
+        if (userObj.underConstruction)
+            anyUnderConstruction = true;
+    if (anyUnderConstruction)
+        [self syncToLayerThread];
+
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
     {
-        // Note: Should check if this is under construction
-        
         bool isHere = false;
         pthread_mutex_lock(&userLock);
         isHere = [userObjects containsObject:compObj];
