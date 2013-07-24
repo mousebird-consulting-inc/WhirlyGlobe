@@ -39,5 +39,6 @@
 @property (nonatomic,assign) std::set<UIImage *> &images;
 @property (nonatomic,strong) NSArray *vectors;
 @property (nonatomic,assign) bool isSelectable;
+@property (nonatomic,assign) bool underConstruction;
 
 @end
