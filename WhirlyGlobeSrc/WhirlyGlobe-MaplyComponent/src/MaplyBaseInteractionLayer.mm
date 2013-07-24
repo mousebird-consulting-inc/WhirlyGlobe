@@ -642,21 +642,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
-// Wait for the layer thread to catch up
-- (void)syncToLayerThread
-{
-    // Uh, what?
-    if ([NSThread currentThread] != layerThread)
-        return;
-    
-    [self performSelector:@selector(nothingMethod) onThread:layerThread withObject:nil waitUntilDone:YES];
-}
-
-// Does nothing
-- (void)nothingMethod
-{
-}
-
 // Actually do the vector change
 // Called in the layer thread
 - (void)changeVectorRun:(NSArray *)argArray
@@ -664,10 +649,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
-
-    // If the object is still being built, we have to wait a bit
-    if (vecObj.underConstruction)
-        [self syncToLayerThread];
     
     @synchronized(vecObj)
     {
@@ -701,6 +682,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     if (!desc)
         desc = [NSDictionary dictionary];
     NSArray *argArray = @[vecObj, desc, @(threadMode)];
+    
+    // If the object is under construction, toss this over to the layer thread
+    if (vecObj.underConstruction)
+        threadMode = MaplyThreadAny;
     
     switch (threadMode)
     {
@@ -986,15 +971,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
 
     ChangeSet changes;
-    
-    // See if any are under construction
-    bool anyUnderConstruction = false;
-    for (MaplyComponentObject *userObj in userObjs)
-        if (userObj.underConstruction)
-            anyUnderConstruction = true;
-    if (anyUnderConstruction)
-        [self syncToLayerThread];
-    
+        
     // First, let's make sure we're representing it
     for (MaplyComponentObject *userObj in userObjs)
     {
@@ -1047,6 +1024,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
     NSArray *argArray = @[userObjs, @(threadMode)];
+
+    // If any are under construction, we need to toss this over to the layer thread
+    if (threadMode == MaplyThreadCurrent)
+    {
+        bool anyUnderConstruction = false;
+        for (MaplyComponentObject *userObj in userObjs)
+            if (userObj.underConstruction)
+                anyUnderConstruction = true;
+        if (anyUnderConstruction)
+            threadMode = MaplyThreadAny;
+    }
     
     switch (threadMode)
     {
@@ -1066,14 +1054,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-
-    // See if any are under construction
-    bool anyUnderConstruction = false;
-    for (MaplyComponentObject *userObj in theObjs)
-        if (userObj.underConstruction)
-            anyUnderConstruction = true;
-    if (anyUnderConstruction)
-        [self syncToLayerThread];
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1100,6 +1080,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
     NSArray *argArray = @[userObjs, @(true), @(threadMode)];
+
+    // If any are under construction, we need to toss this over to the layer thread
+    if (threadMode == MaplyThreadCurrent)
+    {
+        bool anyUnderConstruction = false;
+        for (MaplyComponentObject *userObj in userObjs)
+            if (userObj.underConstruction)
+                anyUnderConstruction = true;
+        if (anyUnderConstruction)
+            threadMode = MaplyThreadAny;
+    }
     
     switch (threadMode)
     {
@@ -1116,7 +1107,18 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 - (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
     NSArray *argArray = @[userObjs, @(false), @(threadMode)];
-    
+
+    // If any are under construction, we need to toss this over to the layer thread
+    if (threadMode == MaplyThreadCurrent)
+    {
+        bool anyUnderConstruction = false;
+        for (MaplyComponentObject *userObj in userObjs)
+            if (userObj.underConstruction)
+                anyUnderConstruction = true;
+        if (anyUnderConstruction)
+            threadMode = MaplyThreadAny;
+    }
+
     switch (threadMode)
     {
         case MaplyThreadCurrent:
