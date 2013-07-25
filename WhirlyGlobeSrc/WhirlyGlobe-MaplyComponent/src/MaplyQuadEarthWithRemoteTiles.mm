@@ -42,6 +42,7 @@
     ext = inExt;
     minZoom = inMinZoom;
     maxZoom = inMaxZoom;
+    _numSimultaneousFetches = 8;
     
     return self;
 }
