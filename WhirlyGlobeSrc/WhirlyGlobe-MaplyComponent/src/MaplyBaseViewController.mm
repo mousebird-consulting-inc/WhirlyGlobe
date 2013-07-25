@@ -655,7 +655,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addStickers:stickers desc:desc mode:MaplyThreadAny];
+    return [interactLayer addStickers:stickers desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc

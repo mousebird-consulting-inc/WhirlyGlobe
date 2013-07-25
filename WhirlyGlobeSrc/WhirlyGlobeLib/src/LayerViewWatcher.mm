@@ -40,6 +40,11 @@ using namespace WhirlyKit;
 @end
 
 @implementation WhirlyKitLayerViewWatcher
+{
+    WhirlyKitViewState *newViewState;
+    bool kickoffScheduled;
+    bool sweepLaggardsScheduled;
+}
 
 - (id)initWithView:(WhirlyKitView *)inView thread:(WhirlyKitLayerThread *)inLayerThread
 {
@@ -102,7 +107,6 @@ using namespace WhirlyKit;
     
     if (found)
     {
-        [layerThread.runLoop cancelPerformSelector:@selector(updateSingleWatcher:) target:self argument:found];
         [watchers removeObject:found];
     }
 }
@@ -122,16 +126,26 @@ using namespace WhirlyKit;
     }
     
 //    lastViewState = viewState;
-    [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
-    [self performSelector:@selector(kickoffViewUpdated:) onThread:layerThread withObject:viewState waitUntilDone:NO];
+    @synchronized(self)
+    {
+        newViewState = viewState;
+        if (!kickoffScheduled)
+        {
+            kickoffScheduled = true;
+            [self performSelector:@selector(kickoffViewUpdated) onThread:layerThread withObject:nil waitUntilDone:NO];
+        }
+    }
 }
 
 // This is called in the layer thread
 // We kick off the update here
-- (void)kickoffViewUpdated:(WhirlyKitViewState *)newViewState;
+- (void)kickoffViewUpdated
+{
+    @synchronized(self)
 {
     lastViewState = newViewState;
-    [layerThread.runLoop cancelPerformSelectorsWithTarget:self];
+        kickoffScheduled = false;
+    }
     [self viewUpdateLayerThread:lastViewState];
     lastUpdate = [[NSDate date] timeIntervalSinceReferenceDate];
 }
@@ -147,11 +161,11 @@ using namespace WhirlyKit;
 // Called in the layer thread
 - (void)updateSingleWatcher:(LocalWatcher *)watch
 {
-    // Note: This should never, ever happen
-    // Make sure the thing we're watching is still valid
+    // Make sure the thing we're watching is still valid.
+    // This can happen with dangling selectors
     if (![watchers containsObject:watch])
     {
-        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
+//        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
         return;
     }
     
@@ -161,7 +175,6 @@ using namespace WhirlyKit;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [watch->target performSelector:watch->selector withObject:lastViewState];
 #pragma clang diagnostic pop
-//    [layerThread.runLoop performSelector:watch->selector target:watch->target argument:lastViewState order:0 modes:[NSArray arrayWithObject:NSDefaultRunLoopMode]];
         watch->lastUpdated = lastUpdate;
     }
 }
@@ -185,12 +198,16 @@ using namespace WhirlyKit;
         }
     }
     
-    // Sweep up the laggard watchers
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(sweepLaggards:) object:nil];
-//    [layerThread.runLoop cancelPerformSelector:@selector(sweepLaggards:) target:self argument:nil];
-    if (minNextUpdate < 100.0)
+    @synchronized(self)
     {
-        [self performSelector:@selector(sweepLaggards:) withObject:nil afterDelay:minNextUpdate];
+        if (!sweepLaggardsScheduled)
+        {
+            if (minNextUpdate < 100.0)
+            {
+                sweepLaggardsScheduled = true;
+                [self performSelector:@selector(sweepLaggards:) withObject:nil afterDelay:minNextUpdate];
+            }
+        }
     }
 }
 
@@ -199,6 +216,11 @@ using namespace WhirlyKit;
 // So we call this at the end of a given update pass to sweep up the remains
 - (void)sweepLaggards:(id)sender
 {
+    @synchronized(self)
+    {
+        sweepLaggardsScheduled = false;
+    }
+    
     [self viewUpdateLayerThread:(WhirlyKitViewState *)lastViewState];
 }
 

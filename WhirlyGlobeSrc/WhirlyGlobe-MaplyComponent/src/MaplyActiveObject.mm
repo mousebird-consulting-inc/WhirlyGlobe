@@ -24,18 +24,10 @@
 
 
 /// Default initialization.  Updates will happen on the main queue.
-- (id)init
+- (id)initWithViewController:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
-    
-    return self;
-}
-
-/// If initialize this way the active object will be updated on the given queue
-- (id)initWithQueue:(dispatch_queue_t)inDispatchQueue
-{
-    self = [super init];
-    dispatchQueue = inDispatchQueue;
+    _viewC = inViewC;
     
     return self;
 }

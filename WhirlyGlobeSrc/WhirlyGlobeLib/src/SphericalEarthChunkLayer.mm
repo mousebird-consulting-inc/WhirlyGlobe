@@ -191,7 +191,7 @@ static const int SingleElementSize = sizeof(GLushort);
 {
     if (!layerThread || !scene || [NSThread currentThread] != layerThread)
     {
-        NSLog(@"WhirlyKitSphericalChunk: removeChunk called before layer initialized or in wrong thread.");
+//        NSLog(@"WhirlyKitSphericalChunk: removeChunk called before layer initialized or in wrong thread.");
         return;
     }
 
@@ -221,10 +221,7 @@ static const int SingleElementSize = sizeof(GLushort);
     {
         SimpleIDSet::iterator it = chunkIDs.find(chunkID);
         if (it != chunkIDs.end())
-        {
             chunkManager->enableChunk(chunkID,enable,changes);
-            chunkIDs.erase(it);
-        }
     }
     [self processQueue];
 }

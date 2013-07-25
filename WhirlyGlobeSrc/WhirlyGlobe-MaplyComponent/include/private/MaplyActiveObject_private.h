@@ -20,13 +20,13 @@
 
 #import "MaplyActiveObject.h"
 #import "WhirlyGlobe.h"
+#import "MaplyBaseViewController.h"
 
 // Fill in the Active Model protocol from the API
 @interface MaplyActiveObject() <WhirlyKitActiveModel>
 {
 @public
     WhirlyKit::Scene *scene;
-    dispatch_queue_t dispatchQueue;
 }
 
 @end
