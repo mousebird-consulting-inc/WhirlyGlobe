@@ -83,9 +83,13 @@ public:
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
-    /// If set, we want the z buffer used
+    /// If set, we want to use the z buffer
     bool getRequestZBuffer() const { return requestZBuffer; }
     void setRequestZBuffer(bool enable) { requestZBuffer = enable; }
+
+    /// If set, we want to write to the z buffer
+    bool getWriteZbuffer() const { return writeZBuffer; }
+    void setWriteZbuffer(bool enable) { writeZBuffer = enable; }
 
     /// Look for a region of the given size for the given data.
     /// This places the vertex data and adds the element data to the set
@@ -123,7 +127,7 @@ protected:
     GLuint programId;
     SimpleIdentity texId;
     int drawPriority;
-    bool requestZBuffer;
+    bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     
     // The vertex attributes we're representing in the buffers
