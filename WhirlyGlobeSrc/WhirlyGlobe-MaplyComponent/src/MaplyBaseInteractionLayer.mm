@@ -975,7 +975,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     // First, let's make sure we're representing it
     for (MaplyComponentObject *userObj in userObjs)
     {
-        if ([userObjects containsObject:userObj])
+        bool isHere = false;
+        pthread_mutex_lock(&userLock);
+        isHere = [userObjects containsObject:userObj];
+        pthread_mutex_unlock(&userLock);
+        if (isHere)
         {
             @synchronized(userObj)
             {
