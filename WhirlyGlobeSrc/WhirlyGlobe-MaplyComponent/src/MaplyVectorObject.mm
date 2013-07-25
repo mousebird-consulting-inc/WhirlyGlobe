@@ -248,6 +248,43 @@ using namespace WhirlyGlobe;
     return type;
 }
 
+- (MaplyVectorObject *)deepCopy
+{
+    MaplyVectorObject *newVecObj = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+    {
+        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        if (points)
+        {
+            VectorPointsRef newPts = VectorPoints::createPoints();
+            [newPts->getAttrDict() addEntriesFromDictionary:points->getAttrDict()];
+            newPts->pts = points->pts;
+            newVecObj.shapes.insert(newPts);
+        } else {
+            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (lin)
+            {
+                VectorLinearRef newLin = VectorLinear::createLinear();
+                [newLin->getAttrDict() addEntriesFromDictionary:lin->getAttrDict()];
+                newLin->pts = lin->pts;
+                newVecObj.shapes.insert(newLin);
+            } else {
+                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
+                    newAr->loops = ar->loops;
+                    newVecObj.shapes.insert(newAr);
+                }
+            }
+        }
+    }
+    
+    return newVecObj;
+}
+
 // Look for areals that this point might be inside
 - (bool)pointInAreal:(MaplyCoordinate)coord
 {
@@ -466,6 +503,42 @@ using namespace WhirlyGlobe;
             }
         }
     }
+}
+
+- (void)subdivideToGlobeGreatCircle:(float)epsilon
+{
+    FakeGeocentricDisplayAdapter adapter;
+    CoordSystem *coordSys = adapter.getCoordSystem();
+    
+    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    {
+        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            std::vector<Point3f> outPts;
+            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+            VectorRing outPts2D;
+            outPts2D.resize(outPts.size());
+            for (unsigned int ii=0;ii<outPts.size();ii++)
+                outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+            lin->pts = outPts2D;
+        } else {
+            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                {
+                    std::vector<Point3f> outPts;
+                    SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
+                    VectorRing outPts2D;
+                    outPts2D.resize(outPts.size());
+                    for (unsigned int ii=0;ii<outPts.size();ii++)
+                        outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+                    ar->loops[ii] = outPts2D;
+                }
+            }
+        }
+    }    
 }
 
 - (MaplyVectorObject *) tesselate
