@@ -60,7 +60,7 @@ BigDrawable::~BigDrawable()
 bool BigDrawable::isCompatible(BasicDrawable *draw)
 {
     if (getTexId() == draw->getTexId() && getRequestZBuffer() == draw->getRequestZBuffer() &&
-        getDrawPriority() == draw->getDrawPriority())
+        getDrawPriority() == draw->getDrawPriority() && getWriteZbuffer() == draw->getWriteZbuffer())
     {
         float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
         draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
@@ -76,6 +76,7 @@ void BigDrawable::setModes(BasicDrawable *draw)
 {
     texId = draw->getTexId();
     requestZBuffer = draw->getRequestZBuffer();
+    writeZBuffer = draw->getWriteZbuffer();
     drawPriority = draw->getDrawPriority();
     draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
 }
