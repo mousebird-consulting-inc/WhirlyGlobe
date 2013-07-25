@@ -66,6 +66,9 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 /// Construct as an areal with an exterior
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
 
+/// Make a deep copy.  That is, copy all the vectors rather than just referencing them
+- (MaplyVectorObject *)deepCopy;
+
 /// Add a hole to an existing areal feature
 - (void)addHole:(MaplyCoordinate *)coords numCoords:(int)numCoords;
 
@@ -98,7 +101,12 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 
 /// This will break up long edges in a vector until they lie flat on a globe to a given
 ///  epsilon.  The epislon is in display coordinates (radius = 1.0).
+/// This routine breaks this up along geographic boundaries.
 - (void)subdivideToGlobe:(float)epsilon;
+
+/// This will break up long edges in a vector until they lie flat on a globe to a given
+///  epsilon using a great circle route.  The epislon is in display coordinates (radius = 1.0).
+- (void)subdivideToGlobeGreatCircle:(float)epsilon;
 
 /// Return the input areals tesselated into triangles without attribution.
 /// Note: Doesn't handle holes correctly

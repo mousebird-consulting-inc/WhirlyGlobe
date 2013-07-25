@@ -587,6 +587,21 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
     {
+        // Make need to make a copy if we're going to sample
+        if (inDesc[kMaplySubdivEpsilon])
+        {
+            float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            NSString *subdivType = vecObj.attributes[kMaplySubdivType];
+            bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
+            MaplyVectorObject *newVecObj = [vecObj deepCopy];
+            if (greatCircle)
+                [newVecObj subdivideToGlobeGreatCircle:eps];
+            else
+                [newVecObj subdivideToGlobe:eps];
+
+            shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
+        } else
+            // We'll just reference it
         shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
     }
     

@@ -126,9 +126,15 @@
 #define kMaplyFilled @"filled"
 #define kWGFilled kMaplyFilled
 
-/// If sample is set we'll break the line up before laying it down on the globe
-#define kMaplySample @"sample"
-#define kWGSample kMaplySample
+/// If set we'll break up a vector feature to the given epsilon on a globe surface
+#define kMaplySubdivEpsilon @"subdivisionepsilon"
+/// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
+#define kMaplySubdivType @"subdivsiontype"
+/// Subdivide the vector edges along a great circle
+#define kMaplySubdivGreatCircle @"greatcircle"
+/// Subdivide the vectors edges along lat/lon
+#define kMaplySubdivSimple @"simple"
+
 
 /// These are used for stickers
 
