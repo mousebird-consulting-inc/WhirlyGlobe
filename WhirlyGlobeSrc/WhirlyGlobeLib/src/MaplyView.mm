@@ -33,8 +33,13 @@ using namespace WhirlyKit;
     if (self = [super init])
     {
         coordAdapter = inCoordAdapter;
+        fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+		nearPlane = 0.0001;
+		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+		farPlane = 10.0;
+        lastChangedTime = CFAbsoluteTimeGetCurrent();
+        continuousZoom = false;
         loc = Point3d(0,0,4);
-        farPlane = 10.0;
     }
     
     return self;

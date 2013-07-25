@@ -65,8 +65,10 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
 
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    MaplyView *mapView = (MaplyView *)frameInfo.theView;
     if ([globeView isKindOfClass:[WhirlyGlobeView class]])
     {
+        mapView = nil;
         // Make sure this one is facing toward the viewer
         if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
             return;
@@ -74,7 +76,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         // Note: Need to move to the view frustum logic
         screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
     } else {
-        MaplyView *mapView = (MaplyView *)frameInfo.theView;
+        globeView = nil;
         if ([mapView isKindOfClass:[MaplyView class]])
             screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         else
@@ -103,19 +105,32 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     Matrix2f screenRotMat;
     if (shape->useRotation)
     {
-        Point3f simpleUp(0,0,1);
-        Point3f norm = shape->worldLoc;
-        norm.normalize();
-        Point3f right = simpleUp.cross(norm);
-        Point3f up = norm.cross(right);
-        right.normalize();
-        up.normalize();
+        Point3f norm,right,up;
+        
+        if (globeView)
+        {
+            Point3f simpleUp(0,0,1);
+            norm = shape->worldLoc;
+            norm.normalize();
+            right = simpleUp.cross(norm);
+            up = norm.cross(right);
+            right.normalize();
+            up.normalize();
+        } else {
+            right = Point3f(1,0,0);
+            norm = Point3f(0,0,1);
+            up = Point3f(0,1,0);
+        }
         // Note: Check if the axes made any sense.  We might be at a pole.
         Point3f rightDir = right * sinf(shape->rotation);
         Point3f upDir = up * cosf(shape->rotation);
         
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
-        CGPoint outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        CGPoint outScreenPt;
+        if (globeView)
+            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        else
+            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }
