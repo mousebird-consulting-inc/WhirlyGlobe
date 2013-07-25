@@ -20,16 +20,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class MaplyBaseViewController;
+
 /** An Active object is one that can be manipulated directly on the main thread.
     You make changes in the various subclasses and those changes are reflected
     on the sceen on the next frame render.
   */
 @interface MaplyActiveObject : NSObject
 
-/// Default initialization.  Updates will happen on the main queue.
-- (id)init;
+/// Initialize with the view controller.  You can add objects using that.
+- (id)initWithViewController:(MaplyBaseViewController *)viewC;
 
-/// If initialize this way the active object will be updated on the given queue
-- (id)initWithQueue:(dispatch_queue_t)dispatchQueue;
+@property (nonatomic,readonly) MaplyBaseViewController *viewC;
 
 @end

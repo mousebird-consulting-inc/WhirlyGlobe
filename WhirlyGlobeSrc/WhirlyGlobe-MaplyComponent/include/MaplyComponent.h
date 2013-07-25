@@ -24,12 +24,9 @@
 #import <MaplyScreenLabel.h>
 #import <MaplyMarker.h>
 #import <MaplyScreenMarker.h>
-#import <MaplyActiveScreenMarker.h>
 #import <MaplyShape.h>
 #import <MaplySticker.h>
-#import <MaplyActiveSticker.h>
 #import <MaplyVectorObject.h>
-#import <MaplyActiveVectorObject.h>
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
 #import <MaplyQuadPagingLayer.h>
