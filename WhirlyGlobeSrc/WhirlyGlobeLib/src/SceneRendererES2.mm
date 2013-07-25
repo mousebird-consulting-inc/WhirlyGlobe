@@ -408,6 +408,7 @@ static const float ScreenOverlap = 0.1;
         case zBufferOn:
             [renderStateOptimizer setDepthMask:GL_TRUE];
             [renderStateOptimizer setEnableDepthTest:true];
+            [renderStateOptimizer setDepthFunc:GL_LESS];
             break;
         case zBufferOff:
             [renderStateOptimizer setDepthMask:GL_FALSE];
