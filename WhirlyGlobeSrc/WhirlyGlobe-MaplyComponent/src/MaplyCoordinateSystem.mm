@@ -51,6 +51,11 @@ using namespace WhirlyKit;
     return coordSystem;
 }
 
+- (NSString *)getSRS
+{
+    return @"";
+}
+
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
 {
     if (ret_ll)
@@ -75,6 +80,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (NSString *)getSRS
+{
+    return @"EPSG:4326";
+}
+
 @end
 
 @implementation MaplySphericalMercator
@@ -89,6 +99,11 @@ using namespace WhirlyKit;
     ur.x = pt1.x();  ur.y = pt1.y();
     
     return self;
+}
+
+- (NSString *)getSRS
+{
+    return @"EPSG:3857";
 }
 
 @end

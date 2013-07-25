@@ -59,7 +59,7 @@ using namespace WhirlyKit;
 
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
-    tileLoader.ignoreEdgeMatching = true;
+    tileLoader.ignoreEdgeMatching = !_handleEdges;
     tileLoader.coverPoles = true;
     tileLoader.drawPriority = super.drawPriority;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
@@ -67,6 +67,20 @@ using namespace WhirlyKit;
     [layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setHandleEdges:(bool)handleEdges
+{
+    _handleEdges = handleEdges;
+    if (tileLoader)
+        tileLoader.ignoreEdgeMatching = !_handleEdges;
+}
+
+- (void)setDrawPriority:(int)drawPriority
+{
+    super.drawPriority = drawPriority;
+    if (tileLoader)
+        tileLoader.drawPriority = drawPriority;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
@@ -140,7 +154,28 @@ using namespace WhirlyKit;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       UIImage *image = [tileSource imageForTile:tileID];
+                       // Look for it in the cache first
+                       NSString *localName = nil;
+                       NSData *imgData = nil;
+                       if (_cacheDir)
+                       {
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,level,col,row];
+                           
+                           if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
+                               imgData = [NSData dataWithContentsOfFile:localName];
+                       }
+                       
+                       if (!imgData)
+                       {
+                           imgData = [tileSource imageForTile:tileID];
+                           // Save it out to the cache
+                           if (_cacheDir && imgData)
+                               [imgData writeToFile:localName atomically:YES];
+                       }
+
+                       UIImage *image = nil;
+                       if (imgData)
+                           image = [UIImage imageWithData:imgData];
     
                        NSObject *loadImage = nil;
                        if (image)

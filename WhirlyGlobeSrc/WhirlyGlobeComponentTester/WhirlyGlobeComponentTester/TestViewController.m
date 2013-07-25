@@ -257,6 +257,42 @@ LocationInfo locations[NumLocations] =
             vecWidth = 4.0;
         }
             break;
+        case USGSOrthoRemote:
+        {
+            self.title = @"USGS Orthoimagery - Remote";
+            // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
+            thisCacheDir = [NSString stringWithFormat:@"%@/usgsortho/",cacheDir];
+
+            // Note: Tossing this on to provide background
+            if (globeViewC)
+            {
+                // This is the static image set, included with the app, built with ImageChopper
+                [globeViewC addSphericalEarthLayerWithImageSet:@"lowres_wtb_info"];
+                screenLabelColor = [UIColor whiteColor];
+                screenLabelBackColor = [UIColor whiteColor];
+                labelColor = [UIColor blackColor];
+                labelBackColor = [UIColor whiteColor];
+                vecColor = [UIColor whiteColor];
+                vecWidth = 4.0;
+            }
+
+            MaplyPlateCarree *coordSys = [[MaplyPlateCarree alloc] initFullCoverage];
+            MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layers:@[@"0"] coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
+            tileSource.transparent = true;
+            MaplyQuadEarthTilesLayer *layer = [[MaplyQuadEarthTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
+            layer.handleEdges = true;
+            layer.cacheDir = thisCacheDir;
+            // Note: Need to add caching for this layer
+            [baseViewC addLayer:layer];
+
+            screenLabelColor = [UIColor whiteColor];
+            screenLabelBackColor = [UIColor whiteColor];
+            labelColor = [UIColor blackColor];
+            labelBackColor = [UIColor whiteColor];
+            vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+            vecWidth = 4.0;
+        }
+            break;
         case MapBoxTilesSat1:
         {
             self.title = @"MapBox Tiles Satellite - Remote";

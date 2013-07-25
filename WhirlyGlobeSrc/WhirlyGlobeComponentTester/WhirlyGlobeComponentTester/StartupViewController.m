@@ -118,6 +118,9 @@
         case OpenStreetmapRemote:
             cell.textLabel.text = @"OpenStreetMap - Remote";
             break;
+        case USGSOrthoRemote:
+            cell.textLabel.text = @"WMS - USGS Ortho - Remote";
+            break;
         case MapBoxTilesSat1:
             cell.textLabel.text = @"MapBox Tiles Satellite - Remote";
             break;

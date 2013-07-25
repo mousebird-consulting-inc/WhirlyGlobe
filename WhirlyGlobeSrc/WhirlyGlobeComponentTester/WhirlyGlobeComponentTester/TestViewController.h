@@ -26,7 +26,7 @@
 typedef enum {MapGlobe,MapMap} MapType;
 
 // The various base layers we know about
-typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,BlueMarbleSingleResLocal,QuadTestLayer,MaxBaseLayers} BaseLayer;
+typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,USGSOrthoRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,BlueMarbleSingleResLocal,QuadTestLayer,MaxBaseLayers} BaseLayer;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.

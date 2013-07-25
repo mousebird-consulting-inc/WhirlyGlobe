@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "MaplyCoordinate.h"
 
 /** The coordinate system is an opaque object representing a particular
     spatial coordinate system (e.g. Plate Caree or Spherical Mercator)
@@ -28,6 +29,13 @@
     this can be expanded in the future.
   */
 @interface MaplyCoordinateSystem : NSObject
+
+/// Return the bounding box (in local coordinates)
+- (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
+
+/// Express this coordinate system using SRS syntax
+- (NSString *)getSRS;
+
 @end
 
 /** Plate Carree is just lat/lon stretched out to its full extents.
