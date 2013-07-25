@@ -145,6 +145,7 @@ using namespace WhirlyGlobe;
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
     WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:globeScene texGroup:name];
+    newLayer.drawPriority = layerDrawPriority++;
     if (!newLayer)
         return nil;
     

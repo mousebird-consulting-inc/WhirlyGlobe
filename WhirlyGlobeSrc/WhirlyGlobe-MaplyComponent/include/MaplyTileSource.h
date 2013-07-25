@@ -43,6 +43,6 @@ typedef struct
 - (int)tileSize;
 
 /// Return the image for a given tile
-- (UIImage *)imageForTile:(MaplyTileID)tileID;
+- (NSData *)imageForTile:(MaplyTileID)tileID;
 
 @end

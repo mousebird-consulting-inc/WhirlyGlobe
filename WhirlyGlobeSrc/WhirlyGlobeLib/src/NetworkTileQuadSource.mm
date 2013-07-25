@@ -257,7 +257,7 @@ using namespace WhirlyKit;
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       NSData *imgData;
+                       NSData *imgData = nil;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;

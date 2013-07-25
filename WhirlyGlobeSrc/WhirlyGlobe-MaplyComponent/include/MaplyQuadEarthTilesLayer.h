@@ -35,7 +35,10 @@
 /// Change the number of fetches allowed at once
 @property (nonatomic,assign) int numSimultaneousFetches;
 
-/// Priority of tiles we generate
-@property (nonatomic,assign) int drawPriority;
+/// Whether or not we use skirts
+@property (nonatomic,assign) bool handleEdges;
+
+/// Where we'll store cached images
+@property (nonatomic) NSString *cacheDir;
 
 @end
