@@ -386,7 +386,8 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
         return;
     
     Mbr localScreenMbr;
-    localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
+    if (globeView)
+        localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
     
     // If this doesn't overlap what we're viewing, we're done
     if (doCulling && !screenMbr.overlaps(localScreenMbr))
