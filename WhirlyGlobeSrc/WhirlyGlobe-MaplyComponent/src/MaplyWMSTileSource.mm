@@ -46,14 +46,14 @@
     if (![_crs compare:@"EPSG:4326"])
     {
         crs = [[MaplyPlateCarree alloc] initFullCoverage];
-        MaplyCoordinate ll = MaplyCoordinateMakeWithDegrees(_miny, _minx);
-        MaplyCoordinate ur = MaplyCoordinateMakeWithDegrees(_maxy, _maxx);
+        MaplyCoordinate ll = MaplyCoordinateMakeWithDegrees(_minx, _miny);
+        MaplyCoordinate ur = MaplyCoordinateMakeWithDegrees(_maxx, _maxy);
         [crs setBoundsLL:&ll ur:&ur];
     } else if (![_crs compare:@"EPSG:3857"])
     {
         MaplySphericalMercator *crs = [[MaplySphericalMercator alloc] initWebStandard];
-        MaplyCoordinate ll = MaplyCoordinateMakeWithDegrees(_miny, _minx);
-        MaplyCoordinate ur = MaplyCoordinateMakeWithDegrees(_maxy, _maxx);
+        MaplyCoordinate ll = MaplyCoordinateMakeWithDegrees(_minx, _miny);
+        MaplyCoordinate ur = MaplyCoordinateMakeWithDegrees(_maxx, _maxy);
         [crs setBoundsLL:&ll ur:&ur];
     }
     
@@ -109,7 +109,11 @@
         float urx = [[[simpleBbox attributeForName:@"maxx"] stringValue] doubleValue];
         float ury = [[[simpleBbox attributeForName:@"maxy"] stringValue] doubleValue];
         _ll = MaplyCoordinateMakeWithDegrees(llx, lly);
+        _ll.x = MAX(_ll.x,-M_PI);
+        _ll.y = MAX(_ll.y,-M_PI/2.0);
         _ur = MaplyCoordinateMakeWithDegrees(urx, ury);
+        _ur.x = MIN(_ur.x,M_PI);
+        _ur.y = MIN(_ur.y,M_PI/2.0);
     }
     
     // The various coordinate reference systems the layer supports
