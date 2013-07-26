@@ -56,6 +56,17 @@ using namespace WhirlyKit;
     return @"";
 }
 
+- (bool)canBeDegrees
+{
+    return false;
+}
+
+- (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
+{
+    ll = *inLL;
+    ur = *inUR;
+}
+
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
 {
     if (ret_ll)
@@ -85,6 +96,11 @@ using namespace WhirlyKit;
     return @"EPSG:4326";
 }
 
+- (bool)canBeDegrees
+{
+    return true;
+}
+
 @end
 
 @implementation MaplySphericalMercator
@@ -104,6 +120,11 @@ using namespace WhirlyKit;
 - (NSString *)getSRS
 {
     return @"EPSG:3857";
+}
+
+- (bool)canBeDegrees
+{
+    return true;
 }
 
 @end

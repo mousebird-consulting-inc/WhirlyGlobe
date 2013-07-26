@@ -42,6 +42,7 @@ using namespace WhirlyKit;
     
     coordSys = inCoordSys;
     tileSource = inTileSource;
+    _coverPoles = true;
     _numSimultaneousFetches = 16;
     
     return self;
@@ -60,7 +61,7 @@ using namespace WhirlyKit;
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     tileLoader.ignoreEdgeMatching = !_handleEdges;
-    tileLoader.coverPoles = true;
+    tileLoader.coverPoles = _coverPoles;
     tileLoader.drawPriority = super.drawPriority;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
 
@@ -74,6 +75,13 @@ using namespace WhirlyKit;
     _handleEdges = handleEdges;
     if (tileLoader)
         tileLoader.ignoreEdgeMatching = !_handleEdges;
+}
+
+- (void)setCoverPoles:(bool)coverPoles
+{
+    _coverPoles = coverPoles;
+    if (tileLoader)
+        tileLoader.coverPoles = coverPoles;
 }
 
 - (void)setDrawPriority:(int)drawPriority
