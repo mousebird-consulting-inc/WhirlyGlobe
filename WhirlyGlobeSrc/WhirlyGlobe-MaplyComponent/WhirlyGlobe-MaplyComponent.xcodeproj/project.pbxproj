@@ -19,6 +19,19 @@
 		2B0B0D1415C1D88600CCB3B2 /* MaplyViewTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0B0D1215C1D88600CCB3B2 /* MaplyViewTracker.m */; };
 		2B0D62D017A1D9AC00C3298D /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62CF17A1D9AC00C3298D /* MaplyWMSTileSource.h */; };
 		2B0D62D317A1D9BB00C3298D /* MaplyWMSTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62D217A1D9BB00C3298D /* MaplyWMSTileSource.mm */; };
+		2B0D62ED17A2ECCA00C3298D /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D62EC17A2ECCA00C3298D /* libxml2.dylib */; };
+		2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62F317A2EDA300C3298D /* DDXMLElementAdditions.h */; };
+		2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62F417A2EDA300C3298D /* DDXMLElementAdditions.m */; };
+		2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62F617A2EDA300C3298D /* NSString+DDXML.h */; };
+		2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62F717A2EDA300C3298D /* NSString+DDXML.m */; };
+		2B0D630517A2EDA300C3298D /* DDXML.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62F817A2EDA300C3298D /* DDXML.h */; };
+		2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62F917A2EDA300C3298D /* DDXMLDocument.h */; };
+		2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62FA17A2EDA300C3298D /* DDXMLDocument.m */; };
+		2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62FB17A2EDA300C3298D /* DDXMLElement.h */; };
+		2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62FC17A2EDA300C3298D /* DDXMLElement.m */; };
+		2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */; };
+		2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */; };
+		2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */; };
 		2B0E934515BF441200B3F95F /* MaplyQuadEarthWithMBTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0E934315BF441200B3F95F /* MaplyQuadEarthWithMBTiles.mm */; };
 		2B0E934B15BF447100B3F95F /* MaplyQuadEarthWithMBTiles_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0E934A15BF447100B3F95F /* MaplyQuadEarthWithMBTiles_private.h */; };
 		2B0E935215BF4EE000B3F95F /* MaplyQuadEarthWithRemoteTiles_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0E935115BF4EE000B3F95F /* MaplyQuadEarthWithRemoteTiles_private.h */; };
@@ -123,6 +136,19 @@
 		2B0B0D1215C1D88600CCB3B2 /* MaplyViewTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyViewTracker.m; path = src/MaplyViewTracker.m; sourceTree = SOURCE_ROOT; };
 		2B0D62CF17A1D9AC00C3298D /* MaplyWMSTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyWMSTileSource.h; path = include/MaplyWMSTileSource.h; sourceTree = SOURCE_ROOT; };
 		2B0D62D217A1D9BB00C3298D /* MaplyWMSTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyWMSTileSource.mm; path = src/MaplyWMSTileSource.mm; sourceTree = SOURCE_ROOT; };
+		2B0D62EC17A2ECCA00C3298D /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
+		2B0D62F317A2EDA300C3298D /* DDXMLElementAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDXMLElementAdditions.h; sourceTree = "<group>"; };
+		2B0D62F417A2EDA300C3298D /* DDXMLElementAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDXMLElementAdditions.m; sourceTree = "<group>"; };
+		2B0D62F617A2EDA300C3298D /* NSString+DDXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+DDXML.h"; sourceTree = "<group>"; };
+		2B0D62F717A2EDA300C3298D /* NSString+DDXML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+DDXML.m"; sourceTree = "<group>"; };
+		2B0D62F817A2EDA300C3298D /* DDXML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXML.h; path = "../../third-party/KissXML/KissXML/DDXML.h"; sourceTree = "<group>"; };
+		2B0D62F917A2EDA300C3298D /* DDXMLDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXMLDocument.h; path = "../../third-party/KissXML/KissXML/DDXMLDocument.h"; sourceTree = "<group>"; };
+		2B0D62FA17A2EDA300C3298D /* DDXMLDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLDocument.m; path = "../../third-party/KissXML/KissXML/DDXMLDocument.m"; sourceTree = "<group>"; };
+		2B0D62FB17A2EDA300C3298D /* DDXMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXMLElement.h; path = "../../third-party/KissXML/KissXML/DDXMLElement.h"; sourceTree = "<group>"; };
+		2B0D62FC17A2EDA300C3298D /* DDXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLElement.m; path = "../../third-party/KissXML/KissXML/DDXMLElement.m"; sourceTree = "<group>"; };
+		2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXMLNode.h; path = "../../third-party/KissXML/KissXML/DDXMLNode.h"; sourceTree = "<group>"; };
+		2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLNode.m; path = "../../third-party/KissXML/KissXML/DDXMLNode.m"; sourceTree = "<group>"; };
+		2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDXMLPrivate.h; sourceTree = "<group>"; };
 		2B0E934315BF441200B3F95F /* MaplyQuadEarthWithMBTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyQuadEarthWithMBTiles.mm; path = src/MaplyQuadEarthWithMBTiles.mm; sourceTree = SOURCE_ROOT; };
 		2B0E934A15BF447100B3F95F /* MaplyQuadEarthWithMBTiles_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadEarthWithMBTiles_private.h; path = include/private/MaplyQuadEarthWithMBTiles_private.h; sourceTree = SOURCE_ROOT; };
 		2B0E935115BF4EE000B3F95F /* MaplyQuadEarthWithRemoteTiles_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadEarthWithRemoteTiles_private.h; path = include/private/MaplyQuadEarthWithRemoteTiles_private.h; sourceTree = SOURCE_ROOT; };
@@ -210,6 +236,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B0D62ED17A2ECCA00C3298D /* libxml2.dylib in Frameworks */,
 				2B604125179901B0008BA2F6 /* libstdc++.dylib in Frameworks */,
 				2B61D78A1603F5CE007888CF /* libWhirlyGlobeLib.a in Frameworks */,
 				2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */,
@@ -231,9 +258,58 @@
 			name = "view controller";
 			sourceTree = "<group>";
 		};
+		2B0D62DB17A2E87B00C3298D /* KissXML */ = {
+			isa = PBXGroup;
+			children = (
+				2B0D62F217A2EDA300C3298D /* Additions */,
+				2B0D62F517A2EDA300C3298D /* Categories */,
+				2B0D62F817A2EDA300C3298D /* DDXML.h */,
+				2B0D62F917A2EDA300C3298D /* DDXMLDocument.h */,
+				2B0D62FA17A2EDA300C3298D /* DDXMLDocument.m */,
+				2B0D62FB17A2EDA300C3298D /* DDXMLElement.h */,
+				2B0D62FC17A2EDA300C3298D /* DDXMLElement.m */,
+				2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */,
+				2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */,
+				2B0D62FF17A2EDA300C3298D /* Private */,
+			);
+			name = KissXML;
+			path = ../WhirlyGlobeComponentTester;
+			sourceTree = "<group>";
+		};
+		2B0D62F217A2EDA300C3298D /* Additions */ = {
+			isa = PBXGroup;
+			children = (
+				2B0D62F317A2EDA300C3298D /* DDXMLElementAdditions.h */,
+				2B0D62F417A2EDA300C3298D /* DDXMLElementAdditions.m */,
+			);
+			name = Additions;
+			path = "../../third-party/KissXML/KissXML/Additions";
+			sourceTree = "<group>";
+		};
+		2B0D62F517A2EDA300C3298D /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				2B0D62F617A2EDA300C3298D /* NSString+DDXML.h */,
+				2B0D62F717A2EDA300C3298D /* NSString+DDXML.m */,
+			);
+			name = Categories;
+			path = "../../third-party/KissXML/KissXML/Categories";
+			sourceTree = "<group>";
+		};
+		2B0D62FF17A2EDA300C3298D /* Private */ = {
+			isa = PBXGroup;
+			children = (
+				2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */,
+			);
+			name = Private;
+			path = "../../third-party/KissXML/KissXML/Private";
+			sourceTree = "<group>";
+		};
 		2B11E0D015B4C030007AAE3F = {
 			isa = PBXGroup;
 			children = (
+				2B0D62EC17A2ECCA00C3298D /* libxml2.dylib */,
+				2B0D62DB17A2E87B00C3298D /* KissXML */,
 				2B61D7AB16078A27007888CF /* Component Base */,
 				2B61D7AA16078A21007888CF /* MaplyComponent */,
 				2B11E0E015B4C030007AAE3F /* WhirlyGlobeComponent */,
@@ -511,6 +587,13 @@
 				2B44E817174B20A800474C2B /* MaplyQuadPagingLayer.h in Headers */,
 				2B44E81E174B20F500474C2B /* MaplyQuadPagingLayer_private.h in Headers */,
 				2B0D62D017A1D9AC00C3298D /* MaplyWMSTileSource.h in Headers */,
+				2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */,
+				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
+				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
+				2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */,
+				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
+				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
+				2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -613,6 +696,11 @@
 				2BCA68A41741957700696BA8 /* MaplyQuadEarthTilesLayer.mm in Sources */,
 				2B44E81C174B20C700474C2B /* MaplyQuadPagingLayer.mm in Sources */,
 				2B0D62D317A1D9BB00C3298D /* MaplyWMSTileSource.mm in Sources */,
+				2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */,
+				2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */,
+				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
+				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
+				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -622,7 +710,7 @@
 		2B11E0E615B4C030007AAE3F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -637,6 +725,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -646,7 +735,7 @@
 		2B11E0E715B4C030007AAE3F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
@@ -654,6 +743,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -671,6 +761,7 @@
 					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
+					/usr/include/libxml2,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
@@ -694,6 +785,7 @@
 					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
+					/usr/include/libxml2,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";

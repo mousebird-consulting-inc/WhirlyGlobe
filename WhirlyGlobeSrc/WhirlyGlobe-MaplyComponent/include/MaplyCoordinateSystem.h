@@ -30,11 +30,19 @@
   */
 @interface MaplyCoordinateSystem : NSObject
 
+/// Set the bounding box in the coordinate system.
+/// If this one that uses degrees, use radians instead
+- (void)setBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ll;
+
 /// Return the bounding box (in local coordinates)
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
 
 /// Express this coordinate system using SRS syntax
 - (NSString *)getSRS;
+
+/// Can these coordinates be expressed as degrees?
+/// Some systems will need that
+- (bool)canBeDegrees;
 
 @end
 

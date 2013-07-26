@@ -21,6 +21,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "TestViewController.h"
 #import "AFJSONRequestOperation.h"
+#import "AFKissXMLRequestOperation.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -261,7 +262,7 @@ LocationInfo locations[NumLocations] =
         {
             self.title = @"USGS Orthoimagery - Remote";
             // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
-            thisCacheDir = [NSString stringWithFormat:@"%@/usgsortho/",cacheDir];
+            thisCacheDir = [NSString stringWithFormat:@"%@/usgsortho2/",cacheDir];
 
             // Note: Tossing this on to provide background
             if (globeViewC)
@@ -275,15 +276,9 @@ LocationInfo locations[NumLocations] =
                 vecColor = [UIColor whiteColor];
                 vecWidth = 4.0;
             }
-
-            MaplyPlateCarree *coordSys = [[MaplyPlateCarree alloc] initFullCoverage];
-            MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layers:@[@"0"] coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
-            tileSource.transparent = true;
-            MaplyQuadEarthTilesLayer *layer = [[MaplyQuadEarthTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
-            layer.handleEdges = true;
-            layer.cacheDir = thisCacheDir;
-            // Note: Need to add caching for this layer
-            [baseViewC addLayer:layer];
+            
+            [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir];
+//            [self fetchWMSLayer:@"http://wms.jpl.nasa.gov/wms.cgi" layer:@"global_mosaic" style:@"visual" cacheDir:@"jpl_nasa_globe_mosaic"];
 
             screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
@@ -403,6 +398,60 @@ LocationInfo locations[NumLocations] =
     
     // Settings panel
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showPopControl)];
+}
+
+// Try to fetch the given WMS layer
+- (void)fetchWMSLayer:(NSString *)baseURL layer:(NSString *)layerName style:(NSString *)styleName cacheDir:(NSString *)thisCacheDir
+{
+    NSString *capabilitiesURL = [MaplyWMSCapabilities CapabilitiesURLFor:baseURL];
+    
+    AFKissXMLRequestOperation *operation = [AFKissXMLRequestOperation XMLDocumentRequestOperationWithRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:capabilitiesURL]] success:^(NSURLRequest *request, NSHTTPURLResponse *response, DDXMLDocument *XMLDocument)
+    {
+        [self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir];
+    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, DDXMLDocument *XMLDocument)
+    {
+        // Sometimes this works anyway
+        if (![self startWMSLayerBaseURL:baseURL xml:XMLDocument layer:layerName style:styleName cacheDir:thisCacheDir])
+            NSLog(@"Failed to get capabilities from WMS server: %@",capabilitiesURL);
+    }];
+    
+    [operation start];
+}
+
+// Try to start the layer, given the capabilities
+- (bool)startWMSLayerBaseURL:(NSString *)baseURL xml:(DDXMLDocument *)XMLDocument layer:(NSString *)layerName style:(NSString *)styleName cacheDir:(NSString *)thisCacheDir
+{
+    // See what the service can provide
+    MaplyWMSCapabilities *cap = [[MaplyWMSCapabilities alloc] initWithXML:XMLDocument];
+    MaplyWMSLayer *layer = [cap findLayer:layerName];
+    MaplyCoordinateSystem *coordSys = [layer buildCoordSystem];
+    MaplyWMSStyle *style = [layer findStyle:styleName];
+    if (!layer)
+    {
+        NSLog(@"Couldn't find layer %@ in WMS response.",layerName);
+        return false;
+    } else if (!coordSys)
+    {
+        NSLog(@"No coordinate system we recognize in WMS response.");
+        return false;
+    } else if (styleName && !style)
+    {
+        NSLog(@"No style named %@ in WMS response.",styleName);
+        return false;
+    }
+    
+    if (layer && coordSys)
+    {
+        MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
+        tileSource.transparent = true;
+        MaplyQuadEarthTilesLayer *imageLayer = [[MaplyQuadEarthTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
+        imageLayer.coverPoles = false;
+        imageLayer.handleEdges = true;
+        imageLayer.cacheDir = thisCacheDir;
+        [baseViewC addLayer:imageLayer];
+    }
+    
+    return true;
 }
 
 - (void)viewDidUnload
