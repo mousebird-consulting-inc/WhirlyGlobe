@@ -25,3 +25,9 @@
 [submodule "third-party/glues"]
 	path = third-party/glues
 	url = https://github.com/lunixbochs/glues.git
+[submodule "third-party/KissXML"]
+	path = third-party/KissXML
+	url = https://github.com/robbiehanson/KissXML.git
+[submodule "third-party/AFKissXMLRequestOperation"]
+	path = third-party/AFKissXMLRequestOperation
+	url = https://github.com/AFNetworking/AFKissXMLRequestOperation.git

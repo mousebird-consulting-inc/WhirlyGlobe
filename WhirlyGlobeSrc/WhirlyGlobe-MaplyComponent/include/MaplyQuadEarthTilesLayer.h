@@ -38,6 +38,9 @@
 /// Whether or not we use skirts
 @property (nonatomic,assign) bool handleEdges;
 
+/// Whether or not we try to cover the poles
+@property (nonatomic,assign) bool coverPoles;
+
 /// Where we'll store cached images
 @property (nonatomic) NSString *cacheDir;
 
