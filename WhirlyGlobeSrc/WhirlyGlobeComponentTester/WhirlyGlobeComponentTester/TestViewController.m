@@ -261,8 +261,6 @@ LocationInfo locations[NumLocations] =
         case USGSOrthoRemote:
         {
             self.title = @"USGS Orthoimagery - Remote";
-            // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
-            thisCacheDir = [NSString stringWithFormat:@"%@/usgsortho2/",cacheDir];
 
             // Note: Tossing this on to provide background
             if (globeViewC)
@@ -277,8 +275,10 @@ LocationInfo locations[NumLocations] =
                 vecWidth = 4.0;
             }
             
+            thisCacheDir = [NSString stringWithFormat:@"%@/usgs_naip/",cacheDir];
             [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir];
-//            [self fetchWMSLayer:@"http://wms.jpl.nasa.gov/wms.cgi" layer:@"global_mosaic" style:@"visual" cacheDir:@"jpl_nasa_globe_mosaic"];
+//            thisCacheDir = [NSString stringWithFormat:@"%@/lizardtech_MODIS/",cacheDir];
+//            [self fetchWMSLayer:@"http://demo.lizardtech.com/lizardtech/iserv/ows" layer:@"MODIS" style:nil cacheDir:thisCacheDir];
 
             screenLabelColor = [UIColor whiteColor];
             screenLabelBackColor = [UIColor whiteColor];
