@@ -64,6 +64,7 @@
     <item>layoutImportance [NSNumber float]  [If set and layout is on, this is the importance value used in competition in the layout layer]
     <item>shadowSize      [NSNumber float]  [If set, we'll draw a background shadow underneath the text of this width]
     <item>shadowColor     [UIcolor]  [If shadow size is non-zero, this will be the color we draw the shadow in.  Defaults to black.]
+    <item>shader          [NSNumber long long]  [If set, the shader ID to use when drawing these labels.]
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>

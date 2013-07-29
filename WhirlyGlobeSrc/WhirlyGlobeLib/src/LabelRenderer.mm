@@ -61,6 +61,7 @@ namespace WhirlyKit
 @synthesize shadowSize;
 @synthesize outlineColor;
 @synthesize outlineSize;
+@synthesize shaderID;
 
 // Parse label info out of a description
 - (void)parseDesc:(NSDictionary *)desc
@@ -82,6 +83,7 @@ namespace WhirlyKit
     shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
     outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
     outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
+    shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     if (![justifyStr compare:@"middle"])
         justify = WhirlyKitLabelMiddle;
     else {
@@ -607,6 +609,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     {
                         // And a corresponding drawable
                         BasicDrawable *drawable = new BasicDrawable("Label Layer");
+                        drawable->setProgram(labelInfo.shaderID);
                         drawable->setDrawOffset(labelInfo.drawOffset);
                         drawable->setType(GL_TRIANGLES);
                         drawable->setColor(RGBAColor(255,255,255,255));
@@ -624,6 +627,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 {
                     // Add a drawable for just the one label because it's too big
                     drawable = new BasicDrawable("Label Layer");
+                    drawable->setProgram(labelInfo.shaderID);
                     drawable->setDrawOffset(labelInfo.drawOffset);
                     drawable->setType(GL_TRIANGLES);
                     drawable->setColor(RGBAColor(255,255,255,255));
@@ -856,6 +860,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 {
                     // Create one
                     iconDrawable = new BasicDrawable("Label Layer");
+                    drawable->setProgram(labelInfo.shaderID);
                     iconDrawable->setDrawOffset(labelInfo.drawOffset);
                     iconDrawable->setType(GL_TRIANGLES);
                     iconDrawable->setColor(RGBAColor(255,255,255,255));
