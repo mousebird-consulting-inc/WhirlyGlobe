@@ -587,7 +587,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
     {
-        // Make need to make a copy if we're going to sample
+        // Maybe need to make a copy if we're going to sample
         if (inDesc[kMaplySubdivEpsilon])
         {
             float eps = [inDesc[kMaplySubdivEpsilon] floatValue];

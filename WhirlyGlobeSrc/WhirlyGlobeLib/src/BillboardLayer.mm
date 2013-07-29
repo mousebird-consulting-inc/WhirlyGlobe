@@ -190,7 +190,7 @@ void BillboardDrawableBuilder::flush()
     OpenGLES2Program *prog = BuildBillboardProgram();
     if (prog)
     {
-        scene->addProgram(prog);
+        scene->addProgram("Billboard Shader",prog);
         billboardProgram = prog->getId();
     }
 }

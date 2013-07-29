@@ -149,73 +149,6 @@ using namespace Maply;
     [self performSelector:@selector(setupFlatView) withObject:nil afterDelay:0.0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
-static const char *vertexShaderNoLightTri =
-"uniform mat4  u_mvpMatrix;                   \n"
-"uniform float u_fade;                        \n"
-"attribute vec3 a_position;                  \n"
-"attribute vec2 a_texCoord;                  \n"
-"attribute vec4 a_color;                     \n"
-"attribute vec3 a_normal;                    \n"
-"\n"
-"varying vec2 v_texCoord;                    \n"
-"varying vec4 v_color;                       \n"
-"\n"
-"void main()                                 \n"
-"{                                           \n"
-"   v_texCoord = a_texCoord;                 \n"
-"   v_color = a_color * u_fade;\n"
-"\n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
-"}                                           \n"
-;
-
-static const char *fragmentShaderNoLightTri =
-"precision mediump float;                            \n"
-"\n"
-"uniform sampler2D s_baseMap;                        \n"
-"uniform bool  u_hasTexture;                         \n"
-"\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
-//"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-//"  if (baseColor.a < 0.1)                            \n"
-//"      discard;                                      \n"
-"  gl_FragColor = v_color * baseColor;  \n"
-"}                                                   \n"
-;
-
-static const char *vertexShaderNoLightLine =
-"uniform mat4  u_mvpMatrix;"
-"uniform float u_fade;"
-""
-"attribute vec3 a_position;"
-"attribute vec4 a_color;"
-"attribute vec3 a_normal;"
-""
-"varying vec4      v_color;"
-""
-"void main()"
-"{"
-"   v_color = a_color * u_fade;"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
-"}"
-;
-
-static const char *fragmentShaderNoLightLine =
-"precision mediump float;"
-""
-"varying vec4      v_color;"
-""
-"void main()"
-"{"
-"  gl_FragColor = v_color;"
-"}"
-;
-
 - (void) loadSetup_lighting
 {
     if (![sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
@@ -230,17 +163,9 @@ static const char *fragmentShaderNoLightLine =
     // We need to add a new shader to turn it off
     if (!lightingRegular)
     {
-        // Note: Should keep a reference to these around.  I bet we're leaking
-        OpenGLES2Program *triShader = new OpenGLES2Program("Default No Lighting Triangle Program",vertexShaderNoLightTri,fragmentShaderNoLightTri);
-        OpenGLES2Program *lineShader = new OpenGLES2Program("Default Line Program",vertexShaderNoLightLine,fragmentShaderNoLightLine);
-        if (!triShader->isValid() || !lineShader->isValid())
-        {
-            NSLog(@"MaplyBaseViewController: Shader didn't compile.  Using default.");
-            delete triShader;
-            delete lineShader;
-        } else {
-            scene->setDefaultPrograms(triShader,lineShader);
-        }
+        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+        if (triNoLighting != EmptyIdentity)
+            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
     } else {
         // Add a default light
         MaplyLight *light = [[MaplyLight alloc] init];

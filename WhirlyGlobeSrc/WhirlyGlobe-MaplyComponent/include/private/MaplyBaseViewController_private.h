@@ -118,7 +118,4 @@
 /// Make the renderer's GL context active.  This is used internally.
 - (void) useGLContext;
 
-/// Every shader created with a view controller needs to be tracked by the view controller
-- (void) addShader:(MaplyShader *)shader;
-
 @end

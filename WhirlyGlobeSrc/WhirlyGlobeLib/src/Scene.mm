@@ -37,7 +37,6 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
-    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
 }
     
@@ -128,9 +127,11 @@ Scene::~Scene()
     subTextureMap.clear();
 
     // Note: Should be clearing program out of context somewhere
-    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
         delete *it;
+    glPrograms.clear();
+    glProgramMap.clear();
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
@@ -422,52 +423,100 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 
     OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
-    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
     if (it != glPrograms.end())
+    {
         prog = *it;
+    }
     
     pthread_mutex_unlock(&programLock);
         
     return prog;
 }
     
-OpenGLES2Program *Scene::getProgram(const std::string &name)
+OpenGLES2Program *Scene::getProgramBySceneName(const std::string &sceneName)
 {
+    OpenGLES2Program *prog = NULL;
+
     pthread_mutex_lock(&programLock);
     
-    OpenGLES2Program *prog = NULL;
-    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
-         it != glPrograms.end(); ++it)
-        if ((*it)->getName() == name)
-            prog = *it;
+    OpenGLES2ProgramMap::iterator it = glProgramMap.find(sceneName);
+    if (it != glProgramMap.end())
+        prog = it->second;
             
     pthread_mutex_unlock(&programLock);
     
     return prog;
 }
 
-SimpleIdentity Scene::getProgramId(const std::string &name)
+SimpleIdentity Scene::getProgramIDBySceneName(const std::string &sceneName)
 {
+    OpenGLES2Program *prog = getProgramBySceneName(sceneName);
+    return prog ? prog->getId() : EmptyIdentity;
+}
+    
+OpenGLES2Program *Scene::getProgramByName(const std::string &name)
+{
+    OpenGLES2Program *prog = NULL;
+    
     pthread_mutex_lock(&programLock);
     
-    OpenGLES2Program *prog = NULL;
-    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
-        if ((*it)->getName() == name)
+        if (!name.compare((*it)->getName()))
+        {
             prog = *it;
+            break;
+        }
     
     pthread_mutex_unlock(&programLock);
     
-    if (prog)
-        return prog->getId();
-    return EmptyIdentity;
+    return prog;
 }
-
+    
+/// Search for a shader program by its name (not the scene name)
+SimpleIdentity Scene::getProgramIDByName(const std::string &name)
+{
+    OpenGLES2Program *prog = getProgramByName(name);
+    return prog ? prog->getId() : EmptyIdentity;
+}
+    
 void Scene::addProgram(OpenGLES2Program *prog)
 {
     pthread_mutex_lock(&programLock);
     
-    glPrograms.insert(prog);
+    if (glPrograms.find(prog) == glPrograms.end())
+        glPrograms.insert(prog);
+    
+    pthread_mutex_unlock(&programLock);
+}
+
+
+void Scene::addProgram(const std::string &sceneName,OpenGLES2Program *prog)
+{
+    pthread_mutex_lock(&programLock);
+
+    if (glPrograms.find(prog) == glPrograms.end())
+        glPrograms.insert(prog);
+    glProgramMap[sceneName] = prog;
+    
+    pthread_mutex_unlock(&programLock);
+}
+    
+void Scene::setSceneProgram(const std::string &sceneName,SimpleIdentity progId)
+{
+    pthread_mutex_lock(&programLock);
+    
+    OpenGLES2Program *prog = NULL;
+    OpenGLES2Program dummy(progId);
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
+    if (it != glPrograms.end())
+    {
+        prog = *it;
+    }
+    
+    if (prog)
+        glProgramMap[sceneName] = prog;
     
     pthread_mutex_unlock(&programLock);
 }
@@ -475,42 +524,31 @@ void Scene::addProgram(OpenGLES2Program *prog)
 void Scene::removeProgram(SimpleIdentity progId)
 {
     pthread_mutex_lock(&programLock);
-
-    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
-    for (it = glPrograms.begin();it != glPrograms.end(); ++it)
-        if ((*it)->getId() == progId)
-            break;
     
+    OpenGLES2Program *prog = NULL;
+    OpenGLES2Program dummy(progId);
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
     if (it != glPrograms.end())
+        prog = *it;
+    
+    if (prog)
+    {
+        // Remove references in the map
+        std::vector<OpenGLES2ProgramMap::iterator> toErase;
+        OpenGLES2ProgramMap::iterator it2;
+        for (it2 = glProgramMap.begin();it2 != glProgramMap.end(); ++it2)
+            if (it2->second == prog)
+                toErase.push_back(it2);
+        for (unsigned int ii=0;ii<toErase.size();ii++)
+            glProgramMap.erase(toErase[ii]);
+        
+        // And get rid of it in the list of programs
         glPrograms.erase(it);
+    }
     
     pthread_mutex_unlock(&programLock);
 }
-
-void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
-{
-    if (progTri)
-    {
-        addProgram(progTri);
-        defaultProgramTri = progTri->getId();
-    }
-    if (progLine)
-    {
-        defaultProgramLine = progLine->getId();
-        addProgram(progLine);
-    }
-}
     
-void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)
-{
-    pthread_mutex_lock(&programLock);
-
-    triShader = defaultProgramTri;
-    lineShader = defaultProgramLine;
-
-    pthread_mutex_unlock(&programLock);
-}
-
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
@@ -585,7 +623,7 @@ void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
 
 void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    scene->addProgram(program);
+    scene->addProgram(sceneName,program);
     program = NULL;
 }
 
