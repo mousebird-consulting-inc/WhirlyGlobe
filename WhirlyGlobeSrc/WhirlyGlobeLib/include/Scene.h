@@ -35,6 +35,11 @@
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
 
+/// How the scene refers to the default triangle shader (and how you replace it)
+#define kSceneDefaultTriShader "Default Triangle Shader"
+/// How the scene refers to the default line shader (and how you replace it)
+#define kSceneDefaultLineShader "Default Line Shader"
+
 /// @cond
 @class WhirlyKitSceneRendererES;
 @class WhirlyKitFontTextureManager;
@@ -158,13 +163,14 @@ class AddProgramReq : public ChangeRequest
 {
 public:
     // Construct with the program to add
-    AddProgramReq(OpenGLES2Program *prog) : program(prog) { }
+    AddProgramReq(const std::string &sceneName,OpenGLES2Program *prog) : sceneName(sceneName), program(prog) { }
     ~AddProgramReq() { if (program) delete program; program = NULL; }
     
     /// Remove from the renderer.  Never call this.
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 
 protected:
+    std::string sceneName;
     OpenGLES2Program *program;
 };
     
@@ -219,6 +225,9 @@ typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
 typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
 
+typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
+typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
+    
 /** The scene manager is a base class for various functionality managers
     associated with a scene.  These are the objects that build geometry,
     manage layout, selection, and so forth for a scene.  They typically
@@ -422,25 +431,31 @@ public:
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);
     
-    /// Search for a shader program by name
-    OpenGLES2Program *getProgram(const std::string &name);
+    /// Search for a shader program by the scene name (not the program name)
+    OpenGLES2Program *getProgramBySceneName(const std::string &sceneName);
+
+    /// Look for the given program by scene name and return the ID
+    SimpleIdentity getProgramIDBySceneName(const std::string &sceneName);
     
-    /// Search for a shader program by name and return an ID
-    SimpleIdentity getProgramId(const std::string &name);
+    /// Search for a shader program by its name (not the scene name)
+    OpenGLES2Program *getProgramByName(const std::string &name);
+
+    /// Search for a shader program by its name (not the scene name)
+    SimpleIdentity getProgramIDByName(const std::string &name);
     
-    /// Add a shader to the mix (don't be calling this yourself).
-    /// Scene is responsible for deletion.
-    void addProgram(OpenGLES2Program *);
+    /// Add a shader for reference, but not with a scene name.
+    /// Presumably you'll call setSceneProgram() shortly.
+    void addProgram(OpenGLES2Program *prog);
     
-    /// Remove a program (by ID)
-    void removeProgram(SimpleIdentity programId);
+    /// Add a shader referred to by the scene name.  The scene name is
+    ///  different from the program name.
+    void addProgram(const std::string &sceneName,OpenGLES2Program *prog);
     
-    /// Called during initialization after the default shader is created.
-    /// Scene is responsible for deletion
-    void setDefaultPrograms(OpenGLES2Program *tri,OpenGLES2Program *line);
+    /// Set the given scene name to refer to the given program ID
+    void setSceneProgram(const std::string &sceneName,SimpleIdentity programId);
     
-    /// Get the IDs for the default programs
-    void getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader);
+    /// Remove the given program by ID (ours, not OpenGL's)
+    void removeProgram(SimpleIdentity progId);
         
 protected:
     /// Only the subclasses are allowed to create these
@@ -452,11 +467,12 @@ protected:
     /// The earth will be recursively divided into a quad tree of given depth.
     /// Init call used by the base class to set things up
     void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+
+    /// All the OpenGL ES 2.0 shader programs we know about
+    OpenGLES2ProgramSet glPrograms;
     
-    /// Keep track of the OpenGL ES 2.0 shader programs here
-    std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
-    /// IDs for the default programs we'll use in drawables that don't have them
-    SimpleIdentity defaultProgramTri,defaultProgramLine;
+    /// A map from the scene names to the various programs
+    OpenGLES2ProgramMap glProgramMap;
 };
 	
 }

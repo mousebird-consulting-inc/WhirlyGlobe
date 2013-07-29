@@ -348,6 +348,8 @@
 		2BB071861676B67D00DE387D /* BufferBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071851676B67D00DE387D /* BufferBuilder.mm */; };
 		2BB071891676B69400DE387D /* LayoutLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071871676B69400DE387D /* LayoutLayer.mm */; };
 		2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */; };
+		2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */; };
+		2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */; };
 		2BB25920177A041E00770619 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB2591F177A041E00770619 /* ElevationChunk.h */; };
 		2BB25924177A042F00770619 /* BillboardLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25921177A042F00770619 /* BillboardLayer.h */; };
 		2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25922177A042F00770619 /* BillboardDrawable.h */; };
@@ -775,6 +777,8 @@
 		2BB071851676B67D00DE387D /* BufferBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BufferBuilder.mm; sourceTree = "<group>"; };
 		2BB071871676B69400DE387D /* LayoutLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayoutLayer.mm; sourceTree = "<group>"; };
 		2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthChunkLayer.mm; sourceTree = "<group>"; };
+		2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultShaderPrograms.h; sourceTree = "<group>"; };
+		2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DefaultShaderPrograms.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -931,6 +935,7 @@
 		2B3890A612DF8C8B006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */,
 				2B7AD8AF1649DD06006C9E75 /* Lighting.h */,
 				2B92EF9C163760C300C5165F /* OpenGLES2Program.h */,
 				2B92EF6416370B2000C5165F /* PerformanceTimer.h */,
@@ -944,6 +949,7 @@
 		2B3890A712DF8C90006FC3A1 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */,
 				2B7AD8B21649DF80006C9E75 /* Lighting.mm */,
 				2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */,
 				2B92EF5F16370AFF00C5165F /* PerformanceTimer.mm */,
@@ -1919,6 +1925,7 @@
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
 				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
+				2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2256,6 +2263,7 @@
 				2BA2329917986AE90063CC84 /* ShapeManager.mm in Sources */,
 				2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */,
 				2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */,
+				2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

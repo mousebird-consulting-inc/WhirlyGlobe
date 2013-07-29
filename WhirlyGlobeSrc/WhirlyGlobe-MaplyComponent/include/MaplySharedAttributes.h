@@ -54,6 +54,17 @@
 /// Have a given object write itself to the z buffer
 #define kMaplyZBufferWrite @"zbufferwrite"
 
+/// Assign a shader program to a particular feature.  Use the shader program's name
+#define kMaplyShader @"shader"
+/// This is the shader we'll normally get by default on triangles
+#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
+/// This shader turns off lighting explicitly (doesn't have the code for it)
+#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
+/// This is the line/point shader we'll normaly get by default
+#define kMaplyDefaultLineShader @"Default Line;backface=yes"
+/// This point/line shader turns off the backface logic for lines
+#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+
 /// Default draw offset for 3D markers.  Set to avoid label/marker intererence
 #define kMaplyMarkerDrawOffsetDefault 1
 #define kWGMarkerDrawOffsetDefault kMaplyMarkerDrawOffsetDefault
@@ -157,3 +168,8 @@
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
 #define kMaplyVecMinSample @"minSample"
+
+/// These are the various shader programs we set up by default
+#define kMaplyShaderDefaultTri @"Default Triangle Program"
+#define kMaplyShaderDefaultLine @"Default Line Program"
+#define kMaplyShaderDefaultTriNoLighting 
