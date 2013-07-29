@@ -133,9 +133,7 @@ void BigDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
     // Let's pull the default shaders out if need be
     if (programId == EmptyIdentity)
     {
-        SimpleIdentity triShaderId,lineShaderId;
-        renderer.scene->getDefaultProgramIDs(triShaderId,lineShaderId);
-        programId = triShaderId;
+        programId = renderer.scene->getProgramIDBySceneName(kSceneDefaultTriShader);
     }
 }
 

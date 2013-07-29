@@ -88,7 +88,8 @@ using namespace WhirlyKit;
         return nil;
     }
     
-    [baseViewC addShader:self];
+    if (baseViewC->scene)
+        baseViewC->scene->addProgram(_program);
     
     return self;
 }

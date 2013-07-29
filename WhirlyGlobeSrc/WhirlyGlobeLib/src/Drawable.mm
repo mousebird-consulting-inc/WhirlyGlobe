@@ -879,12 +879,10 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
     // Let's also pull the default shaders out if need be
     if (programId == EmptyIdentity)
     {
-        SimpleIdentity triShaderId,lineShaderId;
-        renderer.scene->getDefaultProgramIDs(triShaderId,lineShaderId);
         if (type == GL_LINE_LOOP || type == GL_LINES)
-            programId = lineShaderId;
+            programId = renderer.scene->getProgramIDBySceneName(kSceneDefaultLineShader);
         else
-            programId = triShaderId;
+            programId = renderer.scene->getProgramIDBySceneName(kSceneDefaultTriShader);
     }
 }
         

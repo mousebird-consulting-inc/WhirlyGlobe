@@ -21,6 +21,7 @@
 #import "SceneRendererES2.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
+#import "DefaultShaderPrograms.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -127,122 +128,6 @@ public:
     renderSetup = false;
 }
 
-static const char *vertexShaderTri =
-"struct directional_light {\n"
-"  vec3 direction;\n"
-"  vec3 halfplane;\n"
-"  vec4 ambient;\n"
-"  vec4 diffuse;\n"
-"  vec4 specular;\n"
-"  float viewdepend;\n"
-"};\n"
-"\n"
-"struct material_properties {\n"
-"  vec4 ambient;\n"
-"  vec4 diffuse;\n"
-"  vec4 specular;\n"
-"  float specular_exponent;\n"
-"};\n"
-"\n"
-"uniform mat4  u_mvpMatrix;                   \n"
-"uniform float u_fade;                        \n"
-"uniform int u_numLights;                      \n"
-"uniform directional_light light[8];                     \n"
-"uniform material_properties material;       \n"
-"\n"
-"attribute vec3 a_position;                  \n"
-"attribute vec2 a_texCoord;                  \n"
-"attribute vec4 a_color;                     \n"
-"attribute vec3 a_normal;                    \n"
-"\n"
-"varying vec2 v_texCoord;                    \n"
-"varying vec4 v_color;                       \n"
-"\n"
-"void main()                                 \n"
-"{                                           \n"
-"   v_texCoord = a_texCoord;                 \n"
-"   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
-"   if (u_numLights > 0)                     \n"
-"   {\n"
-"     vec4 ambient = vec4(0.0,0.0,0.0,0.0);         \n"
-"     vec4 diffuse = vec4(0.0,0.0,0.0,0.0);         \n"
-"     for (int ii=0;ii<8;ii++)                 \n"
-"     {\n"
-"        if (ii>=u_numLights)                  \n"
-"           break;                             \n"
-"        vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;\n"
-"        float ndotl;\n"
-//"        float ndoth;\n"
-"        ndotl = max(0.0, dot(adjNorm, light[ii].direction));\n"
-//"        ndotl = pow(ndotl,0.5);\n"
-//"        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n"
-"        ambient += light[ii].ambient;\n"
-"        diffuse += ndotl * light[ii].diffuse;\n"
-"     }\n"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;\n"
-"   } else {\n"
-"     v_color = a_color * u_fade;\n"
-"   }\n"
-"\n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
-"}                                           \n"
-;
-
-static const char *fragmentShaderTri =
-"precision mediump float;                            \n"
-"\n"
-"uniform sampler2D s_baseMap;                        \n"
-"uniform bool  u_hasTexture;                         \n"
-"\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
-"\n"
-"void main()                                         \n"
-"{                                                   \n"
-//"  vec4 baseColor = texture2D(s_baseMap, v_texCoord); \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-//"  if (baseColor.a < 0.1)                            \n"
-//"      discard;                                      \n"
-"  gl_FragColor = v_color * baseColor;  \n"
-"}                                                   \n"
-;
-
-static const char *vertexShaderLine =
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_mvNormalMatrix;"
-"uniform float u_fade;"
-""
-"attribute vec3 a_position;"
-"attribute vec4 a_color;"
-"attribute vec3 a_normal;"
-""
-"varying vec4      v_color;"
-"varying float      v_dot;"
-""
-"void main()"
-"{"
-"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
-"   pt /= pt.w;"
-"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
-"   v_dot = dot(-pt.xyz,testNorm.xyz);"
-"   v_color = a_color * u_fade;"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);"
-"}"
-;
-
-static const char *fragmentShaderLine =
-"precision mediump float;"
-""
-"varying vec4      v_color;"
-"varying float      v_dot;"
-""
-"void main()"
-"{"
-"  gl_FragColor = (v_dot > 0.0 ? v_color : vec4(0.0,0.0,0.0,0.0));"
-"}"
-;
-
 // When the scene is set, we'll compile our shaders
 - (void)setScene:(WhirlyKit::Scene *)inScene
 {
@@ -256,23 +141,8 @@ static const char *fragmentShaderLine =
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
     
-    // Provider default shader programs if we don't already have them
-    SimpleIdentity triShaderID,lineShaderID;
-    scene->getDefaultProgramIDs(triShaderID, lineShaderID);
-    if (triShaderID == EmptyIdentity || lineShaderID == EmptyIdentity)
-    {
-        OpenGLES2Program *triShader = new OpenGLES2Program("Default Triangle Program",vertexShaderTri,fragmentShaderTri);
-        OpenGLES2Program *lineShader = new OpenGLES2Program("Default Line Program",vertexShaderLine,fragmentShaderLine);
-        if (!triShader->isValid() || !lineShader->isValid())
-        {
-            NSLog(@"SceneRendererES2: Shader didn't compile.  Nothing will work.");
-            delete triShader;
-            delete lineShader;
-        } else {
-            scene->setDefaultPrograms(triShader,lineShader);
-        }
-    }
-
+    SetupDefaultShaders(scene);
+    
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 
     if (oldContext != context)
@@ -443,8 +313,13 @@ static const float ScreenOverlap = 0.1;
 	{
 		numDrawables = 0;
         
-        SimpleIdentity defaultTriShader,defaultLineShader;
-        scene->getDefaultProgramIDs(defaultTriShader, defaultLineShader);
+        SimpleIdentity defaultTriShader = scene->getProgramIDBySceneName(kSceneDefaultTriShader);
+        SimpleIdentity defaultLineShader = scene->getProgramIDBySceneName(kSceneDefaultLineShader);
+        if ((defaultTriShader == EmptyIdentity) || (defaultLineShader == EmptyIdentity))
+        {
+            NSLog(@"SceneRendererES2: No valid triangle or line shader.  Giving up.");
+            return;
+        }
         
         WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;

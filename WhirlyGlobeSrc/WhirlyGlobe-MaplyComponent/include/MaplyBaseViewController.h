@@ -166,15 +166,12 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// Pause animation (probably because we're going into the background)
 - (void)stopAnimation;
 
-/// Set the default polygon shader
-- (void)setDefaultPolyShader:(MaplyShader *)shader;
-
-/// Set the default line shader
-- (void)setDefaultLineShader:(MaplyShader *)shader;
+/// Add a compiled shader.  We'll refer to it by the scene name.
+/// If you use one of the well known scene names, you can replace the defaults.
+- (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName;
 
 /// Turn on/off performance output (goes to the log periodically)
 @property (nonatomic,assign) bool performanceOutput;
-
 
 /// Add a quad tree paged earth layer with MapBox Tiles on top.
 - (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name __deprecated;
