@@ -215,6 +215,30 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     }
 }
 
+// We can refer to shaders by ID or by name.  Figure that out.
+- (NSDictionary *)resolveShader:(NSDictionary *)inDesc
+{
+    NSObject *shader = inDesc[kMaplyShader];
+    if (shader)
+    {
+        // Translate the shader into an ID
+        if ([shader isKindOfClass:[NSString class]])
+        {
+            NSString *shaderName = (NSString *)shader;
+            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+            SimpleIdentity shaderID = scene->getProgramIDBySceneName([shaderName cStringUsingEncoding:NSASCIIStringEncoding]);
+            if (shaderID == EmptyIdentity)
+                [newDesc removeObjectForKey:@"shader"];
+            else
+                newDesc[kMaplyShader] = @(shaderID);
+
+            return newDesc;
+        }
+    }
+    
+    return inDesc;
+}
+
 // Actually add the markers.
 // Called in an unknown thread
 - (void)addScreenMarkersRun:(NSArray *)argArray
@@ -223,6 +247,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -308,6 +335,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+    
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
     for (MaplyMarker *marker in markers)
@@ -387,7 +417,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    // Convert to WG markers
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+
+    // Convert to WG screen labels
     NSMutableArray *wgLabels = [NSMutableArray array];
     for (MaplyScreenLabel *label in labels)
     {
@@ -484,7 +517,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    // Convert to WG markers
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+
+    // Convert to WG labels
     NSMutableArray *wgLabels = [NSMutableArray array];
     for (MaplyLabel *label in labels)
     {
@@ -584,6 +620,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
     {
@@ -722,6 +761,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
     for (NSObject *shape in shapes)
@@ -874,6 +916,9 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    // Might be a custom shader on these
+    inDesc = [self resolveShader:inDesc];
+
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     for (MaplySticker *sticker in stickers)
