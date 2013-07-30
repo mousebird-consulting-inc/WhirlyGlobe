@@ -38,9 +38,10 @@ class SceneManager;
 class Selectable
 {
 public:
-    Selectable() { }
+    Selectable() : enable(true) { }
     Selectable(SimpleIdentity theID) : selectID(theID) { }
     
+    bool enable;
     /// Used to identify this selectable
     SimpleIdentity selectID;
     float minVis,maxVis;  // Range over which this is visible
@@ -53,7 +54,7 @@ public:
 class RectSelectable3D : public Selectable
 {
 public:    
-    RectSelectable3D() { }
+    RectSelectable3D() : Selectable() { }
     RectSelectable3D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
     bool operator < (const RectSelectable3D &that) const;
@@ -69,7 +70,7 @@ typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 class PolytopeSelectable : public Selectable
 {
 public:
-    PolytopeSelectable() { }
+    PolytopeSelectable() : Selectable() { }
     PolytopeSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
     bool operator < (const PolytopeSelectable &that) const;
@@ -85,7 +86,7 @@ typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
 class RectSelectable2D : public Selectable
 {
 public:
-    RectSelectable2D() { }
+    RectSelectable2D() : Selectable() { }
     RectSelectable2D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
     bool operator < (const RectSelectable2D &that) const;
@@ -119,19 +120,22 @@ public:
     ~SelectionManager();
 
     /// Add a rectangle (in 3-space) for selection
-    void addSelectableRect(SimpleIdentity selectId,Point3f *pts);
+    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable);
     
     /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
-    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis);
+    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
-    void addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis);
+    void addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
-    void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis);
+    void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);
+    
+    /// Enable/disable selectable
+    void enableSelectable(SimpleIdentity selectID,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);

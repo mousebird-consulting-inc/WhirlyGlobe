@@ -36,6 +36,36 @@ MarkerSceneRep::MarkerSceneRep()
     selectID = EmptyIdentity;
 }
     
+void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
+{
+    for (SimpleIDSet::iterator idIt = drawIDs.begin();
+         idIt != drawIDs.end(); ++idIt)
+        changes.push_back(new OnOffChangeRequest(*idIt,enable));
+    if (!markerIDs.empty())
+    {
+        std::vector<SimpleIdentity> markerIDVec;
+        for (SimpleIDSet::iterator idIt = markerIDs.begin();
+             idIt != markerIDs.end(); ++idIt)
+            markerIDVec.push_back(*idIt);
+        changes.push_back(new MarkerGeneratorEnableRequest(generatorId,markerIDVec,enable));
+    }
+    if (!screenShapeIDs.empty())
+    {
+        std::vector<SimpleIdentity> screenIDVec;
+        for (SimpleIDSet::iterator idIt = screenShapeIDs.begin();
+             idIt != screenShapeIDs.end(); ++idIt)
+            screenIDVec.push_back(*idIt);
+        changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
+    }
+    screenShapeIDs.clear();
+    
+    if (selectManager && selectID != EmptyIdentity)
+        selectManager->enableSelectable(selectID, enable);
+    
+    if (layoutManager)
+        layoutManager->enableLayoutObjects(screenShapeIDs, enable);
+}
+    
 void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes)
 {
     // Just delete everything
@@ -126,6 +156,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
     _fade = [desc floatForKey:@"fade" default:0.0];
+    _enable = [desc boolForKey:@"enable" default:true];
 }
 
 @end
@@ -213,17 +244,22 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             // If the marker doesn't already have an ID, it needs one
             if (!marker.selectID)
                 marker.selectID = Identifiable::genId();
-                
-                markerRep->selectID = marker.selectID;
-                if (markerInfo.screenObject)
-                {
-                    Point2f pts2d[4];
-                    for (unsigned int jj=0;jj<4;jj++)
-                        pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
-                        selectManager->addSelectableScreenRect(marker.selectID,pts2d,markerInfo.minVis,markerInfo.maxVis);
-                        } else
-                            selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis);
-                            }
+            
+            markerRep->selectID = marker.selectID;
+            if (markerInfo.screenObject)
+            {
+                Point2f pts2d[4];
+                for (unsigned int jj=0;jj<4;jj++)
+                    pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
+                selectManager->addSelectableScreenRect(marker.selectID,pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                if (!markerInfo.enable)
+                    selectManager->enableSelectable(marker.selectID, false);
+            } else {
+                selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                if (!markerInfo.enable)
+                    selectManager->enableSelectable(marker.selectID, false);
+            }
+        }
         
         // If the marker has just one texture, we can treat it as static
         if (marker.texIDs.size() <= 1)
@@ -268,6 +304,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 shape->minVis = markerInfo.minVis;
                 shape->maxVis = markerInfo.maxVis;
                 shape->drawPriority = markerInfo.drawPriority;
+                shape->enable = markerInfo.enable;
                 shape->geom.push_back(smGeom);
                 screenShapes.push_back(shape);
                 markerRep->screenShapeIDs.insert(shape->getId());
@@ -285,6 +322,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     layoutObj.maxVis = markerInfo.maxVis;
                     // No moving it around
                     layoutObj.acceptablePlacement = 0;
+                    layoutObj.enable = markerInfo.enable;
                     layoutObjects.push_back(layoutObj);
                     
                     // Start out off, let the layout layer handle the rest
@@ -305,6 +343,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                         draw->setDrawPriority(markerInfo.drawPriority);
                         draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
                         draw->setTexId(subTex.texId);
+                        draw->setOnOff(markerInfo.enable);
                         drawables[subTex.texId] = draw;
                         markerRep->drawIDs.insert(draw->getId());
                     }
@@ -329,8 +368,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
         } else {
             // The marker changes textures, so we need to pass it to the generator
             MarkerGenerator::Marker *newMarker = new MarkerGenerator::Marker();
+            newMarker->enable = true;
             newMarker->color = RGBAColor(255,255,255,255);
             newMarker->loc = marker.loc;
+            newMarker->enable = markerInfo.enable;
             for (unsigned int ii=0;ii<4;ii++)
                 newMarker->pts[ii] = pts[ii];
                 newMarker->norm = norm;
@@ -401,6 +442,28 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     pthread_mutex_unlock(&markerLock);
     
     return markerInfo.markerId;
+}
+
+void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &changes)
+{
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+
+    pthread_mutex_lock(&markerLock);
+    
+    for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
+    {
+        MarkerSceneRep dummyRep;
+        dummyRep.setId(*mit);
+        MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);
+        if (it != markerReps.end())
+        {
+            MarkerSceneRep *markerRep = *it;
+            markerRep->enableContents(selectManager, layoutManager, generatorId, screenGenId, enable, changes);
+        }
+    }
+    
+    pthread_mutex_unlock(&markerLock);
 }
 
 void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)

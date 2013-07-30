@@ -52,6 +52,7 @@ public:
         /// Called by the marker generator build the geometry
         void addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         
+        bool enable;
         RGBAColor color;
         Point2f loc;
         Eigen::Vector3f norm;
@@ -70,6 +71,9 @@ public:
     void addMarker(Marker *marker);
     /// Called to add a whole group of markers
     void addMarkers(std::vector<Marker *> markers);
+    
+    /// Enable/disable markers
+    void enableMarkers(std::vector<SimpleIdentity> &markerIDs,bool enable);
     
     /// Called by the renderer to remove a marker
     void removeMarker(SimpleIdentity markerId);
@@ -116,12 +120,27 @@ public:
     /// Construct with the marker generator's ID and the marker ID to remove
     MarkerGeneratorRemRequest(SimpleIdentity genID,SimpleIdentity markerID);
     /// Construct with the generator ID and a list of marker IDs to remove
-    MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs);
+    MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &markerIDs);
     ~MarkerGeneratorRemRequest();
     
     virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
     
 protected:
+    std::vector<SimpleIdentity> markerIDs;
+};
+    
+/** Enable/disable a grup of markers.
+  */
+class MarkerGeneratorEnableRequest : public GeneratorChangeRequest
+{
+public:
+    /// Construct with the marker generator's ID and the marker IDs to modify
+    MarkerGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &markerIDs,bool enable);
+    ~MarkerGeneratorEnableRequest();
+    
+    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+protected:
+    bool enable;
     std::vector<SimpleIdentity> markerIDs;
 };
     

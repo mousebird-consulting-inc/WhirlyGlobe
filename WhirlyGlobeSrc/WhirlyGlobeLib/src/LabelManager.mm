@@ -268,13 +268,13 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
         {
             std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
-            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
+            selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
             std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;
             RectSelectable3D &sel = selectables3D[ii];
-            selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
+            selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
         }
     }
 
@@ -309,6 +309,41 @@ void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeS
 
     pthread_mutex_unlock(&labelLock);
 }
+    
+void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &changes)
+{
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    SimpleIdentity screenGenId = scene->getScreenSpaceGeneratorID();
+    
+    pthread_mutex_lock(&labelLock);
+
+    for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
+    {
+        LabelSceneRep dummyRep(*lit);
+        LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
+        if (it != labelReps.end())
+        {
+            LabelSceneRep *sceneRep = *it;
+            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+                 idIt != sceneRep->drawIDs.end(); ++idIt)
+                changes.push_back(new OnOffChangeRequest(*idIt,enable));
+            std::vector<SimpleIdentity> screenEnables;
+            for (SimpleIDSet::iterator idIt = sceneRep->screenIDs.begin();
+                 idIt != sceneRep->screenIDs.end(); ++idIt)
+                screenEnables.push_back(*idIt);
+            if (!screenEnables.empty())
+                changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId,screenEnables,enable));
+            if (sceneRep->selectID != EmptyIdentity && selectManager)
+                selectManager->enableSelectable(sceneRep->selectID, enable);
+            if (!sceneRep->screenIDs.empty() && layoutManager)
+                layoutManager->enableLayoutObjects(sceneRep->screenIDs,enable);
+        }
+    }
+    
+    pthread_mutex_unlock(&labelLock);
+}
+
 
 void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
 {
