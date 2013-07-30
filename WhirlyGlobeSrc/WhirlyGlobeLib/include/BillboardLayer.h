@@ -26,86 +26,7 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "BillboardDrawable.h"
-
-// Used to pass parameters around between threads
-@interface WhirlyKitBillboardInfo : NSObject
-
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity billboardId;
-@property (nonatomic) NSArray *billboards;
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity replaceId;
-
-- (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
-
-- (void)parseDesc:(NSDictionary *)desc;
-
-@end
-
-namespace WhirlyKit
-{
-
-/// Used internally to track billboard geometry
-class BillboardSceneRep : public Identifiable
-{
-public:
-    BillboardSceneRep();
-    BillboardSceneRep(SimpleIdentity inId);
-    ~BillboardSceneRep();
-    
-    // Clear the contents out of the scene
-    void clearContents(ChangeSet &changes);
-
-    SimpleIDSet drawIDs;  // Drawables created for this
-    float fade;  // Time to fade away for removal
-};
-    
-typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
-  
-// Used to construct billboard geometry
-class BillboardDrawableBuilder
-{
-public:
-    BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
-    ~BillboardDrawableBuilder();
-    
-    void addBillboard(Point3f center,float width,float height,UIColor *color);
-    
-    void flush();
-    
-protected:
-    Scene *scene;
-    ChangeSet &changes;
-    Mbr drawMbr;
-    BillboardDrawable *drawable;
-    WhirlyKitBillboardInfo *billInfo;
-    BillboardSceneRep *sceneRep;
-    SimpleIdentity billboardProgram;
-    SimpleIdentity texId;
-};
-
-}
-
-/** Single billboard representation.  Billboards are oriented towards
-    the user.  Fill this out and hand it over to the billboard layer
-    to manage.
-  */
-@interface WhirlyKitBillboard : NSObject
-
-/// Center in display coordinates
-@property (nonatomic,assign) WhirlyKit::Point3f center;
-/// Height in display coordinates
-@property (nonatomic,assign) float height;
-/// Width in dispay coordinates
-@property (nonatomic,assign) float width;
-/// Color of geometry
-@property (nonatomic,assign) UIColor *color;
-/// Texture to use
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
-
-@end
+#import "BillboardManager.h"
 
 /** The billboard layer manages the construction and destruction of
     billboards for the renderer.  Billboards are 3D objects that turn
@@ -118,8 +39,5 @@ protected:
 
 /// Remove a group of billboards named by the given ID
 - (void) removeBillboards:(WhirlyKit::SimpleIdentity)billId;
-
-/// Replace the existing billboards with new ones
-- (WhirlyKit::SimpleIdentity) replaceBillboards:(WhirlyKit::SimpleIdentity)billId withBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
 
 @end

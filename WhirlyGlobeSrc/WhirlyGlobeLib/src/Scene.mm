@@ -33,6 +33,8 @@
 #import "VectorManager.h"
 #import "SphericalEarthChunkManager.h"
 #import "LoftManager.h"
+#import "ParticleSystemManager.h"
+#import "BillboardManager.h"
 
 namespace WhirlyKit
 {
@@ -73,6 +75,10 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
     // Loft manager handles lofted polygon geometry
     addManager(kWKLoftedPolyManager, new LoftManager());
+    // Particle system manager
+    addManager(kWKParticleSystemManager, new ParticleSystemManager());
+    // 3D billboards
+    addManager(kWKBillboardManager, new BillboardManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
