@@ -101,13 +101,13 @@ protected:
 // Default constructor for layout object
 LayoutObject::LayoutObject()
     : Identifiable(),
-        dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
+        enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
         maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }    
     
 LayoutObject::LayoutObject(SimpleIdentity theId) : Identifiable(theId),
-    dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
+    enable(true), dispLoc(0,0,0), size(0,0), iconSize(0,0), rotation(0.0), minVis(DrawVisibleInvalid),
     maxVis(DrawVisibleInvalid), importance(MAXFLOAT), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
     
@@ -144,6 +144,20 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
+}
+    
+/// Enable/disable layout objects
+void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
+{
+    for (SimpleIDSet::const_iterator it = theObjects.begin();
+         it != theObjects.end(); ++it)
+    {
+        LayoutObjectEntry entry(*it);
+        LayoutEntrySet::iterator eit = layoutObjects.find(&entry);
+        if (eit != layoutObjects.end())
+            (*eit)->obj.enable = enable;
+    }
+    hasUpdates = true;    
 }
     
 void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
@@ -209,17 +223,20 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
     {
-        LayoutObjectEntry *obj = *it;
-        bool use = false;
-        if (globeViewState)
+        if ((*it)->obj.enable)
         {
-            if (obj->obj.minVis == DrawVisibleInvalid || obj->obj.maxVis == DrawVisibleInvalid ||
-                (obj->obj.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.maxVis))
+            LayoutObjectEntry *obj = *it;
+            bool use = false;
+            if (globeViewState)
+            {
+                if (obj->obj.minVis == DrawVisibleInvalid || obj->obj.maxVis == DrawVisibleInvalid ||
+                    (obj->obj.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.maxVis))
+                    use = true;
+            } else
                 use = true;
-        } else
-            use = true;
-        if (use)
-            layoutObjs.insert(*it);
+            if (use)
+                layoutObjs.insert(*it);
+        }
     }
     
     // Need to scale for retina displays

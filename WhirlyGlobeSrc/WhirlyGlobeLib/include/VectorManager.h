@@ -75,7 +75,7 @@ public:
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
     
     /// Enable/disable vector data
-    void enableVector(SimpleIdentity vecID,bool enable,ChangeSet &changes);
+    void enableVectors(SimpleIDSet vecIDs,bool enable,ChangeSet &changes);
     
 protected:
     pthread_mutex_t vectorLock;

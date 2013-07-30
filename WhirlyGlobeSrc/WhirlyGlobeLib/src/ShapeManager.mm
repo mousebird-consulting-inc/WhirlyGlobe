@@ -43,6 +43,16 @@ ShapeSceneRep::~ShapeSceneRep()
 {
 }
 
+void ShapeSceneRep::enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changeRequests)
+{
+    for (SimpleIDSet::iterator idIt = drawIDs.begin();
+         idIt != drawIDs.end(); ++idIt)
+        changeRequests.push_back(new OnOffChangeRequest(*idIt,enable));
+    if (selectManager)
+        for (SimpleIDSet::iterator it = selectIDs.begin();it != selectIDs.end(); ++it)
+            selectManager->enableSelectable(*it, enable);
+}
+    
 void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changeRequests)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
@@ -206,7 +216,7 @@ static const float SphereTessY = 10;
         pts[5] = dispPt + dist * Point3f(1,-1,1);
         pts[6] = dispPt + dist * Point3f(1,1,1);
         pts[7] = dispPt + dist * Point3f(-1,1,1);
-        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
+        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,regBuilder->getShapeInfo().enable);
         sceneRep->selectIDs.insert(super.selectID);
     }
 }
@@ -307,7 +317,7 @@ static std::vector<Point3f> circleSamples;
         pts[5] = pts[1] + _height * norm;
         pts[6] = pts[2] + _height * norm;
         pts[7] = pts[3] + _height * norm;
-        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
+        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis,triBuilder->getShapeInfo().enable);
         sceneRep->selectIDs.insert(super.selectID);
     }
 }
@@ -367,6 +377,27 @@ SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,Chang
     pthread_mutex_unlock(&shapeLock);
     
     return shapeInfo.shapeId;
+}
+
+void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes)
+{
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    
+    pthread_mutex_lock(&shapeLock);
+
+    for (SimpleIDSet::iterator it = shapeIDs.begin(); it != shapeIDs.end();++it)
+    {
+        SimpleIdentity shapeID = *it;
+        ShapeSceneRep dummyRep(shapeID);
+        ShapeSceneRepSet::iterator sit = shapeReps.find(&dummyRep);
+        if (sit != shapeReps.end())
+        {
+            ShapeSceneRep *shapeRep = *sit;
+            shapeRep->enableContents(selectManager, enable, changes);
+        }
+    }
+    
+    pthread_mutex_unlock(&shapeLock);
 }
 
 /// Remove a group of shapes named by the given ID

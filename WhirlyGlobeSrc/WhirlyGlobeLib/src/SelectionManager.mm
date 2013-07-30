@@ -58,7 +58,7 @@ SelectionManager::~SelectionManager()
 }
 
 // Add a rectangle (in 3-space) available for selection
-void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts)
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -67,6 +67,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts)
     newSelect.selectID = selectId;
     newSelect.minVis = newSelect.maxVis = DrawVisibleInvalid;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
+    newSelect.enable = enable;
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
 
@@ -76,7 +77,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts)
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
-void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis)
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -85,6 +86,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,fl
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;  newSelect.maxVis = maxVis;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
+    newSelect.enable = enable;
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
@@ -94,7 +96,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,fl
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis)
+void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -103,6 +105,7 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *
     newSelect.selectID = selectId;
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
+    newSelect.enable = enable;
     for (unsigned int ii=0;ii<4;ii++)
         newSelect.pts[ii] = pts[ii];
     
@@ -113,7 +116,7 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,Point2f *
 
 static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
 
-void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis)
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -123,6 +126,7 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
     newSelect.midPt = Point3f(0,0,0);
+    newSelect.enable = enable;
     for (unsigned int ii=0;ii<8;ii++)
         newSelect.midPt += pts[ii];
     newSelect.midPt /= 8.0;
@@ -136,6 +140,41 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     
     pthread_mutex_lock(&mutex);
     polytopeSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
+void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
+{
+    pthread_mutex_lock(&mutex);
+    
+    RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
+    
+    if (it != rect3Dselectables.end())
+    {
+        RectSelectable3D sel = *it;
+        rect3Dselectables.erase(it);
+        sel.enable = enable;
+        rect3Dselectables.insert(sel);
+    }
+    
+    RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+    if (it2 != rect2Dselectables.end())
+    {
+        RectSelectable2D sel = *it2;
+        rect2Dselectables.erase(it2);
+        sel.enable = enable;
+        rect2Dselectables.insert(sel);
+    }
+    
+    PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+    if (it3 != polytopeSelectables.end())
+    {
+        PolytopeSelectable sel = *it3;
+        polytopeSelectables.erase(it3);
+        sel.enable = enable;
+        polytopeSelectables.insert(sel);
+    }
+    
     pthread_mutex_unlock(&mutex);
 }
 
@@ -203,7 +242,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         
         // Look for the corresponding selectable
         RectSelectable2DSet::iterator it = rect2Dselectables.find(RectSelectable2D(projPt.shapeID));
-        if (it != rect2Dselectables.end())
+        if (it != rect2Dselectables.end() && it->enable)
         {
             RectSelectable2D sel = *it;
             if (sel.selectID != EmptyIdentity)
@@ -254,7 +293,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
              it != polytopeSelectables.end(); ++it)
         {
             PolytopeSelectable sel = *it;
-            if (sel.selectID != EmptyIdentity)
+            if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
@@ -319,7 +358,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
              it != rect3Dselectables.end(); ++it)
         {
             RectSelectable3D sel = *it;
-            if (sel.selectID != EmptyIdentity)
+            if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))

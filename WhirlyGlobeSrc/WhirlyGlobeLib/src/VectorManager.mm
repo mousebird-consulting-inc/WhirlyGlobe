@@ -506,19 +506,22 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
     pthread_mutex_unlock(&vectorLock);
 }
     
-void VectorManager::enableVector(SimpleIdentity vecID,bool enable,ChangeSet &changes)
+void VectorManager::enableVectors(SimpleIDSet vecIDs,bool enable,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
-    VectorSceneRep dummyRep(vecID);
-    VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
-    if (it != vectorReps.end())
+    for (SimpleIDSet::iterator vIt = vecIDs.begin();vIt != vecIDs.end();++vIt)
     {
-        VectorSceneRep *sceneRep = *it;
-        
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
-            changes.push_back(new OnOffChangeRequest(*idIt,enable));
+        VectorSceneRep dummyRep(*vIt);
+        VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
+        if (it != vectorReps.end())
+        {
+            VectorSceneRep *sceneRep = *it;
+            
+            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+                 idIt != sceneRep->drawIDs.end(); ++idIt)
+                changes.push_back(new OnOffChangeRequest(*idIt,enable));
+        }
     }
     
     pthread_mutex_unlock(&vectorLock);    
