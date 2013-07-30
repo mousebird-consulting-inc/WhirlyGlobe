@@ -62,6 +62,20 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+ParticleSystemManager::ParticleSystemManager()
+{
+    pthread_mutex_init(&partLock, NULL);
+}
+    
+ParticleSystemManager::~ParticleSystemManager()
+{
+    pthread_mutex_destroy(&partLock);
+    for (ParticleSysSceneRepSet::iterator it = partReps.begin();
+         it != partReps.end(); ++it)
+        delete *it;
+    partReps.clear();
+}
  
     // Parse the basic particle system parameters out of an NSDictionary
 ParticleGenerator::ParticleSystem ParticleSystemManager::parseParams(NSDictionary *desc,ParticleGenerator::ParticleSystem *defaultParams)
