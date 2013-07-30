@@ -30,45 +30,7 @@
 #import "SelectionManager.h"
 #import "ShapeReader.h"
 #import "DataLayer.h"
-
-/** This is the protocol for an object that can handle caching for the lofted poly
-    layer.  Generating the lofted polys is expensive, so we try to cache them
-    somewhere.  It's up to the object implementing this protocol to store and retrieve
-    the cached data.
-  */
-@protocol WhirlyKitLoftedPolyCache<NSObject>
-/// Return the NSData for the given cache name (e.g. individual object).
-- (NSData *)readLoftedPolyData:(NSString *)cacheName;
-/// Write the given NSData ...somewhere... for the given cache name (e.g. individual object)
-- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)cacheName;
-@end
-
-namespace WhirlyKit
-{
-    
-/** Representation of one or more lofted polygons.
-    Used to keep track of the assets we create.
-  */
-class LoftedPolySceneRep : public WhirlyKit::Identifiable
-{
-public:
-    LoftedPolySceneRep() { }
-    ~LoftedPolySceneRep() { }
-    
-    // If we're keeping a cache of the meshes, read and write
-    bool readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key);
-    bool writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key);
-        
-    WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
-    WhirlyKit::ShapeSet shapes;    // The shapes for the outlines
-    std::vector<WhirlyKit::VectorRing>  outlines;  // If we're displaying outlines, the shapes for that
-    WhirlyKit::GeoMbr shapeMbr;       // Overall bounding box
-    float fade;            // Fade out, used for delete
-    std::vector<WhirlyKit::VectorRing> triMesh;  // The post-clip triangle mesh, pre-loft
-};
-typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolySceneRepMap;
-    
-}
+#import "LoftManager.h"
 
 /** The WhirlyGlobe Loft Layer creates a polygon lofted above the globe
     with sides.  These are typically drawn transparently 
@@ -89,6 +51,7 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
      <item>outline     [NSNumber bool]
      <item>outlineColor [UIColor]
      <item>outlineWidth [NSNumber float]
+     <item>enable       [NSNumber bool]
      </list>
  */
 @interface WhirlyKitLoftLayer : NSObject<WhirlyKitLayer>
@@ -120,8 +83,5 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
 
 /// Remove a group of lofted polygons as specified by the ID.
 - (void) removeLoftedPoly:(WhirlyKit::SimpleIdentity)polyID;
-
-/// Change a lofted poly group as defined by the dictionary.
-- (void) changeLoftedPoly:(WhirlyKit::SimpleIdentity)polyID desc:(NSDictionary *)desc;
 
 @end

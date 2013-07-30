@@ -981,40 +981,61 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
 // Actually add the lofted polys.
 // Called in the layer thread.
-- (void)addLoftedPolysLayerThread:(NSArray *)argArray
+- (void)addLoftedPolysRun:(NSArray *)argArray
 {
-//    NSArray *vectors = [argArray objectAtIndex:0];
-//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-//    compObj.vectors = vectors;
-//    NSDictionary *inDesc = [argArray objectAtIndex:2];
-//    NSString *key = argArray[3];
-//    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
-//    
-//    ShapeSet shapes;
-//    for (MaplyVectorObject *vecObj in vectors)
-//    {
-//        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
-//    }
-//    
-//    SimpleIdentity loftID = [_loftLayer addLoftedPolys:&shapes desc:inDesc cacheName:key cacheHandler:cache];
-//    compObj.loftIDs.insert(loftID);
-//    compObj.isSelectable = false;
-//    
-//    [userObjects addObject:compObj];
+    NSArray *vectors = [argArray objectAtIndex:0];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    compObj.vectors = vectors;
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSString *key = argArray[3];
+    if ([key isKindOfClass:[NSNull class]])
+        key = nil;
+    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:5] intValue];
+    
+    ShapeSet shapes;
+    for (MaplyVectorObject *vecObj in vectors)
+        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+
+    ChangeSet changes;
+    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+    if (loftManager)
+    {
+        // 10 degress by default
+        float gridSize = 10.0 / 180.0 * M_PI;
+        if (inDesc[kMaplyLoftedPolyGridSize])
+            gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
+        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, inDesc, key, cache, gridSize, changes);
+        compObj.loftIDs.insert(loftID);
+        compObj.isSelectable = false;
+    }
+    [self flushChanges:changes mode:threadMode];
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
 }
 
 // Add lofted polys
 // Note: Need to handle the thread mode
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
-    return nil;
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
     
-//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-//    
-//    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null])];
-//    [self performSelector:@selector(addLoftedPolysLayerThread:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-//    
-//    return compObj;
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addLoftedPolysRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addLoftedPolysRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
 }
 
 
@@ -1029,6 +1050,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
 
     ChangeSet changes;
         
@@ -1052,14 +1074,15 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                     vectorManager->removeVectors(userObj.vectorIDs, changes);
                 if (shapeManager)
                     shapeManager->removeShapes(userObj.shapeIDs, changes);
-//                for (SimpleIDSet::iterator it = userObj.loftIDs.begin();
-//                     it != userObj.loftIDs.end(); ++it)
-//                    [_loftLayer removeLoftedPoly:*it];
+                if (loftManager)
+                    loftManager->removeLoftedPolys(userObj.loftIDs, changes);
                 if (chunkManager)
                     chunkManager->removeChunks(userObj.chunkIDs, changes);
+                
                 // And associated textures
                 for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
                     [self removeImage:*it];
+
                 // And any references to selection objects
                 pthread_mutex_lock(&selectLock);
                 for (SimpleIDSet::iterator it = userObj.selectIDs.begin();

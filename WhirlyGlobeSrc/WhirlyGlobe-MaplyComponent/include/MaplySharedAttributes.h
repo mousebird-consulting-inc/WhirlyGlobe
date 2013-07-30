@@ -164,6 +164,8 @@
 #define kMaplyLoftedPolyTop @"top"
 /// Boolean that turns on/off sides (on by default)
 #define kMaplyLoftedPolySide @"side"
+/// Grid size we used to chop the lofted polygons up (10 degress by default)
+#define kMaplyLoftedPolyGridSize @"gridsize"
 
 /// These are used by active vector objects
 #define kMaplyVecHeight @"height"
