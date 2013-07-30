@@ -69,6 +69,19 @@ using namespace WhirlyKit;
 #pragma mark - Particle System Layer
 
 @implementation WhirlyKitParticleSystemLayer
+{
+    /// The layer thread we live in
+    WhirlyKitLayerThread * __weak layerThread;
+    
+    /// Scene we're making changes to
+    WhirlyKit::Scene *scene;
+    
+    /// ID of the Particle Generator we're using to implement particles
+    WhirlyKit::SimpleIdentity generatorId;
+    
+    /// Used to track resources related to particle systems for deletion and modification
+    WhirlyKit::ParticleSysSceneRepSet sceneReps;
+}
 
 - (void)clear
 {

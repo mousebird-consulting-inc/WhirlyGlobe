@@ -28,14 +28,6 @@
     a negative acceleration will slow it down.
   */
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
-{
-    float velocity,acceleration;
-    Eigen::Vector3d dir;
-    float maxTime;
-    CFTimeInterval startDate;
-    WhirlyKit::Point3d org;
-    std::vector<WhirlyKit::Point2f> bounds;
-}
 
 /// Initialize with a velocity and negative acceleration (to slow down)
 - (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer;

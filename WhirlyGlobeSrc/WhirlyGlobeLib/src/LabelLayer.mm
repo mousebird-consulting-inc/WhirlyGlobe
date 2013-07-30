@@ -27,6 +27,8 @@ using namespace WhirlyKit;
 @implementation WhirlyKitLabelLayer
 {
     SimpleIDSet labelIDs;
+	WhirlyKitLayerThread * __weak layerThread;
+	WhirlyKit::Scene *scene;
 }
 
 - (void)clear

@@ -31,8 +31,6 @@
     This replaces SphericalEarthLayer with its paging version.
  */
 @interface WhirlyKitSphericalEarthQuadLayer : WhirlyKitQuadDisplayLayer
-{
-}
 
 /// Set the draw priority for geometry this layer produces.
 /// This is how you resolve ordering in a non-z-buffered renderer.

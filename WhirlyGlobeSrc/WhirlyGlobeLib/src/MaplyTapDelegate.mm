@@ -27,6 +27,9 @@
 using namespace WhirlyKit;
 
 @implementation MaplyTapDelegate
+{
+    MaplyView *mapView;
+}
 
 - (id)initWithMapView:(MaplyView *)inView
 {

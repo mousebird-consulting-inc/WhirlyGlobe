@@ -30,6 +30,8 @@ using namespace WhirlyKit;
 {
     /// Vectors currently being represented
     WhirlyKit::SimpleIDSet vecIDs;
+    WhirlyKit::Scene *scene;
+    WhirlyKitLayerThread * __weak layerThread;
 }
 
 - (void)clear

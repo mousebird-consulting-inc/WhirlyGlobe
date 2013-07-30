@@ -27,12 +27,6 @@
     We might assign it after a tap and drag is finished.
  */
 @interface AnimateViewMomentum : NSObject<WhirlyGlobeAnimationDelegate> 
-{
-    Eigen::Quaterniond startQuat;
-    Eigen::Vector3d axis;
-    float maxTime;
-    CFTimeInterval startDate;
-}
 
 @property (nonatomic,assign) float velocity;
 @property (nonatomic,assign) float acceleration;

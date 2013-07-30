@@ -358,10 +358,10 @@ static const float PerfOutputDelay = 15.0;
     for (MaplyLight *light in lights)
     {
         WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
-        theLight->pos.x() = light.pos.x;  theLight->pos.y() = light.pos.y;  theLight->pos.z() = light.pos.z;
-        theLight->ambient = [light.ambient asVec4];
-        theLight->diffuse = [light.diffuse asVec4];
-        theLight->viewDependent = light.viewDependent;
+        theLight.pos = Vector3f(light.pos.x,light.pos.y,light.pos.z);
+        theLight.ambient = [light.ambient asVec4];
+        theLight.diffuse = [light.diffuse asVec4];
+        theLight.viewDependent = light.viewDependent;
         [theLights addObject:theLight];
     }
     if ([theLights count] == 0)

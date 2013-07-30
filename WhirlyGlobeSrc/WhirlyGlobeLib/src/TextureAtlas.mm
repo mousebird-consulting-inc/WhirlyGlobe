@@ -53,20 +53,20 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 // Used to track images in the texture atlas
 @interface ImageInstance : NSObject
-{
-@public
-    unsigned int gridCellsX,gridCellsY;
-    unsigned int gridCellX,gridCellY;
-    TexCoord org,dest;
-    UIImage *image;
-}
 
 @property(nonatomic,assign) unsigned int gridCellsX,gridCellsY;
 @property(nonatomic,assign) unsigned int gridCellX,gridCellY;
+@property(nonatomic,assign) TexCoord &org,&dest;
 @property(nonatomic) UIImage *image;
+
 @end
 
 @implementation ImageInstance
+
+@synthesize gridCellsX,gridCellsY;
+@synthesize gridCellX,gridCellY;
+@synthesize image;
+
 
 @end
 
@@ -120,8 +120,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     for (ImageInstance *imageInst in images)
         if (imageInst.image == image)
         {
-            org = imageInst->org;
-            dest = imageInst->dest;
+            org = imageInst.org;
+            dest = imageInst.dest;
             return true;
         }
     
@@ -165,14 +165,14 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     imageInst.gridCellX = foundX;
     imageInst.gridCellY = foundY;
     Point2f halfPix(0.5/(float)texSizeX,0.5/(float)texSizeY);
-    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX + halfPix.x();
-    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY + halfPix.y();
-    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX - 2*halfPix.x();
-    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY - 2*halfPix.y();
+    imageInst.org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX + halfPix.x();
+    imageInst.org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY + halfPix.y();
+    imageInst.dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX - 2*halfPix.x();
+    imageInst.dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY - 2*halfPix.y();
     [images addObject:imageInst];
     
-    org = imageInst->org;
-    dest = imageInst->dest;
+    org = imageInst.org;
+    dest = imageInst.dest;
     
     return true;
 }
@@ -183,8 +183,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     {
         if (imageInst.image == image)
         {
-            org = imageInst->org;
-            dest = imageInst->dest;
+            org = imageInst.org;
+            dest = imageInst.dest;
             
             return true;
         }

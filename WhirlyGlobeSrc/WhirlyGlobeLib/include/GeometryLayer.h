@@ -57,7 +57,9 @@ class RawTriangle
 {
 public:
     RawTriangle() { }
+    /// Construct with three vertex indices
     RawTriangle(int v0,int v1,int v2) { verts[0] = v0; verts[1] = v1; verts[2] = v2; }
+    /// Vertices are indices into a vertex array
     int verts[3];
 };
 }
@@ -72,12 +74,19 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 /// Raw Geometry object.  Fill it in and pass it to the layer.
 @interface WhirlyGlobeGeometryRaw : WhirlyGlobeGeometry
 
+/// What sort of geometry this is
 @property (nonatomic,assign) WhilyGlobeGeometryRawType type;
+/// The points (vertices)
 @property (nonatomic) std::vector<WhirlyKit::Point3f> &pts;
+/// Normals to go with the points
 @property (nonatomic) std::vector<WhirlyKit::Point3f> &norms;
+/// Texture coordinates, one for each point
 @property (nonatomic) std::vector<WhirlyKit::TexCoord> &texCoords;
+/// Colors to go with the points
 @property (nonatomic) std::vector<WhirlyKit::RGBAColor> &colors;
+/// The triangles, which reference points
 @property (nonatomic) std::vector<WhirlyGlobe::RawTriangle> &triangles;
+/// A texture ID for the geometry
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
 
 // Make a copy of the raw geometry and return it
@@ -129,12 +138,6 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
      </list>
   */
 @interface WhirlyGlobeGeometryLayer : NSObject<WhirlyKitLayer>
-{
-    WhirlyKit::Scene *scene;
-    WhirlyKitLayerThread * __weak layerThread;    
-    
-    WhirlyGlobe::GeomSceneRepSet geomReps;
-}
 
 /// Add raw geometry at the given location
 - (WhirlyKit::SimpleIdentity)addGeometry:(WhirlyGlobeGeometry *)geom desc:(NSDictionary *)desc;

@@ -39,12 +39,11 @@
     image hiearachy.
  */
 @interface WhirlyKitNetworkTileQuadSource : WhirlyKitNetworkTileQuadSourceBase<WhirlyKitQuadTileImageDataSource>
-{
-    /// Where we're fetching from
-    NSString *baseURL;
-    /// Image extension
-    NSString *ext;
-}
+
+/// Where we're fetching from
+@property (nonatomic) NSString *baseURL;
+/// Image extension
+@property (nonatomic) NSString *ext;
 
 /// Initialize with the base URL and image extension (e.g. png, jpg)
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;
@@ -60,9 +59,8 @@
     multiple URLs to pull from.
  */
 @interface WhirlyKitNetworkTileSpecQuadSource : WhirlyKitNetworkTileQuadSourceBase<WhirlyKitQuadTileImageDataSource>
-{
-    NSArray *tileURLs;
-}
+
+@property (nonatomic) NSArray *tileURLs;
 
 /// Initialize with an NSDictionary that's been parsed from TileSpec JSON
 - (id)initWithTileSpec:(NSDictionary *)jsonDict;

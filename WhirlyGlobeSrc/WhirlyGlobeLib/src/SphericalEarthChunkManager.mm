@@ -483,7 +483,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             if (chunk.loadImage)
             {
                 // Let's just deal with square images
-                int square = std::max(chunk.loadImage->width,chunk.loadImage->height);
+                int square = std::max(chunk.loadImage.width,chunk.loadImage.height);
                 newTex = [chunk.loadImage buildTexture:borderTexel destWidth:square destHeight:square];
             }
             if (texAtlas)

@@ -26,9 +26,6 @@
 	responds to taps by blasting out a notification.
  */
 @interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-	WhirlyGlobeView *globeView;
-}
 
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

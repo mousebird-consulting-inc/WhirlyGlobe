@@ -35,45 +35,47 @@
 
 namespace WhirlyKit
 {
+    
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
-    class DrawListSortStruct
+class DrawListSortStruct
+{
+public:
+    DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
-    public:
-        DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
+    }
+    ~DrawListSortStruct() { }
+    DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
+    {
+    }
+    DrawListSortStruct & operator = (const DrawListSortStruct &that)
+    {
+        useAlpha = that.useAlpha;
+        useZBuffer= that.useZBuffer;
+        frameInfo = that.frameInfo;
+        return *this;
+    }
+    bool operator()(Drawable *a,Drawable *b)
+    {
+        if (useZBuffer)
         {
+            bool bufferA = a->getRequestZBuffer();
+            bool bufferB = b->getRequestZBuffer();
+            if (bufferA != bufferB)
+                return !bufferA;
         }
-        ~DrawListSortStruct() { }
-        DrawListSortStruct(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
-        {
-        }
-        DrawListSortStruct & operator = (const DrawListSortStruct &that)
-        {
-            useAlpha = that.useAlpha;
-            useZBuffer= that.useZBuffer;
-            frameInfo = that.frameInfo;
-            return *this;
-        }
-        bool operator()(Drawable *a,Drawable *b)
-        {
-            if (useZBuffer)
-            {
-                bool bufferA = a->getRequestZBuffer();
-                bool bufferB = b->getRequestZBuffer();
-                if (bufferA != bufferB)
-                    return !bufferA;
-            }
-            // We may or may not sort all alpha containing drawables to the end
-            if (useAlpha)
-                if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
-                    return !a->hasAlpha(frameInfo);
-                    
-            return a->getDrawPriority() < b->getDrawPriority();
-        }
-        
-        bool useAlpha,useZBuffer;
-        WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
-    };
+        // We may or may not sort all alpha containing drawables to the end
+        if (useAlpha)
+            if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
+                return !a->hasAlpha(frameInfo);
+                
+        return a->getDrawPriority() < b->getDrawPriority();
+    }
+    
+    bool useAlpha,useZBuffer;
+    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+};
+
 }
 
 /// OpenGL ES state optimizer.  This short circuits many of the OGL state

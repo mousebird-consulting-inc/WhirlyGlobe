@@ -27,6 +27,19 @@ using namespace WhirlyKit;
 
 @interface MaplyPanDelegate()
 {
+    MaplyView *mapView;
+    /// Set if we're panning
+    BOOL panning;
+    /// View transform when we started
+    Eigen::Matrix4d startTransform;
+    /// Where we first touched the plane
+    WhirlyKit::Point3d startOnPlane;
+    /// Viewer location when we started panning
+    WhirlyKit::Point3d startLoc;
+    CGPoint lastTouch;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
+
     MaplyAnimateTranslateMomentum *translateDelegate;
 }
 @end
