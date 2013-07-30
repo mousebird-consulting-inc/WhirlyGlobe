@@ -32,6 +32,7 @@
 #import "LabelManager.h"
 #import "VectorManager.h"
 #import "SphericalEarthChunkManager.h"
+#import "LoftManager.h"
 
 namespace WhirlyKit
 {
@@ -70,6 +71,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     addManager(kWKVectorManager, new VectorManager());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    // Loft manager handles lofted polygon geometry
+    addManager(kWKLoftedPolyManager, new LoftManager());
     
     // Font Texture manager is used from any thread
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];

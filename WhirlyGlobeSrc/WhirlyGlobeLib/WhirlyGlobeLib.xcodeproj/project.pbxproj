@@ -350,6 +350,12 @@
 		2BB0718A1676B69400DE387D /* SphericalEarthChunkLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */; };
 		2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */; };
 		2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */; };
+		2BB1787417A8313E00AD0614 /* BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787117A8313700AD0614 /* BillboardManager.h */; };
+		2BB1787517A8313E00AD0614 /* ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787217A8313900AD0614 /* ParticleSystemManager.h */; };
+		2BB1787617A8313E00AD0614 /* LoftManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB1787317A8313C00AD0614 /* LoftManager.h */; };
+		2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787717A8315800AD0614 /* BillboardManager.mm */; };
+		2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */; };
+		2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB1787917A8315B00AD0614 /* LoftManager.mm */; };
 		2BB25920177A041E00770619 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB2591F177A041E00770619 /* ElevationChunk.h */; };
 		2BB25924177A042F00770619 /* BillboardLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25921177A042F00770619 /* BillboardLayer.h */; };
 		2BB25925177A042F00770619 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB25922177A042F00770619 /* BillboardDrawable.h */; };
@@ -779,6 +785,12 @@
 		2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthChunkLayer.mm; sourceTree = "<group>"; };
 		2BB1786B17A6C6C400AD0614 /* DefaultShaderPrograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultShaderPrograms.h; sourceTree = "<group>"; };
 		2BB1786D17A6C72600AD0614 /* DefaultShaderPrograms.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DefaultShaderPrograms.mm; sourceTree = "<group>"; };
+		2BB1787117A8313700AD0614 /* BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardManager.h; sourceTree = "<group>"; };
+		2BB1787217A8313900AD0614 /* ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemManager.h; sourceTree = "<group>"; };
+		2BB1787317A8313C00AD0614 /* LoftManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftManager.h; sourceTree = "<group>"; };
+		2BB1787717A8315800AD0614 /* BillboardManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardManager.mm; sourceTree = "<group>"; };
+		2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemManager.mm; sourceTree = "<group>"; };
+		2BB1787917A8315B00AD0614 /* LoftManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoftManager.mm; sourceTree = "<group>"; };
 		2BB1F06813007031001F33CD /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
 		2BB1F06A130076C5001F33CD /* LabelLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelLayer.mm; sourceTree = "<group>"; };
 		2BB1F07E130098E6001F33CD /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
@@ -1470,6 +1482,9 @@
 				2BB25923177A042F00770619 /* SceneGraphManager.h */,
 				2B308B10171F638F006D7273 /* SelectionManager.h */,
 				2B665468179F271200FB4427 /* SphericalEarthChunkManager.h */,
+				2BB1787117A8313700AD0614 /* BillboardManager.h */,
+				2BB1787217A8313900AD0614 /* ParticleSystemManager.h */,
+				2BB1787317A8313C00AD0614 /* LoftManager.h */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1483,6 +1498,9 @@
 				2BA2329417986AE90063CC84 /* ShapeManager.mm */,
 				2BA2329517986AE90063CC84 /* VectorManager.mm */,
 				2B66546A179F272700FB4427 /* SphericalEarthChunkManager.mm */,
+				2BB1787717A8315800AD0614 /* BillboardManager.mm */,
+				2BB1787817A8315A00AD0614 /* ParticleSystemManager.mm */,
+				2BB1787917A8315B00AD0614 /* LoftManager.mm */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -1926,6 +1944,9 @@
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
 				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
 				2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */,
+				2BB1787417A8313E00AD0614 /* BillboardManager.h in Headers */,
+				2BB1787517A8313E00AD0614 /* ParticleSystemManager.h in Headers */,
+				2BB1787617A8313E00AD0614 /* LoftManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2264,6 +2285,9 @@
 				2BA2329A17986AE90063CC84 /* VectorManager.mm in Sources */,
 				2B66546B179F272700FB4427 /* SphericalEarthChunkManager.mm in Sources */,
 				2BB1786E17A6C72600AD0614 /* DefaultShaderPrograms.mm in Sources */,
+				2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */,
+				2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */,
+				2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
