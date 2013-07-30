@@ -43,7 +43,7 @@ using namespace WhirlyKit;
     if (self)
     {
         [inView addWatcherDelegate:self];
-        viewStateClass = [MaplyViewState class];
+        super.viewStateClass = [MaplyViewState class];
     }
     
     return self;

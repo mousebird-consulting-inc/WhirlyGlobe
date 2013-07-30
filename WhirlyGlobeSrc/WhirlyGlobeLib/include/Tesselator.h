@@ -28,4 +28,5 @@ namespace WhirlyKit
 /** Tesselate the given ring, returning a list of triangles.
     This is a fairly simple tesselator. */
 void TesselateRing(const WhirlyKit::VectorRing &ring,std::vector<WhirlyKit::VectorRing> &rets);
+
 }

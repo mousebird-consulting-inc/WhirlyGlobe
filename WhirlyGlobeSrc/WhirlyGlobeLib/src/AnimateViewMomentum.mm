@@ -24,6 +24,12 @@
 using namespace Eigen;
 
 @implementation AnimateViewMomentum
+{
+    Eigen::Quaterniond startQuat;
+    Eigen::Vector3d axis;
+    float maxTime;
+    CFTimeInterval startDate;
+}
 
 - (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
 {

@@ -93,11 +93,11 @@ public:
     
     // Add a simple default light
     WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
-    light->pos = Vector3f(0.75, 0.5, -1.0);
-    light->viewDependent = true;
-    light->ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
-    light->diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
-    light->specular = Vector4f(0, 0, 0, 0);
+    [light setPos:Vector3f(0.75, 0.5, -1.0)];
+    light.viewDependent = true;
+    light.ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
+    light.diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
+    light.specular = Vector4f(0, 0, 0, 0);
     [self addLight:light];
 
     // And a basic material

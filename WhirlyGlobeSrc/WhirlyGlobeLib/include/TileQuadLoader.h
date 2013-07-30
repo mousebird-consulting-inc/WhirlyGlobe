@@ -51,17 +51,15 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
  is finished.  It can either be loaded or empty, or something of that sort.
  */
 @interface WhirlyKitLoadedImage : NSObject
-{
-@public
-    /// The data we're passing back
-    WhirlyKitLoadedImageType type;
-    /// Set if there are any border pixels in the image
-    int borderSize;
-    /// The UIImage or NSData object
-    NSObject *imageData;
-    /// Some formats contain no size info (e.g. PVRTC).  In which case, this is set
-    int width,height;
-}
+
+/// The data we're passing back
+@property (nonatomic,assign) WhirlyKitLoadedImageType type;
+/// Set if there are any border pixels in the image
+@property (nonatomic,assign) int borderSize;
+/// The UIImage or NSData object
+@property (nonatomic) NSObject *imageData;
+/// Some formats contain no size info (e.g. PVRTC).  In which case, this is set
+@property (nonatomic,assign) int width,height;
 
 /// Return a loaded image made of a standard UIImage
 + (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image;

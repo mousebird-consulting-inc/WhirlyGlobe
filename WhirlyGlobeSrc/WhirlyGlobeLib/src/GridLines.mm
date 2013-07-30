@@ -28,6 +28,11 @@ using namespace WhirlyGlobe;
 @implementation WhirlyKitGridLayer
 {
     WhirlyKitLayerThread * __weak layerThread;
+    unsigned int numX,numY;
+    unsigned int chunkX,chunkY;
+    WhirlyKit::Scene *scene;
+    
+    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
 }
 
 - (id)initWithX:(unsigned int)inNumX Y:(unsigned int)inNumY

@@ -29,6 +29,11 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitShapeLayer
 {
+    /// Layer thread this belongs to
+    WhirlyKitLayerThread * __weak layerThread;
+    /// Scene the marker layer is modifying
+    WhirlyKit::Scene *scene;
+
     SimpleIDSet shapeIDs;
 }
 

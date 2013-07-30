@@ -26,6 +26,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobeTapDelegate
+{
+	WhirlyGlobeView *globeView;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {

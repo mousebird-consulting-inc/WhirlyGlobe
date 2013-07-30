@@ -28,18 +28,17 @@
     page.
  */
 @interface WhirlyKitMBTileQuadSource : NSObject<WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
-{
-    /// The SQLite database we're looking at
-    sqlite3 *sqlDb;
-    /// Spherical Mercator coordinate system, for the tiles
-    WhirlyKit::SphericalMercatorCoordSystem *coordSys;
-    /// Bounds in Spherical Mercator
-    WhirlyKit::Mbr mbr;
-    /// Bounds in geographic
-    WhirlyKit::GeoMbr geoMbr;
-    /// Size of a tile in pixels square.  256 is the usual.
-    int pixelsPerTile;   
-}
+
+/// The SQLite database we're looking at
+@property (nonatomic,assign) sqlite3 *sqlDb;
+/// Spherical Mercator coordinate system, for the tiles
+@property (nonatomic,assign) WhirlyKit::SphericalMercatorCoordSystem *coordSys;
+/// Bounds in Spherical Mercator
+@property (nonatomic,assign) WhirlyKit::Mbr &mbr;
+/// Bounds in geographic
+@property (nonatomic,assign) WhirlyKit::GeoMbr &geoMbr;
+/// Size of a tile in pixels square.  256 is the usual.
+@property (nonatomic,assign) int pixelsPerTile;   
 
 /// Initialize the data source with the full path to the SQLite DB
 - (id)initWithPath:(NSString *)path;

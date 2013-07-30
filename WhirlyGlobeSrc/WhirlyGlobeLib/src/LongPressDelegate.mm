@@ -26,6 +26,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobeLongPressDelegate
+{
+    WhirlyGlobeView *globeView;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {

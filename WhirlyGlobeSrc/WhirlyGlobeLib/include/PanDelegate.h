@@ -25,17 +25,6 @@
     quaternions and so avoid gimbal lock.
  */
 @interface WhirlyGlobePanDelegate : NSObject<UIGestureRecognizerDelegate> 
-{
-	WhirlyGlobeView * __weak view;
-    /// Set if we're in the process of panning
-	BOOL panning;
-	/// The view transform when we started
-	Eigen::Matrix4d startTransform;
-	/// Where we first touched the sphere
-	WhirlyKit::Point3d startOnSphere;
-	/// Rotation when we started
-	Eigen::Quaterniond startQuat;
-}
 
 /// Creates a pan gesture delegate and wires it up to the given view.
 /// Will modify the globe view.

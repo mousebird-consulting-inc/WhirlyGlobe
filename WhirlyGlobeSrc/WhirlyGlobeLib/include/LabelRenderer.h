@@ -85,24 +85,33 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 
 /** Used to render a group of labels, possibly on
     a dispatch queue.  Up to you to set that up.
+    You call this and process the results.
   */
 @interface WhirlyKitLabelRenderer : NSObject
-{
-@public
-    WhirlyKitLabelInfo *labelInfo;
-    int textureAtlasSize;
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-    WhirlyKit::LabelSceneRep *labelRep;
-    WhirlyKit::Scene *scene;
-    WhirlyKit::SimpleIdentity screenGenId;
-    std::vector<WhirlyKit::LayoutObject> layoutObjects;
-    std::vector<WhirlyKit::RectSelectable3D> selectables3D;
-    std::vector<WhirlyKit::RectSelectable2D> selectables2D;
-    
-    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
-    WhirlyKitFontTextureManager *fontTexManager;
-    bool useAttributedString;
-}
+
+/// Description of the labels
+@property (nonatomic) WhirlyKitLabelInfo *labelInfo;
+/// How big texture atlases should be if we're not using fonts
+@property (nonatomic,assign) int textureAtlasSize;
+/// Coordinate system display adapater
+@property (nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+/// Label represention (return value)
+@property (nonatomic) WhirlyKit::LabelSceneRep *labelRep;
+/// Scene we're building in
+@property (nonatomic,assign) WhirlyKit::Scene *scene;
+/// Layout objects (pass these to the layout engine if you want that)
+@property (nonatomic,assign) std::vector<WhirlyKit::LayoutObject> &layoutObjects;
+/// Selectable objects (3D) to pass to the selection manager
+@property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable3D> &selectables3D;
+/// Selectable objects (2D) to pass to the selection manager
+@property (nonatomic,assign) std::vector<WhirlyKit::RectSelectable2D> &selectables2D;
+
+/// Change requests to pass to the scene
+@property (nonatomic,assign) std::vector<WhirlyKit::ChangeRequest *> &changeRequests;
+/// Font texture manager to use if we're doing fonts
+@property (nonatomic) WhirlyKitFontTextureManager *fontTexManager;
+/// Set if want to use attributed strings (we usually do)
+@property (nonatomic,assign) bool useAttributedString;
 
 /// Renders the labels into a big texture and stores the resulting info
 - (void)render;

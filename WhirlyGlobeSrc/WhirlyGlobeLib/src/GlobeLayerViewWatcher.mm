@@ -31,8 +31,8 @@ using namespace WhirlyKit;
     self = [super initWithView:globeView renderer:renderer];
     if (self)
     {
-        heightAboveGlobe = globeView.heightAboveGlobe;
-        rotQuat = [globeView rotQuat];
+        _heightAboveGlobe = globeView.heightAboveGlobe;
+        _rotQuat = [globeView rotQuat];
     }
     
     return self;
@@ -45,7 +45,7 @@ using namespace WhirlyKit;
 
 - (Vector3d)currentUp
 {
-	Eigen::Matrix4d modelMat = modelMatrix.inverse();
+	Eigen::Matrix4d modelMat = self.modelMatrix.inverse();
 	
 	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
 	return Vector3d(newUp.x(),newUp.y(),newUp.z());
@@ -93,7 +93,7 @@ using namespace WhirlyKit;
     if (self)
     {
         [inView addWatcherDelegate:self];
-        viewStateClass = [WhirlyGlobeViewState class];
+        super.viewStateClass = [WhirlyGlobeViewState class];
     }
     
     return self;

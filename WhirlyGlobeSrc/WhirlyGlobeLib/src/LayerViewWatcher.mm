@@ -41,6 +41,19 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerViewWatcher
 {
+    /// Layer we're attached to
+    WhirlyKitLayerThread * __weak layerThread;
+    /// The view we're following for upates
+    WhirlyKitView * __weak view;
+    /// Watchers we'll call back for updates
+    NSMutableArray *watchers;
+    
+    /// When the last update was run
+    NSTimeInterval lastUpdate;
+    
+    /// You should know the type here.  A globe or a map view state.
+    WhirlyKitViewState *lastViewState;
+    
     WhirlyKitViewState *newViewState;
     bool kickoffScheduled;
     bool sweepLaggardsScheduled;
@@ -70,7 +83,7 @@ using namespace WhirlyKit;
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
     {
-        WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
+        WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
     }
     
@@ -114,7 +127,7 @@ using namespace WhirlyKit;
 // This is called in the main thread
 - (void)viewUpdated:(WhirlyKitView *)inView
 {
-    WhirlyKitViewState *viewState = [[viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
+    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
 
     // The view has to be valid first
     if (layerThread.renderer.framebufferWidth <= 0.0)
@@ -234,52 +247,52 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     
-    modelMatrix = [view calcModelMatrix];
-    invModelMatrix = modelMatrix.inverse();
-    viewMatrix = [view calcViewMatrix];
-    invViewMatrix = viewMatrix.inverse();
-    fullMatrix = [view calcFullMatrix];
-    invFullMatrix = fullMatrix.inverse();
-    projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
-    invProjMatrix = projMatrix.inverse();
-    fullNormalMatrix = fullMatrix.inverse().transpose();
+    _modelMatrix = [view calcModelMatrix];
+    _invModelMatrix = _modelMatrix.inverse();
+    _viewMatrix = [view calcViewMatrix];
+    _invViewMatrix = _viewMatrix.inverse();
+    _fullMatrix = [view calcFullMatrix];
+    _invFullMatrix = _fullMatrix.inverse();
+    _projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
+    _invProjMatrix = _projMatrix.inverse();
+    _fullNormalMatrix = _fullMatrix.inverse().transpose();
     
-    fieldOfView = view.fieldOfView;
-    imagePlaneSize = view.imagePlaneSize;
-    nearPlane = view.nearPlane;
-    farPlane = view.farPlane;
+    _fieldOfView = view.fieldOfView;
+    _imagePlaneSize = view.imagePlaneSize;
+    _nearPlane = view.nearPlane;
+    _farPlane = view.farPlane;
     
     // Need the eye point for backface checking
-    Vector4d eyeVec4 = invFullMatrix * Vector4d(0,0,1,0);
-    eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    Vector4d eyeVec4 = _invFullMatrix * Vector4d(0,0,1,0);
+    _eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // Also a version for the model matrix (e.g. just location, not direction)
-    eyeVec4 = invModelMatrix * Vector4d(0,0,1,0);
-    eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    eyeVec4 = _invModelMatrix * Vector4d(0,0,1,0);
+    _eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // And calculate where the eye actually is
-    Vector4d eyePos4 = invFullMatrix * Vector4d(0,0,0,1);
+    Vector4d eyePos4 = _invFullMatrix * Vector4d(0,0,0,1);
     _eyePos = Vector3d(eyePos4.x(),eyePos4.y(),eyePos4.z());
     
-    ll.x() = ur.x() = 0.0;
+    _ll.x() = _ur.x() = 0.0;
     
-    coordAdapter = view.coordAdapter;
+    _coordAdapter = view.coordAdapter;
     
     return self;
 }
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight
 {
-	ll.x() = -imagePlaneSize;
-	ur.x() = imagePlaneSize;
+	_ll.x() = -_imagePlaneSize;
+	_ur.x() = _imagePlaneSize;
 	float ratio =  ((float)frameHeight / (float)frameWidth);
-	ll.y() = -imagePlaneSize * ratio;
-	ur.y() = imagePlaneSize * ratio ;
-	near = nearPlane;
-	far = farPlane;
+	_ll.y() = -_imagePlaneSize * ratio;
+	_ur.y() = _imagePlaneSize * ratio ;
+	_near = _nearPlane;
+	_far = _farPlane;
 }
 
 - (Point3d)pointUnproject:(Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
 {
-    if (ll.x() == ur.x())
+    if (_ll.x() == _ur.x())
         [self calcFrustumWidth:frameWidth height:frameHeight];
 	
 	// Calculate a parameteric value and flip the y/v
@@ -296,8 +309,8 @@ using namespace WhirlyKit;
 	v = 1.0 - v;
 	
 	// Now come up with a point in 3 space between ll and ur
-	Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-	return Point3d(mid.x(),mid.y(),-near);
+	Point2d mid(u * (_ur.x()-_ll.x()) + _ll.x(), v * (_ur.y()-_ll.y()) + _ll.y());
+	return Point3d(mid.x(),mid.y(),-_near);
 }
 
 - (CGPoint)pointOnScreenFromDisplay:(const Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
@@ -309,13 +322,13 @@ using namespace WhirlyKit;
     // Intersection with near gives us the same plane as the screen
     Vector3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -nearPlane/ray.z();
+    ray *= -_nearPlane/ray.z();
     
     // Now we need to scale that to the frame
-    if (ll.x() == ur.x())
+    if (_ll.x() == _ur.x())
         [self calcFrustumWidth:frameSize.x() height:frameSize.y()];
-    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+    double u = (ray.x() - _ll.x()) / (_ur.x() - _ll.x());
+    double v = (ray.y() - _ll.y()) / (_ur.y() - _ll.y());
     v = 1.0 - v;
     
     CGPoint retPt;
@@ -331,13 +344,13 @@ using namespace WhirlyKit;
 
 - (bool)isSameAs:(WhirlyKitViewState *)other
 {
-    if (fieldOfView != other->fieldOfView || imagePlaneSize != other->imagePlaneSize ||
-        nearPlane != other->nearPlane || farPlane != other->farPlane)
+    if (_fieldOfView != other->_fieldOfView || _imagePlaneSize != other->_imagePlaneSize ||
+        _nearPlane != other->_nearPlane || _farPlane != other->_farPlane)
         return false;
     
     // Matrix comparison
-    double *floatsA = fullMatrix.data();
-    double *floatsB = other->fullMatrix.data();
+    double *floatsA = _fullMatrix.data();
+    double *floatsB = other->_fullMatrix.data();
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
             return false;

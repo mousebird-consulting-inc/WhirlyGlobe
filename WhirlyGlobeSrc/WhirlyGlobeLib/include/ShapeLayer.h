@@ -40,12 +40,6 @@
      </list>
   */
 @interface WhirlyKitShapeLayer : NSObject<WhirlyKitLayer>
-{
-    /// Layer thread this belongs to
-    WhirlyKitLayerThread * __weak layerThread;    
-    /// Scene the marker layer is modifying
-    WhirlyKit::Scene *scene;
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

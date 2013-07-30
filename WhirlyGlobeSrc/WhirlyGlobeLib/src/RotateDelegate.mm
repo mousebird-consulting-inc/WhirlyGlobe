@@ -24,6 +24,15 @@
 #import "SceneRendererES.h"
 
 @implementation WhirlyGlobeRotateDelegate
+{
+    /// What sort of rotation state we're in.  Not used
+    WhirlyGlobe::RotationType rotType;
+    WhirlyGlobeView *globeView;
+    /// Starting point for rotation
+    Eigen::Quaterniond startQuat;
+    /// Axis to rotate around
+    Eigen::Vector3d axis;
+}
 
 using namespace WhirlyGlobe;
 

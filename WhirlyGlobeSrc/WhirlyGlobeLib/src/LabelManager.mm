@@ -234,45 +234,46 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     
     // Set up the label renderer
     WhirlyKitLabelRenderer *labelRenderer = [[WhirlyKitLabelRenderer alloc] init];
-    labelRenderer->labelInfo = labelInfo;
-    labelRenderer->textureAtlasSize = textureAtlasSize;
-    labelRenderer->coordAdapter = scene->getCoordAdapter();
-    labelRenderer->labelRep = labelRep;
-    labelRenderer->scene = scene;
-    labelRenderer->screenGenId = scene->getScreenSpaceGeneratorID();
-    labelRenderer->fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
+    labelRenderer.labelInfo = labelInfo;
+    labelRenderer.textureAtlasSize = textureAtlasSize;
+    labelRenderer.coordAdapter = scene->getCoordAdapter();
+    labelRenderer.labelRep = labelRep;
+    labelRenderer.scene = scene;
+    labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
     
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
     bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
-    if (!oldiOS && !labelRenderer->fontTexManager)
+    if (!oldiOS && !labelRenderer.fontTexManager)
     {
         [labelRenderer render];
     } else {
         // For old iOS versions and for font texture rendering, we'll do the work on this thread.
         // The former can't handle it and the latter is fast enough to not need it
-        labelRenderer->useAttributedString = !oldiOS;
+        labelRenderer.useAttributedString = !oldiOS;
         [labelRenderer render];
     }
     
-    changes.insert(changes.end(),labelRenderer->changeRequests.begin(), labelRenderer->changeRequests.end());
+    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
     
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
     // And any layout constraints to the layout engine
-    if (layoutManager && !labelRenderer->layoutObjects.empty())
-        layoutManager->addLayoutObjects(labelRenderer->layoutObjects);
+    if (layoutManager && !labelRenderer.layoutObjects.empty())
+        layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
     
     if (selectManager)
     {
-        for (unsigned int ii=0;ii<labelRenderer->selectables2D.size();ii++)
+        for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
         {
-            RectSelectable2D &sel = labelRenderer->selectables2D[ii];
+            std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
+            RectSelectable2D &sel = selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
         }
-        for (unsigned int ii=0;ii<labelRenderer->selectables3D.size();ii++)
+        for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
-            RectSelectable3D &sel = labelRenderer->selectables3D[ii];
+            std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;
+            RectSelectable3D &sel = selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis);
         }
     }
