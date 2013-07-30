@@ -40,26 +40,21 @@ using namespace Eigen;
 
 @implementation WhirlyGlobeView
 
-@synthesize heightAboveGlobe;
-@synthesize delegate;
-@synthesize rotQuat;
-@synthesize tilt;
-
 - (id)init
 {
 	if ((self = [super init]))
 	{
-		rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-        coordAdapter = new FakeGeocentricDisplayAdapter();
-        defaultNearPlane = nearPlane;
-        defaultFarPlane = farPlane;
-        // This will get you down to r17 in the usual tile sets
-        absoluteMinNearPlane = 0.00001;
-        absoluteMinFarPlane = 0.001;
-        absoluteMinHeight = 0.00005;
-        heightInflection = 0.011;
+		_rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
+       	super.coordAdapter = new FakeGeocentricDisplayAdapter();
+       	defaultNearPlane = super.nearPlane;
+       	defaultFarPlane = super.farPlane;
+       	// This will get you down to r17 in the usual tile sets
+       	absoluteMinNearPlane = 0.00001;
+       	absoluteMinFarPlane = 0.001;
+       	absoluteMinHeight = 0.00005;
+       	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
-        tilt = 0.0;
+       	_tilt = 0.0;
 	}
 	
 	return self;
@@ -67,9 +62,9 @@ using namespace Eigen;
 
 - (void)dealloc
 {
-    if (coordAdapter)
-        delete coordAdapter;
-    coordAdapter = nil;
+    if (super.coordAdapter)
+        delete super.coordAdapter;
+    super.coordAdapter = nil;
 }
 
 - (void)setRotQuat:(Eigen::Quaterniond)newRotQuat
@@ -80,23 +75,23 @@ using namespace Eigen;
 // Set the new rotation, but also keep track of when we did it
 - (void)setRotQuat:(Eigen::Quaterniond)newRotQuat updateWatchers:(bool)updateWatchers
 {
-    lastChangedTime = CFAbsoluteTimeGetCurrent();
-    rotQuat = newRotQuat;
+    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
+    _rotQuat = newRotQuat;
     if (updateWatchers)
        [self runViewUpdates];
 }
 
 - (void)setTilt:(double)newTilt
 {
-    tilt = newTilt;
+    _tilt = newTilt;
 }
 	
 - (double)minHeightAboveGlobe
 {
-    if (continuousZoom)
+    if (super.continuousZoom)
         return absoluteMinHeight;
     else
-        return 1.01*nearPlane;
+        return 1.01*super.nearPlane;
 }
 
 - (double)heightAboveSurface
@@ -106,20 +101,20 @@ using namespace Eigen;
 	
 - (double)maxHeightAboveGlobe
 {
-    return (farPlane - 1.0);
+    return (super.farPlane - 1.0);
 }
 	
 - (double)calcEarthZOffset
 {
 	float minH = [self minHeightAboveGlobe];
-	if (heightAboveGlobe < minH)
+	if (_heightAboveGlobe < minH)
 		return 1.0+minH;
 	
 	float maxH = [self maxHeightAboveGlobe];
-	if (heightAboveGlobe > maxH)
+	if (_heightAboveGlobe > maxH)
 		return 1.0+maxH;
 	
-	return 1.0 + heightAboveGlobe;
+	return 1.0 + _heightAboveGlobe;
 }
 
 - (void)setHeightAboveGlobe:(double)newH
@@ -132,29 +127,29 @@ using namespace Eigen;
 - (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
 {
 	double minH = [self minHeightAboveGlobe];
-	heightAboveGlobe = std::max(newH,minH);
+	_heightAboveGlobe = std::max(newH,minH);
     
 	double maxH = [self maxHeightAboveGlobe];
-	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
+	_heightAboveGlobe = std::min(_heightAboveGlobe,maxH);
 
     // If we get down below the inflection point we'll start messing
     //  with the field of view.  Not ideal, but simple.
-    if (continuousZoom)
+    if (super.continuousZoom)
     {
-        if (heightAboveGlobe < heightInflection)
+        if (_heightAboveGlobe < heightInflection)
         {
-            double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
-            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
 //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
-            nearPlane = defaultNearPlane;
+            super.nearPlane = defaultNearPlane;
 //            farPlane = defaultFarPlane;
         }
-		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
+		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
     }
         
 
-    lastChangedTime = CFAbsoluteTimeGetCurrent();
+    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
     
     if (updateWatchers)
        [self runViewUpdates];
@@ -163,14 +158,14 @@ using namespace Eigen;
 - (Eigen::Matrix4d)calcModelMatrix
 {
 	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
-	Eigen::Affine3d rot(rotQuat);
+	Eigen::Affine3d rot(_rotQuat);
 	
 	return (trans * rot).matrix();
 }
 
 - (Eigen::Matrix4d)calcViewMatrix
 {
-    Eigen::Quaterniond selfRotPitch(AngleAxisd(-tilt, Vector3d::UnitX()));
+    Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
     
     return ((Affine3d)selfRotPitch).matrix();
 }
@@ -242,7 +237,7 @@ using namespace Eigen;
     // Intersection with near gives us the same plane as the screen 
     Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -nearPlane/ray.z();
+    ray *= -super.nearPlane/ray.z();
 
     // Now we need to scale that to the frame
     Point2d ll,ur;
@@ -267,8 +262,8 @@ using namespace Eigen;
 // Run the rotation animation
 - (void)animate
 {
-    if (delegate)
-        [delegate updateView:self];
+    if (_delegate)
+        [_delegate updateView:self];
 }
 
 // Calculate the Z buffer resolution
@@ -289,7 +284,7 @@ using namespace Eigen;
 //  and return it.  Doesn't actually do anything yet.
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3d curUp = [self currentUp];
@@ -297,7 +292,7 @@ using namespace Eigen;
     // The rotation from where we are to where we tapped
     Eigen::Quaterniond endRot;
     endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaterniond curRotQuat = rotQuat;
+    Eigen::Quaterniond curRotQuat = _rotQuat;
     Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
     
     if (northUp)
@@ -324,7 +319,7 @@ using namespace Eigen;
 
 - (Eigen::Quaterniond) makeRotationToGeoCoordd:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
-    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3d curUp = [self currentUp];
@@ -332,7 +327,7 @@ using namespace Eigen;
     // The rotation from where we are to where we tapped
     Eigen::Quaterniond endRot;
     endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaterniond curRotQuat = rotQuat;
+    Eigen::Quaterniond curRotQuat = _rotQuat;
     Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
     
     if (northUp)

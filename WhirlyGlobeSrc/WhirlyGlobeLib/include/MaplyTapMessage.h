@@ -30,24 +30,16 @@
 	It's passed as the object in a notification.
  */
 @interface MaplyTapMessage : NSObject
-{
-    /// View that was touched
-    UIView *view;      
-    //// Touch location on view in 2D
-    CGPoint touchLoc;  
 
-    /// Lon/Lat
-	WhirlyKit::GeoCoord whereGeo; 
-    /// 3D coordinates in the view
-	WhirlyKit::Point3f worldLoc;
-    /// Where the eye was.
-    float heightAboveSurface;   
-}
-
+/// View that was touched
 @property (nonatomic,retain) UIView *view;
+//// Touch location on view in 2D
 @property (nonatomic,assign) CGPoint touchLoc;
+/// Lon/Lat
 @property (nonatomic,assign) WhirlyKit::GeoCoord whereGeo;
+/// 3D coordinates in the view
 @property (nonatomic,assign) WhirlyKit::Point3f worldLoc;
+/// Where the eye was.
 @property (nonatomic,assign) float heightAboveSurface;
 
 @end

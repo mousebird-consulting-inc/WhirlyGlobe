@@ -31,7 +31,7 @@
 @interface MaplyFlatView : MaplyView
 
 /// Initialize with the coordinate system we'll use
-- (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// Generate the model view matrix for use by OpenGL.
 - (Eigen::Matrix4d)calcModelMatrix;

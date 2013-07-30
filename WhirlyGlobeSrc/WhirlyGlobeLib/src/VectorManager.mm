@@ -35,11 +35,8 @@ using namespace WhirlyKit;
     ShapeSet                    shapes;
     BOOL                        enable;
     float                         drawOffset;
-    UIColor                     *color;
     int                         priority;
     float                       minVis,maxVis;
-    float                       fade;
-    float                       lineWidth;
     BOOL                        filled;
     float                       sample;
 }
@@ -53,10 +50,6 @@ using namespace WhirlyKit;
 @end
 
 @implementation VectorInfo
-
-@synthesize color;
-@synthesize fade;
-@synthesize lineWidth;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)dict
 {
@@ -90,8 +83,8 @@ using namespace WhirlyKit;
     priority = [dict intForKey:@"priority" default:priority];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    fade = [dict floatForKey:@"fade" default:0.0];
-    lineWidth = [dict floatForKey:@"width" default:1.0];
+    _fade = [dict floatForKey:@"fade" default:0.0];
+    _lineWidth = [dict floatForKey:@"width" default:1.0];
     filled = [dict boolForKey:@"filled" default:false];
     sample = [dict floatForKey:@"sample" default:false];
 }
@@ -458,7 +451,7 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
             changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis));
             
             // Changed line width
-            changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo->lineWidth));
+            changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo.lineWidth));
             
             // Changed draw priority
             changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo->priority));

@@ -26,11 +26,8 @@ using namespace WhirlyGlobe;
 
 @implementation WGSphericalEarthWithTexGroup
 {
-    WhirlyGlobeSphericalEarthLayer *earthLayer;
     WhirlyKitTextureGroup *texGroup;
 }
-
-@synthesize earthLayer;
 
 - (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName
 {
@@ -44,8 +41,8 @@ using namespace WhirlyGlobe;
             self = nil;
             return nil;
         }
-        earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup];
-        [layerThread addLayer:earthLayer];
+        _earthLayer = [[WhirlyGlobeSphericalEarthLayer alloc] initWithTexGroup:texGroup];
+        [layerThread addLayer:_earthLayer];
     }
     
     return self;
@@ -53,8 +50,8 @@ using namespace WhirlyGlobe;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene
 {
-    [layerThread removeLayer:earthLayer];
-    earthLayer = nil;
+    [layerThread removeLayer:_earthLayer];
+    _earthLayer = nil;
     texGroup = nil;
 }
 

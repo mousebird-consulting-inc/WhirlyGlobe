@@ -39,23 +39,14 @@
     location over time.
  */
 @interface WhirlyGlobeView : WhirlyKitView
-{
-	/// Quaternion used for rotation from origin state
-	Eigen::Quaterniond rotQuat;
 
-	/// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
-	double heightAboveGlobe;
-    
-    /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
-    double tilt;
-
-    /// Used to update position based on time (or whatever other factor you like)
-    NSObject<WhirlyGlobeAnimationDelegate> * __weak delegate;    
-}
-
+/// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 @property (nonatomic,assign) double heightAboveGlobe;
+/// Quaternion used for rotation from origin state
 @property (nonatomic,assign) Eigen::Quaterniond rotQuat;
+/// Used to update position based on time (or whatever other factor you like)
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
+/// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
 @property (nonatomic,assign) double tilt;
 
 /// Return min/max valid heights above globe

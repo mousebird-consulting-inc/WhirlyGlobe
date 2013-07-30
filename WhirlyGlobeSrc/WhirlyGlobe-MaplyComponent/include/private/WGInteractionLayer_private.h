@@ -34,9 +34,6 @@
 {
     WhirlyGlobeView * __weak globeView;
         
-    // The view controller, for various callbacks
-    NSObject<WGInteractionLayerDelegate> * __weak viewController;
-        
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
     
@@ -44,6 +41,7 @@
     NSTimeInterval lastTouched;
 }
 
+// The view controller, for various callbacks
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Initialize with the globeView

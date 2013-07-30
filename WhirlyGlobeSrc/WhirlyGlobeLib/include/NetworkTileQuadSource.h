@@ -26,23 +26,10 @@
     Use those directly, not this.
   */
 @interface WhirlyKitNetworkTileQuadSourceBase : NSObject<WhirlyKitQuadDataStructure>
-{
-    /// Spherical Mercator coordinate system, for the tiles
-    WhirlyKit::SphericalMercatorCoordSystem *coordSys;
-    /// Bounds in Spherical Mercator
-    WhirlyKit::Mbr mbr;
-    /// Available levels, as read from the database.
-    /// You can modify these yourself as well, to limit what's loaded
-    int minZoom,maxZoom;
-    /// Number of simultaneous fetches.  Defaults to 4.
-    int numSimultaneous;
-    /// Size of a tile in pixels square.  256 is the usual.
-    int pixelsPerTile;
-    /// Location of cache, if set
-    NSString *cacheDir;
-}
 
+/// Number of simultaneous fetches.  Defaults to 4.
 @property (nonatomic,assign) int numSimultaneous;
+/// Location of cache, if set
 @property (nonatomic,retain) NSString *cacheDir;
 
 @end

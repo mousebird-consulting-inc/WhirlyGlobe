@@ -29,20 +29,6 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitSphericalChunk
 
-@synthesize mbr;
-@synthesize texId;
-@synthesize loadImage;
-@synthesize drawOffset;
-@synthesize drawPriority;
-@synthesize sampleX,sampleY;
-@synthesize minSampleX,minSampleY;
-@synthesize eps;
-@synthesize minVis,maxVis;
-@synthesize minVisBand,maxVisBand;
-@synthesize rotation;
-@synthesize readZBuffer;
-@synthesize writeZBuffer;
-
 - (id)init
 {
     self = [super init];
@@ -50,13 +36,13 @@ using namespace WhirlyKit;
         return nil;
     
     // Adaptive sample is the default
-    sampleX = sampleY = 12;
-    minSampleX = minSampleY = 1;
-    eps = 0.0005;
-    minVis = DrawVisibleInvalid;
-    maxVis = DrawVisibleInvalid;
-    readZBuffer = false;
-    writeZBuffer = true;
+    _sampleX = _sampleY = 12;
+    _minSampleX = _minSampleY = 1;
+    _eps = 0.0005;
+    _minVis = DrawVisibleInvalid;
+    _maxVis = DrawVisibleInvalid;
+    _readZBuffer = false;
+    _writeZBuffer = true;
     
     return self;
 }
@@ -99,11 +85,11 @@ static const float SkirtFactor = 0.95;
 - (void)calcSampleX:(int &)thisSampleX sampleY:(int &)thisSampleY fromPoints:(Point3f *)dispPts
 {
     // Default to the sample passed in
-    thisSampleX = sampleX;
-    thisSampleY = sampleY;
+    thisSampleX = _sampleX;
+    thisSampleY = _sampleY;
     
     // If there's an epsilon, look at that
-    if (eps > 0.0)
+    if (_eps > 0.0)
     {
         float angBot = acos(dispPts[0].dot(dispPts[1]));
         float angTop = acos(dispPts[3].dot(dispPts[2]));
@@ -112,17 +98,17 @@ static const float SkirtFactor = 0.95;
         float angX = std::max(angBot,angTop);
         float angY = std::max(angLeft,angRight);
         
-        float minAng = acosf(1.0-eps) * 2.0;
+        float minAng = acosf(1.0-_eps) * 2.0;
         if (minAng < angX)
             thisSampleX = angX/minAng;
         if (minAng < angY)
             thisSampleY = angY/minAng;
-        thisSampleX = std::max(minSampleX,thisSampleX);
-        thisSampleY = std::max(minSampleY,thisSampleY);
-        if (sampleX > 0)
-            thisSampleX = std::min(thisSampleX,sampleX);
-        if (sampleY > 0)
-            thisSampleY = std::min(thisSampleY,sampleY);
+        thisSampleX = std::max(_minSampleX,thisSampleX);
+        thisSampleY = std::max(_minSampleY,thisSampleY);
+        if (_sampleX > 0)
+            thisSampleX = std::min(thisSampleX,_sampleX);
+        if (_sampleY > 0)
+            thisSampleY = std::min(thisSampleY,_sampleY);
     }
     
     // Note: Debugging
@@ -135,33 +121,33 @@ static const float SkirtFactor = 0.95;
     
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
     drawable->setType(GL_TRIANGLES);
-    drawable->setLocalMbr(mbr);
-    drawable->setDrawPriority(drawPriority);
-    drawable->setDrawOffset(drawOffset);
-    drawable->setTexId(texId);
+    drawable->setLocalMbr(_mbr);
+    drawable->setDrawPriority(_drawPriority);
+    drawable->setDrawOffset(_drawOffset);
+    drawable->setTexId(_texId);
     drawable->setOnOff(enable);
-    drawable->setVisibleRange(minVis, maxVis, minVisBand, maxVisBand);
+    drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
     drawable->setRequestZBuffer(self.readZBuffer);
     drawable->setWriteZBuffer(self.writeZBuffer);
     
-    int thisSampleX = sampleX, thisSampleY = sampleY;
+    int thisSampleX = _sampleX, thisSampleY = _sampleY;
     
     Point3f dispPts[4];
-    dispPts[0] = coordAdapter->localToDisplay(localSys->geographicToLocal(mbr.ll()));
-    dispPts[1] = coordAdapter->localToDisplay(localSys->geographicToLocal(mbr.lr()));
-    dispPts[2] = coordAdapter->localToDisplay(localSys->geographicToLocal(mbr.ur()));
-    dispPts[3] = coordAdapter->localToDisplay(localSys->geographicToLocal(mbr.ul()));
+    dispPts[0] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ll()));
+    dispPts[1] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.lr()));
+    dispPts[2] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ur()));
+    dispPts[3] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ul()));
     
     std::vector<Point3f> locs;
     std::vector<TexCoord> texCoords;
     
     Point2f texIncr;
     // Without rotation, we'll just follow the geographic boundaries
-    if (rotation == 0.0)
+    if (_rotation == 0.0)
     {
         Point3f localLL,localUR;
-        localLL = localSys->geographicToLocal(mbr.ll());
-        localUR = localSys->geographicToLocal(mbr.ur());
+        localLL = localSys->geographicToLocal(_mbr.ll());
+        localUR = localSys->geographicToLocal(_mbr.ur());
         
         // Calculate a reasonable sample size
         [self calcSampleX:thisSampleX sampleY:thisSampleY fromPoints:dispPts];
@@ -191,7 +177,7 @@ static const float SkirtFactor = 0.95;
         // Convert the four corners into place
         // Rotate around the center
         Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
-        Eigen::Affine3f rot(AngleAxisf(rotation,center));
+        Eigen::Affine3f rot(AngleAxisf(_rotation,center));
         Eigen::Matrix4f mat = rot.matrix();
         
         // Rotate the corners
@@ -254,12 +240,12 @@ static const float SkirtFactor = 0.95;
     {
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
         skirtDrawable->setType(GL_TRIANGLES);
-        skirtDrawable->setLocalMbr(mbr);
+        skirtDrawable->setLocalMbr(_mbr);
         skirtDrawable->setDrawPriority(0);
-        skirtDrawable->setDrawOffset(drawOffset);
-        skirtDrawable->setTexId(texId);
+        skirtDrawable->setDrawOffset(_drawOffset);
+        skirtDrawable->setTexId(_texId);
         skirtDrawable->setOnOff(enable);
-        skirtDrawable->setVisibleRange(minVis, maxVis);
+        skirtDrawable->setVisibleRange(_minVis, _maxVis);
         skirtDrawable->setRequestZBuffer(true);
         skirtDrawable->setWriteZBuffer(false);
         

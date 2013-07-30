@@ -92,18 +92,9 @@ typedef std::map<WhirlyKit::SimpleIdentity,LoftedPolySceneRep *> LoftedPolyScene
      </list>
  */
 @interface WhirlyKitLoftLayer : NSObject<WhirlyKitLayer>
-{
-    WhirlyKitLayerThread * __weak layerThread;
-    WhirlyKit::Scene *scene;
-    
-    /// Used to keep track of the lofted polygons
-    WhirlyKit::LoftedPolySceneRepMap polyReps;
 
-    /// Shapes are clipped against a grid before lofting.
-    /// This is the grid size, in radians
-    float gridSize;
-}
-
+/// Shapes are clipped against a grid before lofting.
+/// This is the grid size, in radians
 @property (nonatomic,assign) float gridSize;
 
 /// Called in layer thread

@@ -25,26 +25,23 @@ using namespace Eigen;
 
 @implementation AnimateViewMomentum
 
-@synthesize velocity;
-@synthesize acceleration;
-
 - (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
 {
     if ((self = [super init]))
     {
-        velocity = inVel;
-        acceleration = inAcc;
+        _velocity = inVel;
+        _acceleration = inAcc;
         axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
         startQuat = [globeView rotQuat];
         
         startDate = CFAbsoluteTimeGetCurrent();
         
         // Let's calculate the maximum time, so we know when to stop
-        if (acceleration != 0.0)
+        if (_acceleration != 0.0)
         {
             maxTime = 0.0;
-            if (acceleration != 0.0)
-                maxTime = -velocity / acceleration;
+            if (_acceleration != 0.0)
+                maxTime = -_velocity / _acceleration;
             maxTime = std::max(0.f,maxTime);
             
             if (maxTime == 0.0)
@@ -73,7 +70,7 @@ using namespace Eigen;
     }
     
     // Calculate the offset based on angle
-    float totalAng = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
+    float totalAng = (_velocity + 0.5 * _acceleration * sinceStart) * sinceStart;
     Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
     Eigen::Quaterniond newQuat;
     newQuat = startQuat * diffRot;    

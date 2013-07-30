@@ -22,25 +22,6 @@
 
 // Configuration view lets the user decide what to turn on and off
 @interface ConfigViewController : UIViewController
-{
-    IBOutlet UISwitch *label2DSwitch;
-    IBOutlet UISwitch *label3DSwitch;
-    IBOutlet UISwitch *marker2DSwitch;
-    IBOutlet UISwitch *marker3DSwitch;
-    IBOutlet UISwitch *stickerSwitch;
-    IBOutlet UISwitch *shapeCylSwitch;
-    IBOutlet UISwitch *shapeSphereSwitch;
-    IBOutlet UISwitch *shapeGreatCircleSwitch;
-    IBOutlet UISwitch *northUpSwitch;
-    IBOutlet UISwitch *zBufferSwitch;
-    IBOutlet UISwitch *cullingSwitch;
-    IBOutlet UISwitch *pinchSwitch;
-    IBOutlet UISwitch *rotateSwitch;
-    IBOutlet UISwitch *countrySwitch;
-    IBOutlet UISwitch *loftPolySwitch;
-    IBOutlet UISwitch *megaMarkersSwitch;
-    IBOutlet UISwitch *perfSwitch;
-}
 
 @property (nonatomic,readonly) UISwitch *label2DSwitch;
 @property (nonatomic,readonly) UISwitch *label3DSwitch;

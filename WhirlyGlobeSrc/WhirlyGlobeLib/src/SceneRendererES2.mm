@@ -132,20 +132,20 @@ public:
 - (void)setScene:(WhirlyKit::Scene *)inScene
 {
     [super setScene:inScene];
-    scene = inScene;
+    super.scene = inScene;
 
-    if (!scene)
+    if (!super.scene)
         return;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != context)
-        [EAGLContext setCurrentContext:context];
+    if (oldContext != super.context)
+        [EAGLContext setCurrentContext:super.context];
     
-    SetupDefaultShaders(scene);
+    SetupDefaultShaders(super.scene);
     
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 
-    if (oldContext != context)
+    if (oldContext != super.context)
         [EAGLContext setCurrentContext:oldContext];
 }
 
@@ -156,7 +156,7 @@ public:
         lights = [NSMutableArray array];
     [lights addObject:light];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    triggerDraw = true;
+    super.triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
@@ -164,19 +164,19 @@ public:
 {
     lights = [NSMutableArray arrayWithArray:inLights];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    triggerDraw = true;
+    super.triggerDraw = true;
 }
 
 - (void)setDefaultMaterial:(WhirlyKitMaterial *)mat
 {
     defaultMat = mat;
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    triggerDraw = true;
+    super.triggerDraw = true;
 }
 
 - (void) setClearColor:(UIColor *)color
 {
-    clearColor = [color asRGBAColor];
+    _clearColor = [color asRGBAColor];
     renderSetup = false;
 }
 
@@ -209,22 +209,26 @@ static const float ScreenOverlap = 0.1;
 
 - (void) renderAsync
 {
+    Scene *scene = super.scene;
+    
     if (!scene)
         return;
     
     frameCount++;
     
-    if (framebufferWidth <= 0 || framebufferHeight <= 0)
+    if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
         return;
 
     if (!renderStateOptimizer)
         renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
 
-	[theView animate];
+	[super.theView animate];
 
     // Decide if we even need to draw
     if (!scene->hasChanges() && ![self viewDidChange])
         return;
+    
+    NSTimeInterval perfInterval = super.perfInterval;
     
     lastDraw = CFAbsoluteTimeGetCurrent();
         
@@ -234,6 +238,7 @@ static const float ScreenOverlap = 0.1;
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
+    EAGLContext *context = super.context;
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
@@ -248,32 +253,34 @@ static const float ScreenOverlap = 0.1;
 
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
-    if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)theView;
+    if ([super.theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = (WhirlyGlobeView *)super.theView;
 
+    GLint framebufferWidth = super.framebufferWidth;
+    GLint framebufferHeight = super.framebufferHeight;
     if (!renderSetup)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
         CheckGLError("SceneRendererES2: glBindFramebuffer");
-        glViewport(0, 0, framebufferWidth, framebufferHeight);
+        glViewport(0, 0, framebufferWidth,framebufferHeight);
         CheckGLError("SceneRendererES2: glViewport");
     }
 
     // Get the model and view matrices
-    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
+    Eigen::Matrix4d modelTrans4d = [super.theView calcModelMatrix];
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4d viewTrans4d = [theView calcViewMatrix];
+    Eigen::Matrix4d viewTrans4d = [super.theView calcViewMatrix];
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4d projMat4d = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
-    switch (zBufferMode)
+    switch (super.zBufferMode)
     {
         case zBufferOn:
             [renderStateOptimizer setDepthMask:GL_TRUE];
@@ -294,7 +301,7 @@ static const float ScreenOverlap = 0.1;
     if (!renderSetup)
     {
         // Note: What happens if they change this?
-        glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
+        glClearColor(_clearColor.r / 255.0, _clearColor.g / 255.0, _clearColor.b / 255.0, _clearColor.a / 255.0);
         CheckGLError("SceneRendererES2: glClearColor");
     }
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -311,7 +318,7 @@ static const float ScreenOverlap = 0.1;
     
 	if (scene)
 	{
-		numDrawables = 0;
+		int numDrawables = 0;
         
         SimpleIdentity defaultTriShader = scene->getProgramIDBySceneName(kSceneDefaultTriShader);
         SimpleIdentity defaultLineShader = scene->getProgramIDBySceneName(kSceneDefaultLineShader);
@@ -324,7 +331,7 @@ static const float ScreenOverlap = 0.1;
         WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         frameInfo.sceneRenderer = self;
-        frameInfo.theView = theView;
+        frameInfo.theView = super.theView;
         frameInfo.modelTrans = modelTrans;
         frameInfo.scene = scene;
 //        frameInfo.frameLen = duration;
@@ -349,7 +356,7 @@ static const float ScreenOverlap = 0.1;
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
-		scene->processChanges(theView,self);
+		scene->processChanges(super.theView,self);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");
@@ -418,8 +425,8 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,frameInfo));
+        bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,frameInfo));
                 
         if (perfInterval > 0)
         {
@@ -435,16 +442,16 @@ static const float ScreenOverlap = 0.1;
         
         SimpleIdentity curProgramId = EmptyIdentity;
 		
-        bool depthMaskOn = (zBufferMode == zBufferOn);
+        bool depthMaskOn = (super.zBufferMode == zBufferOn);
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			Drawable *drawable = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
+            if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
             {
-                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                if (depthMaskOn && super.depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
                     depthMaskOn = false;
                     [renderStateOptimizer setEnableDepthTest:false];
@@ -452,7 +459,7 @@ static const float ScreenOverlap = 0.1;
             }
             
             // For this mode we turn the z buffer off until we get a request to turn it on
-            if (zBufferMode == zBufferOffDefault)
+            if (super.zBufferMode == zBufferOffDefault)
             {
                 if (drawable->getRequestZBuffer())
                 {
@@ -464,7 +471,7 @@ static const float ScreenOverlap = 0.1;
             }
 
             // If we're drawing lines or points we don't want to update the z buffer
-            if (zBufferMode != zBufferOff)
+            if (super.zBufferMode != zBufferOff)
             {
                 if (drawable->getWriteZbuffer())
                     [renderStateOptimizer setDepthMask:GL_TRUE];
@@ -636,16 +643,16 @@ static const float ScreenOverlap = 0.1;
         perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
-	if (perfInterval > 0 && frameCount > perfInterval)
+	if (super.perfInterval > 0 && frameCount > perfInterval)
 	{
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
 		NSTimeInterval howLong =  now - frameCountStart;;
-		framesPerSec = frameCount / howLong;
+		super.framesPerSec = frameCount / howLong;
 		frameCountStart = now;
 		frameCount = 0;
         
         NSLog(@"---Rendering Performance---");
-        NSLog(@" Frames per sec = %.2f",framesPerSec);
+        NSLog(@" Frames per sec = %.2f",super.framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}

@@ -21,8 +21,6 @@
 #import "PinchDelegateFixed.h"
 
 @implementation WGPinchDelegateFixed
-@synthesize minHeight;
-@synthesize maxHeight;
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -30,8 +28,8 @@
 	{
 		globeView = inView;
 		startZ = 0.0;
-        minHeight = globeView.minHeightAboveGlobe;
-        maxHeight = globeView.maxHeightAboveGlobe;
+        _minHeight = globeView.minHeightAboveGlobe;
+        _maxHeight = globeView.maxHeightAboveGlobe;
 	}
 	
 	return self;
@@ -115,8 +113,8 @@
         {
             // First the height
             float newHeight = startZ/pinch.scale;
-            newHeight = std::min(maxHeight,newHeight);
-            newHeight = std::max(minHeight,newHeight);
+            newHeight = std::min(_maxHeight,newHeight);
+            newHeight = std::max(_minHeight,newHeight);
 			[globeView setHeightAboveGlobe:newHeight];
             float newTilt = [self calcTilt];
             [globeView setTilt:newTilt];

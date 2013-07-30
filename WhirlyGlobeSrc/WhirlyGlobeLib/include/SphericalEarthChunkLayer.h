@@ -28,14 +28,10 @@
 /** The Spherical Chunk layer
   */
 @interface WhirlyKitSphericalChunkLayer : NSObject<WhirlyKitLayer>
-{
-    /// If set, we'll turn off skirts
-    bool ignoreEdgeMatching;
-    /// If set we'll use a dynamic texture and drawable atlas
-    bool useDynamicAtlas;
-}
 
+/// If set, we'll turn off skirts
 @property (nonatomic,assign) bool ignoreEdgeMatching;
+/// If set we'll use a dynamic texture and drawable atlas
 @property (nonatomic,assign) bool useDynamicAtlas;
 
 /// Add a single chunk on the spherical earth.  This returns and ID

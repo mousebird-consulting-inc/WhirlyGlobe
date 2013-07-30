@@ -36,15 +36,10 @@
     Set the delegate to smoothly change location over time.
  */
 @interface MaplyView : WhirlyKitView
-{
-    /// Viewer location
-    WhirlyKit::Point3d loc;
-    
-    /// Used to update position based on time (or whatever)
-    NSObject<MaplyAnimationDelegate> * __weak delegate;
-}
 
+/// Viewer location
 @property(nonatomic,readonly) WhirlyKit::Point3d &loc;
+/// Used to update position based on time (or whatever)
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use

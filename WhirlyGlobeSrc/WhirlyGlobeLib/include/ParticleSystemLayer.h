@@ -33,12 +33,10 @@
     The rest of the info is in the dictionary.
  */
 @interface WhirlyKitParticleSystem : NSObject
-{
-    WhirlyKit::GeoCoord loc;
-    Eigen::Vector3f norm;
-}
 
+/// Where the particle system base is
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Direction we're sending particles out
 @property (nonatomic,assign) Eigen::Vector3f norm;
 
 @end

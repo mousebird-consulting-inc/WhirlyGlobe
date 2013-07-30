@@ -71,15 +71,6 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 
 /// Raw Geometry object.  Fill it in and pass it to the layer.
 @interface WhirlyGlobeGeometryRaw : WhirlyGlobeGeometry
-{
-    WhilyGlobeGeometryRawType type;
-    std::vector<WhirlyKit::Point3f> pts;
-    std::vector<WhirlyKit::Point3f> norms;
-    std::vector<WhirlyKit::TexCoord> texCoords;
-    std::vector<WhirlyKit::RGBAColor> colors;
-    std::vector<WhirlyGlobe::RawTriangle> triangles;
-    WhirlyKit::SimpleIdentity texId;
-}
 
 @property (nonatomic,assign) WhilyGlobeGeometryRawType type;
 @property (nonatomic) std::vector<WhirlyKit::Point3f> &pts;
@@ -117,10 +108,6 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
     from and writing to permanent storage.
  */
 @interface WhirlyGlobeGeometrySet : NSObject
-{
-    std::vector<WhirlyKit::Texture *> textures;
-    NSMutableArray *geom;
-}
 
 @property (nonatomic,readonly) std::vector<WhirlyKit::Texture *> &textures;
 @property (nonatomic,readonly) NSMutableArray *geom;

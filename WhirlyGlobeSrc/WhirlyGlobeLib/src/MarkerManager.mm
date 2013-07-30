@@ -75,25 +75,15 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 
 @implementation WhirlyKitMarker
 
-@synthesize isSelectable;
-@synthesize selectID;
-@synthesize loc;
-@synthesize width,height,rotation;
-@synthesize lockRotation;
-@synthesize texIDs;
-@synthesize period;
-@synthesize timeOffset;
-@synthesize layoutImportance;
-
 - (id)init
 {
     self = [super init];
     
     if (self)
     {
-        isSelectable = false;
-        selectID = EmptyIdentity;
-        layoutImportance = MAXFLOAT;
+        _isSelectable = false;
+        _selectID = EmptyIdentity;
+        _layoutImportance = MAXFLOAT;
     }
     
     return self;
@@ -102,23 +92,12 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 
 - (void)addTexID:(SimpleIdentity)texID
 {
-    texIDs.push_back(texID);
+    _texIDs.push_back(texID);
 }
 
 @end
 
 @implementation WhirlyKitMarkerInfo
-
-@synthesize markers;
-@synthesize color;
-@synthesize drawOffset;
-@synthesize minVis,maxVis;
-@synthesize width,height;
-@synthesize screenObject;
-@synthesize drawPriority;
-@synthesize fade;
-@synthesize markerId;
-@synthesize replaceID;
 
 // Initialize with an array of makers and parse out parameters
 - (id)initWithMarkers:(NSArray *)inMarkers desc:(NSDictionary *)desc
@@ -127,11 +106,10 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     
     if (self)
     {
-        self.markers = inMarkers;
+        _markers = inMarkers;
         [self parseDesc:desc];
         
-        markerId = Identifiable::genId();
-        replaceID = EmptyIdentity;
+        _markerId = Identifiable::genId();
     }
     
     return self;
@@ -140,14 +118,14 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 - (void)parseDesc:(NSDictionary *)desc
 {
     self.color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    drawOffset = [desc intForKey:@"drawOffset" default:0];
-    minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    drawPriority = [desc intForKey:@"drawPriority" default:MarkerDrawPriority];
-    screenObject = [desc boolForKey:@"screen" default:false];
-    width = [desc floatForKey:@"width" default:(screenObject ? 16.0 : 0.001)];
-    height = [desc floatForKey:@"height" default:(screenObject ? 16.0 : 0.001)];
-    fade = [desc floatForKey:@"fade" default:0.0];
+    _drawOffset = [desc intForKey:@"drawOffset" default:0];
+    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+    _drawPriority = [desc intForKey:@"drawPriority" default:MarkerDrawPriority];
+    _screenObject = [desc boolForKey:@"screen" default:false];
+    _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
+    _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
+    _fade = [desc floatForKey:@"fade" default:0.0];
 }
 
 @end

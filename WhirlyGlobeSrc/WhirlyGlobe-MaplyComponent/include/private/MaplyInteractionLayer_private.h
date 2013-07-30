@@ -31,11 +31,8 @@
     data added to the scene and various other layers.
  */
 @interface MaplyInteractionLayer : MaplyBaseInteractionLayer
-{
-    /// The view controller, for various callbacks
-    NSObject<MaplyInteractionLayerDelegate> * __weak viewController;
-}
 
+/// The view controller, for various callbacks
 @property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
 
 // Create with the map view

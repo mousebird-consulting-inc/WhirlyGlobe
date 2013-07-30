@@ -25,8 +25,13 @@
 using namespace WhirlyKit;
 
 @implementation MaplyPinchDelegate
-
-@synthesize minZoom,maxZoom;
+{
+    /// If we're zooming, where we started
+    float startZ;
+    MaplyView *mapView;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
+}
 
 - (id)initWithMapView:(MaplyView *)inView
 {
@@ -34,7 +39,7 @@ using namespace WhirlyKit;
 	{
 		mapView = inView;
 		startZ = 0.0;
-        minZoom = maxZoom = -1.0;
+        _minZoom = _maxZoom = -1.0;
 	}
 	
 	return self;
@@ -109,7 +114,7 @@ using namespace WhirlyKit;
         {
             Point3d curLoc = mapView.loc;
             double newZ = startZ/pinch.scale;
-            if (minZoom >= maxZoom || (minZoom < newZ && newZ < maxZoom))
+            if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
             {
                 [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
                 if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])

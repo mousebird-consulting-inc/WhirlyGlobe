@@ -34,10 +34,7 @@ using namespace WhirlyGlobe;
     SimpleIdentity sceneRepId;
     // For a creation request
     ShapeSet    shapes;
-    UIColor     *color;
-    NSString    *key;
     float       height;
-    float       fade;
     float       minVis,maxVis;
     int         priority;
     bool        top,side;
@@ -57,10 +54,6 @@ using namespace WhirlyGlobe;
 @end
 
 @implementation LoftedPolyInfo
-
-@synthesize color;
-@synthesize key;
-@synthesize fade;
 
 - (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)desc key:(NSString *)inKey
 {
@@ -94,7 +87,7 @@ using namespace WhirlyGlobe;
     height = [dict floatForKey:@"height" default:.01];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    fade = [dict floatForKey:@"fade" default:0.0];
+    _fade = [dict floatForKey:@"fade" default:0.0];
     top = [dict boolForKey:@"top" default:true];
     side = [dict boolForKey:@"side" default:true];
     layered = [dict boolForKey:@"layered" default:false];
@@ -449,14 +442,19 @@ protected:
 }
 
 @implementation WhirlyKitLoftLayer
-
-@synthesize gridSize;
+{
+    WhirlyKitLayerThread * __weak layerThread;
+    WhirlyKit::Scene *scene;
+    
+    /// Used to keep track of the lofted polygons
+    WhirlyKit::LoftedPolySceneRepMap polyReps;
+}
 
 - (id)init
 {
     if ((self = [super init]))
     {
-        gridSize = 10.0 / 180.0 * M_PI;  // Default to 10 degrees
+        _gridSize = 10.0 / 180.0 * M_PI;  // Default to 10 degrees
     }
     
     return self;
@@ -579,7 +577,7 @@ protected:
                     } else {                                                    
                         // Clip the polys for the top
                         std::vector<VectorRing> clippedMesh;
-                        ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
+                        ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(_gridSize,_gridSize),clippedMesh);
 
                         // May need to add the outline as well
                         if (polyInfo->outline)

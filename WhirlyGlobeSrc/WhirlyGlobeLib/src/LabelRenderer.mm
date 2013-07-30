@@ -45,56 +45,38 @@ namespace WhirlyKit
 
 @implementation WhirlyKitLabelInfo
 
-@synthesize strs;
-@synthesize textColor,backColor;
-@synthesize font;
-@synthesize screenObject;
-@synthesize layoutEngine;
-@synthesize layoutImportance;
-@synthesize width,height;
-@synthesize drawOffset;
-@synthesize minVis,maxVis;
-@synthesize justify;
-@synthesize drawPriority;
-@synthesize fade;
-@synthesize shadowColor;
-@synthesize shadowSize;
-@synthesize outlineColor;
-@synthesize outlineSize;
-@synthesize shaderID;
-
 // Parse label info out of a description
 - (void)parseDesc:(NSDictionary *)desc
 {
     self.textColor = [desc objectForKey:@"textColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     self.backColor = [desc objectForKey:@"backgroundColor" checkType:[UIColor class] default:[UIColor clearColor]];
     self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
-    screenObject = [desc boolForKey:@"screen" default:false];
-    layoutEngine = [desc boolForKey:@"layout" default:false];
-    layoutImportance = [desc floatForKey:@"layoutImportance" default:0.0];
-    width = [desc floatForKey:@"width" default:0.0];
-    height = [desc floatForKey:@"height" default:(screenObject ? 16.0 : 0.001)];
-    drawOffset = [desc intForKey:@"drawOffset" default:0];
-    minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+    _screenObject = [desc boolForKey:@"screen" default:false];
+    _layoutEngine = [desc boolForKey:@"layout" default:false];
+    _layoutImportance = [desc floatForKey:@"layoutImportance" default:0.0];
+    _width = [desc floatForKey:@"width" default:0.0];
+    _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
+    _drawOffset = [desc intForKey:@"drawOffset" default:0];
+    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     NSString *justifyStr = [desc stringForKey:@"justify" default:@"middle"];
-    fade = [desc floatForKey:@"fade" default:0.0];
-    shadowColor = [desc objectForKey:@"shadowColor"];
-    shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
-    outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
-    outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
-    shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
+    _fade = [desc floatForKey:@"fade" default:0.0];
+    _shadowColor = [desc objectForKey:@"shadowColor"];
+    _shadowSize = [desc floatForKey:@"shadowSize" default:0.0];
+    _outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
+    _outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
+    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     if (![justifyStr compare:@"middle"])
-        justify = WhirlyKitLabelMiddle;
+        _justify = WhirlyKitLabelMiddle;
     else {
         if (![justifyStr compare:@"left"])
-            justify = WhirlyKitLabelLeft;
+            _justify = WhirlyKitLabelLeft;
         else {
             if (![justifyStr compare:@"right"])
-                justify = WhirlyKitLabelRight;
+                _justify = WhirlyKitLabelRight;
         }
     }
-    drawPriority = [desc intForKey:@"drawPriority" default:LabelDrawPriority];
+    _drawPriority = [desc intForKey:@"drawPriority" default:LabelDrawPriority];
 }
 
 // Initialize a label info with data from the description dictionary

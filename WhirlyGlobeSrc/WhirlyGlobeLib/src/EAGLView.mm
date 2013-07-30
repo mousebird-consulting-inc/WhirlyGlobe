@@ -23,13 +23,13 @@
 
 @implementation WhirlyKitEAGLView 
 {
+    CADisplayLink *displayLink;
     bool resizeFail;
     int resizeFailRetry;
+    int _frameInterval;
 }
 
-@synthesize renderer;
-@synthesize animating;
-@synthesize useRetina;
+@synthesize frameInterval=_frameInterval;
 
 // You must implement this method
 + (Class)layerClass
@@ -51,8 +51,8 @@
                                         nil];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		
-		animating = FALSE;
-		frameInterval = 1;
+	_animating = FALSE;
+	_frameInterval = 1;
         self.useRetina = TRUE;
         resizeFail = false;
         resizeFailRetry = 0;
@@ -68,11 +68,11 @@
 
 - (void)setUseRetina:(BOOL)newVal
 {
-    useRetina = newVal;
+    _useRetina = newVal;
 
     // Either use the device scale or just 1.0
     float scale = [UIScreen mainScreen].scale;
-    if (!useRetina)
+    if (!_useRetina)
             scale = 1.0;
     self.contentScaleFactor = scale;
     self.layer.contentsScale = scale;
@@ -81,26 +81,26 @@
 
 - (NSInteger)frameInterval
 {
-    return frameInterval;
+    return _frameInterval;
 }
 
 - (void)setFrameInterval:(NSInteger)newFrameInterval
 {
     if (newFrameInterval >= 1)
     {
-        frameInterval = newFrameInterval;
-        [displayLink setFrameInterval:frameInterval];
+        _frameInterval = newFrameInterval;
+        [displayLink setFrameInterval:_frameInterval];
     }
 }
 
 - (void)startAnimation
 {
-    if (!animating)
+    if (!_animating)
     {
         if (!displayLink)
         {
             displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(drawView:)];
-            [displayLink setFrameInterval:frameInterval];
+            [displayLink setFrameInterval:_frameInterval];
             if (_reactiveMode)
             {
                 [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -109,16 +109,16 @@
         } else
             displayLink.paused = NO;
         
-        animating = TRUE;
+        _animating = TRUE;
     }
 }
 
 - (void)stopAnimation
 {
-    if (animating)
+    if (_animating)
     {
         displayLink.paused = YES;
-        animating = FALSE;
+        _animating = FALSE;
         [displayLink invalidate];
         displayLink = nil;
     }
@@ -133,7 +133,7 @@
     if (resizeFail)
         [self layoutSubviews];
 
-    [renderer render:displayLink.duration*displayLink.frameInterval];
+    [_renderer render:displayLink.duration*displayLink.frameInterval];
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -144,7 +144,7 @@
 - (void) layoutSubviews
 {
     // Try to resize the renderer, multiple times if necessary
-	if (![renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
     {
         if (!resizeFail)
         {
@@ -158,7 +158,7 @@
     resizeFail = false;
     resizeFailRetry = 0;
 
-	[renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
+	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 

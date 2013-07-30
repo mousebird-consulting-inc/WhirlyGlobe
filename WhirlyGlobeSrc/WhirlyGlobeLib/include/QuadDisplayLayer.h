@@ -151,79 +151,37 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     It will swap data in and out as required.
  */
 @interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
-{
-    /// Layer thread we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene we're modifying
-    WhirlyKit::Scene *scene;
-    
-    /// The renderer we need for frame sizes
-    WhirlyKitSceneRendererES * __weak renderer;
-        
-    /// Coordinate system we're working in for tiling
-    WhirlyKit::CoordSystem *coordSys;
-    
-    /// Valid bounding box in local coordinates (coordSys)
-    WhirlyKit::Mbr mbr;
-    
-    /// [minZoom,maxZoom] range
-    int minZoom,maxZoom;
-    
-    /// Quad tree used for paging advice
-    WhirlyKit::Quadtree *quadtree;
-        
-    /// Nodes being evaluated for loading
-    WhirlyKit::QuadNodeInfoSet nodesForEval;
 
-    /// Maximum number of tiles loaded in at once
-    int maxTiles;
-    
-    /// Minimum screen area to consider for a pixel
-    float minImportance;
-    
-    /// How often this layer gets notified of view changes.  1s by default.
-    float viewUpdatePeriod;
-    
-    /// If set, we'll draw the empty tiles as lines
-    /// If not set, we'll just stop loading at that tile
-    // Note: Note implemented
-    bool drawEmpty;
-    
-    /// Draw lines instead of polygons, for demonstration.
-    bool lineMode;
-    
-    /// If set the eval step gets very aggressive about loading tiles.
-    /// This will slow down the layer thread, but makes the quad layer appear faster
-    bool greedyMode;
-    
-    /// If set, we print out way too much debugging info.
-    bool debugMode;    
-
-    /// State of the view the last time we were called
-    WhirlyKitViewState *viewState;
-
-    /// Data source for the quad tree structure
-    NSObject<WhirlyKitQuadDataStructure> *dataStructure;
-
-    /// Loader that may be creating and deleting data as the quad tiles load
-    ///  and unload.
-    NSObject<WhirlyKitQuadLoader> *loader;
-}
-
+/// Layer thread we're attached to
 @property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
+/// Scene we're modifying
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
+/// Quad tree used for paging advice
 @property (nonatomic,readonly) WhirlyKit::Quadtree *quadtree;
+/// Coordinate system we're working in for tiling
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
+/// Valid bounding box in local coordinates (coordSys)
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
+/// Maximum number of tiles loaded in at once
 @property (nonatomic,assign) int maxTiles;
+/// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
+/// Draw lines instead of polygons, for demonstration.
 @property (nonatomic,assign) bool lineMode;
+/// If set, we print out way too much debugging info.
 @property (nonatomic,assign) bool debugMode;
+/// If set, we'll draw the empty tiles as lines
+/// If not set, we'll just stop loading at that tile
+// Note: Note unimplemented
 @property (nonatomic,assign) bool drawEmpty;
+/// How often this layer gets notified of view changes.  1s by default.
 @property (nonatomic,assign) float viewUpdatePeriod;
+/// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+/// Loader that may be creating and deleting data as the quad tiles load
+///  and unload.
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
+/// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 
 /// Construct with a renderer and data source for the tiles

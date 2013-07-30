@@ -106,14 +106,6 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 
 @implementation WhirlyGlobeGeometryRaw
 
-@synthesize type;
-@synthesize pts;
-@synthesize norms;
-@synthesize texCoords;
-@synthesize colors;
-@synthesize triangles;
-@synthesize texId;
-
 + (WhirlyGlobeGeometryRaw *)geometryWithGeometry:(WhirlyGlobeGeometryRaw *)inGeom
 {
     WhirlyGlobeGeometryRaw *rawGeom = [[WhirlyGlobeGeometryRaw alloc] init];
@@ -130,27 +122,27 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 
 - (bool)isValid
 {
-    if (type != WhirlyGlobeGeometryLines && type != WhirlyGlobeGeometryTriangles)
+    if (_type != WhirlyGlobeGeometryLines && _type != WhirlyGlobeGeometryTriangles)
         return false;
-    int numPoints = pts.size();
+    int numPoints = _pts.size();
     if (numPoints == 0)
         return false;
     
-    if (!norms.empty() && norms.size() != numPoints)
+    if (!_norms.empty() && _norms.size() != numPoints)
         return false;
-    if (!texCoords.empty() && texCoords.size() != numPoints)
+    if (!_texCoords.empty() && _texCoords.size() != numPoints)
         return false;
-    if (!colors.empty() && colors.size() != numPoints)
+    if (!_colors.empty() && _colors.size() != numPoints)
         return false;
-    if (type == WhirlyGlobeGeometryTriangles && triangles.empty())
+    if (_type == WhirlyGlobeGeometryTriangles && _triangles.empty())
         return false;
-    if (texId != EmptyIdentity && texCoords.empty())
+    if (_texId != EmptyIdentity && _texCoords.empty())
         return false;
-    for (unsigned int ii=0;ii<triangles.size();ii++)
+    for (unsigned int ii=0;ii<_triangles.size();ii++)
     {
-        RawTriangle tri = triangles[ii];
+        RawTriangle tri = _triangles[ii];
         for (unsigned int jj=0;jj<3;jj++)
-            if (tri.verts[jj] >= pts.size() || tri.verts[jj] < 0)
+            if (tri.verts[jj] >= _pts.size() || tri.verts[jj] < 0)
                 return false;
     }
     
@@ -159,16 +151,16 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 
 - (void)applyTransform:(Matrix4d &)mat
 {
-    for (unsigned int ii=0;ii<pts.size();ii++)
+    for (unsigned int ii=0;ii<_pts.size();ii++)
     {
-        Point3f &pt = pts[ii];
+        Point3f &pt = _pts[ii];
         Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
         pt = Point3f(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
     }
     
-    for (unsigned int ii=0;ii<norms.size();ii++)
+    for (unsigned int ii=0;ii<_norms.size();ii++)
     {
-        Point3f &norm = norms[ii];
+        Point3f &norm = _norms[ii];
         Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
         norm = Point3f(projNorm.x(),projNorm.y(),projNorm.z()).normalized();
     }
@@ -204,7 +196,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
         return nil;
     
     BasicDrawable *draw = new BasicDrawable("Geometry Layer");
-    switch (type)
+    switch (_type)
     {
         case WhirlyGlobeGeometryLines:
             draw->setType(GL_LINES);
@@ -215,20 +207,20 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
         default:
             break;
     }
-    draw->setTexId(texId);
-    for (unsigned int ii=0;ii<pts.size();ii++)
+    draw->setTexId(_texId);
+    for (unsigned int ii=0;ii<_pts.size();ii++)
     {
-        draw->addPoint(pts[ii]);
-        if (!norms.empty())
-            draw->addNormal(norms[ii]);
-        if (texId != EmptyIdentity)
-            draw->addTexCoord(texCoords[ii]);
-        if (!colors.empty())
-            draw->addColor(colors[ii]);
+        draw->addPoint(_pts[ii]);
+        if (!_norms.empty())
+            draw->addNormal(_norms[ii]);
+        if (_texId != EmptyIdentity)
+            draw->addTexCoord(_texCoords[ii]);
+        if (!_colors.empty())
+            draw->addColor(_colors[ii]);
     }
-    for (unsigned int ii=0;ii<triangles.size();ii++)
+    for (unsigned int ii=0;ii<_triangles.size();ii++)
     {
-        RawTriangle tri = triangles[ii];
+        RawTriangle tri = _triangles[ii];
         draw->addTriangle(BasicDrawable::Triangle(tri.verts[0],tri.verts[1],tri.verts[2]));
     }
     
@@ -245,9 +237,6 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 @end
 
 @implementation WhirlyGlobeGeometrySet
-
-@synthesize textures;
-@synthesize geom;
 
 static unsigned short CacheFileVersion = 1;
 
@@ -283,7 +272,7 @@ static unsigned short CacheFileVersion = 1;
         unsigned int numGeom;
         if (fread(&numGeom, sizeof(unsigned int), 1, fp) != 1)
             throw 1;
-        geom = [NSMutableArray array];
+        _geom = [NSMutableArray array];
         for (unsigned int ii=0;ii<numGeom;ii++)
         {
             WhirlyGlobeGeometryRaw *rawGeom = [[WhirlyGlobeGeometryRaw alloc] init];
@@ -363,7 +352,7 @@ static unsigned short CacheFileVersion = 1;
                     throw 1;
             }            
             
-            [geom addObject:rawGeom];
+            [_geom addObject:rawGeom];
         }
     }
     catch (...)
@@ -388,10 +377,10 @@ static unsigned short CacheFileVersion = 1;
             throw 1;
         
         // Textures first
-        unsigned int numTex = textures.size();
+        unsigned int numTex = _textures.size();
         if (fwrite(&numTex, sizeof(unsigned int), 1, fp) != 1)
             throw 1;
-        for (unsigned int ii=0;ii<textures.size();ii++)
+        for (unsigned int ii=0;ii<_textures.size();ii++)
         {
 //            Texture *tex = textures[ii];
 //            if (!tex->writeToFile(fp))
@@ -399,10 +388,10 @@ static unsigned short CacheFileVersion = 1;
         }
         
         // Raw geometry
-        unsigned int numGeom = [geom count];
+        unsigned int numGeom = [_geom count];
         if (fwrite(&numGeom, sizeof(unsigned int), 1, fp) != 1)
             throw 1;
-        for (WhirlyGlobeGeometryRaw *rawGeom in geom)
+        for (WhirlyGlobeGeometryRaw *rawGeom in _geom)
         {
             unsigned int type = rawGeom.type;
             unsigned int texId = rawGeom.texId;

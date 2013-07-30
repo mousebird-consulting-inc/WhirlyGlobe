@@ -26,22 +26,21 @@ using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation WhirlyKitView
-
-@synthesize fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@synthesize coordAdapter;
-@synthesize lastChangedTime;
-@synthesize continuousZoom;
+{
+    /// Called when positions are updated
+    WhirlyKitViewWatcherDelegateSet watchDelegates;
+}
 
 - (id)init
 {
 	if ((self = [super init]))
     {
-        fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		nearPlane = 0.001;
-		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-		farPlane = 4.0;
-        lastChangedTime = CFAbsoluteTimeGetCurrent();
-        continuousZoom = false;
+        _fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+		_nearPlane = 0.001;
+		_imagePlaneSize = _nearPlane * tanf(_fieldOfView / 2.0);
+		_farPlane = 4.0;
+        _lastChangedTime = CFAbsoluteTimeGetCurrent();
+        _continuousZoom = false;
     }
     
     return self;
@@ -50,13 +49,13 @@ using namespace Eigen;
 
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2d &)ll ur:(Point2d &)ur near:(double &)near far:(double &)far
 {
-	ll.x() = -imagePlaneSize;
-	ur.x() = imagePlaneSize;
+	ll.x() = -_imagePlaneSize;
+	ur.x() = _imagePlaneSize;
 	double ratio =  ((double)frameHeight / (double)frameWidth);
-	ll.y() = -imagePlaneSize * ratio;
-	ur.y() = imagePlaneSize * ratio ;
-	near = nearPlane;
-	far = farPlane;
+	ll.y() = -_imagePlaneSize * ratio;
+	ur.y() = _imagePlaneSize * ratio ;
+	near = _nearPlane;
+	far = _farPlane;
 }
 
 - (void)cancelAnimation
@@ -95,13 +94,13 @@ using namespace Eigen;
 {
 	GLfloat near=0,far=0;
 	Point2d frustLL,frustUR;
-	frustLL.x() = -imagePlaneSize * (1.0 + margin);
-	frustUR.x() = imagePlaneSize * (1.0 + margin);
+	frustLL.x() = -_imagePlaneSize * (1.0 + margin);
+	frustUR.x() = _imagePlaneSize * (1.0 + margin);
 	double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
-	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
-	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
-	near = nearPlane;
-	far = farPlane;
+	frustLL.y() = -_imagePlaneSize * ratio * (1.0 + margin);
+	frustUR.y() = _imagePlaneSize * ratio * (1.0 + margin);
+	near = _nearPlane;
+	far = _farPlane;
     
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book

@@ -28,23 +28,15 @@
     our own purposes.
  */
 @interface WhirlyKitEAGLView  : UIView 
-{
-    /// We're only expecting this to be set once
-	WhirlyKitSceneRendererES * __weak renderer;
 
-    /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
-	NSInteger frameInterval;
-    /// True if we've got a displayLink turned on to animate.
-    BOOL animating;
-    CADisplayLink *displayLink;
-    /// Set this false if you don't want the doubling for the retina display.
-    /// True by default.
-    BOOL useRetina;
-}
-
+/// We're only expecting this to be set once
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+/// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 @property (nonatomic) NSInteger frameInterval;
+/// True if we've got a displayLink turned on to animate.
 @property (readonly, nonatomic, getter=isAnimating) BOOL animating;
+/// Set this false if you don't want the doubling for the retina display.
+/// True by default.
 @property (nonatomic, assign) BOOL useRetina;
 /// If set, we'll expect to respond to outside calls to drawView: and our own
 ///  display link will be less aggressive.  This works well with UIScrollView.
