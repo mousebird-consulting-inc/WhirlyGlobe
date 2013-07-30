@@ -1118,6 +1118,10 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1129,11 +1133,20 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
         if (isHere)
         {
-            // Enable vectors
-            for (SimpleIDSet::iterator it = compObj.vectorIDs.begin();
-                 it != compObj.vectorIDs.end(); ++it)
-                vectorManager->enableVector(*it, enable, changes);
-            // Note: Need to implement the rest of the enable/disables
+            if (vectorManager && !compObj.vectorIDs.empty())
+                vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
+            if (markerManager && !compObj.markerIDs.empty())
+                markerManager->enableMarkers(compObj.markerIDs, enable, changes);
+            if (labelManager && !compObj.labelIDs.empty())
+                labelManager->enableLabels(compObj.labelIDs, enable, changes);
+            if (shapeManager && !compObj.shapeIDs.empty())
+                shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
+            if (chunkManager && !compObj.chunkIDs.empty())
+            {
+                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
+                     it != compObj.chunkIDs.end(); ++it)
+                    chunkManager->enableChunk(*it, enable, changes);
+            }
         }
     }
 

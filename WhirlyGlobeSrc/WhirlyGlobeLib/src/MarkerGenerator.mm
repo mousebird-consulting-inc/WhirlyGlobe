@@ -27,6 +27,8 @@ namespace WhirlyKit
 // Add this marker to the appropriate drawable
 void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
 {
+    if (!enable)
+        return;
     float visVal = [frameInfo.theView heightAboveSurface];
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
          ((minVis <= visVal && visVal <= maxVis) ||
@@ -143,6 +145,18 @@ void MarkerGenerator::addMarkers(std::vector<Marker *> inMarkers)
     markers.insert(inMarkers.begin(),inMarkers.end());
 }
     
+void MarkerGenerator::enableMarkers(std::vector<SimpleIdentity> &markerIDs,bool enable)
+{
+    for (unsigned int ii=0;ii<markerIDs.size();ii++)
+    {
+        Marker dummyMarker;
+        dummyMarker.setId(markerIDs[ii]);
+        MarkerSet::iterator it = markers.find(&dummyMarker);
+        if (it != markers.end())
+            (*it)->enable = enable;
+    }
+}
+    
 void MarkerGenerator::removeMarker(SimpleIdentity markerId)
 {
     Marker dummyMarker;
@@ -232,7 +246,7 @@ MarkerGeneratorRemRequest::MarkerGeneratorRemRequest(SimpleIdentity genID,Simple
     markerIDs.push_back(markerID);
 }
     
-MarkerGeneratorRemRequest::MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs)
+MarkerGeneratorRemRequest::MarkerGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &markerIDs)
     : GeneratorChangeRequest(genID), markerIDs(markerIDs)
 {
     
@@ -246,6 +260,21 @@ void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->removeMarkers(markerIDs);
+}
+    
+MarkerGeneratorEnableRequest::MarkerGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &markerIDs,bool enable) : GeneratorChangeRequest(genID), enable(enable), markerIDs(markerIDs)
+{
+    
+}
+    
+MarkerGeneratorEnableRequest::~MarkerGeneratorEnableRequest()
+{
+}
+    
+void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+{
+    MarkerGenerator *markerGen = (MarkerGenerator *)gen;
+    markerGen->enableMarkers(markerIDs,enable);
 }
     
 MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown)

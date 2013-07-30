@@ -66,6 +66,7 @@ namespace WhirlyKit
     _outlineSize = [desc floatForKey:@"outlineSize" default:0.0];
     _outlineColor = [desc objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor blackColor]];
     _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
+    _enable = [desc boolForKey:@"enable" default:true];
     if (![justifyStr compare:@"middle"])
         _justify = WhirlyKitLabelMiddle;
     else {
@@ -417,6 +418,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         layoutObj.minVis = _labelInfo.minVis;
                         layoutObj.maxVis = _labelInfo.maxVis;
                         layoutObj.acceptablePlacement = layoutPlacement;
+                        layoutObj.enable = _labelInfo.enable;
                         _layoutObjects.push_back(layoutObj);
                         
                         // The shape starts out disabled
@@ -432,6 +434,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             label.selectID = Identifiable::genId();
                         
                         RectSelectable2D select2d;
+                        select2d.enable = _labelInfo.enable;
                         Point2f ll = drawStr->mbr.ll(), ur = drawStr->mbr.ur();
                         select2d.pts[0] = Point2f(ll.x(),-ll.y());
                         select2d.pts[1] = Point2f(ll.x(),-ur.y());
@@ -600,6 +603,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         drawable->setDrawPriority(_labelInfo.drawPriority);
                         drawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
                         drawable->setAlpha(true);
+                        drawable->setOnOff(_labelInfo.enable);
                         drawables.push_back(drawable);
                     }
                 }
@@ -619,6 +623,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     drawable->addTriangle(BasicDrawable::Triangle(2,3,0));
                     drawable->setDrawPriority(_labelInfo.drawPriority);
                     drawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
+                    drawable->setOnOff(_labelInfo.enable);
                     drawable->setAlpha(true);
                 }
             }
@@ -713,6 +718,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 layoutObj.importance = layoutImportance;
                 layoutObj.minVis = _labelInfo.minVis;
                 layoutObj.maxVis = _labelInfo.maxVis;
+                layoutObj.enable = _labelInfo.enable;
                 // Note: Should parse out acceptable placements as well
                 layoutObj.acceptablePlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
                 _layoutObjects.push_back(layoutObj);
@@ -782,6 +788,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             if (_labelInfo.screenObject)
             {
                 RectSelectable2D select2d;
+                select2d.enable = _labelInfo.enable;
                 for (unsigned int pp=0;pp<4;pp++)
                     select2d.pts[pp] = Point2f(pts[pp].x(),pts[pp].y());
                 select2d.selectID = label.selectID;
@@ -791,6 +798,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 _labelRep->selectID = label.selectID;
             } else {
                 RectSelectable3D select3d;
+                select3d.enable = _labelInfo.enable;
                 select3d.selectID = label.selectID;
                 for (unsigned int jj=0;jj<4;jj++)
                     select3d.pts[jj] = pts[jj];
@@ -852,6 +860,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     iconDrawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
                     iconDrawable->setAlpha(true);  // Note: Don't know this
                     iconDrawable->setTexId(subTex.texId);
+                    iconDrawable->setOnOff(_labelInfo.enable);
                     iconDrawables[subTex.texId] = iconDrawable;
                 } else
                     iconDrawable = it->second;

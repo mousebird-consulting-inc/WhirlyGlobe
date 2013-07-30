@@ -120,6 +120,9 @@ public:
     /// Remove the given label(s)
     void removeLabels(SimpleIDSet &labelID,ChangeSet &changes);
     
+    /// Enable/disable labels
+    void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
+    
 protected:
     pthread_mutex_t labelLock;
     

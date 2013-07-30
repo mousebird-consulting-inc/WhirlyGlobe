@@ -43,9 +43,16 @@
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
-    NSString *infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
-    if (!infoPath)
-        return false;
+    NSString *infoPath = nil;
+    // See if that was a direct path first
+    if ([[NSFileManager defaultManager] fileExistsAtPath:mbTilesName])
+        infoPath = mbTilesName;
+    else {
+        // Now try looking for it in the bundle
+        infoPath = [[NSBundle mainBundle] pathForResource:mbTilesName ofType:@"mbtiles"];
+        if (!infoPath)
+            return false;
+    }
     dataSource = [[WhirlyKitMBTileQuadSource alloc] initWithPath:infoPath];
     if (_minZoom != -1)
         dataSource.minZoom = _minZoom;

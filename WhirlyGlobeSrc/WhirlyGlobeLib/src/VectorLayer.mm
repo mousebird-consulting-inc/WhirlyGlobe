@@ -157,7 +157,11 @@ using namespace WhirlyKit;
     ChangeSet changes;
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
     if (vectorManager && vecIDs.find(vecID) != vecIDs.end())
-        vectorManager->enableVector(vecID, enable, changes);
+    {
+        SimpleIDSet theIDs;
+        theIDs.insert(vecID);
+        vectorManager->enableVectors(theIDs, enable, changes);
+    }
     
     [layerThread addChangeRequests:changes];
 }

@@ -52,6 +52,9 @@ public:
 
     // Clear the contents out of the scene
     void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes);
+    
+    // Enable/disable marker related features
+    void enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIdentity selectID;  // ID used for selection
@@ -74,6 +77,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) float width,height;
 @property (nonatomic) int drawPriority;
 @property (nonatomic) float fade;
+@property (nonatomic) bool enable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
@@ -142,6 +146,9 @@ public:
     
     /// Remove the given set of markers
     void removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes);
+    
+    /// Enable/disable markers
+    void enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &changes);
     
     /// Called by the scene once things are set up
     virtual void setScene(Scene *inScene);

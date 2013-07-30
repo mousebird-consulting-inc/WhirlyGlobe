@@ -36,6 +36,9 @@ public:
     ShapeSceneRep(SimpleIdentity inId);
     ~ShapeSceneRep();
     
+    // Enable/disable the contents
+    void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changeRequests);
+    
     // Clear the contents out of the scene
     void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests);
     
@@ -139,6 +142,9 @@ public:
     
     /// Remove a group of shapes named by the given ID
     void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);
+    
+    /// Enable/disable a group of shapes
+    void enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
     
 protected:
     pthread_mutex_t shapeLock;
