@@ -65,6 +65,7 @@ static const int MaxShapeDrawableTris=1<<15/3;
     _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
     _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
     _enable = [desc boolForKey:@"enable" default:true];
+    _shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -108,6 +109,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         drawable->setRequestZBuffer(shapeInfo.zBufferRead);
         drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
         drawable->setOnOff(shapeInfo.enable);
+        drawable->setProgram(shapeInfo.shaderID);
     }
     drawMbr.expand(mbr);
     
@@ -212,6 +214,7 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setRequestZBuffer(shapeInfo.zBufferRead);
     drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
     drawable->setOnOff(shapeInfo.enable);
+    drawable->setProgram(shapeInfo.shaderID);
 }
     
 // Add a triangle with normals

@@ -766,6 +766,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
+    NSMutableArray *specialShapes = [NSMutableArray array];
     for (NSObject *shape in shapes)
     {
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
@@ -844,7 +845,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 RGBAColor color = [gc.color asRGBAColor];
                 lin.color = color;
             }
-            [ourShapes addObject:lin];
+            [specialShapes addObject:lin];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
             MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
@@ -876,9 +877,25 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     if (shapeManager)
     {
         ChangeSet changes;
-        SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
-        if (shapeID != EmptyIdentity)
-            compObj.shapeIDs.insert(shapeID);
+        if ([ourShapes count] > 0)
+        {
+            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
+            if (shapeID != EmptyIdentity)
+                compObj.shapeIDs.insert(shapeID);
+        }
+        if ([specialShapes count] > 0)
+        {
+            // If they haven't override the shader already, we need the non-backface one for these objects
+            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+            if (!newDesc[kMaplyShader])
+            {
+                SimpleIdentity shaderID = scene->getProgramIDBySceneName(kToolkitDefaultLineNoBackfaceProgram);
+                newDesc[kMaplyShader] = @(shaderID);
+            }
+            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, newDesc, changes);
+            if (shapeID != EmptyIdentity)
+                compObj.shapeIDs.insert(shapeID);
+        }
         [self flushChanges:changes mode:threadMode];
     }
     

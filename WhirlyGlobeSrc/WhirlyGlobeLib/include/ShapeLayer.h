@@ -37,6 +37,7 @@
      <item>drawPriority  [NSNumber int]
      <item>drawOffset    [NSNumber int]
      <item>fade          [NSNumber float]
+     <item>shader        [NSNumber int]
      </list>
   */
 @interface WhirlyKitShapeLayer : NSObject<WhirlyKitLayer>
