@@ -762,6 +762,14 @@ static const float PerfOutputDelay = 15.0;
 {
     theClearColor = clearColor;
     [sceneRenderer setClearColor:clearColor];
+    
+    // This is a hack for clear color
+    RGBAColor theColor = [clearColor asRGBAColor];
+    if (theColor.a < 255)
+    {
+        [self.view setBackgroundColor:[UIColor clearColor]];
+        [glView setBackgroundColor:[UIColor clearColor]];
+    }
 }
 
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
