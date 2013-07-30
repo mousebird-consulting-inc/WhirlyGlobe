@@ -27,35 +27,7 @@
 #import "LayerThread.h"
 #import "TextureAtlas.h"
 #import "ParticleGenerator.h"
-
-/** Representation of a single particle system.
-    We give it a geographic location and a normal (in 3-space).
-    The rest of the info is in the dictionary.
- */
-@interface WhirlyKitParticleSystem : NSObject
-
-/// Where the particle system base is
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-/// Direction we're sending particles out
-@property (nonatomic,assign) Eigen::Vector3f norm;
-
-@end
-
-namespace WhirlyKit
-{
-    
-/// The scene representation used internally by the layer to track what belongs
-///  to a given particle system ID.
-class ParticleSysSceneRep : public Identifiable
-{
-public:
-    ParticleSysSceneRep() { }
-    
-    SimpleIDSet partSysIDs;    // The particle systems we created
-};
-typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSet;    
-    
-}
+#import "ParticleSystemManager.h"
 
 /** Particle System Layer.
     This layer creates and controls particle systems defined by locations
@@ -101,9 +73,6 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
 
 /// Called in the layer thread
 - (void)shutdown;
-
-/// Add a single particle system to the layer
-- (WhirlyKit::SimpleIdentity) addParticleSystem:(WhirlyKitParticleSystem *)partSystem desc:(NSDictionary *)desc;
 
 /// Add a group of particle systems
 - (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc;
