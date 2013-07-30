@@ -26,10 +26,8 @@
 /** View State related to the map view.
   */
 @interface MaplyViewState : WhirlyKitViewState
-{
-@public
-}
 
+/// Initialize with the maply view and renderer
 - (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end

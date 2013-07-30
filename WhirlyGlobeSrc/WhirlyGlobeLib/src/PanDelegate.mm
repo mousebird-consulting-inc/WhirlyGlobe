@@ -25,6 +25,17 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobePanDelegate
+{
+	WhirlyGlobeView * __weak view;
+    /// Set if we're in the process of panning
+	BOOL panning;
+	/// The view transform when we started
+	Eigen::Matrix4d startTransform;
+	/// Where we first touched the sphere
+	WhirlyKit::Point3d startOnSphere;
+	/// Rotation when we started
+	Eigen::Quaterniond startQuat;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {

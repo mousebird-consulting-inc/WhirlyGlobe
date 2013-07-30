@@ -476,6 +476,12 @@ static unsigned short CacheFileVersion = 1;
 @end
 
 @implementation WhirlyGlobeGeometryLayer
+{
+    WhirlyKit::Scene *scene;
+    WhirlyKitLayerThread * __weak layerThread;
+    
+    WhirlyGlobe::GeomSceneRepSet geomReps;
+}
 
 - (void)clear
 {

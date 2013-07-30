@@ -31,6 +31,11 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitMarkerLayer
 {
+    /// Layer thread this belongs to
+    WhirlyKitLayerThread * __weak layerThread;
+    /// Scene the marker layer is modifying
+    WhirlyKit::Scene *scene;
+
     SimpleIDSet markerIDs;
 }
 

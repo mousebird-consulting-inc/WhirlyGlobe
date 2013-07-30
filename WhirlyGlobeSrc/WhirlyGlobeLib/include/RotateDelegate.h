@@ -34,15 +34,6 @@ typedef enum {RotNone,RotFree} RotationType;
     is for two fingered rotation around the axis at the middle of the screen
  */
 @interface WhirlyGlobeRotateDelegate : NSObject <UIGestureRecognizerDelegate> 
-{
-    /// What sort of rotation state we're in.  Not used
-    WhirlyGlobe::RotationType rotType;   
-    WhirlyGlobeView *globeView;
-    /// Starting point for rotation
-    Eigen::Quaterniond startQuat;
-    /// Axis to rotate around
-    Eigen::Vector3d axis;
-}
 
 /// Create a rotation gesture and a delegate and write them up to the given UIView
 + (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

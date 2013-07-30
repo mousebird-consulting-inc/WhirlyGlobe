@@ -1564,7 +1564,6 @@
 				2BB9A8B016DFFF060069E19C /* DynamicTextureAtlas.h */,
 				2B8B95ED16E80FD50039DD08 /* BigDrawable.h */,
 				2B8B95EE16E80FD50039DD08 /* DynamicDrawableAtlas.h */,
-				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
 				2B40467715F9B4CB00937923 /* ActiveModel.h */,
 			);
 			name = scene;
@@ -1667,6 +1666,7 @@
 		2BCF39E314BB8F16006B0FC0 /* layers */ = {
 			isa = PBXGroup;
 			children = (
+				2B40467A15F9B4D300937923 /* GeometryLayer.h */,
 				2BA2BB86153E0C6200DAB382 /* GlobeLayerViewWatcher.h */,
 				2BEFDE90149963A800C63326 /* LoftLayer.h */,
 				2BC53FDD12DE23BA00778431 /* SphericalEarthLayer.h */,

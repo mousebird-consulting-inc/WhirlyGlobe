@@ -28,6 +28,13 @@ using namespace WhirlyKit;
     MaplyView *mapView;
     UIView *glView;
     WhirlyKitSceneRendererES * __weak sceneRenderer;
+
+    float velocity,acceleration;
+    Eigen::Vector3d dir;
+    float maxTime;
+    CFTimeInterval startDate;
+    WhirlyKit::Point3d org;
+    std::vector<WhirlyKit::Point2f> bounds;
 }
 
 - (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer

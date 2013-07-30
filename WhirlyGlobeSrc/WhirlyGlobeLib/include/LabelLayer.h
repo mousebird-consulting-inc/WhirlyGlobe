@@ -68,10 +68,6 @@
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
-{
-	WhirlyKitLayerThread * __weak layerThread;
-	WhirlyKit::Scene *scene;    
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

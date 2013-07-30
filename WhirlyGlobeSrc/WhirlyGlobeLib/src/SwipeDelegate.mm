@@ -22,6 +22,9 @@
 
 
 @implementation WhirlyGlobeSwipeDelegate
+{
+	WhirlyGlobeView *view;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {

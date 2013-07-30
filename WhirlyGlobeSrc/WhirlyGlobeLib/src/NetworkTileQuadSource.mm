@@ -82,7 +82,7 @@ using namespace WhirlyKit;
         return MAXFLOAT;
     
     // For the rest,
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr, ident, attrs);
+    return ScreenImportance(viewState, frameSize, viewState.eyeVec, pixelsPerTile, coordSys, viewState.coordAdapter, tileMbr, ident, attrs);
 }
 
 @end
@@ -96,8 +96,8 @@ using namespace WhirlyKit;
     
     if (self)
     {    
-        baseURL = base;
-        ext = imageExt;
+        _baseURL = base;
+        _ext = imageExt;
         
         coordSys = new SphericalMercatorCoordSystem();
 
@@ -150,7 +150,7 @@ using namespace WhirlyKit;
                        NSString *localName = nil;
                        if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,ext];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,_ext];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {
@@ -160,7 +160,7 @@ using namespace WhirlyKit;
 
                        if (!imgData)
                        {
-                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",baseURL,level,col,y,ext];
+                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,level,col,y,_ext];
                            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                                             
                            // Fetch the image synchronously
@@ -213,8 +213,8 @@ using namespace WhirlyKit;
     {
         coordSys = new SphericalMercatorCoordSystem();
         
-        tileURLs = jsonDict[@"tiles"];
-        if (![tileURLs isKindOfClass:[NSArray class]])
+        _tileURLs = jsonDict[@"tiles"];
+        if (![_tileURLs isKindOfClass:[NSArray class]])
             return nil;
         
         // Set'll set up a default to cover the whole world
@@ -261,7 +261,7 @@ using namespace WhirlyKit;
     int y = ((int)(1<<level)-row)-1;
     
     // Decide here which URL we'll use
-    NSString *tileURL = [tileURLs objectAtIndex:col%[tileURLs count]];
+    NSString *tileURL = [_tileURLs objectAtIndex:col%[_tileURLs count]];
     
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),

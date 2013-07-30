@@ -214,7 +214,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         if (globeViewState)
         {
             if (obj->obj.minVis == DrawVisibleInvalid || obj->obj.maxVis == DrawVisibleInvalid ||
-                (obj->obj.minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->obj.maxVis))
+                (obj->obj.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.maxVis))
                 use = true;
         } else
             use = true;
@@ -232,9 +232,9 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
-    Matrix4d modelTrans = viewState->fullMatrix;
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrix);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrix);
+    Matrix4d modelTrans = viewState.fullMatrix;
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrix);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrix);
     int numSoFar = 0;
     for (LayoutSortingSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)

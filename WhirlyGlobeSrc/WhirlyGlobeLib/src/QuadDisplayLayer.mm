@@ -66,7 +66,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
         Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcBounds[ii]);
         Point3d dispPt = coordAdapter->localToDisplay(localPt);
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
-        dispSolid->surfNormals.push_back(dispNorm);
+        dispSolid.surfNormals.push_back(dispNorm);
         // If the previous one is too close, ditch this one
         if (ii > 0)
         {
@@ -124,7 +124,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     // Surface normals only make sense if there is a surface, but there are other important
     //  calculations below
     if (inMinZ == inMaxZ)
-    dispSolid->surfNormals.reserve(srcPts.size());
+    dispSolid.surfNormals.reserve(srcPts.size());
 
     for (unsigned int ii=0;ii<srcPts.size();ii++)
     {
@@ -147,7 +147,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
         // And throw in another normal for the biggest tiles
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
         if (inMinZ == inMaxZ)
-           dispSolid->surfNormals.push_back(Vector3d(dispNorm.x(),dispNorm.y(),dispNorm.z()));
+           dispSolid.surfNormals.push_back(Vector3d(dispNorm.x(),dispNorm.y(),dispNorm.z()));
 
 #if 0
         // See if the plane pt is on the right of the two sample points
@@ -193,7 +193,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Now let's go ahead and form the polygons for the planes
     // First the ones around the outside
-    dispSolid->polys.reserve(planeMbrPts.size()+2);
+    dispSolid.polys.reserve(planeMbrPts.size()+2);
     for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
     {
         int thisPt = ii;
@@ -203,27 +203,28 @@ static float const BoundsEps = 10.0 / EarthRadius;
         poly.push_back(botCorners[nextPt]);
         poly.push_back(topCorners[nextPt]);
         poly.push_back(topCorners[thisPt]);
-        dispSolid->polys.push_back(poly);
+        dispSolid.polys.push_back(poly);
     }
     // Then top and bottom
-    dispSolid->polys.push_back(topCorners);
+    dispSolid.polys.push_back(topCorners);
     std::reverse(botCorners.begin(),botCorners.end());
-    dispSolid->polys.push_back(botCorners);
+    dispSolid.polys.push_back(botCorners);
     
     // Now calculate normals for each of those
-    dispSolid->normals.reserve(dispSolid->polys.size());
-    for (unsigned int ii=0;ii<dispSolid->polys.size();ii++)
+    dispSolid.normals.reserve(dispSolid.polys.size());
+    for (unsigned int ii=0;ii<dispSolid.polys.size();ii++)
     {
         if (coordAdapter->isFlat())
-            dispSolid->normals.push_back(Vector3d(0,0,1));
+            dispSolid.normals.push_back(Vector3d(0,0,1));
         else {
-            std::vector<Point3d> &poly = dispSolid->polys[ii];
+            std::vector<std::vector<WhirlyKit::Point3d> > &polys = dispSolid.polys;
+            std::vector<Point3d> &poly = polys[ii];
             Point3d &p0 = poly[0];
             Point3d &p1 = poly[1];
             Point3d &p2 = poly[poly.size()-1];
             Vector3d norm = (p1-p0).cross(p2-p0);
             norm.normalize();
-            dispSolid->normals.push_back(norm);
+            dispSolid.normals.push_back(norm);
         }
     }
         
@@ -241,9 +242,9 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     {
         const Point3d &pt = poly[ii];
         // Run through the model transform
-        Vector4d modPt = viewState->fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        Vector4d modPt = viewState.fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
         // And then the projection matrix.  Now we're in clip space
-        Vector4d projPt = viewState->projMatrix * modPt;
+        Vector4d projPt = viewState.projMatrix * modPt;
         pts.push_back(projPt);
     }
     
@@ -277,8 +278,8 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     backPts.reserve(screenPts.size());
     for (unsigned int ii=0;ii<screenPts.size();ii++)
     {
-        Vector4d modelPt = viewState->invProjMatrix * clipSpacePts[ii];
-        Vector4d backPt = viewState->invFullMatrix * modelPt;
+        Vector4d modelPt = viewState.invProjMatrix * clipSpacePts[ii];
+        Vector4d backPt = viewState.invFullMatrix * modelPt;
         backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
     }
     // Then calculate the area
@@ -297,10 +298,10 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 - (bool)isInside:(WhirlyKit::Point3d)pt
 {
     // We should be on the inside of each plane
-    for (unsigned int ii=0;ii<polys.size();ii++)
+    for (unsigned int ii=0;ii<_polys.size();ii++)
     {
-        Point3d org = (polys[ii])[0];
-        if ((pt-org).dot(normals[ii]) > 0.0)
+        Point3d org = (_polys[ii])[0];
+        if ((pt-org).dot(_normals[ii]) > 0.0)
             return false;
     }
     
@@ -311,19 +312,19 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
 {
     Point3d eyePos = viewState.eyePos;
     
-    if (!viewState->coordAdapter->isFlat())
+    if (!viewState.coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
         if ([self isInside:eyePos])
             return MAXFLOAT;
 
         // Make sure that we're pointed toward the eye, even a bit
-        if (!surfNormals.empty())
+        if (!_surfNormals.empty())
         {
             bool isFacing = false;
-            for (unsigned int ii=0;ii<surfNormals.size();ii++)
+            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
             {
-                const Vector3d &surfNorm = surfNormals[ii];
+                const Vector3d &surfNorm = _surfNormals[ii];
                 if ((isFacing |= (surfNorm.dot(eyePos) >= 0.0)))
                     break;
             }
@@ -334,9 +335,9 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     
     // Now work through the polygons and project each to the screen
     float totalImport = 0.0;
-    for (unsigned int ii=0;ii<polys.size();ii++)
+    for (unsigned int ii=0;ii<_polys.size();ii++)
     {
-        float import = PolyImportance(polys[ii], normals[ii], viewState, frameSize);
+        float import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
         totalImport += import;
     }
     

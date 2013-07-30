@@ -32,13 +32,6 @@ static const float GridCellSize = 3*(float)M_PI/180.0;
     globe.
  */
 @interface WhirlyKitGridLayer : NSObject<WhirlyKitLayer>
-{
-	unsigned int numX,numY;
-	unsigned int chunkX,chunkY;
-	WhirlyKit::Scene *scene;
-    
-    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
-}
 
 /// Initialize with the number of chunks of lines we want
 - (id)initWithX:(unsigned int)numX Y:(unsigned int)numY;

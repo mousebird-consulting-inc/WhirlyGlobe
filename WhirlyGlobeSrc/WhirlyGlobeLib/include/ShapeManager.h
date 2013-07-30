@@ -80,8 +80,6 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /// This puts a sphere around the location
 @interface WhirlyKitSphere : WhirlyKitShape
-{
-}
 
 /// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;

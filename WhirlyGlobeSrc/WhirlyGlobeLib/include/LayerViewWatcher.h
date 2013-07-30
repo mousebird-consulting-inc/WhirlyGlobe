@@ -32,23 +32,9 @@
     the criteria for watcher updates.
  */
 @interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
-{
-    /// Layer we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    /// The view we're following for upates
-    WhirlyKitView * __weak view;
-    /// Watchers we'll call back for updates
-    NSMutableArray *watchers;
-    
-    /// When the last update was run
-    NSTimeInterval lastUpdate;
 
-    /// You should know the type here.  A globe or a map view state.
-    WhirlyKitViewState *lastViewState;
-    
-    /// The sublcass of WhirlyKitViewState we'll use
-    Class viewStateClass;
-}
+/// The sublcass of WhirlyKitViewState we'll use
+@property (nonatomic) Class viewStateClass;
 
 /// Initialize with a view and layer thread
 - (id)initWithView:(WhirlyKitView *)view thread:(WhirlyKitLayerThread *)layerThread;
@@ -67,26 +53,23 @@
  types.
  */
 @interface WhirlyKitViewState : NSObject
-{
-@public
-    Eigen::Matrix4d modelMatrix,viewMatrix,fullMatrix,projMatrix,fullNormalMatrix;
-    Eigen::Matrix4d invModelMatrix,invViewMatrix,invFullMatrix,invProjMatrix;
-	double fieldOfView;
-	double imagePlaneSize;
-	double nearPlane;
-	double farPlane;
-    WhirlyKit::Point3d eyeVec;
-    WhirlyKit::Point3d eyeVecModel;
-    WhirlyKit::Point2d ll,ur;
-    double near,far;
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-}
+
+@property(nonatomic,assign) Eigen::Matrix4d &modelMatrix,&viewMatrix,&fullMatrix,&projMatrix,&fullNormalMatrix;
+@property(nonatomic,assign) Eigen::Matrix4d &invModelMatrix,&invViewMatrix,&invFullMatrix,&invProjMatrix;
+@property(nonatomic,assign) double fieldOfView;
+@property(nonatomic,assign) double imagePlaneSize;
+@property(nonatomic,assign) double nearPlane;
+@property(nonatomic,assign) double farPlane;
+@property(nonatomic,assign) WhirlyKit::Point3d &eyeVec;
+@property(nonatomic,assign) WhirlyKit::Point3d &eyeVecModel;
+@property(nonatomic,assign) WhirlyKit::Point2d &ll,&ur;
+@property(nonatomic,assign) double near,far;
+@property(nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+/// Calculate where the eye is in model coordinates
+@property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Called by the subclasses
 - (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
-
-/// Calculate where the eye is in model coordinates
-@property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

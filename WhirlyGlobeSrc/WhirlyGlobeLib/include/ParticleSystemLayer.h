@@ -95,19 +95,6 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
     </list>
   */
 @interface WhirlyKitParticleSystemLayer : NSObject<WhirlyKitLayer> 
-{
-    /// The layer thread we live in
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene we're making changes to
-    WhirlyKit::Scene *scene;
-
-    /// ID of the Particle Generator we're using to implement particles
-    WhirlyKit::SimpleIdentity generatorId;
-
-    /// Used to track resources related to particle systems for deletion and modification
-    WhirlyKit::ParticleSysSceneRepSet sceneReps;
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

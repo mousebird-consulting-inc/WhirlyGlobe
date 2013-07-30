@@ -24,59 +24,60 @@
 
 namespace WhirlyKit
 {
-    /// Simple performance timing class
-    class PerformanceTimer
+    
+/// Simple performance timing class
+class PerformanceTimer
+{
+public:
+    /// Used to track a category of timing
+    class TimeEntry
     {
     public:
-        /// Used to track a category of timing
-        class TimeEntry
-        {
-        public:
-            TimeEntry();
-            TimeEntry & operator = (const TimeEntry &that);
-            bool operator < (const TimeEntry &that) const;
-            
-            void addTime(NSTimeInterval dur);
-            
-            std::string name;
-            NSTimeInterval minDur,maxDur,avgDur;
-            int numRuns;
-        };
+        TimeEntry();
+        TimeEntry & operator = (const TimeEntry &that);
+        bool operator < (const TimeEntry &that) const;
         
-        /// Used to track a category of counts
-        class CountEntry
-        {
-        public:
-            CountEntry();
-            bool operator < (const CountEntry &that) const;
-            
-            void addCount(int count);
-            
-            std::string name;
-            int minCount,maxCount,avgCount;
-            int numRuns;
-        };
+        void addTime(NSTimeInterval dur);
         
-        /// Start timing the given thing
-        void startTiming(const std::string &);
-        
-        /// Stop timing the given thing and add it to the existing timings
-        void stopTiming(const std::string &);
-        
-        /// Add a count for a particular instance
-        void addCount(const std::string &what,int count);
-        
-        /// Clean out existing timings
-        void clear();
-        
-        /// Write out the timings to NSLog
-        void log();
-        
-    protected:
-        std::map<std::string,NSTimeInterval> actives;
-        std::map<std::string,TimeEntry> timeEntries;
-        std::map<std::string,CountEntry> countEntries;
+        std::string name;
+        NSTimeInterval minDur,maxDur,avgDur;
+        int numRuns;
     };
+    
+    /// Used to track a category of counts
+    class CountEntry
+    {
+    public:
+        CountEntry();
+        bool operator < (const CountEntry &that) const;
+        
+        void addCount(int count);
+        
+        std::string name;
+        int minCount,maxCount,avgCount;
+        int numRuns;
+    };
+    
+    /// Start timing the given thing
+    void startTiming(const std::string &);
+    
+    /// Stop timing the given thing and add it to the existing timings
+    void stopTiming(const std::string &);
+    
+    /// Add a count for a particular instance
+    void addCount(const std::string &what,int count);
+    
+    /// Clean out existing timings
+    void clear();
+    
+    /// Write out the timings to NSLog
+    void log();
+    
+protected:
+    std::map<std::string,NSTimeInterval> actives;
+    std::map<std::string,TimeEntry> timeEntries;
+    std::map<std::string,CountEntry> countEntries;
+};
     
 }
 

@@ -58,11 +58,6 @@
     </list>
   */
 @interface WhirlyKitVectorLayer : NSObject<WhirlyKitLayer>
-{
-@private
-    WhirlyKit::Scene *scene;
-    WhirlyKitLayerThread * __weak layerThread;
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

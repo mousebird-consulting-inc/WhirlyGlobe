@@ -137,7 +137,7 @@ using namespace WhirlyKit;
     if (ident.level == 0)
         return MAXFLOAT;
     
-    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    float import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     return import;
 }
 

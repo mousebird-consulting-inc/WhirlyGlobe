@@ -26,12 +26,14 @@
     more parameters relating to the globe.
   */
 @interface WhirlyGlobeViewState : WhirlyKitViewState
-{
-@public
-	Eigen::Quaterniond rotQuat;
-    double heightAboveGlobe;
-}
 
+/// Rotation, etc, at this view state
+@property (nonatomic,assign) Eigen::Quaterniond &rotQuat;
+
+/// Height above globe at this view state
+@property (nonatomic,assign) double heightAboveGlobe;
+
+/// Initialize from the globe view and the renderer
 - (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Return where up (0,0,1) is after model rotation

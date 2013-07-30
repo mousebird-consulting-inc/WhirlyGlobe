@@ -65,12 +65,12 @@ using namespace WhirlyKit;
 + (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image
 {
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage->type = WKLoadedImageUIImage;
-    loadImage->borderSize = 0;
-    loadImage->imageData = image;
+    loadImage.type = WKLoadedImageUIImage;
+    loadImage.borderSize = 0;
+    loadImage.imageData = image;
     CGImageRef cgImage = image.CGImage;
-    loadImage->width = CGImageGetWidth(cgImage);
-    loadImage->height = CGImageGetHeight(cgImage);
+    loadImage.width = CGImageGetWidth(cgImage);
+    loadImage.height = CGImageGetHeight(cgImage);
     
     return loadImage;
 }
@@ -78,10 +78,10 @@ using namespace WhirlyKit;
 + (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize
 {
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage->type = WKLoadedImagePVRTC4;
-    loadImage->borderSize = 0;
-    loadImage->imageData = imageData;
-    loadImage->width = loadImage->height = squareSize;
+    loadImage.type = WKLoadedImagePVRTC4;
+    loadImage.borderSize = 0;
+    loadImage.imageData = imageData;
+    loadImage.width = loadImage.height = squareSize;
     
     return loadImage;
 }
@@ -89,17 +89,17 @@ using namespace WhirlyKit;
 + (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
 {
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage->type = WKLoadedImageNSDataAsImage;
-    loadImage->borderSize = 0;
-    loadImage->imageData = imageData;
-    loadImage->width = loadImage->height = 0;
+    loadImage.type = WKLoadedImageNSDataAsImage;
+    loadImage.borderSize = 0;
+    loadImage.imageData = imageData;
+    loadImage.width = loadImage.height = 0;
     UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
     if (texImage)
     {
-        loadImage->imageData = texImage;
-        loadImage->width = CGImageGetWidth(texImage.CGImage);
-        loadImage->height = CGImageGetHeight(texImage.CGImage);
-        loadImage->type = WKLoadedImageUIImage;
+        loadImage.imageData = texImage;
+        loadImage.width = CGImageGetWidth(texImage.CGImage);
+        loadImage.height = CGImageGetHeight(texImage.CGImage);
+        loadImage.type = WKLoadedImageUIImage;
     }
     
     return loadImage;
@@ -108,7 +108,7 @@ using namespace WhirlyKit;
 + (WhirlyKitLoadedImage *)PlaceholderImage
 {
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage->type = WKLoadedImagePlaceholder;
+    loadImage.type = WKLoadedImagePlaceholder;
     
     return loadImage;
 }
@@ -126,13 +126,13 @@ using namespace WhirlyKit;
 {
     Texture *newTex = NULL;
     
-    switch (type)
+    switch (_type)
     {
         case WKLoadedImageUIImage:
         {
-            destWidth = (destWidth <= 0 ? width : destWidth);
-            destHeight = (destHeight <= 0 ? height : destHeight);
-            NSData *rawData = [(UIImage *)imageData rawDataScaleWidth:destWidth height:destHeight border:reqBorderTexel];
+            destWidth = (destWidth <= 0 ? _width : destWidth);
+            destHeight = (destHeight <= 0 ? _height : destHeight);
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:reqBorderTexel];
             newTex = [self textureFromRawData:rawData width:destWidth height:destHeight];
         }
             break;
@@ -140,18 +140,18 @@ using namespace WhirlyKit;
             // These are converted to UIImages on initialization.  So it must have failed.
             break;
         case WKLoadedImageNSDataRawData:
-            if ([imageData isKindOfClass:[NSData class]])
+            if ([_imageData isKindOfClass:[NSData class]])
             {
                 // Note: This isn't complete
-                return [self textureFromRawData:(NSData *)imageData width:width height:height];
+                return [self textureFromRawData:(NSData *)_imageData width:_width height:_height];
             }
             break;
         case WKLoadedImagePVRTC4:
-            if ([imageData isKindOfClass:[NSData class]])
+            if ([_imageData isKindOfClass:[NSData class]])
             {
-                newTex = new Texture("Tile Quad Loader", (NSData *)imageData,true);
-                newTex->setWidth(width);
-                newTex->setHeight(height);
+                newTex = new Texture("Tile Quad Loader", (NSData *)_imageData,true);
+                newTex->setWidth(_width);
+                newTex->setHeight(_height);
             }
             break;
         case WKLoadedImagePlaceholder:
@@ -201,7 +201,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
-    if (loadImage && loadImage->type == WKLoadedImagePlaceholder)
+    if (loadImage && loadImage.type == WKLoadedImagePlaceholder)
     {
         placeholder = true;
         return;
@@ -770,10 +770,10 @@ void LoadedTile::Print(Quadtree *tree)
     // Get texture (locally)
     if (tex)
     {
-        if (loadImage && loadImage->type != WKLoadedImagePlaceholder)
+        if (loadImage && loadImage.type != WKLoadedImagePlaceholder)
         {
             int destWidth,destHeight;
-            [self texWidth:loadImage->width height:loadImage->height destWidth:&destWidth destHeight:&destHeight];
+            [self texWidth:loadImage.width height:loadImage.height destWidth:&destWidth destHeight:&destHeight];
             Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
             
             if (newTex)
@@ -1227,12 +1227,12 @@ static const int SingleElementSize = sizeof(GLushort);
     WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
     if (pvrtcSize != 0)
     {
-        loadImage->type = WKLoadedImagePVRTC4;
-        loadImage->width = loadImage->height = pvrtcSize;
-        loadImage->imageData = image;
+        loadImage.type = WKLoadedImagePVRTC4;
+        loadImage.width = loadImage.height = pvrtcSize;
+        loadImage.imageData = image;
     } else {
-        loadImage->type = WKLoadedImageNSDataAsImage;
-        loadImage->imageData = image;
+        loadImage.type = WKLoadedImageNSDataAsImage;
+        loadImage.imageData = image;
     }
 
     [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
@@ -1365,9 +1365,9 @@ static const int SingleElementSize = sizeof(GLushort);
         WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
         if ([globeViewState isKindOfClass:[WhirlyGlobeViewState class]])
         {
-            if (((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minVis || globeViewState->heightAboveGlobe > _maxVis)))
+            if (((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) && (globeViewState.heightAboveGlobe < _minVis || globeViewState.heightAboveGlobe > _maxVis)))
                 doUpdate = false;
-            if ((_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minPageVis || globeViewState->heightAboveGlobe > _maxPageVis))
+            if ((_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid) && (globeViewState.heightAboveGlobe < _minPageVis || globeViewState.heightAboveGlobe > _maxPageVis))
                 doUpdate = false;
         }
     }
