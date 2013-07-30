@@ -24,15 +24,9 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeTapMessage
 
-@synthesize view;
-@synthesize touchLoc;
-@synthesize whereGeo;
-@synthesize worldLoc;
-@synthesize heightAboveSurface;
-
 - (void)setWorldLocD:(WhirlyKit::Point3d)newLoc
 {
-    worldLoc = Point3f(newLoc.x(),newLoc.y(),newLoc.z());
+    _worldLoc = Point3f(newLoc.x(),newLoc.y(),newLoc.z());
 }
 
 @end

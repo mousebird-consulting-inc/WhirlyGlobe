@@ -30,27 +30,22 @@
 	File name: base_XxY.ext
  */
 @interface WhirlyKitTextureGroup : NSObject 
-{
-    /// If set, the path to the texture group.
-    /// Might be somewhere other than the default bundle
-	NSString *basePath;
-    /// Base name (e.g. "worldTexture")
-	NSString *baseName;
-    /// Extension (e.g. "png")
-	NSString *ext;    
-    /// Number of chunks in the X dimension (longitude)
-	unsigned int numX;
-    /// Number of chunks in the Y dimension (latitude)
-    unsigned int numY;
-    /// Number of pixels on each side
-    unsigned int pixelsSquare;  
-    /// Number of pixels on each side devoted to border
-    unsigned int borderPixels;  
-}
 
-@property (nonatomic,retain) NSString *basePath,*baseName,*ext;
-@property (nonatomic,readonly) unsigned int numX,numY;
-@property (nonatomic,readonly) unsigned int pixelsSquare,borderPixels;
+/// If set, the path to the texture group.
+/// Might be somewhere other than the default bundle
+@property (nonatomic) NSString *basePath;
+/// Base name (e.g. "worldTexture")
+@property (nonatomic) NSString *baseName;
+/// Extension (e.g. "png")
+@property (nonatomic) NSString *ext;
+/// Number of chunks in the X dimension (longitude)
+@property (nonatomic,readonly) unsigned int numX;
+/// Number of chunks in the Y dimension (latitude)
+@property (nonatomic,readonly) unsigned int numY;
+/// Number of pixels on each side
+@property (nonatomic,readonly) unsigned int pixelsSquare;
+/// Number of pixels on each side devoted to border
+@property (nonatomic,readonly) unsigned int borderPixels;
 
 /// Need to initialize with the the info plist file.
 /// This will point us to everything else

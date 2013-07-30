@@ -97,10 +97,6 @@ using namespace WhirlyKit;
 
 // Data source that serves individual images as requested
 @interface ImageDataSource : NSObject<WhirlyKitQuadTileImageDataSource>
-{
-    NSString *basePath,*ext,*baseName;
-    int maxZoom,pixelsSquare,borderPixels;
-}
 
 @property(nonatomic) NSString *basePath,*ext,*baseName;
 @property(nonatomic,assign) int maxZoom,pixelsSquare,borderPixels;
@@ -108,9 +104,6 @@ using namespace WhirlyKit;
 @end
 
 @implementation ImageDataSource
-
-@synthesize basePath,ext,baseName;
-@synthesize maxZoom,pixelsSquare,borderPixels;
 
 - (id)initWithInfo:(NSString *)infoName
 {
@@ -126,12 +119,12 @@ using namespace WhirlyKit;
         }
         // If the user specified a real path, as opposed to just
         //  the file, we'll hang on to that
-        basePath=[infoName stringByDeletingLastPathComponent];
-        ext = [dict objectForKey:@"format"];
-        baseName = [dict objectForKey:@"baseName"];
-        maxZoom = [[dict objectForKey:@"maxLevel"] intValue];
-        pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
-        borderPixels = [[dict objectForKey:@"borderSize"] intValue];    
+        _basePath=[infoName stringByDeletingLastPathComponent];
+        _ext = [dict objectForKey:@"format"];
+        _baseName = [dict objectForKey:@"baseName"];
+        _maxZoom = [[dict objectForKey:@"maxLevel"] intValue];
+        _pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
+        _borderPixels = [[dict objectForKey:@"borderSize"] intValue];    
     }
     
     return self;
@@ -144,17 +137,17 @@ using namespace WhirlyKit;
 
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
-    NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",baseName,level,col,row,ext];
+    NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",_baseName,level,col,row,_ext];
 	if (self.basePath)
 		name = [self.basePath stringByAppendingPathComponent:name];
     
     NSData *imageData = [NSData dataWithContentsOfFile:name];
     
-    bool isPvrtc = ![ext compare:@"pvrtc"];
+    bool isPvrtc = ![_ext compare:@"pvrtc"];
     
     WhirlyKitLoadedImage *loadImage = nil;
     if (isPvrtc)
-        loadImage = [WhirlyKitLoadedImage LoadedImageWithPVRTC:imageData size:pixelsSquare];
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithPVRTC:imageData size:_pixelsSquare];
     else
         loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
     [quadLoader dataSource:self loadedImage:loadImage forLevel:level col:col row:row];

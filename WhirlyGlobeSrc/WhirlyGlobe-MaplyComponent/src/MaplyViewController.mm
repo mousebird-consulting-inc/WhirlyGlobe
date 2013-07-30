@@ -42,8 +42,6 @@ using namespace Maply;
     bool scheduledToDraw;
 }
 
-@synthesize delegate;
-
 - (id)init
 {
     self = [super init];
@@ -479,16 +477,16 @@ using namespace Maply;
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (delegate && [delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-            [delegate maplyViewController:self didSelect:selectedObj];
+        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+            [_delegate maplyViewController:self didSelect:selectedObj];
     } else {
         MaplyCoordinate coord;
         coord.x = msg.whereGeo.lon();
         coord.y = msg.whereGeo.lat();
         // The user didn't select anything, let the delegate know.
-        if (delegate && [delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
         {
-            [delegate maplyViewController:self didTapAt:coord];
+            [_delegate maplyViewController:self didTapAt:coord];
         }
         [self animateToPosition:coord time:1.0];
     }

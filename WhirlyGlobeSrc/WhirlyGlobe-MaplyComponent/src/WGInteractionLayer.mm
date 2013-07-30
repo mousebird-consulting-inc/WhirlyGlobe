@@ -37,8 +37,6 @@ using namespace WhirlyGlobe;
     AnimateViewMomentum *autoSpinner;
 }
 
-@synthesize viewController;
-
 // Initialize with the globeView
 -(id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
 {
@@ -141,7 +139,7 @@ using namespace WhirlyGlobe;
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [viewController handleSelection:msg didSelect:selObj];
+                       [_viewController handleSelection:msg didSelect:selObj];
                    }
                    );
 }

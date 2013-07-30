@@ -42,28 +42,13 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
     methods and parameters related to the model and view matrices used for display.
  */
 @interface WhirlyKitView : NSObject
-{
-	double fieldOfView;
-	double imagePlaneSize;
-	double nearPlane;
-	double farPlane;
-	
-    /// The last time the position was changed
-    CFTimeInterval lastChangedTime;
-
-    /// Display adapter and coordinate system we're working in
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-    
-    /// If set, we'll scale the near and far clipping planes as we get closer
-    bool continuousZoom;
-
-    /// Called when positions are updated
-    WhirlyKitViewWatcherDelegateSet watchDelegates;
-}
 
 @property (nonatomic,assign) double fieldOfView,imagePlaneSize,nearPlane,farPlane;
-@property (nonatomic,readonly) CFTimeInterval lastChangedTime;
-@property (nonatomic,readonly) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+/// The last time the position was changed
+@property (nonatomic,assign) CFTimeInterval lastChangedTime;
+/// Display adapter and coordinate system we're working in
+@property (nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+/// If set, we'll scale the near and far clipping planes as we get closer
 @property (nonatomic,assign) bool continuousZoom;
 
 /// Calculate the viewing frustum (which is also the image plane)

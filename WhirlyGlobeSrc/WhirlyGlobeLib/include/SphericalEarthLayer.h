@@ -42,21 +42,10 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     it doesn't do anything else. 
  */
 @interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyKitLayer>
-{
-    WhirlyKitLayerThread * __weak layerThread;
-	WhirlyKitTextureGroup *texGroup;
-	WhirlyGlobe::GlobeScene *scene;
-	unsigned int xDim,yDim;
-	unsigned int chunkX,chunkY;
-    /// If set, the time to fade in the globe
-    float fade;
-    std::vector<WhirlyKit::SimpleIdentity> texIDs;
-    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
-    /// The drawPriority of any drawables we create.  Useful for sorting in non-z mode.
-    int drawPriority;
-}
 
+/// If set, the time to fade in the globe
 @property (nonatomic,assign) float fade;
+/// The drawPriority of any drawables we create.  Useful for sorting in non-z mode.
 @property (nonatomic,assign) int drawPriority;
 
 /// Create it like this.  It needs a texture group to run.

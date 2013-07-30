@@ -49,40 +49,29 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
  these single labels to do that.
  */
 @interface WhirlyKitSingleLabel : NSObject
-{
-    /// If set, this marker should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the marker is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// The text we want to see
-    NSString *text;
-    /// A geolocation for the middle, left or right of the label
-    ///  depending on the justification
-    WhirlyKit::GeoCoord loc;
-    /// Rotation around the origin
-    float rotation;
-    /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, icon, text color, and
-    ///  background color supported.
-    NSDictionary *desc;
-    /// If non-zero, this is the texture to use as an icon
-    WhirlyKit::SimpleIdentity iconTexture;
-    /// If the texture is set and this is non-zero the size of the image
-    CGSize iconSize;
-    /// If set, this moves the label if displayed in screen (2D) mode
-    CGSize screenOffset;
-}
 
+/// If set, this marker should be made selectable
+///  and it will be if the selection layer has been set
 @property (nonatomic,assign) bool isSelectable;
+/// If the marker is selectable, this is the unique identifier
+///  for it.  You should set this ahead of time
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+/// The text we want to see
 @property (nonatomic,retain) NSString *text;
+/// A geolocation for the middle, left or right of the label
+///  depending on the justification
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Rotation around the origin
 @property (nonatomic,assign) float rotation;
+/// This dictionary contains overrides for certain attributes
+///  for just this label.  Only width, height, icon, text color, and
+///  background color supported.
 @property (nonatomic,retain) NSDictionary *desc;
+/// If non-zero, this is the texture to use as an icon
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
+/// If the texture is set and this is non-zero the size of the image
 @property (nonatomic,assign) CGSize iconSize;
+/// If set, this moves the label if displayed in screen (2D) mode
 @property (nonatomic,assign) CGSize screenOffset;
 
 /// Generates a string we can use for indexing.  Note: Don't use this yourself.

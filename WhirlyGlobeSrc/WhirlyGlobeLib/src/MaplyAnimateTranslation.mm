@@ -25,21 +25,16 @@ using namespace Eigen;
 
 @implementation MaplyAnimateViewTranslation
 
-@synthesize startDate;
-@synthesize endDate;
-@synthesize startLoc;
-@synthesize endLoc;
-
 - (id)initWithView:(MaplyView *)globeView translate:(Point3f &)newLoc howLong:(float)howLong
 {
     self = [super init];
     
     if (self)
     {
-        startDate = CFAbsoluteTimeGetCurrent();
-        endDate = startDate + howLong;
-        startLoc = globeView.loc;
-        endLoc = Point3d(newLoc.x(),newLoc.y(),newLoc.z());
+        _startDate = CFAbsoluteTimeGetCurrent();
+        _endDate = _startDate + howLong;
+        _startLoc = globeView.loc;
+        _endLoc = Point3d(newLoc.x(),newLoc.y(),newLoc.z());
     }
     
     return self;
@@ -48,23 +43,23 @@ using namespace Eigen;
 
 - (void)updateView:(MaplyView *)mapView
 {
-    if (startDate == 0.0)
+    if (_startDate == 0.0)
         return;
 
     CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-    float span = endDate - startDate;
-    float remain = endDate - now;
+    float span = _endDate - _startDate;
+    float remain = _endDate - now;
     
     // All done, snap to end
     if (remain < 0)
     {
-        [mapView setLoc:endLoc];
-        startDate = 0;
-        endDate = 0;
+        [mapView setLoc:_endLoc];
+        _startDate = 0;
+        _endDate = 0;
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;
-        Point3d midLoc = startLoc + (endLoc-startLoc)*t;
+        Point3d midLoc = _startLoc + (_endLoc-_startLoc)*t;
         [mapView setLoc:midLoc];
     }
 }

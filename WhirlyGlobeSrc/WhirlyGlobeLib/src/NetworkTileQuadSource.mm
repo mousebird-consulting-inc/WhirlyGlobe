@@ -24,9 +24,18 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitNetworkTileQuadSourceBase
-
-@synthesize numSimultaneous;
-@synthesize cacheDir;
+{
+@protected
+    /// Spherical Mercator coordinate system, for the tiles
+    WhirlyKit::SphericalMercatorCoordSystem *coordSys;
+    /// Bounds in Spherical Mercator
+    WhirlyKit::Mbr mbr;
+    /// Available levels, as read from the database.
+    /// You can modify these yourself as well, to limit what's loaded
+    int minZoom,maxZoom;
+    /// Size of a tile in pixels square.  256 is the usual.
+    int pixelsPerTile;
+}
 
 - (void)dealloc
 {
@@ -99,7 +108,7 @@ using namespace WhirlyKit;
         mbr.ll() = Point2f(ll3d.x(),ll3d.y());
         mbr.ur() = Point2f(ur3d.x(),ur3d.y());
         
-        numSimultaneous = 1;
+        super.numSimultaneous = 1;
         
         pixelsPerTile = 256;
     }
@@ -124,7 +133,7 @@ using namespace WhirlyKit;
 
 - (int)maxSimultaneousFetches
 {
-    return numSimultaneous;
+    return super.numSimultaneous;
 }
 
 // Start loading a given tile
@@ -139,9 +148,9 @@ using namespace WhirlyKit;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;
-                       if (cacheDir)
+                       if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",cacheDir,level,col,y,ext];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,ext];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {
@@ -228,7 +237,7 @@ using namespace WhirlyKit;
         minZoom = [jsonDict[@"minzoom"] intValue];
         maxZoom = [jsonDict[@"maxzoom"] intValue];
         
-        numSimultaneous = 4;
+        super.numSimultaneous = 4;
         
         pixelsPerTile = 256;
     }
@@ -243,7 +252,7 @@ using namespace WhirlyKit;
 
 - (int)maxSimultaneousFetches
 {
-    return numSimultaneous;
+    return super.numSimultaneous;
 }
 
 // Start loading a given tile
@@ -261,9 +270,9 @@ using namespace WhirlyKit;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;
-                       if (cacheDir)
+                       if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",cacheDir,level,col,y];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",self.cacheDir,level,col,y];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {

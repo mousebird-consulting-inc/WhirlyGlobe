@@ -27,9 +27,15 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeSphericalEarthLayer
-
-@synthesize fade;
-@synthesize drawPriority;
+{
+    WhirlyKitLayerThread * __weak layerThread;
+	WhirlyKitTextureGroup *texGroup;
+	WhirlyGlobe::GlobeScene *scene;
+	unsigned int xDim,yDim;
+	unsigned int chunkX,chunkY;
+    std::vector<WhirlyKit::SimpleIdentity> texIDs;
+    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
+}
 
 - (id)initWithTexGroup:(WhirlyKitTextureGroup *)inTexGroup
 {
@@ -43,8 +49,8 @@ using namespace WhirlyGlobe;
 		texGroup = inTexGroup;
 		xDim = texGroup.numX;
 		yDim = texGroup.numY;
-        fade = 0.0;
-        drawPriority = 0;
+        _fade = 0.0;
+        _drawPriority = 0;
 	}
 	
 	return self;
@@ -119,7 +125,7 @@ using namespace WhirlyGlobe;
 	chunk->setType(GL_TRIANGLES);
 //	chunk->setType(GL_POINTS);
     chunk->setLocalMbr(GeoCoordSystem::GeographicMbrToLocal(GeoMbr(geoLL,geoUR)));
-    chunk->setDrawPriority(drawPriority);
+    chunk->setDrawPriority(_drawPriority);
     
     // Texture coordinates are actually scaled down a bit to
     //  deal with borders
@@ -177,10 +183,10 @@ using namespace WhirlyGlobe;
 	changeRequests.push_back(new AddTextureReq(tex));
     texIDs.push_back(tex->getId());
 	chunk->setTexId(tex->getId());
-    if (fade > 0)
+    if (_fade > 0)
     {
         NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-        chunk->setFade(curTime,curTime+fade);
+        chunk->setFade(curTime,curTime+_fade);
     }
 	changeRequests.push_back(new AddDrawableReq(chunk));
     drawIDs.push_back(chunk->getId());

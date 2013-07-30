@@ -192,93 +192,43 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
     to put on top.
  */
 @interface WhirlyKitQuadTileLoader : NSObject<WhirlyKitQuadLoader>
-{    
-    /// Data layer we're attached to
-    WhirlyKitQuadDisplayLayer * __weak quadLayer;
-    
-    /// Tiles we currently have loaded in the scene
-    WhirlyKit::LoadedTileSet tileSet;
-    
-    /// Delegate used to provide images
-    NSObject<WhirlyKitQuadTileImageDataSource> * __weak dataSource;
-    
-    // Parents to update after changes
-    std::set<WhirlyKit::Quadtree::Identifier> parents;
-    
-    /// Change requests queued up between a begin and end
-    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
-    
-    /// Offset for the data being generated
-    int drawOffset;
-    
-    /// Priority order to use in the renderer
-    int drawPriority;
-    
-    /// If set, the point at which tile geometry will disappear when zoomed out
-    float maxVis;
 
-    /// If set, the point at which tile geometry will appear when zoomed in
-    float minVis;
-    
-    /// If set, the point at which we'll stop doing updates (separate from minVis)
-    float minPageVis;
-    
-    /// If set, the point at which we'll stop doing updates (separate from maxVis)
-    float maxPageVis;
-    
-    /// If set, the program to use for rendering
-    WhirlyKit::SimpleIdentity programId;
-    
-    /// If set, we'll include elevation (Z) in the drawables for shaders to use
-    bool includeElev;
-    
-    /// Base color for the drawables created by the layer
-    WhirlyKit::RGBAColor color;
-    
-    /// Set this if the tile images are partially transparent
-    bool hasAlpha;
-    
-    /// How many fetches we have going at the moment
-    int numFetches;
-    
-    /// If set, we'll ignore edge matching.
-    /// This can work if you're zoomed in close
-    bool ignoreEdgeMatching;
-    
-    /// If set, we'll fill in the poles for a projection that doesn't go all the way up or down
-    bool coverPoles;
-    
-    /// The data type of GL textures we'll be creating.  RGBA by default.
-    WhirlyKitTileImageType imageType;
-    
-    /// If set (before we start) we'll use dynamic texture and drawable atlases
-    bool useDynamicAtlas;
-    
-    /// If set we'll scale the input images to the nearest square power of two
-    WhirlyKitTileScaleType tileScale;
-    
-    /// If the tile scale is fixed, this is the size it's fixed to (256 by default)
-    int fixedTileSize;
-    
-    /// If set, the default texture atlas size.  Must be a power of two.
-    int textureAtlasSize;
-}
-
+/// Offset for the data being generated
 @property (nonatomic,assign) int drawOffset;
+/// Priority order to use in the renderer
 @property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) float minPageVis,maxPageVis;
+/// If set, the point at which tile geometry will appear when zoomed in
+@property (nonatomic,assign) float minVis;
+/// If set, the point at which tile geometry will disappear when zoomed outfloat maxVis;
+@property (nonatomic,assign) float maxVis;
+/// If set, the point at which we'll stop doing updates (separate from minVis)
+@property (nonatomic,assign) float minPageVis;
+/// If set, the point at which we'll stop doing updates (separate from maxVis)
+@property (nonatomic,assign) float maxPageVis;
+/// If set, the program to use for rendering
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity programId;
+/// If set, we'll include elevation (Z) in the drawables for shaders to use
 @property (nonatomic,assign) bool includeElev;
+/// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
+/// Set this if the tile images are partially transparent
 @property (nonatomic,assign) bool hasAlpha;
+/// Data layer we're attached to
 @property (nonatomic,weak) WhirlyKitQuadDisplayLayer *quadLayer;
+/// If set, we'll ignore edge matching.
+/// This can work if you're zoomed in close
 @property (nonatomic,assign) bool ignoreEdgeMatching;
+/// If set, we'll fill in the poles for a projection that doesn't go all the way up or down
 @property (nonatomic,assign) bool coverPoles;
+/// The data type of GL textures we'll be creating.  RGBA by default.
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
+/// If set (before we start) we'll use dynamic texture and drawable atlases
 @property (nonatomic,assign) bool useDynamicAtlas;
+/// If set we'll scale the input images to the nearest square power of two
 @property (nonatomic,assign) WhirlyKitTileScaleType tileScale;
+/// If the tile scale is fixed, this is the size it's fixed to (256 by default)
 @property (nonatomic,assign) int fixedTileSize;
+/// If set, the default texture atlas size.  Must be a power of two.
 @property (nonatomic,assign) int textureAtlasSize;
 
 /// Set this up with an object that'll return an image per tile

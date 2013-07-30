@@ -28,7 +28,6 @@
  */
 @interface AnimateViewMomentum : NSObject<WhirlyGlobeAnimationDelegate> 
 {
-    float velocity,acceleration;
     Eigen::Quaterniond startQuat;
     Eigen::Vector3d axis;
     float maxTime;

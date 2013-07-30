@@ -26,19 +26,25 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeUpdateDisplayLayer
-
-@synthesize moveDist;
-@synthesize minTime;
-@synthesize dataSource;
+{
+    /// Layer thread we're attached to
+    WhirlyKitLayerThread * __weak layerThread;
+    
+    /// Scene, just for the data source
+    WhirlyKit::Scene *scene;
+    
+    /// Last view state we were given
+    WhirlyGlobeViewState *viewState;
+}
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeUpdateDataSource> *)inDataSource moveDist:(float)inMoveDist minTime:(float)inMinTime
 {
     self = [super init];
     if (self)
     {
-        dataSource = inDataSource;
-        moveDist = inMoveDist;
-        minTime = inMinTime;
+        _dataSource = inDataSource;
+        _moveDist = inMoveDist;
+        _minTime = inMinTime;
     }
     
     return self;
@@ -51,7 +57,7 @@ using namespace WhirlyGlobe;
     
     // We want view updates, but only 1s in frequency
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:minTime];
+        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime];
 }
 
 - (void)shutdown
@@ -61,7 +67,7 @@ using namespace WhirlyGlobe;
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [dataSource shutdown];
+    [_dataSource shutdown];
 }
 
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
@@ -80,10 +86,10 @@ using namespace WhirlyGlobe;
     }
 
     // If this is the first go, call the data source, otherwise we need to have moved sufficiently
-    if (!lastViewState || (dist2 >= moveDist*moveDist))
+    if (!lastViewState || (dist2 >= _moveDist*_moveDist))
     {
         viewState = newViewState;
-        [dataSource viewerDidUpdate:viewState scene:scene];
+        [_dataSource viewerDidUpdate:viewState scene:scene];
     }
 }
 

@@ -403,42 +403,41 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 }
 
 @implementation WhirlyKitQuadDisplayLayer
-
-@synthesize layerThread;
-@synthesize scene;
-@synthesize quadtree;
-@synthesize coordSys;
-@synthesize mbr;
-@synthesize maxTiles;
-@synthesize minImportance;
-@synthesize lineMode;
-@synthesize drawEmpty;
-@synthesize debugMode;
-@synthesize dataStructure;
-@synthesize loader;
-@synthesize viewUpdatePeriod;
-@synthesize renderer;
+{
+    /// [minZoom,maxZoom] range
+    int minZoom,maxZoom;
+    
+    /// Nodes being evaluated for loading
+    WhirlyKit::QuadNodeInfoSet nodesForEval;
+    
+    /// If set the eval step gets very aggressive about loading tiles.
+    /// This will slow down the layer thread, but makes the quad layer appear faster
+    bool greedyMode;
+    
+    /// State of the view the last time we were called
+    WhirlyKitViewState *viewState;
+}
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
 {
     self = [super init];
     if (self)
     {
-        dataStructure = inDataStructure;
-        loader = inLoader;
-        [loader setQuadLayer:self];
-        coordSys = [dataStructure coordSystem];
-        mbr = [dataStructure validExtents];
-        minZoom = [dataStructure minZoom];
-        maxZoom = [dataStructure maxZoom];
-        maxTiles = 256;
-        minImportance = 1.0;
-        viewUpdatePeriod = 0.1;
-        quadtree = new Quadtree([dataStructure totalExtents],minZoom,maxZoom,maxTiles,minImportance,self);
-        renderer = inRenderer;
-        lineMode = false;
-        drawEmpty = false;
-        debugMode = false;
+        _dataStructure = inDataStructure;
+        _loader = inLoader;
+        [_loader setQuadLayer:self];
+        _coordSys = [_dataStructure coordSystem];
+        _mbr = [_dataStructure validExtents];
+        minZoom = [_dataStructure minZoom];
+        maxZoom = [_dataStructure maxZoom];
+        _maxTiles = 256;
+        _minImportance = 1.0;
+        _viewUpdatePeriod = 0.1;
+        _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);
+        _renderer = inRenderer;
+        _lineMode = false;
+        _drawEmpty = false;
+        _debugMode = false;
         greedyMode = false;
     }
     
@@ -447,53 +446,53 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)dealloc
 {
-    if (quadtree)
-        delete quadtree;
+    if (_quadtree)
+        delete _quadtree;
 }
 
 - (void)setMaxTiles:(int)newMaxTiles
 {
-    maxTiles = newMaxTiles;
-    quadtree->setMaxNodes(newMaxTiles);
+    _maxTiles = newMaxTiles;
+    _quadtree->setMaxNodes(newMaxTiles);
 }
 
 - (void)setMinImportance:(float)newMinImportance
 {
-    minImportance = newMinImportance;
-    quadtree->setMinImportance(newMinImportance);
+    _minImportance = newMinImportance;
+    _quadtree->setMinImportance(newMinImportance);
 }
 
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
-    layerThread = inLayerThread;
-	scene = inScene;
+    _layerThread = inLayerThread;
+	_scene = inScene;
         
     // We want view updates, but only 1s in frequency
-    if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:viewUpdatePeriod];
+    if (_layerThread.viewWatcher)
+        [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod];
 }
 
 - (void)shutdown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
-    if (layerThread.viewWatcher) {
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+    if (_layerThread.viewWatcher) {
+        [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     }
     
-    [dataStructure shutdown];
-    dataStructure = nil;
-    [loader shutdownLayer:self scene:scene];
-    loader = nil;
+    [_dataStructure shutdown];
+    _dataStructure = nil;
+    [_loader shutdownLayer:self scene:_scene];
+    _loader = nil;
     
-    scene = NULL;
+    _scene = NULL;
 }
 
 // Called every so often by the view watcher
 // It's here that we evaluate what to load
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
 {
-    if (!scene)
+    if (!_scene)
     {
         NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being shutdown.");
         return;
@@ -504,19 +503,19 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         return;
 
     // Check if we should even be doing an update
-    if ([loader respondsToSelector:@selector(shouldUpdate:initial:)])
-        if (![loader shouldUpdate:inViewState initial:(viewState == nil)])
+    if ([_loader respondsToSelector:@selector(shouldUpdate:initial:)])
+        if (![_loader shouldUpdate:inViewState initial:(viewState == nil)])
             return;
         
     viewState = inViewState;
     nodesForEval.clear();
-    quadtree->reevaluateNodes();
+    _quadtree->reevaluateNodes();
     
     // Add everything at the minLevel back in
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
         {
-            Quadtree::NodeInfo thisNode = quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
+            Quadtree::NodeInfo thisNode = _quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
         
@@ -536,7 +535,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 //    }
 //    NSLog(@"******");
     
-    quadtree->Print();
+    _quadtree->Print();
 }
 
 // Run the evaluation step for outstanding nodes
@@ -545,26 +544,26 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     bool didSomething = false;
     
     // If the renderer hasn't been set up, punt and try again later
-    if (renderer.framebufferWidth == 0 || renderer.framebufferHeight == 0 || viewState == nil)
+    if (_renderer.framebufferWidth == 0 || _renderer.framebufferHeight == 0 || viewState == nil)
     {
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.1];
         return;
     }    
 
     // If the loader isn't ready, it's up to it to wake us up when it is
-    if (![loader isReady])
+    if (![_loader isReady])
     {
         return;
     }
 
-    [loader quadDisplayLayerStartUpdates:self];
+    [_loader quadDisplayLayerStartUpdates:self];
 
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
-    while (quadtree->leastImportantNode(remNodeInfo))
+    while (_quadtree->leastImportantNode(remNodeInfo))
     {
-        quadtree->removeTile(remNodeInfo.ident);
-        [loader quadDisplayLayer:self unloadTile:remNodeInfo];
+        _quadtree->removeTile(remNodeInfo.ident);
+        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
 
         didSomething = true;
     }
@@ -581,16 +580,16 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             nodesForEval.erase(nodeIt);
             
             // The quad tree will take this node over an existing one
-            bool isLoaded = quadtree->isTileLoaded(nodeInfo.ident);
-            if (isLoaded || quadtree->willAcceptTile(nodeInfo))
+            bool isLoaded = _quadtree->isTileLoaded(nodeInfo.ident);
+            if (isLoaded || _quadtree->willAcceptTile(nodeInfo))
             {
                 if (!isLoaded)
                 {
                     // Tell the quad tree what we're up to
                     std::vector<Quadtree::Identifier> tilesToRemove;
-                    quadtree->addTile(nodeInfo, tilesToRemove);
+                    _quadtree->addTile(nodeInfo, tilesToRemove);
                                 
-                    [loader quadDisplayLayer:self loadTile:nodeInfo ];
+                    [_loader quadDisplayLayer:self loadTile:nodeInfo ];
                                     
                     // Remove the old tiles
                     for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
@@ -598,16 +597,16 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
                         Quadtree::Identifier &thisIdent = tilesToRemove[ii];
 //                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
                         
-                        Quadtree::NodeInfo remNodeInfo = quadtree->generateNode(thisIdent);
-                        [loader quadDisplayLayer:self unloadTile:remNodeInfo];           
+                        Quadtree::NodeInfo remNodeInfo = _quadtree->generateNode(thisIdent);
+                        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];           
                     }
 //            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
                 } else {
                     // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
-                    if (nodeInfo.ident.level < maxZoom && [loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
+                    if (nodeInfo.ident.level < maxZoom && [_loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
                     {
                         std::vector<Quadtree::NodeInfo> childNodes;
-                        quadtree->generateChildren(nodeInfo.ident, childNodes);
+                        _quadtree->generateChildren(nodeInfo.ident, childNodes);
                         nodesForEval.insert(childNodes.begin(),childNodes.end());                
                     }
                 }
@@ -625,7 +624,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     }
 
     // Let the loader know we're done with this eval step
-    [loader quadDisplayLayerEndUpdates:self];
+    [_loader quadDisplayLayerEndUpdates:self];
 
 //    if (debugMode)
 //        [self dumpInfo];
@@ -643,12 +642,12 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     if (tileIdent.level < maxZoom)
     {
         // Make sure we still want this one
-        if (!quadtree->isTileLoaded(tileIdent))
+        if (!_quadtree->isTileLoaded(tileIdent))
             return;
         
         // Now try the children
         std::vector<Quadtree::NodeInfo> childNodes;
-        quadtree->generateChildren(tileIdent, childNodes);
+        _quadtree->generateChildren(tileIdent, childNodes);
         nodesForEval.insert(childNodes.begin(),childNodes.end());
         
         // Make sure we actually evaluate them
@@ -673,9 +672,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 // Clear out all the existing tiles and start over
 - (void)refresh
 {
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != _layerThread)
     {
-        [self performSelector:@selector(refresh) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(refresh) onThread:_layerThread withObject:nil waitUntilDone:NO];
         return;
     }
     
@@ -685,20 +684,20 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
     // Remove nodes until we run out
     Quadtree::NodeInfo remNodeInfo;
-    [loader quadDisplayLayerStartUpdates:self];
-    while (quadtree->leastImportantNode(remNodeInfo,true))
+    [_loader quadDisplayLayerStartUpdates:self];
+    while (_quadtree->leastImportantNode(remNodeInfo,true))
     {
         
-        quadtree->removeTile(remNodeInfo.ident);
-        [loader quadDisplayLayer:self unloadTile:remNodeInfo];        
+        _quadtree->removeTile(remNodeInfo.ident);
+        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];        
     }
-    [loader quadDisplayLayerEndUpdates:self];
+    [_loader quadDisplayLayerEndUpdates:self];
 
     // Add everything at the minLevel back in
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
         {
-            Quadtree::NodeInfo thisNode = quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
+            Quadtree::NodeInfo thisNode = _quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
 
@@ -707,9 +706,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)wakeUp
 {
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != _layerThread)
     {
-        [self performSelector:@selector(wakeUp) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(wakeUp) onThread:_layerThread withObject:nil waitUntilDone:NO];
         return;
     }
 
@@ -722,7 +721,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
 {
-    return [dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) attrs:attrs];
+    return [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:attrs];
 }
 
 @end

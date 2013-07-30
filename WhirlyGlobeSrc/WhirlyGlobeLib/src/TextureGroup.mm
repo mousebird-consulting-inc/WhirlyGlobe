@@ -24,10 +24,6 @@
 
 @implementation WhirlyKitTextureGroup
 
-@synthesize baseName,basePath,ext;
-@synthesize numX,numY;
-@synthesize pixelsSquare,borderPixels;
-
 - (id) initWithInfo:(NSString *)infoName;
 {
     // This should be the info plist.  That has everything
@@ -44,10 +40,10 @@
 	self.basePath=[infoName stringByDeletingLastPathComponent];
         self.ext = [dict objectForKey:@"format"];
         self.baseName = [dict objectForKey:@"baseName"];
-        numX = [[dict objectForKey:@"tilesInX"] intValue];
-        numY = [[dict objectForKey:@"tilesInY"] intValue];
-        pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
-        borderPixels = [[dict objectForKey:@"borderSize"] intValue];
+        _numX = [[dict objectForKey:@"tilesInX"] intValue];
+        _numY = [[dict objectForKey:@"tilesInY"] intValue];
+        _pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
+        _borderPixels = [[dict objectForKey:@"borderSize"] intValue];
 	}
 	
 	return self;
@@ -57,11 +53,11 @@
 // Generate a file name for loading a given piece
 - (NSString *) generateFileNameX:(unsigned int)x y:(unsigned int)y
 {
-	if (x >= numX || y >= numY)
+	if (x >= _numX || y >= _numY)
 		return nil;
 
 	// Construct the name, but take into account the basepath, if set	
-	NSString* result = [NSString stringWithFormat:@"%@_%dx%d",baseName,x,y];
+	NSString* result = [NSString stringWithFormat:@"%@_%dx%d",_baseName,x,y];
 	if (self.basePath)
 		result = [self.basePath stringByAppendingPathComponent:result];
 	
@@ -70,7 +66,7 @@
 
 - (void)calcTexMappingOrg:(WhirlyKit::TexCoord *)org dest:(WhirlyKit::TexCoord *)dest
 {
-    org->u() = org->v() = (float)borderPixels/(float)pixelsSquare;
+    org->u() = org->v() = (float)_borderPixels/(float)_pixelsSquare;
     dest->u() = dest->v() = 1.f - org->u();
 }
 

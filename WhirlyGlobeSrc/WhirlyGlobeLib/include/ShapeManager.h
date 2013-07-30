@@ -52,39 +52,28 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
  map.
  */
 @interface WhirlyKitShape : NSObject
-{
-    /// If set, this shape should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the shape is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// If set, we'll use the local color
-    bool useColor;
-    /// Local color, which will override the default
-    WhirlyKit::RGBAColor color;
-}
 
+/// If set, this shape should be made selectable
+///  and it will be if the selection layer has been set
 @property (nonatomic,assign) bool isSelectable;
+/// If the shape is selectable, this is the unique identifier
+///  for it.  You should set this ahead of time
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+/// If set, we'll use the local color
 @property (nonatomic,assign) bool useColor;
+/// Local color, which will override the default
 @property (nonatomic,assign) WhirlyKit::RGBAColor &color;
 
 @end
 
 /// This will display a circle around the location as defined by the base class
 @interface WhirlyKitCircle : WhirlyKitShape
-{
-    /// The location for the origin of the shape
-    WhirlyKit::GeoCoord loc;
-    /// Radius is in display units
-    float radius;
-    /// An offset from the globe in display units (radius of the globe = 1.0)
-    float height;
-}
 
+/// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
+/// Radius is in display units
 @property (nonatomic,assign) float radius;
+/// An offset from the globe in display units (radius of the globe = 1.0)
 @property (nonatomic,assign) float height;
 
 @end
@@ -92,36 +81,27 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 /// This puts a sphere around the location
 @interface WhirlyKitSphere : WhirlyKitShape
 {
-    /// The location for the origin of the shape
-    WhirlyKit::GeoCoord loc;
-    /// An offset in terms of display units (sphere is radius=1.0)
-    float height;
-    /// Radius is in display units
-    float radius;
 }
 
+/// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
+/// An offset in terms of display units (sphere is radius=1.0)
 @property (nonatomic,assign) float height;
+/// Radius is in display units
 @property (nonatomic,assign) float radius;
 
 @end
 
 /// This puts a cylinder with its base at the locaton
 @interface WhirlyKitCylinder : WhirlyKitShape
-{
-    /// The location for the origin of the shape
-    WhirlyKit::GeoCoord loc;
-    /// Height offset from the ground (in display units)
-    float baseHeight;
-    /// Radius in display units
-    float radius;
-    /// Height in display units
-    float height;
-}
 
+/// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
+/// Height offset from the ground (in display units)
 @property (nonatomic,assign) float baseHeight;
+/// Radius in display units
 @property (nonatomic,assign) float radius;
+/// Height in display units
 @property (nonatomic,assign) float height;
 
 @end
@@ -131,18 +111,13 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
  vector layer features in that it has exactly locations.
  */
 @interface WhirlyKitShapeLinear : WhirlyKitShape
-{
-    /// Bounding box in local coordinates.
-    /// Note: Doesn't take height into account
-    WhirlyKit::Mbr mbr;
-    /// These locations are in display coordinates
-    std::vector<WhirlyKit::Point3f> pts;
-    /// Line width in pixels
-    float lineWidth;
-}
 
+/// Bounding box in local coordinates.
+/// Note: Doesn't take height into account
 @property (nonatomic,assign) WhirlyKit::Mbr mbr;
+/// These locations are in display coordinates
 @property (nonatomic,assign) std::vector<WhirlyKit::Point3f> &pts;
+/// Line width in pixels
 @property (nonatomic,assign) float lineWidth;
 
 @end

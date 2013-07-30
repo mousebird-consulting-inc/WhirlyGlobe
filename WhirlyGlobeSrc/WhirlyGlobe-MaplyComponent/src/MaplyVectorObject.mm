@@ -30,17 +30,13 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyVectorObject
 
-@synthesize userObject;
-@synthesize selectable;
-@synthesize shapes;
-
 + (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
 {
     if ([geoJSON length] > 0)
     {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
         
-        if (!VectorParseGeoJSON(vecObj->shapes, geoJSON))
+        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
             return nil;
         
         return vecObj;
@@ -89,7 +85,7 @@ using namespace WhirlyGlobe;
         
         WGVectorObject *vecObj = [[WGVectorObject alloc] init];
 
-        if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
+        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
             return nil;
 
       return vecObj;
@@ -105,7 +101,7 @@ using namespace WhirlyGlobe;
     
     WGVectorObject *vecObj = [[WGVectorObject alloc] init];
     
-    if (!VectorParseGeoJSON(vecObj->shapes,jsonDict))
+    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
         return nil;
     
     return vecObj;
@@ -113,17 +109,17 @@ using namespace WhirlyGlobe;
 
 - (NSDictionary *)attributes
 {
-    if (shapes.empty())
+    if (_shapes.empty())
         return nil;
     
-    VectorShapeRef vec = *(shapes.begin());
+    VectorShapeRef vec = *(_shapes.begin());
     return vec->getAttrDict();
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
-    for (ShapeSet::iterator it = shapes.begin();
-         it != shapes.end(); ++it)
+    for (ShapeSet::iterator it = _shapes.begin();
+         it != _shapes.end(); ++it)
         (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
 }
 
@@ -133,7 +129,7 @@ using namespace WhirlyGlobe;
     if (!self)
         return nil;
     
-    selectable = true;
+    _selectable = true;
     
     return self;
 }
@@ -149,9 +145,9 @@ using namespace WhirlyGlobe;
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
         pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         pts->initGeoMbr();
-        shapes.insert(pts);
+        _shapes.insert(pts);
         
-        selectable = true;
+        _selectable = true;
     }
     
     return self;
@@ -169,9 +165,9 @@ using namespace WhirlyGlobe;
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         lin->initGeoMbr();
-        shapes.insert(lin);
+        _shapes.insert(lin);
         
-        selectable = true;
+        _selectable = true;
     }
     
     return self;
@@ -191,9 +187,9 @@ using namespace WhirlyGlobe;
         areal->loops.push_back(pts);
         areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
         areal->initGeoMbr();
-        shapes.insert(areal);
+        _shapes.insert(areal);
         
-        selectable = true;
+        _selectable = true;
     }
     
     return self;
@@ -202,10 +198,10 @@ using namespace WhirlyGlobe;
 /// Add a hole to an existing areal feature
 - (void)addHole:(MaplyCoordinate *)coords numCoords:(int)numCoords
 {
-    if (shapes.size() != 1)
+    if (_shapes.size() != 1)
         return;
     
-    VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*(shapes.begin()));
+    VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*(_shapes.begin()));
     if (areal)
     {
         VectorRing pts;
@@ -217,11 +213,11 @@ using namespace WhirlyGlobe;
 
 - (MaplyVectorObjectType)vectorType
 {
-    if (shapes.empty())
+    if (_shapes.empty())
         return MaplyVectorMultiType;
 
     MaplyVectorObjectType type = MaplyVectorNoneType;
-    for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+    for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
         MaplyVectorObjectType thisType = MaplyVectorNoneType;
         VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
@@ -252,7 +248,7 @@ using namespace WhirlyGlobe;
 {
     MaplyVectorObject *newVecObj = [[MaplyVectorObject alloc] init];
     
-    for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+    for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
     {
         VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
         if (points)
@@ -288,7 +284,7 @@ using namespace WhirlyGlobe;
 // Look for areals that this point might be inside
 - (bool)pointInAreal:(MaplyCoordinate)coord
 {
-    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
         VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal)
@@ -305,7 +301,7 @@ using namespace WhirlyGlobe;
 - (MaplyCoordinate)center
 {
     Mbr mbr;
-    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
         GeoMbr geoMbr = (*it)->calcGeoMbr();
         mbr.addPoint(geoMbr.ll());
@@ -321,10 +317,10 @@ using namespace WhirlyGlobe;
 
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot
 {
-    if (shapes.empty())
+    if (_shapes.empty())
         return false;
     
-    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(shapes.begin()));
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
     if (!lin)
         return false;
     
@@ -369,7 +365,7 @@ using namespace WhirlyGlobe;
     // Find the loop with the larest area
     float bigArea = -1.0;
     const VectorRing *bigLoop = NULL;
-    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
         VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (areal && areal->loops.size() > 0)
@@ -416,7 +412,7 @@ using namespace WhirlyGlobe;
 {
     bool valid = false;
     Mbr mbr;
-    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {
         GeoMbr geoMbr = (*it)->calcGeoMbr();
         mbr.addPoint(geoMbr.ll());
@@ -437,12 +433,12 @@ using namespace WhirlyGlobe;
 
 - (NSArray *)asCLLocationArrays
 {
-    if (shapes.size() < 1)
+    if (_shapes.size() < 1)
         return nil;
 
     NSMutableArray *loops = [NSMutableArray array];
     
-    ShapeSet::iterator it = shapes.begin();
+    ShapeSet::iterator it = _shapes.begin();
     VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
     if (ar)
     {
@@ -467,8 +463,8 @@ using namespace WhirlyGlobe;
 {
     NSMutableArray *vecs = [NSMutableArray array];
     
-    for (WhirlyKit::ShapeSet::iterator it = shapes.begin();
-         it != shapes.end(); ++it)
+    for (WhirlyKit::ShapeSet::iterator it = _shapes.begin();
+         it != _shapes.end(); ++it)
     {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
         vecObj.shapes.insert(*it);
@@ -482,7 +478,7 @@ using namespace WhirlyGlobe;
 {
     FakeGeocentricDisplayAdapter adapter;
     
-    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
@@ -510,7 +506,7 @@ using namespace WhirlyGlobe;
     FakeGeocentricDisplayAdapter adapter;
     CoordSystem *coordSys = adapter.getCoordSystem();
     
-    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
@@ -545,7 +541,7 @@ using namespace WhirlyGlobe;
 {
     MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
     
-    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
@@ -563,7 +559,7 @@ using namespace WhirlyGlobe;
                     
                     VectorArealRef newAr = VectorAreal::createAreal();
                     newAr->loops.push_back(tri);
-                    newVec->shapes.insert(newAr);
+                    newVec->_shapes.insert(newAr);
                 }
 //                for (unsigned int jj=0;jj<tris.size();jj++)
 //                    std::reverse(tris[jj].begin(), tris[jj].end());

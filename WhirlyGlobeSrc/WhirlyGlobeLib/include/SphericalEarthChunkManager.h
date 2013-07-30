@@ -34,54 +34,40 @@
  image by image, presumably with an active layer.
  */
 @interface WhirlyKitSphericalChunk : NSObject
-{
-    /// Bounding box for the chunk to display
-    WhirlyKit::GeoMbr mbr;
-    /// Texture we'll wrap over the top
-    WhirlyKit::SimpleIdentity texId;
-    /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
-    /// The implication here is that we're going to stick these in an atlas.
-    WhirlyKitLoadedImage *loadImage;
-    /// Z offset for the generated geometry
-    float drawOffset;
-    /// Sorting priority for the generated geometry
-    int drawPriority;
-    /// Sampling along X and Y.
-    /// If the eps is set, this is the maximum sampling in x/y
-    int sampleX,sampleY;
-    /// When eps is set, this is the minimum sampling in x/y
-    int minSampleX,minSampleY;
-    /// If not doing static sampling, break it down until its no farther than this from the globe.
-    /// sampleX,sampleY become maximums
-    float eps;
-    /// Chunk is visible this far down
-    float minVis;
-    /// Chunk is visible this far out
-    float maxVis;
-    /// Distance from the min visible range to start fading
-    float minVisBand;
-    /// Distance from the max visible range to start fading
-    float maxVisBand;
-    /// Rotation around the middle of the chunk
-    float rotation;
-    /// This chunk takes the z buffer into account
-    bool readZBuffer;
-    /// This chunk writes itself to the z buffer
-    bool writeZBuffer;
-}
 
+/// Bounding box for the chunk to display
 @property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
+/// Texture we'll wrap over the top
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+/// If no texture, we can pass in a UIImage (or NSData that contains common formats).
+/// The implication here is that we're going to stick these in an atlas.
 @property (nonatomic,strong) WhirlyKitLoadedImage *loadImage;
+/// Z offset for the generated geometry
 @property (nonatomic,assign) float drawOffset;
+/// Sorting priority for the generated geometry
 @property (nonatomic,assign) int drawPriority;
+/// Sampling along X and Y.
+/// If the eps is set, this is the maximum sampling in x/y
 @property (nonatomic,assign) int sampleX,sampleY;
+/// When eps is set, this is the minimum sampling in x/y
 @property (nonatomic,assign) int minSampleX,minSampleY;
+/// If not doing static sampling, break it down until its no farther than this from the globe.
+/// sampleX,sampleY become maximums
 @property (nonatomic,assign) float eps;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) float minVisBand,maxVisBand;
+/// Chunk is visible this far down
+@property (nonatomic,assign) float minVis;
+/// Chunk is visible this far out
+@property (nonatomic,assign) float maxVis;
+/// Distance from the min visible range to start fading
+@property (nonatomic,assign) float minVisBand;
+/// Distance from the max visible range to start fading
+@property (nonatomic,assign) float maxVisBand;
+/// Rotation around the middle of the chunk
 @property (nonatomic,assign) float rotation;
-@property (nonatomic,assign) bool readZBuffer,writeZBuffer;
+/// This chunk takes the z buffer into account
+@property (nonatomic,assign) bool readZBuffer;
+/// This chunk writes itself to the z buffer
+@property (nonatomic,assign) bool writeZBuffer;
 
 // Create one or more drawables to represent the chunk.
 // Only call this if you know what you're doing

@@ -22,19 +22,11 @@
 #import "MaplyView.h"
 
 @interface MaplyPinchDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    /// Minimum allowable zoom level
-    float minZoom;
-    /// Maximum allowable zoom level
-    float maxZoom;
-    /// If we're zooming, where we started
-    float startZ;
-    MaplyView *mapView;
-    /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2f> bounds;
-}
 
-@property (nonatomic,assign) float minZoom,maxZoom;
+/// Minimum allowable zoom level
+@property (nonatomic,assign) float minZoom;
+/// Maximum allowable zoom level
+@property (nonatomic,assign) float maxZoom;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
