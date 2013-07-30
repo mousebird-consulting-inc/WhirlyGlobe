@@ -61,9 +61,6 @@
     markers, labels, and vectors on top of that.
  */
 @interface WhirlyGlobeViewController : MaplyBaseViewController
-{
-    NSObject<WhirlyGlobeViewControllerDelegate> * __weak delegate;
-}
 
 /// Set this to keep the north pole facing upward when moving around.
 /// Off by default.

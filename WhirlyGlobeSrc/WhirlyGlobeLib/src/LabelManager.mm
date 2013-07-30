@@ -32,30 +32,21 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyKitSingleLabel
-@synthesize text;
-@synthesize loc;
-@synthesize rotation;
-@synthesize desc;
-@synthesize iconTexture;
-@synthesize isSelectable;
-@synthesize selectID;
-@synthesize iconSize;
-@synthesize screenOffset;
 
 // Generate a key string to uniquely identify this label for reuse
 - (std::string)keyString
 {
-    std::string theStr = [text asStdString];
+    std::string theStr = [_text asStdString];
     
-    if (desc)
-        theStr += [[desc description] asStdString];
+    if (_desc)
+        theStr += [[_desc description] asStdString];
     
     return theStr;
 }
 
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
-    CGSize textSize = [text sizeWithFont:font];
+    CGSize textSize = [_text sizeWithFont:font];
     if (textSize.width == 0 || textSize.height == 0)
         return false;
     
@@ -70,7 +61,7 @@ using namespace WhirlyKit;
 // Calculate the corners in this order:  (ll,lr,ur,ul)
 - (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(Point2f)theIconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
 {
-    Point3f center = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(loc));
+    Point3f center = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(_loc));
     Point3f up(0,0,1);
     Point3f horiz,vert;
     if (coordAdapter->isFlat())
@@ -174,13 +165,13 @@ using namespace WhirlyKit;
     // Width and height can be overriden per label
     float theWidth = labelInfo.width;
     float theHeight = labelInfo.height;
-    if (desc)
+    if (_desc)
     {
-        theWidth = [desc floatForKey:@"width" default:theWidth];
-        theHeight = [desc floatForKey:@"height" default:theHeight];
+        theWidth = [_desc floatForKey:@"width" default:theWidth];
+        theHeight = [_desc floatForKey:@"height" default:theHeight];
     }
     
-    CGSize textSize = [text sizeWithFont:labelInfo.font];
+    CGSize textSize = [_text sizeWithFont:labelInfo.font];
     
     float width2,height2;
     if (theWidth != 0.0)
@@ -193,13 +184,13 @@ using namespace WhirlyKit;
     }
     
     // If there's an icon, we need to offset the label
-    Point2f theIconSize = (iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
+    Point2f theIconSize = (_iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
     
     Point3f corners[4],iconCorners[4];
     [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
     
     // If we have an icon, we need slightly different corners
-    if (iconTexture)
+    if (_iconTexture)
     {
         pts[0] = iconCorners[0];
         pts[1] = corners[1];

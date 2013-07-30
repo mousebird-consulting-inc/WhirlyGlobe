@@ -497,23 +497,22 @@ void LoadedTile::Print(Quadtree *tree)
 }
 
 @implementation WhirlyKitQuadTileLoader
-
-@synthesize drawOffset;
-@synthesize drawPriority;
-@synthesize minVis,maxVis;
-@synthesize minPageVis,maxPageVis;
-@synthesize programId;
-@synthesize includeElev;
-@synthesize color;
-@synthesize hasAlpha;
-@synthesize quadLayer;
-@synthesize ignoreEdgeMatching;
-@synthesize coverPoles;
-@synthesize imageType;
-@synthesize useDynamicAtlas;
-@synthesize tileScale;
-@synthesize fixedTileSize;
-@synthesize textureAtlasSize;
+{
+    /// Tiles we currently have loaded in the scene
+    WhirlyKit::LoadedTileSet tileSet;
+    
+    /// Delegate used to provide images
+    NSObject<WhirlyKitQuadTileImageDataSource> * __weak dataSource;
+    
+    // Parents to update after changes
+    std::set<WhirlyKit::Quadtree::Identifier> parents;
+    
+    /// Change requests queued up between a begin and end
+    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
+    
+    /// How many fetches we have going at the moment
+    int numFetches;
+}
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
 {
@@ -521,25 +520,25 @@ void LoadedTile::Print(Quadtree *tree)
     if (self)
     {
         dataSource = inDataSource;
-        drawOffset = 0;
-        drawPriority = 0;
-        color = RGBAColor(255,255,255,255);
-        hasAlpha = false;
+        _drawOffset = 0;
+        _drawPriority = 0;
+        _color = RGBAColor(255,255,255,255);
+        _hasAlpha = false;
         numFetches = 0;
-        ignoreEdgeMatching = false;
-        minVis = DrawVisibleInvalid;
-        maxVis = DrawVisibleInvalid;
-        minPageVis = DrawVisibleInvalid;
-        maxPageVis = DrawVisibleInvalid;
-        imageType = WKTileIntRGBA;
-        useDynamicAtlas = true;
+        _ignoreEdgeMatching = false;
+        _minVis = DrawVisibleInvalid;
+        _maxVis = DrawVisibleInvalid;
+        _minPageVis = DrawVisibleInvalid;
+        _maxPageVis = DrawVisibleInvalid;
+        _imageType = WKTileIntRGBA;
+        _useDynamicAtlas = true;
         doingUpdate = false;
         borderTexel = 0;
-        includeElev = false;
-        tileScale = WKTileScaleNone;
-        fixedTileSize = 256;
+        _includeElev = false;
+        _tileScale = WKTileScaleNone;
+        _fixedTileSize = 256;
         texelBinSize = 64;
-        textureAtlasSize = 2048;
+        _textureAtlasSize = 2048;
     }
     
     return self;
@@ -575,7 +574,7 @@ void LoadedTile::Print(Quadtree *tree)
 
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
-    quadLayer = layer;
+    _quadLayer = layer;
     defaultSphereTessX = defaultSphereTessY = 10;
 }
 
@@ -646,7 +645,7 @@ void LoadedTile::Print(Quadtree *tree)
 // Convert from our image type to a GL enum
 - (GLenum)glFormat
 {
-    switch (imageType)
+    switch (_imageType)
     {
         case WKTileIntRGBA:
         default:
@@ -675,7 +674,7 @@ void LoadedTile::Print(Quadtree *tree)
 // Figure out the target size for an image based on our settings
 - (void)texWidth:(int)width height:(int)height destWidth:(int *)destWidth destHeight:(int *)destHeight
 {
-    switch (tileScale)
+    switch (_tileScale)
     {
         case WKTileScaleNone:
             *destWidth = width;
@@ -707,7 +706,7 @@ void LoadedTile::Print(Quadtree *tree)
         }
             break;
         case WKTileScaleFixed:
-            *destWidth = *destHeight = fixedTileSize;
+            *destWidth = *destHeight = _fixedTileSize;
             break;
     }
 }
@@ -791,15 +790,15 @@ void LoadedTile::Print(Quadtree *tree)
     {
         // We'll set up and fill in the drawable
         BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
-        chunk->setDrawOffset(drawOffset);
-        chunk->setDrawPriority(drawPriority);
-        chunk->setVisibleRange(minVis, maxVis);
-        chunk->setAlpha(hasAlpha);
-        chunk->setColor(color);
+        chunk->setDrawOffset(_drawOffset);
+        chunk->setDrawPriority(_drawPriority);
+        chunk->setVisibleRange(_minVis, _maxVis);
+        chunk->setAlpha(_hasAlpha);
+        chunk->setColor(_color);
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
-        chunk->setProgram(programId);
+        chunk->setProgram(_programId);
         int elevEntry = 0;
-        if (includeElev)
+        if (_includeElev)
             elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
         
         // We're in line mode or the texture didn't load
@@ -976,20 +975,20 @@ void LoadedTile::Print(Quadtree *tree)
                 }
             }
             
-            if (!ignoreEdgeMatching && !coordAdapter->isFlat() && skirtDraw)
+            if (!_ignoreEdgeMatching && !coordAdapter->isFlat() && skirtDraw)
             {
                 // We'll set up and fill in the drawable
                 BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
-                skirtChunk->setDrawOffset(drawOffset);
+                skirtChunk->setDrawOffset(_drawOffset);
                 skirtChunk->setDrawPriority(0);
-                skirtChunk->setVisibleRange(minVis, maxVis);
-                skirtChunk->setAlpha(hasAlpha);
-                skirtChunk->setColor(color);
+                skirtChunk->setVisibleRange(_minVis, _maxVis);
+                skirtChunk->setAlpha(_hasAlpha);
+                skirtChunk->setColor(_color);
                 skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
                 skirtChunk->setType(GL_TRIANGLES);
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
                 skirtChunk->setRequestZBuffer(true);
-                skirtChunk->setProgram(programId);
+                skirtChunk->setProgram(_programId);
                 
                 // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
                 //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -1039,7 +1038,7 @@ void LoadedTile::Print(Quadtree *tree)
                 *skirtDraw = skirtChunk;
             }
             
-            if (coverPoles && !coordAdapter->isFlat())
+            if (_coverPoles && !coordAdapter->isFlat())
             {
                 // If we're at the top, toss in a few more triangles to represent that
                 int maxY = 1 << nodeInfo->ident.level;
@@ -1168,7 +1167,7 @@ void LoadedTile::Print(Quadtree *tree)
     if (drawAtlas)
     {
         if (drawAtlas->hasUpdates() && !drawAtlas->waitingOnSwap())
-            drawAtlas->swap(changeRequests,quadLayer,@selector(wakeUp));
+            drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
     }
     if (!changeRequests.empty())
     {
@@ -1264,18 +1263,18 @@ static const int SingleElementSize = sizeof(GLushort);
     }
     
     // Create the dynamic texture atlas before we need it
-    if (useDynamicAtlas && !texAtlas && loadImage)
+    if (_useDynamicAtlas && !texAtlas && loadImage)
     {
         // Note: Trouble with PVRTC sub texture loading
-        if (imageType != WKTilePVRTC4)
+        if (_imageType != WKTilePVRTC4)
         {
             // At 256 pixels square we can hold 64 tiles in a texture atlas.  Round up to 1k.
             int DrawBufferSize = ceil((2 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
             // Two triangles per grid cell in a tile
             int ElementBufferSize = ceil((2 * 6 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
-            int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
-            texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,[self glFormat]);
-            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,quadLayer.scene->getMemManager(),NULL,programId);
+            int texSortSize = (_tileScale == WKTileScaleFixed ? _fixedTileSize : texelBinSize);
+            texAtlas = new DynamicTextureAtlas(_textureAtlasSize,texSortSize,[self glFormat]);
+            drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,_quadLayer.scene->getMemManager(),NULL,_programId);
             
             // We want some room around these
             borderTexel = 1;
@@ -1287,11 +1286,11 @@ static const int SingleElementSize = sizeof(GLushort);
     if (loadImage || loadElev)
     {
         tile->elevData = loadElev;
-        tile->addToScene(self,quadLayer,quadLayer.scene,loadImage,loadElev,changeRequests);
-        [quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImage,loadElev,changeRequests);
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it
-        [quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
+        [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
         tileSet.erase(it);
         delete tile;
     }
@@ -1301,10 +1300,10 @@ static const int SingleElementSize = sizeof(GLushort);
     // Various child state changed so let's update the parents
     if (level > 0)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
-    [self refreshParents:quadLayer];
+    [self refreshParents:_quadLayer];
     
     if (!doingUpdate)
-        [self flushUpdates:quadLayer.layerThread];
+        [self flushUpdates:_quadLayer.layerThread];
 }
 
 // We'll get this before a series of unloads and loads
@@ -1361,14 +1360,14 @@ static const int SingleElementSize = sizeof(GLushort);
         return true;
 
     // Test against the visibility range
-    if ((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) || (minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid))
+    if ((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) || (_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid))
     {
         WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
         if ([globeViewState isKindOfClass:[WhirlyGlobeViewState class]])
         {
-            if (((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minVis || globeViewState->heightAboveGlobe > maxVis)))
+            if (((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minVis || globeViewState->heightAboveGlobe > _maxVis)))
                 doUpdate = false;
-            if ((minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < minPageVis || globeViewState->heightAboveGlobe > maxPageVis))
+            if ((_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minPageVis || globeViewState->heightAboveGlobe > _maxPageVis))
                 doUpdate = false;
         }
     }

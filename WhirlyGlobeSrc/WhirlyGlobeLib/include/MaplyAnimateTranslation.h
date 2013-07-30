@@ -25,10 +25,6 @@
 
 /// Maply translation from one location to another.
 @interface MaplyAnimateViewTranslation : NSObject<MaplyAnimationDelegate>
-{
-    CFTimeInterval startDate,endDate;
-    WhirlyKit::Point3d startLoc,endLoc;
-}
 
 /// When to start the animation.  Can be in the past
 @property (nonatomic,assign) CFTimeInterval startDate;

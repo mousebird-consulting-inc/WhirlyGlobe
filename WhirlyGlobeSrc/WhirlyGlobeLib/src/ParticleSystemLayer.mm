@@ -30,9 +30,6 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitParticleSystem
 
-@synthesize loc;
-@synthesize norm;
-
 @end
 
 
@@ -40,9 +37,6 @@ using namespace WhirlyKit;
 
 @interface ParticleSystemInfo : NSObject 
 {
-    SimpleIdentity destId;
-    NSArray *systems;
-    NSDictionary *desc;
     NSArray *colors;
 }
 
@@ -55,10 +49,6 @@ using namespace WhirlyKit;
 @end
 
 @implementation ParticleSystemInfo
-
-@synthesize destId;
-@synthesize systems;
-@synthesize desc;
 
 - (id)initWithSystems:(NSArray *)inSystems desc:(NSDictionary *)inDesc
 {

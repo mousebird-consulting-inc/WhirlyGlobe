@@ -65,28 +65,16 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 
 // Used to pass marker information between threads
 @interface WhirlyKitMarkerInfo : NSObject
-{
-    NSArray         *markers;  // Individual marker objects
-    UIColor         *color;
-    int             drawOffset;
-    float           minVis,maxVis;
-    bool            screenObject;
-    float           width,height;
-    int             drawPriority;
-    float           fade;
-    WhirlyKit::SimpleIdentity  markerId;
-}
 
 @property (nonatomic) NSArray *markers;
 @property (nonatomic) UIColor *color;
-@property (nonatomic,assign) int drawOffset;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) bool screenObject;
-@property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity markerId;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity replaceID;
+@property (nonatomic) int drawOffset;
+@property (nonatomic) float minVis,maxVis;
+@property (nonatomic) bool screenObject;
+@property (nonatomic) float width,height;
+@property (nonatomic) int drawPriority;
+@property (nonatomic) float fade;
+@property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
@@ -99,45 +87,35 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
  up with the given width and height and be selectable if so desired.
  */
 @interface WhirlyKitMarker : NSObject
-{
-    /// If set, this marker should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the marker is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// The location for the center of the marker.
-    WhirlyKit::GeoCoord loc;
-    /// The list of textures to use.  If there's just one
-    ///  we show that.  If there's more than one, we switch
-    ///  between them over the period.
-    std::vector<WhirlyKit::SimpleIdentity> texIDs;
-    /// The width in 3-space (remember the globe has radius = 1.0)
-    float width;
-    /// The height in 3-space (remember the globe has radius = 1.0)
-    float height;
-    /// Set if we want a static rotation.  Only matters in screen space
-    bool lockRotation;
-    /// This is rotation clockwise from north in radians
-    float rotation;
-    /// The period over which we'll switch textures
-    NSTimeInterval period;
-    /// For markers with more than one texture, this is the offset
-    ///  we'll use when calculating position within the period.
-    NSTimeInterval timeOffset;
-    /// Value to use for the layout engine.  Set to MAXFLOAT by
-    ///  default, which will always display.
-    float layoutImportance;
-}
 
+/// If set, this marker should be made selectable
+///  and it will be if the selection layer has been set
 @property (nonatomic,assign) bool isSelectable;
+/// If the marker is selectable, this is the unique identifier
+///  for it.  You should set this ahead of time
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
+/// The location for the center of the marker.
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// The list of textures to use.  If there's just one
+///  we show that.  If there's more than one, we switch
+///  between them over the period.
 @property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
+/// The width in 3-space (remember the globe has radius = 1.0)
 @property (nonatomic,assign) bool lockRotation;
-@property (nonatomic,assign) float width,height,rotation;
+/// The height in 3-space (remember the globe has radius = 1.0)
+@property (nonatomic,assign) float height;
+/// The width in 3-space (remember the globe has radius = 1.0)
+@property (nonatomic,assign) float width;
+/// Set if we want a static rotation.  Only matters in screen space
+/// This is rotation clockwise from north in radians
+@property (nonatomic,assign) float rotation;
+/// The period over which we'll switch textures
 @property (nonatomic,assign) NSTimeInterval period;
+/// For markers with more than one texture, this is the offset
+///  we'll use when calculating position within the period.
 @property (nonatomic,assign) NSTimeInterval timeOffset;
+/// Value to use for the layout engine.  Set to MAXFLOAT by
+///  default, which will always display.
 @property (nonatomic,assign) float layoutImportance;
 
 /// Add a texture ID to be displayed

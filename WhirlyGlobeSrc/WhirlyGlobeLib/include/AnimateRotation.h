@@ -28,10 +28,6 @@
     time.
  */
 @interface AnimateViewRotation : NSObject<WhirlyGlobeAnimationDelegate>
-{
-    CFTimeInterval startDate,endDate;
-    Eigen::Quaterniond startRot,endRot;
-}
 
 /// When to start the animation.  Can be in the past
 @property (nonatomic,assign) NSTimeInterval startDate;

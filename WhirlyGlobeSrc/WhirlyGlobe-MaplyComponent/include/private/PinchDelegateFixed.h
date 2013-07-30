@@ -30,12 +30,13 @@
     /// If we're in the process of zooming in, where we started
 	float startZ;
 	WhirlyGlobeView *globeView;
-    float minHeight,maxHeight;
     // If set we're modifying the tilt within a certain height range
     bool tiltZoom;
     float minTilt,maxTilt;
     float minTiltHeight,maxTiltHeight;
 }
+
+/// Min and max height to allow the user to change
 @property (nonatomic,assign) float minHeight,maxHeight;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView

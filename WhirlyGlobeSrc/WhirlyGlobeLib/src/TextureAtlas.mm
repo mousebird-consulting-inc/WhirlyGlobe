@@ -68,26 +68,32 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 @implementation ImageInstance
 
-@synthesize gridCellsX,gridCellsY;
-@synthesize gridCellX,gridCellY;
-@synthesize image;
-
-
 @end
 
 @interface TextureAtlas()
 @end
 
 @implementation TextureAtlas
-
-@synthesize texId;
+{
+    /// Texture size
+    unsigned int texSizeX,texSizeY;
+    /// Grid sizes (for sorting)
+    unsigned int gridSizeX,gridSizeY;
+    /// Cell sizes
+    unsigned int cellSizeX,cellSizeY;
+    /// Used for sorting new images
+    bool *layoutGrid;
+    
+    /// Images we've rendered so far (for lookup)
+    NSMutableArray *images;
+}
 
 - (id)initWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY cellSizeX:(unsigned int)inCellSizeX cellSizeY:(unsigned int)inCellSizeY
 {
     self = [super init];
     if (self)
     {
-        texId = Identifiable::genId();
+        _texId = Identifiable::genId();
         texSizeX = inTexSizeX;
         texSizeY = inTexSizeY;
         cellSizeX = inCellSizeX;
@@ -209,7 +215,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     UIGraphicsEndImageContext();
     
     Texture *texture = new Texture("Texture Atlas",resultImage);
-    texture->setId(texId);
+    texture->setId(_texId);
     // Note: Having trouble setting up mipmaps correctly
     texture->setUsesMipmaps(false);
     return texture;
@@ -219,13 +225,19 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 @end
 
 
-@interface TextureAtlasBuilder()
-@property (nonatomic) NSMutableArray *atlases;
-@end
-
 @implementation TextureAtlasBuilder
+{
+    int texSizeX,texSizeY;
 
-@synthesize atlases;
+    /// Size of the cells used for places images in the texture atlases
+    unsigned int cellSizeX,cellSizeY;
+        
+    /// Mappings from the various images to the texture atlases
+    std::vector<WhirlyKit::SubTexture> mappings;
+
+    // Texture atlases built so far
+    NSMutableArray *atlases;
+}
 
 - (id)initWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY
 {
@@ -235,7 +247,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         texSizeX = inTexSizeX;
         texSizeY = inTexSizeY;
         cellSizeX = cellSizeY = 8;
-        self.atlases = [NSMutableArray array];
+        atlases = [NSMutableArray array];
     }
     
     return self;

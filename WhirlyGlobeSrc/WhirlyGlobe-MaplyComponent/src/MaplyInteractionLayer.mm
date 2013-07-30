@@ -37,8 +37,6 @@ using namespace WhirlyGlobe;
     MaplyView *mapView;
 }
 
-@synthesize viewController;
-
 - (id)initWithMapView:(MaplyView *)inMapView
 {
     self = [super initWithView:inMapView];
@@ -94,7 +92,7 @@ using namespace WhirlyGlobe;
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [viewController handleSelection:msg didSelect:selObj];
+                       [_viewController handleSelection:msg didSelect:selObj];
                    }
                    );
 }

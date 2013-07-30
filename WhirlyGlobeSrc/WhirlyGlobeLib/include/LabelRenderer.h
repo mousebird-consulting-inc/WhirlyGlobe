@@ -60,26 +60,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 
 // Label spec passed around between threads
 @interface WhirlyKitLabelInfo : NSObject
-{
-    NSArray                 *strs;  // SingleLabel objects
-    UIColor                 *textColor;
-    UIColor                 *backColor;
-    UIFont                  *font;
-    bool                    screenObject;
-    bool                    layoutEngine;
-    float                   layoutImportance;
-    float                   width,height;
-    int                     drawOffset;
-    float                   minVis,maxVis;
-    WhirlyKitLabelJustify            justify;
-    int                     drawPriority;
-    float                   fade;
-    UIColor                 *shadowColor;
-    float                   shadowSize;
-    UIColor                 *outlineColor;
-    float                   outlineSize;
-    WhirlyKit::SimpleIdentity shaderID;
-}
 
 @property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;

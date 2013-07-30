@@ -68,11 +68,6 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 
 @implementation WhirlyKitShape
 
-@synthesize isSelectable;
-@synthesize selectID;
-@synthesize useColor;
-@synthesize color;
-
 // Base shape doesn't make anything
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
@@ -86,20 +81,16 @@ static int CircleSamples = 10;
 
 @implementation WhirlyKitCircle
 
-@synthesize loc;
-@synthesize radius;
-@synthesize height;
-
 // Build the geometry for a circle in display space
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    RGBAColor theColor = (useColor ? color : [regBuilder->getShapeInfo().color asRGBAColor]);
+    RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
     
-    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
+    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(_loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
-    dispPt += coordAdapter->normalForLocal(localPt) * height;
+    dispPt += coordAdapter->normalForLocal(localPt) * _height;
     Point3f norm = coordAdapter->normalForLocal(localPt);
     
     // Construct a set of axes to build the circle around
@@ -120,7 +111,7 @@ static int CircleSamples = 10;
     std::vector<Point3f> samples;
     samples.resize(CircleSamples);
     for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  xAxis * radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
+        samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
     
     // We need the bounding box in the local coordinate system
     Mbr shapeMbr;
@@ -140,10 +131,6 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitSphere
 
-@synthesize loc;
-@synthesize height;
-@synthesize radius;
-
 // Note: We could make these parameters
 static const float SphereTessX = 10;
 static const float SphereTessY = 10;
@@ -152,15 +139,15 @@ static const float SphereTessY = 10;
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    RGBAColor theColor = (useColor ? color : [regBuilder->getShapeInfo().color asRGBAColor]);
+    RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
     
     // Get the location in display coordinates
-    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
+    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(_loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
     Point3f norm = coordAdapter->normalForLocal(localPt);
     
     // Run it up a bit by the height
-    dispPt = dispPt + norm*height;
+    dispPt = dispPt + norm*_height;
     
     // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
     // Note: Replace this with something less lame
@@ -180,7 +167,7 @@ static const float SphereTessY = 10;
 			if (geoLoc.y() > M_PI/2.0) geoLoc.y() = M_PI/2.0;
             
             Point3f spherePt = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(geoLoc.lon(),geoLoc.lat(),0.0));
-            Point3f thisPt = dispPt + spherePt * radius;
+            Point3f thisPt = dispPt + spherePt * _radius;
             
             norms.push_back(spherePt);
             locs.push_back(thisPt);
@@ -207,10 +194,10 @@ static const float SphereTessY = 10;
     triBuilder->addTriangles(locs,norms,colors,tris);
     
     // Add a selection region
-    if (isSelectable)
+    if (super.isSelectable)
     {
         Point3f pts[8];
-        float dist = radius * sqrt2;
+        float dist = _radius * sqrt2;
         pts[0] = dispPt + dist * Point3f(-1,-1,-1);
         pts[1] = dispPt + dist * Point3f(1,-1,-1);
         pts[2] = dispPt + dist * Point3f(1,1,-1);
@@ -219,19 +206,14 @@ static const float SphereTessY = 10;
         pts[5] = dispPt + dist * Point3f(1,-1,1);
         pts[6] = dispPt + dist * Point3f(1,1,1);
         pts[7] = dispPt + dist * Point3f(-1,1,1);
-        selectManager->addSelectableRectSolid(selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
-        sceneRep->selectIDs.insert(selectID);
+        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
+        sceneRep->selectIDs.insert(super.selectID);
     }
 }
 
 @end
 
 @implementation WhirlyKitCylinder
-
-@synthesize loc;
-@synthesize baseHeight;
-@synthesize radius;
-@synthesize height;
 
 static std::vector<Point3f> circleSamples;
 
@@ -240,14 +222,14 @@ static std::vector<Point3f> circleSamples;
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    RGBAColor theColor = (useColor ? color : [regBuilder->getShapeInfo().color asRGBAColor]);
+    RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
     
-    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(loc);
+    Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(_loc);
     Point3f dispPt = coordAdapter->localToDisplay(localPt);
     Point3f norm = coordAdapter->normalForLocal(localPt);
     
     // Move up by baseHeight
-    dispPt += norm * baseHeight;
+    dispPt += norm * _baseHeight;
     
     // Construct a set of axes to build the circle around
     Point3f up = norm;
@@ -275,7 +257,7 @@ static std::vector<Point3f> circleSamples;
     std::vector<Point3f> samples;
     samples.resize(CircleSamples);
     for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  radius * circleSamples[ii] + dispPt;
+        samples[ii] =  _radius * circleSamples[ii] + dispPt;
     
     // We need the bounding box in the local coordinate system
     // Note: This is not handling height correctly
@@ -292,7 +274,7 @@ static std::vector<Point3f> circleSamples;
     for (unsigned int ii=0;ii<top.size();ii++)
     {
         Point3f &pt = top[ii];
-        pt = pt + height * norm;
+        pt = pt + _height * norm;
     }
     triBuilder->addConvexOutline(top,norm,theColor,shapeMbr);
     
@@ -313,20 +295,20 @@ static std::vector<Point3f> circleSamples;
     circleSamples.clear();
     
     // Add a selection region
-    if (isSelectable)
+    if (super.isSelectable)
     {
         Point3f pts[8];
-        float dist1 = radius * sqrt2;
+        float dist1 = _radius * sqrt2;
         pts[0] = dispPt - dist1 * xAxis - dist1 * yAxis;
         pts[1] = dispPt + dist1 * xAxis - dist1 * yAxis;
         pts[2] = dispPt + dist1 * xAxis + dist1 * yAxis;
         pts[3] = dispPt - dist1 * xAxis + dist1 * yAxis;
-        pts[4] = pts[0] + height * norm;
-        pts[5] = pts[1] + height * norm;
-        pts[6] = pts[2] + height * norm;
-        pts[7] = pts[3] + height * norm;
-        selectManager->addSelectableRectSolid(selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
-        sceneRep->selectIDs.insert(selectID);
+        pts[4] = pts[0] + _height * norm;
+        pts[5] = pts[1] + _height * norm;
+        pts[6] = pts[2] + _height * norm;
+        pts[7] = pts[3] + _height * norm;
+        selectManager->addSelectableRectSolid(super.selectID,pts,triBuilder->getShapeInfo().minVis,triBuilder->getShapeInfo().maxVis);
+        sceneRep->selectIDs.insert(super.selectID);
     }
 }
 
@@ -334,15 +316,11 @@ static std::vector<Point3f> circleSamples;
 
 @implementation WhirlyKitShapeLinear
 
-@synthesize pts;
-@synthesize mbr;
-@synthesize lineWidth;
-
 - (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
 {
-    RGBAColor theColor = (useColor ? color : [regBuilder->getShapeInfo().color asRGBAColor]);
+    RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
     
-    regBuilder->addPoints(pts, theColor, mbr, lineWidth, false);
+    regBuilder->addPoints(_pts, theColor, _mbr, _lineWidth, false);
 }
 
 @end

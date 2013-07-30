@@ -31,42 +31,16 @@
     It starts its own thread, obviously, and does all the work there.
  */
 @interface WhirlyKitLayerThread : NSThread
-{
-	/// Scene we're messing with
-	WhirlyKit::Scene *scene;
-    
-    /// Used to let layers get view change notices
-    WhirlyKitLayerViewWatcher *viewWatcher;
-	
-	/// The various data layers we'll display
-	NSMutableArray<NSObject> *layers;
-	
-	/// Run loop created within our main
-	NSRunLoop *runLoop;
-    
-    /// Our own EAGLContext, connected by a share group to the main one
-    EAGLContext *glContext;
-    
-    /// The renderer we're working with
-    WhirlyKitSceneRendererES __weak *renderer;
-        
-    /// Used to keep track of things to delete
-    std::vector<WhirlyKit::DelayedDeletable *> thingsToDelete;
-    
-    /// Used to keep track of things to release
-    NSMutableArray *thingsToRelease;
-    
-    /// Change requests to merge soonish
-    std::vector<WhirlyKit::ChangeRequest *> changeRequests;
-    
-    /// We can get change requests from other threads (!)
-    pthread_mutex_t changeLock;
-}
 
+/// Scene we're messing with
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
+/// Run loop created within our main
 @property (nonatomic,readonly) NSRunLoop *runLoop;
+/// Used to let layers get view change notices
 @property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
+/// Our own EAGLContext, connected by a share group to the main one
 @property (nonatomic,readonly) EAGLContext *glContext;
+/// The renderer we're working with
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 /// Turn this off to disable flushes to GL on the layer thread.
 /// The only reason to do this is going to background.  This is a temporary fix

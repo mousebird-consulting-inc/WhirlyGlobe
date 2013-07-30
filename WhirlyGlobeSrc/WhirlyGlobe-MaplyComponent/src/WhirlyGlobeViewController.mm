@@ -33,8 +33,6 @@ using namespace WhirlyGlobe;
 {    
 }
 
-@synthesize delegate;
-
 - (id) init
 {
     self = [super init];
@@ -160,7 +158,7 @@ using namespace WhirlyGlobe;
     WhirlyGlobeSphericalEarthLayer *layer = note.object;
     
     // Look for the matching layer
-    if ([delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
+    if ([_delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
         for (WGViewControllerLayer *userLayer in userLayers)
         {
             if ([userLayer isKindOfClass:[WGSphericalEarthWithTexGroup class]])
@@ -168,7 +166,7 @@ using namespace WhirlyGlobe;
                 WGSphericalEarthWithTexGroup *userSphLayer = (WGSphericalEarthWithTexGroup *)userLayer;
                 if (userSphLayer.earthLayer == layer)
                 {
-                    [delegate globeViewController:self layerDidLoad:userLayer];
+                    [_delegate globeViewController:self layerDidLoad:userLayer];
                     break;
                 }
             }
@@ -418,15 +416,15 @@ using namespace WhirlyGlobe;
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
-            [delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
-        else if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
-            [delegate globeViewController:self didSelect:selectedObj];
+        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+            [_delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+        else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            [_delegate globeViewController:self didSelect:selectedObj];
     } else {
         // The user didn't select anything, let the delegate know.
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
         {
-            [delegate globeViewController:self didTapAt:coord];
+            [_delegate globeViewController:self didTapAt:coord];
         }
         // Didn't select anything, so rotate
         if (_autoMoveToTap)
@@ -447,8 +445,8 @@ using namespace WhirlyGlobe;
 // Called when the user taps outside the globe.
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
-    if (self.selection && delegate && [delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
-        [delegate globeViewControllerDidTapOutside:self];
+    if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+        [_delegate globeViewControllerDidTapOutside:self];
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord

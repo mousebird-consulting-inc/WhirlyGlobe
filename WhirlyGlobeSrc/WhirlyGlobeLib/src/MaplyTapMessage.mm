@@ -22,11 +22,5 @@
 
 @implementation MaplyTapMessage
 
-@synthesize view;
-@synthesize touchLoc;
-@synthesize whereGeo;
-@synthesize worldLoc;
-@synthesize heightAboveSurface;
-
 
 @end

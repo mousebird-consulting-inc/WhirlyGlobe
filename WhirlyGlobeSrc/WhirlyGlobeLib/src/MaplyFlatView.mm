@@ -25,17 +25,18 @@ using namespace WhirlyKit;
 
 @implementation MaplyFlatView
 {
+    Point3d _loc;
 }
 
-- (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
+- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     self = [super initWithCoordAdapater:inCoordAdapter];
     if (!self)
         return nil;
     
-    loc = Point3d(0,0,0);
-    nearPlane = 1;
-    farPlane = -1;
+    _loc = Point3d(0,0,0);
+    super.nearPlane = 1;
+    super.farPlane = -1;
     _extents = Mbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
     _windowSize = Point2f(1.0,1.0);
     _contentOffset = Point2f(0,0);
@@ -70,8 +71,8 @@ using namespace WhirlyKit;
     right = 2.0 * (_contentOffset.x() + frameBufferSize.x()) / _windowSize.x() - 1.0;
     top = 2.0 * (contentOffsetY + frameBufferSize.y()) / _windowSize.y() - 1.0;
     bot = 2.0 * contentOffsetY / _windowSize.y() - 1.0;
-    near = nearPlane;
-    far = farPlane;
+    near = super.nearPlane;
+    far = super.farPlane;
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
     // Orthogonal matrix
@@ -105,8 +106,8 @@ using namespace WhirlyKit;
 
 - (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
-    loc = newLoc;
-    loc.z() = 0.0;
+    _loc = newLoc;
+    _loc.z() = 0.0;
 }
 
 - (void)setExtents:(WhirlyKit::Mbr)inExtents

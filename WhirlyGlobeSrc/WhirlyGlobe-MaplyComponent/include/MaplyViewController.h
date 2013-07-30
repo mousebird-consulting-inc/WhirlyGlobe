@@ -51,9 +51,6 @@
     very least and then you can add markers, labels, and vectors on top.
   */
 @interface MaplyViewController : MaplyBaseViewController
-{
-    NSObject<MaplyViewControllerDelegate> * __weak delegate;
-}
 
 /// Create a tethered flat map that obeys the given scroll view
 - (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;

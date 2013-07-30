@@ -25,21 +25,18 @@ using namespace WhirlyKit;
 
 @implementation MaplyView
 
-@synthesize loc;
-@synthesize delegate;
-
 - (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     if (self = [super init])
     {
-        coordAdapter = inCoordAdapter;
-        fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		nearPlane = 0.0001;
-		imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-		farPlane = 10.0;
-        lastChangedTime = CFAbsoluteTimeGetCurrent();
-        continuousZoom = false;
-        loc = Point3d(0,0,4);
+        super.coordAdapter = inCoordAdapter;
+        super.fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+		super.nearPlane = 0.0001;
+		super.imagePlaneSize = super.nearPlane * tanf(super.fieldOfView / 2.0);
+		super.farPlane = 10.0;
+        super.lastChangedTime = CFAbsoluteTimeGetCurrent();
+        super.continuousZoom = false;
+        _loc = Point3d(0,0,4);
     }
     
     return self;
@@ -53,8 +50,8 @@ using namespace WhirlyKit;
 
 - (void)animate
 {
-    if (delegate)
-        [delegate updateView:self];
+    if (_delegate)
+        [_delegate updateView:self];
 }
 
 - (float)calcZbufferRes
@@ -67,29 +64,29 @@ using namespace WhirlyKit;
 
 - (Eigen::Matrix4d)calcModelMatrix
 {
-    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x(),-loc.y(),-loc.z()));
+    Eigen::Affine3d trans(Eigen::Translation3d(-_loc.x(),-_loc.y(),-_loc.z()));
     
     return trans.matrix();
 }
 
 - (double)heightAboveSurface
 {
-    return loc.z();
+    return _loc.z();
 }
 
 - (double)minHeightAboveSurface
 {
-    return nearPlane;
+    return super.nearPlane;
 }
 
 - (double)maxHeightAboveSurface
 {
-    return farPlane;
+    return super.farPlane;
 }
 
 - (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
-    loc = newLoc;
+    _loc = newLoc;
     [self runViewUpdates];
 }
 
@@ -133,7 +130,7 @@ using namespace WhirlyKit;
     // Intersection with near gives us the same plane as the screen 
     Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -nearPlane/ray.z();
+    ray *= -super.nearPlane/ray.z();
     
     // Now we need to scale that to the frame
     Point2d ll,ur;

@@ -73,21 +73,6 @@ public:
     come in from other sources.
  */
 @interface TextureAtlas : NSObject
-{
-    /// The ID for the texture we're going to create
-    WhirlyKit::SimpleIdentity texId;
-    /// Texture size
-    unsigned int texSizeX,texSizeY;
-    /// Grid sizes (for sorting)
-    unsigned int gridSizeX,gridSizeY;
-    /// Cell sizes
-    unsigned int cellSizeX,cellSizeY;
-    /// Used for sorting new images
-    bool *layoutGrid;  
-    
-    /// Images we've rendered so far (for lookup)
-    NSMutableArray *images;
-}
 
 /// This is the texture ID that will be assigned when the texture is created
 @property (nonatomic,readonly) WhirlyKit::SimpleIdentity texId;
@@ -119,18 +104,6 @@ public:
     into the scene.
   */
 @interface TextureAtlasBuilder : NSObject
-{
-    /// Texture sizes we're aiming for
-    unsigned int texSizeX,texSizeY;
-    /// Size of the cells used for places images in the texture atlases
-    unsigned int cellSizeX,cellSizeY;
-    
-    /// Texture atlases built so far
-    NSMutableArray *atlases;
-    
-    /// Mappings from the various images to the texture atlases
-    std::vector<WhirlyKit::SubTexture> mappings;
-}
 
 /// Construct with the size of the texture atlases to be produced.
 /// Must be a power of two.

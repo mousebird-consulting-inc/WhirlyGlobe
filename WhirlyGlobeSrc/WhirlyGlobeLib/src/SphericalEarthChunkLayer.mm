@@ -41,17 +41,14 @@ using namespace WhirlyKit;
     SimpleIDSet chunkIDs;
 }
 
-@synthesize ignoreEdgeMatching;
-@synthesize useDynamicAtlas;
-
 - (id)init
 {
     self = [super init];
     if (!self)
         return nil;
     
-    ignoreEdgeMatching = false;
-    useDynamicAtlas = true;
+    _ignoreEdgeMatching = false;
+    _useDynamicAtlas = true;
     
     return self;
 }
@@ -164,7 +161,7 @@ static const int SingleElementSize = sizeof(GLushort);
     if (chunkManager)
     {
         // Build the atlases if we need them
-        if (chunk.loadImage && !texAtlas && useDynamicAtlas)
+        if (chunk.loadImage && !texAtlas && _useDynamicAtlas)
         {
             texAtlas = new DynamicTextureAtlas(2048,64,GL_UNSIGNED_BYTE);
             
@@ -177,7 +174,7 @@ static const int SingleElementSize = sizeof(GLushort);
             chunkManager->setAtlases(texAtlas, drawAtlas);
             chunkManager->setBorderTexel(1);
         }
-        chunkID = chunkManager->addChunk(chunk,!ignoreEdgeMatching,enable,changes);
+        chunkID = chunkManager->addChunk(chunk,!_ignoreEdgeMatching,enable,changes);
         if (chunkID != EmptyIdentity)
             chunkIDs.insert(chunkID);
     }
