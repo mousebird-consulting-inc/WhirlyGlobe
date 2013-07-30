@@ -506,7 +506,7 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
     pthread_mutex_unlock(&vectorLock);
 }
     
-void VectorManager::enableVectors(SimpleIDSet vecIDs,bool enable,ChangeSet &changes)
+void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
