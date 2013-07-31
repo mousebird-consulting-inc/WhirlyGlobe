@@ -59,12 +59,19 @@
     if (_maxZoom != -1)
         dataSource.maxZoom = _maxZoom;
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
-    tileLoader.coverPoles = true;
+    tileLoader.coverPoles = _coverPoles;
+    tileLoader.drawPriority = super.drawPriority;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:dataSource loader:tileLoader renderer:renderer];
     tileLoader.ignoreEdgeMatching = !_handleEdges;
     [layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setCoverPoles:(bool)coverPoles
+{
+    _coverPoles = coverPoles;
+    tileLoader.coverPoles = coverPoles;
 }
 
 - (void)setHandleEdges:(bool)handleEdges
