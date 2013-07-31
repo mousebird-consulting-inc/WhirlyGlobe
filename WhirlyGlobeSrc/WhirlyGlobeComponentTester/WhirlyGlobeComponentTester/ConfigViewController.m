@@ -95,6 +95,10 @@
                                kMaplyTestMegaMarkers: @(NO),
                                     kMaplyTestLatLon: @(NO)}
                                         singleSelect:false],
+                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
+                                                rows:
+                                @{kMaplyTestAnimateSphere: @(NO)}
+                                        singleSelect:false],
                 [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
                                                 rows:
                                  @{kMaplyTestNorthUp: @(NO),

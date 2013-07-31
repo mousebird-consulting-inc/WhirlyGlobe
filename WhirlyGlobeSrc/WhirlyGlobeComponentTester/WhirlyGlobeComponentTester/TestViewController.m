@@ -22,6 +22,7 @@
 #import "TestViewController.h"
 #import "AFJSONRequestOperation.h"
 #import "AFKissXMLRequestOperation.h"
+#import "AnimationTest.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -95,6 +96,7 @@ LocationInfo locations[NumLocations] =
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
+    MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
     
     // The view we're using to track a selected object
@@ -559,6 +561,13 @@ static const int NumMegaMarkers = 40000;
     );
 }
 
+// Create an animated sphere
+- (void)addAnimatedSphere
+{
+    animSphere = [[AnimatedSphere alloc] initWithPeriod:20.0 radius:0.01 color:[UIColor orangeColor] viewC:baseViewC];
+    [baseViewC addActiveObject:animSphere];
+}
+
 // Set up the base layer depending on what they've picked.
 // Also tear down an old one
 - (void)setupBaseLayer:(NSDictionary *)baseSettings
@@ -986,6 +995,18 @@ static const int NumMegaMarkers = 40000;
         {
             [baseViewC removeObject:megaMarkersObj];
             megaMarkersObj = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryAnimation row:kMaplyTestAnimateSphere])
+    {
+        if (!animSphere)
+            [self addAnimatedSphere];
+    } else {
+        if (animSphere)
+        {
+            [baseViewC removeActiveObject:animSphere];
+            animSphere = nil;
         }
     }
     

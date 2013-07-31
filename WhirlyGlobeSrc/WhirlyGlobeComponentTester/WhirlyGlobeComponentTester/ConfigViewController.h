@@ -54,6 +54,11 @@
 #define kMaplyTestMegaMarkers @"Mega Markers"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 
+// Animation
+#define kMaplyTestCategoryAnimation @"Animation"
+
+#define kMaplyTestAnimateSphere @"Animated Sphere"
+
 // Gestures
 #define kMaplyTestCategoryGestures @"Gestures"
 
