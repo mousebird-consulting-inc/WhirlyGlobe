@@ -312,6 +312,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     // Set if we're letting the layout engine control placement
                     bool layoutEngine = (_labelInfo.layoutEngine || [label.desc boolForKey:@"layout" default:false]);
                     
+                    // If we're doing layout, don't justify it
+                    if (layoutEngine)
+                        justifyOff = Point2f(0,0);
+                    
                     screenShape = new ScreenSpaceGenerator::ConvexShape();
                     screenShape->drawPriority = _labelInfo.drawPriority;
                     screenShape->minVis = _labelInfo.minVis;
