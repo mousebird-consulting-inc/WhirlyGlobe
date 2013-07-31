@@ -58,6 +58,12 @@
 /// Called when the owner resets the top level scroll and tether view
 - (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView;
 
+/// Create a flat map (no 3D)
+- (id)initAsFlatMap;
+
+/// Set if we're in 2D mode
+@property (nonatomic,readonly) bool flatMode;
+
 /// If we're in tethered flat map mode, this is the view we're monitoring
 ///  for size and offset changes
 @property(nonatomic,weak) UIView *tetherView;

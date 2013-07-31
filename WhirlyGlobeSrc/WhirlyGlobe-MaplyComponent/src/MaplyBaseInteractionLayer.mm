@@ -216,7 +216,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // We can refer to shaders by ID or by name.  Figure that out.
-- (NSDictionary *)resolveShader:(NSDictionary *)inDesc
+- (void)resolveShader:(NSMutableDictionary *)inDesc
 {
     NSObject *shader = inDesc[kMaplyShader];
     if (shader)
@@ -225,18 +225,20 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         if ([shader isKindOfClass:[NSString class]])
         {
             NSString *shaderName = (NSString *)shader;
-            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
             SimpleIdentity shaderID = scene->getProgramIDBySceneName([shaderName cStringUsingEncoding:NSASCIIStringEncoding]);
             if (shaderID == EmptyIdentity)
-                [newDesc removeObjectForKey:@"shader"];
+                [inDesc removeObjectForKey:@"shader"];
             else
-                newDesc[kMaplyShader] = @(shaderID);
-
-            return newDesc;
+                inDesc[kMaplyShader] = @(shaderID);
         }
     }
-    
-    return inDesc;
+}
+
+// Apply a default value to the dictionary
+-(void) applyDefaultName:(NSString *)key value:(NSObject *)val toDict:(NSMutableDictionary *)dict
+{
+    if (!dict[key])
+        dict[key] = val;
 }
 
 // Actually add the markers.
@@ -245,11 +247,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
+    
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -311,7 +313,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     
     switch (threadMode)
     {
@@ -332,11 +334,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
+    
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -394,7 +398,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -414,11 +418,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
 
     // Convert to WG screen labels
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -493,7 +497,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
     {
@@ -514,11 +518,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
+
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
+
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
 
     // Convert to WG labels
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -594,7 +600,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
     {
@@ -616,12 +622,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
+
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
 
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -670,7 +678,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -758,11 +766,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
 
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
@@ -911,7 +921,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -930,11 +940,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSArray *stickers = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSDictionary *inDesc = argArray[2];
+    NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
+
     // Might be a custom shader on these
-    inDesc = [self resolveShader:inDesc];
+    [self resolveShader:inDesc];
 
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
@@ -982,7 +994,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -1003,12 +1015,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
-    NSDictionary *inDesc = [argArray objectAtIndex:2];
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     NSString *key = argArray[3];
     if ([key isKindOfClass:[NSNull class]])
         key = nil;
     NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:5] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc];
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -1041,7 +1058,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:

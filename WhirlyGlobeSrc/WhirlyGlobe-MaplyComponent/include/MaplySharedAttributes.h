@@ -65,22 +65,19 @@
 /// This point/line shader turns off the backface logic for lines
 #define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
 
-/// Default draw offset for 3D markers.  Set to avoid label/marker intererence
-#define kMaplyMarkerDrawOffsetDefault 1
-#define kWGMarkerDrawOffsetDefault kMaplyMarkerDrawOffsetDefault
-#define kMaplyMarkerDrawPriorityDefault 1
+/// Where we start image layer draw priorities
+#define kMaplyImageLayerDrawPriorityDefault 100
+/// We'll start filling in features right around here
+#define kMaplyFeatureDrawPriorityBase 20000
+#define kMaplyStickerDrawPriorityDefault 30000
+#define kMaplyMarkerDrawPriorityDefault 40000
+#define kMaplyVectorDrawPriorityDefault 50000
+#define kMaplyLabelDrawPriorityDefault 60000
+#define kMaplyLoftedPolysDrawPriorityDefault 70000
+#define kMaplyShapeDrawPriorityDefault 80000
+
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
-
-/// Default draw offset for vectors.
-#define kMaplyVectorDrawOffsetDefault 3
-#define kWGVectorDrawOffsetDefault kMaplyVectorDrawOffsetDefault
-#define kMaplyVectorDrawPriorityDefault 3
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
-
-/// Default draw offset for stickers
-#define kMaplyStickerDrawOffsetDefault 2
-#define kWGStickerDrawOffsetDefault kMaplyStickerDrawOffsetDefault
-#define kMaplyStickerDrawPriorityDefault 2
 #define kWGStickerDrawPriorityDefault kMaplyStickerDrawPriorityDefault
 
 /// These are used just for the screen and regular labels
@@ -115,12 +112,6 @@
 #define kMaplyTextOutlineSize @"outlineSize"
 /// If outline is being used, we can control the stroke size
 #define kMaplyTextOutlineColor @"outlineColor"
-
-/// Default draw offset for 3D labels.  This is set to avoid label/marker interference
-#define kMaplyLabelDrawOffsetDefault 2
-#define kWGLabelDrawOffsetDefault kMaplyLabelDrawOffsetDefault
-#define kMaplyLabelDrawPriorityDefault 2
-#define kWGLabelDrawPriorityDefault kMaplyLabelDrawPriorityDefault
 
 /// These are used for screen and regular markers.
 

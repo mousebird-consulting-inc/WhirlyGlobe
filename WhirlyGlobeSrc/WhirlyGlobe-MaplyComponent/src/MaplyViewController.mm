@@ -35,8 +35,10 @@ using namespace Maply;
 
 @implementation MaplyViewController
 {
-    UIScrollView * __weak scrollView;
+    // Flat view for 2D mode
     MaplyFlatView * flatView;
+    // Scroll view for tethered mode
+    UIScrollView * __weak scrollView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
@@ -51,9 +53,22 @@ using namespace Maply;
     return self;
 }
 
-- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+- (id)initAsFlatMap
 {
     self = [super init];
+    if (!self)
+        return nil;
+
+    // Turn off lighting
+    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+    _flatMode = true;
+    
+    return self;
+}
+
+- (id)initAsTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView
+{
+    self = [self initAsFlatMap];
     if (!self)
         return nil;
     
@@ -63,13 +78,10 @@ using namespace Maply;
 //    _tetherView = [[UIView alloc] init];
 //    _tetherView.userInteractionEnabled = false;
 //    [scrollView addSubview:_tetherView];
-    // Turn off lighting
-    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+    scale = [UIScreen mainScreen].scale;
     
     // Watch changes to the tethered view.  The scroll view is making these, presumably.
     [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew context:NULL];
-    
-    scale = [UIScreen mainScreen].scale;
     
     return self;
 }

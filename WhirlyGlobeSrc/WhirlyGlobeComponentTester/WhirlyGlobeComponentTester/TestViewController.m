@@ -158,6 +158,9 @@ LocationInfo locations[NumLocations] =
             baseViewC = mapViewC;
             break;
         case Maply2DMap:
+            mapViewC = [[MaplyViewController alloc] initAsFlatMap];
+            mapViewC.delegate = self;
+            baseViewC = mapViewC;
             break;
         case MaplyScrollViewMap:
             break;
@@ -194,7 +197,7 @@ LocationInfo locations[NumLocations] =
     [self performSelector:@selector(changeMapContents) withObject:nil afterDelay:0.0];
     
     // Settings panel
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showPopControl)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showConfig)];
 }
 
 // Try to fetch the given WMS layer
@@ -414,8 +417,8 @@ LocationInfo locations[NumLocations] =
 - (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
 {
     NSMutableArray *vectors = [[NSMutableArray alloc] init];
-    NSDictionary *desc = @{kMaplyColor: color, kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0), kMaplyDrawPriority: @(1000)};
-    // Latitude lines
+    NSDictionary *desc = @{kMaplyColor: color, kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0)};
+    // Longitude lines
     for (float lon = -180;lon < 180;lon += lonDelta)
     {
         MaplyCoordinate coords[3];
@@ -425,7 +428,7 @@ LocationInfo locations[NumLocations] =
         MaplyVectorObject *vec = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
         [vectors addObject:vec];
     }
-    // Longitude lines
+    // Latitude lines
     for (float lat = -90;lat < 90;lat += latDelta)
     {
         MaplyCoordinate coords[5];
@@ -757,7 +760,6 @@ static const int NumMegaMarkers = 40000;
                   kMaplyFade: @(1.0)};
     vectorDesc = @{kMaplyColor: vecColor,
                    kMaplyVecWidth: @(vecWidth),
-                   kMaplyDrawPriority: @(100),
                    kMaplyFade: @(1.0)};
     
 }
@@ -864,7 +866,7 @@ static const int NumMegaMarkers = 40000;
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestSticker])
     {
         if (!stickersObj)
-            [self addStickers:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyDrawPriority: @(200), kMaplyFade: @(1.0)}];
+            [self addStickers:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyFade: @(1.0)}];
     } else {
         if (stickersObj)
         {
@@ -1002,12 +1004,24 @@ static const int NumMegaMarkers = 40000;
     [baseViewC setHints:hintDict];
 }
 
-// Show the popup control panel
-- (void)showPopControl
+- (void)showConfig
 {
-    popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
-    popControl.delegate = self;
-    [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    if (UI_USER_INTERFACE_IDIOM() ==  UIUserInterfaceIdiomPad)
+    {
+        popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
+        popControl.delegate = self;
+        [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    } else {
+        configViewC.navigationItem.hidesBackButton = YES;
+        configViewC.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(editDone)];
+        [self.navigationController pushViewController:configViewC animated:YES];
+    }
+}
+
+- (void)editDone
+{
+    [self.navigationController popToViewController:self animated:YES];
+    [self changeMapContents];
 }
 
 #pragma mark - Whirly Globe Delegate
@@ -1124,7 +1138,7 @@ static const int NumMegaMarkers = 40000;
 // Bring up the config view when the user taps outside
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC
 {
-    [self showPopControl];
+//    [self showPopControl];
 }
 
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(MaplyViewControllerLayer *)layer
