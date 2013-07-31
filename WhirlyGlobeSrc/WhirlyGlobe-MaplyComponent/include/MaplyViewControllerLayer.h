@@ -24,4 +24,7 @@
 /// Don't mess with these directly.
 @interface MaplyViewControllerLayer : NSObject
 
+/// Set the priority for drawing
+@property (nonatomic,assign) int drawPriority;
+
 @end

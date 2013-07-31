@@ -23,10 +23,7 @@
 #import "ConfigViewController.h"
 
 // Map or globe or startup
-typedef enum {MapGlobe,MapMap} MapType;
-
-// The various base layers we know about
-typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,USGSOrthoRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,BlueMarbleSingleResLocal,QuadTestLayer,MaxBaseLayers} BaseLayer;
+typedef enum {MaplyGlobe,Maply3DMap,Maply2DMap,MaplyScrollViewMap,MaplyNumTypes} MapType;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.
@@ -43,6 +40,6 @@ typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRem
 }
 
 // Fire it up with a particular base layer and map or globe display
-- (id)initWithMapType:(MapType)mapType baseLayer:(BaseLayer)baseLayer;
+- (id)initWithMapType:(MapType)mapType;
 
 @end
