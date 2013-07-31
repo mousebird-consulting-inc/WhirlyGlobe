@@ -630,7 +630,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         if (inDesc[kMaplySubdivEpsilon])
         {
             float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
-            NSString *subdivType = vecObj.attributes[kMaplySubdivType];
+            NSString *subdivType = inDesc[kMaplySubdivType];
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
             MaplyVectorObject *newVecObj = [vecObj deepCopy];
             if (greatCircle)
