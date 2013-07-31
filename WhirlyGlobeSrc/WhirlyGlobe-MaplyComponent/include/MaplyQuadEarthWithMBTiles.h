@@ -37,4 +37,7 @@
 /// Override the maxzoom
 @property (nonatomic,assign) int maxZoom;
 
+/// Whether or not we'll do the poles
+@property (nonatomic,assign) bool coverPoles;
+
 @end

@@ -20,25 +20,76 @@
 
 #import <UIKit/UIKit.h>
 
-// Configuration view lets the user decide what to turn on and off
-@interface ConfigViewController : UIViewController
+// Base image layers
+#define kMaplyTestCategoryBaseLayers @"Base Layers"
 
-@property (nonatomic,readonly) UISwitch *label2DSwitch;
-@property (nonatomic,readonly) UISwitch *label3DSwitch;
-@property (nonatomic,readonly) UISwitch *marker2DSwitch;
-@property (nonatomic,readonly) UISwitch *marker3DSwitch;
-@property (nonatomic,readonly) UISwitch *stickerSwitch;
-@property (nonatomic,readonly) UISwitch *shapeCylSwitch;
-@property (nonatomic,readonly) UISwitch *shapeSphereSwitch;
-@property (nonatomic,readonly) UISwitch *shapeGreatCircleSwitch;
-@property (nonatomic,readonly) UISwitch *northUpSwitch;
-@property (nonatomic,readonly) UISwitch *zBufferSwitch;
-@property (nonatomic,readonly) UISwitch *cullingSwitch;
-@property (nonatomic,readonly) UISwitch *pinchSwitch;
-@property (nonatomic,readonly) UISwitch *rotateSwitch;
-@property (nonatomic,readonly) UISwitch *countrySwitch;
-@property (nonatomic,readonly) UISwitch *loftPolySwitch;
-@property (nonatomic,readonly) UISwitch *megaMarkersSwitch;
-@property (nonatomic,readonly) UISwitch *perfSwitch;
+#define kMaplyTestGeographyClass @"Geography Class - Local"
+#define kMaplyTestBlueMarble @"NASA Blue Marble - Local"
+#define kMaplyTestStamenWatercolor @"Stamen Watercolor - Remote"
+#define kMaplyTestOSM @"OpenStreetMap (Mapquest) - Remote"
+#define kMaplyTestMapBoxSat @"MapBox Satellite - Remote"
+#define kMaplyTestMapBoxTerrain @"MapBox Terrain - Remote"
+#define kMaplyTestMapBoxRegular @"MapBox Regular - Remote"
+#define kMaplyTestQuadTest @"Quad Test Layer"
+
+// Overlay image layers
+#define kMaplyTestCategoryOverlayLayers @"Overlay layers"
+
+#define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
+#define kMaplyTestOWM @"OpenWeatherMap - Remote"
+
+// Objects we can display
+#define kMaplyTestCategoryObjects @"Maply Objects"
+
+#define kMaplyTestLabel2D @"Labels - 2D"
+#define kMaplyTestLabel3D @"Labels - 3D"
+#define kMaplyTestMarker2D @"Markers - 2D"
+#define kMaplyTestMarker3D @"Markers - 3d"
+#define kMaplyTestSticker @"Stickers"
+#define kMaplyTestShapeCylinder @"Shapes: Cylinders"
+#define kMaplyTestShapeSphere @"Shapes: Spheres"
+#define kMaplyTestShapeGreatCircle @"Shapes: Great Circles"
+#define kMaplyTestCountry @"Countries"
+#define kMaplyTestLoftedPoly @"Lofted Polygons"
+#define kMaplyTestMegaMarkers @"Mega Markers"
+
+// Gestures
+#define kMaplyTestCategoryGestures @"Gestures"
+
+#define kMaplyTestNorthUp @"Keep North Up"
+#define kMaplyTestPinch @"Pinch Gesture"
+#define kMaplyTestRotate @"Rotate Gesture"
+
+// Low level
+#define kMaplyTestCategoryInternal @"Internals"
+#define kMaplyTestCulling @"Culling Optimization"
+#define kMaplyTestPerf @"Performance Output"
+
+
+// Section in the configuration panel
+@interface ConfigSection : NSObject
+
+// Section name (as dispalyed to user)
+@property NSString *sectionName;
+
+// Entries (name,boolean) within the section
+@property NSMutableDictionary *rows;
+
+// If set, user can only select one of the options
+@property bool singleSelect;
+
+// Construct a config section
++ (ConfigSection *)ConfigSectionWithName:(NSString *)sectionName rows:(NSDictionary *)rowDict singleSelect:(bool)select;
+
+@end
+
+// Configuration view lets the user decide what to turn on and off
+@interface ConfigViewController : UIViewController <UITableViewDataSource,UITableViewDelegate>
+
+// Dictionary reflecting the current values from the table
+@property (nonatomic,readonly) NSArray *values;
+
+// Return the configuration value for a section/row
+- (bool)valueForSection:(NSString *)section row:(NSString *)row;
 
 @end
