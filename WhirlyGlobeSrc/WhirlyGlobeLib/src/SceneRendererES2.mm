@@ -57,13 +57,13 @@ public:
  
         if (a->getDrawPriority() == b->getDrawPriority())
         {
-        if (useZBuffer)
-        {
-            bool bufferA = a->getRequestZBuffer();
-            bool bufferB = b->getRequestZBuffer();
-            if (bufferA != bufferB)
-                return !bufferA;
-        }
+            if (useZBuffer)
+            {
+                bool bufferA = a->getRequestZBuffer();
+                bool bufferB = b->getRequestZBuffer();
+                if (bufferA != bufferB)
+                    return !bufferA;
+            }
         }
                 
         return a->getDrawPriority() < b->getDrawPriority();
@@ -427,7 +427,7 @@ static const float ScreenOverlap = 0.1;
         }
         bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,frameInfo));
-                
+        
         if (perfInterval > 0)
         {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
