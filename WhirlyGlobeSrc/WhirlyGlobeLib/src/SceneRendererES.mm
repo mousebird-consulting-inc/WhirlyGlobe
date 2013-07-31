@@ -189,9 +189,9 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
         
         // All the animations should work now, except for particle systems
         _useViewChanged = true;
-        
-        // On by default.  Turn it off if you know why.
-        _sortAlphaToEnd = true;
+
+        // No longer really ncessary
+        _sortAlphaToEnd = false;
         
         // Off by default.  Because duh.
         _depthBufferOffForAlpha = false;

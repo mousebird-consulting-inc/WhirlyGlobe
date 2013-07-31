@@ -230,42 +230,7 @@ using namespace WhirlyKit;
     NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
                               nil];
     [self setHints:newHints];
-    
-    // Set up default descriptions for the various data types
-//    newScreenLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                        [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                        nil];
-//    
-//    newLabelDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                  [NSNumber numberWithInteger:kWGLabelDrawOffsetDefault], kWGDrawOffset,
-//                                  [NSNumber numberWithInteger:kWGLabelDrawPriorityDefault], kWGDrawPriority,
-//                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                  nil];
-//    
-//    newScreenMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                         [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                         nil];
-//    
-//    newMarkerDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                   [NSNumber numberWithInteger:kWGMarkerDrawOffsetDefault], kWGDrawOffset,
-//                                   [NSNumber numberWithInteger:kWGMarkerDrawPriorityDefault], kWGDrawPriority,
-//                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                   nil];
-//    
-//    newVectorDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                   [NSNumber numberWithInteger:kWGVectorDrawOffsetDefault], kWGDrawOffset,
-//                                   [NSNumber numberWithInteger:kWGVectorDrawPriorityDefault], kWGDrawPriority,
-//                                   [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                   nil];
-//    
-//    newShapeDesc = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                  [NSNumber numberWithFloat:1.0], kMaplyFade,
-//                                  nil];
-//    
-//    newStickerDesc = @{kWGDrawOffset: @(kWGStickerDrawOffsetDefault), kWGDrawPriority: @(kWGStickerDrawPriorityDefault), kWGSampleX: @(15), kWGSampleY: @(15)};
-//    
-//    newLoftPolyDesc = @{kWGColor: [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5], kMaplyLoftedPolyHeight: @(0.01)};
-    
+        
     _selection = true;
 }
 
@@ -715,7 +680,7 @@ static const float PerfOutputDelay = 15.0;
     {
         if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
-            newLayer.drawPriority = layerDrawPriority++;
+            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
             [userLayers addObject:newLayer];
             return true;
         }
