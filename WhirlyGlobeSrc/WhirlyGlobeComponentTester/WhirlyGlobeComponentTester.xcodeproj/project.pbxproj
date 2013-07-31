@@ -302,6 +302,7 @@
 		2BFD27E9170B933C00127EF5 /* ZAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F0170B933C00127EF5 /* ZAF.geojson */; };
 		2BFD27EA170B933C00127EF5 /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F1170B933C00127EF5 /* ZMB.geojson */; };
 		2BFD27EB170B933C00127EF5 /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD26F2170B933C00127EF5 /* ZWE.geojson */; };
+		2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF026117A9BA2D00007842 /* AnimationTest.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -335,7 +336,7 @@
 		2B0D631F17A2EEAB00C3298D /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFXMLRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFXMLRequestOperation.m"; sourceTree = "<group>"; };
 		2B0D632017A2EEAB00C3298D /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+AFNetworking.h"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
 		2B0D632117A2EEAB00C3298D /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+AFNetworking.m"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
-		2B0D632B17A2EEE900C3298D /* AFKissXMLRequestOperation.h */ = {isa = PBXFileReference; lastKnownFileType = file; path = AFKissXMLRequestOperation.h; sourceTree = "<group>"; };
+		2B0D632B17A2EEE900C3298D /* AFKissXMLRequestOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AFKissXMLRequestOperation.h; sourceTree = "<group>"; };
 		2B0D633717A2F2BB00C3298D /* AFKissXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AFKissXMLRequestOperation.m; sourceTree = "<group>"; };
 		2B62DD5A16E7F0BC001F52FC /* WhirlyGlobeComponentTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WhirlyGlobeComponentTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B62DD5D16E7F0BC001F52FC /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -627,6 +628,8 @@
 		2BFD26F0170B933C00127EF5 /* ZAF.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZAF.geojson; sourceTree = "<group>"; };
 		2BFD26F1170B933C00127EF5 /* ZMB.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZMB.geojson; sourceTree = "<group>"; };
 		2BFD26F2170B933C00127EF5 /* ZWE.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ZWE.geojson; sourceTree = "<group>"; };
+		2BFF026017A9BA2C00007842 /* AnimationTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimationTest.h; sourceTree = "<group>"; };
+		2BFF026117A9BA2D00007842 /* AnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimationTest.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -712,6 +715,8 @@
 				2B62DD7E16E7F3A2001F52FC /* ConfigViewController.xib */,
 				2B62DD8216E7F3A2001F52FC /* StartupViewController.h */,
 				2B62DD8316E7F3A2001F52FC /* StartupViewController.m */,
+				2BFF026017A9BA2C00007842 /* AnimationTest.h */,
+				2BFF026117A9BA2D00007842 /* AnimationTest.m */,
 				2B62DD8416E7F3A2001F52FC /* TestViewController.h */,
 				2B62DD8516E7F3A2001F52FC /* TestViewController.m */,
 				2B62DD6416E7F0BC001F52FC /* Supporting Files */,
@@ -1414,6 +1419,7 @@
 				2B0D632917A2EEAB00C3298D /* AFXMLRequestOperation.m in Sources */,
 				2B0D632A17A2EEAB00C3298D /* UIImageView+AFNetworking.m in Sources */,
 				2B0D633817A2F2BB00C3298D /* AFKissXMLRequestOperation.m in Sources */,
+				2BFF026217A9BA2D00007842 /* AnimationTest.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
