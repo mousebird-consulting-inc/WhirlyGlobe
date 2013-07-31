@@ -92,7 +92,8 @@
                           kMaplyTestShapeGreatCircle: @(NO),
                                    kMaplyTestCountry: @(NO),
                                 kMaplyTestLoftedPoly: @(NO),
-                               kMaplyTestMegaMarkers: @(NO)}
+                               kMaplyTestMegaMarkers: @(NO),
+                                    kMaplyTestLatLon: @(NO)}
                                         singleSelect:false],
                 [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
                                                 rows:
