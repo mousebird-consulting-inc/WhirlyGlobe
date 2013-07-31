@@ -52,6 +52,7 @@
 #define kMaplyTestCountry @"Countries"
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestMegaMarkers @"Mega Markers"
+#define kMaplyTestLatLon @"Lon/Lat lines"
 
 // Gestures
 #define kMaplyTestCategoryGestures @"Gestures"

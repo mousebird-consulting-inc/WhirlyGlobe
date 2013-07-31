@@ -91,6 +91,7 @@ LocationInfo locations[NumLocations] =
     MaplyComponentObject *screenLabelsObj;
     MaplyComponentObject *labelsObj;
     MaplyComponentObject *stickersObj;
+    MaplyComponentObject *latLonObj;
     NSArray *vecObjects;
     MaplyComponentObject *megaMarkersObj;
     MaplyComponentObject *autoLabels;
@@ -410,6 +411,37 @@ LocationInfo locations[NumLocations] =
     greatCircleObj = [baseViewC addShapes:circles desc:desc ];
 }
 
+- (void)addLinesLon:(float)lonDelta lat:(float)latDelta color:(UIColor *)color
+{
+    NSMutableArray *vectors = [[NSMutableArray alloc] init];
+    NSDictionary *desc = @{kMaplyColor: color, kMaplySubdivType: kMaplySubdivSimple, kMaplySubdivEpsilon: @(0.001), kMaplyVecWidth: @(4.0), kMaplyDrawPriority: @(1000)};
+    // Latitude lines
+    for (float lon = -180;lon < 180;lon += lonDelta)
+    {
+        MaplyCoordinate coords[3];
+        coords[0] = MaplyCoordinateMakeWithDegrees(lon, -90);
+        coords[1] = MaplyCoordinateMakeWithDegrees(lon, 0);
+        coords[2] = MaplyCoordinateMakeWithDegrees(lon, +90);
+        MaplyVectorObject *vec = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:3 attributes:nil];
+        [vectors addObject:vec];
+    }
+    // Longitude lines
+    for (float lat = -90;lat < 90;lat += latDelta)
+    {
+        MaplyCoordinate coords[5];
+        coords[0] = MaplyCoordinateMakeWithDegrees(-180, lat);
+        coords[1] = MaplyCoordinateMakeWithDegrees(-90, lat);
+        coords[2] = MaplyCoordinateMakeWithDegrees(0, lat);
+        coords[3] = MaplyCoordinateMakeWithDegrees(90, lat);
+        coords[4] = MaplyCoordinateMakeWithDegrees(+180, lat);
+        MaplyVectorObject *vec = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
+        [vectors addObject:vec];
+    }
+    
+    latLonObj = [baseViewC addVectors:vectors desc:desc];
+}
+
+
 - (void)addStickers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc
 {
     UIImage *startImage = [UIImage imageNamed:@"Smiley_Face_Avatar_by_PixelTwist"];
@@ -581,7 +613,6 @@ static const int NumMegaMarkers = 40000;
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        
     } else if (![baseLayerName compare:kMaplyTestBlueMarble])
     {
         self.title = @"Blue Marble Single Res";
@@ -881,6 +912,20 @@ static const int NumMegaMarkers = 40000;
         {
             [baseViewC removeObject:greatCircleObj];
             greatCircleObj = nil;
+        }
+    }
+    
+    if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLatLon])
+    {
+        if (!latLonObj)
+        {
+            [self addLinesLon:20 lat:10 color:[UIColor blueColor]];
+        }
+    } else {
+        if (latLonObj)
+        {
+            [baseViewC removeObject:latLonObj];
+            latLonObj = nil;
         }
     }
 
