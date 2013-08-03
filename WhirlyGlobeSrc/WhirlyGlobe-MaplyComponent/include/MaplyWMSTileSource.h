@@ -20,7 +20,6 @@
 
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
-#import "DDXML.h"
 
 /** A bounding box for a specific CRS in that coordinate
     system.
@@ -73,6 +72,8 @@
 - (MaplyWMSStyle *)findStyle:(NSString *)styleName;
 
 @end
+
+@class DDXMLDocument;
 
 /** Encapsulates the capabilities coming back from a WMS server.
     We can query this to see what layers and coordinate systems are available.

@@ -761,6 +761,7 @@
 					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
+					"../../third-party/KissXML/KissXML/",
 					/usr/include/libxml2,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
@@ -785,6 +786,7 @@
 					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
+					"../../third-party/KissXML/KissXML/",
 					/usr/include/libxml2,
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
