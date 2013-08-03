@@ -20,6 +20,7 @@
 
 #import "MaplyWMSTileSource.h"
 #import "DDXMLElementAdditions.h"
+#import "DDXML.h"
 
 @implementation MaplyWMSLayerBoundingBox
 
