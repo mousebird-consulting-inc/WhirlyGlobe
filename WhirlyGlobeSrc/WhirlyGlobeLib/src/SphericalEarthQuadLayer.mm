@@ -212,9 +212,12 @@ using namespace WhirlyKit;
     WholeEarthStructure *theStructure = [[WholeEarthStructure alloc] initWithPixelsSquare:theDataSource.pixelsSquare maxZoom:theDataSource.maxZoom];
     
     // This handles the geometry and loading
-    WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+    WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithName:@"SphericalEarthQuadLayer" dataSource:theDataSource];
     if (![theDataSource.ext compare:@"pvrtc"])
         [theLoader setImageType:WKTilePVRTC4];
+    // On non-retina displays we're loading fewer tiles
+    if ([UIScreen mainScreen].scale == 1.0)
+        theLoader.textureAtlasSize = 1024;
     theLoader.imageType = imageType;
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];

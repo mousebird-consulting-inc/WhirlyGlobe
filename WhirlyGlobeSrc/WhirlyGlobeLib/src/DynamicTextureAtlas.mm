@@ -223,6 +223,16 @@ bool DynamicTexture::empty()
     return numRegions == 0;
 }
 
+void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
+{
+    outNumCell = numCell*numCell;
+    usedCell = 0;
+    for (unsigned int ii=0;ii<numCell*numCell;ii++)
+    {
+        if (layoutGrid[ii])
+            usedCell++;
+    }
+}
     
 void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
@@ -393,6 +403,47 @@ void DynamicTextureAtlas::shutdown(ChangeSet &changes)
     }
     textures.clear();
     regions.clear();
+}
+
+void DynamicTextureAtlas::log()
+{
+    int numCells=0,usedCells=0;
+    for (DynamicTextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+    {
+        DynamicTexture *tex = *it;
+        int thisNumCells,thisUsedCells;
+        tex->getUtilization(thisNumCells,thisUsedCells);
+        numCells += thisNumCells;
+        usedCells += thisUsedCells;
+    }
+
+    int texelSize = 4;
+    switch (format)
+    {
+        case GL_UNSIGNED_SHORT_5_6_5:
+        case GL_UNSIGNED_SHORT_4_4_4_4:
+        case GL_UNSIGNED_SHORT_5_5_5_1:
+            texelSize = 2;;
+            break;
+        case GL_UNSIGNED_BYTE:
+            texelSize = 4;
+            break;
+        case GL_ALPHA:
+            texelSize = 1;
+            break;
+        case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
+            // Doesn't really matter.  Can't do these.
+            texelSize = 1;
+            break;
+        default:
+            break;
+            
+    }
+    
+    NSLog(@"DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
+    if (numCells > 0)
+        NSLog(@"DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
 }
 
 }

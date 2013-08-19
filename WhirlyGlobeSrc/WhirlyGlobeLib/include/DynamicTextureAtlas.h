@@ -78,6 +78,9 @@ public:
     /// Number of sub textures we're currently representing
     int &getNumRegions() { return numRegions; }
     
+    /// Return texture cell utilization
+    void getUtilization(int &numCell,int &usedCell);
+    
 protected:
     /// Used for debugging
     std::string name;
@@ -156,6 +159,9 @@ public:
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
     void shutdown(ChangeSet &changes);
+    
+        /// Print out some utilization info
+    void log();
 
 protected:
     /// This maps a given texture to its location in a dynamic texture

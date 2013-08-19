@@ -457,6 +457,17 @@ void BigDrawable::clearRegion(int vertPos,int vertSize,SimpleIdentity elementChu
         elementChunkSize = 0;
 }
 
+void BigDrawable::getUtilization(int &vertSize,int &elSize)
+{
+    vertSize = numVertexBytes;
+    elSize = elementChunkSize;
+    for (RegionSet::iterator it = vertexRegions.begin();
+         it != vertexRegions.end(); ++it)
+    {
+        vertSize -= it->len;
+    }
+}
+
 void BigDrawable::executeFlush(int whichBuffer)
 {    
     Buffer &theBuffer = buffers[whichBuffer];

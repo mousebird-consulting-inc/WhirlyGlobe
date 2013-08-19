@@ -81,6 +81,9 @@
 ///  and the render.  And you know what this does.
 - (void)flushChangeRequests;
 
+/// Dump out logging info.  Call this anywhere, but it'll run on the layer thread.
+- (void)log;
+
 /// We're overriding the main entry point
 - (void)main;
 

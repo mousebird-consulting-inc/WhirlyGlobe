@@ -143,6 +143,11 @@
 
 - (void) layoutSubviews
 {
+    // Make sure we're not backgrounded
+    UIApplicationState state = [[UIApplication sharedApplication] applicationState];
+    if (state == UIApplicationStateBackground)
+        return;
+    
     // Try to resize the renderer, multiple times if necessary
 	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
     {

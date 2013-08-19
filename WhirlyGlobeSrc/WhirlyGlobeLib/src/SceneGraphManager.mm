@@ -33,10 +33,14 @@ SceneGraphManager::SceneGraphManager(DynamicDrawableAtlas *drawAtlas) : drawAtla
 SceneGraphManager::~SceneGraphManager()
 {
     drawAtlas = NULL;
-    for (NodeSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)
+    for (NodeSet::iterator it = allNodes.begin(); it != allNodes.end(); ++it)
         delete *it;
     topNodes.clear();
     allNodes.clear();
+    for (std::set<BasicDrawable *,IdentifiableSorter>::iterator it = drawables.begin();
+         it != drawables.end(); ++it)
+        delete *it;
+    drawables.clear();
 }
     
 void SceneGraphManager::traverseNode(Point3f localPt,SceneGraphNode *node,std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw)
@@ -130,34 +134,54 @@ void SceneGraphManager::traverseRemNodeIDs(SceneGraphNode *node,ChangeSet &chang
     
 Drawable *SceneGraphManager::getDrawable(SimpleIdentity drawID)
 {
+    if (drawAtlas)
+        return nil;
+    
     BasicDrawable dumbDraw("None");
     dumbDraw.setId(drawID);
-    std::set<Drawable *,IdentifiableSorter>::iterator it = drawables.find(&dumbDraw);
+    std::set<BasicDrawable *,IdentifiableSorter>::iterator it = drawables.find(&dumbDraw);
     if (it == drawables.end())
         return NULL;
     else
         return *it;
 }
     
-void SceneGraphManager::removeDrawable(SimpleIdentity drawID,ChangeSet &changes)
+void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeRequest *> &changes)
 {
-    BasicDrawable dumbDraw("None");
-    dumbDraw.setId(drawID);
-    std::set<Drawable *,IdentifiableSorter>::iterator it = drawables.find(&dumbDraw);
-    if (it != drawables.end())
+    if (drawAtlas)
     {
-        Drawable *draw = *it;
-        drawables.erase(it);
-        if (drawAtlas)
-            delete draw;
-        else
+        drawAtlas->removeDrawable(drawID, changes);
+    } else {
+        BasicDrawable dumbDraw("None");
+        dumbDraw.setId(drawID);
+        std::set<BasicDrawable *,IdentifiableSorter>::iterator it = drawables.find(&dumbDraw);
+        if (it != drawables.end())
+        {
+            Drawable *draw = *it;
+            drawables.erase(it);
             changes.push_back(new RemDrawableReq(draw->getId()));
+        }
     }
 }
+
 
 void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
 {
     Point3f localPt = Vector3dToVector3f([viewState eyePos]);
+    
+    if (drawAtlas)
+    {
+        // If any drawables got added recently, get them in the altas
+        for (std::set<BasicDrawable *,IdentifiableSorter>::iterator it = drawables.begin();
+             it != drawables.end(); ++it)
+        {
+            BasicDrawable *draw = *it;
+            drawAtlas->addDrawable(*it, changes);
+            drawAtlas->setEnableDrawable(draw->getId(), false);
+            delete draw;
+        }
+        drawables.clear();
+    }
     
     SimpleIDSet shouldBeOn;
     
@@ -177,7 +201,7 @@ void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
     {
         SimpleIdentity drawId = *it;
         if (drawAtlas)
-            drawAtlas->removeDrawable(drawId, changes);
+            drawAtlas->setEnableDrawable(drawId, false);
         else
             changes.push_back(new OnOffChangeRequest(drawId,false));
     }
@@ -188,21 +212,17 @@ void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
                         std::inserter(toAdd, toAdd.end()));
     for (SimpleIDSet::iterator it = toAdd.begin(); it != toAdd.end(); ++it)
     {
-        BasicDrawable *draw = (BasicDrawable *)getDrawable(*it);
-        if (draw) {
-            if (drawAtlas)
-                drawAtlas->addDrawable(draw, changes);
-            else
-            {
-                changes.push_back(new OnOffChangeRequest(draw->getId(),true));
-            }
-        }
+        SimpleIdentity drawId = *it;
+        if (drawAtlas)
+            drawAtlas->setEnableDrawable(drawId, true);
+        else
+            changes.push_back(new OnOffChangeRequest(drawId,true));
     }
     
     activeDrawIDs = shouldBeOn;
 }
         
-void SceneGraphManager::addDrawable(Drawable *draw,ChangeSet &changes)
+void SceneGraphManager::addDrawable(BasicDrawable *draw,ChangeSet &changes)
 {
     drawables.insert(draw);
     if (!drawAtlas)

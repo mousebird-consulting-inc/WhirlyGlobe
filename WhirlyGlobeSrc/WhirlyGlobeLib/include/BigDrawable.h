@@ -123,6 +123,9 @@ public:
     /// Return which is the active buffer
     int getActiveBuffer() { return activeBuffer; }
     
+    /// Count the size of vertex and element buffers we're representing
+    void getUtilization(int &vertSize,int &elSize);
+    
 protected:
     GLuint programId;
     SimpleIdentity texId;
