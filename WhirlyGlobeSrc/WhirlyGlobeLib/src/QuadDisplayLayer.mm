@@ -470,7 +470,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         
     // We want view updates, but only 1s in frequency
     if (_layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod];
+        [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:_minUpdateDist maxLagTime:10.0];
 }
 
 - (void)shutdown
@@ -537,6 +537,14 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 //    NSLog(@"******");
     
     _quadtree->Print();
+}
+
+// Information about what's currently loaded in
+// Less detail than dumpInfo (which was for debugging)
+- (void)log
+{
+    if ([_loader respondsToSelector:@selector(log)])
+        [_loader log];
 }
 
 // Run the evaluation step for outstanding nodes

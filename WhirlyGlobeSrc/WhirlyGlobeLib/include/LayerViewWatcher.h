@@ -41,7 +41,7 @@
 
 /// Add the given target/selector combo as a watcher.
 /// Will get called at most the given frequency.
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime;
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime;
 
 /// Remove the given target/selector combo
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector;

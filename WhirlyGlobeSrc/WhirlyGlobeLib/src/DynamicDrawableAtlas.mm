@@ -256,8 +256,18 @@ void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
     
 void DynamicDrawableAtlas::log()
 {
-    NSLog(@"Drawable Atlas: Big Drawables: %ld (%ld MB)\tRepresented Drawables:%ld",bigDrawables.size(),bigDrawables.size()*(numVertexBytes+numElementBytes)/(1024*1024),
+    NSLog(@"Drawable Atlas: Big Drawables: %ld (%.2f MB + %.2f MB)\tRepresented Drawables:%ld",bigDrawables.size(),bigDrawables.size()*(numVertexBytes)/(float)(1024*1024),bigDrawables.size()*(numElementBytes)/(float)(1024*1024),
           drawables.size());
+    int vertTotal = 0, elTotal = 0;
+    for (BigDrawableSet::iterator it = bigDrawables.begin();
+         it != bigDrawables.end(); ++it)
+    {
+        int thisVertSize,thisElSize;
+        (*it)->getUtilization(thisVertSize,thisElSize);
+        vertTotal += thisVertSize;
+        elTotal += thisElSize;
+    }
+    NSLog(@"Drawable Atlas: using (%.2f MB) for vertices, (%.2f MB) for elements.",vertTotal/(float)(1024*1024),elTotal/(float)(1024*1024));
 }
     
 }

@@ -142,6 +142,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// Dump some log info out to the console
+- (void)log;
+
 @end
 
 
@@ -174,6 +177,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,assign) bool drawEmpty;
 /// How often this layer gets notified of view changes.  1s by default.
 @property (nonatomic,assign) float viewUpdatePeriod;
+/// How far the viewer has to move to force an update (if non-zero)
+@property (nonatomic,assign) float minUpdateDist;
 /// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader that may be creating and deleting data as the quad tiles load

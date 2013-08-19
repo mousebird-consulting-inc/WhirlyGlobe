@@ -66,9 +66,10 @@ public:
     SceneGraphGroup(SimpleIdentity theId) : Identifiable(theId) { }
     virtual ~SceneGraphGroup()
     {
-        for (std::set<SceneGraphNode *>::iterator it = nodes.begin();
-             it != nodes.end(); ++it)
-            delete *it;
+        // No longer need this.  We're always deleting all the nodes in the manager
+//        for (std::set<SceneGraphNode *>::iterator it = nodes.begin();
+//             it != nodes.end(); ++it)
+//            delete *it;
         nodes.clear();
     }
     
@@ -97,13 +98,16 @@ public:
     virtual ~SceneGraphManager();
     
     /// Add a drawable to be referenced by the scenegraph
-    void addDrawable(Drawable *draw,ChangeSet &changes);
+    void addDrawable(BasicDrawable *draw,ChangeSet &changes);
     
     /// Add the given scenegraph fragment
     void attachSceneFragment(SimpleIdentity attachID,SceneGraphNode *node);
 
     /// Remove the given scenegraph fragment (by ID)
     void removeSceneFragment(SimpleIdentity nodeID,ChangeSet &changes);
+    
+    // Remove the given drawable by ID (if it's there)
+    void removeDrawable(SimpleIdentity drawID,ChangeSet &changes);
     
     /// Run the position calculations and update what we'll display.
     /// The changes need to be flushed by the caller
@@ -125,9 +129,6 @@ protected:
     // Look for a drawable by ID
     Drawable *getDrawable(SimpleIdentity drawID);
     
-    // Remove the given drawable by ID (if it's there)
-    void removeDrawable(SimpleIdentity drawID,ChangeSet &changes);
-    
     // Top level nodes in the scenegraph
     typedef std::set<SceneGraphGroup *,WhirlyKit::IdentifiableSorter> NodeSet;
     NodeSet topNodes;
@@ -135,8 +136,8 @@ protected:
     // All group nodes indexed by ID
     NodeSet allNodes;
     
-    // All the drawables in the scenegraph
-    std::set<Drawable *,IdentifiableSorter> drawables;
+    // All the drawables in the scenegraph (only used if we're not in atlas mode)
+    std::set<BasicDrawable *,IdentifiableSorter> drawables;
     
     // Drawables that are currently being drawn
     SimpleIDSet activeDrawIDs;

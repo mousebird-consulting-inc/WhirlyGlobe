@@ -64,7 +64,7 @@ namespace WhirlyKit
     
     // Get us view updates, but we'll filter them
     if (layerThread.viewWatcher)
-        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0];
+        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0 minDist:0.0 maxLagTime:0.0];
     
     [self checkUpdate];
 }

@@ -207,6 +207,8 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity programId;
 /// If set, we'll include elevation (Z) in the drawables for shaders to use
 @property (nonatomic,assign) bool includeElev;
+// If set (by default) we'll use the elevation (if provided) as real Z values on the vertices
+@property (nonatomic,assign) bool useElevAsZ;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
@@ -231,6 +233,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
+
+/// Set this up with an object that'll return an image per tile and a name (for debugging)
+- (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
 
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
