@@ -856,14 +856,16 @@ void LoadedTile::Print(Quadtree *tree)
                     {
                         float whereX = ix*texScale.x() + elevData.numX*texOffset.x();
                         float whereY = iy*texScale.y() + elevData.numY*texOffset.y();
-                        if (_useElevAsZ)
-                            locZ = [elevData interpolateElevationAtX:whereX y:whereY];
+                        locZ = [elevData interpolateElevationAtX:whereX y:whereY];
                     }
+                    elevs[iy*(sphereTessX+1)+ix] = locZ;
+                    // We don't want real elevations in the mesh, just off in another attribute
+                    if (!_useElevAsZ)
+                        locZ = 0.0;
                     Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                     if (coordAdapter->isFlat())
                         loc3D.z() = locZ;
                     locs[iy*(sphereTessX+1)+ix] = loc3D;
-                    elevs[iy*(sphereTessX+1)+ix] = locZ;
                     
                     // Do the texture coordinate seperately
                     TexCoord texCoord(ix*texIncr.x()*texScale.x()+texOffset.x(),1.0-(iy*texIncr.y()*texScale.y()+texOffset.y()));
