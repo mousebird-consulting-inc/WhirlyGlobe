@@ -47,4 +47,9 @@
 /// Clean all your stuff out of the scenegraph and so forth.
 - (void)shutdown;
 
+@optional
+
+/// Dump logging information out to the console
+- (void)log;
+
 @end

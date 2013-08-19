@@ -31,7 +31,9 @@ using namespace WhirlyKit;
 @public
     id __weak target;
     SEL selector;
-    NSTimeInterval minTime;
+    NSTimeInterval minTime,maxLagTime;
+    Point3d lastEyePos;
+    float minDist;
     NSTimeInterval lastUpdated;
 }
 @end
@@ -72,12 +74,14 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
     watch->selector = selector;
     watch->minTime = minTime;
+    watch->minDist = minDist;
+    watch->maxLagTime = maxLagTime;
     [watchers addObject:watch];
     
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
@@ -160,7 +164,7 @@ using namespace WhirlyKit;
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
-    lastUpdate = [[NSDate date] timeIntervalSinceReferenceDate];
+    lastUpdate = CFAbsoluteTimeGetCurrent();
 }
 
 // We're in the main thread here
@@ -188,28 +192,74 @@ using namespace WhirlyKit;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [watch->target performSelector:watch->selector withObject:lastViewState];
 #pragma clang diagnostic pop
-        watch->lastUpdated = lastUpdate;
-    }
+        watch->lastUpdated = CFAbsoluteTimeGetCurrent();
+        watch->lastEyePos = [lastViewState eyePos];
+    } else
+        NSLog(@"Missing last view state");
 }
+
+// Used to order updates
+class LayerPriorityOrder
+{
+public:
+    bool operator < (const LayerPriorityOrder &that) const { return sinceLastUpdate > that.sinceLastUpdate; }
+    LayerPriorityOrder(NSTimeInterval sinceLastUpdate,LocalWatcher *watch) : sinceLastUpdate(sinceLastUpdate), watch(watch) { }
+    LayerPriorityOrder(const LayerPriorityOrder &that) : sinceLastUpdate(that.sinceLastUpdate), watch(that.watch) { }
+    NSTimeInterval sinceLastUpdate;
+    LocalWatcher *watch;
+};
 
 // This version is called in the layer thread
 // We can dispatch things from here
 - (void)viewUpdateLayerThread:(WhirlyKitViewState *)viewState
 {
-    NSTimeInterval curTime = [[NSDate date] timeIntervalSinceReferenceDate];
+    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
     
     // Look for anything that hasn't been updated in a while
-    float minNextUpdate = 100;
+    std::set<LayerPriorityOrder> orderedLayers;
+    NSTimeInterval minNextUpdate = 100;
+    NSTimeInterval maxLayerDelay = 0.0;
     for (LocalWatcher *watch in watchers)
     {
         NSTimeInterval minTest = curTime - watch->lastUpdated;
         if (minTest > watch->minTime)
         {
-            [self updateSingleWatcher:watch];
+            bool runUpdate = false;
+            
+            // Check the distance, if that's set
+            if (watch->minDist > 0.0)
+            {
+                // If we haven't moved past the trigger, don't update this time
+                double thisDist2 = ([viewState eyePos] - watch->lastEyePos).squaredNorm();
+                if (thisDist2 > watch->minDist*watch->minDist)
+                    runUpdate = true;
+                else {
+                    if (minTest > watch->maxLagTime)
+                    {
+                        runUpdate = true;
+                        minNextUpdate = MIN(minNextUpdate,minTest);
+                    }
+                }
+            } else
+                runUpdate = true;
+
+            if (runUpdate)
+                orderedLayers.insert(LayerPriorityOrder(minTest,watch));
         } else {
             minNextUpdate = MIN(minNextUpdate,minTest);
         }
+        maxLayerDelay = MAX(maxLayerDelay,minTest);
     }
+    
+//    static int count = 0;
+//    if (count++ % 20 == 0)
+//        NSLog(@"Max layer delay = %f, %f, layerThread = %x",maxLayerDelay,minNextUpdate,(unsigned int)layerThread);
+    
+    // Update the layers by priority
+    // Note: What happens if this takes a really long time?
+    for (std::set<LayerPriorityOrder>::iterator it = orderedLayers.begin();
+         it != orderedLayers.end(); ++it)
+        [self updateSingleWatcher:it->watch];
     
     @synchronized(self)
     {

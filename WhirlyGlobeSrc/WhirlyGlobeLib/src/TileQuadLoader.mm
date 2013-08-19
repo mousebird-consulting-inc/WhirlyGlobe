@@ -512,6 +512,8 @@ void LoadedTile::Print(Quadtree *tree)
     
     /// How many fetches we have going at the moment
     int numFetches;
+    
+    NSString *name;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource;
@@ -535,6 +537,7 @@ void LoadedTile::Print(Quadtree *tree)
         doingUpdate = false;
         borderTexel = 0;
         _includeElev = false;
+        _useElevAsZ = false;
         _tileScale = WKTileScaleNone;
         _fixedTileSize = 256;
         texelBinSize = 64;
@@ -543,6 +546,15 @@ void LoadedTile::Print(Quadtree *tree)
     
     return self;
 }
+
+- (id)initWithName:(NSString *)inName dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)inDataSource
+{
+    self = [self initWithDataSource:inDataSource];
+    name = inName;
+    
+    return self;
+}
+
 
 - (void)clear
 {
@@ -844,7 +856,8 @@ void LoadedTile::Print(Quadtree *tree)
                     {
                         float whereX = ix*texScale.x() + elevData.numX*texOffset.x();
                         float whereY = iy*texScale.y() + elevData.numY*texOffset.y();
-                        locZ = [elevData interpolateElevationAtX:whereX y:whereY];
+                        if (_useElevAsZ)
+                            locZ = [elevData interpolateElevationAtX:whereX y:whereY];
                     }
                     Point3f loc3D = coordAdapter->localToDisplay(CoordSystemConvert(coordSys,sceneCoordSys,Point3f(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                     if (coordAdapter->isFlat())
@@ -1175,6 +1188,20 @@ void LoadedTile::Print(Quadtree *tree)
         changeRequests.clear();
 //        [layerThread flushChangeRequests];
     }
+}
+
+// Dump out some information on resource usage
+- (void)log
+{
+    if (!drawAtlas && !texAtlas)
+        return;
+    
+    NSLog(@"++ Quad Tile Loader %@ ++",(name ? name : @"Unknown"));
+    if (drawAtlas)
+        drawAtlas->log();
+    if (texAtlas)
+        texAtlas->log();
+    NSLog(@"++ ++ ++");
 }
 
 #pragma mark - Loader delegate

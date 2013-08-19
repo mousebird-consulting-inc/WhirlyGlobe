@@ -188,6 +188,19 @@ using namespace WhirlyKit;
     changeRequests.clear();
 }
 
+- (void)log
+{
+    if ([NSThread currentThread] != self)
+    {
+        [self performSelector:@selector(log) onThread:self withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    for (NSObject<WhirlyKitLayer> *layer in layers)
+        if ([layer respondsToSelector:@selector(log)])
+            [layer log];
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main
