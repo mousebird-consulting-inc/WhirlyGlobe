@@ -239,6 +239,8 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         }
     }
     
+//    NSLog(@"----Starting Layout----");
+    
     // Need to scale for retina displays
     float resScale = renderer.scale;
     
@@ -323,6 +325,9 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                     isActive = validOrient;
                 }
             }
+
+//            NSLog(@" Valid (%s): %@, pos = (%f,%f), size = (%f, %f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint,objPt.x,objPt.y,layoutObj->obj.size.x(),layoutObj->obj.size.y(),
+//                  layoutObj->offset.x(),layoutObj->offset.y());
         }
         
         if (isActive)
@@ -336,6 +341,8 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         layoutObj->newEnable = isActive;
         layoutObj->offset = objOffset;
     }
+    
+//    NSLog(@"----Finished layout----");
 }
 
 // Time we'll take to disappear objects
@@ -363,8 +370,11 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             // Put in the change for the main object
             ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
             change.shapeID = layoutObj->obj.getId();
-            change.offset = layoutObj->offset;
-            change.enable = layoutObj->newEnable;
+            if (layoutObj->newEnable)
+                change.offset = layoutObj->offset;
+            else
+                // This is a stealth enable
+                change.offset = Point2f(MAXFLOAT,MAXFLOAT);
             // Fade in when we add them
             if (!layoutObj->currentEnable)
             {
@@ -380,7 +390,8 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             {
                 ScreenSpaceGeneratorGangChangeRequest::ShapeChange change;
                 change.shapeID = *sit;
-                change.enable = layoutObj->currentEnable;
+                if (!layoutObj->currentEnable)
+                    change.offset = Point2f(MAXFLOAT,MAXFLOAT);
                 shapeChanges.push_back(change);
             }
             
