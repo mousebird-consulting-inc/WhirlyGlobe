@@ -99,7 +99,10 @@ using namespace WhirlyKit;
 
 - (void)loadSetup_glView
 {
+    if (_frameInterval <= 0)
+        _frameInterval = 1;
     glView = [[WhirlyKitEAGLView alloc] init];
+    glView.frameInterval = _frameInterval;
 }
 
 - (WhirlyKit::Scene *) loadSetup_scene
@@ -280,6 +283,11 @@ using namespace WhirlyKit;
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
+}
+
+- (void)setFrameInterval:(int)frameInterval
+{
+    glView.frameInterval = frameInterval;
 }
 
 static const float PerfOutputDelay = 15.0;
