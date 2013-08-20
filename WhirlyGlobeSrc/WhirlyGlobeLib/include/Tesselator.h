@@ -29,4 +29,10 @@ namespace WhirlyKit
     This is a fairly simple tesselator. */
 void TesselateRing(const WhirlyKit::VectorRing &ring,std::vector<WhirlyKit::VectorRing> &rets);
 
+/** Tesselate the given areal feature.  The first ring is the outer,
+    all others are meant to be holes.
+  */
+void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing> &rets);
+
+
 }
