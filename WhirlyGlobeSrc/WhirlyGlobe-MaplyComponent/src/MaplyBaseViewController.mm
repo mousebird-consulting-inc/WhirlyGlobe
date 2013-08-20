@@ -163,8 +163,7 @@ using namespace WhirlyKit;
     // Set up the GL View to display it in
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
-    // Note: Should be able to change this
-	glView.frameInterval = 1;  // 60 fps
+	glView.frameInterval = _frameInterval;  // 60 fps
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
@@ -287,6 +286,7 @@ using namespace WhirlyKit;
 
 - (void)setFrameInterval:(int)frameInterval
 {
+    _frameInterval = frameInterval;
     glView.frameInterval = frameInterval;
 }
 
