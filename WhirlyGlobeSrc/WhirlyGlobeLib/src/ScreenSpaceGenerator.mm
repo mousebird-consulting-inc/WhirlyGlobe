@@ -267,7 +267,7 @@ void ScreenSpaceGenerator::addConvexShapes(std::vector<ConvexShape *> inShapes)
     for (unsigned int ii=0;ii<inShapes.size();ii++)
     {
         ConvexShape *shape = inShapes[ii];
-        if (shape->enable)
+        if (shape->enable && shape->offset.x() != MAXFLOAT)
             activeShapes.insert(shape);
     }
 }
@@ -357,12 +357,9 @@ ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleId
 
 void ScreenSpaceGenerator::changeEnable(ConvexShape *shape,bool enable)
 {
-    if (shape->enable == enable)
-        return;
-    
     if (shape->enable)
         activeShapes.erase(shape);
-    else
+    if (enable && shape->offset.x() != MAXFLOAT)
         activeShapes.insert(shape);
 
     shape->enable = enable;
@@ -481,7 +478,7 @@ void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRend
 }
     
 ScreenSpaceGeneratorGangChangeRequest::ShapeChange::ShapeChange()
- : shapeID(EmptyIdentity), enable(false), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
+ : shapeID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
 {
 }
     
@@ -502,8 +499,8 @@ void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitScene
         {
             shape->fadeUp = change.fadeUp;
             shape->fadeDown = change.fadeDown;
-            screenGen->changeEnable(shape,change.enable);
             shape->offset = change.offset;
+            screenGen->changeEnable(shape,shape->enable);
             [renderer setRenderUntil:change.fadeUp];
             [renderer setRenderUntil:change.fadeDown];
         }

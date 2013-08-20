@@ -413,7 +413,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         
                         // Put together the layout info
                         WhirlyKit::LayoutObject layoutObj(screenShape->getId());
-//                        layoutObj.tag = label.text;
+                        layoutObj.hint = label.text;
                         layoutObj.dispLoc = screenShape->worldLoc;
                         layoutObj.size = drawStr->mbr.ur() - drawStr->mbr.ll();
                         
@@ -427,6 +427,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         
                         // The shape starts out disabled
                         screenShape->enable = false;
+                        screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                     } else
                         screenShape->enable = true;
                     
@@ -729,6 +730,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 
                 // The shape starts out disabled
                 screenShape->enable = false;
+                screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
             } else
                 screenShape->enable = true;
             

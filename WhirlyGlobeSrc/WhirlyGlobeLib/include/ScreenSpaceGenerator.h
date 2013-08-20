@@ -80,7 +80,7 @@ public:
         int drawPriority;
         /// Visual range
         float minVis,maxVis;
-        /// 2D offset applied at the last
+        /// 2D offset to be applied (probably from the layout engine)
         Point2f offset;
         /// false if we're not to draw this one
         bool enable;
@@ -211,7 +211,6 @@ public:
     public:
         ShapeChange();
         SimpleIdentity shapeID;
-        bool enable;
         NSTimeInterval fadeUp,fadeDown;
         Point2f offset;
     };

@@ -71,6 +71,8 @@ public:
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
     int acceptablePlacement;
+    /// Debugging hint
+    NSString *hint;
 };
 
 // Private fields we use for object layout
@@ -81,7 +83,7 @@ public:
     : Identifiable(theId)
     {
         currentEnable = newEnable = false;
-        offset = Point2f(0.0,0.0);
+        offset = Point2f(MAXFLOAT,MAXFLOAT);
         changed = true;
     }
     
