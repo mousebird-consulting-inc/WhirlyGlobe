@@ -82,7 +82,7 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
     
 bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1)
 {
-    // Note: Write me
+    // Simple bounding box check
     Mbr mbr0;
     mbr0.addPoints(pts0);
     Mbr mbr1;
