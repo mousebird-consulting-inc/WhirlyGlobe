@@ -546,23 +546,14 @@ using namespace WhirlyGlobe;
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            // Note: Debugging
-//            for (unsigned int ii=0;ii<ar->loops.size();ii++)
-            for (unsigned int ii=0;ii<1;ii++)
+            std::vector<WhirlyKit::VectorRing> tris;
+            TesselateLoops(ar->loops, tris);
+            for (unsigned int jj=0;jj<tris.size();jj++)
             {
-                std::vector<WhirlyKit::VectorRing> tris;
-                TesselateRing(ar->loops[ii], tris);
-                for (unsigned int jj=0;jj<tris.size();jj++)
-                {
-                    VectorRing &tri = tris[jj];
-//                        verts[2] = tri[0];  verts[1] = tri[1];  verts[0] = tri[2];
-                    
-                    VectorArealRef newAr = VectorAreal::createAreal();
-                    newAr->loops.push_back(tri);
-                    newVec->_shapes.insert(newAr);
-                }
-//                for (unsigned int jj=0;jj<tris.size();jj++)
-//                    std::reverse(tris[jj].begin(), tris[jj].end());
+                VectorRing &tri = tris[jj];
+                VectorArealRef newAr = VectorAreal::createAreal();
+                newAr->loops.push_back(tri);
+                newVec->_shapes.insert(newAr);
             }
         }
     }

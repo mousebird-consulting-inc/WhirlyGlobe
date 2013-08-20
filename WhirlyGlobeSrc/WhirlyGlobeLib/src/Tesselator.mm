@@ -54,8 +54,9 @@ static void errorCallback(GLenum error,TriangulationInfo *triInfo)
 //    NSLog(@"Error: %d",error);
 }
 
-// New tesselator uses poly2tri
-void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
+// This version of the tesselator runs the data through Clipper to clean it up
+// Note: Doesn't handle holes
+void TesselateRingClipper(const VectorRing &ring,std::vector<VectorRing> &rets)
 {
     if (ring.size() < 3)
         return;
@@ -156,7 +157,205 @@ void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
         }
     }
 }
+    
+static const float PolyScale2 = 1e6;
 
+// New tesselator uses poly2tri
+void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
+{
+    if (ring.size() < 3)
+        return;
+    
+    GLUtesselator *tess = gluNewTess();
+    
+    TriangulationInfo tessInfo;
+    tessInfo.pts.reserve(ring.size());
+    gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (GLvoid (*) ()) &vertexCallback);
+    gluTessCallback(tess, GLU_TESS_EDGE_FLAG_DATA, (GLvoid (*) ()) &edgeFlagCallback);
+    gluTessCallback(tess, GLU_TESS_COMBINE_DATA, (GLvoid (*) ()) &combineCallback);
+    //            gluTessCallback(tess, GLU_TESS_ERROR_DATA, (GLvoid (*) ()) &errorCallback);
+    //            gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (GLvoid (*) ()) &beginCallback);
+    
+    gluTessBeginPolygon(tess,&tessInfo);
+    gluTessBeginContour(tess);
+    
+    Point2f org = ring[0];
+    for (unsigned int ii=0;ii<ring.size();ii++)
+    {
+        const Point2f &pt = ring[ii];
+        if (ii==ring.size()-1 && pt.x() == ring[0].x() && pt.y() == ring[0].y())
+            continue;
+        float coords[3];
+        coords[0] = (pt.x()-org.x())*PolyScale2;
+        coords[1] = (pt.y()-org.y())*PolyScale2;
+        coords[2] = 0.0;
+        gluTessVertex(tess,coords,(void *)ii);
+        tessInfo.pts.push_back(Point3f(coords[0],coords[1],0.0));
+//        printf("%d: (%f,%f)\n",ii, coords[0],coords[1]);
+    }
+    
+    gluTessEndContour(tess);
+    gluTessEndPolygon(tess);
+    
+    gluDeleteTess(tess);
+    
+    // Convert to triangles
+//    printf("  ");
+    for (unsigned int ii=0;ii<tessInfo.vertIDs.size()/3;ii++)
+    {
+        VectorRing tri(3);
+        for (unsigned int jj=0;jj<3;jj++)
+        {
+            Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii*3+jj]];
+            tri[jj] = Point2f(pt.x()/PolyScale2+org.x(),pt.y()/PolyScale2+org.y());
+//            printf("(%f %f) ",pt.x(),pt.y());
+        }
+//        printf("\n");
+        
+        // Make sure this is pointed up
+        Point3f pts[3];
+        for (unsigned int jj=0;jj<3;jj++)
+            pts[jj] = Point3f(tri[jj].x(),tri[jj].y(),0.0);
+        Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
+        if (norm.z() >= 0.0)
+            std::reverse(tri.begin(),tri.end());
+        
+        rets.push_back(tri);
+    }            
+}
+    
+void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing> &rets)
+{
+    if (loops.size() < 1)
+        return;
+    if (loops[0].size() < 1)
+        return;
+    
+    if (loops.size() == 1)
+    {
+        TesselateRing(loops[0], rets);
+        return;
+    }
+
+    // Figure out the bounding box and make up an origin
+    Mbr testMbr;
+    for (unsigned int ii=0;ii<loops.size();ii++)
+        testMbr.addPoints(loops[ii]);
+    Point2f offset = testMbr.ll();
+    Point2f span(testMbr.ur().x()-testMbr.ll().x(),testMbr.ur().y()-testMbr.ll().y());
+    if (span.x() == 0.0 || span.y() == 0.0)
+        return;
+    float scale = 1000.0/std::max(span.x(),span.y());
+    testMbr.ll() -= 0.1 * span;
+    testMbr.ur() += 0.1 * span;
+    
+    ClipperLib::Clipper clipper;
+    ClipperLib::Polygons outPolys;
+
+    // Run the points through Clipper to clean things up
+    std::vector<ClipperLib::Polygon> polys;
+    std::vector<ClipperLib::Polygon> clipPolys;
+    for (unsigned int li=0;li<loops.size();li++)
+    {
+        const VectorRing &ring = loops[li];
+        if (ring.size() == 0)
+            continue;
+
+        ClipperLib::Polygon poly(ring.size());
+        for (unsigned int ii=0;ii<ring.size();ii++)
+        {
+            const Point2f &pt = ring[ii];
+            poly[ii] = ClipperLib::IntPoint((pt.x()-offset.x())*scale*PolyScale,(pt.y()-offset.y())*scale*PolyScale);
+        }
+        
+        if (li > 0)
+        {
+            if (ring.size() > 0)
+            {
+                // See if it's a hole or just another loop
+                if (PointInPolygon(ring[0], loops[0]))
+                {
+                    clipPolys.push_back(poly);
+                } else
+                    TesselateRing(ring, rets);
+            }
+        } else {
+            polys.push_back(poly);
+        }
+    }
+    clipper.AddPolygon(polys[0], ClipperLib::ptSubject);
+    clipper.AddPolygons(clipPolys, ClipperLib::ptClip);
+    
+    if (clipper.Execute(ClipperLib::ctDifference, outPolys, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd))
+    {
+        for (unsigned int ii=0;ii<outPolys.size();ii++)
+        {
+            // Construct a polyline from the clipper output
+            ClipperLib::Polygon &outPoly = outPolys[ii];
+            
+            if (outPoly.size() < 3)
+                continue;
+            
+            GLUtesselator *tess = gluNewTess();
+            
+            TriangulationInfo tessInfo;
+            tessInfo.pts.reserve(outPoly.size());
+            gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (GLvoid (*) ()) &vertexCallback);
+            gluTessCallback(tess, GLU_TESS_EDGE_FLAG_DATA, (GLvoid (*) ()) &edgeFlagCallback);
+            gluTessCallback(tess, GLU_TESS_COMBINE_DATA, (GLvoid (*) ()) &combineCallback);
+            //            gluTessCallback(tess, GLU_TESS_ERROR_DATA, (GLvoid (*) ()) &errorCallback);
+            //            gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (GLvoid (*) ()) &beginCallback);
+            
+            gluTessBeginPolygon(tess,&tessInfo);
+            gluTessBeginContour(tess);
+            
+            for (unsigned int jj=0;jj<outPoly.size();jj++)
+            {
+                float coords[3];
+                ClipperLib::IntPoint &outPt = outPoly[jj%outPoly.size()];
+                
+                //                coords[0] = outPt.X/(double)(PolyScale*scale) + offset.x();
+                //                coords[1] = outPt.Y/(double)(PolyScale*scale) + offset.y();
+                coords[0] = outPt.X;
+                coords[1] = outPt.Y;
+                coords[2] = 0.0;
+                
+                if (jj == outPoly.size()-1 && coords[0] == tessInfo.pts[0].x() && coords[1] == tessInfo.pts[0].y())
+                    continue;
+
+                gluTessVertex(tess,coords,(void *)jj);
+                tessInfo.pts.push_back(Point3f(coords[0],coords[1],0.0));
+            }
+            
+            gluTessEndContour(tess);
+            gluTessEndPolygon(tess);
+            
+            gluDeleteTess(tess);
+            
+            // Convert to triangles
+            for (unsigned int ii=0;ii<tessInfo.vertIDs.size()/3;ii++)
+            {
+                VectorRing tri(3);
+                for (unsigned int jj=0;jj<3;jj++)
+                {
+                    Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii*3+jj]];
+                    tri[jj] = Point2f(pt.x()/(double)(PolyScale*scale) + offset.x(),pt.y()/(double)(PolyScale*scale) + offset.y());
+                }
+                
+                // Make sure this is pointed up
+                Point3f pts[3];
+                for (unsigned int jj=0;jj<3;jj++)
+                    pts[jj] = Point3f(tri[jj].x(),tri[jj].y(),0.0);
+                Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
+                if (norm.z() >= 0.0)
+                    std::reverse(tri.begin(),tri.end());
+                
+                rets.push_back(tri);
+            }            
+        }
+    }
+}
+    
 void TesselateRingOld(const VectorRing &ring,std::vector<VectorRing> &rets)
 {
     int startRet = rets.size();
