@@ -273,6 +273,7 @@ void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing>
             if (ring.size() > 0)
             {
                 // See if it's a hole or just another loop
+                // Note: This apparently isn't a good enough test to see if we've got a hole
                 if (PointInPolygon(ring[0], loops[0]))
                 {
                     clipPolys.push_back(poly);
