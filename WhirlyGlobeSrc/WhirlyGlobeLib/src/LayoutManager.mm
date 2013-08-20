@@ -271,11 +271,46 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             isActive = CheckPointAndNormFacing(layoutObj->obj.dispLoc,layoutObj->obj.dispLoc.normalized(),fullMatrix4f,fullNormalMatrix4f) > 0.0;
         }
         Point2f objOffset(0.0,0.0);
+        
+        // Figure out the rotation situation
+        float screenRot = 0.0;
+        Matrix2f screenRotMat;
         if (isActive)
         {
             // Figure out where this will land
             CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->obj.dispLoc) transform:&modelTrans frameSize:frameBufferSize];
             isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
+            
+            // Deal with the rotation
+            if (layoutObj->obj.rotation != 0.0)
+            {
+                Point3d norm,right,up;
+                
+                if (globeViewState)
+                {
+                    Point3d simpleUp(0,0,1);
+                    norm = Vector3fToVector3d(layoutObj->obj.dispLoc);
+                    norm.normalize();
+                    right = simpleUp.cross(norm);
+                    up = norm.cross(right);
+                    right.normalize();
+                    up.normalize();
+                } else {
+                    right = Point3d(1,0,0);
+                    norm = Point3d(0,0,1);
+                    up = Point3d(0,1,0);
+                }
+                // Note: Check if the axes made any sense.  We might be at a pole.
+                Point3d rightDir = right * sinf(layoutObj->obj.rotation);
+                Point3d upDir = up * cosf(layoutObj->obj.rotation);
+                
+                Point3d outPt = rightDir * 1.0 + upDir * 1.0 + Vector3fToVector3d(layoutObj->obj.dispLoc);
+                CGPoint outScreenPt;
+                outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
+                screenRot = M_PI/2.0-atan2f(objPt.y-outScreenPt.y,outScreenPt.x-objPt.x);
+                screenRotMat = Eigen::Rotation2Df(screenRot);
+            }
+            
             // Now for the overlap checks
             if (isActive)
             {
@@ -283,7 +318,6 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 if (layoutObj->obj.size.x() != 0.0 && layoutObj->obj.size.y() != 0.0)
                 {
                     bool validOrient = false;
-                    Mbr objMbr = Mbr(Point2f(objPt.x,objPt.y),Point2f((objPt.x+layoutObj->obj.size.x()*resScale),(objPt.y+layoutObj->obj.size.y()*resScale)));
                     for (unsigned int orient=0;orient<4;orient++)
                     {
                         // May only want to be placed certain ways.  Fair enough.
@@ -311,11 +345,23 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                                 break;
                         }
                         
+                        // Rotate the rectangle
+                        std::vector<Point2f> objPts(4);
+                        if (screenRot == 0.0)
+                        {
+                            objPts[0] = Point2f(objPt.x,objPt.y) + objOffset*resScale;
+                            objPts[1] = objPts[0] + Point2f(layoutObj->obj.size.x()*resScale,0.0);
+                            objPts[2] = objPts[0] + Point2f(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
+                            objPts[3] = objPts[0] + Point2f(0.0,layoutObj->obj.size.y()*resScale);
+                        } else {
+                            objPts[0] = Point2f(objPt.x,objPt.y) + objOffset*resScale;
+                            objPts[1] = objPts[0] + screenRotMat * Point2f(layoutObj->obj.size.x()*resScale,0.0);
+                            objPts[2] = objPts[0] + screenRotMat * Point2f(layoutObj->obj.size.x()*resScale,layoutObj->obj.size.y()*resScale);
+                            objPts[3] = objPts[0] + screenRotMat * Point2f(0.0,layoutObj->obj.size.y()*resScale);
+                        }
+                        
                         // Now try it
-                        Mbr tryMbr(objMbr.ll()+objOffset*resScale,objMbr.ur()+objOffset*resScale);
-                        std::vector<Point2f> tryPts;
-                        tryMbr.asPoints(tryPts);
-                        if (overlapMan.addObject(tryPts))
+                        if (overlapMan.addObject(objPts))
                         {
                             validOrient = true;
                             break;
