@@ -427,10 +427,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         _layoutObjects.push_back(layoutObj);
                         
                         // The shape starts out disabled
-                        screenShape->enable = false;
+                        screenShape->enable = _labelInfo.enable;
                         screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                     } else
-                        screenShape->enable = true;
+                        screenShape->enable = _labelInfo.enable;
                     
                     // Register the main label as selectable
                     if (label.isSelectable)
@@ -731,10 +731,10 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 _layoutObjects.push_back(layoutObj);
                 
                 // The shape starts out disabled
-                screenShape->enable = false;
+                screenShape->enable = _labelInfo.enable;
                 screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
             } else
-                screenShape->enable = true;
+                screenShape->enable = _labelInfo.enable;
             
             screenObjects.push_back(screenShape);
         } else {
