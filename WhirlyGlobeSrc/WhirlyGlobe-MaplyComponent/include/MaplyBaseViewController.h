@@ -47,6 +47,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// Black, by default.
 @property (nonatomic,strong) UIColor *clearColor;
 
+/// Set the frame interval passed to the displaylink
+/// 1 == 60fps, 2 == 30fps, 3 == 20fps
+@property (nonatomic,assign) int frameInterval;
+
 /// Clear all the currently active lights.
 /// There are a default set of lights, so you'll need to do this before adding your own.
 - (void)clearLights;
