@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/20/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 #import "PerformanceTimer.h"
-
+#import <vector>
 
 namespace WhirlyKit
 {
@@ -32,6 +32,18 @@ PerformanceTimer::TimeEntry::TimeEntry()
     avgDur = 0.0;
     numRuns = 0;
 }
+    
+PerformanceTimer::TimeEntry & PerformanceTimer::TimeEntry::operator = (const TimeEntry &that)
+{
+    name = that.name;
+    minDur = that.minDur;
+    maxDur = that.maxDur;
+    avgDur = that.avgDur;
+    numRuns = that.numRuns;
+    
+    return *this;
+}
+
 
 bool PerformanceTimer::TimeEntry::operator<(const WhirlyKit::PerformanceTimer::TimeEntry &that) const
 {
@@ -112,12 +124,23 @@ void PerformanceTimer::clear()
     countEntries.clear();
 }
 
+static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const PerformanceTimer::TimeEntry &b)
+{
+    return a.avgDur > b.avgDur;
+}
+    
 void PerformanceTimer::log()
 {
+    std::vector<TimeEntry> sortedEntries;
+    sortedEntries.reserve(timeEntries.size());
+    
     for (std::map<std::string,TimeEntry>::iterator it = timeEntries.begin();
          it != timeEntries.end(); ++it)
+        sortedEntries.push_back(it->second);
+    std::sort(sortedEntries.begin(),sortedEntries.end(),TimeEntryByMax);
+    for (unsigned int ii=0;ii<sortedEntries.size();ii++)
     {
-        TimeEntry &entry = it->second;
+        TimeEntry &entry = sortedEntries[ii];
         if (entry.numRuns > 0)
             NSLog(@"  %s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
     }

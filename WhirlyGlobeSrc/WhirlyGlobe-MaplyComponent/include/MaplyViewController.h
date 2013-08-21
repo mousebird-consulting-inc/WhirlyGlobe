@@ -51,9 +51,25 @@
     very least and then you can add markers, labels, and vectors on top.
   */
 @interface MaplyViewController : MaplyBaseViewController
-{
-    NSObject<MaplyViewControllerDelegate> * __weak delegate;
-}
+
+/// Create a tethered flat map that obeys the given scroll view
+- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+
+/// Called when the owner resets the top level scroll and tether view
+- (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView;
+
+/// Create a flat map (no 3D)
+- (id)initAsFlatMap;
+
+/// Set if we're in 2D mode
+@property (nonatomic,readonly) bool flatMode;
+
+/// If we're in tethered flat map mode, this is the view we're monitoring
+///  for size and offset changes
+@property(nonatomic,weak) UIView *tetherView;
+
+/// If set before load, we'll turn off all gestures and work only in tethered mode
+@property(nonatomic,assign) bool tetheredMode;
 
 /// Set this to trun on/off the pinch (zoom) gesture recognizer
 /// On by default
@@ -78,6 +94,9 @@
 
 /// Animate to the given position over the given amount of time
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+
+/// Animate to the given extents over time (only for flat view mode)
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
 
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will do nothing

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,19 +22,11 @@
 #import "MaplyView.h"
 
 @interface MaplyPinchDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    /// Minimum allowable zoom level
-    float minZoom;
-    /// Maximum allowable zoom level
-    float maxZoom;
-    /// If we're zooming, where we started
-    float startZ;
-    MaplyView *mapView;
-    /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2f> bounds;
-}
 
-@property (nonatomic,assign) float minZoom,maxZoom;
+/// Minimum allowable zoom level
+@property (nonatomic,assign) float minZoom;
+/// Maximum allowable zoom level
+@property (nonatomic,assign) float maxZoom;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;

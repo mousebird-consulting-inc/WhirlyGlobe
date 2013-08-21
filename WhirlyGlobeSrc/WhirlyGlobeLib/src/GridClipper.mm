@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 using namespace ClipperLib;
 
-float PolyScale = 1e14;
+static float PolyScale = 1e14;
 
 // Clip the given loop to the given MBR
 bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr,std::vector<VectorRing> &rets)

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponentTester
  *
  *  Created by Steve Gifford on 7/23/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,7 @@
 #import "ConfigViewController.h"
 
 // Map or globe or startup
-typedef enum {MapGlobe,MapMap} MapType;
-
-// The various base layers we know about
-typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRemote,MapBoxTilesSat1,MapBoxTilesTerrain1,MapBoxTilesRegular1,BlueMarbleSingleResLocal,MaxBaseLayers} BaseLayer;
+typedef enum {MaplyGlobe,Maply3DMap,Maply2DMap,MaplyScrollViewMap,MaplyNumTypes} MapType;
 
 /** The Test View Controller brings up the WhirlyGlobe Component
     and allows the user to test various functionality.
@@ -43,6 +40,6 @@ typedef enum {GeographyClassMBTilesLocal,StamenWatercolorRemote,OpenStreetmapRem
 }
 
 // Fire it up with a particular base layer and map or globe display
-- (id)initWithMapType:(MapType)mapType baseLayer:(BaseLayer)baseLayer;
+- (id)initWithMapType:(MapType)mapType;
 
 @end

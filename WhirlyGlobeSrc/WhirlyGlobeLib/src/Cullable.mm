@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -173,7 +173,8 @@ void Cullable::addDrawable(CullTree *cullTree,Mbr drawLocalMbr,DrawableRef draw)
     childDrawables.insert(draw);
     
     // If it's got a matrix, that can be changed and we have no clue where it might end up
-    if (draw->getMatrix())
+    // Same for drawables without a valid local MBR
+    if (draw->getMatrix() || !drawLocalMbr.valid())
     {
         drawables.insert(draw);
         return;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/11/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,41 @@
 using namespace WhirlyKit;
 
 @implementation UIImage(Stuff)
+
+// Courtesy: http://forum.sparrow-framework.org/topic/create-uiimage-from-pixel-data-problems
++ (id)imageWithRawData:(NSData *)imageData width:(unsigned int)width height:(unsigned int)height
+{
+    unsigned char *rawImageData = (unsigned char *)[imageData bytes];
+    UIImage *newImage = nil;
+    
+    int nrOfColorComponents = 4; //RGBA
+    int bitsPerColorComponent = 8;
+    int rawImageDataLength = width * height * nrOfColorComponents;
+    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
+    
+    CGDataProviderRef dataProviderRef;
+    CGColorSpaceRef colorSpaceRef;
+    CGImageRef imageRef;
+    
+    @try
+    {
+        GLubyte *rawImageDataBuffer = rawImageData;
+        
+        dataProviderRef = CGDataProviderCreateWithData(NULL, rawImageDataBuffer, rawImageDataLength, nil);
+        colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+        imageRef = CGImageCreate(width, height, bitsPerColorComponent, bitsPerColorComponent * nrOfColorComponents, width * nrOfColorComponents, colorSpaceRef, bitmapInfo, dataProviderRef, NULL, NO, renderingIntent);
+        newImage = [UIImage imageWithCGImage:imageRef];
+    }
+    @finally
+    {
+        CGDataProviderRelease(dataProviderRef);
+        CGColorSpaceRelease(colorSpaceRef);
+        CGImageRelease(imageRef);
+    }
+    
+    return newImage;
+}
 
 -(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp
 {
@@ -47,14 +82,6 @@ using namespace WhirlyKit;
         *height = upHeight;
     }
 
-    // Note: Make this optional
-#if 0
-    if (*width > 512)
-        *width = 512;
-    if (*height > 512)
-        *height = 512;
-#endif
-	
 	NSMutableData *retData = [NSMutableData dataWithLength:(*width)*(*height)*4];
 	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], (*width), (*height), 8, (*width) * 4, colorSpace, kCGImageAlphaPremultipliedLast);
 //	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], *width, *height, 8, (*width) * 4, CGImageGetColorSpace(cgImage), kCGImageAlphaPremultipliedLast);
@@ -64,5 +91,46 @@ using namespace WhirlyKit;
 	
 	return retData;
 }
+
+-(NSData *)rawDataScaleWidth:(unsigned int)destWidth height:(unsigned int)destHeight border:(int)border
+{
+	CGImageRef cgImage = self.CGImage;
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	
+    
+	NSMutableData *retData = [NSMutableData dataWithLength:destWidth*destHeight*4];
+	CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], destWidth, destHeight, 8, destWidth * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+	CGContextDrawImage(theContext, CGRectMake((float)border, (float)border, (CGFloat)(destWidth-2*border), (CGFloat)(destWidth-2*border)), cgImage);
+	CGContextRelease(theContext);
+    CGColorSpaceRelease(colorSpace);
+    
+    // Copy over the extra pixels
+    // Note: Only supporting one pixel
+    unsigned int *buf = (unsigned int *)[retData mutableBytes];
+    if (border > 0)
+    {
+        int ix,iy;
+        // Bottom
+        for (iy=border-1;iy>=0;iy--)
+            for (ix=0;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy+1)*destWidth + ix];
+        // Top
+        for (iy=destHeight-(1+border);iy<destHeight;iy++)
+        for (ix=0,iy=destHeight-1;ix<destWidth;ix++)
+            buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
+        // Left
+        for (ix=border-1;ix>=0;ix--)
+            for (iy=0;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix+1)];
+        // Right
+        for (ix=destWidth-(1+border);ix<destWidth;ix++)
+            for (iy=0;iy<destHeight;iy++)
+            buf[iy*destWidth + ix] = buf[iy*destWidth + (ix-1)];
+    }
+	
+	return retData;
+    
+}
+
 
 @end

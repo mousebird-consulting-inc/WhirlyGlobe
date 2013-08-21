@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #import <string>
 #import "OpenGLES2Program.h"
 #import "Lighting.h"
+#import "GLUtils.h"
 
 using namespace Eigen;
 
@@ -57,6 +58,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
         return true;
     
     glUniform1f(uni->index,val);
+    CheckGLError("BigDrawable::draw() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
     
@@ -76,6 +78,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,int val)
         return true;
     
     glUniform1i(uni->index,val);
+    CheckGLError("BigDrawable::draw() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
     
@@ -95,6 +98,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f 
         return true;
     
     glUniform2f(uni->index, vec.x(), vec.y());
+    CheckGLError("BigDrawable::draw() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
     
@@ -113,6 +117,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f 
         return true;
     
     glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
+    CheckGLError("BigDrawable::draw() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
     
@@ -133,6 +138,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f 
         return true;
     
     glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
+    CheckGLError("BigDrawable::draw() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -162,6 +168,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f 
     }
     
     glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
+    CheckGLError("BigDrawable::draw() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
         uni->val.mat[ii] = mat.data()[ii];
@@ -338,7 +345,6 @@ bool OpenGLES2Program::hasLights()
     
 bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
 {
-    // Note: This was causing all the geometry to turn up black
     if (lightsLastUpdated >= lastUpdate)
         return false;
     lightsLastUpdated = lastUpdate;

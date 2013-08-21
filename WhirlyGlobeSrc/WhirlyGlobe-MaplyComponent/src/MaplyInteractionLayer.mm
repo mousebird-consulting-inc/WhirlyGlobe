@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,8 +36,6 @@ using namespace WhirlyGlobe;
     Maply::MapScene *mapScene;
     MaplyView *mapView;
 }
-
-@synthesize viewController;
 
 - (id)initWithMapView:(MaplyView *)inMapView
 {
@@ -75,7 +73,7 @@ using namespace WhirlyGlobe;
 - (void) userDidTapLayerThread:(MaplyTapMessage *)msg
 {
     // First, we'll look for labels and markers
-    SimpleIdentity selID = [selectLayer pickObject:Point2f(msg.touchLoc.x,msg.touchLoc.y) view:glView maxDist:10.0];
+    SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(msg.touchLoc.x,msg.touchLoc.y),10.0,mapView);
 
     NSObject *selObj;
     if (selID != EmptyIdentity)
@@ -94,7 +92,7 @@ using namespace WhirlyGlobe;
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [viewController handleSelection:msg didSelect:selObj];
+                       [_viewController handleSelection:msg didSelect:selObj];
                    }
                    );
 }

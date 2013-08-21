@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/20/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #import "SceneRendererES.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
+#import "SelectionManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -30,10 +31,10 @@ namespace WhirlyKit
     
 // Compare two matrices float by float
 // The default comparison seems to have an epsilon and the cwise version isn't getting picked up
-bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
+bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 {
-    float *floatsA = a.data();
-    float *floatsB = b.data();
+    double *floatsA = a.data();
+    double *floatsB = b.data();
     
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
@@ -46,56 +47,122 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 
 @implementation WhirlyKitRendererFrameInfo
 
-@synthesize oglVersion;
-@synthesize sceneRenderer;
-@synthesize theView;
-@synthesize modelTrans;
-@synthesize viewTrans;
-@synthesize projMat;
-@synthesize mvpMat;
-@synthesize scene;
-@synthesize frameLen;
-@synthesize currentTime;
-@synthesize eyeVec;
-@synthesize viewAndModelMat;
-@synthesize program;
-@synthesize lights;
+@end
+
+@implementation WhirlyKitOpenGLStateOptimizer
+{
+    int activeTexture;
+    int depthMask;
+    int depthTest;
+    int progId;
+    int depthFunc;
+    GLfloat lineWidth;
+}
+
+- (id)init
+{
+    self = [super init];
+    [self reset];
+    
+    return self;
+}
+
+- (void)reset
+{
+    activeTexture = -1;
+    depthMask = 0;
+    depthTest = -1;
+    progId = -1;
+    lineWidth = -1.0;
+    depthFunc = -1;
+}
+
+- (void)setActiveTexture:(GLenum)newActiveTexture
+{
+    if (newActiveTexture != activeTexture)
+    {
+        glActiveTexture(newActiveTexture);
+        activeTexture = newActiveTexture;
+    }
+}
+
+- (void)setDepthMask:(bool)newDepthMask
+{
+    if (depthMask == -1 || (bool)depthMask != newDepthMask)
+    {
+        glDepthMask(newDepthMask);
+        depthMask = newDepthMask;
+    }
+}
+
+- (void)setEnableDepthTest:(bool)newEnable
+{
+    if (depthTest == -1 || (bool)depthTest != newEnable)
+    {
+        if (newEnable)
+            glEnable(GL_DEPTH_TEST);
+        else
+            glDisable(GL_DEPTH_TEST);
+        depthTest = newEnable;
+    }
+}
+
+- (void)setDepthFunc:(GLenum)newDepthFunc
+{
+    if (depthFunc == -1 || newDepthFunc != depthFunc)
+    {
+        glDepthFunc(newDepthFunc);
+        depthFunc = newDepthFunc;
+    }
+}
+
+- (void)setUseProgram:(GLuint)newProgId
+{
+//    if (progId != newProgId)
+//    {
+        glUseProgram(newProgId);
+        progId = newProgId;
+//    }
+}
+
+- (void)setLineWidth:(GLfloat)newLineWidth
+{
+    if (lineWidth != newLineWidth || lineWidth == -1.0)
+    {
+        if (newLineWidth > 0.0)
+        {
+            glLineWidth(newLineWidth);
+            lineWidth = newLineWidth;
+        }
+    }
+}
 
 @end
 
 @implementation WhirlyKitSceneRendererES
-
-@synthesize context;
-@synthesize scene,theView;
-@synthesize zBufferMode;
-@synthesize doCulling;
-@synthesize framebufferWidth,framebufferHeight;
-@synthesize scale;
-@synthesize framesPerSec;
-@synthesize perfInterval;
-@synthesize numDrawables;
-@synthesize useViewChanged;
-@synthesize sortAlphaToEnd;
-@synthesize depthBufferOffForAlpha;
+{
+    // View state from the last render, for comparison
+    Eigen::Matrix4d modelMat,viewMat,projMat;    
+}
 
 - (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion
 {
 	if ((self = [super init]))
 	{
 		frameCount = 0;
-		framesPerSec = 0.0;
-        numDrawables = 0;
+		_framesPerSec = 0.0;
+        _numDrawables = 0;
 		frameCountStart = nil;
-        zBufferMode = zBufferOn;
-        doCulling = true;
-        clearColor.r = 0.0;  clearColor.g = 0.0;  clearColor.b = 0.0;  clearColor.a = 1.0;
-        perfInterval = -1;
-        scale = [[UIScreen mainScreen] scale];
+        _zBufferMode = zBufferOn;
+        _doCulling = true;
+        _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
+        _perfInterval = -1;
+        _scale = [[UIScreen mainScreen] scale];
 		
-		context = [[EAGLContext alloc] initWithAPI:apiVersion];
+		_context = [[EAGLContext alloc] initWithAPI:apiVersion];
         
         EAGLContext *oldContext = [EAGLContext currentContext];
-        if (!context || ![EAGLContext setCurrentContext:context])
+        if (!_context || ![EAGLContext setCurrentContext:_context])
 		{
             return nil;
         }
@@ -121,13 +188,13 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
         CheckGLError("SceneRendererES: glBindRenderbuffer");
         
         // All the animations should work now, except for particle systems
-        useViewChanged = true;
-        
-        // On by default.  Turn it off if you know why.
-        sortAlphaToEnd = true;
+        _useViewChanged = true;
+
+        // No longer really ncessary
+        _sortAlphaToEnd = false;
         
         // Off by default.  Because duh.
-        depthBufferOffForAlpha = false;
+        _depthBufferOffForAlpha = false;
         
         [EAGLContext setCurrentContext:oldContext];        
 	}
@@ -138,9 +205,9 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 - (void) dealloc
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != context)
-        [EAGLContext setCurrentContext:context];
-	
+    if (oldContext != _context)
+        [EAGLContext setCurrentContext:_context];
+    	
 	if (defaultFramebuffer)
 	{
 		glDeleteFramebuffers(1, &defaultFramebuffer);
@@ -159,9 +226,9 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 		depthRenderbuffer = 0;
 	}
 	
-	if (oldContext != context)
+	if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
-	context = nil;	
+	_context = nil;	
 }
 
 // We'll take the maximum requested time
@@ -172,32 +239,41 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 
 - (void)setTriggerDraw
 {
-    triggerDraw = true;
+    _triggerDraw = true;
+}
+
+- (void)setScene:(WhirlyKit::Scene *)newScene
+{
+    _scene = newScene;
+    if (_scene)
+    {
+        _scene->setRenderer(self);
+    }
 }
 
 - (void)useContext
 {
-	if (context && [EAGLContext currentContext] != context)
-		[EAGLContext setCurrentContext:context];
+	if (_context && [EAGLContext currentContext] != _context)
+		[EAGLContext setCurrentContext:_context];
 }
 
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != context)
-        [EAGLContext setCurrentContext:context];
+    if (oldContext != _context)
+        [EAGLContext setCurrentContext:_context];
     
 	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
+	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
     
 	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, framebufferWidth, framebufferHeight);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _framebufferWidth, _framebufferHeight);
     CheckGLError("SceneRendererES: glRenderbufferStorage");
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
@@ -205,36 +281,39 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        if (oldContext != _context)
+            [EAGLContext setCurrentContext:oldContext];
 		return NO;
 	}
 		
     lastDraw = 0;
 	
-    if (oldContext != context)
+    if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
 	return YES;
 }
 
 - (void) setClearColor:(UIColor *)color
 {
-    clearColor = [color asRGBAColor];
+    _clearColor = [color asRGBAColor];
 }
 
 // Calculate an acceptable MBR from world coords
-- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4f *)modelTrans frameSize:(Point2f)frameSize
+- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4d *)modelTrans frameSize:(Point2f)frameSize
 {
     Mbr localScreenMbr;
     
     for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
     {
-        CGPoint screenPt = [globeView pointOnScreenFromSphere:corners[ii] transform:modelTrans frameSize:frameSize];
+        Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
+        CGPoint screenPt = [globeView pointOnScreenFromSphere:cornerPt transform:modelTrans frameSize:frameSize];
         localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     
     return localScreenMbr;
 }
 
-- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -250,9 +329,9 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     }
 }
 
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4f *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystemDisplayAdapter *coordAdapter = _scene->getCoordAdapter();
     
     // Check the four corners of the cullable to see if they're pointed away
     // But just for the globe case
@@ -271,14 +350,15 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
             }
         }
     }
-    if (doCulling && !inView)
+    if (_doCulling && !inView)
         return;
     
     Mbr localScreenMbr;
-    localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
+    if (globeView)
+        localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
     
     // If this doesn't overlap what we're viewing, we're done
-    if (doCulling && !screenMbr.overlaps(localScreenMbr))
+    if (_doCulling && !screenMbr.overlaps(localScreenMbr))
         return;
     
     // If the footprint of this level on the screen is larger than
@@ -306,7 +386,7 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
 // Check if the view changed from the last frame
 - (bool) viewDidChange
 {
-    if (!useViewChanged)
+    if (!_useViewChanged)
         return true;
     
     // First time through
@@ -314,9 +394,9 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
         return true;
     
     // Something wants to be sure we draw on the next frame
-    if (triggerDraw)
+    if (_triggerDraw)
     {
-        triggerDraw = false;
+        _triggerDraw = false;
         return true;
     }
     
@@ -325,15 +405,17 @@ bool matrixAisSameAsB(Matrix4f &a,Matrix4f &b)
     if (lastDraw < renderUntil)
         return true;
     
-    Matrix4f newModelMat = [theView calcModelMatrix];
-    Matrix4f newViewMat = [theView calcViewMatrix];
+    Matrix4d newModelMat = [_theView calcModelMatrix];
+    Matrix4d newViewMat = [_theView calcViewMatrix];
+    Matrix4d newProjMat = [_theView calcProjectionMatrix:Point2f(_framebufferWidth,_framebufferHeight) margin:0.0];
     
     // Should be exactly the same
-    if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat))
+    if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat) && matrixAisSameAsB(newProjMat, projMat))
         return false;
     
     modelMat = newModelMat;
     viewMat = newViewMat;
+    projMat = newProjMat;
     return true;
 }
 

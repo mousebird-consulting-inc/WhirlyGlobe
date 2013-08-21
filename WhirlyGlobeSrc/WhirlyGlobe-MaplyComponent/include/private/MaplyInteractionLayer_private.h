@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,11 +31,8 @@
     data added to the scene and various other layers.
  */
 @interface MaplyInteractionLayer : MaplyBaseInteractionLayer
-{
-    /// The view controller, for various callbacks
-    NSObject<MaplyInteractionLayerDelegate> * __weak viewController;
-}
 
+/// The view controller, for various callbacks
 @property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
 
 // Create with the map view

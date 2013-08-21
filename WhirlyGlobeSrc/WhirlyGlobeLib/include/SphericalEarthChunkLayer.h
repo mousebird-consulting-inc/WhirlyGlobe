@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/29/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,55 +22,17 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-
-/** This defines a chunk of the globe to overlay with a single
-    image.  In general you should use one of the quad layers
-    instead.  This is here if you need to control data loading
-    image by image, presumably with an active layer.
-  */
-@interface WhirlyKitSphericalChunk : NSObject
-{
-    /// Bounding box for the chunk to display
-    WhirlyKit::GeoMbr mbr;
-    /// Texture we'll wrap over the top
-    WhirlyKit::SimpleIdentity texId;
-    /// Z offset for the generated geometry
-    float drawOffset;
-    /// Sorting priority for the generated geometry
-    int drawPriority;
-    /// Sampling along X and Y
-    int sampleX,sampleY;
-    /// Chunk is visible this far down
-    float minVis;
-    /// Chunk is visible this far out
-    float maxVis;
-    /// Distance from the min visible range to start fading
-    float minVisBand;
-    /// Distance from the max visible range to start fading
-    float maxVisBand;
-    /// Rotation around the middle of the chunk
-    float rotation;
-}
-
-@property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
-@property (nonatomic,assign) float drawOffset;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) int sampleX,sampleY;
-@property (nonatomic,assign) float minVis,maxVis;
-@property (nonatomic,assign) float minVisBand,maxVisBand;
-@property (nonatomic,assign) float rotation;
-
-@end
+#import "TileQuadLoader.h"
+#import "SphericalEarthChunkManager.h"
 
 /** The Spherical Chunk layer
   */
 @interface WhirlyKitSphericalChunkLayer : NSObject<WhirlyKitLayer>
-{
-    bool ignoreEdgeMatching;
-}
 
+/// If set, we'll turn off skirts
 @property (nonatomic,assign) bool ignoreEdgeMatching;
+/// If set we'll use a dynamic texture and drawable atlas
+@property (nonatomic,assign) bool useDynamicAtlas;
 
 /// Add a single chunk on the spherical earth.  This returns and ID
 ///  we can use to remove it later.

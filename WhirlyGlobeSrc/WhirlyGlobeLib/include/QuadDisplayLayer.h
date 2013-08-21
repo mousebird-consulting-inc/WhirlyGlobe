@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,8 +41,35 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::Point3f eyeVec,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr);
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
+
+/// Utility function to calculate importance based on pixel screen size.
+/// This version takes a min/max height and is optimized for volumes.
+float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, double minZ,double maxZ, WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs);
 }
+
+/// A solid volume used to describe the display space a tile takes up.
+/// We use these for screen space calculations and cache them in the tile
+///  idents.
+@interface WhirlyKitDisplaySolid : NSObject
+
+/// The actual polygons for the side (we are lazy)
+@property (nonatomic,assign) std::vector<std::vector<WhirlyKit::Point3d> > &polys;
+/// Normals for all 5 or 6 planes
+@property (nonatomic,assign) std::vector<Eigen::Vector3d> &normals;
+/// Normals for the surface.  We use these to make sure the solid is pointing towards us.
+@property (nonatomic,assign) std::vector<Eigen::Vector3d> &surfNormals;
+
+/// Create a display solid, including height.
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)minZ maxZ:(float)maxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+/// Returns true if the given point (in display space) is inside the volume
+- (bool)isInside:(WhirlyKit::Point3d)pt;
+
+/// Calculate the importance for this display solid given the user's eye position
+- (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+
+@end
 
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
@@ -66,7 +93,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;
@@ -115,6 +142,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// Dump some log info out to the console
+- (void)log;
+
 @end
 
 
@@ -122,79 +152,39 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     It will swap data in and out as required.
  */
 @interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
-{
-    /// Layer thread we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene we're modifying
-    WhirlyKit::Scene *scene;
-    
-    /// The renderer we need for frame sizes
-    WhirlyKitSceneRendererES * __weak renderer;
-        
-    /// Coordinate system we're working in for tiling
-    WhirlyKit::CoordSystem *coordSys;
-    
-    /// Valid bounding box in local coordinates (coordSys)
-    WhirlyKit::Mbr mbr;
-    
-    /// [minZoom,maxZoom] range
-    int minZoom,maxZoom;
-    
-    /// Quad tree used for paging advice
-    WhirlyKit::Quadtree *quadtree;
-        
-    /// Nodes being evaluated for loading
-    WhirlyKit::QuadNodeInfoSet nodesForEval;
 
-    /// Maximum number of tiles loaded in at once
-    int maxTiles;
-    
-    /// Minimum screen area to consider for a pixel
-    float minImportance;
-    
-    /// How often this layer gets notified of view changes.  1s by default.
-    float viewUpdatePeriod;
-    
-    /// If set, we'll draw the empty tiles as lines
-    /// If not set, we'll just stop loading at that tile
-    // Note: Note implemented
-    bool drawEmpty;
-    
-    /// Draw lines instead of polygons, for demonstration.
-    bool lineMode;
-    
-    /// If set the eval step gets very aggressive about loading tiles.
-    /// This will slow down the layer thread, but makes the quad layer appear faster
-    bool greedyMode;
-    
-    /// If set, we print out way too much debugging info.
-    bool debugMode;    
-
-    /// State of the view the last time we were called
-    WhirlyKitViewState *viewState;
-
-    /// Data source for the quad tree structure
-    NSObject<WhirlyKitQuadDataStructure> *dataStructure;
-
-    /// Loader that may be creating and deleting data as the quad tiles load
-    ///  and unload.
-    NSObject<WhirlyKitQuadLoader> *loader;
-}
-
+/// Layer thread we're attached to
 @property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
+/// Scene we're modifying
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
+/// Quad tree used for paging advice
 @property (nonatomic,readonly) WhirlyKit::Quadtree *quadtree;
+/// Coordinate system we're working in for tiling
 @property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
+/// Valid bounding box in local coordinates (coordSys)
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
+/// Maximum number of tiles loaded in at once
 @property (nonatomic,assign) int maxTiles;
+/// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
+/// Draw lines instead of polygons, for demonstration.
 @property (nonatomic,assign) bool lineMode;
+/// If set, we print out way too much debugging info.
 @property (nonatomic,assign) bool debugMode;
+/// If set, we'll draw the empty tiles as lines
+/// If not set, we'll just stop loading at that tile
+// Note: Note unimplemented
 @property (nonatomic,assign) bool drawEmpty;
+/// How often this layer gets notified of view changes.  1s by default.
 @property (nonatomic,assign) float viewUpdatePeriod;
+/// How far the viewer has to move to force an update (if non-zero)
+@property (nonatomic,assign) float minUpdateDist;
+/// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+/// Loader that may be creating and deleting data as the quad tiles load
+///  and unload.
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
+/// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 
 /// Construct with a renderer and data source for the tiles
@@ -210,6 +200,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
+
+/// Call this to nudge the quad display layer awake.
+- (void)wakeUp;
 
 @end
 

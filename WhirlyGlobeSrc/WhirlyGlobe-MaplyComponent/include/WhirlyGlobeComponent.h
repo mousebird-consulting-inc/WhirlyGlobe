@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,12 +19,22 @@
  */
 
 #import <WGCoordinate.h>
+#import <MaplyCoordinateSystem.h>
 #import <MaplyLabel.h>
 #import <MaplyScreenLabel.h>
 #import <MaplyMarker.h>
 #import <MaplyScreenMarker.h>
 #import <MaplyShape.h>
 #import <MaplySticker.h>
+#import <MaplyVectorObject.h>
 #import <MaplyViewTracker.h>
-#import <WhirlyGlobeViewController.h>
 #import <MaplyViewController.h>
+#import <WhirlyGlobeViewController.h>
+#import <MaplyQuadPagingLayer.h>
+#import <MaplyQuadEarthTilesLayer.h>
+#import <MaplyQuadEarthWithMBTiles.h>
+#import <MaplyQuadEarthWithRemoteTiles.h>
+#import <MaplySphericalQuadEarthWithTexGroup.h>
+#import <MaplyQuadTestLayer.h>
+#import <MaplyTileSource.h>
+#import <MaplyWMSTileSource.h>

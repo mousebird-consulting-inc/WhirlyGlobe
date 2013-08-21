@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,9 @@
 using namespace WhirlyKit;
 
 @implementation MaplyTapDelegate
+{
+    MaplyView *mapView;
+}
 
 - (id)initWithMapView:(MaplyView *)inView
 {
@@ -62,16 +65,16 @@ using namespace WhirlyKit;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     // Just figure out where we tapped
-	Point3f hit;
-    Eigen::Matrix4f theTransform = [mapView calcFullMatrix];
+	Point3d hit;
+    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:tap.view];
-		[msg setWorldLoc:hit];
-        Point3f localPt = coordAdapter->displayToLocal(hit);
+		[msg setWorldLoc:Point3f(hit.x(),hit.y(),hit.z())];
+        Point3d localPt = coordAdapter->displayToLocal(hit);
 		[msg setWhereGeo:coordAdapter->getCoordSystem()->localToGeographic(localPt)];
         msg.heightAboveSurface = hit.z();
 		

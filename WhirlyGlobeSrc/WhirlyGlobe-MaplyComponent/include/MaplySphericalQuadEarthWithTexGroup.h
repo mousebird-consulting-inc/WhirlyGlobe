@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/24/13.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@
  */
 
 #import "MaplyViewControllerLayer.h"
-#import <WhirlyGlobe.h>
 
+/** The Spherical Quad Earth layer is used to load an older style
+    base map data set produced by ImageChopper.
+  */
 @interface MaplySphericalQuadEarthWithTexGroup : MaplyViewControllerLayer
 
 /// Initialize with a texture group.  Ideally the quad tree kind
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread  scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer texGroup:(NSString *)texGroupName;
-
-/// Clean up any and all resources
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+- (id)initWithWithTexGroup:(NSString *)texGroupName;
 
 @end

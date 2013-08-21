@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/10/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,15 @@
 #import "SceneRendererES.h"
 
 @implementation WhirlyGlobeRotateDelegate
+{
+    /// What sort of rotation state we're in.  Not used
+    WhirlyGlobe::RotationType rotType;
+    WhirlyGlobeView *globeView;
+    /// Starting point for rotation
+    Eigen::Quaterniond startQuat;
+    /// Axis to rotate around
+    Eigen::Vector3d axis;
+}
 
 using namespace WhirlyGlobe;
 
@@ -88,8 +97,8 @@ using namespace WhirlyGlobe;
 
             if (rotType == RotFree)
             {
-                Eigen::AngleAxisf rotQuat(-rotate.rotation,axis);
-                Eigen::Quaternionf newRotQuat = startQuat * rotQuat;
+                Eigen::AngleAxisd rotQuat(-rotate.rotation,axis);
+                Eigen::Quaterniond newRotQuat = startQuat * rotQuat;
                 [globeView setRotQuat:newRotQuat];
             }
             

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,7 +33,16 @@ using namespace WhirlyGlobe;
 {    
 }
 
-@synthesize delegate;
+- (id) init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _autoMoveToTap = true;
+    
+    return self;
+}
 
 // Tear down layers and layer thread
 - (void) clear
@@ -52,7 +61,8 @@ using namespace WhirlyGlobe;
 
 - (void) dealloc
 {
-    [self clear];
+    if (globeScene)
+        [self clear];
 }
 
 // Create the globe view
@@ -91,7 +101,7 @@ using namespace WhirlyGlobe;
     self.pinchGesture = true;
     self.rotateGesture = true;
         
-    selection = true;
+    self.selection = true;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -99,6 +109,14 @@ using namespace WhirlyGlobe;
     [super viewWillAppear:animated];
     
     [self registerForEvents];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    // Let's kick off a view update in case the renderer just got set up
+    [globeView runViewUpdates];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -125,6 +143,7 @@ using namespace WhirlyGlobe;
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
     WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:globeScene texGroup:name];
+    newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
     if (!newLayer)
         return nil;
     
@@ -139,7 +158,7 @@ using namespace WhirlyGlobe;
     WhirlyGlobeSphericalEarthLayer *layer = note.object;
     
     // Look for the matching layer
-    if ([delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
+    if ([_delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
         for (WGViewControllerLayer *userLayer in userLayers)
         {
             if ([userLayer isKindOfClass:[WGSphericalEarthWithTexGroup class]])
@@ -147,7 +166,7 @@ using namespace WhirlyGlobe;
                 WGSphericalEarthWithTexGroup *userSphLayer = (WGSphericalEarthWithTexGroup *)userLayer;
                 if (userSphLayer.earthLayer == layer)
                 {
-                    [delegate globeViewController:self layerDidLoad:userLayer];
+                    [_delegate globeViewController:self layerDidLoad:userLayer];
                     break;
                 }
             }
@@ -252,6 +271,19 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
+{
+    if (pinchDelegate)
+        [pinchDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+}
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight
+{
+    if (pinchDelegate)
+        [pinchDelegate clearTiltZoom];
+}
+
 - (float)tilt
 {
     return globeView.tilt;
@@ -272,7 +304,7 @@ using namespace WhirlyGlobe;
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaternionf newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
     
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
@@ -291,32 +323,32 @@ using namespace WhirlyGlobe;
     [globeView cancelAnimation];
     
     // Figure out where that points lands on the globe
-    Eigen::Matrix4f modelTrans = [globeView calcFullMatrix];
-    Point3f whereLoc;
-    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc])
+    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    Point3d whereLoc;
+    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc normalized:true])
     {
         CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
-        Vector3f destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
-        Eigen::Quaternionf endRot;
+        Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+        Eigen::Quaterniond endRot;
         endRot = QuatFromTwoVectors(destPt, whereLoc);
-        Eigen::Quaternionf curRotQuat = globeView.rotQuat;
-        Eigen::Quaternionf newRotQuat = curRotQuat * endRot;
+        Eigen::Quaterniond curRotQuat = globeView.rotQuat;
+        Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
         
         if (panDelegate.northUp)
         {
             // We'd like to keep the north pole pointed up
             // So we look at where the north pole is going
-            Vector3f northPole = (newRotQuat * Vector3f(0,0,1)).normalized();
+            Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
             if (northPole.y() != 0.0)
             {
                 // Then rotate it back on to the YZ axis
                 // This will keep it upward
-                float ang = atanf(northPole.x()/northPole.y());
+                float ang = atan(northPole.x()/northPole.y());
                 // However, the pole might be down now
                 // If so, rotate it back up
                 if (northPole.y() < 0.0)
                     ang += M_PI;
-                Eigen::AngleAxisf upRot(ang,destPt);
+                Eigen::AngleAxisd upRot(ang,destPt);
                 newRotQuat = newRotQuat * upRot;
             }
         }
@@ -332,6 +364,11 @@ using namespace WhirlyGlobe;
 {
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
+    // If there's a pinch delegate, ask it to calculate the height.
+    if (pinchDelegate)
+    {
+        self.tilt = [pinchDelegate calcTilt];
+    }
 }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
@@ -340,10 +377,31 @@ using namespace WhirlyGlobe;
     globeView.heightAboveGlobe = height;
 }
 
+- (void)setHeading:(float)heading
+{
+    Point3d localPt = [globeView currentUp];
+    Eigen::AngleAxisd rot(heading,localPt);
+    Quaterniond newRotQuat = globeView.rotQuat * rot;
+    
+    globeView.rotQuat = newRotQuat;
+}
+
+- (float)heading
+{
+    float retHeading = 0.0;
+
+    // Figure out where the north pole went
+    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    if (northPole.y() != 0.0)
+        retHeading = atan(northPole.x()/northPole.y());
+    
+    return retHeading;
+}
+
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     *height = globeView.heightAboveGlobe;
-    Point3f localPt = [globeView currentUp];
+    Point3d localPt = [globeView currentUp];
     GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
@@ -351,22 +409,26 @@ using namespace WhirlyGlobe;
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(WhirlyGlobeTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
-    if (selectedObj && selection)
+    WGCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
+    if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didSelect:)])
-            [delegate globeViewController:self didSelect:selectedObj];
+        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:atLoc:onScreen:)])
+            [_delegate globeViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+        else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
+            [_delegate globeViewController:self didSelect:selectedObj];
     } else {
         // The user didn't select anything, let the delegate know.
-        if (delegate && [delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
         {
-            WGCoordinate coord;
-            coord.x = msg.whereGeo.lon();
-            coord.y = msg.whereGeo.lat();
-            [delegate globeViewController:self didTapAt:coord];
+            [_delegate globeViewController:self didTapAt:coord];
         }
         // Didn't select anything, so rotate
-        [self rotateToPoint:msg.whereGeo time:1.0];
+        if (_autoMoveToTap)
+            [self rotateToPoint:msg.whereGeo time:1.0];
     }
 }
 
@@ -383,16 +445,32 @@ using namespace WhirlyGlobe;
 // Called when the user taps outside the globe.
 - (void) tapOutsideGlobe:(NSNotification *)note
 {
-    if (selection && delegate && [delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
-        [delegate globeViewControllerDidTapOutside:self];
+    if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
+        [_delegate globeViewControllerDidTapOutside:self];
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    Point3f pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4f modelTrans = [visualView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+// Note: Finish writing this
+- (id)findObjectAtLocation:(CGPoint)screenPt
+{
+    // Look for the object, returns an ID
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    SimpleIdentity objId = selectManager->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView);
+    
+    if (objId != EmptyIdentity)
+    {
+        // Now ask the interaction layer for the right object
+        return [interactLayer getSelectableObject:objId];
+    }
+    
+    return nil;
 }
 
 - (void)setSunDirection:(MaplyCoordinate3d)sunDir

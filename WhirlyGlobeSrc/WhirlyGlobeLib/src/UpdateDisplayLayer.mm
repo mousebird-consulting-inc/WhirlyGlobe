@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,19 +26,25 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeUpdateDisplayLayer
-
-@synthesize moveDist;
-@synthesize minTime;
-@synthesize dataSource;
+{
+    /// Layer thread we're attached to
+    WhirlyKitLayerThread * __weak layerThread;
+    
+    /// Scene, just for the data source
+    WhirlyKit::Scene *scene;
+    
+    /// Last view state we were given
+    WhirlyGlobeViewState *viewState;
+}
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeUpdateDataSource> *)inDataSource moveDist:(float)inMoveDist minTime:(float)inMinTime
 {
     self = [super init];
     if (self)
     {
-        dataSource = inDataSource;
-        moveDist = inMoveDist;
-        minTime = inMinTime;
+        _dataSource = inDataSource;
+        _moveDist = inMoveDist;
+        _minTime = inMinTime;
     }
     
     return self;
@@ -51,7 +57,7 @@ using namespace WhirlyGlobe;
     
     // We want view updates, but only 1s in frequency
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:minTime];
+        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
 }
 
 - (void)shutdown
@@ -61,7 +67,7 @@ using namespace WhirlyGlobe;
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [dataSource shutdown];
+    [_dataSource shutdown];
 }
 
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
@@ -73,17 +79,17 @@ using namespace WhirlyGlobe;
     float dist2 = 0.0;
     if (lastViewState)
     {
-        Vector3f eye0 = [lastViewState eyePos];
-        Vector3f eye1 = [newViewState eyePos];
+        Vector3d eye0 = [lastViewState eyePos];
+        Vector3d eye1 = [newViewState eyePos];
         
         dist2 = (eye0-eye1).squaredNorm();
     }
 
     // If this is the first go, call the data source, otherwise we need to have moved sufficiently
-    if (!lastViewState || (dist2 >= moveDist*moveDist))
+    if (!lastViewState || (dist2 >= _moveDist*_moveDist))
     {
         viewState = newViewState;
-        [dataSource viewerDidUpdate:viewState scene:scene];
+        [_dataSource viewerDidUpdate:viewState scene:scene];
     }
 }
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,12 +44,16 @@ void GlobeScene::addDrawable(DrawableRef draw)
 
     // Account for the geo coordinate wrapping
     Mbr localMbr = draw->getLocalMbr();
-    GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
-    std::vector<Mbr> localMbrs;
-    geoMbr.splitIntoMbrs(localMbrs);
-    
-    for (unsigned int ii=0;ii<localMbrs.size();ii++)
-        cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
+    if (localMbr.valid())
+    {
+        GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
+        std::vector<Mbr> localMbrs;
+        geoMbr.splitIntoMbrs(localMbrs);
+        
+        for (unsigned int ii=0;ii<localMbrs.size();ii++)
+            cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
+    } else
+        cullTree->getTopCullable()->addDrawable(cullTree, localMbr, draw);
 }
 
 void GlobeScene::remDrawable(DrawableRef draw)

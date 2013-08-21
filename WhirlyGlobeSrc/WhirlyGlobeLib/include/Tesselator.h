@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/17/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,4 +28,11 @@ namespace WhirlyKit
 /** Tesselate the given ring, returning a list of triangles.
     This is a fairly simple tesselator. */
 void TesselateRing(const WhirlyKit::VectorRing &ring,std::vector<WhirlyKit::VectorRing> &rets);
+
+/** Tesselate the given areal feature.  The first ring is the outer,
+    all others are meant to be holes.
+  */
+void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing> &rets);
+
+
 }

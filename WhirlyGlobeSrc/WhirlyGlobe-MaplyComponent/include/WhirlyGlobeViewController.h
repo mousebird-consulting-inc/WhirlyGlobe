@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,12 @@
 /// You're given the object you passed in originally, such as a WGScreenMarker.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj;
 
+/// Called when the user taps on or near an object.
+/// You're given the object you passed in originally, such as a WGScreenMarker.
+/// This version is called if it's available in the delegate, otherwise the simpler version is called,
+///  if it's available.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /// Called when the user taps outside the globe.
 /// Passes in the location on the view.
 - (void)globeViewControllerDidTapOutside:(WhirlyGlobeViewController *)viewC;
@@ -55,9 +61,6 @@
     markers, labels, and vectors on top of that.
  */
 @interface WhirlyGlobeViewController : MaplyBaseViewController
-{
-    NSObject<WhirlyGlobeViewControllerDelegate> * __weak delegate;
-}
 
 /// Set this to keep the north pole facing upward when moving around.
 /// Off by default.
@@ -71,6 +74,10 @@
 /// On by default.
 @property(nonatomic,assign) bool rotateGesture;
 
+/// Set this to move to a location where the user tapped
+/// On by default
+@property(nonatomic,assign) bool autoMoveToTap;
+
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
@@ -78,15 +85,25 @@
 /// The radius of the earth is 1.0.  Height above terrain is relative to that.
 @property (nonatomic,assign) float height;
 
-/// This is is radians.  0 is looking straight down (the default)
+/// This is in radians.  0 is looking straight down (the default)
 ///  PI/2 is looking toward the horizon.
 @property(nonatomic,assign) float tilt;
+
+/// Rotation from north
+@property(nonatomic,assign) float heading;
 
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
 
 /// Set the min and max heights above the globe for zooming
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
+/// Set the height range over which to modify tilt.  We'll
+///  vary the tilt between the given values over the given height range, if set.
+- (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt;
+
+/// Turn off varying tilt by height
+- (void)clearTiltHeight;
 
 /// Set this to something other than zero and it will autorotate
 ///  after that interval the given number of degrees per second
@@ -107,6 +124,12 @@
 
 /// Get the current position and height
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+
+/// Find a selectable object at or near the given location.
+/// Returns nil if there was no object.  The object returned
+///  is a MaplyLabel or MaplyMarker or any of the Maply objects added
+///  by the caller and marked selectable.
+- (id)findObjectAtLocation:(CGPoint)screenPt;
 
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name;

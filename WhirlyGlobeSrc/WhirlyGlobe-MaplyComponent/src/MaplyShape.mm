@@ -25,38 +25,17 @@ using namespace WhirlyKit;
 
 @implementation MaplyShapeCircle
 
-@synthesize center;
-@synthesize radius;
-@synthesize height;
-@synthesize color;
-
 @end
 
 @implementation MaplyShapeSphere
-
-@synthesize center;
-@synthesize radius;
-@synthesize height;
-@synthesize color;
 
 @end
 
 @implementation MaplyShapeCylinder
 
-@synthesize baseCenter;
-@synthesize baseHeight;
-@synthesize radius;
-@synthesize height;
-@synthesize color;
-
 @end
 
 @implementation MaplyShapeGreatCircle
-
-@synthesize startPt,endPt;
-@synthesize height;
-@synthesize lineWidth;
-@synthesize color;
 
 - (id)init
 {
@@ -64,15 +43,15 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     
-    lineWidth = 1.0;
+    _lineWidth = 1.0;
     
     return self;
 }
 
 - (float)calcAngleBetween
 {
-    Point3f p0 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(startPt.x,startPt.y,0.0));
-    Point3f p1 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(endPt.x,endPt.y,0.0));
+    Point3f p0 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(_startPt.x,_startPt.y,0.0));
+    Point3f p1 = FakeGeocentricDisplayAdapter::LocalToDisplay(Point3f(_endPt.x,_endPt.y,0.0));
     
     float dot = p0.dot(p1);
 //    Point3f cross = p0.cross(p1);
@@ -86,9 +65,12 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyShapeLinear
-
-@synthesize lineWidth;
-@synthesize color;
+{
+    /// Number of coordinates to display in linear
+    int numCoords;
+    /// Coordinates we'll display for the linear (lon,lat,Z in display units)
+    MaplyCoordinate3d *coords;    
+}
 
 - (id)initWithCoords:(MaplyCoordinate3d *)inCoords numCoords:(int)inNumCoords
 {

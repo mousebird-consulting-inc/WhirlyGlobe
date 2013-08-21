@@ -3,7 +3,7 @@
  *  WhirlyGlobeApp
  *
  *  Created by Steve Gifford on 5/23/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,13 +27,6 @@
     We might assign it after a tap and drag is finished.
  */
 @interface AnimateViewMomentum : NSObject<WhirlyGlobeAnimationDelegate> 
-{
-    float velocity,acceleration;
-    Eigen::Quaternionf startQuat;
-    Eigen::Vector3f axis;
-    float maxTime;
-    CFTimeInterval startDate;
-}
 
 @property (nonatomic,assign) float velocity;
 @property (nonatomic,assign) float acceleration;

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/29/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
-        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this];        
+        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
         if (!node->hasChildren())
             nodesBySize.insert(node);
     }
@@ -219,7 +219,7 @@ Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
     nodeInfo.mbr = generateMbrForNode(ident);
-    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this];
+    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this attrs:nodeInfo.attrs];
     
     return nodeInfo;
 }

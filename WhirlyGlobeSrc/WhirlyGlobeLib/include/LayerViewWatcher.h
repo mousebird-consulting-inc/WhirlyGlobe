@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 /// @cond
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
+@class WhirlyKitSceneRendererES;
 /// @endcond
 
 /** The layer view watcher is a base class.  We subclass it for specific
@@ -31,30 +32,16 @@
     the criteria for watcher updates.
  */
 @interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
-{
-    /// Layer we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    /// The view we're following for upates
-    WhirlyKitView * __weak view;
-    /// Watchers we'll call back for updates
-    NSMutableArray *watchers;
-    
-    /// When the last update was run
-    NSTimeInterval lastUpdate;
 
-    /// You should know the type here.  A globe or a map view state.
-    WhirlyKitViewState *lastViewState;
-    
-    /// The sublcass of WhirlyKitViewState we'll use
-    Class viewStateClass;
-}
+/// The sublcass of WhirlyKitViewState we'll use
+@property (nonatomic) Class viewStateClass;
 
 /// Initialize with a view and layer thread
 - (id)initWithView:(WhirlyKitView *)view thread:(WhirlyKitLayerThread *)layerThread;
 
 /// Add the given target/selector combo as a watcher.
 /// Will get called at most the given frequency.
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime;
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime;
 
 /// Remove the given target/selector combo
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector;
@@ -66,25 +53,23 @@
  types.
  */
 @interface WhirlyKitViewState : NSObject
-{
-@public
-    Eigen::Matrix4f modelMatrix,viewMatrix,fullMatrix;
-	float fieldOfView;
-	float imagePlaneSize;
-	float nearPlane;
-	float farPlane;
-    WhirlyKit::Point3f eyeVec;
-    WhirlyKit::Point3f eyeVecModel;
-    WhirlyKit::Point2f ll,ur;
-    float near,far;
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-}
+
+@property(nonatomic,assign) Eigen::Matrix4d &modelMatrix,&viewMatrix,&fullMatrix,&projMatrix,&fullNormalMatrix;
+@property(nonatomic,assign) Eigen::Matrix4d &invModelMatrix,&invViewMatrix,&invFullMatrix,&invProjMatrix;
+@property(nonatomic,assign) double fieldOfView;
+@property(nonatomic,assign) double imagePlaneSize;
+@property(nonatomic,assign) double nearPlane;
+@property(nonatomic,assign) double farPlane;
+@property(nonatomic,assign) WhirlyKit::Point3d &eyeVec;
+@property(nonatomic,assign) WhirlyKit::Point3d &eyeVecModel;
+@property(nonatomic,assign) WhirlyKit::Point2d &ll,&ur;
+@property(nonatomic,assign) double near,far;
+@property(nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+/// Calculate where the eye is in model coordinates
+@property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Called by the subclasses
-- (id)initWithView:(WhirlyKitView *)view;
-
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3f)eyePos;
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input
@@ -92,11 +77,11 @@
 - (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight;
 
 /// From a screen point calculate the corresponding point in 3-space
-- (WhirlyKit::Point3f)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
+- (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 
 /// From a world location (3D), figure out the projection to the screen
 ///  Returns a point within the frame
-- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3f &)worldLoc transform:(const Eigen::Matrix4f *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
+- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
 
 /// Compare this view state to the other one.  Returns true if they're identical.
 - (bool)isSameAs:(WhirlyKitViewState *)other;

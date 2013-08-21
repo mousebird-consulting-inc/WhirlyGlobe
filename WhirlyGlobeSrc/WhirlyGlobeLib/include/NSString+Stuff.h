@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 #import <string>
 
 @interface NSString(Stuff)
+
+/// Build an NSString from a std::wstring
++(NSString*) stringWithwstring:(const std::wstring&)ws;
 
 /// Convert and return a std::string
 - (std::string) asStdString;

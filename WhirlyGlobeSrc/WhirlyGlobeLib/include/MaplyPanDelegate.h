@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,20 +23,6 @@
 #import "MaplyView.h"
 
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    MaplyView *mapView;
-    /// Set if we're panning
-    BOOL panning;
-    /// View transform when we started
-    Eigen::Matrix4f startTransform;
-    /// Where we first touched the plane
-    WhirlyKit::Point3f startOnPlane;
-    /// Viewer location when we started panning
-    WhirlyKit::Point3f startLoc;
-    CGPoint lastTouch;
-    /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2f> bounds;
-}
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;

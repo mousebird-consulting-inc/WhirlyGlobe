@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,5 +46,10 @@
 /// Called by the layer thread to shut a layer down.
 /// Clean all your stuff out of the scenegraph and so forth.
 - (void)shutdown;
+
+@optional
+
+/// Dump logging information out to the console
+- (void)log;
 
 @end

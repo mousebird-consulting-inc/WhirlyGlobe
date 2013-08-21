@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,14 +28,6 @@
     a negative acceleration will slow it down.
   */
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
-{
-    float velocity,acceleration;
-    Eigen::Vector3f dir;
-    float maxTime;
-    CFTimeInterval startDate;
-    WhirlyKit::Point3f org;
-    std::vector<WhirlyKit::Point2f> bounds;
-}
 
 /// Initialize with a velocity and negative acceleration (to slow down)
 - (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer;

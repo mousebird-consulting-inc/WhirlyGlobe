@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/17/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,9 +18,28 @@
  *
  */
 
+#import "EAGLView.h"
+#import "WhirlyVector.h"
+#import "WhirlyGeometry.h"
 #import "PinchDelegate.h"
 
+using namespace Eigen;
+using namespace WhirlyKit;
+
 @implementation WhirlyGlobePinchDelegate
+{
+    /// If we're in the process of zooming in, where we started
+	float startZ;
+	/// The view transform when we started
+	Eigen::Matrix4d startTransform;
+	/// Where we first touched the sphere
+	WhirlyKit::Point3d startOnSphere;
+	/// Rotation when we started
+	Eigen::Quaterniond startQuat;
+        bool valid;
+	WhirlyGlobeView *globeView;
+       double startRot;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -28,6 +47,8 @@
 	{
 		globeView = inView;
 		startZ = 0.0;
+                valid = false;
+                _doRotation = true;
 	}
 	
 	return self;
@@ -52,16 +73,88 @@
 - (void)pinchGesture:(id)sender
 {
 	UIPinchGestureRecognizer *pinch = sender;
+	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView  *)pinch.view;
 	UIGestureRecognizerState theState = pinch.state;
+	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+    
+    if (pinch.numberOfTouches != 2)
+        valid = false;
 	
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
-			// Store the starting Z for comparison
+			startTransform = [globeView calcFullMatrix];
+			startQuat = [globeView rotQuat];
+			// Store the starting Z and pinch center for comparison
 			startZ = globeView.heightAboveGlobe;
+            if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&startTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                               hit:&startOnSphere normalized:true])
+                valid = true;
+            else
+                valid = false;
+            
+            if (valid)
+                [globeView cancelAnimation];
+            
+            // Calculate a starting rotation
+            if (_doRotation)
+            {
+                CGPoint center = [pinch locationInView:glView];
+                CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                startRot = atan2(dy, dx);
+            }
 			break;
 		case UIGestureRecognizerStateChanged:
-			[globeView setHeightAboveGlobe:startZ/pinch.scale];
+            if (valid)
+            {
+                [globeView cancelAnimation];
+                
+                // And adjust the height too
+                [globeView setHeightAboveGlobe:startZ/pinch.scale updateWatchers:false];
+
+				// Figure out where we are now
+                // We have to roll back to the original transform with the current height
+                //  to get the rotation we want
+				Point3d hit;
+                Eigen::Quaterniond oldQuat = globeView.rotQuat;
+                [globeView setRotQuat:startQuat updateWatchers:false];
+                Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
+                Eigen::Quaterniond newRotQuat;
+                Point3d axis = [globeView currentUp];
+                if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
+                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                   hit:&hit normalized:true])
+                {
+                    // This gives us a direction to rotate around
+                    // And how far to rotate
+                    Eigen::Quaterniond endRot;
+                    endRot.setFromTwoVectors(startOnSphere,hit);
+                    axis = hit.normalized();
+                    newRotQuat = startQuat * endRot;
+                } else {
+                    newRotQuat = oldQuat;
+                }
+                
+                // And do a rotation around the pinch
+                if (_doRotation)
+                {
+                    CGPoint center = [pinch locationInView:glView];
+                    CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                    float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                    double curRot = atan2(dy, dx);
+                    double diffRot = curRot-startRot;
+                    Eigen::AngleAxisd rotQuat(-diffRot,axis);
+                    newRotQuat = newRotQuat * rotQuat;
+                }
+                    [globeView setRotQuat:(newRotQuat) updateWatchers:false];
+                
+                [globeView runViewUpdates];
+            }
+			break;
+        case UIGestureRecognizerStateEnded:
+            valid = false;
 			break;
         default:
             break;

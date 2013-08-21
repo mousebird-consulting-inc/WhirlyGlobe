@@ -24,22 +24,14 @@
 #import "MaplyComponentObject_private.h"
 #import "SelectObject_private.h"
 #import "ImageTexture_private.h"
+#import "MaplyBaseViewController.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    WhirlyKitMarkerLayer * __weak markerLayer;
-    WhirlyKitLabelLayer * __weak labelLayer;
-    WhirlyKitVectorLayer * __weak vectorLayer;
-    WhirlyKitShapeLayer * __weak shapeLayer;
-    WhirlyKitSphericalChunkLayer * __weak chunkLayer;
-    WhirlyKitLoftLayer * __weak loftLayer;
-    WhirlyKitSelectionLayer * __weak selectLayer;
-    // Note: Not a great idea to be passing this in
-    UIView * __weak glView;
-
     WhirlyKitView * __weak visualView;
 
+    pthread_mutex_t selectLock;
     // Use to map IDs in the selection layer to objects the user passed in
     SelectObjectSet selectObjectSet;
 
@@ -49,70 +41,73 @@
     // Scene we're using
     WhirlyKit::Scene *scene;
     
+    pthread_mutex_t imageLock;
     // Used to track textures
     MaplyImageTextureSet imageTextures;
 
+    pthread_mutex_t userLock;
     // Component objects created for the user
     NSMutableArray *userObjects;
 }
 
-@property (nonatomic,weak) WhirlyKitMarkerLayer * markerLayer;
-@property (nonatomic,weak) WhirlyKitLabelLayer * labelLayer;
-@property (nonatomic,weak) WhirlyKitVectorLayer * vectorLayer;
-@property (nonatomic,weak) WhirlyKitShapeLayer * shapeLayer;
-@property (nonatomic,weak) WhirlyKitSphericalChunkLayer *chunkLayer;
-@property (nonatomic,weak) WhirlyKitLoftLayer *loftLayer;
-@property (nonatomic,weak) WhirlyKitSelectionLayer * selectLayer;
+// Note: Not a great idea to be passing this in
 @property (nonatomic,weak) UIView * glView;
 
 // Initialize with the view we'll be using
 - (id)initWithView:(WhirlyKitView *)visualView;
 
 // Add screen space (2D) markers
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add 3D markers
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add screen space (2D) labels
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add 3D labels
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add vectors
-- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add vectors that we'll only use for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
 
 // Change vector representation
-- (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc;
+- (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add shapes
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add stickers
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache;
-
-// Remove objects associated with the user object
-- (void)removeObject:(MaplyComponentObject *)userObj;
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects
-- (void)removeObjects:(NSArray *)userObjs;
+- (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+
+// Enable objects
+- (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+
+// Disable objects
+- (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
-- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image;
+- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
 
 // Remove the texture associated with an image  or just decrement its reference count
 - (void)removeImage:(UIImage *)image;
 
 // Do a point in poly check for vectors we're representing
 - (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;
+
+// Find the Maply object corresponding to the given ID (from the selection manager).
+// Thread-safe
+- (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
 
 @end

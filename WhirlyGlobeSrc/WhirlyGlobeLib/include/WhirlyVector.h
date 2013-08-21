@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ namespace WhirlyKit
 {
 
 typedef Eigen::Vector3f Point3f;
+typedef Eigen::Vector3d Point3d;
+typedef Eigen::Vector2d Point2d;
 typedef Eigen::Vector2f Point2f;
     
 	
@@ -76,6 +78,8 @@ public:
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
     bool operator == (RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }
 	
 	unsigned char r,g,b,a;
 };
@@ -137,6 +141,7 @@ public:
     
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(std::vector<Point2f> &pts) const;
+    void asPoints(std::vector<Point2d> &pts) const;
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
@@ -208,9 +213,34 @@ protected:
 	
 	GeoCoord pt_ll,pt_ur;
 };
+    
+/** 3D ray representation.  Mostly used for intersection calculation.
+  */
+class Ray3f
+{
+public:
+    Ray3f() { }
+    Ray3f(Point3f org,Point3f dir) : org(org), dir(dir) { }
+    
+    Point3f org,dir;
+};
 
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
-Eigen::Quaternionf QuatFromTwoVectors(const Point3f &a,const Point3f &b);
+Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b);
+
+/// Convert a 4f matrix to a 4d matrix
+Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
+
+/// Convert a 4d matrix to a 4f matrix
+Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
+    
+/// Floats to doubles
+Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
+/// Doubles to floats
+Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec);
+
+/// Floats to doubles
+Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec);
 
 }

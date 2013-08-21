@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,5 +23,8 @@
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
 @interface MaplyViewControllerLayer : NSObject
+
+/// Set the priority for drawing
+@property (nonatomic,assign) int drawPriority;
 
 @end

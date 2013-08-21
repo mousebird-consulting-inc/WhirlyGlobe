@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/12/11.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -179,7 +179,7 @@ void ParticleGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
         {
             if (!draw || draw->getNumPoints() >= MaxDrawablePoints)
             {
-                draw = new BasicDrawable((numFull > MaxDrawablePoints ? MaxDrawablePoints : numFull),0);                
+                draw = new BasicDrawable("Particle Generator",(numFull > MaxDrawablePoints ? MaxDrawablePoints : numFull),0);                
                 draw->setType(GL_POINTS);
                 drawables.push_back(DrawableRef(draw));
             }

@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,6 @@
 /// Use this hint to turn culling optimization on or off.  Pass in an NSNumber boolean.
 #define kMaplyRenderHintCulling @"culling"
 #define kWGRenderHintCulling kMaplyRenderHintCulling
-/// This is an NSNumber specifying the WhirlyKitSceneRenderer to use (1 or 2).  Default is 2
-#define kMaplyRendererOpenGLVersion @"sceneRendererVersion"
-#define kWGRendererOpenGLVersion kMaplyRendererOpenGLVersion
 /// These are options for lighting modes, basically different default shader programs.  Only works with OpenGL ES 2.0 mode.
 /// Accepted values are: none,regular
 #define kMaplyRendererLightingMode @"rendererLightingMode"
@@ -50,23 +47,37 @@
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define kMaplyFade @"fade"
 #define kWGFade kMaplyFade
+/// Enable or disable an object.  This can be used to create an object disabled.
+#define kMaplyEnable @"enable"
+/// Request a given object take the z buffer into account
+#define kMaplyZBufferRead @"zbufferread"
+/// Have a given object write itself to the z buffer
+#define kMaplyZBufferWrite @"zbufferwrite"
 
-/// Default draw offset for 3D markers.  Set to avoid label/marker intererence
-#define kMaplyMarkerDrawOffsetDefault 1
-#define kWGMarkerDrawOffsetDefault kMaplyMarkerDrawOffsetDefault
-#define kMaplyMarkerDrawPriorityDefault 1
+/// Assign a shader program to a particular feature.  Use the shader program's name
+#define kMaplyShader @"shader"
+/// This is the shader we'll normally get by default on triangles
+#define kMaplyDefaultTriangleShader @"Default Triangle;lighting=yes"
+/// This shader turns off lighting explicitly (doesn't have the code for it)
+#define kMaplyNoLightTriangleShader @"Default Triangle;lighting=no"
+/// This is the line/point shader we'll normaly get by default
+#define kMaplyDefaultLineShader @"Default Line;backface=yes"
+/// This point/line shader turns off the backface logic for lines
+#define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+
+/// Where we start image layer draw priorities
+#define kMaplyImageLayerDrawPriorityDefault 100
+/// We'll start filling in features right around here
+#define kMaplyFeatureDrawPriorityBase 20000
+#define kMaplyStickerDrawPriorityDefault 30000
+#define kMaplyMarkerDrawPriorityDefault 40000
+#define kMaplyVectorDrawPriorityDefault 50000
+#define kMaplyLabelDrawPriorityDefault 60000
+#define kMaplyLoftedPolysDrawPriorityDefault 70000
+#define kMaplyShapeDrawPriorityDefault 80000
+
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
-
-/// Default draw offset for vectors.
-#define kMaplyVectorDrawOffsetDefault 3
-#define kWGVectorDrawOffsetDefault kMaplyVectorDrawOffsetDefault
-#define kMaplyVectorDrawPriorityDefault 3
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
-
-/// Default draw offset for stickers
-#define kMaplyStickerDrawOffsetDefault 2
-#define kWGStickerDrawOffsetDefault kMaplyStickerDrawOffsetDefault
-#define kMaplyStickerDrawPriorityDefault 2
 #define kWGStickerDrawPriorityDefault kMaplyStickerDrawPriorityDefault
 
 /// These are used just for the screen and regular labels
@@ -97,12 +108,10 @@
 /// If shadow size is being used, we can control the shadow color like so
 #define kMaplyShadowColor @"shadowColor"
 #define kWGShadowColor kMaplyShadowColor
-
-/// Default draw offset for 3D labels.  This is set to avoid label/marker interference
-#define kMaplyLabelDrawOffsetDefault 2
-#define kWGLabelDrawOffsetDefault kMaplyLabelDrawOffsetDefault
-#define kMaplyLabelDrawPriorityDefault 2
-#define kWGLabelDrawPriorityDefault kMaplyLabelDrawPriorityDefault
+/// If outline is being used, we can control the color
+#define kMaplyTextOutlineSize @"outlineSize"
+/// If outline is being used, we can control the stroke size
+#define kMaplyTextOutlineColor @"outlineColor"
 
 /// These are used for screen and regular markers.
 
@@ -119,9 +128,15 @@
 #define kMaplyFilled @"filled"
 #define kWGFilled kMaplyFilled
 
-/// If sample is set we'll break the line up before laying it down on the globe
-#define kMaplySample @"sample"
-#define kWGSample kMaplySample
+/// If set we'll break up a vector feature to the given epsilon on a globe surface
+#define kMaplySubdivEpsilon @"subdivisionepsilon"
+/// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
+#define kMaplySubdivType @"subdivsiontype"
+/// Subdivide the vector edges along a great circle
+#define kMaplySubdivGreatCircle @"greatcircle"
+/// Subdivide the vectors edges along lat/lon
+#define kMaplySubdivSimple @"simple"
+
 
 /// These are used for stickers
 
@@ -140,3 +155,14 @@
 #define kMaplyLoftedPolyTop @"top"
 /// Boolean that turns on/off sides (on by default)
 #define kMaplyLoftedPolySide @"side"
+/// Grid size we used to chop the lofted polygons up (10 degress by default)
+#define kMaplyLoftedPolyGridSize @"gridsize"
+
+/// These are used by active vector objects
+#define kMaplyVecHeight @"height"
+#define kMaplyVecMinSample @"minSample"
+
+/// These are the various shader programs we set up by default
+#define kMaplyShaderDefaultTri @"Default Triangle Program"
+#define kMaplyShaderDefaultLine @"Default Line Program"
+#define kMaplyShaderDefaultTriNoLighting 

@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/24/13.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,22 +26,29 @@ using namespace WhirlyGlobe;
 
 @implementation MaplySphericalQuadEarthWithTexGroup
 {
+    NSString *texGroupName;
     WhirlyKitSphericalEarthQuadLayer *earthLayer;
 }
 
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer texGroup:(NSString *)texGroupName
+- (id)initWithWithTexGroup:(NSString *)inTexGroupName
 {
     self = [super init];
+    if (!self)
+        return nil;
     
-    if (self)
-    {
-        earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
-        if (!earthLayer)
-            return nil;
-        [layerThread addLayer:earthLayer];
-    }
+    texGroupName = inTexGroupName;
     
     return self;
+}
+
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
+{
+    earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
+    if (!earthLayer)
+        return nil;
+    [layerThread addLayer:earthLayer];
+    
+    return true;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene

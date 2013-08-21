@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,23 +26,10 @@
     Use those directly, not this.
   */
 @interface WhirlyKitNetworkTileQuadSourceBase : NSObject<WhirlyKitQuadDataStructure>
-{
-    /// Spherical Mercator coordinate system, for the tiles
-    WhirlyKit::SphericalMercatorCoordSystem *coordSys;
-    /// Bounds in Spherical Mercator
-    WhirlyKit::Mbr mbr;
-    /// Available levels, as read from the database.
-    /// You can modify these yourself as well, to limit what's loaded
-    int minZoom,maxZoom;
-    /// Number of simultaneous fetches.  Defaults to 4.
-    int numSimultaneous;
-    /// Size of a tile in pixels square.  256 is the usual.
-    int pixelsPerTile;
-    /// Location of cache, if set
-    NSString *cacheDir;
-}
 
+/// Number of simultaneous fetches.  Defaults to 4.
 @property (nonatomic,assign) int numSimultaneous;
+/// Location of cache, if set
 @property (nonatomic,retain) NSString *cacheDir;
 
 @end
@@ -52,12 +39,11 @@
     image hiearachy.
  */
 @interface WhirlyKitNetworkTileQuadSource : WhirlyKitNetworkTileQuadSourceBase<WhirlyKitQuadTileImageDataSource>
-{
-    /// Where we're fetching from
-    NSString *baseURL;
-    /// Image extension
-    NSString *ext;
-}
+
+/// Where we're fetching from
+@property (nonatomic) NSString *baseURL;
+/// Image extension
+@property (nonatomic) NSString *ext;
 
 /// Initialize with the base URL and image extension (e.g. png, jpg)
 - (id)initWithBaseURL:(NSString *)base ext:(NSString *)imageExt;
@@ -73,9 +59,8 @@
     multiple URLs to pull from.
  */
 @interface WhirlyKitNetworkTileSpecQuadSource : WhirlyKitNetworkTileQuadSourceBase<WhirlyKitQuadTileImageDataSource>
-{
-    NSArray *tileURLs;
-}
+
+@property (nonatomic) NSArray *tileURLs;
 
 /// Initialize with an NSDictionary that's been parsed from TileSpec JSON
 - (id)initWithTileSpec:(NSDictionary *)jsonDict;

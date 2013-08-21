@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,21 +22,10 @@
 
 @implementation MaplyComponentObject
 
-@synthesize markerIDs;
-@synthesize labelIDs;
-@synthesize vectorIDs;
-@synthesize shapeIDs;
-@synthesize chunkIDs;
-@synthesize loftIDs;
-@synthesize selectIDs;
-@synthesize vectors;
-@synthesize images;
-@synthesize isSelectable;
-
 - (id)init
 {
     self = [super init];
-    isSelectable = true;
+    _isSelectable = true;
     
     return self;
 }

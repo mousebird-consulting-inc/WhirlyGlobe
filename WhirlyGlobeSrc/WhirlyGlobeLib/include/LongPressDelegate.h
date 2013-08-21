@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@
     responds to a long press by blasting out a notification.
  */
 @interface WhirlyGlobeLongPressDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    WhirlyGlobeView *globeView;
-}
 
 /// Create a long press geture recognizer and a delegate and wire them up to the UIView
 + (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

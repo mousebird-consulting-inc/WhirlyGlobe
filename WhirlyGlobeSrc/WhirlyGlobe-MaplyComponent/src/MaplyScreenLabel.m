@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,24 +22,15 @@
 
 @implementation MaplyScreenLabel
 
-@synthesize userObject;
-@synthesize loc;
-@synthesize size;
-@synthesize text;
-@synthesize iconImage;
-@synthesize offset;
-@synthesize color;
-@synthesize selectable;
-@synthesize layoutImportance;
-
 - (id)init
 {
     self = [super init];
     if (!self)
         return nil;
     
-    selectable = true;
-    layoutImportance = MAXFLOAT;
+    _selectable = true;
+    _layoutImportance = MAXFLOAT;
+    _layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
     
     return self;
 }
