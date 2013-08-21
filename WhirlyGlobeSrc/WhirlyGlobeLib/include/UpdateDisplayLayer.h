@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/19/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,29 +47,13 @@
     add and remove viewable objects as a result.
   */
 @interface WhirlyGlobeUpdateDisplayLayer : NSObject<WhirlyKitLayer>
-{
-    /// Layer thread we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene, just for the data source
-    WhirlyKit::Scene *scene;
-    
-    /// Distance we can move before triggering an update.
-    /// The units are geocentric-like with a radius of 1.0
-    float moveDist;
-    
-    /// Minimum time between updates (we don't want to trigger too often)
-    float minTime;
-    
-    /// Last view state we were given
-    WhirlyGlobeViewState *viewState;
-    
-    /// The data source that will be called when the viewer moves sufficiently.
-    NSObject<WhirlyGlobeUpdateDataSource> *dataSource;
-}
 
+/// Distance we can move before triggering an update.
+/// The units are geocentric-like with a radius of 1.0
 @property (nonatomic,assign) float moveDist;
+/// Minimum time between updates (we don't want to trigger too often)
 @property (nonatomic,assign) float minTime;
+/// The data source that will be called when the viewer moves sufficiently.
 @property (nonatomic,retain) NSObject<WhirlyGlobeUpdateDataSource> *dataSource;
 
 /// Create with the input data source, the distance to move before triggering and the min trigger time

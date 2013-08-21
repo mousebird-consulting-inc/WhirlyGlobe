@@ -57,7 +57,9 @@ class RawTriangle
 {
 public:
     RawTriangle() { }
+    /// Construct with three vertex indices
     RawTriangle(int v0,int v1,int v2) { verts[0] = v0; verts[1] = v1; verts[2] = v2; }
+    /// Vertices are indices into a vertex array
     int verts[3];
 };
 }
@@ -71,22 +73,20 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 
 /// Raw Geometry object.  Fill it in and pass it to the layer.
 @interface WhirlyGlobeGeometryRaw : WhirlyGlobeGeometry
-{
-    WhilyGlobeGeometryRawType type;
-    std::vector<WhirlyKit::Point3f> pts;
-    std::vector<WhirlyKit::Point3f> norms;
-    std::vector<WhirlyKit::TexCoord> texCoords;
-    std::vector<WhirlyKit::RGBAColor> colors;
-    std::vector<WhirlyGlobe::RawTriangle> triangles;
-    WhirlyKit::SimpleIdentity texId;
-}
 
+/// What sort of geometry this is
 @property (nonatomic,assign) WhilyGlobeGeometryRawType type;
+/// The points (vertices)
 @property (nonatomic) std::vector<WhirlyKit::Point3f> &pts;
+/// Normals to go with the points
 @property (nonatomic) std::vector<WhirlyKit::Point3f> &norms;
+/// Texture coordinates, one for each point
 @property (nonatomic) std::vector<WhirlyKit::TexCoord> &texCoords;
+/// Colors to go with the points
 @property (nonatomic) std::vector<WhirlyKit::RGBAColor> &colors;
+/// The triangles, which reference points
 @property (nonatomic) std::vector<WhirlyGlobe::RawTriangle> &triangles;
+/// A texture ID for the geometry
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
 
 // Make a copy of the raw geometry and return it
@@ -96,15 +96,15 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
 - (bool)isValid;
 
 /// Apply the given tranformation matrix to the geometry (and normals)
-- (void)applyTransform:(Eigen::Matrix4f &)mat;
+- (void)applyTransform:(Eigen::Matrix4d &)mat;
 
 /// Apply a transform that orients the geometry as if it were a model at the given
 ///  position with its nose pointed along forward.  You can also rotate (clockwise)
 ///  around up.
-- (void)applyPosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
+- (void)applyPosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang;
 
 /// Same thing as applyPosition, but it returns the matrix instead of applying it
-+ (Eigen::Matrix4f)makePosition:(WhirlyKit::Point3f)pos up:(WhirlyKit::Point3f)up forward:(WhirlyKit::Point3f)forward heading:(float)ang;
++ (Eigen::Matrix4d)makePosition:(WhirlyKit::Point3d)pos up:(WhirlyKit::Point3d)up forward:(WhirlyKit::Point3d)forward heading:(double)ang;
 
 /// Construct the drawables for this raw geometry object.
 /// Adds them to the drawable array passed in.
@@ -117,10 +117,6 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
     from and writing to permanent storage.
  */
 @interface WhirlyGlobeGeometrySet : NSObject
-{
-    std::vector<WhirlyKit::Texture *> textures;
-    NSMutableArray *geom;
-}
 
 @property (nonatomic,readonly) std::vector<WhirlyKit::Texture *> &textures;
 @property (nonatomic,readonly) NSMutableArray *geom;
@@ -142,12 +138,6 @@ typedef enum {WhirlyGlobeGeometryNone,WhirlyGlobeGeometryLines,WhirlyGlobeGeomet
      </list>
   */
 @interface WhirlyGlobeGeometryLayer : NSObject<WhirlyKitLayer>
-{
-    WhirlyKit::Scene *scene;
-    WhirlyKitLayerThread * __weak layerThread;    
-    
-    WhirlyGlobe::GeomSceneRepSet geomReps;
-}
 
 /// Add raw geometry at the given location
 - (WhirlyKit::SimpleIdentity)addGeometry:(WhirlyGlobeGeometry *)geom desc:(NSDictionary *)desc;

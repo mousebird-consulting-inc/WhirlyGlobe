@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/10/11.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,39 +26,8 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
 #import "ParticleGenerator.h"
-
-/** Representation of a single particle system.
-    We give it a geographic location and a normal (in 3-space).
-    The rest of the info is in the dictionary.
- */
-@interface WhirlyKitParticleSystem : NSObject
-{
-    WhirlyKit::GeoCoord loc;
-    Eigen::Vector3f norm;
-}
-
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,assign) Eigen::Vector3f norm;
-
-@end
-
-namespace WhirlyKit
-{
-    
-/// The scene representation used internally by the layer to track what belongs
-///  to a given particle system ID.
-class ParticleSysSceneRep : public Identifiable
-{
-public:
-    ParticleSysSceneRep() { }
-    
-    SimpleIDSet partSysIDs;    // The particle systems we created
-};
-typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSet;    
-    
-}
+#import "ParticleSystemManager.h"
 
 /** Particle System Layer.
     This layer creates and controls particle systems defined by locations
@@ -98,28 +67,12 @@ typedef std::set<ParticleSysSceneRep *,IdentifiableSorter> ParticleSysSceneRepSe
     </list>
   */
 @interface WhirlyKitParticleSystemLayer : NSObject<WhirlyKitLayer> 
-{
-    /// The layer thread we live in
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    /// Scene we're making changes to
-    WhirlyKit::Scene *scene;
-
-    /// ID of the Particle Generator we're using to implement particles
-    WhirlyKit::SimpleIdentity generatorId;
-
-    /// Used to track resources related to particle systems for deletion and modification
-    WhirlyKit::ParticleSysSceneRepSet sceneReps;
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Called in the layer thread
 - (void)shutdown;
-
-/// Add a single particle system to the layer
-- (WhirlyKit::SimpleIdentity) addParticleSystem:(WhirlyKitParticleSystem *)partSystem desc:(NSDictionary *)desc;
 
 /// Add a group of particle systems
 - (WhirlyKit::SimpleIdentity) addParticleSystems:(NSArray *)partSystems desc:(NSDictionary *)desc;

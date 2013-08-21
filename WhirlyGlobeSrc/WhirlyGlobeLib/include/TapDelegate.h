@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@
 	responds to taps by blasting out a notification.
  */
 @interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-	WhirlyGlobeView *globeView;
-}
 
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

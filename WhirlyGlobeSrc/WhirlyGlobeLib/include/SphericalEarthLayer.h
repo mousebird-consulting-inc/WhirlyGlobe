@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/11/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,26 +42,11 @@ static const unsigned int SphereTessX = 10,SphereTessY = 25;
     it doesn't do anything else. 
  */
 @interface WhirlyGlobeSphericalEarthLayer : NSObject<WhirlyKitLayer>
-{
-    WhirlyKitLayerThread *layerThread;
-	WhirlyKitTextureGroup *texGroup;
-	WhirlyGlobe::GlobeScene *scene;
-	unsigned int xDim,yDim;
-	unsigned int chunkX,chunkY;
-    /// If set, the time to fade in the globe
-    float fade;
-    std::vector<WhirlyKit::SimpleIdentity> texIDs;
-    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
-    /// The drawPriority of any drawables we create.  Useful for sorting in non-z mode.
-    int drawPriority;
-}
 
+/// If set, the time to fade in the globe
 @property (nonatomic,assign) float fade;
+/// The drawPriority of any drawables we create.  Useful for sorting in non-z mode.
 @property (nonatomic,assign) int drawPriority;
-
-/// Create it like this.  It needs a texture group to run.
-/// That provides the images and it will generate the geometry.
-- (id)initWithTexGroup:(WhirlyKitTextureGroup *)texGroup;
 
 /// Create it like this.  It needs a texture group to run.
 /// That provides the images and it will generate the geometry.

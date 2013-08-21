@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/12.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public:
         int drawPriority;
         /// Visual range
         float minVis,maxVis;
-        /// 2D offset applied at the last
+        /// 2D offset to be applied (probably from the layout engine)
         Point2f offset;
         /// false if we're not to draw this one
         bool enable;
@@ -211,7 +211,6 @@ public:
     public:
         ShapeChange();
         SimpleIdentity shapeID;
-        bool enable;
         NSTimeInterval fadeUp,fadeDown;
         Point2f offset;
     };

@@ -35,6 +35,10 @@
 /// Create the stuff you need to manipulate in the scene
 - (void)startWithScene:(WhirlyKit::Scene *)scene;
 
+/// Return true if you have an update that needs to be procssed.
+/// Return false if you don't, otherwise we'll be constantly rendering.
+- (bool)hasUpdate;
+
 /// Update your stuff for display, but be quick!
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
 

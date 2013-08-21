@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,19 @@ using namespace WhirlyKit;
 
 @interface MaplyPanDelegate()
 {
+    MaplyView *mapView;
+    /// Set if we're panning
+    BOOL panning;
+    /// View transform when we started
+    Eigen::Matrix4d startTransform;
+    /// Where we first touched the plane
+    WhirlyKit::Point3d startOnPlane;
+    /// Viewer location when we started panning
+    WhirlyKit::Point3d startLoc;
+    CGPoint lastTouch;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
+
     MaplyAnimateTranslateMomentum *translateDelegate;
 }
 @end
@@ -64,12 +77,12 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3f &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4f fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
 
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -77,7 +90,7 @@ using namespace WhirlyKit;
     corners[1] = CGPointMake(view.frame.size.width, 0.0);
     corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
     corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3f planePts[4];
+    Point3d planePts[4];
     bool isValid = true;
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -129,7 +142,7 @@ static const float AnimLen = 1.0;
                 [mapView cancelAnimation];
                 
                 // Figure out where we are now
-                Point3f hit;
+                Point3d hit;
                 CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
@@ -137,8 +150,8 @@ static const float AnimLen = 1.0;
                                             hit:&hit clip:false];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
-                Point3f oldLoc = mapView.loc;
-                Point3f newLoc = startOnPlane - hit + startLoc;
+                Point3d oldLoc = mapView.loc;
+                Point3d newLoc = startOnPlane - hit + startLoc;
                 [mapView setLoc:newLoc];
                 
                 // We'll do a hard stop if we're not within the bounds
@@ -146,12 +159,12 @@ static const float AnimLen = 1.0;
                 if (![self withinBounds:newLoc view:glView renderer:sceneRender])
                 {
                     // How about if we leave the x alone?
-                    Point3f testLoc = Point3f(oldLoc.x(),newLoc.y(),newLoc.z());
+                    Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
                     [mapView setLoc:testLoc];
                     if (![self withinBounds:testLoc view:glView renderer:sceneRender])
                     {
                         // How about leaving y alone?
-                        testLoc = Point3f(newLoc.x(),oldLoc.y(),newLoc.z());
+                        testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
                         [mapView setLoc:testLoc];
                         if (![self withinBounds:testLoc view:glView renderer:sceneRender])
                             [mapView setLoc:oldLoc];
@@ -167,9 +180,9 @@ static const float AnimLen = 1.0;
                 CGPoint vel = [pan velocityInView:glView];
                 CGPoint touch0 = lastTouch;
                 CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
-                Point3f model_p0,model_p1;
+                Point3d model_p0,model_p1;
 
-                Eigen::Matrix4f modelMat = [mapView calcFullMatrix];
+                Eigen::Matrix4d modelMat = [mapView calcFullMatrix];
                 [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p0 clip:false];
                 [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p1 clip:false];
                 

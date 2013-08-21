@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,11 +20,20 @@
 
 #import "GridLines.h"
 #import "GlobeMath.h"
+#import "LayerThread.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @implementation WhirlyKitGridLayer
+{
+    WhirlyKitLayerThread * __weak layerThread;
+    unsigned int numX,numY;
+    unsigned int chunkX,chunkY;
+    WhirlyKit::Scene *scene;
+    
+    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
+}
 
 - (id)initWithX:(unsigned int)inNumX Y:(unsigned int)inNumY
 {
@@ -37,19 +46,20 @@ using namespace WhirlyGlobe;
 	return self;
 }
 
-- (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(Scene *)inScene
+- (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
 	chunkX = 0;  chunkY = 0;
 	scene = inScene;
+    layerThread = inLayerThread;
 	[self performSelector:@selector(process:) withObject:nil afterDelay:0.0];
 }
 
 - (void)shutdown
 {
-    std::vector<ChangeRequest *> changeRequests;
+    ChangeSet changeRequests;
     for (unsigned int ii=0;ii<drawIDs.size();ii++)
         changeRequests.push_back(new RemDrawableReq(drawIDs[ii]));
-    scene->addChangeRequests(changeRequests);
+    [layerThread addChangeRequests:changeRequests];
     
     drawIDs.clear();
     scene = NULL;
@@ -65,7 +75,7 @@ using namespace WhirlyGlobe;
 		
 	// Drawable containing just lines
 	// Note: Not deeply efficient here
-	BasicDrawable *drawable = new BasicDrawable();
+	BasicDrawable *drawable = new BasicDrawable("Grid Lines");
 	drawable->setType(GL_LINES);
 	
 	int startX = std::ceil(geoMbr.ll().x()/GridCellSize);
@@ -100,7 +110,7 @@ using namespace WhirlyGlobe;
 			
 		}
 	
-	scene->addChangeRequest(new AddDrawableReq(drawable));
+	[layerThread addChangeRequest:(new AddDrawableReq(drawable))];
     drawIDs.push_back(drawable->getId());
 	
 	// Move on to the next chunk

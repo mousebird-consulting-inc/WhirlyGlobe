@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/21/11.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,90 +26,7 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
-#import "SelectionLayer.h"
-#import "LayoutLayer.h"
-
-namespace WhirlyKit
-{
-/// Default priority for markers.  At the end, basically
-static const int MarkerDrawPriority=10000;
-    
-/// Maximum number of triangles we'll stick in a drawable
-static const int MaxMarkerDrawableTris=1<<15/3;
-}
-
-namespace WhirlyKit
-{
-
-/// Marker representation.
-/// Used internally to track marker resources
-class MarkerSceneRep : public Identifiable
-{
-public:
-    MarkerSceneRep();
-    ~MarkerSceneRep() { };
-    
-    SimpleIDSet drawIDs;  // Drawables created for this
-    SimpleIDSet selectIDs;  // Selection rect
-    SimpleIDSet markerIDs;  // IDs for markers sent to the generator
-    SimpleIDSet screenShapeIDs;  // IDs for screen space objects
-    float fade;   // Time to fade away for deletion
-};
-typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
-    
-}
-
-/** WhirlyGlobe Marker
-    A single marker object to be placed on the globe.  It will show
-    up with the given width and height and be selectable if so desired.
- */
-@interface WhirlyKitMarker : NSObject
-{
-    /// If set, this marker should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the marker is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// The location for the center of the marker.
-    WhirlyKit::GeoCoord loc;
-    /// The list of textures to use.  If there's just one
-    ///  we show that.  If there's more than one, we switch
-    ///  between them over the period.
-    std::vector<WhirlyKit::SimpleIdentity> texIDs;
-    /// The width in 3-space (remember the globe has radius = 1.0)
-    float width;
-    /// The height in 3-space (remember the globe has radius = 1.0)
-    float height;
-    /// Set if we want a static rotation.  Only matters in screen space
-    bool lockRotation;
-    /// This is rotation clockwise from north in radians
-    float rotation;
-    /// The period over which we'll switch textures
-    NSTimeInterval period;
-    /// For markers with more than one texture, this is the offset
-    ///  we'll use when calculating position within the period.
-    NSTimeInterval timeOffset;
-    /// Value to use for the layout engine.  Set to MAXFLOAT by
-    ///  default, which will always display.
-    float layoutImportance;
-}
-
-@property (nonatomic,assign) bool isSelectable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
-@property (nonatomic,assign) bool lockRotation;
-@property (nonatomic,assign) float width,height,rotation;
-@property (nonatomic,assign) NSTimeInterval period;
-@property (nonatomic,assign) NSTimeInterval timeOffset;
-@property (nonatomic,assign) float layoutImportance;
-
-/// Add a texture ID to be displayed
-- (void)addTexID:(WhirlyKit::SimpleIdentity)texID;
-
-@end
+#import "MarkerManager.h"
 
 /** The Marker Layer Displays a set of markers on the globe.  Markers are simple 
     stamp-like objects that appear where you designate them.  They can have one or 
@@ -127,31 +44,6 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
      </list>
  */
 @interface WhirlyKitMarkerLayer : NSObject<WhirlyKitLayer> 
-{
-    /// Layer thread this belongs to
-    WhirlyKitLayerThread * __weak layerThread;
-    /// ID for the marker generator
-    WhirlyKit::SimpleIdentity generatorId;    
-    /// Scene the marker layer is modifying
-    WhirlyKit::Scene *scene;
-    /// If set, we'll pass markers on for selection
-    WhirlyKitSelectionLayer * __weak selectLayer;
-    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
-    WhirlyKitLayoutLayer * __weak layoutLayer;
-    /// Used to track what scene components correspond to which markers
-    WhirlyKit::MarkerSceneRepSet markerReps;
-    /// Screen space generator on the render side
-    WhirlyKit::SimpleIdentity screenGenId;
-}
-
-/// Set this for selection layer support.  If this is set
-///  and markers are designated selectable, then the outline
-///  of each marker will be passed to the selection layer
-///  and will show up in search results.
-@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
-
-/// Set this to use the layout engine for markers so marked
-@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

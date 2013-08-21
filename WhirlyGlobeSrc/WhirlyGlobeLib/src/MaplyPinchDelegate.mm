@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,8 +25,13 @@
 using namespace WhirlyKit;
 
 @implementation MaplyPinchDelegate
-
-@synthesize minZoom,maxZoom;
+{
+    /// If we're zooming, where we started
+    float startZ;
+    MaplyView *mapView;
+    /// Boundary quad that we're to stay within
+    std::vector<WhirlyKit::Point2f> bounds;
+}
 
 - (id)initWithMapView:(MaplyView *)inView
 {
@@ -34,7 +39,7 @@ using namespace WhirlyKit;
 	{
 		mapView = inView;
 		startZ = 0.0;
-        minZoom = maxZoom = -1.0;
+        _minZoom = _maxZoom = -1.0;
 	}
 	
 	return self;
@@ -63,12 +68,12 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3f &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4f fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
     
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -76,7 +81,7 @@ using namespace WhirlyKit;
     corners[1] = CGPointMake(view.frame.size.width, 0.0);
     corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
     corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3f planePts[4];
+    Point3d planePts[4];
     bool isValid = true;
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -107,11 +112,11 @@ using namespace WhirlyKit;
 			break;
 		case UIGestureRecognizerStateChanged:
         {
-            Point3f curLoc = mapView.loc;
-            float newZ = startZ/pinch.scale;
-            if (minZoom >= maxZoom || (minZoom < newZ && newZ < maxZoom))
+            Point3d curLoc = mapView.loc;
+            double newZ = startZ/pinch.scale;
+            if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
             {
-                [mapView setLoc:Point3f(curLoc.x(),curLoc.y(),newZ)];
+                [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
                 if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
                     [mapView setLoc:curLoc];
             }

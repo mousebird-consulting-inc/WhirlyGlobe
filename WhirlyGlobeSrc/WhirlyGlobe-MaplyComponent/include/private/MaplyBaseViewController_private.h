@@ -32,12 +32,14 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
+#import "MaplyQuadTestLayer_private.h"
+#import "MaplyActiveObject_private.h"
 
 @interface MaplyBaseViewController()
 {
 @public
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES *sceneRenderer;
+    WhirlyKitSceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *layerThread;
 
@@ -48,7 +50,6 @@
     WhirlyKitShapeLayer *shapeLayer;
     WhirlyKitSphericalChunkLayer *chunkLayer;
     WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitSelectionLayer *selectLayer;
     WhirlyKitLoftLayer *loftLayer;
     
     // Our own interaction layer does most of the work
@@ -59,10 +60,7 @@
     
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
-    
-    // If set we'll look for selectables
-    bool selection;
-    
+        
     // General rendering and other display hints
     NSDictionary *hints;
     
@@ -84,8 +82,14 @@
     /// Active shaders
     NSMutableArray *shaders;
     
-    /// Set if we're doing performance output
-    bool perfOutput;
+    /// Active models
+    NSMutableArray *activeObjects;
+    
+    /// Current draw priority if we're assigning them ourselves
+    int layerDrawPriority;
+    
+    /// Set if we're dumping out performance output
+    bool _performanceOutput;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
@@ -94,6 +98,9 @@
 /// LoadSetup is where the Component does all the WhirlyGlobe/Maply specific setup.  If you override this,
 ///  be sure to call [super loadSetup] first and then do your thing.
 - (void) loadSetup;
+
+/// Create the EAGLView
+- (void) loadSetup_glView;
 
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
 - (WhirlyKitView *) loadSetup_view;
@@ -110,8 +117,5 @@
 
 /// Make the renderer's GL context active.  This is used internally.
 - (void) useGLContext;
-
-/// Every shader created with a view controller needs to be tracked by the view controller
-- (void) addShader:(MaplyShader *)shader;
 
 @end

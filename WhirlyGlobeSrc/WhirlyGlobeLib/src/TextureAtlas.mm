@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,17 +53,12 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 
 // Used to track images in the texture atlas
 @interface ImageInstance : NSObject
-{
-@public
-    unsigned int gridCellsX,gridCellsY;
-    unsigned int gridCellX,gridCellY;
-    TexCoord org,dest;
-    UIImage *image;
-}
 
 @property(nonatomic,assign) unsigned int gridCellsX,gridCellsY;
 @property(nonatomic,assign) unsigned int gridCellX,gridCellY;
+@property(nonatomic,assign) TexCoord &org,&dest;
 @property(nonatomic) UIImage *image;
+
 @end
 
 @implementation ImageInstance
@@ -79,15 +74,26 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 @end
 
 @implementation TextureAtlas
-
-@synthesize texId;
+{
+    /// Texture size
+    unsigned int texSizeX,texSizeY;
+    /// Grid sizes (for sorting)
+    unsigned int gridSizeX,gridSizeY;
+    /// Cell sizes
+    unsigned int cellSizeX,cellSizeY;
+    /// Used for sorting new images
+    bool *layoutGrid;
+    
+    /// Images we've rendered so far (for lookup)
+    NSMutableArray *images;
+}
 
 - (id)initWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY cellSizeX:(unsigned int)inCellSizeX cellSizeY:(unsigned int)inCellSizeY
 {
     self = [super init];
     if (self)
     {
-        texId = Identifiable::genId();
+        _texId = Identifiable::genId();
         texSizeX = inTexSizeX;
         texSizeY = inTexSizeY;
         cellSizeX = inCellSizeX;
@@ -114,8 +120,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     for (ImageInstance *imageInst in images)
         if (imageInst.image == image)
         {
-            org = imageInst->org;
-            dest = imageInst->dest;
+            org = imageInst.org;
+            dest = imageInst.dest;
             return true;
         }
     
@@ -158,14 +164,15 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     imageInst.gridCellsY = gridCellsY;
     imageInst.gridCellX = foundX;
     imageInst.gridCellY = foundY;
-    imageInst->org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX;
-    imageInst->org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY;
-    imageInst->dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX;
-    imageInst->dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY;
+    Point2f halfPix(0.5/(float)texSizeX,0.5/(float)texSizeY);
+    imageInst.org.u() = (float)(imageInst.gridCellX*cellSizeX) / (float)texSizeX + halfPix.x();
+    imageInst.org.v() = (float)(imageInst.gridCellY*cellSizeY) / (float)texSizeY + halfPix.y();
+    imageInst.dest.u() = (imageInst.gridCellX*cellSizeX + image.size.width)/(float)texSizeX - 2*halfPix.x();
+    imageInst.dest.v() = (imageInst.gridCellY*cellSizeY + image.size.height)/(float)texSizeY - 2*halfPix.y();
     [images addObject:imageInst];
     
-    org = imageInst->org;
-    dest = imageInst->dest;
+    org = imageInst.org;
+    dest = imageInst.dest;
     
     return true;
 }
@@ -176,8 +183,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     {
         if (imageInst.image == image)
         {
-            org = imageInst->org;
-            dest = imageInst->dest;
+            org = imageInst.org;
+            dest = imageInst.dest;
             
             return true;
         }
@@ -207,8 +214,8 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         *retImage = resultImage;
     UIGraphicsEndImageContext();
     
-    Texture *texture = new Texture(resultImage);
-    texture->setId(texId);
+    Texture *texture = new Texture("Texture Atlas",resultImage);
+    texture->setId(_texId);
     // Note: Having trouble setting up mipmaps correctly
     texture->setUsesMipmaps(false);
     return texture;
@@ -218,13 +225,19 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
 @end
 
 
-@interface TextureAtlasBuilder()
-@property (nonatomic) NSMutableArray *atlases;
-@end
-
 @implementation TextureAtlasBuilder
+{
+    int texSizeX,texSizeY;
 
-@synthesize atlases;
+    /// Size of the cells used for places images in the texture atlases
+    unsigned int cellSizeX,cellSizeY;
+        
+    /// Mappings from the various images to the texture atlases
+    std::vector<WhirlyKit::SubTexture> mappings;
+
+    // Texture atlases built so far
+    NSMutableArray *atlases;
+}
 
 - (id)initWithTexSizeX:(unsigned int)inTexSizeX texSizeY:(unsigned int)inTexSizeY
 {
@@ -234,7 +247,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
         texSizeX = inTexSizeX;
         texSizeY = inTexSizeY;
         cellSizeX = cellSizeY = 8;
-        self.atlases = [NSMutableArray array];
+        atlases = [NSMutableArray array];
     }
     
     return self;
@@ -282,7 +295,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
     return subTex.getId();
 }
 
-- (void)processIntoScene:(Scene *)scene texIDs:(std::set<SimpleIdentity> *)texIDs
+- (void)processIntoScene:(Scene *)scene layerThread:(WhirlyKitLayerThread *)layerThread texIDs:(std::set<SimpleIdentity> *)texIDs
 {
     // Create the textures, add them to the scene
     for (TextureAtlas *atlas in atlases)
@@ -293,7 +306,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords)
             if (texIDs)
                 texIDs->insert(tex->getId());
             // Note: Should be setting the textures up on this thread
-            scene->addChangeRequest(new AddTextureReq(tex));
+            [layerThread addChangeRequest:(new AddTextureReq(tex))];
         }
     }
     [atlases removeAllObjects];

@@ -1,9 +1,9 @@
 /*
- *  MaplyQuadEarthWithMBTiles.h
+ *  MaplyQuadEarthWithMBTiles_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,14 +19,12 @@
  */
 
 #import "MaplyViewControllerLayer_private.h"
+#import "MaplyQuadEarthWithMBTiles.h"
 
-@interface MaplyQuadEarthWithMBTiles : MaplyViewControllerLayer
+@interface MaplyQuadEarthWithMBTiles()
 
-/// Set up a spherical earth layer with an MBTiles archive.
-/// Returns nil on failure.
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer mbTiles:(NSString *)mbTilesName handleEdges:(bool)edges;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 
-/// Clean up any and all resources 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 @end

@@ -22,7 +22,4 @@
 
 @implementation MaplyViewTracker
 
-@synthesize view;
-@synthesize loc;
-
 @end

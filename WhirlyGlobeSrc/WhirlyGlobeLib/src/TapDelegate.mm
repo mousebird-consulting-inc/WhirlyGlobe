@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobeTapDelegate
+{
+	WhirlyGlobeView *globeView;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -63,16 +66,16 @@ using namespace WhirlyKit;
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
-	Point3f hit;
-	Eigen::Matrix4f theTransform = [globeView calcFullMatrix];
+	Point3d hit;
+	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
     CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit])
+    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
         [msg setView:glView];
-		[msg setWorldLoc:hit];
-        Point3f localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
+		[msg setWorldLocD:hit];
+        Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
 		

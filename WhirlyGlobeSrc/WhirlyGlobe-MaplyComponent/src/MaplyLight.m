@@ -22,8 +22,4 @@
 
 @implementation MaplyLight
 
-@synthesize pos;
-@synthesize viewDependent;
-@synthesize ambient,diffuse;
-
 @end

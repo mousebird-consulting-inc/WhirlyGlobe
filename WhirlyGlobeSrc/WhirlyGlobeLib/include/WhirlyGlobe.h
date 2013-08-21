@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/12/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@
 #import "UIImage+Stuff.h"
 #import "TextureGroup.h"
 #import "SceneRendererES.h"
-#import "SceneRendererES1.h"
 #import "SceneRendererES2.h"
 #import "EAGLView.h"
 #import "PinchDelegate.h"
@@ -52,16 +51,18 @@
 #import "ParticleSystemLayer.h"
 #import "MarkerLayer.h"
 #import "LoftLayer.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "TextureAtlas.h"
 #import "LayerThread.h"
 #import "DataLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
-#import "DrawCost.h"
+#import "BigDrawable.h"
 #import "FlatMath.h"
 #import "SphericalMercator.h"
 #import "MaplyView.h"
+#import "MaplyFlatView.h"
+#import "MaplyAnimateFlat.h"
 #import "MaplyPinchDelegate.h"
 #import "MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
@@ -71,7 +72,8 @@
 #import "MBTileQuadSource.h"
 #import "TileQuadLoader.h"
 #import "NetworkTileQuadSource.h"
-#import "SceneGraphGenerator.h"
+#import "ScreenSpaceGenerator.h"
+#import "SceneGraphManager.h"
 #import "SphericalEarthChunkLayer.h"
 #import "SphericalEarthQuadLayer.h"
 #import "UpdateDisplayLayer.h"
@@ -79,7 +81,9 @@
 #import "ViewPlacementGenerator.h"
 #import "ActiveModel.h"
 #import "MaplyScene.h"
+#import "ShapeDrawableBuilder.h"
 #import "ShapeLayer.h"
 #import "LayoutLayer.h"
+#import "BillboardLayer.h"
 #import "OpenGLES2Program.h"
-
+#import "DefaultShaderPrograms.h"

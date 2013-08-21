@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@
 
 #import "VectorData.h"
 #import "ShapeReader.h"
+#import "libjson.h"
+#import "NSString+Stuff.h"
 
 namespace WhirlyKit
 {
@@ -36,7 +38,20 @@ float CalcLoopArea(const VectorRing &loop)
     }
     
     return area;
-}    
+}
+    
+float CalcLoopArea(const std::vector<Point2d> &loop)
+{
+    float area = 0.0;
+    for (unsigned int ii=0;ii<loop.size();ii++)
+    {
+        const Point2d &p1 = loop[ii];
+        const Point2d &p2 = loop[(ii+1)%loop.size()];
+        area += p1.x()*p2.y() - p1.y()*p2.x();
+    }
+    
+    return area;    
+}
     
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
@@ -99,27 +114,37 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 }
     
 // Great circle version
-void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
     // Note: Probably not right
-    if (std::abs(p0.x() - p1.x()) > M_PI)
-        return;
+//    if (std::abs(p0.x() - p1.x()) > M_PI)
+//        return;
     
     Point3f midP = (p0+p1)/2.0;
     Point3f midOnSphere = midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
-    if (dist2 > eps*eps)
+    if (dist2 > eps*eps || minPts > 0)
     {
-        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset);
-        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset);
+        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset,minPts/2);
+        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset,minPts/2);
     }
     outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
+    if (!adapter || inPts.empty())
+        return;
+    if (inPts.size() < 2)
+    {
+        const Point2f &p0 = inPts[0];
+        Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+        outPts.push_back(dp0);        
+        return;
+    }
+    
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point2f &p0 = inPts[ii];
@@ -129,7 +154,7 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &out
         Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
         dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
-        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset);
+        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
     }    
 }
 
@@ -258,7 +283,7 @@ void VectorPoints::initGeoMbr()
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)
 {
-    if (![coords isKindOfClass:[NSArray class]] || [coords count] != 2)
+    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
         return false;
     coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
     coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
@@ -355,7 +380,6 @@ bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
         NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
         if (![coordsArray isKindOfClass:[NSArray class]])
             return false;
-        VectorArealRef ar = VectorAreal::createAreal();
         for (NSArray *coordsEntry in coordsArray)
         {
             VectorRing coords;
@@ -434,7 +458,7 @@ bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
     return true;
 }
     
-// Parse a set of features out of GeoJSON
+// Parse a set of features out of GeoJSON using an NSDictionary
 bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
 {
     NSString *type = [jsonDict objectForKey:@"type"];
@@ -460,6 +484,338 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
         }
     } 
         
+    return true;
+}
+    
+using namespace libjson;
+    
+// Parse properties out of a node
+NSMutableDictionary *VectorParseProperties(JSONNode node)
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    
+    for (JSONNode::const_iterator it = node.begin();
+         it != node.end(); ++it)
+    {
+        std::string name = it->name();
+        if (!name.empty())
+        {
+            NSString *nameStr = [NSString stringWithCString:name.c_str() encoding:NSUTF8StringEncoding];
+            switch (it->type())
+            {
+                case JSON_STRING:
+                {
+                    std::string val = it->as_string();
+                    NSString *valStr = nil;
+                    @try {
+                        valStr = [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
+                    }
+                    @catch (NSException *exception) {
+                        @try {
+                            valStr = [NSString stringWithCString:val.c_str() encoding:NSUnicodeStringEncoding];
+                        }
+                        @catch (NSException *exception) {
+                        }
+                    }
+                    if (valStr)
+                        dict[nameStr] = valStr;
+                }
+                    break;
+                case JSON_NUMBER:
+                {
+                    double val = it->as_float();
+                    dict[nameStr] = @(val);
+                }
+                    break;
+                case JSON_BOOL:
+                {
+                    bool val = it->as_bool();
+                    dict[nameStr] = @(val);
+                }
+                    break;
+            }
+        }
+    }
+    
+    return dict;
+}
+    
+// Parse coordinate list out of a node
+bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
+{
+    for (JSONNode::const_iterator it = node.begin();
+         it != node.end(); ++it)
+    {
+        if (it->type() == JSON_ARRAY)
+        {
+            if (!VectorParseCoordinates(*it, pts))
+                return false;
+            continue;
+        }
+
+        // We're expecting two numbers here
+        if (it->type() == JSON_NUMBER)
+        {
+            if (node.size() != 2)
+                return false;
+            
+            float lon = it->as_float();  ++it;
+            float lat = it->as_float();
+            pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
+
+            continue;
+        }
+        
+        // Got something unexpected
+        return false;
+    }
+    
+    return true;
+}
+
+// Parse geometry out of a node
+bool VectorParseGeometry(JSONNode node,ShapeSet &shapes)
+{
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    
+    std::string type = typeIt->as_string();
+    if (!type.compare("Point"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+
+        VectorPointsRef pts = VectorPoints::createPoints();
+        if (!VectorParseCoordinates(*coordIt,pts->pts))
+            return false;
+        pts->initGeoMbr();
+        shapes.insert(pts);
+        
+        return true;
+    } else if (!type.compare("LineString"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        
+        VectorLinearRef lin = VectorLinear::createLinear();
+        if (!VectorParseCoordinates(*coordIt,lin->pts))
+            return false;
+        lin->initGeoMbr();
+        shapes.insert(lin);
+
+        return true;
+    } else if (!type.compare("Polygon"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        VectorArealRef ar = VectorAreal::createAreal();
+        int numLoops = 0;
+        for (JSONNode::const_iterator coordEntryIt = coordIt->begin();
+             coordEntryIt != coordIt->end(); ++coordEntryIt, numLoops++)
+        {
+            if (coordEntryIt->type() != JSON_ARRAY)
+                return false;
+        
+            ar->loops.resize(numLoops+1);
+            if (!VectorParseCoordinates(*coordEntryIt,ar->loops[numLoops]))
+                return false;
+        }
+        
+        ar->initGeoMbr();
+        shapes.insert(ar);
+        
+        return true;
+    } else if (!type.compare("MultiPoint"))
+    {
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+        
+        VectorPointsRef pts = VectorPoints::createPoints();
+        if (!VectorParseCoordinates(*coordIt,pts->pts))
+            return false;
+        pts->initGeoMbr();
+        shapes.insert(pts);
+        
+        return true;        
+    } else if (!type.compare("MultiLineString"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+            if (coordIt->type() != JSON_ARRAY)
+                return false;
+        for (JSONNode::const_iterator coordEntryIt = coordIt->begin();
+             coordEntryIt != coordIt->end(); ++coordEntryIt)
+        {
+            if (coordEntryIt->type() != JSON_ARRAY)
+                return false;
+            
+            VectorLinearRef lin = VectorLinear::createLinear();
+            if (!VectorParseCoordinates(*coordEntryIt, lin->pts))
+                return false;
+            lin->initGeoMbr();
+            shapes.insert(lin);
+        }
+        
+        return true;
+    } else if (!type.compare("MultiPolygon"))
+    {
+        // This should be an array of array of coordinates
+        JSONNode::const_iterator coordIt = node.find("coordinates");
+        if (coordIt->type() != JSON_ARRAY)
+            return false;
+
+        for (JSONNode::const_iterator polyIt = coordIt->begin();
+             polyIt != coordIt->end(); ++polyIt)
+        {
+            VectorArealRef ar = VectorAreal::createAreal();
+            int numLoops = 0;
+            for (JSONNode::const_iterator coordEntryIt = polyIt->begin();
+                 coordEntryIt != polyIt->end(); ++coordEntryIt, numLoops++)
+            {
+                if (coordEntryIt->type() != JSON_ARRAY)
+                    return false;
+                
+                ar->loops.resize(numLoops+1);
+                if (!VectorParseCoordinates(*coordEntryIt,ar->loops[numLoops]))
+                    return false;
+            }
+            
+            ar->initGeoMbr();
+            shapes.insert(ar);
+        }
+        
+        return true;        
+    } else if (!type.compare("GeometryCollection"))
+    {
+        JSONNode::const_iterator geomCollectIt = node.find("geometries");
+        if (geomCollectIt->type() != JSON_ARRAY)
+            return false;
+        for (JSONNode::const_iterator geomIt = geomCollectIt->begin();
+             geomIt != geomCollectIt->end(); ++geomIt)
+            if (!VectorParseGeometry(*geomIt,shapes))
+                return false;
+        
+        return true;
+    }
+    
+    return false;
+}
+    
+// Parse a single feature
+bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
+{
+    // Expecting this to be a feature with a geometry and properties node
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    std::string type = typeIt->as_string();
+    if (type.compare("Feature"))
+        return false;
+    
+    JSONNode::const_iterator geomIt = node.find("geometry");
+    if (geomIt == node.end())
+        return false;
+    
+    JSONNode::const_iterator propIt = node.find("properties");
+    if (propIt == node.end())
+        return false;
+
+    // Parse the properties, then the geometry
+    NSMutableDictionary *properties = VectorParseProperties(*propIt);
+    ShapeSet newShapes;
+    if (!VectorParseGeometry(*geomIt,newShapes))
+        return false;
+    // Apply the properties to the geometry
+    for (ShapeSet::iterator sit = newShapes.begin(); sit != newShapes.end(); ++sit)
+        (*sit)->setAttrDict(properties);
+    
+    shapes.insert(newShapes.begin(), newShapes.end());
+    return true;
+}
+
+// Parse an array of features
+bool VectorParseFeatures(JSONNode node,ShapeSet &shapes)
+{
+    for (JSONNode::const_iterator it = node.begin();it != node.end(); ++it)
+    {
+        // Not sure what this would be
+        if (it->type() != JSON_NODE)
+            return false;
+        if (!VectorParseFeature(*it,shapes))
+            return false;
+    }
+    
+    return true;
+}
+
+// Recursively parse a feature collection
+bool VectorParseTopNode(JSONNode node,ShapeSet &shapes)
+{
+    std::string type;
+    
+    JSONNode::const_iterator typeIt = node.find("type");
+    if (typeIt == node.end())
+        return false;
+    type = typeIt->as_string();
+    if (!type.compare("FeatureCollection"))
+    {
+        // Expecting a features node
+        JSONNode::const_iterator featIt = node.find("features");
+        if (featIt == node.end() || featIt->type() != JSON_ARRAY)
+            return false;
+        return VectorParseFeatures(*featIt,shapes);
+    } else
+        return false;
+
+    return false;
+}
+    
+// Parse a set of features out of GeoJSON, using libjson
+bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data)
+{
+    // Note: Kind of an extra step here
+    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    std::string json = [str UTF8String];
+    
+    JSONNode topNode = libjson::parse(json);
+
+    if (!VectorParseTopNode(topNode,shapes))
+    {
+        NSLog(@"Failed to parse JSON in VectorParseGeoJSON");
+        return false;
+    }
+    
+    return true;
+}
+    
+bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes)
+{
+    // Note: Kind of an extra step here
+    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    std::string json = [str UTF8String];
+    
+    JSONNode topNode = libjson::parse(json);
+
+    for (JSONNode::iterator nodeIt = topNode.begin();
+         nodeIt != topNode.end(); ++nodeIt)
+    {
+        if (nodeIt->type() == JSON_NODE)
+        {
+            ShapeSet theseShapes;
+            if (VectorParseTopNode(*nodeIt,theseShapes))
+            {
+                shapes[nodeIt->name()] = theseShapes;
+            } else
+                return false;
+        }
+    }
+    
     return true;
 }
     

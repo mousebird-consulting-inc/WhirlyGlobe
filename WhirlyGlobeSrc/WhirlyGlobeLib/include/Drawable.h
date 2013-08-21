@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -119,9 +119,18 @@ public:
 	ChangeRequest() { }
 	virtual ~ChangeRequest() { }
 		
+    /// Return true if this change requires a GL Flush in the thread it was executed in
+    virtual bool needsFlush() { return false; }
+    
+    /// Fill this in to set up whatever resources we need on the GL side
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
+		
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
-};	
+};
+    
+/// Representation of a list of changes.  Might get more complex in the future.
+typedef std::vector<ChangeRequest *> ChangeSet;
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
     methods.  In general, use the BasicDrawable.
@@ -130,7 +139,7 @@ class Drawable : public Identifiable
 {
 public:
     /// Construct empty
-	Drawable();
+	Drawable(const std::string &name);
 	virtual ~Drawable();
 	    
     /// Return the local MBR, if we're working in a non-geo coordinate system
@@ -163,13 +172,19 @@ public:
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4f *getMatrix() const { return NULL; }
+    virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
 
     /// Check if the force Z buffer on mode is on
-    virtual bool getForceZBufferOn() const { return false; }
+    virtual bool getRequestZBuffer() const { return false; }
+
+    /// Check if we're supposed to write to the z buffer
+    virtual bool getWriteZbuffer() const { return true; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
+    
+protected:
+    std::string name;
 };
 
 /// Reference counted Drawable pointer
@@ -206,25 +221,109 @@ static const unsigned int MaxDrawablePoints = ((1<<16)-1);
 /// Maximum number of triangles we want in a drawable
 static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
     
+class SubTexture;
+
+/// Data types we'll accept for attributes
+typedef enum {BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType} BDAttributeDataType;
+    
+    
+/// Used to keep track of attributes (other than points)
+class VertexAttribute
+{
+public:
+    VertexAttribute(BDAttributeDataType dataType,const std::string &name);
+    VertexAttribute(const VertexAttribute &that);
+    ~VertexAttribute();
+    
+    /// Make a copy of everything for the data
+    VertexAttribute templateCopy() const;
+    
+    /// Return the data type
+    BDAttributeDataType getDataType() const;
+    
+    /// Set the default color (if the type matches)
+    void setDefaultColor(const RGBAColor &color);
+    /// Set the default 2D vector (if the type matches)
+    void setDefaultVector2f(const Eigen::Vector2f &vec);
+    /// Set the default 3D vector (if the type matches)
+    void setDefaultVector3f(const Eigen::Vector3f &vec);
+    /// Set the default float (if the type matches)
+    void setDefaultFloat(float val);
+    
+    /// Convenience routine to add a color (if the type matches)
+    void addColor(const RGBAColor &color);
+    /// Convenience routine to add a 2D vector (if the type matches)
+    void addVector2f(const Eigen::Vector2f &vec);
+    /// Convenience routine to add a 3D vector (if the type matches)
+    void addVector3f(const Eigen::Vector3f &vec);
+    /// Convenience routine to add a float (if the type matches)
+    void addFloat(float val);
+    
+    /// Reserve size in the data array
+    void reserve(int size);
+    
+    /// Number of elements in our array
+    int numElements() const;
+    
+    /// Return the size of a single element
+    int size() const;
+    
+    /// Clean out the data array
+    void clear();
+    
+    /// Return a pointer to the given element
+    void *addressForElement(int which);
+    
+    /// Return the number of components as needed by glVertexAttribPointer
+    GLuint glEntryComponents() const;
+    
+    /// Return the data type as required by glVertexAttribPointer
+    GLenum glType() const;
+    
+    /// Whether or not glVertexAttribPointer will normalize the data
+    GLboolean glNormalize() const;
+    
+    /// Calls glVertexAttrib* for the appropriate type
+    void glSetDefault(int index) const;
+        
+public:
+    /// Data type for the attribute data
+    BDAttributeDataType dataType;
+    /// Name used in the shader
+    std::string name;
+    /// Default value to pass to OpenGL if there's no data array
+    union {
+        float vec3[3];
+        float vec2[2];
+        float floatVal;
+        unsigned char color[4];
+    } defaultData;
+    /// std::vector of attribute data.  Type is known by the caller.
+    void *data;
+    /// Buffer offset within interleaved vertex
+    GLuint buffer;
+};
+    
 /** The Basic Drawable is the one we use the most.  It's
     a general purpose container for static geometry which
     may or may not be textured.
  */
 class BasicDrawable : public Drawable
 {
+    friend class BigDrawableAtlas;
 public:
     /// Construct empty
-	BasicDrawable();
+	BasicDrawable(const std::string &name);
 	/// Construct with some idea how big things are.
     /// You can violate this, but it will reserve space
-	BasicDrawable(unsigned int numVert,unsigned int numTri);
+	BasicDrawable(const std::string &name, unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
 
     /// For OpenGLES2, this is the program to use to render this drawable.
-    virtual SimpleIdentity getProgram() const { return programId; }
+    virtual SimpleIdentity getProgram() const;
 
     /// For OpenGLES2, you can set the program to use in rendering
-    void setProgram(SimpleIdentity progId) { programId = progId; }
+    void setProgram(SimpleIdentity progId);
 
 	/// Set up the VBOs
 	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -236,34 +335,32 @@ public:
 	virtual void teardownGL(OpenGLMemManager *memManage);	
 	
     /// Size of a single vertex used in creating an interleaved buffer.
-    /// Override this if you want to include your own data in the interleaved buffer.
     virtual GLuint singleVertexSize();
         
     /// Called render-thread side to set up a VAO
-    /// Override this to set up
     virtual void setupVAO(OpenGLES2Program *prog);
 	
 	/// Fill this in to draw the basic drawable
 	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
 	
 	/// Draw priority
-	virtual unsigned int getDrawPriority() const { return drawPriority; }
+	virtual unsigned int getDrawPriority() const;
 	
 	/// We use the on/off flag as well as a visibility check
 	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
 	/// True to turn it on, false to turn it off
-	void setOnOff(bool onOff) { on = onOff; }
+	void setOnOff(bool onOff);
     
     /// Used for alpha sorting
     virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
-    void setAlpha(bool onOff) { isAlpha = onOff; }
+    void setAlpha(bool onOff);
 	    
     /// Extents used for display culling in local coordinates, if we're using them
-    virtual Mbr getLocalMbr() const  { return localMbr; }
+    virtual Mbr getLocalMbr() const;
 	    
     /// Set local extents
-    void setLocalMbr(Mbr mbr) { localMbr = mbr; }
+    void setLocalMbr(Mbr mbr);
 	
 	/// Simple triangle.  Can obviously only have 2^16 vertices
 	class Triangle
@@ -276,123 +373,143 @@ public:
 	};
 
 	/// Set the draw priority.  We sort by draw priority before rendering.
-	void setDrawPriority(unsigned int newPriority) { drawPriority = newPriority; }
-	unsigned int getDrawPriority() { return drawPriority; }
+	void setDrawPriority(unsigned int newPriority);
+	unsigned int getDrawPriority();
 
     /// Set the draw offset.  This is an integer offset from the base terrain.
     /// Geometry is moved upward by a certain number of units.
-	void setDrawOffset(float newOffset) { drawOffset = newOffset; }
-	float getDrawOffset() { return drawOffset; }
+	void setDrawOffset(float newOffset);
+	float getDrawOffset();
 
 	/// Set the geometry type.  Probably triangles.
-	void setType(GLenum inType) { type = inType; }
-	GLenum getType() const { return type; }
+	void setType(GLenum inType);
+	GLenum getType() const;
 
     /// Set the texture ID.  You get this from the Texture object.
-	void setTexId(SimpleIdentity inId) { texId = inId; }
+	void setTexId(SimpleIdentity inId);
 
+    /// Return the default color
+    RGBAColor getColor() const;
+    
     /// Set the color as an RGB color
-	void setColor(RGBAColor inColor) { color = inColor; }
+	void setColor(RGBAColor inColor);
 
     /// Set the color as an array.
-	void setColor(unsigned char inColor[]) { color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3]; }
-    RGBAColor getColor() const { return color; }
+	void setColor(unsigned char inColor[]);
 
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
     ///  the surface of the globe as at 1.0
-    void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0) { minVisible = minVis;  maxVisible = maxVis;  minVisibleFadeBand = minVisBand; maxVisibleFadeBand = maxVisBand; }
-    
+    void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
     /// Retrieve the visible range, just min and max
-    void getVisibleRange(float &minVis,float &maxVis) { minVis = minVisible;  maxVis = maxVisible; }
+    void getVisibleRange(float &minVis,float &maxVis);
     
     /// Retrieve the visible range, including bands
-    void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand) { minVis = minVisible; maxVis = maxVisible;  minVisBand = minVisibleFadeBand; maxVisBand = maxVisibleFadeBand; }
-    
+    void getVisibleRange(float &minVis,float &maxVis,float &minVisBand,float &maxVisBand);
     /// Set the fade in and out
-    void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp) { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
+    void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp);
     
     /// Set the line width (if using lines)
-    void setLineWidth(float inWidth) { lineWidth = inWidth; }
+    void setLineWidth(float inWidth);
     
     /// Return the line width (1.0 is the default)
-    float getLineWidth() { return lineWidth; }
-
-    /// Used to sort a Drawable in with the lines in zBufferOffUntilLines mode
-    void setForceZBufferOn(bool val) { forceZBufferOn = val; }
+    float getLineWidth();
+    
+    /// We can ask to use the z buffer
+    void setRequestZBuffer(bool val);
     
     /// Check if the force Z buffer on mode is on
-    bool getForceZBufferOn() const { return forceZBufferOn; }
+    bool getRequestZBuffer() const;
+
+    /// Set the z buffer mode for this drawable
+    void setWriteZBuffer(bool val);
+    
+    /// Check if we want to write to the z buffer
+    bool getWriteZbuffer() const;
 
 	/// Add a point when building up geometry.  Returns the index.
-	unsigned int addPoint(Point3f pt) { points.push_back(pt); return points.size()-1; }
+	unsigned int addPoint(Point3f pt);
     
     /// Return a given point
-    Point3f getPoint(int which) { if (which >= points.size()) return Point3f(0,0,0);  return points[which]; }
+    Point3f getPoint(int which);
 
     /// Add a texture coordinate.
-	void addTexCoord(TexCoord coord) { texCoords.push_back(coord); }
+	void addTexCoord(TexCoord coord);
     
     /// Add a color
-    void addColor(RGBAColor color) { colors.push_back(color); }
+    void addColor(RGBAColor color);
 
     /// Add a normal
-	void addNormal(Point3f norm) { norms.push_back(norm); }
-    
-    /// Return a given normal
-    Point3f getNormal(int which) { if (which <= norms.size()) return Point3f(0,0,1);  return norms[which]; }
+	void addNormal(Point3f norm);
 
+    /// Add a vector to the given attribute array
+    void addAttributeValue(int attrId,Eigen::Vector2f vec);
+
+    /// Add a 2D vector to the given attribute array
+    void addAttributeValue(int attrId,Eigen::Vector3f vec);
+    
+    /// Add a 4 component char array to the given attribute array
+    void addAttributeValue(int attrId,RGBAColor color);
+    
+    /// Add a float to the given attribute array
+    void addAttributeValue(int attrId,float val);
+    
     /// Add a triangle.  Should point to the vertex IDs.
-	void addTriangle(Triangle tri) { tris.push_back(tri); }
+	void addTriangle(Triangle tri);
     
     /// Return the texture ID
-    SimpleIdentity getTexId() { return texId; }
+    SimpleIdentity getTexId();
+    
+    /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
+    ///  it by.  The index returned is how you will access it.
+    int addAttribute(BDAttributeDataType dataType,const std::string &name);
     
     /// Return the number of points added so far
-    unsigned int getNumPoints() const { return points.size(); }
+    unsigned int getNumPoints() const;
     
     /// Return the number of triangles added so far
-    unsigned int getNumTris() const { return tris.size(); }
-    
-    /// Return the number of normals added so far
-    unsigned int getNumNorms() const { return norms.size(); }
-    
-    /// Return the number of texture coordinates added so far
-    unsigned int getNumTexCoords() const { return texCoords.size(); }
-    
+    unsigned int getNumTris() const;
+        
     /// Reserve the extra space for points
-    void reserveNumPoints(int numPoints) { points.reserve(points.size()+numPoints); }
+    void reserveNumPoints(int numPoints);
     
     /// Reserve the extra space for triangles
-    void reserveNumTris(int numTris) { tris.reserve(tris.size()+numTris); }
+    void reserveNumTris(int numTris);
     
     /// Reserve extra space for texture coordinates
-    void reserveNumTexCoords(int numCoords) { texCoords.reserve(texCoords.size()+numCoords); }
+    void reserveNumTexCoords(int numCoords);
     
     /// Reserve extra space for normals
-    void reserveNumNorms(int numNorms) { norms.reserve(norms.size()+numNorms); }
+    void reserveNumNorms(int numNorms);
     
     /// Reserve extra space for colors
-    void reserveNumColors(int numColors) { colors.reserve(colors.size()+numColors); }
-	
-	/// Widen a line and turn it into a rectangle of the given width
-	void addRect(const Point3f &l0, const Eigen::Vector3f &ln0, const Point3f &l1, const Eigen::Vector3f &ln1,float width);
-    
+    void reserveNumColors(int numColors);
+	    
     /// Set the active transform matrix
-    void setMatrix(const Eigen::Matrix4f *inMat) { mat = *inMat; hasMatrix = true; }
+    void setMatrix(const Eigen::Matrix4d *inMat);
 
     /// Return the active transform matrix, if we have one
-    const Eigen::Matrix4f *getMatrix() const { if (hasMatrix) return &mat;  return NULL; }
+    const Eigen::Matrix4d *getMatrix() const;
+
+    /// Run the texture and texture coordinates based on a SubTexture
+    void applySubTexture(SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
-protected:
-    /// OpenGL ES 1.1 drawing routine
-	virtual void drawReg(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
-    /// OpenGL ES 1.1 drawing routine
-	virtual void drawVBO(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    /// Copy the vertex data into an NSData object and return it
+    NSData *asData(bool dupStart,bool dupEnd);
     
+    /// Copy vertex and element data into appropriate NSData objects
+    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
+    
+    /// Assuming this is a set of triangles, convert to a triangle strip
+    void convertToTriStrip();
+    
+    /// Return the vertex attributes for reference
+    const std::vector<VertexAttribute *> &getVertexAttributes();
+    
+protected:
     /// Draw routine for OpenGL 2.0
     virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
@@ -406,6 +523,13 @@ protected:
     virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
     /// Called at the end of the drawOGL2() call
     virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
+    
+    // Attributes associated with each vertex, some standard some not
+    std::vector<VertexAttribute *> vertexAttributes;
+    // Entries for the standard attributes we create on startup
+    int texCoordEntry,colorEntry,normalEntry;
+    // Set up the standard vertex attributes we use
+    void setupStandardAttributes(int numReserve=0);
 	
 	bool on;  // If set, draw.  If not, not
     SimpleIdentity programId;    // Program to use for rendering
@@ -421,23 +545,22 @@ protected:
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
     float lineWidth;
-    // For zBufferOffUntilLines mode we'll sort this with the lines
-    bool forceZBufferOn;
+    // For zBufferOffDefault mode we'll sort this to the end
+    bool requestZBuffer;
+    // When this is set we'll update the z buffer with our geometry.
+    bool writeZBuffer;
     // We'll nuke the data arrays when we hand over the data to GL
     unsigned int numPoints, numTris;
 	std::vector<Eigen::Vector3f> points;
-    std::vector<RGBAColor> colors;
-	std::vector<Eigen::Vector2f> texCoords;
-	std::vector<Eigen::Vector3f> norms;
 	std::vector<Triangle> tris;
     
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
-    Eigen::Matrix4f mat;
+    Eigen::Matrix4d mat;
 	
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
-	GLuint pointBuffer,colorBuffer,texCoordBuffer,normBuffer,triBuffer,sharedBuffer;
+	GLuint pointBuffer,triBuffer,sharedBuffer;
     GLuint vertArrayObj;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
@@ -510,12 +633,12 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
-    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4f *newMat);
+    TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    Eigen::Matrix4f newMat;
+    Eigen::Matrix4d newMat;
 };
     
 /// Change the drawPriority on a drawable
