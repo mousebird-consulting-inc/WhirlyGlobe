@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,6 +30,36 @@
 
 namespace WhirlyKit
 {
+    
+/** Base class for textures.  This is enough information to
+    track it in the Scene, but little else.
+  */
+class TextureBase : public Identifiable
+{
+public:
+    /// Construct for comparison
+    TextureBase(SimpleIdentity thisId) : Identifiable(thisId), glId(0) { }
+    TextureBase(const std::string &name) : name(name), glId(0) { }
+    
+    virtual ~TextureBase() { }
+    
+    /// Return the unique GL ID.
+    GLuint getGLId() const { return glId; }
+
+    /// Render side only.  Don't call this.  Create the openGL version
+	virtual bool createInGL(OpenGLMemManager *memManager) {  return false; }
+	
+	/// Render side only.  Don't call this.  Destroy the openGL version
+	virtual void destroyInGL(OpenGLMemManager *memManager) { }
+
+protected:
+	/// OpenGL ES ID
+	/// Set to 0 if we haven't loaded yet
+	GLuint glId;    
+    
+    /// Used for debugging
+    std::string name;
+};
 
 /** Your basic Texture representation.
     This is how you get an image sent over to the
@@ -37,57 +67,58 @@ namespace WhirlyKit
     If you want to remove it, you need to use its
     Identifiable ID.
  */
-class Texture : public Identifiable
+class Texture : public TextureBase
 {
 public:
     /// Construct emty
-	Texture();
+	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
-	Texture(NSData *texData,bool isPVRTC);
+	Texture(const std::string &name,NSData *texData,bool isPVRTC);
 	/// Construct with a file name and extension
-	Texture(NSString *baseName,NSString *ext);
+	Texture(const std::string &name,NSString *baseName,NSString *ext);
 	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
     /// If it's not we'll round up or down, depending on the flag
-	Texture(UIImage *inImage,bool roundUp=true);
+	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
     /// Construct from a FILE, presumably because it was cached
-    Texture(FILE *fp);
+    Texture(const std::string &name,FILE *fp);
 	
-	~Texture();
+	virtual ~Texture();
+	    
+    /// Process the data for display based on the format.
+    NSData *processData();
 	
-    /// Return the unique GL ID.
-	GLuint getGLId() const { return glId; }
-	
-	/// Render side only.  Don't call this.  Create the openGL version
-	bool createInGL(bool releaseData,OpenGLMemManager *memManager);
-	
-	/// Render side only.  Don't call this.  Destroy the openGL version
-	void destroyInGL(OpenGLMemManager *memManager);
-
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
+    /// Get the texture width
+    int getWidth() { return width; }
     /// Set the texture height
     void setHeight(unsigned int newHeight) { height = newHeight; }
+    /// Get the texture height
+    int getHeight() { return height; }
     /// Set this to have a mipmap generated and used for minification
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
-    
-    /// Write to a FILE * for caching.
-    bool writeToFile(FILE *fp);
+    /// Set the format (before createInGL() is called)
+    void setFormat(GLenum inFormat) { format = inFormat; }
+
+    /// Render side only.  Don't call this.  Create the openGL version
+	virtual bool createInGL(OpenGLMemManager *memManager);
+	
+	/// Render side only.  Don't call this.  Destroy the openGL version
+	virtual void destroyInGL(OpenGLMemManager *memManager);
 	
 protected:
 	/// Raw texture data
 	NSData * __strong texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
+    /// If not PVRTC, the format we'll use for the texture
+    GLenum format;
 	
 	unsigned int width,height;
     bool usesMipmaps;
     bool wrapU,wrapV;
-	
-	/// OpenGL ES ID
-	/// Set to 0 if we haven't loaded yet
-	GLuint glId;
 };
 	
 }

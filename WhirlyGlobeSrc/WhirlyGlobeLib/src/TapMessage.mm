@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@
 
 #import "TapMessage.h"
 
+using namespace WhirlyKit;
+
 @implementation WhirlyGlobeTapMessage
 
-@synthesize view;
-@synthesize touchLoc;
-@synthesize whereGeo;
-@synthesize worldLoc;
-@synthesize heightAboveSurface;
-
+- (void)setWorldLocD:(WhirlyKit::Point3d)newLoc
+{
+    _worldLoc = Point3f(newLoc.x(),newLoc.y(),newLoc.z());
+}
 
 @end

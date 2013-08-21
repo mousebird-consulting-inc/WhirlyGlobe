@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,18 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyKitNetworkTileQuadSourceBase
-
-@synthesize numSimultaneous;
-@synthesize cacheDir;
+{
+@protected
+    /// Spherical Mercator coordinate system, for the tiles
+    WhirlyKit::SphericalMercatorCoordSystem *coordSys;
+    /// Bounds in Spherical Mercator
+    WhirlyKit::Mbr mbr;
+    /// Available levels, as read from the database.
+    /// You can modify these yourself as well, to limit what's loaded
+    int minZoom,maxZoom;
+    /// Size of a tile in pixels square.  256 is the usual.
+    int pixelsPerTile;
+}
 
 - (void)dealloc
 {
@@ -66,19 +75,14 @@ using namespace WhirlyKit;
     return maxZoom;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == minZoom)
         return MAXFLOAT;
     
     // For the rest,
-//    if (ident.level >= 10)
-//        NSLog(@"here");
-    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsPerTile, coordSys, viewState->coordAdapter, tileMbr);
-//    if (ident.level >= 10)
-//        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
-    return import;
+    return ScreenImportance(viewState, frameSize, viewState.eyeVec, pixelsPerTile, coordSys, viewState.coordAdapter, tileMbr, ident, attrs);
 }
 
 @end
@@ -92,8 +96,8 @@ using namespace WhirlyKit;
     
     if (self)
     {    
-        baseURL = base;
-        ext = imageExt;
+        _baseURL = base;
+        _ext = imageExt;
         
         coordSys = new SphericalMercatorCoordSystem();
 
@@ -104,7 +108,7 @@ using namespace WhirlyKit;
         mbr.ll() = Point2f(ll3d.x(),ll3d.y());
         mbr.ur() = Point2f(ur3d.x(),ur3d.y());
         
-        numSimultaneous = 1;
+        super.numSimultaneous = 1;
         
         pixelsPerTile = 256;
     }
@@ -129,11 +133,11 @@ using namespace WhirlyKit;
 
 - (int)maxSimultaneousFetches
 {
-    return numSimultaneous;
+    return super.numSimultaneous;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     int y = ((int)(1<<level)-row)-1;
     
@@ -144,9 +148,9 @@ using namespace WhirlyKit;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;
-                       if (cacheDir)
+                       if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",cacheDir,level,col,y,ext];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,_ext];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {
@@ -156,8 +160,8 @@ using namespace WhirlyKit;
 
                        if (!imgData)
                        {
-                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",baseURL,level,col,y,ext];
-                           NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,level,col,y,_ext];
+                           NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                                             
                            // Fetch the image synchronously
                            NSURLResponse *resp = nil;
@@ -191,9 +195,9 @@ using namespace WhirlyKit;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 
@@ -209,8 +213,8 @@ using namespace WhirlyKit;
     {
         coordSys = new SphericalMercatorCoordSystem();
         
-        tileURLs = jsonDict[@"tiles"];
-        if (![tileURLs isKindOfClass:[NSArray class]])
+        _tileURLs = jsonDict[@"tiles"];
+        if (![_tileURLs isKindOfClass:[NSArray class]])
             return nil;
         
         // Set'll set up a default to cover the whole world
@@ -233,7 +237,7 @@ using namespace WhirlyKit;
         minZoom = [jsonDict[@"minzoom"] intValue];
         maxZoom = [jsonDict[@"maxzoom"] intValue];
         
-        numSimultaneous = 4;
+        super.numSimultaneous = 4;
         
         pixelsPerTile = 256;
     }
@@ -248,27 +252,27 @@ using namespace WhirlyKit;
 
 - (int)maxSimultaneousFetches
 {
-    return numSimultaneous;
+    return super.numSimultaneous;
 }
 
 // Start loading a given tile
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     int y = ((int)(1<<level)-row)-1;
     
     // Decide here which URL we'll use
-    NSString *tileURL = [tileURLs objectAtIndex:col%[tileURLs count]];
+    NSString *tileURL = [_tileURLs objectAtIndex:col%[_tileURLs count]];
     
     // Let's just do this in a block
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       NSData *imgData;
+                       NSData *imgData = nil;
                        
                        // Look for it in the local cache first
                        NSString *localName = nil;
-                       if (cacheDir)
+                       if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",cacheDir,level,col,y];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d",self.cacheDir,level,col,y];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {
@@ -315,9 +319,9 @@ using namespace WhirlyKit;
     int y = [[args objectAtIndex:4] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:imgData pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
     else {
-        [loader dataSource:self loadedImage:nil pvrtcSize:0 forLevel:level col:x row:y];
+        [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,9 +34,6 @@
 {
     WhirlyGlobeView * __weak globeView;
         
-    // The view controller, for various callbacks
-    NSObject<WGInteractionLayerDelegate> * __weak viewController;
-        
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
     
@@ -44,6 +41,7 @@
     NSTimeInterval lastTouched;
 }
 
+// The view controller, for various callbacks
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Initialize with the globeView

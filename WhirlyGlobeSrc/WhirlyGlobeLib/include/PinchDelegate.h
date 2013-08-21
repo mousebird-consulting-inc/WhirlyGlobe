@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/17/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,11 +26,9 @@
 	accordingly.
  */
 @interface WhirlyGlobePinchDelegate : NSObject <UIGestureRecognizerDelegate>
-{
-    /// If we're in the process of zooming in, where we started
-	float startZ;
-	WhirlyGlobeView *globeView;
-}
+
+/// If set, we'll also handle rotation.  On by default.
+@property (nonatomic,assign) bool doRotation;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView

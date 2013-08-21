@@ -26,14 +26,10 @@
     the location.
  */
 @interface MaplyViewTracker : NSObject
-{
-    /// The view we want to place
-    UIView *view;
-    /// Where we want to place it
-    MaplyCoordinate loc;
-}
 
+/// The view we want to place
 @property (nonatomic,strong) UIView *view;
+/// Where we want to place it
 @property (nonatomic,assign) MaplyCoordinate loc;
 
 @end

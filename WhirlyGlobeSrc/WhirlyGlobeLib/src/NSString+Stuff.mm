@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,6 +29,16 @@
         return "";
     std::string newStr(tmpStr);
     return newStr;
+}
+
+// Courtesy: http://stackoverflow.com/questions/3552195/how-to-convert-stdstring-to-nsstring
++(NSString*) stringWithwstring:(const std::wstring&)ws
+{
+    char* data = (char*)ws.data();
+    unsigned size = ws.size() * sizeof(wchar_t);
+    
+    NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE)];
+    return result;
 }
 
 @end

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,5 +43,14 @@
 
 /// Set the default material
 - (void)setDefaultMaterial:(WhirlyKitMaterial *)mat;
+
+/// The next time through we'll redo the render setup.
+/// We might need this if the view has switched away and then back.
+- (void)forceRenderSetup;
+
+/// If set, we'll let the render run on a dispatch queue.
+/// This lets the UI run in the main thread without interference,
+///  but it does mean you can't mess with the rendering context.
+@property (nonatomic,assign) bool dispatchRendering;
 
 @end

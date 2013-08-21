@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,15 @@ using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation UIColor(Stuff)
+
++ (UIColor *) colorFromHexRGB:(int)hexColor
+{
+    float red = (((hexColor) >> 16) & 0xFF)/255.0;
+    float green = (((hexColor) >> 8) & 0xFF)/255.0;
+    float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+    
+    return [UIColor colorWithRed:red green:green blue:blue alpha:1.0];
+}
 
 - (RGBAColor) asRGBAColor
 {

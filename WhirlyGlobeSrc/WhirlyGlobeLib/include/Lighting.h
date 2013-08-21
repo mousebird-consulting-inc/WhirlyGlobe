@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/6/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,19 +27,21 @@
 /** This implements a simple directional light source
   */
 @interface WhirlyKitDirectionalLight : NSObject
-{
-@public
-    /// Light position
-    Eigen::Vector3f pos;
-    /// If set, we won't process the light position through the model matrix
-    bool viewDependent;
-    /// Ambient light color
-    Eigen::Vector4f ambient;
-    /// Diffuse light color
-    Eigen::Vector4f diffuse;
-    /// Specular light color
-    Eigen::Vector4f specular;
-}
+
+/// Light position
+@property (nonatomic,readonly) Eigen::Vector3f &pos;
+- (void)setPos:(Eigen::Vector3f)pos;
+/// If set, we won't process the light position through the model matrix
+@property (nonatomic,assign) bool viewDependent;
+/// Ambient light color
+@property (nonatomic,readonly) Eigen::Vector4f &ambient;
+- (void)setAmbient:(Eigen::Vector4f)ambient;
+/// Diffuse light color
+@property (nonatomic,readonly) Eigen::Vector4f &diffuse;
+- (void)setDiffuse:(Eigen::Vector4f)diffuse;
+/// Specular light color
+@property (nonatomic,readonly) Eigen::Vector4f &specular;
+- (void)setSpecular:(Eigen::Vector4f)specular;
 
 /// Bind this light (given the index) to the program.
 /// Don't call this yourself.
@@ -50,17 +52,15 @@
 /** This is a simple material definition.
  */
 @interface WhirlyKitMaterial : NSObject
-{
-@public
-    /// Ambient material color
-    Eigen::Vector4f ambient;
-    /// Diffuse material color
-    Eigen::Vector4f diffuse;
-    /// Specular component of material color
-    Eigen::Vector4f specular;
-    /// Specular exponent used in lighting
-    float specularExponent;
-}
+
+/// Ambient material color
+@property (nonatomic,assign) Eigen::Vector4f &ambient;
+/// Diffuse material color
+@property (nonatomic,assign) Eigen::Vector4f &diffuse;
+/// Specular component of material color
+@property (nonatomic,assign) Eigen::Vector4f &specular;
+/// Specular exponent used in lighting
+@property (nonatomic,assign) float specularExponent;
 
 /// Bind this material to a the given OpenGL ES program.
 /// Don't call this yourself.

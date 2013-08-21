@@ -1,9 +1,9 @@
 /*
- *  ShapeDisplay.h
+ *  VectorLayer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,32 +28,7 @@
 #import "VectorData.h"
 #import "GlobeMath.h"
 #import "LayerThread.h"
-#import "DrawCost.h"
-
-namespace WhirlyKit
-{
-
-/*  This is the representation of a group of vectors
-    in the scene.  You do not want to create individual
-    vector features on the globe one by one, that's too expensive.
-    It needs to be batched and that's how we do this.
-    The VectorSceneRep keeps track of what shapes are being
-    represented by what drawables in the scene.  We use this
-    for modifications or deletions later on.
- */
-class VectorSceneRep : public Identifiable
-{
-public:
-    VectorSceneRep() { }
-    VectorSceneRep(ShapeSet &inShapes) : shapes(inShapes) { };
-    
-    ShapeSet shapes;  // Shapes associated with this
-    SimpleIDSet drawIDs;    // The drawables we created
-    float fade;       // If set, the amount of time to fade out before deletion
-};
-typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
-
-}
+#import "VectorManager.h"
 
 /** The Vector Display Layer will add vector objects on top of the
     globe as requested by a caller.  To keep things efficient, you
@@ -83,14 +58,6 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
     </list>
   */
 @interface WhirlyKitVectorLayer : NSObject<WhirlyKitLayer>
-{
-@private
-    WhirlyKit::Scene *scene;
-    WhirlyKitLayerThread * __weak layerThread;
-    
-    // Visual representations of vectors
-    WhirlyKit::VectorSceneRepMap vectorReps;    
-}
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
@@ -119,11 +86,11 @@ typedef std::map<SimpleIdentity,VectorSceneRep *> VectorSceneRepMap;
 /// Only enable, color, line width, draw priority, and visibility range are supported
 - (void)changeVector:(WhirlyKit::SimpleIdentity)vecID desc:(NSDictionary *)dict;
 
+/// Enable or disable a group of vectors.
+/// Must be called on layer thread.
+- (void)enableVector:(WhirlyKit::SimpleIdentity)vecID enable:(bool)enable;
+
 /// Removes a group of vectors from the display
 - (void)removeVector:(WhirlyKit::SimpleIdentity)vecID;
-
-/// Returns a cost estimate for the given vectors referred to by
-///  ID.  This must be called in the layer thread
-- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)vecID;
 
 @end

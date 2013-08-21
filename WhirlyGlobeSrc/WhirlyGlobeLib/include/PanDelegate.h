@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,17 +25,6 @@
     quaternions and so avoid gimbal lock.
  */
 @interface WhirlyGlobePanDelegate : NSObject<UIGestureRecognizerDelegate> 
-{
-	WhirlyGlobeView * __weak view;
-    /// Set if we're in the process of panning
-	BOOL panning;
-	/// The view transform when we started
-	Eigen::Matrix4f startTransform;
-	/// Where we first touched the sphere
-	WhirlyKit::Point3f startOnSphere;
-	/// Rotation when we started
-	Eigen::Quaternionf startQuat;
-}
 
 /// Creates a pan gesture delegate and wires it up to the given view.
 /// Will modify the globe view.

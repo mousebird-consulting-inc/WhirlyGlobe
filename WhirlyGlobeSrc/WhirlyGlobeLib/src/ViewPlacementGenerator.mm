@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/25/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -96,38 +96,21 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         if (!hidden)
         {
             // Note: Calculate this ahead of time
-            Point3f worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(viewInst.loc));
-            
+            Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(viewInst.loc));
+     
             // Check that it's not behind the globe
             if (globeView)
             {
-                // Note: Copied from the ScreenSpaceGenerator.  Still dumb here.
-                Point3f testPts[2];
-                testPts[0] = worldLoc;
-                testPts[1] = worldLoc*1.5;
-                for (unsigned int ii=0;ii<2;ii++)
-                {
-                    Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-                    modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-                    Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-                    //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-                    testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
-                }
-                Vector3f testDir = testPts[1] - testPts[0];
-                testDir.normalize();
-
-                // Note: This is so dumb it hurts.  Figure out why the math is broken.
-                if (testDir.z() > -0.33)
+                // Make sure this one is facing toward the viewer
+                Point3f worldLoc3f(worldLoc.x(),worldLoc.y(),worldLoc.z());
+                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
                     hidden = YES;
-                    // If it's pointed away from the user, don't bother
-                    //            if (worldLoc.dot(frameInfo.eyeVec) < 0.0)
-                    //                hidden = YES;
             }
 
             if (!hidden)
             {
                 // Project the world location to the screen
-                Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
+                Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
                 if (globeView)
                     screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
                 else
@@ -141,15 +124,32 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             }
         }
         
-        viewInst.view.hidden = hidden;
         if (!hidden)
         {
             CGSize size = viewInst.view.frame.size;
             // Note: We should really be passing this in
-            float scale = viewInst.view.superview.contentScaleFactor;
-            if (scale < 1.0)
-                scale = 1.0;
-            viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+            float scale = [UIScreen mainScreen].scale;
+            // We can only modify UIViews on the main thread
+            if ([NSThread currentThread] != [NSThread mainThread])
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                               ^{
+                                   viewInst.view.hidden = false;
+                                   viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+                               });
+            } else {
+                viewInst.view.hidden = false;
+                viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+            }
+        } else {
+            if ([NSThread currentThread] != [NSThread mainThread])
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                               ^{
+                                   viewInst.view.hidden = true;
+                               });
+            } else
+                viewInst.view.hidden = true;
         }
     }
 }

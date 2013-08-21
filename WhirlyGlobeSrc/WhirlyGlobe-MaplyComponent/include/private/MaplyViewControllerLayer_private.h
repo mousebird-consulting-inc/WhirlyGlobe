@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,9 +22,14 @@
 #import <WhirlyGlobe.h>
 #import "MaplyViewControllerLayer.h"
 
+@class MaplyBaseViewController;
+
 /// Used to keep track of resources for a layer the user has asked to be created.
 /// Don't mess with these directly.
 @interface MaplyViewControllerLayer()
+
+/// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 
 /// Remove resources associated with this layer
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

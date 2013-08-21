@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,8 +35,14 @@
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
 
+/// How the scene refers to the default triangle shader (and how you replace it)
+#define kSceneDefaultTriShader "Default Triangle Shader"
+/// How the scene refers to the default line shader (and how you replace it)
+#define kSceneDefaultLineShader "Default Line Shader"
+
 /// @cond
 @class WhirlyKitSceneRendererES;
+@class WhirlyKitFontTextureManager;
 /// @endcond
 
 namespace WhirlyKit
@@ -54,18 +60,24 @@ class AddTextureReq : public ChangeRequest
 public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
-	AddTextureReq(Texture *tex) : tex(tex) { }
+	AddTextureReq(TextureBase *tex) : tex(tex) { }
     /// If the texture hasn't been added to the renderer, clean it up.
 	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
+
+    /// Texture creation generally wants a flush
+    virtual bool needsFlush() { return true; }
+    
+    /// Create the texture on its native thread
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
     /// Only use this if you've thought it out
-    Texture *getTex() { return tex; }
+    TextureBase *getTex() { return tex; }
 
 protected:
-	Texture *tex;
+	TextureBase *tex;
 };
 
 /// Remove a texture referred to by ID
@@ -90,6 +102,12 @@ public:
 	AddDrawableReq(Drawable *drawable) : drawable(drawable) { }
     /// If the drawable wasn't used, delete it
 	~AddDrawableReq() { if (drawable) delete drawable; drawable = NULL; }
+    
+    /// Drawable creation generally wants a flush
+    virtual bool needsFlush() { return true; }
+    
+    /// Create the drawable on its native thread
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawable) drawable->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
@@ -145,13 +163,14 @@ class AddProgramReq : public ChangeRequest
 {
 public:
     // Construct with the program to add
-    AddProgramReq(OpenGLES2Program *prog) : program(prog) { }
+    AddProgramReq(const std::string &sceneName,OpenGLES2Program *prog) : sceneName(sceneName), program(prog) { }
     ~AddProgramReq() { if (program) delete program; program = NULL; }
     
     /// Remove from the renderer.  Never call this.
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 
 protected:
+    std::string sceneName;
     OpenGLES2Program *program;
 };
     
@@ -184,7 +203,7 @@ protected:
 };
     
 /// Send out a notification (on the main thread) when
-///  We get this request.  Used to figure out when something
+///  we get this request.  Used to figure out when something
 ///  has been completely loaded.  Do not overuse.
 class NotificationReq : public ChangeRequest
 {
@@ -204,6 +223,33 @@ protected:
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
+typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
+
+typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
+typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
+    
+/** The scene manager is a base class for various functionality managers
+    associated with a scene.  These are the objects that build geometry,
+    manage layout, selection, and so forth for a scene.  They typically
+    do their work off of the main thread and then merge data back into
+    the scene on the main thread.
+ */
+class SceneManager
+{
+public:
+    virtual ~SceneManager() { };
+    
+    /// Set (or reset) the current renderer
+    virtual void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
+
+    /// Set the scene we're part of
+    virtual void setScene(Scene *inScene) { scene = inScene; }
+    
+protected:
+    Scene *scene;
+    WhirlyKitSceneRendererES *renderer;
+};
+
 /** This is the top level scene object for WhirlyKit.
     It keeps track of the drawables by sorting them into
      cullables and it handles the change requests, which
@@ -231,7 +277,7 @@ public:
 	void addChangeRequest(ChangeRequest *newChange);
     /// Add a list of change requets.  You can call this from any thread.
     /// This is the faster option if you have more than one change request
-	void addChangeRequests(const std::vector<ChangeRequest *> &newchanges);
+	void addChangeRequests(const ChangeSet &newchanges);
 	
 	/// Look for a valid texture
     /// If it's missing, we probably won't draw the associated geometry
@@ -272,6 +318,15 @@ public:
     /// Get the UIView placement generator.  Only use this in the main thread.
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
+    /// Called once by the renderer so we can reset any managers that care
+    void setRenderer(WhirlyKitSceneRendererES *renderer);
+    
+    /// Return the given manager.  This is thread safe;
+    SceneManager *getManager(const char *name);
+    
+    /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
+    void addManager(const char *name,SceneManager *manager);
+    
     /// Add an active model.  Only call this on the main thread.
     void addActiveModel(NSObject<WhirlyKitActiveModel> *);
     
@@ -281,9 +336,17 @@ public:
     /// Return the top level cullable
     CullTree *getCullTree() { return cullTree; }
     
+    /// Explicitly tear everything down in OpenGL ES.
+    /// We're assuming the context has been set.
+    void teardownGL();
+    
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.
     OpenGLMemManager *getMemManager() { return &memManager; }
+    
+    /// Return a dispatch queue that we can use for... stuff.
+    /// The idea here is we'll wait for these to drain when we tear down.
+    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
@@ -301,7 +364,7 @@ public:
 	DrawableRef getDrawable(SimpleIdentity drawId);
 	
 	/// Look for a Texture by ID
-	Texture *getTexture(SimpleIdentity texId);
+	TextureBase *getTexture(SimpleIdentity texId);
     
     /// All the active models
     NSMutableArray *activeModels;
@@ -312,18 +375,20 @@ public:
     /// Top level of Cullable quad tree
     CullTree *cullTree;
 	
-	typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
-	typedef std::set<Texture *,IdentifiableSorter> TextureSet;
+	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
 	/// Textures, sorted by ID
 	TextureSet textures;
+    
+    /// Mutex for accessing textures
+    pthread_mutex_t textureLock;
 	
 	pthread_mutex_t changeRequestLock;
 	/// We keep a list of change requests to execute
 	/// This can be accessed in multiple threads, so we lock it
-	std::vector<ChangeRequest *> changeRequests;
+	ChangeSet changeRequests;
     
     pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
@@ -333,8 +398,14 @@ public:
     /// ID for screen space generator
     SimpleIdentity screenSpaceGeneratorID;
     
+    /// Lock for accessing the generators
+    pthread_mutex_t generatorLock;
+    
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
+    
+    /// Dispatch queue(s) we'll use for... things
+    dispatch_queue_t dispatchQueue;
     
     /// Screen space generator created on startup
     ScreenSpaceGenerator *ssGen;
@@ -342,25 +413,49 @@ public:
     /// UIView placement generator created on startup
     ViewPlacementGenerator *vpGen;
     
+    /// Lock for accessing managers
+    pthread_mutex_t managerLock;
+
+    /// Managers for various functionality
+    std::map<std::string,SceneManager *> managers;
+    
+    /// Returns the font texture manager, which is thread safe
+    WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }
+    
+    /// Font texture manager (created on startup)
+    WhirlyKitFontTextureManager *fontTexManager;
+    
+    /// Lock for accessing programs
+    pthread_mutex_t programLock;
+    
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);
     
-    /// Search for a shader program by name
-    OpenGLES2Program *getProgram(const std::string &name);
+    /// Search for a shader program by the scene name (not the program name)
+    OpenGLES2Program *getProgramBySceneName(const std::string &sceneName);
+
+    /// Look for the given program by scene name and return the ID
+    SimpleIdentity getProgramIDBySceneName(const std::string &sceneName);
     
-    /// Add a shader to the mix (don't be calling this yourself).
-    /// Scene is responsible for deletion.
-    void addProgram(OpenGLES2Program *);
+    /// Search for a shader program by its name (not the scene name)
+    OpenGLES2Program *getProgramByName(const std::string &name);
+
+    /// Search for a shader program by its name (not the scene name)
+    SimpleIdentity getProgramIDByName(const std::string &name);
     
-    /// Remove a program (by ID)
-    void removeProgram(SimpleIdentity programId);
+    /// Add a shader for reference, but not with a scene name.
+    /// Presumably you'll call setSceneProgram() shortly.
+    void addProgram(OpenGLES2Program *prog);
     
-    /// Called during initialization after the default shader is created.
-    /// Scene is responsible for deletion
-    void setDefaultPrograms(OpenGLES2Program *tri,OpenGLES2Program *line);
+    /// Add a shader referred to by the scene name.  The scene name is
+    ///  different from the program name.
+    void addProgram(const std::string &sceneName,OpenGLES2Program *prog);
     
-    /// Get the IDs for the default programs
-    void getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader);
+    /// Set the given scene name to refer to the given program ID
+    void setSceneProgram(const std::string &sceneName,SimpleIdentity programId);
+    
+    /// Remove the given program by ID (ours, not OpenGL's)
+    void removeProgram(SimpleIdentity progId);
         
 protected:
     /// Only the subclasses are allowed to create these
@@ -372,11 +467,12 @@ protected:
     /// The earth will be recursively divided into a quad tree of given depth.
     /// Init call used by the base class to set things up
     void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+
+    /// All the OpenGL ES 2.0 shader programs we know about
+    OpenGLES2ProgramSet glPrograms;
     
-    /// Keep track of the OpenGL ES 2.0 shader programs here
-    std::set<OpenGLES2Program *,IdentifiableSorter> glPrograms;
-    /// IDs for the default programs we'll use in drawables that don't have them
-    SimpleIdentity defaultProgramTri,defaultProgramLine;
+    /// A map from the scene names to the various programs
+    OpenGLES2ProgramMap glProgramMap;
 };
 	
 }

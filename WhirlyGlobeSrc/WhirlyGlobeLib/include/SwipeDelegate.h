@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/17/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,9 +25,6 @@
 	Responds to swipes and rotates the globe accordingly.
  */
 @interface WhirlyGlobeSwipeDelegate : NSObject<UIGestureRecognizerDelegate>
-{
-	WhirlyGlobeView *view;
-}
 
 /// Construct a swipe gesture delegate and wire it up to the given view.
 /// Will modify the globe view given

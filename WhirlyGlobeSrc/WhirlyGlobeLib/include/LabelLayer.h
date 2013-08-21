@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,94 +26,10 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "TextureAtlas.h"
-#import "DrawCost.h"
-#import "SelectionLayer.h"
+#import "SelectionManager.h"
 #import "LayoutLayer.h"
-
-namespace WhirlyKit 
-{
-
-/// Default for label draw priority
-static const int LabelDrawPriority=1000;
-
-/** The Label Scene Representation is used to encapsulate a set of
-    labels that are being added or have been added to the scene and
-    their associated textures and drawable IDs.
-  */
-class LabelSceneRep : public Identifiable
-{
-public:
-    LabelSceneRep();
-    ~LabelSceneRep() { }
-    
-    float fade;          // Fade interval, for deletion
-    SimpleIDSet texIDs;  // Textures we created for this
-    SimpleIDSet drawIDs; // Drawables created for this
-    SimpleIDSet screenIDs;  // Screen space objects
-    SimpleIDSet selectIDs;  // Selection rects
-};
-typedef std::map<SimpleIdentity,LabelSceneRep *> LabelSceneRepMap;
-
-}
-
-/** The Single Label represents one label with its text, location,
-    and an NSDictionary that can be used to override some attributes.
-    In general we don't want to create just one label, we want to
-    create a large number of labels at once.  We use an array of
-    these single labels to do that.
-  */
-@interface WhirlyKitSingleLabel : NSObject
-{
-    /// If set, this marker should be made selectable
-    ///  and it will be if the selection layer has been set
-    bool isSelectable;
-    /// If the marker is selectable, this is the unique identifier
-    ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
-    /// The text we want to see
-    NSString *text;
-    /// A geolocation for the middle, left or right of the label
-    ///  depending on the justification
-    WhirlyKit::GeoCoord loc;
-    /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, icon, text color, and
-    ///  background color supported.
-    NSDictionary *desc;
-    /// If non-zero, this is the texture to use as an icon
-    WhirlyKit::SimpleIdentity iconTexture;
-    /// If set, this moves the label if displayed in screen (2D) mode
-    CGSize screenOffset;
-}
-
-@property (nonatomic,assign) bool isSelectable;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
-@property (nonatomic,retain) NSString *text;
-@property (nonatomic,assign) WhirlyKit::GeoCoord loc;
-@property (nonatomic,retain) NSDictionary *desc;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity iconTexture;
-@property (nonatomic,assign) CGSize screenOffset;
-
-/// This is used to sort out width and height from the defaults.  Pass
-///  in the value of one and zero for the other and it will fill in the
-///  missing one.
-- (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font;
-
-/// This will calculate the real extents in 3D over the globe.
-/// Pass in an array of 3 point3f structures for the points and
-///  normals.  The corners are returned in counter-clockwise order.
-/// This is used for label selection
-- (void)calcExtents:(NSDictionary *)topDesc corners:(WhirlyKit::Point3f *)pts norm:(WhirlyKit::Point3f *)norm coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
-
-@end
-
-namespace WhirlyKit
-{
-
-/// Size of one side of the texture atlases built for labels
-/// You can also specify this at startup
-static const unsigned int LabelTextureAtlasSizeDefault = 512;
-    
-}
+#import "LabelRenderer.h"
+#import "LabelManager.h"
 
 /** The Label Layer will represent and manage groups of labels.  You
     can hand it a list of labels to display and it will group those
@@ -148,37 +64,10 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
     <item>layoutImportance [NSNumber float]  [If set and layout is on, this is the importance value used in competition in the layout layer]
     <item>shadowSize      [NSNumber float]  [If set, we'll draw a background shadow underneath the text of this width]
     <item>shadowColor     [UIcolor]  [If shadow size is non-zero, this will be the color we draw the shadow in.  Defaults to black.]
+    <item>shader          [NSNumber long long]  [If set, the shader ID to use when drawing these labels.]
     </list>
   */
 @interface WhirlyKitLabelLayer : NSObject<WhirlyKitLayer>
-{
-	WhirlyKitLayerThread * __weak layerThread;
-	WhirlyKit::Scene *scene;
-    
-    /// Screen space generator on the render side
-    WhirlyKit::SimpleIdentity screenGenId;
-    
-    /// If set, we register labels as selectable here
-    WhirlyKitSelectionLayer * __weak selectLayer;
-
-    /// If set, this is the layout layer we'll pass some labels off to (those being laid out)
-    WhirlyKitLayoutLayer * __weak layoutLayer;
-
-    /// Keep track of labels (or groups of labels) by ID for deletion
-    WhirlyKit::LabelSceneRepMap labelReps;
-    
-    unsigned int textureAtlasSize;
-}
-
-/// Set this to enable selection for labels
-@property (nonatomic,weak) WhirlyKitSelectionLayer *selectLayer;
-
-/// Set this to use the layout engine for labels so marked
-@property (nonatomic,weak) WhirlyKitLayoutLayer *layoutLayer;
-
-/// Initialize the label layer with a size for texture atlases
-/// Needs to be a power of 2
-- (id)initWithTexAtlasSize:(unsigned int)textureAtlasSize;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
@@ -203,10 +92,6 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 /// Change the display of a given label accordingly to the desc dictionary.
 /// Only minVis and maxVis are supported
 - (void)changeLabel:(WhirlyKit::SimpleIdentity)labelID desc:(NSDictionary *)dict;
-
-/// Return the cost of a given label group (number of drawables and textures).
-/// Only call this in the layer thread
-- (WhirlyKitDrawCost *)getCost:(WhirlyKit::SimpleIdentity)labelID;
 
 /// Remove the given label group by ID
 - (void) removeLabel:(WhirlyKit::SimpleIdentity)labelId;

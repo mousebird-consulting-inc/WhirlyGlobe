@@ -70,7 +70,7 @@ using namespace WhirlyKit;
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return 2;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -80,12 +80,12 @@ using namespace WhirlyKit;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr);
+    return ScreenImportance(viewState, frameSize, viewState.eyeVec, pixelsSquare, &coordSystem, viewState.coordAdapter, tileMbr, ident, attrs);
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -97,10 +97,6 @@ using namespace WhirlyKit;
 
 // Data source that serves individual images as requested
 @interface ImageDataSource : NSObject<WhirlyKitQuadTileImageDataSource>
-{
-    NSString *basePath,*ext,*baseName;
-    int maxZoom,pixelsSquare,borderPixels;
-}
 
 @property(nonatomic) NSString *basePath,*ext,*baseName;
 @property(nonatomic,assign) int maxZoom,pixelsSquare,borderPixels;
@@ -108,9 +104,6 @@ using namespace WhirlyKit;
 @end
 
 @implementation ImageDataSource
-
-@synthesize basePath,ext,baseName;
-@synthesize maxZoom,pixelsSquare,borderPixels;
 
 - (id)initWithInfo:(NSString *)infoName
 {
@@ -126,12 +119,12 @@ using namespace WhirlyKit;
         }
         // If the user specified a real path, as opposed to just
         //  the file, we'll hang on to that
-        basePath=[infoName stringByDeletingLastPathComponent];
-        ext = [dict objectForKey:@"format"];
-        baseName = [dict objectForKey:@"baseName"];
-        maxZoom = [[dict objectForKey:@"maxLevel"] intValue];
-        pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
-        borderPixels = [[dict objectForKey:@"borderSize"] intValue];    
+        _basePath=[infoName stringByDeletingLastPathComponent];
+        _ext = [dict objectForKey:@"format"];
+        _baseName = [dict objectForKey:@"baseName"];
+        _maxZoom = [[dict objectForKey:@"maxLevel"] intValue];
+        _pixelsSquare = [[dict objectForKey:@"pixelsSquare"] intValue];
+        _borderPixels = [[dict objectForKey:@"borderSize"] intValue];    
     }
     
     return self;
@@ -142,17 +135,22 @@ using namespace WhirlyKit;
     return 1;
 }
 
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
-    NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",baseName,level,col,row,ext];
+    NSString *name = [NSString stringWithFormat:@"%@_%dx%dx%d.%@",_baseName,level,col,row,_ext];
 	if (self.basePath)
 		name = [self.basePath stringByAppendingPathComponent:name];
     
     NSData *imageData = [NSData dataWithContentsOfFile:name];
     
-    bool isPvrtc = ![ext compare:@"pvrtc"];
+    bool isPvrtc = ![_ext compare:@"pvrtc"];
     
-    [quadLoader dataSource:self loadedImage:imageData pvrtcSize:(isPvrtc ? pixelsSquare : 0) forLevel:level col:col row:row];
+    WhirlyKitLoadedImage *loadImage = nil;
+    if (isPvrtc)
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithPVRTC:imageData size:_pixelsSquare];
+    else
+        loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
+    [quadLoader dataSource:self loadedImage:loadImage forLevel:level col:col row:row];
 }
 
 @end
@@ -200,6 +198,11 @@ using namespace WhirlyKit;
 
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
+    return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
+}
+
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
+{
     // Data source serves the tiles
     ImageDataSource *theDataSource = [[ImageDataSource alloc] initWithInfo:infoName];
     if (!theDataSource)
@@ -209,7 +212,13 @@ using namespace WhirlyKit;
     WholeEarthStructure *theStructure = [[WholeEarthStructure alloc] initWithPixelsSquare:theDataSource.pixelsSquare maxZoom:theDataSource.maxZoom];
     
     // This handles the geometry and loading
-    WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:theDataSource];
+    WhirlyKitQuadTileLoader *theLoader = [[WhirlyKitQuadTileLoader alloc] initWithName:@"SphericalEarthQuadLayer" dataSource:theDataSource];
+    if (![theDataSource.ext compare:@"pvrtc"])
+        [theLoader setImageType:WKTilePVRTC4];
+    // On non-retina displays we're loading fewer tiles
+    if ([UIScreen mainScreen].scale == 1.0)
+        theLoader.textureAtlasSize = 1024;
+    theLoader.imageType = imageType;
     
     self = [super initWithDataSource:theStructure loader:theLoader renderer:inRenderer];
     if (self)

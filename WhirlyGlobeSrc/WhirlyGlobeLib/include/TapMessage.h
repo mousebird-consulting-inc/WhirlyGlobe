@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,24 +35,19 @@
     Note: Split this up a bit for globe vs. map
  */
 @interface WhirlyGlobeTapMessage : NSObject
-{
-    /// View that was touched
-    UIView *view;      
-    //// Touch location on view in 2D
-    CGPoint touchLoc;  
 
-    /// Lon/Lat
-	WhirlyKit::GeoCoord whereGeo; 
-    /// 3D coordinates in the view
-	WhirlyKit::Point3f worldLoc;
-    /// Where the eye was.  0 is sea level.
-    float heightAboveSurface;   
-}
-
+/// View that was touched
 @property (nonatomic,retain) UIView *view;
+//// Touch location on view in 2D
 @property (nonatomic,assign) CGPoint touchLoc;
+/// Lon/Lat
 @property (nonatomic,assign) WhirlyKit::GeoCoord whereGeo;
+/// 3D coordinates in the view
 @property (nonatomic,assign) WhirlyKit::Point3f worldLoc;
+/// Where the eye was.  0 is sea level.
 @property (nonatomic,assign) float heightAboveSurface;
+
+/// This version of set takes a set of doubles
+- (void)setWorldLocD:(WhirlyKit::Point3d)newLoc;
 
 @end

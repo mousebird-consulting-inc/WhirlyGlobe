@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,13 +32,6 @@ static const float GridCellSize = 3*(float)M_PI/180.0;
     globe.
  */
 @interface WhirlyKitGridLayer : NSObject<WhirlyKitLayer>
-{
-	unsigned int numX,numY;
-	unsigned int chunkX,chunkY;
-	WhirlyKit::Scene *scene;
-    
-    std::vector<WhirlyKit::SimpleIdentity> drawIDs;
-}
 
 /// Initialize with the number of chunks of lines we want
 - (id)initWithX:(unsigned int)numX Y:(unsigned int)numY;

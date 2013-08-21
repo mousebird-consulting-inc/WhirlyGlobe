@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/10/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,15 +34,6 @@ typedef enum {RotNone,RotFree} RotationType;
     is for two fingered rotation around the axis at the middle of the screen
  */
 @interface WhirlyGlobeRotateDelegate : NSObject <UIGestureRecognizerDelegate> 
-{
-    /// What sort of rotation state we're in.  Not used
-    WhirlyGlobe::RotationType rotType;   
-    WhirlyGlobeView *globeView;
-    /// Starting point for rotation
-    Eigen::Quaternionf startQuat;
-    /// Axis to rotate around
-    Eigen::Vector3f axis;  
-}
 
 /// Create a rotation gesture and a delegate and write them up to the given UIView
 + (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;

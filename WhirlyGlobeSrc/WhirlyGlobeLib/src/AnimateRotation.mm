@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/23/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,17 +22,15 @@
 
 @implementation AnimateViewRotation
 
-@synthesize startDate,endDate;
-@synthesize startRot,endRot;
 
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaternion<float> &)newRot howLong:(float)howLong
+- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
 {
     if ((self = [super init]))
     {
-        startDate = CFAbsoluteTimeGetCurrent();
-        endDate = CFAbsoluteTimeGetCurrent() + howLong;
-        startRot = [globeView rotQuat];
-        endRot = newRot;
+        _startDate = CFAbsoluteTimeGetCurrent();
+        _endDate = CFAbsoluteTimeGetCurrent() + howLong;
+        _startRot = [globeView rotQuat];
+        _endRot = newRot;
     }
     
     return self;
@@ -46,19 +44,19 @@
 		return;
 	
 	CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-    float span = endDate-startDate;
-    float remain = endDate - now;
+        float span = _endDate-_startDate;
+        float remain = _endDate - now;
     
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
-		[globeView setRotQuat:endRot];
-        startDate = 0;
-        endDate = 0;
+		[globeView setRotQuat:_endRot];
+                _startDate = 0;
+                _endDate = 0;
 	} else {
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;
-		[globeView setRotQuat:startRot.slerp(t,endRot)];
+		[globeView setRotQuat:_startRot.slerp(t,_endRot)];
 	}
 }
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,12 +24,22 @@
 #import "TextureAtlas.h"
 #import "ScreenSpaceGenerator.h"
 #import "ViewPlacementGenerator.h"
+#import "FontTextureManager.h"
+#import "SelectionManager.h"
+#import "LayoutManager.h"
+#import "ShapeManager.h"
+#import "MarkerManager.h"
+#import "LabelManager.h"
+#import "VectorManager.h"
+#import "SphericalEarthChunkManager.h"
+#import "LoftManager.h"
+#import "ParticleSystemManager.h"
+#import "BillboardManager.h"
 
 namespace WhirlyKit
 {
     
 Scene::Scene()
-    : defaultProgramTri(EmptyIdentity), defaultProgramLine(EmptyIdentity)
 {
 }
     
@@ -45,26 +55,80 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     // And put in a UIView placement generator for use in the main thread
     vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
     generators.insert(vpGen);
+
+    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
+
+    pthread_mutex_init(&managerLock,NULL);
+    // Selection manager is used for object selection from any thread
+    addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    // Layout manager handles text and icon layout
+    addManager(kWKLayoutManager, new LayoutManager());
+    // Shape manager handles circles, spheres and such
+    addManager(kWKShapeManager, new ShapeManager());
+    // Marker manager handles 2D and 3D markers
+    addManager(kWKMarkerManager, new MarkerManager());
+    // Label manager handes 2D and 3D labels
+    addManager(kWKLabelManager, new LabelManager());
+    // Vector manager handes vector features
+    addManager(kWKVectorManager, new VectorManager());
+    // Chunk manager handles geographic chunks that cover a large chunk of the globe
+    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    // Loft manager handles lofted polygon geometry
+    addManager(kWKLoftedPolyManager, new LoftManager());
+    // Particle system manager
+    addManager(kWKParticleSystemManager, new ParticleSystemManager());
+    // 3D billboards
+    addManager(kWKBillboardManager, new BillboardManager());
+    
+    // Font Texture manager is used from any thread
+    fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
     
     pthread_mutex_init(&changeRequestLock,NULL);        
     pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()
 {
-    delete cullTree;
+    // This should block until the queue is empty
+    dispatch_sync(dispatchQueue, ^{});
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    dispatch_release(dispatchQueue);
+#endif
+
+    if (cullTree)
+    {
+        delete cullTree;
+        cullTree = NULL;
+    }
     for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
         delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
     
+    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
+         it != managers.end(); ++it)
+        delete it->second;
+    managers.clear();
+    
+    fontTexManager = nil;
+    
+    pthread_mutex_destroy(&managerLock);
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
+    pthread_mutex_destroy(&textureLock);
+    pthread_mutex_destroy(&generatorLock);
+    pthread_mutex_destroy(&programLock);
     
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        // Note: Tear down change requests?
         delete changeRequests[ii];
+    }
     changeRequests.clear();
     
     activeModels = nil;
@@ -72,26 +136,36 @@ Scene::~Scene()
     subTextureMap.clear();
 
     // Note: Should be clearing program out of context somewhere
-    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
+    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
         delete *it;
+    glPrograms.clear();
+    glProgramMap.clear();
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
 {
+    pthread_mutex_lock(&generatorLock);
+    
+    SimpleIdentity retId = EmptyIdentity;
     for (GeneratorSet::iterator it = generators.begin();
          it != generators.end(); ++it)
     {
         Generator *gen = *it;
         if (!name.compare(gen->name))
-            return gen->getId();
+        {
+            retId = gen->getId();
+            break;
+        }
     }
     
-    return EmptyIdentity;
+    pthread_mutex_unlock(&generatorLock);
+
+    return retId;
 }
 
 // Add change requests to our list
-void Scene::addChangeRequests(const std::vector<ChangeRequest *> &newChanges)
+void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
     pthread_mutex_lock(&changeRequestLock);
     
@@ -115,20 +189,26 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     if (texIdent == EmptyIdentity)
         return 0;
     
-    Texture dumbTex;
-    dumbTex.setId(texIdent);
+    GLuint ret = 0;
+    
+    pthread_mutex_lock(&textureLock);
+    TextureBase dumbTex(texIdent);
     TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
-        return (*it)->getGLId();
+    {
+        ret = (*it)->getGLId();
+    }
     
-    return 0;
+    pthread_mutex_unlock(&textureLock);
+    
+    return ret;
 }
 
 DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable();
+    BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawId);
-    Scene::DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
+    DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
     if (it != drawables.end())
         return *it;
     
@@ -137,15 +217,63 @@ DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 
 Generator *Scene::getGenerator(SimpleIdentity genId)
 {
+    pthread_mutex_lock(&generatorLock);
+    
+    Generator *retGen = NULL;
     Generator dumbGen;
     dumbGen.setId(genId);
     GeneratorSet::iterator it = generators.find(&dumbGen);
     if (it != generators.end())
-        return *it;
+    {
+        retGen = *it;
+    }
     
-    return NULL;
+    pthread_mutex_unlock(&generatorLock);
+    
+    return retGen;
 }
     
+void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
+{
+    pthread_mutex_lock(&managerLock);
+    
+    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
+         it != managers.end(); ++it)
+        it->second->setRenderer(renderer);
+    
+    pthread_mutex_unlock(&managerLock);
+}
+
+
+SceneManager *Scene::getManager(const char *name)
+{
+    SceneManager *ret = NULL;
+    
+    pthread_mutex_lock(&managerLock);
+    
+    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    if (it != managers.end())
+        ret = it->second;
+    
+    pthread_mutex_unlock(&managerLock);
+    
+    return ret;
+}
+
+void Scene::addManager(const char *name,SceneManager *manager)
+{
+    pthread_mutex_lock(&managerLock);
+
+    // If there's one here, we'll clear it out first
+    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
+    if (it != managers.end())
+        managers.erase(it);
+    managers[(std::string)name] = manager;
+    manager->setScene(this);
+    
+    pthread_mutex_unlock(&managerLock);
+}
+
 void Scene::addActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
 {
     [activeModels addObject:activeModel];
@@ -160,16 +288,46 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
         [activeModel shutdown];
     }
 }
-
-Texture *Scene::getTexture(SimpleIdentity texId)
+    
+void Scene::teardownGL()
 {
-    Texture dumbTex;
-    dumbTex.setId(texId);
+    // Note: Tear down generators
+    // Note: Tear down active models
+    for (DrawableRefSet::iterator it = drawables.begin();
+         it != drawables.end(); ++it)
+        (*it)->teardownGL(&memManager);
+    if (cullTree)
+    {
+        delete cullTree;
+        cullTree = NULL;
+    }
+    drawables.clear();
+    for (TextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+    {
+        TextureBase *texture = *it;
+        texture->destroyInGL(&memManager);
+        delete texture;
+    }
+    textures.clear();
+    
+    memManager.clearBufferIDs();
+    memManager.clearTextureIDs();
+}
+
+TextureBase *Scene::getTexture(SimpleIdentity texId)
+{
+    pthread_mutex_lock(&textureLock);
+    
+    TextureBase *retTex = NULL;
+    TextureBase dumbTex(texId);
     Scene::TextureSet::iterator it = textures.find(&dumbTex);
     if (it != textures.end())
-        return *it;
+        retTex = *it;
     
-    return NULL;
+    pthread_mutex_unlock(&textureLock);
+    
+    return retTex;
 }
 
 // Process outstanding changes.
@@ -182,8 +340,10 @@ void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rendere
         for (unsigned int ii=0;ii<changeRequests.size();ii++)
         {
             ChangeRequest *req = changeRequests[ii];
-            req->execute(this,renderer,view);
-            delete req;
+            if (req) {
+                req->execute(this,renderer,view);
+                delete req;
+            }
         }
         changeRequests.clear();
         
@@ -200,6 +360,13 @@ bool Scene::hasChanges()
         
         pthread_mutex_unlock(&changeRequestLock);            
     }        
+    if (changes)
+        return true;
+    
+    // How about the active models?
+    for (NSObject<WhirlyKitActiveModel> *model in activeModels)
+        if ([model hasUpdate])
+            return true;
     
     return changes;
 }
@@ -239,7 +406,7 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     pthread_mutex_unlock(&subTexLock);
     return *it;
 }
-        
+    
 SimpleIdentity Scene::getScreenSpaceGeneratorID()
 {
     return screenSpaceGeneratorID;
@@ -261,91 +428,151 @@ void Scene::dumpStats()
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return NULL;
-    
+    pthread_mutex_lock(&programLock);
+
+    OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
-    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.find(&dummy);
-    if (it == glPrograms.end())
-        return NULL;
-    return *it;
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
+    if (it != glPrograms.end())
+    {
+        prog = *it;
+    }
+    
+    pthread_mutex_unlock(&programLock);
+        
+    return prog;
 }
     
-OpenGLES2Program *Scene::getProgram(const std::string &name)
+OpenGLES2Program *Scene::getProgramBySceneName(const std::string &sceneName)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return NULL;
+    OpenGLES2Program *prog = NULL;
+
+    pthread_mutex_lock(&programLock);
     
-    for (std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it = glPrograms.begin();
-         it != glPrograms.end(); ++it)
-        if ((*it)->getName() == name)
-            return *it;
+    OpenGLES2ProgramMap::iterator it = glProgramMap.find(sceneName);
+    if (it != glProgramMap.end())
+        prog = it->second;
+            
+    pthread_mutex_unlock(&programLock);
     
-    return NULL;
+    return prog;
 }
 
+SimpleIdentity Scene::getProgramIDBySceneName(const std::string &sceneName)
+{
+    OpenGLES2Program *prog = getProgramBySceneName(sceneName);
+    return prog ? prog->getId() : EmptyIdentity;
+}
+    
+OpenGLES2Program *Scene::getProgramByName(const std::string &name)
+{
+    OpenGLES2Program *prog = NULL;
+    
+    pthread_mutex_lock(&programLock);
+    
+    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
+         it != glPrograms.end(); ++it)
+        if (!name.compare((*it)->getName()))
+        {
+            prog = *it;
+            break;
+        }
+    
+    pthread_mutex_unlock(&programLock);
+    
+    return prog;
+}
+    
+/// Search for a shader program by its name (not the scene name)
+SimpleIdentity Scene::getProgramIDByName(const std::string &name)
+{
+    OpenGLES2Program *prog = getProgramByName(name);
+    return prog ? prog->getId() : EmptyIdentity;
+}
+    
 void Scene::addProgram(OpenGLES2Program *prog)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
+    pthread_mutex_lock(&programLock);
+    
+    if (glPrograms.find(prog) == glPrograms.end())
+        glPrograms.insert(prog);
+    
+    pthread_mutex_unlock(&programLock);
+}
 
-    glPrograms.insert(prog);
+
+void Scene::addProgram(const std::string &sceneName,OpenGLES2Program *prog)
+{
+    pthread_mutex_lock(&programLock);
+
+    if (glPrograms.find(prog) == glPrograms.end())
+        glPrograms.insert(prog);
+    glProgramMap[sceneName] = prog;
+    
+    pthread_mutex_unlock(&programLock);
+}
+    
+void Scene::setSceneProgram(const std::string &sceneName,SimpleIdentity progId)
+{
+    pthread_mutex_lock(&programLock);
+    
+    OpenGLES2Program *prog = NULL;
+    OpenGLES2Program dummy(progId);
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
+    if (it != glPrograms.end())
+    {
+        prog = *it;
+    }
+    
+    if (prog)
+        glProgramMap[sceneName] = prog;
+    
+    pthread_mutex_unlock(&programLock);
 }
     
 void Scene::removeProgram(SimpleIdentity progId)
 {
-    // If we're not on the main thread, forget it
-    if ([NSThread currentThread] != [NSThread mainThread])
-        return;
-
-    std::set<OpenGLES2Program *,IdentifiableSorter>::iterator it;
-    for (it = glPrograms.begin();it != glPrograms.end(); ++it)
-        if ((*it)->getId() == progId)
-            break;
+    pthread_mutex_lock(&programLock);
     
+    OpenGLES2Program *prog = NULL;
+    OpenGLES2Program dummy(progId);
+    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
     if (it != glPrograms.end())
+        prog = *it;
+    
+    if (prog)
+    {
+        // Remove references in the map
+        std::vector<OpenGLES2ProgramMap::iterator> toErase;
+        OpenGLES2ProgramMap::iterator it2;
+        for (it2 = glProgramMap.begin();it2 != glProgramMap.end(); ++it2)
+            if (it2->second == prog)
+                toErase.push_back(it2);
+        for (unsigned int ii=0;ii<toErase.size();ii++)
+            glProgramMap.erase(toErase[ii]);
+        
+        // And get rid of it in the list of programs
         glPrograms.erase(it);
-}
-
-void Scene::setDefaultPrograms(OpenGLES2Program *progTri,OpenGLES2Program *progLine)
-{
-    if (progTri)
-    {
-        addProgram(progTri);
-        defaultProgramTri = progTri->getId();
     }
-    if (progLine)
-    {
-        defaultProgramLine = progLine->getId();
-        addProgram(progLine);
-    }
+    
+    pthread_mutex_unlock(&programLock);
 }
     
-void Scene::getDefaultProgramIDs(SimpleIdentity &triShader,SimpleIdentity &lineShader)
-{
-    triShader = defaultProgramTri;
-    lineShader = defaultProgramLine;
-}
-
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
-        tex->createInGL(true,scene->getMemManager());
+        tex->createInGL(scene->getMemManager());
     scene->textures.insert(tex);
     tex = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    Texture dumbTex;
-    dumbTex.setId(texture);
+    TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
     {
-        Texture *tex = *it;
+        TextureBase *tex = *it;
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
         delete tex;
@@ -369,9 +596,9 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 
 void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable();
+    BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawable);
-    Scene::DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
+    DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())
     {
         // Teardown OpenGL foo
@@ -405,7 +632,7 @@ void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
 
 void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    scene->addProgram(program);
+    scene->addProgram(sceneName,program);
     program = NULL;
 }
 

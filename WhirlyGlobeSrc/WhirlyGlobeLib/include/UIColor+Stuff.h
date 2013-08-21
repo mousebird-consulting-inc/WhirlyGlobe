@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,10 +23,14 @@
 
 @interface UIColor(Stuff)
 
+/// Build a UIColor from a hex value
++ (UIColor *) colorFromHexRGB:(int)hexColor;
+
 /// Convert a UIColor to the RBGA color we use internally
 - (WhirlyKit::RGBAColor) asRGBAColor;
 
 /// Convert a UIColor to Vector4, which we also use internally
 - (Eigen::Vector4f) asVec4;
+
 
 @end

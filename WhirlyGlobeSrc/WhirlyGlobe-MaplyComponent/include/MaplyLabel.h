@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,36 +23,26 @@
 
 typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustiyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
 
-/** Screen Space (2D) Label.
- Set this is up and hand it over to the WhirlyGlobeViewController for display.
- */
+/** The Maply Label is a 3D label.  That is, it sits on top of the globe (or map) as a 3D object
+    and gets bigger and smaller and you move around.
+  */
 @interface MaplyLabel : NSObject
-{
-    /// For user data
-    NSObject *userObject;
-    /// Location in geographic (lat/lon) in radians
-    MaplyCoordinate loc;
-    /// Size on the screen, in points.  In general, set the height, but not the width.
-    CGSize size;
-    /// Text to display
-    NSString *text;
-    /// If set, this is the image to use for the marker
-    UIImage *iconImage;
-    /// If set, this color overrides the default
-    UIColor *color;
-    /// If set, this label can be selected.  On by default.
-    bool selectable;
-    /// Text justification
-    MaplyLabelJustify justify;
-}
 
+/// For user data
 @property (nonatomic,strong) NSObject *userObject;
+/// Location in geographic (lat/lon) in radians
 @property (nonatomic,assign) MaplyCoordinate loc;
+/// Size on the screen, in points.  In general, set the height, but not the width.
 @property (nonatomic,assign) CGSize size;
+/// Text to display
 @property (nonatomic,strong) NSString *text;
+/// If set, this is the image to use for the marker
 @property (nonatomic,strong) UIImage *iconImage;
+/// If set, this color overrides the default
 @property (nonatomic,strong) UIColor *color;
+/// If set, this label can be selected.  On by default.
 @property (nonatomic,assign) bool selectable;
+/// Text justification
 @property (nonatomic,assign) MaplyLabelJustify justify;
 
 @end

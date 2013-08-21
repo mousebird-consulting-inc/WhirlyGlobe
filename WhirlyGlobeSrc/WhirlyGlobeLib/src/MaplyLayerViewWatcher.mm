@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/14/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,12 +25,9 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewState
 
-- (id)initWithView:(MaplyView *)mapView
+- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer
 {
-    self = [super initWithView:mapView];
-    if (self)
-    {
-    }
+    self = [super initWithView:mapView renderer:renderer];
     
     return self;
 }
@@ -46,7 +43,7 @@ using namespace WhirlyKit;
     if (self)
     {
         [inView addWatcherDelegate:self];
-        viewStateClass = [MaplyViewState class];
+        super.viewStateClass = [MaplyViewState class];
     }
     
     return self;

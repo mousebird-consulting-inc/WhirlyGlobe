@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponentTester
  *
  *  Created by Steve Gifford on 7/23/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Select Base Map";
+    self.title = @"Map Type";
     
     tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
     tableView.delegate = self;
@@ -75,29 +75,18 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Globe and map
-    return 2;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    int numLayers = (section == 0 ? MaxBaseLayers : MaxBaseLayers-1);
-    return numLayers;
+    return MaplyNumTypes;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
     NSString *title = nil;
-    
-    switch (section)
-    {
-        case 0:
-            title = @"Globe";
-            break;
-        case 1:
-            title = @"Map";
-            break;
-    }
-    
+        
     return title;
 }
 
@@ -106,26 +95,17 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     switch (indexPath.row)
     {
-        case BlueMarbleSingleResLocal:
-            cell.textLabel.text = @"Blue Marble Single Res - Local";
+        case MaplyGlobe:
+            cell.textLabel.text = @"Globe (3D)";
             break;
-        case GeographyClassMBTilesLocal:
-            cell.textLabel.text = @"Geography Class - MapBox Tiles - Local";
+        case Maply2DMap:
+            cell.textLabel.text = @"Map (2D)";
             break;
-        case StamenWatercolorRemote:
-            cell.textLabel.text = @"Stamen WaterColor - Remote";
+        case Maply3DMap:
+            cell.textLabel.text = @"Map (3D)";
             break;
-        case OpenStreetmapRemote:
-            cell.textLabel.text = @"OpenStreetMap - Remote";
-            break;
-        case MapBoxTilesSat1:
-            cell.textLabel.text = @"MapBox Tiles Satellite - Remote";
-            break;
-        case MapBoxTilesTerrain1:
-            cell.textLabel.text = @"MapBox Tiles Terrain - Remote";
-            break;
-        case MapBoxTilesRegular1:
-            cell.textLabel.text = @"MapBox Tiles Regular - Remote";
+        case MaplyScrollViewMap:
+            cell.textLabel.text = @"Map - UIScrollView (2D)";
             break;
         default:
             break;
@@ -140,7 +120,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    TestViewController *viewC = [[TestViewController alloc] initWithMapType:indexPath.section  baseLayer:indexPath.row];
+    TestViewController *viewC = [[TestViewController alloc] initWithMapType:indexPath.row];
     [self.navigationController pushViewController:viewC animated:YES];
 }
 

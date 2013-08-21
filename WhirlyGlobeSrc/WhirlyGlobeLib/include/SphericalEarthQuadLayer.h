@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/6/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@
     This replaces SphericalEarthLayer with its paging version.
  */
 @interface WhirlyKitSphericalEarthQuadLayer : WhirlyKitQuadDisplayLayer
-{
-}
 
 /// Set the draw priority for geometry this layer produces.
 /// This is how you resolve ordering in a non-z-buffered renderer.
@@ -45,5 +43,8 @@
 
 /// Initialize with name of the plist the defines the image data set
 - (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
+
+/// Initialize with the plist and the image format for the quad loader
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end

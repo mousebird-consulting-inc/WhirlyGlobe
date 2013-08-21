@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/12.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #import "SceneRendererES.h"
 #import "GlobeView.h"
 #import "MaplyView.h"
+#import "GlobeMath.h"
 
 using namespace Eigen;
 
@@ -58,60 +59,26 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
           ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
         return;
-    
-    // If it's pointed away from the user, don't bother
-//    if (shape->worldLoc.dot(frameInfo.eyeVec) < 0.0)
-//        return;
-    
+        
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Matrix4f modelTrans = frameInfo.viewAndModelMat;
+    Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
 
     WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    MaplyView *mapView = (MaplyView *)frameInfo.theView;
     if ([globeView isKindOfClass:[WhirlyGlobeView class]])
     {
-        // Run the world location through the projection matrix to see if its behind the globe
-#if 1
-        Point3f testPts[2];
-        testPts[0] = shape->worldLoc;
-        testPts[1] = shape->worldLoc*1.5;
-        for (unsigned int ii=0;ii<2;ii++)
-        {
-            Vector4f modelSpacePt = frameInfo.viewAndModelMat * Vector4f(testPts[ii].x(),testPts[ii].y(),testPts[ii].z(),1.0);
-            modelSpacePt.x() /= modelSpacePt.w();  modelSpacePt.y() /= modelSpacePt.w();  modelSpacePt.z() /= modelSpacePt.w();  modelSpacePt.w() = 1.0;
-            Vector4f projSpacePt = frameInfo.projMat * Vector4f(modelSpacePt.x(),modelSpacePt.y(),modelSpacePt.z(),modelSpacePt.w());
-            //        projSpacePt.x() /= projSpacePt.w();  projSpacePt.y() /= projSpacePt.w();  projSpacePt.z() /= projSpacePt.w();  projSpacePt.w() = 1.0;
-            testPts[ii] = Point3f(projSpacePt.x(),projSpacePt.y(),projSpacePt.z());
-        }
-        Vector3f testDir = testPts[1] - testPts[0];
-        testDir.normalize();
-        
-        //    Vector3f eyePt0(0,0,0);
-        //    Vector3f eyePt1(0,0,1);
-        //    Vector4f projSpacePt0 = frameInfo.projMat * Vector4f(eyePt0.x(),eyePt0.y(),eyePt0.z(),1.0);
-        //    projSpacePt0.x() /= projSpacePt0.w();  projSpacePt0.y() /= projSpacePt0.w();  projSpacePt0.z() /= projSpacePt0.w();  projSpacePt0.w() = 1.0;
-        //    Vector4f projSpacePt1 = frameInfo.projMat * Vector4f(eyePt1.x(),eyePt1.y(),eyePt1.z(),1.0);
-        //    projSpacePt1.x() /= projSpacePt1.w();  projSpacePt1.y() /= projSpacePt1.w();  projSpacePt1.z() /= projSpacePt1.w();  projSpacePt1.w() = 1.0;
-        //    Vector3f eyeDir = eyePt1 - eyePt0;
-        
-        //    NSLog(@"testDir = (%f,%f,%f)",testDir.x(),testDir.y(),testDir.z());
-        //    NSLog(@"eyeDir = (%f,%f,%f)",eyeDir.x(),eyeDir.y(),eyeDir.z());
-        
-        //    float dot = eyeDir.dot(testDir);
-        
-        //    if (testDir.z() > 0.0)
-        //        return;
-        
-        // Note: This is so dumb it hurts.  Figure out why the math is broken.
-        if (testDir.z() > -0.33)
+        mapView = nil;
+        // Make sure this one is facing toward the viewer
+        if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
             return;
-#endif
 
-        screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        // Note: Need to move to the view frustum logic
+        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
     } else {
-        MaplyView *mapView = (MaplyView *)frameInfo.theView;
+        globeView = nil;
         if ([mapView isKindOfClass:[MaplyView class]])
-            screenPt = [mapView pointOnScreenFromPlane:shape->worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         else
             // No idea what this could be
             return;
@@ -138,19 +105,32 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     Matrix2f screenRotMat;
     if (shape->useRotation)
     {
-        Point3f simpleUp(0,0,1);
-        Point3f norm = shape->worldLoc;
-        norm.normalize();
-        Point3f right = simpleUp.cross(norm);
-        Point3f up = norm.cross(right);
-        right.normalize();
-        up.normalize();
+        Point3f norm,right,up;
+        
+        if (globeView)
+        {
+            Point3f simpleUp(0,0,1);
+            norm = shape->worldLoc;
+            norm.normalize();
+            right = simpleUp.cross(norm);
+            up = norm.cross(right);
+            right.normalize();
+            up.normalize();
+        } else {
+            right = Point3f(1,0,0);
+            norm = Point3f(0,0,1);
+            up = Point3f(0,1,0);
+        }
         // Note: Check if the axes made any sense.  We might be at a pole.
         Point3f rightDir = right * sinf(shape->rotation);
         Point3f upDir = up * cosf(shape->rotation);
         
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
-        CGPoint outScreenPt = [globeView pointOnScreenFromSphere:outPt transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        CGPoint outScreenPt;
+        if (globeView)
+            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        else
+            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }
@@ -196,7 +176,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         BasicDrawable *draw = NULL;
         if (it == drawables.end())
         {
-            draw = new BasicDrawable();
+            draw = new BasicDrawable("Screen Space Generator");
             draw->setType(GL_TRIANGLES);
             draw->setTexId(geom.texID);
             drawables[geom.texID] = draw;
@@ -287,7 +267,7 @@ void ScreenSpaceGenerator::addConvexShapes(std::vector<ConvexShape *> inShapes)
     for (unsigned int ii=0;ii<inShapes.size();ii++)
     {
         ConvexShape *shape = inShapes[ii];
-        if (shape->enable)
+        if (shape->enable && shape->offset.x() != MAXFLOAT)
             activeShapes.insert(shape);
     }
 }
@@ -377,12 +357,9 @@ ScreenSpaceGenerator::ConvexShape *ScreenSpaceGenerator::getConvexShape(SimpleId
 
 void ScreenSpaceGenerator::changeEnable(ConvexShape *shape,bool enable)
 {
-    if (shape->enable == enable)
-        return;
-    
     if (shape->enable)
         activeShapes.erase(shape);
-    else
+    if (enable && shape->offset.x() != MAXFLOAT)
         activeShapes.insert(shape);
 
     shape->enable = enable;
@@ -501,7 +478,7 @@ void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRend
 }
     
 ScreenSpaceGeneratorGangChangeRequest::ShapeChange::ShapeChange()
- : shapeID(EmptyIdentity), enable(false), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
+ : shapeID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0), offset(0.0,0.0)
 {
 }
     
@@ -522,8 +499,8 @@ void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitScene
         {
             shape->fadeUp = change.fadeUp;
             shape->fadeDown = change.fadeDown;
-            screenGen->changeEnable(shape,change.enable);
             shape->offset = change.offset;
+            screenGen->changeEnable(shape,shape->enable);
             [renderer setRenderUntil:change.fadeUp];
             [renderer setRenderUntil:change.fadeDown];
         }

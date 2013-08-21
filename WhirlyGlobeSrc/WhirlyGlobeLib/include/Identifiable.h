@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ namespace WhirlyKit
     an operation on a given ID rather than letting the developer muck around
     in the internals.
   */
-typedef unsigned long SimpleIdentity;
+typedef unsigned long long SimpleIdentity;
     
 /// This is the standard empty identity.  It means there were none of something
 ///  or it's just ignored.

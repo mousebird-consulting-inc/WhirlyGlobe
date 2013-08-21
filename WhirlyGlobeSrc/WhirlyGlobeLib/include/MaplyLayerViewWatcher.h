@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/14/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,11 +26,9 @@
 /** View State related to the map view.
   */
 @interface MaplyViewState : WhirlyKitViewState
-{
-@public
-}
 
-- (id)initWithView:(MaplyView *)mapView;
+/// Initialize with the maply view and renderer
+- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end
 

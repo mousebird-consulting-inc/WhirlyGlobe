@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/4/12.
- *  Copyright 2011-2012 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2013 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,48 +25,7 @@
 #import "Drawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-
-/// Okay to place to the right of a point
-#define WhirlyKitLayoutPlacementRight  (1<<0)
-/// Okay to place it to the left of a point
-#define WhirlyKitLayoutPlacementLeft   (1<<1)
-/// Okay to place on top of a point
-#define WhirlyKitLayoutPlacementAbove  (1<<2)
-/// Okay to place below a point
-#define WhirlyKitLayoutPlacementBelow  (1<<3)
-
-/** This represents an object in the screen space generator to be laid ouit
-    by the layout engine.  We'll manipulate its offset and enable/disable it
-    but won't otherwise change it.
- */
-@interface WhirlyKitLayoutObject : NSObject
-{
-@public
-    /// Object as represented by the screen space generator
-    WhirlyKit::SimpleIdentity ssID;
-    /// Any other objects we want to enable or disable in connection with this one.
-    /// Think map icon.
-    WhirlyKit::SimpleIDSet auxIDs;
-    /// Location in display coordinate system
-    WhirlyKit::Point3f dispLoc;
-    /// Size (in pixels) of the object we're laying out
-    WhirlyKit::Point2f size;
-    /// If we're hovering around an icon, this is its size in pixels.  Zero means its just us.
-    WhirlyKit::Point2f iconSize;
-    /// Minimum visiblity
-    float minVis;
-    /// Maximum visibility
-    float maxVis;
-    /// This is used to sort objects for layout.  Bigger is more important.
-    float importance;
-    /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
-    ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
-    int acceptablePlacement;
-    /// Used for debugging
-    NSString *tag;
-}
-
-@end
+#import "LayoutManager.h"
 
 /** The layout layer is a 2D text and marker layout engine.  You feed it objects
     you want it to draw and it will route them accordingly and control their
@@ -88,7 +47,7 @@
 - (void)shutdown;
 
 /// Add a whole bunch of objects to track with the layout engine.
-- (void)addLayoutObjects:(NSArray *)layoutObjects;
+- (void)addLayoutObjects:(const std::vector<WhirlyKit::LayoutObject> &)layoutObjects;
 
 /// Stop tracking a bunch of objects.  We assume they're removed elsewhere.
 - (void)removeLayoutObjects:(const WhirlyKit::SimpleIDSet &)objectIDs;

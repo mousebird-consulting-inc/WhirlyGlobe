@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2012 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,17 @@
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobePanDelegate
+{
+	WhirlyGlobeView * __weak view;
+    /// Set if we're in the process of panning
+	BOOL panning;
+	/// The view transform when we started
+	Eigen::Matrix4d startTransform;
+	/// Where we first touched the sphere
+	WhirlyKit::Point3d startOnSphere;
+	/// Rotation when we started
+	Eigen::Quaterniond startQuat;
+}
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
@@ -74,7 +85,7 @@ using namespace WhirlyKit;
 			panning = NO;
             if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                            hit:&startOnSphere])
+                                            hit:&startOnSphere normalized:true])
 				panning = YES;
 		}
 			break;
@@ -85,16 +96,16 @@ using namespace WhirlyKit;
 				[view cancelAnimation];
 
 				// Figure out where we are now
-				Point3f hit;
+				Point3d hit;
                 [view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                            hit:&hit ];
+                                            hit:&hit normalized:true];
 
 				// This gives us a direction to rotate around
 				// And how far to rotate
-				Eigen::Quaternion<float> endRot;
+				Eigen::Quaterniond endRot;
 				endRot.setFromTwoVectors(startOnSphere,hit);
-                Eigen::Quaternion<float> newRotQuat = startQuat * endRot;
+                Eigen::Quaterniond newRotQuat = startQuat * endRot;
 
                 [view setRotQuat:(newRotQuat)];
 			}
