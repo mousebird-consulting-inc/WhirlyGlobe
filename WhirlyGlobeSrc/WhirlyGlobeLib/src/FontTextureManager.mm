@@ -421,6 +421,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             FontManager *fm = nil;
             if ([uiFont isKindOfClass:[UIFont class]])
                 fm = [self findFontManagerForFont:uiFont color:foregroundColor outlineColor:outlineColor outlineSize:outlineSize];
+            if (!fm)
+                continue;
             
             GlyphSet glyphsUsed;
             
@@ -507,7 +509,10 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     DrawStringRep dummyRep(drawStringId);
     DrawStringRepSet::iterator it = drawStringReps.find(&dummyRep);
     if (it == drawStringReps.end())
+    {
+        pthread_mutex_unlock(&lock);
         return;
+    }
     
     DrawStringRep *theRep = *it;
     drawStringReps.erase(theRep);
