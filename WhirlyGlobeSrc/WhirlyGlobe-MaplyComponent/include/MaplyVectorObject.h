@@ -69,6 +69,9 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 /// Make a deep copy.  That is, copy all the vectors rather than just referencing them
 - (MaplyVectorObject *)deepCopy;
 
+/// Dump the feature(s) out as text
+- (NSString *)log;
+
 /// Add a hole to an existing areal feature
 - (void)addHole:(MaplyCoordinate *)coords numCoords:(int)numCoords;
 
