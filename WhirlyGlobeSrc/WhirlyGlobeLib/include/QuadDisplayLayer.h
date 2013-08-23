@@ -179,6 +179,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// How far the viewer has to move to force an update (if non-zero)
 @property (nonatomic,assign) float minUpdateDist;
+/// How much time we're willing to spend on a single update (if zero, we just go through one time)
+@property (nonatomic,assign) NSTimeInterval maxUpdatePeriod;
 /// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader that may be creating and deleting data as the quad tiles load
