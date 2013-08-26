@@ -36,18 +36,22 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true);
+    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity);
     
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
     
     /// Enable/disable a drawable we're representing
     void setEnableDrawable(SimpleIdentity drawId,bool enabled);
+    
+    /// For drawables that can point to a range of textures, we keep the source texture IDs around and remap
+    ///  to the destination texture IDs like so.  This doesn't actually make the changes
+    void mapDrawableTextures(const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes);
         
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
     
-    /// Flush out any outstanding changes and swap the 
+    /// Flush out any outstanding changes and swap the drawables
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
     ///  thing on the main thread.  Use this to wake yourself up on another thread.
@@ -92,7 +96,18 @@ protected:
     // The vertex attributes we expect to see on a drawable
     std::vector<VertexAttribute> vertexAttributes;
     
-    typedef std::set<BigDrawable *,IdentifiableSorter> BigDrawableSet;
+    class BigDrawableInfo
+    {
+    public:
+        BigDrawableInfo() { }
+        BigDrawableInfo(SimpleIdentity baseTexId,BigDrawable *bigDraw) : baseTexId(baseTexId), bigDraw(bigDraw) { }
+        BigDrawableInfo & operator = (const BigDrawableInfo &that) { baseTexId = that.baseTexId;  bigDraw = that.bigDraw; return *this; }
+        bool operator < (const BigDrawableInfo &that) const { return bigDraw->getId() > that.bigDraw->getId(); }
+        // This is the texture ID we associated with the big drawable.
+        SimpleIdentity baseTexId;
+        BigDrawable *bigDraw;
+    };
+    typedef std::set<BigDrawableInfo> BigDrawableSet;
     BigDrawableSet bigDrawables;
     
     // Used to track where the individual drawables wound up

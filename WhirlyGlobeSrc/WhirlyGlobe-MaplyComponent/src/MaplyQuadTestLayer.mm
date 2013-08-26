@@ -40,7 +40,10 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     
+    _depth = 1;
+    _currentImage = 0;
     maxZoom = inMaxZoom;
+    _period = 0.0;
     
     return self;
 }
@@ -59,14 +62,22 @@ using namespace WhirlyKit;
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     tileLoader.ignoreEdgeMatching = true;
     tileLoader.coverPoles = true;
+    tileLoader.numImages = _depth;
+    // Note: Debugging
+    ChangeSet changes;
+    [tileLoader setCurrentImage:1 changes:changes];
+    
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     [layerThread addLayer:quadLayer];
+    
+    [self setPeriod:_period];
     
     return true;
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicImageChange) object:nil];
     [layerThread removeLayer:quadLayer];
 }
 
@@ -130,27 +141,71 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
-    CGSize size;  size = CGSizeMake(128,128);
-    UIGraphicsBeginImageContext(size);
+    WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
     
-    // Draw into the image context
-    UIColor *backColor = [UIColor colorFromHexRGB:debugColors[level % MaxDebugColors]];
-    [backColor setFill];
-    CGContextRef ctx = UIGraphicsGetCurrentContext();
-    CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
+    // One for each layer we're 
+    for (unsigned int ii=0;ii<quadLoader.numImages;ii++)
+    {
+        CGSize size;  size = CGSizeMake(128,128);
+        UIGraphicsBeginImageContext(size);
+        
+        // Draw into the image context
+        UIColor *backColor = [UIColor colorFromHexRGB:debugColors[level % MaxDebugColors]];
+        [backColor setFill];
+        CGContextRef ctx = UIGraphicsGetCurrentContext();
+        CGContextFillRect(ctx, CGRectMake(0,0,size.width,size.height));
+        
+        CGContextSetTextDrawingMode(ctx, kCGTextFill);
+        [[UIColor whiteColor] setStroke];
+        [[UIColor whiteColor] setFill];
+        NSString *textStr = nil;
+        if (quadLoader.numImages == 1)
+            textStr = [NSString stringWithFormat:@"%d: (%d,%d)",level,col,row];
+        else
+            textStr = [NSString stringWithFormat:@"image %d",ii];
+        [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
+        
+        // Grab the image and shut things down
+        UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
+        NSData *imgData = UIImagePNGRepresentation(retImage);
+        UIGraphicsEndImageContext();
+        [loadTile.images addObject:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData]];
+    }
     
-    CGContextSetTextDrawingMode(ctx, kCGTextFill);
-    [[UIColor whiteColor] setStroke];
-    [[UIColor whiteColor] setFill];
-    NSString *textStr = [NSString stringWithFormat:@"%d: (%d,%d)",level,col,row];
-    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
+    [quadLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];    
+}
+
+- (void)setCurrentImage:(unsigned int)newCurrentImage
+{
+    if (scene)
+    {
+        _currentImage = newCurrentImage;
+        ChangeSet changes;
+        [tileLoader setCurrentImage:newCurrentImage changes:changes];
+        scene->addChangeRequests(changes);
+    }
+}
+
+- (void)setPeriod:(float)period
+{
+    // Let's not even
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return;
     
-    // Grab the image and shut things down
-    UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
-    NSData *imgData = UIImagePNGRepresentation(retImage);
-    UIGraphicsEndImageContext();
+    _period = period;
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicImageChange) object:nil];
+    if (_period > 0.0)
+        [self periodicImageChange];
+}
+
+- (void)periodicImageChange
+{
+    unsigned int newCurrentImage = (_currentImage+1)%_depth;
     
-    [quadLoader dataSource: self loadedImage: [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel: level col: col row: row];    
+    [self setCurrentImage:newCurrentImage];
+    
+    if (_period > 0.0)
+        [self performSelector:@selector(periodicImageChange) withObject:nil afterDelay:_period/_depth];
 }
 
 @end

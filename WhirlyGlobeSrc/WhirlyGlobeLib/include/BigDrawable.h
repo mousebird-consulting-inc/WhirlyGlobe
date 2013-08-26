@@ -271,5 +271,20 @@ public:
 protected:
     SimpleIdentity drawId;
 };
+            
+/// Change the texture used by a drawable
+class BigDrawableTexChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId) : drawId(drawId), newTexId(newTexId) { }
+    
+    /// Run the flush.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity drawId;
+    SimpleIdentity newTexId;
+};
+
 
 }

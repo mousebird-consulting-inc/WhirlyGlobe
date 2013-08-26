@@ -74,7 +74,8 @@
                                  kMaplyTestMapBoxSat: @(NO),
                              kMaplyTestMapBoxTerrain: @(NO),
                              kMaplyTestMapBoxRegular: @(NO),
-                                  kMaplyTestQuadTest: @(NO)}
+                                  kMaplyTestQuadTest: @(NO),
+                           kMaplyTestQuadTestAnimate: @(NO)}
                                         singleSelect:true],
                 [ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
                                                 rows:

@@ -59,7 +59,9 @@ BigDrawable::~BigDrawable()
 
 bool BigDrawable::isCompatible(BasicDrawable *draw)
 {
-    if (getTexId() == draw->getTexId() && getRequestZBuffer() == draw->getRequestZBuffer() &&
+    // Note: We change the big drawable texture IDs without them knowing
+//    if (getTexId() == draw->getTexId() &&
+    if (getRequestZBuffer() == draw->getRequestZBuffer() &&
         getDrawPriority() == draw->getDrawPriority() && getWriteZbuffer() == draw->getWriteZbuffer())
     {
         float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
@@ -641,6 +643,16 @@ void BigDrawableFlush::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,W
     {
         int whichBuffer = (bigDraw->getActiveBuffer() == 0 ? 1 : 0);
         bigDraw->executeFlush(whichBuffer);
+    }
+}
+    
+void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+    {
+        bigDraw->setTexId(newTexId);
     }
 }
 
