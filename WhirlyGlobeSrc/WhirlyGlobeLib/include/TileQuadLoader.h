@@ -108,7 +108,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,WhirlyKitLoadedImage *loadImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -116,6 +116,9 @@ public:
     
     /// Update what we're displaying based on the quad tree, particulary for children
     void updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Quadtree *tree,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    
+    /// Switch to
+    void setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Dump out to the log
     void Print(WhirlyKit::Quadtree *tree);
@@ -131,10 +134,10 @@ public:
     WhirlyKit::SimpleIdentity drawId;
     // Optional ID for the skirts
     WhirlyKit::SimpleIdentity skirtDrawId;
-    // Texture ID for the parent tile
-    WhirlyKit::SimpleIdentity texId;
-    /// If set, this is a subset of a larger dynamic texture
-    WhirlyKit::SubTexture subTex;
+    // Texture IDs for the parent tile
+    std::vector<WhirlyKit::SimpleIdentity> texIds;
+    /// If set, these are subsets of a larger dynamic texture
+    std::vector<WhirlyKit::SubTexture> subTexs;
     /// If here, the elevation data needed to build geometry
     WhirlyKitElevationChunk *elevData;
     
@@ -207,8 +210,10 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity programId;
 /// If set, we'll include elevation (Z) in the drawables for shaders to use
 @property (nonatomic,assign) bool includeElev;
-// If set (by default) we'll use the elevation (if provided) as real Z values on the vertices
+/// If set (by default) we'll use the elevation (if provided) as real Z values on the vertices
 @property (nonatomic,assign) bool useElevAsZ;
+/// The number of image layers we're expecting to be given.  By default, 1
+@property (nonatomic,assign) unsigned int numImages;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
@@ -251,5 +256,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
 ///  just a WhirlyKitElevationChunk.
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
+
+/// Set up the change requests to make the given image layer the active one
+/// The call is thread safe
+- (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
 @end

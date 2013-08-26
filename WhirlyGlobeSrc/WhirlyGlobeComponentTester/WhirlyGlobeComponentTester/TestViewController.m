@@ -722,6 +722,23 @@ static const int NumMegaMarkers = 40000;
         MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
+        baseLayer = layer;
+    } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
+    {
+        self.title = @"Quad Paging Test Layer (animated)";
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+        MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
+        layer.depth = 4;
+        // We'll cycle through at 1s per layer
+        layer.period = 4.0;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        baseLayer = layer;        
     }
     
     // Fill out the cache dir if there is one
