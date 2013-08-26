@@ -55,6 +55,11 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
+    if (chunkManager)
+    {
+        delete chunkManager;
+        chunkManager = NULL;
+    }
     for (unsigned int ii=0;ii<changes.size();ii++)
         delete changes[ii];
     changes.clear();
@@ -71,7 +76,11 @@ using namespace WhirlyKit;
 - (void)shutdown
 {
     if (chunkManager)
+    {
         chunkManager->removeChunks(chunkIDs,changes);
+        delete chunkManager;
+        chunkManager = NULL;
+    }
     chunkIDs.clear();
     
     if (drawAtlas)

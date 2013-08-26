@@ -33,7 +33,7 @@ using namespace WhirlyKit;
 {
 @public
     int defaultSphereTessX,defaultSphereTessY;
-    DynamicTextureAtlas *texAtlas;
+    std::vector<DynamicTextureAtlas *> texAtlases;
     DynamicDrawableAtlas *drawAtlas;
     bool doingUpdate;
     // Number of border texels we need in an image
@@ -41,7 +41,7 @@ using namespace WhirlyKit;
     int texelBinSize;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)imageData elevData:(WhirlyKitElevationChunk *)elevData;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
@@ -173,7 +173,6 @@ LoadedTile::LoadedTile()
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
-    texId = EmptyIdentity;
     for (unsigned int ii=0;ii<4;ii++)
     {
         childDrawIds[ii] = EmptyIdentity;
@@ -188,7 +187,6 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     placeholder = false;
     drawId = EmptyIdentity;
     skirtDrawId = EmptyIdentity;
-    texId = EmptyIdentity;
     elevData = nil;
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -198,10 +196,10 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,WhirlyKitLoadedImage *loadImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
-    if (loadImage && loadImage.type == WKLoadedImagePlaceholder)
+    if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
     {
         placeholder = true;
         return;
@@ -209,31 +207,38 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
-    Texture *tex = NULL;
-    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(loadImage ? &tex : NULL) texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:loadImage elevData:loadElev];
+    std::vector<Texture *> texs(loadImages.size(),NULL);
+    if (!loader->texAtlases.empty())
+        subTexs.resize(loadImages.size());
+    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev];
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
-    if (tex)
-        texId = tex->getId();
-    else
-        texId = EmptyIdentity;
-
-    if (tex)
+    for (unsigned int ii=0;ii<texs.size();ii++)
     {
-        if (loader->texAtlas)
+        Texture *tex = texs[ii];
+        if (tex)
         {
-            loader->texAtlas->addTexture(tex, NULL, NULL, subTex, scene->getMemManager(), changeRequests, loader->borderTexel);
-            [layer.layerThread requestFlush];
-            if (draw)
-                draw->applySubTexture(subTex);
-            if (skirtDraw)
-                skirtDraw->applySubTexture(subTex);
-            delete tex;
+            if (!loader->texAtlases.empty() )
+            {
+                loader->texAtlases[ii]->addTexture(tex, NULL, NULL, subTexs[ii], scene->getMemManager(), changeRequests, loader->borderTexel);
+                [layer.layerThread requestFlush];
+                if (ii == 0)
+                {
+                    if (draw)
+                        draw->applySubTexture(subTexs[0]);
+                    if (skirtDraw)
+                        skirtDraw->applySubTexture(subTexs[0]);
+                }
+                delete tex;
+            } else {
+                texIds.push_back(tex->getId());
+                changeRequests.push_back(new AddTextureReq(tex));
+            }
         } else
-            changeRequests.push_back(new AddTextureReq(tex));
+            texIds.push_back(EmptyIdentity);
     }
     
-    // Now for the changes to the scenegraph
+    // Now for the changes to the scene
     if (loader->drawAtlas)
     {
         loader->drawAtlas->addDrawable(draw,changeRequests);
@@ -276,20 +281,21 @@ void LoadedTile::clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisp
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
     }
-    if (loader->texAtlas)
+    for (unsigned int ii=0;ii<loader->texAtlases.size();ii++)
     {
-        if (subTex.texId != EmptyIdentity)
+        if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
         {
-            loader->texAtlas->removeTexture(subTex, changeRequests);
-            subTex.texId = EmptyIdentity;
+            loader->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
+            subTexs[ii].texId = EmptyIdentity;
         }
-    } else {
-    if (texId != EmptyIdentity)
-    {
-        changeRequests.push_back(new RemTextureReq(texId));
-        texId = EmptyIdentity;
     }
-    }
+    subTexs.clear();
+    for (unsigned int ii=0;ii<texIds.size();ii++)
+        if (texIds[ii] != EmptyIdentity)
+        {
+            changeRequests.push_back(new RemTextureReq(texIds[ii]));
+        }
+    texIds.clear();
     for (unsigned int ii=0;ii<4;ii++)
     {
         if (childDrawIds[ii] != EmptyIdentity)
@@ -368,18 +374,18 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                         childDrawIds[whichChild] = childDraw->getId();
                         if (childSkirtDraw)
                             childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
-                        if (!layer.lineMode && texId)
+                        if (!layer.lineMode && !texIds.empty())
                         {
-                            childDraw->setTexId(texId);
+                            childDraw->setTexId(texIds[0]);
                             if (childSkirtDraw)
-                                childSkirtDraw->setTexId(texId);
+                                childSkirtDraw->setTexId(texIds[0]);
                         }
-                        if (loader->texAtlas)
+                        if (!loader->texAtlases.empty())
                         {
                             if (childDraw)
-                                childDraw->applySubTexture(subTex);
+                                childDraw->applySubTexture(subTexs[0]);
                             if (childSkirtDraw)
-                                childSkirtDraw->applySubTexture(subTex);
+                                childSkirtDraw->applySubTexture(subTexs[0]);
                         }
                         if (loader->drawAtlas)
                         {
@@ -411,17 +417,18 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             BasicDrawable *skirtDraw = NULL;
             [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
-            draw->setTexId(texId);
+            if (!texIds.empty())
+                draw->setTexId(texIds[0]);
             if (skirtDraw)
             {
                 skirtDrawId = skirtDraw->getId();
-                skirtDraw->setTexId(texId);
+                skirtDraw->setTexId(texIds[0]);
             }
-            if (loader->texAtlas)
+            if (!loader->texAtlases.empty())
             {
-                draw->applySubTexture(subTex);
+                draw->applySubTexture(subTexs[0]);
                 if (skirtDraw)
-                    skirtDraw->applySubTexture(subTex);
+                    skirtDraw->applySubTexture(subTexs[0]);
             }
             if (loader->drawAtlas)
             {
@@ -479,11 +486,34 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
     
     //    tree->Print();
 }
+    
+void LoadedTile::setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+{
+    if (loader->texAtlases.empty())
+    {
+        // Individual textures
+        if (whichImage < texIds.size())
+        {
+            SimpleIdentity newTexId = texIds[whichImage];
+            if (drawId != EmptyIdentity)
+                changeRequests.push_back(new DrawTexChangeRequest(drawId,newTexId));
+            if (skirtDrawId != EmptyIdentity)
+                changeRequests.push_back(new DrawTexChangeRequest(skirtDrawId,newTexId));
 
+            for (unsigned int ii=0;ii<4;ii++)
+            {
+                if (childDrawIds[ii] != EmptyIdentity)
+                    changeRequests.push_back(new BigDrawableTexChangeRequest(childDrawIds[ii],newTexId));
+                if (childSkirtDrawIds[ii] != EmptyIdentity)
+                    changeRequests.push_back(new BigDrawableTexChangeRequest(childSkirtDrawIds[ii],newTexId));
+            }
+        }
+    }
+}
 
 void LoadedTile::Print(Quadtree *tree)
 {
-    NSLog(@"Node (%d,%d,%d), drawId = %d, texId = %d",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,(int)drawId,(int)texId);
+    NSLog(@"Node (%d,%d,%d), drawId = %d",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,(int)drawId);
     for (unsigned int ii=0;ii<4;ii++)
     {
         NSLog(@" Child %d drawId = %d",ii,(int)childDrawIds[ii]);
@@ -498,6 +528,7 @@ void LoadedTile::Print(Quadtree *tree)
 
 @implementation WhirlyKitQuadTileLoader
 {
+    pthread_mutex_t tileLock;
     /// Tiles we currently have loaded in the scene
     WhirlyKit::LoadedTileSet tileSet;
     
@@ -512,6 +543,9 @@ void LoadedTile::Print(Quadtree *tree)
     
     /// How many fetches we have going at the moment
     int numFetches;
+    
+    // The image we're currently displaying, when we have more htan one
+    unsigned int currentImage;
     
     NSString *name;
 }
@@ -534,6 +568,8 @@ void LoadedTile::Print(Quadtree *tree)
         _maxPageVis = DrawVisibleInvalid;
         _imageType = WKTileIntRGBA;
         _useDynamicAtlas = true;
+        _numImages = 1;
+        currentImage = 0;
         doingUpdate = false;
         borderTexel = 0;
         _includeElev = false;
@@ -542,6 +578,7 @@ void LoadedTile::Print(Quadtree *tree)
         _fixedTileSize = 256;
         texelBinSize = 64;
         _textureAtlasSize = 2048;
+        pthread_mutex_init(&tileLock, NULL);
     }
     
     return self;
@@ -558,16 +595,20 @@ void LoadedTile::Print(Quadtree *tree)
 
 - (void)clear
 {
+    pthread_mutex_lock(&tileLock);
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
-        delete *it;    
+        delete *it;
+    pthread_mutex_unlock(&tileLock);
     tileSet.clear();
+    pthread_mutex_destroy(&tileLock);
     
-    if (texAtlas)
+    for (unsigned int ii=0;ii<texAtlases.size();ii++)
     {
-        delete texAtlas;
-        texAtlas = NULL;
+        delete texAtlases[ii];
+        texAtlases[ii] = NULL;
     }
+    texAtlases.clear();
     if (drawAtlas)
     {
         delete drawAtlas;
@@ -575,7 +616,7 @@ void LoadedTile::Print(Quadtree *tree)
     }
     
     numFetches = 0;
-
+    
     parents.clear();
 }
 
@@ -595,20 +636,22 @@ void LoadedTile::Print(Quadtree *tree)
     [self flushUpdates:layer.layerThread];
     
     ChangeSet theChangeRequests;
-    
+
+    pthread_mutex_lock(&tileLock);
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
     {
         LoadedTile *tile = *it;
         tile->clearContents(self,layer,scene,theChangeRequests);
     }
+    pthread_mutex_unlock(&tileLock);
     
-    if (texAtlas)
+    for (unsigned int ii=0;ii<texAtlases.size();ii++)
     {
-        texAtlas->shutdown(theChangeRequests);
-        delete texAtlas;
-        texAtlas = NULL;
+        texAtlases[ii]->shutdown(theChangeRequests);
+        delete texAtlases[ii];
     }
+    texAtlases.clear();
     
     if (drawAtlas)
     {
@@ -723,7 +766,7 @@ void LoadedTile::Print(Quadtree *tree)
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(Texture **)tex texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(WhirlyKitLoadedImage *)loadImage elevData:(WhirlyKitElevationChunk *)elevData
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -779,23 +822,34 @@ void LoadedTile::Print(Quadtree *tree)
     GeoCoord geoLL(coordSys->localToGeographic(Point3f(chunkLL.x(),chunkLL.y(),0.0)));
     GeoCoord geoUR(coordSys->localToGeographic(Point3f(chunkUR.x(),chunkUR.y(),0.0)));
     
-    // Get texture (locally)
-    if (tex)
+    // Get textures (locally)
+    if (texs)
     {
-        if (loadImage && loadImage.type != WKLoadedImagePlaceholder)
+        if (loadImages && (*loadImages)[0].type != WKLoadedImagePlaceholder)
         {
+            // They'll all be the same width
+            WhirlyKitLoadedImage *loadImage = (*loadImages)[0];
             int destWidth,destHeight;
             [self texWidth:loadImage.width height:loadImage.height destWidth:&destWidth destHeight:&destHeight];
-            Texture *newTex = [loadImage buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
             
-            if (newTex)
+            // Create a texture for each
+            for (unsigned int ii=0;ii<loadImages->size();ii++)
             {
-                newTex->setFormat([self glFormat]);
-                *tex = newTex;
-            } else
-                NSLog(@"Got bad image in quad tile loader.  Skipping.");
-        } else
-            *tex = NULL;
+                Texture *newTex = [(*loadImages)[ii] buildTexture:borderTexel destWidth:destWidth destHeight:destHeight];
+                
+                if (newTex)
+                {
+                    newTex->setFormat([self glFormat]);
+                    (*texs)[ii] = newTex;
+                } else {
+                    NSLog(@"Got bad image in quad tile loader.  Skipping.");
+                    (*texs)[ii] = NULL;
+                }
+            }
+        } else {
+            for (unsigned int ii=0;ii<texs->size();ii++)
+                (*texs)[ii] = NULL;
+        }
     }
     
     if (draw)
@@ -814,7 +868,7 @@ void LoadedTile::Print(Quadtree *tree)
             elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
         
         // We're in line mode or the texture didn't load
-        if (buildLines || (tex && !(*tex)))
+        if (buildLines || (texs && !texs->empty() && !((*texs)[0])))
         {
             chunk->setType(GL_LINES);
             
@@ -1048,8 +1102,8 @@ void LoadedTile::Print(Quadtree *tree)
                 }
                 [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 
-                if (tex && *tex)
-                    skirtChunk->setTexId((*tex)->getId());
+                if (texs && !texs->empty() && !((*texs)[0]))
+                    skirtChunk->setTexId((*texs)[0]->getId());
                 *skirtDraw = skirtChunk;
             }
             
@@ -1132,8 +1186,8 @@ void LoadedTile::Print(Quadtree *tree)
                 }
             }
             
-            if (tex && *tex)
-                chunk->setTexId((*tex)->getId());
+            if (texs && !texs->empty() && (*texs)[0])
+                chunk->setTexId((*texs)[0]->getId());
         }
         
         *draw = chunk;
@@ -1143,14 +1197,19 @@ void LoadedTile::Print(Quadtree *tree)
 // Look for a specific tile
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident
 {
+    LoadedTile *retTile = NULL;
+    
+    pthread_mutex_lock(&tileLock);
     LoadedTile dummyTile;
     dummyTile.nodeInfo.ident = ident;
     LoadedTileSet::iterator it = tileSet.find(&dummyTile);
     
-    if (it == tileSet.end())
-        return nil;
+    if (it != tileSet.end())
+        retTile = *it;
     
-    return *it;
+    pthread_mutex_unlock(&tileLock);
+    
+    return retTile;
 }
 
 // Make all the various parents update their child geometry
@@ -1195,14 +1254,14 @@ void LoadedTile::Print(Quadtree *tree)
 // Dump out some information on resource usage
 - (void)log
 {
-    if (!drawAtlas && !texAtlas)
+    if (!drawAtlas && texAtlases.empty())
         return;
     
     NSLog(@"++ Quad Tile Loader %@ ++",(name ? name : @"Unknown"));
     if (drawAtlas)
         drawAtlas->log();
-    if (texAtlas)
-        texAtlas->log();
+    for (unsigned int ii=0;ii<texAtlases.size();ii++)
+        texAtlases[ii]->log();
     NSLog(@"++ ++ ++");
 }
 
@@ -1230,7 +1289,10 @@ void LoadedTile::Print(Quadtree *tree)
     newTile->nodeInfo = tileInfo;
     newTile->isLoading = true;
 
+    pthread_mutex_lock(&tileLock);
     tileSet.insert(newTile);
+    pthread_mutex_unlock(&tileLock);
+    
     numFetches++;
     [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
 }
@@ -1271,28 +1333,40 @@ static const int SingleElementSize = sizeof(GLushort);
 {
     // Look for the tile
     // If it's not here, just drop this on the floor
+    pthread_mutex_lock(&tileLock);
     LoadedTile dummyTile(Quadtree::Identifier(col,row,level));
     LoadedTileSet::iterator it = tileSet.find(&dummyTile);
     numFetches--;
     if (it == tileSet.end())
+    {
+        pthread_mutex_unlock(&tileLock);
         return;
+    }
     
-    WhirlyKitLoadedImage *loadImage = nil;
+    std::vector<WhirlyKitLoadedImage *> loadImages;
     WhirlyKitElevationChunk *loadElev = nil;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
-        loadImage = loadTile;
+        loadImages.push_back(loadTile);
     else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
         loadElev = loadTile;
     else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
     {
         WhirlyKitLoadedTile *toLoad = loadTile;
-        if ([toLoad.images count] > 0)
-            loadImage = toLoad.images[0];
+        
+        for (WhirlyKitLoadedImage *loadImage in toLoad.images)
+            loadImages.push_back(loadImage);
         loadElev = toLoad.elevChunk;
     }
     
+    if (_numImages != loadImages.size())
+    {
+        pthread_mutex_unlock(&tileLock);
+        NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
+        return;
+    }
+    
     // Create the dynamic texture atlas before we need it
-    if (_useDynamicAtlas && !texAtlas && loadImage)
+    if (_useDynamicAtlas && texAtlases.empty() && !loadImages.empty())
     {
         // Note: Trouble with PVRTC sub texture loading
         if (_imageType != WKTilePVRTC4)
@@ -1302,7 +1376,9 @@ static const int SingleElementSize = sizeof(GLushort);
             // Two triangles per grid cell in a tile
             int ElementBufferSize = ceil((2 * 6 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
             int texSortSize = (_tileScale == WKTileScaleFixed ? _fixedTileSize : texelBinSize);
-            texAtlas = new DynamicTextureAtlas(_textureAtlasSize,texSortSize,[self glFormat]);
+            
+            for (unsigned int ii=0;ii<_numImages;ii++)
+                texAtlases.push_back(new DynamicTextureAtlas(_textureAtlasSize,texSortSize,[self glFormat]));
             drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,_quadLayer.scene->getMemManager(),NULL,_programId);
             
             // We want some room around these
@@ -1312,10 +1388,15 @@ static const int SingleElementSize = sizeof(GLushort);
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    if (loadImage || loadElev)
+    if (!loadImages.empty() || loadElev)
     {
         tile->elevData = loadElev;
-        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImage,loadElev,changeRequests);
+        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImages,currentImage,loadElev,changeRequests);
+        // If we have more than one image to dispay, make sure we're doing the right one
+        if (_numImages > 1 && texAtlases.empty())
+        {
+            tile->setCurrentImage(self, _quadLayer, currentImage, changeRequests);
+        }
         [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
         // Shouldn't have a visual representation, so just lose it
@@ -1323,6 +1404,7 @@ static const int SingleElementSize = sizeof(GLushort);
         tileSet.erase(it);
         delete tile;
     }
+    pthread_mutex_unlock(&tileLock);
 
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
@@ -1344,6 +1426,7 @@ static const int SingleElementSize = sizeof(GLushort);
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     // Get rid of an old tile
+    pthread_mutex_lock(&tileLock);
     LoadedTile dummyTile;
     dummyTile.nodeInfo.ident = tileInfo.ident;
     LoadedTileSet::iterator it = tileSet.find(&dummyTile);
@@ -1360,7 +1443,8 @@ static const int SingleElementSize = sizeof(GLushort);
         theTile->clearContents(self,layer,layer.scene,changeRequests);
         tileSet.erase(it);
         delete theTile;
-    }    
+    }
+    pthread_mutex_unlock(&tileLock);
 
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
@@ -1377,6 +1461,40 @@ static const int SingleElementSize = sizeof(GLushort);
     [self flushUpdates:layer.layerThread];
     
     doingUpdate = false;
+}
+
+// This may be called on any thread
+- (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
+{
+    if (!_quadLayer)
+        return;
+    
+    // We'll look through the tiles and change them all accordingly
+    pthread_mutex_lock(&tileLock);
+
+    if (currentImage != newImage)
+    {
+        currentImage = newImage;
+        
+        // Change all the draw atlases at once
+        if (!texAtlases.empty())
+        {
+            // We need the base texture IDs
+            std::vector<SimpleIdentity> baseTexIDs,newTexIDs;
+            texAtlases[0]->getTextureIDs(baseTexIDs);
+            texAtlases[newImage]->getTextureIDs(newTexIDs);
+            drawAtlas->mapDrawableTextures(baseTexIDs, newTexIDs, theChanges);
+        } else {
+            // No atlases, so changes tiles individually
+            for (LoadedTileSet::iterator it = tileSet.begin();
+                 it != tileSet.end(); ++it)
+            {
+                (*it)->setCurrentImage(self, _quadLayer, currentImage, theChanges);
+            }
+        }
+    }
+    
+    pthread_mutex_unlock(&tileLock);
 }
 
 // We'll try to skip updates 
