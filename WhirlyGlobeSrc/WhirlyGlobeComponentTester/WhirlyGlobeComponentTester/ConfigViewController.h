@@ -45,7 +45,7 @@
 #define kMaplyTestLabel2D @"Labels - 2D"
 #define kMaplyTestLabel3D @"Labels - 3D"
 #define kMaplyTestMarker2D @"Markers - 2D"
-#define kMaplyTestMarker3D @"Markers - 3d"
+#define kMaplyTestMarker3D @"Markers - 3D"
 #define kMaplyTestSticker @"Stickers"
 #define kMaplyTestShapeCylinder @"Shapes: Cylinders"
 #define kMaplyTestShapeSphere @"Shapes: Spheres"

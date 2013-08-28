@@ -327,7 +327,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     shape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                     
                     // Start out off, let the layout layer handle the rest
-                    shape->enable = false;
+                    shape->enable = markerInfo.enable;
+                    shape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                 }
                 
             } else {
