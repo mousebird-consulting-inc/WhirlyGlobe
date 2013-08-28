@@ -422,7 +422,8 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             if (skirtDraw)
             {
                 skirtDrawId = skirtDraw->getId();
-                skirtDraw->setTexId(texIds[0]);
+                if (!texIds.empty())
+                    skirtDraw->setTexId(texIds[0]);
             }
             if (!loader->texAtlases.empty())
             {
