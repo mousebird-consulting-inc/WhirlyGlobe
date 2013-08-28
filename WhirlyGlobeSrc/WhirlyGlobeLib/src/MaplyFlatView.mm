@@ -30,7 +30,7 @@ using namespace WhirlyKit;
 
 - (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
-    self = [super initWithCoordAdapater:inCoordAdapter];
+    self = [super initWithCoordAdapter:inCoordAdapter];
     if (!self)
         return nil;
     
