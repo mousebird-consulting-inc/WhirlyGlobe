@@ -470,13 +470,9 @@ OpenGLES2Program *Scene::getProgramByName(const std::string &name)
     
     pthread_mutex_lock(&programLock);
     
-    for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
-         it != glPrograms.end(); ++it)
-        if (!name.compare((*it)->getName()))
-        {
-            prog = *it;
-            break;
-        }
+    OpenGLES2ProgramMap::iterator it = glProgramMap.find(name);
+    if (it != glProgramMap.end())
+        prog = it->second;
     
     pthread_mutex_unlock(&programLock);
     
