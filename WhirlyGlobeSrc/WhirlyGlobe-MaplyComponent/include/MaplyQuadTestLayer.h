@@ -28,4 +28,14 @@
 /// Construct with just the maximum zoom level
 - (id)initWithMaxZoom:(int)maxZoom;
 
+/// Set the depth (must be done before the layer is started)
+@property unsigned int depth;
+
+/// Set the current image we're displaying.  You can call this from any thread.
+@property (nonatomic, assign) unsigned int currentImage;
+
+/// If set non-zero we'll switch through all the images over the given period.
+/// This must be called on the main thread
+@property (nonatomic, assign) float period;
+
 @end

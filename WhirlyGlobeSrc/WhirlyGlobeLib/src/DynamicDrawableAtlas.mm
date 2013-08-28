@@ -37,7 +37,7 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId)
 {
     // See if we're already representing it
     {
@@ -88,14 +88,14 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
     DrawRepresent represent(draw->getId());
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
-        BigDrawable *bigDraw = *it;
-        if (bigDraw->isCompatible(draw))
+        BigDrawableInfo bigDrawInfo = *it;
+        if (bigDrawInfo.baseTexId == draw->getTexId() && bigDrawInfo.bigDraw->isCompatible(draw))
         {
-            if ((represent.elementChunkId = bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
+            if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
                 represent.vertexSize = [vertData length];
-                represent.bigDrawId = bigDraw->getId();
-                foundBigDraw = bigDraw;
+                represent.bigDrawId = bigDrawInfo.bigDraw->getId();
+                foundBigDraw = bigDrawInfo.bigDraw;
                 break;
             }
         }
@@ -114,7 +114,9 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
-        bigDrawables.insert(newBigDraw);
+        bigDrawables.insert(BigDrawableInfo(newBigDraw->getTexId(),newBigDraw));
+        if (destTexId != EmptyIdentity)
+            newBigDraw->setTexId(destTexId);
         represent.bigDrawId = newBigDraw->getId();
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
@@ -150,9 +152,9 @@ void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
     BigDrawableSet::iterator bit;
     for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
     {
-        if ((*bit)->getId() == represent.bigDrawId)
+        if (bit->bigDraw->getId() == represent.bigDrawId)
         {
-            bigDraw = *bit;
+            bigDraw = bit->bigDraw;
             break;
         }
     }
@@ -178,9 +180,9 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     BigDrawableSet::iterator bit;
     for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
     {
-        if ((*bit)->getId() == represent.bigDrawId)
+        if (bit->bigDraw->getId() == represent.bigDrawId)
         {
-            bigDraw = *bit;
+            bigDraw = bit->bigDraw;
             break;
         }
     }
@@ -201,12 +203,24 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     return true;
 }
     
+void DynamicDrawableAtlas::mapDrawableTextures(const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin();
+         it != bigDrawables.end(); ++it)
+    {
+        // Look for the base texture ID
+        SimpleIdentity baseTexId = it->baseTexId;
+        for (unsigned int ii=0;ii<srcTexIDs.size();ii++)
+            if (baseTexId == srcTexIDs[ii])
+                changes.push_back(new BigDrawableTexChangeRequest(it->bigDraw->getId(),destTexIds[ii]));
+    }
+}
     
 bool DynamicDrawableAtlas::hasUpdates()
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
-        BigDrawable *bigDraw = *it;
+        BigDrawable *bigDraw = it->bigDraw;
         if (bigDraw->hasChanges())
             return true;
     }
@@ -226,7 +240,7 @@ void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL 
     // Note: We could keep a list of changed ones if these get to be more than a few
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
-        BigDrawable *bigDraw = *it;
+        BigDrawable *bigDraw = it->bigDraw;
         bigDraw->swap(changes,swapRequest);
     }
 }
@@ -234,7 +248,7 @@ void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL 
 bool DynamicDrawableAtlas::waitingOnSwap()
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
-        if ((*it)->isWaitingOnSwap())
+        if (it->bigDraw->isWaitingOnSwap())
             return true;
     
     return false;
@@ -248,7 +262,7 @@ void DynamicDrawableAtlas::addSwapChanges(const ChangeSet &inSwapChanges)
 void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
-        changes.push_back(new RemDrawableReq((*it)->getId()));
+        changes.push_back(new RemDrawableReq(it->bigDraw->getId()));
     
     bigDrawables.clear();
     drawables.clear();
@@ -263,7 +277,7 @@ void DynamicDrawableAtlas::log()
          it != bigDrawables.end(); ++it)
     {
         int thisVertSize,thisElSize;
-        (*it)->getUtilization(thisVertSize,thisElSize);
+        it->bigDraw->getUtilization(thisVertSize,thisElSize);
         vertTotal += thisVertSize;
         elTotal += thisElSize;
     }

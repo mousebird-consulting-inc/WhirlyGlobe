@@ -176,6 +176,7 @@ using namespace Maply;
         SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
         if (triNoLighting != EmptyIdentity)
             scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+        [sceneRenderer replaceLights:nil];
     } else {
         // Add a default light
         MaplyLight *light = [[MaplyLight alloc] init];
@@ -185,6 +186,11 @@ using namespace Maply;
         light.viewDependent = false;
         [self addLight:light];
     }
+
+    // We don't want the backface culling program for lines
+    SimpleIdentity lineNoBackface = scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
+    if (lineNoBackface)
+        scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -193,11 +199,11 @@ using namespace Maply;
     
     if (scrollView)
     {
-        flatView = [[MaplyFlatView alloc] initWithCoordAdapater:coordAdapter];
+        flatView = [[MaplyFlatView alloc] initWithCoordAdapter:coordAdapter];
         [self setupFlatView];
         mapView = flatView;
     } else {
-        mapView = [[MaplyView alloc] initWithCoordAdapater:coordAdapter];
+        mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
         mapView.continuousZoom = true;
     }    
 

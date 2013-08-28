@@ -91,8 +91,6 @@ public:
     // Comparison operator for sorting
     bool operator < (const RectSelectable2D &that) const;
     
-    // Used to identify this selectable
-    SimpleIdentity selectID;
     Point2f pts[4];  // Geometry
     float minVis,maxVis;  // Range over which this is visible
 };
@@ -141,7 +139,6 @@ public:
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
     
 protected:
-    WhirlyKitSceneRendererES * __weak renderer;
     pthread_mutex_t mutex;
     Scene *scene;
     float scale;

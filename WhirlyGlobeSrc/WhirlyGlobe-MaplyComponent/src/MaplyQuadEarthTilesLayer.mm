@@ -183,7 +183,12 @@ using namespace WhirlyKit;
 
                        UIImage *image = nil;
                        if (imgData)
-                           image = [UIImage imageWithData:imgData];
+                       {
+                           if ([imgData isKindOfClass:[UIImage class]])
+                               image = (UIImage *)imgData;
+                           else
+                               image = [UIImage imageWithData:imgData];
+                       }
     
                        NSObject *loadImage = nil;
                        if (image)

@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyView
 
-- (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
+- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     if (self = [super init])
     {

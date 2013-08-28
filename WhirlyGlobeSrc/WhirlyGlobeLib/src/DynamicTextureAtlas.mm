@@ -257,10 +257,12 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *ren
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format)
     : texSize(texSize), cellSize(cellSize), format(format)
 {
+    pthread_mutex_init(&textureLock, NULL);
 }
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
+    pthread_mutex_destroy(&textureLock);
     // It's up to the scene to actually delete the textures
     textures.clear();
 }
@@ -307,7 +309,9 @@ bool DynamicTextureAtlas::addTexture(Texture *tex,Point2f *realSize,Point2f *rea
         // Note: Debugging
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         dynTex->createInGL(memManager);
+        pthread_mutex_lock(&textureLock);
         textures.insert(dynTex);
+        pthread_mutex_unlock(&textureLock);
         DynamicTexture::Region thisRegion;
         if (dynTex->findRegion(numCellX, numCellY, thisRegion))
         {
@@ -377,6 +381,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
         regions.erase(it);
         
         // See if that texture is now empty
+        pthread_mutex_lock(&textureLock);
         DynamicTexture searchTex(theRegion.dynTexId);
         DynamicTextureSet::iterator it = textures.find(&searchTex);
         if (it != textures.end())
@@ -391,22 +396,36 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
 //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
             }
         }
+        pthread_mutex_unlock(&textureLock);
     }
+}
+    
+void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs)
+{
+    pthread_mutex_lock(&textureLock);
+    for (DynamicTextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+        texIDs.push_back((*it)->getId());
+    pthread_mutex_unlock(&textureLock);
 }
     
 void DynamicTextureAtlas::shutdown(ChangeSet &changes)
 {
+    pthread_mutex_lock(&textureLock);
     for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
     {
         DynamicTexture *tex = *it;
         changes.push_back(new RemTextureReq(tex->getId()));
     }
     textures.clear();
+    pthread_mutex_unlock(&textureLock);
     regions.clear();
 }
 
 void DynamicTextureAtlas::log()
 {
+    pthread_mutex_lock(&textureLock);
+    
     int numCells=0,usedCells=0;
     for (DynamicTextureSet::iterator it = textures.begin();
          it != textures.end(); ++it)
@@ -444,6 +463,8 @@ void DynamicTextureAtlas::log()
     NSLog(@"DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
     if (numCells > 0)
         NSLog(@"DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
+    
+    pthread_mutex_unlock(&textureLock);
 }
 
 }

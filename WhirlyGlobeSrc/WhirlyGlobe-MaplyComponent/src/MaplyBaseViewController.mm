@@ -177,6 +177,7 @@ using namespace WhirlyKit;
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
     scene = [self loadSetup_scene];
+    sceneRenderer.scene = scene;
     [self loadSetup_lighting];
     
     // Need a layer thread to manage the layers
@@ -219,7 +220,6 @@ using namespace WhirlyKit;
     [layerThread addLayer:interactLayer];
     
 	// Give the renderer what it needs
-	sceneRenderer.scene = scene;
 	sceneRenderer.theView = visualView;
 	    
     viewTrackers = [NSMutableArray array];
