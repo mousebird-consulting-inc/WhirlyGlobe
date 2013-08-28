@@ -108,7 +108,7 @@ using namespace WhirlyKit;
         mbr.ll() = Point2f(ll3d.x(),ll3d.y());
         mbr.ur() = Point2f(ur3d.x(),ur3d.y());
         
-        super.numSimultaneous = 1;
+        super.numSimultaneous = 8;
         
         pixelsPerTile = 256;
     }
@@ -237,7 +237,7 @@ using namespace WhirlyKit;
         minZoom = [jsonDict[@"minzoom"] intValue];
         maxZoom = [jsonDict[@"maxzoom"] intValue];
         
-        super.numSimultaneous = 4;
+        super.numSimultaneous = 8;
         
         pixelsPerTile = 256;
     }

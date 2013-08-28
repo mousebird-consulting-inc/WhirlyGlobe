@@ -155,6 +155,9 @@ public:
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,ChangeSet &changes);
+    
+    /// Return the IDs for the dynamic textures we're using
+    void getTextureIDs(std::vector<SimpleIdentity> &texIDs);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
@@ -181,6 +184,7 @@ protected:
     
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
+    pthread_mutex_t textureLock;
     typedef std::set<DynamicTexture *,IdentifiableSorter> DynamicTextureSet;
     DynamicTextureSet textures;
 };

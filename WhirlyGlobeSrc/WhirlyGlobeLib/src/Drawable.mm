@@ -1662,7 +1662,8 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity 
 void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setTexId(newTexId);
+    if (basicDrawable)
+        basicDrawable->setTexId(newTexId);
 }
 
 TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)
