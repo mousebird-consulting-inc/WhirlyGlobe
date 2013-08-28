@@ -164,8 +164,8 @@ LocationInfo locations[NumLocations] =
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             break;
-        case MaplyScrollViewMap:
-            break;
+//        case MaplyScrollViewMap:
+//            break;
         default:
             break;
     }

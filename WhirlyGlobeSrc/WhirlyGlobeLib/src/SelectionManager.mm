@@ -47,7 +47,7 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
 }
 
 SelectionManager::SelectionManager(Scene *scene,float viewScale)
-    : scene(scene), scale(viewScale), renderer(NULL)
+    : scene(scene), scale(viewScale)
 {
     pthread_mutex_init(&mutex,NULL);
 }

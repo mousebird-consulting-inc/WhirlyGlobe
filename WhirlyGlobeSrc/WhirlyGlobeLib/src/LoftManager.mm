@@ -228,9 +228,10 @@ public:
             if (polyInfo->layered)
             {
                 drawable->setDrawPriority(polyInfo->priority);
-                drawable->setAlpha(true);
+//                drawable->setAlpha(true);
             } else {
-                drawable->setAlpha(true);
+//                drawable->setAlpha(true);
+                drawable->setDrawPriority(polyInfo->priority);
                 drawable->setRequestZBuffer(true);
             }
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
