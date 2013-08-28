@@ -237,6 +237,7 @@ typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
 class SceneManager
 {
 public:
+    SceneManager() : scene(NULL), renderer(NULL) { }
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
@@ -247,7 +248,7 @@ public:
     
 protected:
     Scene *scene;
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
 };
 
 /** This is the top level scene object for WhirlyKit.

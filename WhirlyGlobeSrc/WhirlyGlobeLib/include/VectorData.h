@@ -218,7 +218,7 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
-bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+    bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
     
 }
 

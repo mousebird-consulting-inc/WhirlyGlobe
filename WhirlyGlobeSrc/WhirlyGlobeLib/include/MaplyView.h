@@ -43,7 +43,7 @@
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
 /// Initialize with the coordinate system we'll use
-- (id)initWithCoordAdapater:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 
 /// Cancel any outstanding animation
 - (void)cancelAnimation;

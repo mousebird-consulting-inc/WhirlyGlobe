@@ -440,6 +440,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _drawEmpty = false;
         _debugMode = false;
         greedyMode = false;
+        _maxUpdatePeriod = 0.0;
+//        _maxUpdatePeriod = 1/15.0;  // Won't spend more than 1/30 on updates by default
     }
     
     return self;
@@ -567,6 +569,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
     [_loader quadDisplayLayerStartUpdates:self];
 
+    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
+
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
     while (_quadtree->leastImportantNode(remNodeInfo))
@@ -623,10 +627,14 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             {
 //        NSLog(@"Quad rejecting node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
             }
-        
-            // If we're not in greedy mode, we'll just do this once through
+
+            // If we're not in greedy mode, we're only doing this for a certain time period, then we'll hand off
+            NSTimeInterval now = CFAbsoluteTimeGetCurrent();
             if (!greedyMode)
-                break;
+            {
+                if (now-startTime > _maxUpdatePeriod || ![_loader isReady])
+                    break;
+            }
         }
         
         didSomething = true;

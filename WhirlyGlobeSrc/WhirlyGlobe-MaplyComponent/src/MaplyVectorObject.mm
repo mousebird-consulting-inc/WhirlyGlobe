@@ -244,6 +244,58 @@ using namespace WhirlyGlobe;
     return type;
 }
 
+- (NSString *)log
+{
+    NSMutableString *outStr = [NSMutableString string];
+    
+    for (ShapeSet::iterator it = _shapes.begin(); it != _shapes.end(); ++it)
+    {
+        VectorPointsRef points = boost::dynamic_pointer_cast<VectorPoints>(*it);
+        if (points)
+        {
+            [outStr appendString:@"Points: "];
+            for (unsigned int ii=0;ii<points->pts.size();ii++)
+            {
+                const Point2f &pt = points->pts[ii];
+                [outStr appendFormat:@" (%f,%f)",pt.x(),pt.y()];
+            }
+            [outStr appendString:@"\n"];
+        } else {
+            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            if (lin)
+            {
+                [outStr appendString:@"Linear: "];
+                for (unsigned int ii=0;ii<lin->pts.size();ii++)
+                {
+                    const Point2f &pt = lin->pts[ii];
+                    [outStr appendFormat:@" (%f,%f)",pt.x(),pt.y()];
+                }
+                [outStr appendString:@"\n"];
+            } else {
+                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    [outStr appendString:@"Areal:\n"];
+                    for (unsigned int li=0;li<ar->loops.size();li++)
+                    {
+                        const VectorRing &ring = ar->loops[li];
+                        [outStr appendFormat:@" loop (%d): ",li];
+                        for (unsigned int ii=0;ii<ring.size();ii++)
+                        {
+                            const Point2f &pt = ring[ii];
+                            [outStr appendFormat:@" (%f,%f)",pt.x(),pt.y()];
+                        }
+                        [outStr appendString:@"\n"];
+                    }
+                    [outStr appendString:@"\n"];
+                }
+            }
+        }        
+    }
+    
+    return outStr;
+}
+
 - (MaplyVectorObject *)deepCopy
 {
     MaplyVectorObject *newVecObj = [[MaplyVectorObject alloc] init];
