@@ -80,8 +80,10 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
 {
     if (!data)
         return 0.0;
-    if (x < 0 || y < 0 || x >= _numX || y >= _numY)
-        return 0.0;
+    if (x < 0)  x = 0;
+    if (y < 0)  y = 0;
+    if (x >= _numX)  x = _numX-1;
+    if (y >= _numY)  y = _numY-1;
     
     float ret = 0.0;
     switch (dataType)
@@ -103,8 +105,6 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
 - (float)interpolateElevationAtX:(float)x y:(float)y
 {
     if (!data)
-        return 0.0;
-    if (x < 0.0 || y < 0.0 || x > _numX || y > _numY)
         return 0.0;
     
     float elevs[4];
