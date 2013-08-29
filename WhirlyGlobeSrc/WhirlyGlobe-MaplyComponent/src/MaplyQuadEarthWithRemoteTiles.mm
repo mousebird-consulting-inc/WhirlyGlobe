@@ -19,6 +19,8 @@
  */
 
 #import "MaplyQuadEarthWithRemoteTiles_private.h"
+#import "MaplyBaseViewController.h"
+#import "MaplyElevationSource_private.h"
 
 @implementation MaplyQuadEarthWithRemoteTiles
 {
@@ -28,6 +30,7 @@
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitNetworkTileQuadSourceBase *dataSource;
+    MaplyElevationSourceAdapter *elevAdapter;
 }
 
 /// Set up a spherical earth layer with a remote set of tiles.
@@ -88,6 +91,12 @@
         tileLoader.coverPoles = true;
         quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:theDataSource loader:tileLoader renderer:renderer];
         [layerThread addLayer:quadLayer];        
+    }
+
+    if (viewC.elevDelegate)
+    {
+        elevAdapter = [[MaplyElevationSourceAdapter alloc] initWithElevationSource:viewC.elevDelegate];
+        dataSource.elevDelegate = elevAdapter;
     }
     
     return true;
