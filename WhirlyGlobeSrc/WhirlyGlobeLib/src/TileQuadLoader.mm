@@ -909,8 +909,8 @@ void LoadedTile::Print(Quadtree *tree)
                     float locZ = 0.0;
                     if (elevData)
                     {
-                        float whereX = ix*texScale.x() + elevData.numX*texOffset.x();
-                        float whereY = iy*texScale.y() + elevData.numY*texOffset.y();
+                        float whereX = ix*texScale.x() + (elevData.numX-1)*texOffset.x();
+                        float whereY = iy*texScale.y() + (elevData.numY-1)*texOffset.y();
                         locZ = [elevData interpolateElevationAtX:whereX y:whereY];
                     }
                     elevs[iy*(sphereTessX+1)+ix] = locZ;
@@ -1064,7 +1064,9 @@ void LoadedTile::Print(Quadtree *tree)
                 //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
                 //  disparity
                 float skirtFactor = 0.95;
-                skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
+                // Leave the big skirts in place if we're doing real elevation
+                if (!elevData || !_useElevAsZ)
+                    skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
                 
                 // Bottom skirt
                 std::vector<Point3f> skirtLocs;

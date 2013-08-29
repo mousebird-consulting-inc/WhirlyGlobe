@@ -101,7 +101,7 @@ static const float ScaleFactor = 300;
             MaplyCoordinate coord;
             coord.x = tileLL.x + ix * cellX;
             coord.y = tileLL.y + iy * cellY;
-            float elev = sinf(coord.x*ScaleFactor) * sinf(coord.y*ScaleFactor) * MaxElev;
+            float elev = (1.0+sinf(coord.x*ScaleFactor)) * (1.0+ sinf(coord.y*ScaleFactor)) * MaxElev/2.0;
             floatData[iy*(numX+1)+ix] = elev;
         }
     
