@@ -29,6 +29,7 @@
 #import "MaplyLight.h"
 #import "MaplyShader.h"
 #import "MaplyActiveObject.h"
+#import "MaplyElevationSource.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -50,6 +51,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// Set the frame interval passed to the displaylink
 /// 1 == 60fps, 2 == 30fps, 3 == 20fps
 @property (nonatomic,assign) int frameInterval;
+
+/// Fill this in to provide elevation data.  It will only work for a matching image layer,
+///  one with the same coordinate system and extents.
+@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 
 /// Clear all the currently active lights.
 /// There are a default set of lights, so you'll need to do this before adding your own.

@@ -180,7 +180,8 @@ using namespace WhirlyKit;
     WhirlyKitLoadedImage *loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageData];
     WhirlyKitLoadedTile *tileData = [[WhirlyKitLoadedTile alloc] init];
     [tileData.images addObject:loadImage];
-//    tileData.elevChunk = [WhirlyKitElevationChunk ElevationChunkWithRandomData];
+    if (_elevDelegate)
+        tileData.elevChunk = [_elevDelegate elevForLevel:level col:col row:row];
     [quadLoader dataSource:self loadedImage:tileData forLevel:level col:col row:row];
 }
 

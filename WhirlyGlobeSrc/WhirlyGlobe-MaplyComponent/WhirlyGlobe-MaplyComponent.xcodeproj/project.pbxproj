@@ -76,6 +76,9 @@
 		2BB0717B1676B5A800DE387D /* MaplySticker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717A1676B5A800DE387D /* MaplySticker.h */; };
 		2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB0717C1676B5BD00DE387D /* MaplySticker.mm */; };
 		2BB071921676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071911676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h */; };
+		2BB54EEA17CFABDF0065451F /* MaplyElevationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */; };
+		2BB54EED17CFABEA0065451F /* MaplyElevationSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */; };
+		2BB54EEF17CFB8040065451F /* MaplyElevationSource_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */; };
 		2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */; };
 		2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */; };
 		2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */; };
@@ -194,6 +197,9 @@
 		2BB0717A1676B5A800DE387D /* MaplySticker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplySticker.h; path = include/MaplySticker.h; sourceTree = SOURCE_ROOT; };
 		2BB0717C1676B5BD00DE387D /* MaplySticker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplySticker.mm; path = src/MaplySticker.mm; sourceTree = SOURCE_ROOT; };
 		2BB071911676B93E00DE387D /* MaplyQuadEarthWithRemoteTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyQuadEarthWithRemoteTiles.h; path = include/MaplyQuadEarthWithRemoteTiles.h; sourceTree = SOURCE_ROOT; };
+		2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyElevationSource.h; path = include/MaplyElevationSource.h; sourceTree = SOURCE_ROOT; };
+		2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyElevationSource.mm; path = src/MaplyElevationSource.mm; sourceTree = SOURCE_ROOT; };
+		2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyElevationSource_private.h; path = include/private/MaplyElevationSource_private.h; sourceTree = SOURCE_ROOT; };
 		2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyLight.h; path = include/MaplyLight.h; sourceTree = SOURCE_ROOT; };
 		2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyLight.m; path = src/MaplyLight.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01415BF9EE300F1DDD8 /* MaplyLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = MaplyLabel.h; path = include/MaplyLabel.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -372,6 +378,9 @@
 		2B11E11715B4DAFF007AAE3F /* layer wrappers */ = {
 			isa = PBXGroup;
 			children = (
+				2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */,
+				2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */,
+				2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */,
 				2B44E816174B20A800474C2B /* MaplyQuadPagingLayer.h */,
 				2B44E81D174B20F500474C2B /* MaplyQuadPagingLayer_private.h */,
 				2B44E81B174B20C700474C2B /* MaplyQuadPagingLayer.mm */,
@@ -594,6 +603,8 @@
 				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
 				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
 				2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */,
+				2BB54EEA17CFABDF0065451F /* MaplyElevationSource.h in Headers */,
+				2BB54EEF17CFB8040065451F /* MaplyElevationSource_private.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,6 +712,7 @@
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
 				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,
+				2BB54EED17CFABEA0065451F /* MaplyElevationSource.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

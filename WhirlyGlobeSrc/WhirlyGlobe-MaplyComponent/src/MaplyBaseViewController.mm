@@ -464,8 +464,8 @@ static const float PerfOutputDelay = 15.0;
     hints = [self mergeAndCheck:hints changeDict:changeDict];
     
     // Settings we store in the hints
-    BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOffDefault : zBufferOff);
+    BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }

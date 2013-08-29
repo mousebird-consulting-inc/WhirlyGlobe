@@ -38,3 +38,4 @@
 #import <MaplyQuadTestLayer.h>
 #import <MaplyTileSource.h>
 #import <MaplyWMSTileSource.h>
+#import <MaplyElevationSource.h>
