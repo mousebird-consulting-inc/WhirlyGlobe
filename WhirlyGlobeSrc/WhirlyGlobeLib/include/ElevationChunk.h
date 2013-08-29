@@ -33,7 +33,7 @@
 /// Fills in a chunk with random data values.  For testing.
 + (WhirlyKitElevationChunk *)ElevationChunkWithRandomData;
 
-/// Initialize with an NSData full of floats (elevaiton in meters)
+/// Initialize with an NSData full of floats (elevation in meters)
 /// SizeX and SizeY are the number of samples in each direction
 - (id)initWithFloatData:(NSData *)data sizeX:(int)sizeX sizeY:(int)sizeY;
 

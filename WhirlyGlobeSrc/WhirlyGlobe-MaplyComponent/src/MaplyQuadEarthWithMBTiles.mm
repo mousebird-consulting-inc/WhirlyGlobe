@@ -19,6 +19,8 @@
  */
 
 #import "MaplyQuadEarthWithMBTiles_private.h"
+#import "MaplyElevationSource_private.h"
+#import "MaplyBaseViewController.h"
 
 @implementation MaplyQuadEarthWithMBTiles
 {
@@ -26,6 +28,7 @@
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitMBTileQuadSource *dataSource;
+    MaplyElevationSourceAdapter *elevAdapter;
 }
 
 - (id)initWithMbTiles:(NSString *)inMbTilesName
@@ -58,6 +61,11 @@
         dataSource.minZoom = _minZoom;
     if (_maxZoom != -1)
         dataSource.maxZoom = _maxZoom;
+    if (viewC.elevDelegate)
+    {
+        elevAdapter = [[MaplyElevationSourceAdapter alloc] initWithElevationSource:viewC.elevDelegate];
+        dataSource.elevDelegate = elevAdapter;
+    }
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:dataSource];
     tileLoader.coverPoles = _coverPoles;
     tileLoader.drawPriority = super.drawPriority;

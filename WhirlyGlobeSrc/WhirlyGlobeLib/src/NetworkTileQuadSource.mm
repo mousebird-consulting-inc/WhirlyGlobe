@@ -176,8 +176,13 @@ using namespace WhirlyKit;
                                [imgData writeToFile:localName atomically:YES];
                        }
                        
+                       // Look for elevation
+                       WhirlyKitElevationChunk *elevChunk = nil;
+                       if (self.elevDelegate)
+                           elevChunk = [self.elevDelegate elevForLevel:level col:col row:row];
+                       
                        // Let the loader know what's up
-                       NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]), 
+                       NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]), (elevChunk ? elevChunk : [NSNull null]),
                                         [NSNumber numberWithInt:level], [NSNumber numberWithInt:col], [NSNumber numberWithInt:row], nil];
                        [self performSelector:@selector(tileUpdate:) onThread:quadLoader.quadLayer.layerThread withObject:args waitUntilDone:NO];
                        imgData = nil;
@@ -190,13 +195,19 @@ using namespace WhirlyKit;
 {
     WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
-    int level = [[args objectAtIndex:2] intValue];
-    int x = [[args objectAtIndex:3] intValue];
-    int y = [[args objectAtIndex:4] intValue];
+    WhirlyKitElevationChunk *elevChunk = [args objectAtIndex:2];
+    int level = [[args objectAtIndex:3] intValue];
+    int x = [[args objectAtIndex:4] intValue];
+    int y = [[args objectAtIndex:5] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
-    else {
+    {
+        WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        [loadTile.images addObject:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData]];
+        if (elevChunk && [elevChunk isKindOfClass:[WhirlyKitElevationChunk class]])
+            loadTile.elevChunk = elevChunk;
+        [loader dataSource:self loadedImage:loadTile forLevel:level col:x row:y];
+    } else {
         [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }
@@ -299,9 +310,14 @@ using namespace WhirlyKit;
                            if (imgData && localName)
                                [imgData writeToFile:localName atomically:YES];
                        }
-                       
+
+                       // Look for elevation
+                       WhirlyKitElevationChunk *elevChunk = nil;
+                       if (self.elevDelegate)
+                           elevChunk = [self.elevDelegate elevForLevel:level col:col row:row];
+
                        // Let the loader know what's up
-                       NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]),
+                       NSArray *args = [NSArray arrayWithObjects:quadLoader, (imgData ? imgData : [NSNull null]), (elevChunk ? elevChunk : [NSNull null]),
                                         [NSNumber numberWithInt:level], [NSNumber numberWithInt:col], [NSNumber numberWithInt:row], nil];
                        [self performSelector:@selector(tileUpdate:) onThread:quadLoader.quadLayer.layerThread withObject:args waitUntilDone:NO];
                        imgData = nil;
@@ -314,13 +330,19 @@ using namespace WhirlyKit;
 {
     WhirlyKitQuadTileLoader *loader = [args objectAtIndex:0];
     NSData *imgData = [args objectAtIndex:1];
-    int level = [[args objectAtIndex:2] intValue];
-    int x = [[args objectAtIndex:3] intValue];
-    int y = [[args objectAtIndex:4] intValue];
+    WhirlyKitElevationChunk *elevChunk = [args objectAtIndex:2];
+    int level = [[args objectAtIndex:3] intValue];
+    int x = [[args objectAtIndex:4] intValue];
+    int y = [[args objectAtIndex:5] intValue];
     
     if (imgData && [imgData isKindOfClass:[NSData class]])
-        [loader dataSource:self loadedImage:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData] forLevel:level col:x row:y];
-    else {
+    {
+        WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        [loadTile.images addObject:[WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imgData]];
+        if (elevChunk && [elevChunk isKindOfClass:[WhirlyKitElevationChunk class]])
+            loadTile.elevChunk = elevChunk;
+        [loader dataSource:self loadedImage:loadTile forLevel:level col:x row:y];
+    } else {
         [loader dataSource:self loadedImage:nil forLevel:level col:x row:y];
     }
 }

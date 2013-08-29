@@ -93,6 +93,15 @@ typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDat
 
 @end
 
+/** This protocol is used by the data sources to optionally tack some elevation on to a tile
+    fetch.  Elevation often comes from a different source and we want to be able to reuse
+    our generic image tile fetchers.
+  */
+@protocol WhirlyKitElevationHelper
+/// Return the elevation data for the given tile or nil if there is none
+- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
+@end
+
 namespace WhirlyKit
 {
     

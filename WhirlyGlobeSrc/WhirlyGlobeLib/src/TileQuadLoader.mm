@@ -574,7 +574,7 @@ void LoadedTile::Print(Quadtree *tree)
         doingUpdate = false;
         borderTexel = 0;
         _includeElev = false;
-        _useElevAsZ = false;
+        _useElevAsZ = true;
         _tileScale = WKTileScaleNone;
         _fixedTileSize = 256;
         texelBinSize = 64;

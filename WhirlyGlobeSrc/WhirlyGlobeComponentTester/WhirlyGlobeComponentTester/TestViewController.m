@@ -98,6 +98,9 @@ LocationInfo locations[NumLocations] =
     MaplyComponentObject *autoLabels;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
+
+    // A source of elevation data, if we're in that mode
+    MaplyElevationSourceTester *elevSource;
     
     // The view we're using to track a selected object
     MaplyViewTracker *selectedViewTrack;
@@ -150,6 +153,7 @@ LocationInfo locations[NumLocations] =
     switch (startupMapType)
     {
         case MaplyGlobe:
+        case MaplyGlobeWithElevation:
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
             baseViewC = globeViewC;
@@ -187,10 +191,20 @@ LocationInfo locations[NumLocations] =
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
 
-    // Test the tilt
-//    if (globeViewC)
-//        [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+    // For elevation mode, we need to do some other stuff
+    if (startupMapType == MaplyGlobeWithElevation)
+    {
+        // Tilt, so we can see it
+        if (globeViewC)
+            [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
 
+        // An elevation source.  This one just makes up sine waves to get some data in there
+        elevSource = [[MaplyElevationSourceTester alloc] init];
+        baseViewC.elevDelegate = elevSource;
+        
+        // Don't forget to turn on the z buffer permanently
+        [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
+    }
     
     // Maximum number of objects for the layout engine to display
     [baseViewC setMaxLayoutObjects:1000];

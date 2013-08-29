@@ -38,7 +38,9 @@
 /// Bounds in geographic
 @property (nonatomic,assign) WhirlyKit::GeoMbr &geoMbr;
 /// Size of a tile in pixels square.  256 is the usual.
-@property (nonatomic,assign) int pixelsPerTile;   
+@property (nonatomic,assign) int pixelsPerTile;
+/// If set, we call this delegate to get some elevation
+@property (nonatomic,weak) NSObject<WhirlyKitElevationHelper> *elevDelegate;
 
 /// Initialize the data source with the full path to the SQLite DB
 - (id)initWithPath:(NSString *)path;
