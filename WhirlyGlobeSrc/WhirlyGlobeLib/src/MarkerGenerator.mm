@@ -52,7 +52,7 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
     {
         draw = new BasicDrawable("Marker Generator");
         draw->setType(GL_TRIANGLES);
-        draw->setTexId(texID);
+        draw->setTexId(0,texID);
         drawables[texID] = draw;
     } else
         draw = it->second;
@@ -78,7 +78,7 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
     {
         draw->addPoint(thePts[ii]);
         draw->addNormal(norm);
-        draw->addTexCoord(theTexCoords[ii]);
+        draw->addTexCoord(0,theTexCoords[ii]);
         float scale = 1.0;
         if (fadeDown < fadeUp)
         {
