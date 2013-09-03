@@ -576,7 +576,6 @@ BasicDrawable::BasicDrawable(const std::string &name)
     drawPriority = 0;
     drawOffset = 0;
 	type = 0;
-	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
 
@@ -616,7 +615,6 @@ BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsign
 	color.r = color.g = color.b = color.a = 255;
     lineWidth = 1.0;
 	drawPriority = 0;
-	texId = EmptyIdentity;
     minVisible = maxVisible = DrawVisibleInvalid;
     minVisibleFadeBand = maxVisibleFadeBand = 0.0;
     requestZBuffer = false;
@@ -641,11 +639,26 @@ BasicDrawable::~BasicDrawable()
     vertexAttributes.clear();
 }
     
+void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
+{
+    if (which < texInfo.size())
+        return;
+    
+    for (unsigned int ii=texInfo.size();ii<=which;ii++)
+    {
+        TexInfo newInfo;
+        char attributeName[40];
+        sprintf(attributeName,"a_texCoord%d",ii);
+        newInfo.texCoordEntry = addAttribute(BDFloat2Type,attributeName);
+        vertexAttributes[newInfo.texCoordEntry]->setDefaultVector2f(Vector2f(0.0,0.0));
+        vertexAttributes[newInfo.texCoordEntry]->reserve(numReserve);
+        texInfo.push_back(newInfo);
+    }
+}
+    
 void BasicDrawable::setupStandardAttributes(int numReserve)
 {
-    texCoordEntry = addAttribute(BDFloat2Type,"a_texCoord");
-    vertexAttributes[texCoordEntry]->setDefaultVector2f(Vector2f(0.0,0.0));
-    vertexAttributes[texCoordEntry]->reserve(numReserve);
+    setupTexCoordEntry(0,numReserve);
     
     colorEntry = addAttribute(BDChar4Type,"a_color");
     vertexAttributes[colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
@@ -783,9 +796,10 @@ GLenum BasicDrawable::getType() const
     return type;
 }
     
-void BasicDrawable::setTexId(SimpleIdentity inId)
+void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    texId = inId;
+    setupTexCoordEntry(which, 0);
+    texInfo[which].texId = inId;
 }
     
 void BasicDrawable::setColor(RGBAColor inColor)
@@ -837,13 +851,23 @@ bool BasicDrawable::getWriteZbuffer() const
 { if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
 
 unsigned int BasicDrawable::addPoint(Point3f pt)
-{ points.push_back(pt); return points.size()-1; }
+{
+    points.push_back(pt);
+    return points.size()-1;
+}
 
 Point3f BasicDrawable::getPoint(int which)
-{ if (which >= points.size()) return Point3f(0,0,0);  return points[which]; }
+{
+    if (which >= points.size())
+        return Point3f(0,0,0);
+    return points[which];
+}
 
-void BasicDrawable::addTexCoord(TexCoord coord)
-{ vertexAttributes[texCoordEntry]->addVector2f(coord); }
+void BasicDrawable::addTexCoord(unsigned int which,TexCoord coord)
+{
+    setupTexCoordEntry(which, 0);
+    vertexAttributes[texInfo[which].texCoordEntry]->addVector2f(coord);
+}
 
 void BasicDrawable::addColor(RGBAColor color)
 { vertexAttributes[colorEntry]->addColor(color); }
@@ -866,9 +890,14 @@ void BasicDrawable::addAttributeValue(int attrId,float val)
 void BasicDrawable::addTriangle(Triangle tri)
 { tris.push_back(tri); }
 
-SimpleIdentity BasicDrawable::getTexId()
-{ return texId; }
+SimpleIdentity BasicDrawable::getTexId(unsigned int which)
+{
+    SimpleIdentity texId = EmptyIdentity;
+    if (which < texInfo.size())
+        texId = texInfo[which].texId;
 
+    return texId;
+}
 
 // If we're fading in or out, update the rendering window
 void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
@@ -887,11 +916,13 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 }
         
 // Move the texture coordinates around and apply a new texture
-void BasicDrawable::applySubTexture(SubTexture subTex,int startingAt)
+void BasicDrawable::applySubTexture(unsigned int which,SubTexture subTex,int startingAt)
 {
-    texId = subTex.texId;
+    setupTexCoordEntry(which, 0);
     
-    std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[texCoordEntry]->data;
+    TexInfo &thisTexInfo = texInfo[which];
+    thisTexInfo.texId = subTex.texId;
+    std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
     
     for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
     {
@@ -920,8 +951,11 @@ void BasicDrawable::reserveNumPoints(int numPoints)
 void BasicDrawable::reserveNumTris(int numTris)
 { tris.reserve(tris.size()+numTris); }
 
-void BasicDrawable::reserveNumTexCoords(int numCoords)
-{ vertexAttributes[texCoordEntry]->reserve(numCoords); }
+void BasicDrawable::reserveNumTexCoords(unsigned int which,int numCoords)
+{
+    setupTexCoordEntry(which, numCoords);
+    vertexAttributes[texInfo[which].texCoordEntry]->reserve(numCoords);
+}
     
 void BasicDrawable::reserveNumNorms(int numNorms)
 { vertexAttributes[normalEntry]->reserve(numNorms); }
@@ -1388,7 +1422,7 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
     if (sharedBuffer)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
-        
+    
 // Draw Vertex Buffer Objects, OpenGL 2.0
 void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
@@ -1439,11 +1473,21 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         fade = fade * factor;
     }
     
-    // GL Texture ID
-    GLuint glTexID = 0;
-    if (texId != EmptyIdentity)
-        glTexID = scene->getGLTexture(texId);
-        
+    // GL Texture IDs
+    bool anyTextures = false;
+    std::vector<GLuint> glTexIDs;
+    for (unsigned int ii=0;ii<texInfo.size();ii++)
+    {
+        const TexInfo &thisTexInfo = texInfo[ii];
+        GLuint glTexID = EmptyIdentity;
+        if (thisTexInfo.texId != EmptyIdentity)
+        {
+            glTexID = scene->getGLTexture(thisTexInfo.texId);
+            anyTextures = true;
+        }
+        glTexIDs.push_back(glTexID);
+    }
+    
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
@@ -1453,21 +1497,28 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture
-    prog->setUniform("u_hasTexture", (glTexID != 0));
+    prog->setUniform("u_hasTexture", anyTextures);
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
-    
-    // Texture
-    const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
-    bool hasTexture = glTexID != 0 && texUni;
-    if (hasTexture)
+
+    // Zero or more textures.
+    bool hasTexture[WhirlyKitMaxTextures];
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
     {
-        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
-        glBindTexture(GL_TEXTURE_2D, glTexID);
-        CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-        prog->setUniform("s_baseMap", 0);
-        CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+        GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
+        char baseMapName[40];
+        sprintf(baseMapName,"s_baseMap%d",ii);
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+        hasTexture[ii] = glTexID != 0 && texUni;
+        if (hasTexture[ii])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glBindTexture(GL_TEXTURE_2D, glTexID);
+            CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
+            prog->setUniform(baseMapName, (int)ii);
+            CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+        }
     }
     
     // If necessary, set up the VAO (once)
@@ -1582,11 +1633,12 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Unbind any texture
-    if (hasTexture)
-    {
-        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+        if (hasTexture[ii])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
     // Tear down the various arrays, if we stood them up
     if (usedLocalVertices)
@@ -1654,8 +1706,8 @@ void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer
     [renderer setRenderUntil:fadeUp];
 }
 
-DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId)
-: DrawableChangeRequest(drawId), newTexId(newTexId)
+DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId)
+: DrawableChangeRequest(drawId), which(which), newTexId(newTexId)
 {
 }
 
@@ -1663,7 +1715,7 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
-        basicDrawable->setTexId(newTexId);
+        basicDrawable->setTexId(which,newTexId);
 }
 
 TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)

@@ -756,7 +756,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 Point3f &pt = pts[ii];
                 drawable->addPoint(pt);
                 drawable->addNormal(norm);
-                drawable->addTexCoord(texCoord[ii]);
+                drawable->addTexCoord(0,texCoord[ii]);
                 Mbr localMbr = drawable->getLocalMbr();
                 Point3f localLoc = _coordAdapter->getCoordSystem()->geographicToLocal(label.loc);
                 localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
@@ -770,7 +770,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             if (!texAtlas)
             {
                 Texture *tex = new Texture("Label Layer",textImage);
-                drawable->setTexId(tex->getId());
+                drawable->setTexId(0,tex->getId());
                 
                 if (_labelInfo.fade > 0.0)
                 {
@@ -867,7 +867,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     iconDrawable->setDrawPriority(_labelInfo.drawPriority);
                     iconDrawable->setVisibleRange(_labelInfo.minVis,_labelInfo.maxVis);
                     iconDrawable->setAlpha(true);  // Note: Don't know this
-                    iconDrawable->setTexId(subTex.texId);
+                    iconDrawable->setTexId(0,subTex.texId);
                     iconDrawable->setOnOff(_labelInfo.enable);
                     iconDrawables[subTex.texId] = iconDrawable;
                 } else
@@ -880,7 +880,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     Point3f &pt = iconPts[ii];
                     iconDrawable->addPoint(pt);
                     iconDrawable->addNormal(norm);
-                    iconDrawable->addTexCoord(texCoord[ii]);
+                    iconDrawable->addTexCoord(0,texCoord[ii]);
                     Mbr localMbr = iconDrawable->getLocalMbr();
                     Point3f localLoc = _coordAdapter->getCoordSystem()->geographicToLocal(label.loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
@@ -908,7 +908,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         if (!_labelInfo.screenObject)
         {
             BasicDrawable *drawable = drawables[ii];
-            drawable->setTexId(tex->getId());
+            drawable->setTexId(0,tex->getId());
             
             if (_labelInfo.fade > 0.0)
             {

@@ -225,9 +225,9 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
                 if (ii == 0)
                 {
                     if (draw)
-                        draw->applySubTexture(subTexs[0]);
+                        draw->applySubTexture(0,subTexs[0]);
                     if (skirtDraw)
-                        skirtDraw->applySubTexture(subTexs[0]);
+                        skirtDraw->applySubTexture(0,subTexs[0]);
                 }
                 delete tex;
             } else {
@@ -376,16 +376,16 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                             childSkirtDrawIds[whichChild] = childSkirtDraw->getId();
                         if (!layer.lineMode && !texIds.empty())
                         {
-                            childDraw->setTexId(texIds[0]);
+                            childDraw->setTexId(0,texIds[0]);
                             if (childSkirtDraw)
-                                childSkirtDraw->setTexId(texIds[0]);
+                                childSkirtDraw->setTexId(0,texIds[0]);
                         }
                         if (!loader->texAtlases.empty())
                         {
                             if (childDraw)
-                                childDraw->applySubTexture(subTexs[0]);
+                                childDraw->applySubTexture(0,subTexs[0]);
                             if (childSkirtDraw)
-                                childSkirtDraw->applySubTexture(subTexs[0]);
+                                childSkirtDraw->applySubTexture(0,subTexs[0]);
                         }
                         if (loader->drawAtlas)
                         {
@@ -418,18 +418,18 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
             if (!texIds.empty())
-                draw->setTexId(texIds[0]);
+                draw->setTexId(0,texIds[0]);
             if (skirtDraw)
             {
                 skirtDrawId = skirtDraw->getId();
                 if (!texIds.empty())
-                    skirtDraw->setTexId(texIds[0]);
+                    skirtDraw->setTexId(0,texIds[0]);
             }
             if (!loader->texAtlases.empty())
             {
-                draw->applySubTexture(subTexs[0]);
+                draw->applySubTexture(0,subTexs[0]);
                 if (skirtDraw)
-                    skirtDraw->applySubTexture(subTexs[0]);
+                    skirtDraw->applySubTexture(0,subTexs[0]);
             }
             if (loader->drawAtlas)
             {
@@ -497,16 +497,16 @@ void LoadedTile::setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDi
         {
             SimpleIdentity newTexId = texIds[whichImage];
             if (drawId != EmptyIdentity)
-                changeRequests.push_back(new DrawTexChangeRequest(drawId,newTexId));
+                changeRequests.push_back(new DrawTexChangeRequest(drawId,0,newTexId));
             if (skirtDrawId != EmptyIdentity)
-                changeRequests.push_back(new DrawTexChangeRequest(skirtDrawId,newTexId));
+                changeRequests.push_back(new DrawTexChangeRequest(skirtDrawId,0,newTexId));
 
             for (unsigned int ii=0;ii<4;ii++)
             {
                 if (childDrawIds[ii] != EmptyIdentity)
-                    changeRequests.push_back(new BigDrawableTexChangeRequest(childDrawIds[ii],newTexId));
+                    changeRequests.push_back(new DrawTexChangeRequest(childDrawIds[ii],0,newTexId));
                 if (childSkirtDrawIds[ii] != EmptyIdentity)
-                    changeRequests.push_back(new BigDrawableTexChangeRequest(childSkirtDrawIds[ii],newTexId));
+                    changeRequests.push_back(new DrawTexChangeRequest(childSkirtDrawIds[ii],0,newTexId));
             }
         }
     }
@@ -689,7 +689,7 @@ void LoadedTile::Print(Quadtree *tree)
             draw->addPoint(corners[jj]);
             draw->addNormal((pts[ii]+pts[ii+1])/2.0);
             TexCoord texCoord = cornerTex[jj];
-            draw->addTexCoord(texCoord);
+            draw->addTexCoord(0,texCoord);
         }
         
         // Add two triangles
@@ -885,17 +885,17 @@ void LoadedTile::Print(Quadtree *tree)
                     
                     chunk->addPoint(org3D);
                     chunk->addNormal(org3D);
-                    chunk->addTexCoord(texCoord);
+                    chunk->addTexCoord(0,texCoord);
                     chunk->addPoint(ptA_3D);
                     chunk->addNormal(ptA_3D);
-                    chunk->addTexCoord(texCoord);
+                    chunk->addTexCoord(0,texCoord);
                     
                     chunk->addPoint(org3D);
                     chunk->addNormal(org3D);
-                    chunk->addTexCoord(texCoord);
+                    chunk->addTexCoord(0,texCoord);
                     chunk->addPoint(ptB_3D);
                     chunk->addNormal(ptB_3D);
-                    chunk->addTexCoord(texCoord);
+                    chunk->addTexCoord(0,texCoord);
                 }
         } else {
             chunk->setType(GL_TRIANGLES);
@@ -945,19 +945,19 @@ void LoadedTile::Print(Quadtree *tree)
                         Point3f normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
                         normA.normalize();
                         chunk->addPoint(ptA_0);
-                        chunk->addTexCoord(texCoords[idx0]);
+                        chunk->addTexCoord(0,texCoords[idx0]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
 
                         chunk->addPoint(ptA_1);
-                        chunk->addTexCoord(texCoords[idx1]);
+                        chunk->addTexCoord(0,texCoords[idx1]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
                         chunk->addPoint(ptA_2);
-                        chunk->addTexCoord(texCoords[idx2]);
+                        chunk->addTexCoord(0,texCoords[idx2]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx2]);
@@ -978,19 +978,19 @@ void LoadedTile::Print(Quadtree *tree)
                         Point3f normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
                         normB.normalize();
                         chunk->addPoint(ptB_0);
-                        chunk->addTexCoord(texCoords[idx0]);
+                        chunk->addTexCoord(0,texCoords[idx0]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
 
                         chunk->addPoint(ptB_1);
-                        chunk->addTexCoord(texCoords[idx1]);
+                        chunk->addTexCoord(0,texCoords[idx1]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
                         chunk->addPoint(ptB_2);
-                        chunk->addTexCoord(texCoords[idx2]);
+                        chunk->addTexCoord(0,texCoords[idx2]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx2]);
@@ -1022,7 +1022,7 @@ void LoadedTile::Print(Quadtree *tree)
                         
                         chunk->addPoint(loc3D);
                         chunk->addNormal(norm3D);
-                        chunk->addTexCoord(texCoord);
+                        chunk->addTexCoord(0,texCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);                    
                     }
@@ -1106,7 +1106,7 @@ void LoadedTile::Print(Quadtree *tree)
                 [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
                 
                 if (texs && !texs->empty() && !((*texs)[0]))
-                    skirtChunk->setTexId((*texs)[0]->getId());
+                    skirtChunk->setTexId(0,(*texs)[0]->getId());
                 *skirtDraw = skirtChunk;
             }
             
@@ -1120,7 +1120,7 @@ void LoadedTile::Print(Quadtree *tree)
                     // One point for the north pole
                     Point3f northPt(0,0,1.0);
                     chunk->addPoint(northPt);
-                    chunk->addTexCoord(singleTexCoord);
+                    chunk->addTexCoord(0,singleTexCoord);
                     chunk->addNormal(Point3f(0,0,1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
@@ -1135,7 +1135,7 @@ void LoadedTile::Print(Quadtree *tree)
                         float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,1.0));
-                        chunk->addTexCoord(singleTexCoord);
+                        chunk->addTexCoord(0,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
                     }
@@ -1157,7 +1157,7 @@ void LoadedTile::Print(Quadtree *tree)
                     // One point for the south pole
                     Point3f southPt(0,0,-1.0);
                     chunk->addPoint(southPt);
-                    chunk->addTexCoord(singleTexCoord);
+                    chunk->addTexCoord(0,singleTexCoord);
                     chunk->addNormal(Point3f(0,0,-1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
@@ -1172,7 +1172,7 @@ void LoadedTile::Print(Quadtree *tree)
                         float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,-1.0));
-                        chunk->addTexCoord(singleTexCoord);
+                        chunk->addTexCoord(0,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
                     }
@@ -1190,7 +1190,7 @@ void LoadedTile::Print(Quadtree *tree)
             }
             
             if (texs && !texs->empty() && (*texs)[0])
-                chunk->setTexId((*texs)[0]->getId());
+                chunk->setTexId(0,(*texs)[0]->getId());
         }
         
         *draw = chunk;

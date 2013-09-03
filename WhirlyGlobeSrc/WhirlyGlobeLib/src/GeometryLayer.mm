@@ -207,14 +207,14 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
         default:
             break;
     }
-    draw->setTexId(_texId);
+    draw->setTexId(0,_texId);
     for (unsigned int ii=0;ii<_pts.size();ii++)
     {
         draw->addPoint(_pts[ii]);
         if (!_norms.empty())
             draw->addNormal(_norms[ii]);
         if (_texId != EmptyIdentity)
-            draw->addTexCoord(_texCoords[ii]);
+            draw->addTexCoord(0,_texCoords[ii]);
         if (!_colors.empty())
             draw->addColor(_colors[ii]);
     }
