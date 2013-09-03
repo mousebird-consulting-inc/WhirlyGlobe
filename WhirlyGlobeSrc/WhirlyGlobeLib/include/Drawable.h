@@ -62,6 +62,9 @@ class Scene;
 #define WhirlyKitOpenGLMemCacheMax 32
 /// Number of buffers we allocate at once
 #define WhirlyKitOpenGLMemCacheAllocUnit 32
+    
+// Maximum of 8 textures for the moment
+#define WhirlyKitMaxTextures 8
 
 /// Used to manage OpenGL buffer IDs and such.
 /// They're expensive to create and delete, so we try to do it
@@ -385,8 +388,8 @@ public:
 	void setType(GLenum inType);
 	GLenum getType() const;
 
-    /// Set the texture ID.  You get this from the Texture object.
-	void setTexId(SimpleIdentity inId);
+    /// Set the texture ID for a specific slot.  You get this from the Texture object.
+	void setTexId(unsigned int which,SimpleIdentity inId);
 
     /// Return the default color
     RGBAColor getColor() const;
@@ -434,7 +437,7 @@ public:
     Point3f getPoint(int which);
 
     /// Add a texture coordinate.
-	void addTexCoord(TexCoord coord);
+	void addTexCoord(unsigned int which,TexCoord coord);
     
     /// Add a color
     void addColor(RGBAColor color);
@@ -458,7 +461,21 @@ public:
 	void addTriangle(Triangle tri);
     
     /// Return the texture ID
-    SimpleIdentity getTexId();
+    SimpleIdentity getTexId(unsigned int which);
+    
+    /// Texture ID and pointer to vertex attribute info
+    class TexInfo
+    {
+    public:
+        TexInfo() : texId(EmptyIdentity), texCoordEntry(0) { }
+        /// Texture ID within the scene
+        SimpleIdentity texId;
+        /// Vertex attribute entry for this set of texture coordinates
+        int texCoordEntry;
+    };
+
+    /// Return the current texture info
+    const std::vector<TexInfo> &getTexInfo() { return texInfo; }
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
@@ -477,7 +494,7 @@ public:
     void reserveNumTris(int numTris);
     
     /// Reserve extra space for texture coordinates
-    void reserveNumTexCoords(int numCoords);
+    void reserveNumTexCoords(unsigned int which,int numCoords);
     
     /// Reserve extra space for normals
     void reserveNumNorms(int numNorms);
@@ -492,7 +509,7 @@ public:
     const Eigen::Matrix4d *getMatrix() const;
 
     /// Run the texture and texture coordinates based on a SubTexture
-    void applySubTexture(SubTexture subTex,int startingAt=0);
+    void applySubTexture(unsigned int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
@@ -508,8 +525,10 @@ public:
     
     /// Return the vertex attributes for reference
     const std::vector<VertexAttribute *> &getVertexAttributes();
-    
+        
 protected:
+    /// Check for the given texture coordinate entry and add it if it's not there
+    virtual void setupTexCoordEntry(int which,int numReserve);
     /// Draw routine for OpenGL 2.0
     virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
@@ -527,10 +546,10 @@ protected:
     // Attributes associated with each vertex, some standard some not
     std::vector<VertexAttribute *> vertexAttributes;
     // Entries for the standard attributes we create on startup
-    int texCoordEntry,colorEntry,normalEntry;
+    int colorEntry,normalEntry;
     // Set up the standard vertex attributes we use
     void setupStandardAttributes(int numReserve=0);
-	
+    	
 	bool on;  // If set, draw.  If not, not
     SimpleIdentity programId;    // Program to use for rendering
     bool usingBuffers;  // If set, we've downloaded the buffers already
@@ -540,7 +559,7 @@ protected:
     bool isAlpha;  // Set if we want to be drawn last
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
 	GLenum type;  // Primitive(s) type
-	SimpleIdentity texId;  // ID for Texture (in scene)
+    std::vector<TexInfo> texInfo;
 	RGBAColor color;
     float minVisible,maxVisible;
     float minVisibleFadeBand,maxVisibleFadeBand;
@@ -621,11 +640,12 @@ protected:
 class DrawTexChangeRequest : public DrawableChangeRequest
 {
 public:
-    DrawTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId);
+    DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
 protected:
+    unsigned int which;
     SimpleIdentity newTexId;
 };
     
