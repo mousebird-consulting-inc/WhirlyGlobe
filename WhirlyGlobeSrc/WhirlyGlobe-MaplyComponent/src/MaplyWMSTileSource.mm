@@ -296,7 +296,6 @@
     return self;
 }
 
-
 /// Return the image for a given tile
 - (NSData *)imageForTile:(MaplyTileID)tileID
 {

@@ -41,7 +41,7 @@ using namespace WhirlyKit;
     int texelBinSize;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
@@ -196,7 +196,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
@@ -210,7 +210,7 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     std::vector<Texture *> texs(loadImages.size(),NULL);
     if (!loader->texAtlases.empty())
         subTexs.resize(loadImages.size());
-    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev];
+    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev];
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
     for (unsigned int ii=0;ii<texs.size();ii++)
@@ -225,9 +225,9 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
                 if (ii == 0)
                 {
                     if (draw)
-                        draw->applySubTexture(0,subTexs[0]);
+                        draw->applySubTexture(-1,subTexs[0]);
                     if (skirtDraw)
-                        skirtDraw->applySubTexture(0,subTexs[0]);
+                        skirtDraw->applySubTexture(-1,subTexs[0]);
                 }
                 delete tex;
             } else {
@@ -368,7 +368,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                     {
                         BasicDrawable *childDraw = NULL;
                         BasicDrawable *childSkirtDraw = NULL;
-                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
+                        [loader buildTile:&childInfo draw:&childDraw skirtDraw:&childSkirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(0.5,0.5) texOffset:Point2f(0.5*ix,0.5*iy) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
                         // Set this to change the color of child drawables.  Helpfull for debugging
 //                        childDraw->setColor(RGBAColor(64,64,64,255));
                         childDrawIds[whichChild] = childDraw->getId();
@@ -383,9 +383,9 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
                         if (!loader->texAtlases.empty())
                         {
                             if (childDraw)
-                                childDraw->applySubTexture(0,subTexs[0]);
+                                childDraw->applySubTexture(-1,subTexs[0]);
                             if (childSkirtDraw)
-                                childSkirtDraw->applySubTexture(0,subTexs[0]);
+                                childSkirtDraw->applySubTexture(-1,subTexs[0]);
                         }
                         if (loader->drawAtlas)
                         {
@@ -415,7 +415,7 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
         {
             BasicDrawable *draw = NULL;
             BasicDrawable *skirtDraw = NULL;
-            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
+            [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:NULL activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:nil elevData:elevData];
             drawId = draw->getId();
             if (!texIds.empty())
                 draw->setTexId(0,texIds[0]);
@@ -427,9 +427,9 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
             }
             if (!loader->texAtlases.empty())
             {
-                draw->applySubTexture(0,subTexs[0]);
+                draw->applySubTexture(-1,subTexs[0]);
                 if (skirtDraw)
-                    skirtDraw->applySubTexture(0,subTexs[0]);
+                    skirtDraw->applySubTexture(-1,subTexs[0]);
             }
             if (loader->drawAtlas)
             {
@@ -488,25 +488,34 @@ void LoadedTile::updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDis
     //    tree->Print();
 }
     
-void LoadedTile::setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::setCurrentImages(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
+    std::vector<unsigned int> whichImages;
+    if (whichImage0 != EmptyIdentity)
+        whichImages.push_back(whichImage0);
+    if (whichImage1 != EmptyIdentity)
+        whichImages.push_back(whichImage1);
     if (loader->texAtlases.empty())
     {
-        // Individual textures
-        if (whichImage < texIds.size())
+        for (unsigned int ii=0;ii<whichImages.size();ii++)
         {
-            SimpleIdentity newTexId = texIds[whichImage];
-            if (drawId != EmptyIdentity)
-                changeRequests.push_back(new DrawTexChangeRequest(drawId,0,newTexId));
-            if (skirtDrawId != EmptyIdentity)
-                changeRequests.push_back(new DrawTexChangeRequest(skirtDrawId,0,newTexId));
-
-            for (unsigned int ii=0;ii<4;ii++)
+            unsigned int whichImage = whichImages[ii];
+            // Individual textures
+            if (whichImage < texIds.size())
             {
-                if (childDrawIds[ii] != EmptyIdentity)
-                    changeRequests.push_back(new DrawTexChangeRequest(childDrawIds[ii],0,newTexId));
-                if (childSkirtDrawIds[ii] != EmptyIdentity)
-                    changeRequests.push_back(new DrawTexChangeRequest(childSkirtDrawIds[ii],0,newTexId));
+                SimpleIdentity newTexId = texIds[whichImage];
+                if (drawId != EmptyIdentity)
+                    changeRequests.push_back(new DrawTexChangeRequest(drawId,0,newTexId));
+                if (skirtDrawId != EmptyIdentity)
+                    changeRequests.push_back(new DrawTexChangeRequest(skirtDrawId,0,newTexId));
+
+                for (unsigned int ii=0;ii<4;ii++)
+                {
+                    if (childDrawIds[ii] != EmptyIdentity)
+                        changeRequests.push_back(new DrawTexChangeRequest(childDrawIds[ii],0,newTexId));
+                    if (childSkirtDrawIds[ii] != EmptyIdentity)
+                        changeRequests.push_back(new DrawTexChangeRequest(childSkirtDrawIds[ii],0,newTexId));
+                }
             }
         }
     }
@@ -545,8 +554,8 @@ void LoadedTile::Print(Quadtree *tree)
     /// How many fetches we have going at the moment
     int numFetches;
     
-    // The image we're currently displaying, when we have more htan one
-    unsigned int currentImage;
+    // The images we're currently displaying, when we have more than one
+    unsigned int currentImage0,currentImage1;
     
     NSString *name;
 }
@@ -570,7 +579,8 @@ void LoadedTile::Print(Quadtree *tree)
         _imageType = WKTileIntRGBA;
         _useDynamicAtlas = true;
         _numImages = 1;
-        currentImage = 0;
+        currentImage0 = 0;
+        currentImage1 = 0;
         doingUpdate = false;
         borderTexel = 0;
         _includeElev = false;
@@ -579,6 +589,7 @@ void LoadedTile::Print(Quadtree *tree)
         _fixedTileSize = 256;
         texelBinSize = 64;
         _textureAtlasSize = 2048;
+        _activeTextures = -1;
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -689,7 +700,7 @@ void LoadedTile::Print(Quadtree *tree)
             draw->addPoint(corners[jj]);
             draw->addNormal((pts[ii]+pts[ii+1])/2.0);
             TexCoord texCoord = cornerTex[jj];
-            draw->addTexCoord(0,texCoord);
+            draw->addTexCoord(-1,texCoord);
         }
         
         // Add two triangles
@@ -767,7 +778,7 @@ void LoadedTile::Print(Quadtree *tree)
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData
+- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -857,6 +868,8 @@ void LoadedTile::Print(Quadtree *tree)
     {
         // We'll set up and fill in the drawable
         BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+        if (_activeTextures > 0)
+            chunk->setTexId(_activeTextures-1, EmptyIdentity);
         chunk->setDrawOffset(_drawOffset);
         chunk->setDrawPriority(_drawPriority);
         chunk->setVisibleRange(_minVis, _maxVis);
@@ -885,17 +898,17 @@ void LoadedTile::Print(Quadtree *tree)
                     
                     chunk->addPoint(org3D);
                     chunk->addNormal(org3D);
-                    chunk->addTexCoord(0,texCoord);
+                    chunk->addTexCoord(-1,texCoord);
                     chunk->addPoint(ptA_3D);
                     chunk->addNormal(ptA_3D);
-                    chunk->addTexCoord(0,texCoord);
+                    chunk->addTexCoord(-1,texCoord);
                     
                     chunk->addPoint(org3D);
                     chunk->addNormal(org3D);
-                    chunk->addTexCoord(0,texCoord);
+                    chunk->addTexCoord(-1,texCoord);
                     chunk->addPoint(ptB_3D);
                     chunk->addNormal(ptB_3D);
-                    chunk->addTexCoord(0,texCoord);
+                    chunk->addTexCoord(-1,texCoord);
                 }
         } else {
             chunk->setType(GL_TRIANGLES);
@@ -945,19 +958,19 @@ void LoadedTile::Print(Quadtree *tree)
                         Point3f normA = (ptA_2-ptA_1).cross(ptA_0-ptA_1);
                         normA.normalize();
                         chunk->addPoint(ptA_0);
-                        chunk->addTexCoord(0,texCoords[idx0]);
+                        chunk->addTexCoord(-1,texCoords[idx0]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
 
                         chunk->addPoint(ptA_1);
-                        chunk->addTexCoord(0,texCoords[idx1]);
+                        chunk->addTexCoord(-1,texCoords[idx1]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
                         chunk->addPoint(ptA_2);
-                        chunk->addTexCoord(0,texCoords[idx2]);
+                        chunk->addTexCoord(-1,texCoords[idx2]);
                         chunk->addNormal(normA);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx2]);
@@ -978,19 +991,19 @@ void LoadedTile::Print(Quadtree *tree)
                         Point3f normB = (ptB_0-ptB_2).cross(ptB_1-ptB_2);
                         normB.normalize();
                         chunk->addPoint(ptB_0);
-                        chunk->addTexCoord(0,texCoords[idx0]);
+                        chunk->addTexCoord(-1,texCoords[idx0]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx0]);
 
                         chunk->addPoint(ptB_1);
-                        chunk->addTexCoord(0,texCoords[idx1]);
+                        chunk->addTexCoord(-1,texCoords[idx1]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx1]);
                         
                         chunk->addPoint(ptB_2);
-                        chunk->addTexCoord(0,texCoords[idx2]);
+                        chunk->addTexCoord(-1,texCoords[idx2]);
                         chunk->addNormal(normB);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elevs[idx2]);
@@ -1022,7 +1035,7 @@ void LoadedTile::Print(Quadtree *tree)
                         
                         chunk->addPoint(loc3D);
                         chunk->addNormal(norm3D);
-                        chunk->addTexCoord(0,texCoord);
+                        chunk->addTexCoord(-1,texCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);                    
                     }
@@ -1049,6 +1062,8 @@ void LoadedTile::Print(Quadtree *tree)
             {
                 // We'll set up and fill in the drawable
                 BasicDrawable *skirtChunk = new BasicDrawable("Tile Quad Loader Skirt");
+                if (_activeTextures > 0)
+                    skirtChunk->setTexId(_activeTextures-1, EmptyIdentity);
                 skirtChunk->setDrawOffset(_drawOffset);
                 skirtChunk->setDrawPriority(0);
                 skirtChunk->setVisibleRange(_minVis, _maxVis);
@@ -1120,7 +1135,7 @@ void LoadedTile::Print(Quadtree *tree)
                     // One point for the north pole
                     Point3f northPt(0,0,1.0);
                     chunk->addPoint(northPt);
-                    chunk->addTexCoord(0,singleTexCoord);
+                    chunk->addTexCoord(-1,singleTexCoord);
                     chunk->addNormal(Point3f(0,0,1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
@@ -1135,7 +1150,7 @@ void LoadedTile::Print(Quadtree *tree)
                         float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,1.0));
-                        chunk->addTexCoord(0,singleTexCoord);
+                        chunk->addTexCoord(-1,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
                     }
@@ -1157,7 +1172,7 @@ void LoadedTile::Print(Quadtree *tree)
                     // One point for the south pole
                     Point3f southPt(0,0,-1.0);
                     chunk->addPoint(southPt);
-                    chunk->addTexCoord(0,singleTexCoord);
+                    chunk->addTexCoord(-1,singleTexCoord);
                     chunk->addNormal(Point3f(0,0,-1.0));
                     if (elevEntry != 0)
                         chunk->addAttributeValue(elevEntry, 0.0);
@@ -1172,7 +1187,7 @@ void LoadedTile::Print(Quadtree *tree)
                         float elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,-1.0));
-                        chunk->addTexCoord(0,singleTexCoord);
+                        chunk->addTexCoord(-1,singleTexCoord);
                         if (elevEntry != 0)
                             chunk->addAttributeValue(elevEntry, elev);
                     }
@@ -1346,6 +1361,23 @@ static const int SingleElementSize = sizeof(GLushort);
         return;
     }
     
+    // If we haven't decided how many active textures we'll have, do that
+    if (_activeTextures == -1)
+    {
+        switch (_numImages)
+        {
+            case 0:
+                _activeTextures = 0;
+                break;
+            case 1:
+                _activeTextures = 1;
+                break;
+            default:
+                _activeTextures = 2;
+                break;
+        }
+    }
+    
     std::vector<WhirlyKitLoadedImage *> loadImages;
     WhirlyKitElevationChunk *loadElev = nil;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
@@ -1394,11 +1426,11 @@ static const int SingleElementSize = sizeof(GLushort);
     if (!loadImages.empty() || loadElev)
     {
         tile->elevData = loadElev;
-        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImages,currentImage,loadElev,changeRequests);
+        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImages,currentImage0,currentImage1,loadElev,changeRequests);
         // If we have more than one image to dispay, make sure we're doing the right one
         if (_numImages > 1 && texAtlases.empty())
         {
-            tile->setCurrentImage(self, _quadLayer, currentImage, changeRequests);
+            tile->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, changeRequests);
         }
         [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
     } else {
@@ -1475,9 +1507,10 @@ static const int SingleElementSize = sizeof(GLushort);
     // We'll look through the tiles and change them all accordingly
     pthread_mutex_lock(&tileLock);
 
-    if (currentImage != newImage)
+    if (currentImage0 != newImage || currentImage1 != 0)
     {
-        currentImage = newImage;
+        currentImage0 = newImage;
+        currentImage1 = 0;
         
         // Change all the draw atlases at once
         if (!texAtlases.empty())
@@ -1486,13 +1519,13 @@ static const int SingleElementSize = sizeof(GLushort);
             std::vector<SimpleIdentity> baseTexIDs,newTexIDs;
             texAtlases[0]->getTextureIDs(baseTexIDs);
             texAtlases[newImage]->getTextureIDs(newTexIDs);
-            drawAtlas->mapDrawableTextures(baseTexIDs, newTexIDs, theChanges);
+            drawAtlas->mapDrawableTextures(0, baseTexIDs, newTexIDs, theChanges);
         } else {
             // No atlases, so changes tiles individually
             for (LoadedTileSet::iterator it = tileSet.begin();
                  it != tileSet.end(); ++it)
             {
-                (*it)->setCurrentImage(self, _quadLayer, currentImage, theChanges);
+                (*it)->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, theChanges);
             }
         }
     }
@@ -1500,7 +1533,51 @@ static const int SingleElementSize = sizeof(GLushort);
     pthread_mutex_unlock(&tileLock);
 }
 
-// We'll try to skip updates 
+- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
+{
+    if (!_quadLayer)
+        return;
+    
+    // We'll look through the tiles and change them all accordingly
+    pthread_mutex_lock(&tileLock);
+    
+    if (currentImage0 != startImage || currentImage1 != endImage)
+    {
+        currentImage0 = startImage;
+        currentImage1 = endImage;
+        
+        // Change all the draw atlases at once
+        if (!texAtlases.empty())
+        {
+            // We need the base texture IDs
+            std::vector<SimpleIdentity> baseTexIDs,newTexIDs0,newTexIDs1;
+            texAtlases[0]->getTextureIDs(baseTexIDs);
+            // What we're mapping to for the first image
+            if (startImage < texAtlases.size())
+            {
+                texAtlases[startImage]->getTextureIDs(newTexIDs0);
+                drawAtlas->mapDrawableTextures(0, baseTexIDs, newTexIDs0, theChanges);
+            }
+            if (endImage < texAtlases.size())
+            {
+                texAtlases[endImage]->getTextureIDs(newTexIDs1);
+                drawAtlas->mapDrawableTextures(1, baseTexIDs, newTexIDs1, theChanges);
+            }
+        } else {
+            // No atlases, so changes tiles individually
+            for (LoadedTileSet::iterator it = tileSet.begin();
+                 it != tileSet.end(); ++it)
+            {
+                (*it)->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, theChanges);
+            }
+        }
+    }
+    
+    pthread_mutex_unlock(&tileLock);    
+}
+
+
+// We'll try to skip updates
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial
 {
     bool doUpdate = true;;

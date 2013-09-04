@@ -436,8 +436,9 @@ public:
     /// Return a given point
     Point3f getPoint(int which);
 
-    /// Add a texture coordinate.
-	void addTexCoord(unsigned int which,TexCoord coord);
+    /// Add a texture coordinate. -1 means we add the same
+    ///  texture coordinate to all the available texture coordinate sets
+	void addTexCoord(int which,TexCoord coord);
     
     /// Add a color
     void addColor(RGBAColor color);
@@ -509,7 +510,7 @@ public:
     const Eigen::Matrix4d *getMatrix() const;
 
     /// Run the texture and texture coordinates based on a SubTexture
-    void applySubTexture(unsigned int which,SubTexture subTex,int startingAt=0);
+    void applySubTexture(int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);

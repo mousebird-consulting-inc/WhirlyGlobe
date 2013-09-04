@@ -58,7 +58,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
         return true;
     
     glUniform1f(uni->index,val);
-    CheckGLError("BigDrawable::draw() glUniform1f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
     

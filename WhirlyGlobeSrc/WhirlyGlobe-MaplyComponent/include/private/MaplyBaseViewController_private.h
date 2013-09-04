@@ -26,13 +26,9 @@
 #import "WGInteractionLayer_private.h"
 #import "PanDelegateFixed.h"
 #import "PinchDelegateFixed.h"
-#import "MaplyQuadEarthWithMBTiles_private.h"
-#import "MaplyQuadEarthWithRemoteTiles_private.h"
-#import "MaplySphericalQuadEarthWithTexGroup_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
-#import "MaplyQuadTestLayer_private.h"
 #import "MaplyActiveObject_private.h"
 
 @interface MaplyBaseViewController()

@@ -279,14 +279,15 @@ protected:
 class BigDrawableTexChangeRequest : public ChangeRequest
 {
 public:
-    BigDrawableTexChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs) : drawId(drawId), texIDs(newTexIDs) { }
+    BigDrawableTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) : drawId(drawId), which(which), texId(newTexId) { }
     
     /// Run the flush.  The renderer calls this
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity drawId;
-    std::vector<SimpleIdentity> texIDs;
+    unsigned int which;
+    SimpleIdentity texId;
 };
 
 

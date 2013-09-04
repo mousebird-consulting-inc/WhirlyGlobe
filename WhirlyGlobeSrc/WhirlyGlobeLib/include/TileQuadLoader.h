@@ -117,7 +117,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -127,7 +127,7 @@ public:
     void updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Quadtree *tree,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Switch to
-    void setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void setCurrentImages(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Dump out to the log
     void Print(WhirlyKit::Quadtree *tree);
@@ -223,6 +223,8 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) bool useElevAsZ;
 /// The number of image layers we're expecting to be given.  By default, 1
 @property (nonatomic,assign) unsigned int numImages;
+/// Number of active textures we'll have in drawables.  Informational only.
+@property (nonatomic,readonly) int activeTextures;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
@@ -269,5 +271,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// Set up the change requests to make the given image layer the active one
 /// The call is thread safe
 - (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)changeRequests;
+
+/// Set up the change requests to make the given images current.
+/// This will also interpolate between the two
+- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
 @end

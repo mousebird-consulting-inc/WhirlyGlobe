@@ -1,8 +1,8 @@
 /*
- *  MaplyQuadEarthTilesLayer_private.h
+ *  MaplyMBTileSource.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 5/13/13.
+ *  Created by Steve Gifford on 9/4/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,18 @@
  *
  */
 
-#import "MaplyQuadEarthTilesLayer.h"
-#import "MaplyViewControllerLayer_private.h"
-#import "WhirlyGlobe.h"
+#import "MaplyTileSource.h"
+#import "MaplyCoordinateSystem.h"
 
-@interface MaplyQuadEarthTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+/** MapBox Tiles archive tile source.  This object knows how to read MBTiles
+    files and return the appropriate tile when asked.
+  */
+@interface MaplyMBTileSource : NSObject<MaplyTileSource>
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+/// Create with the name (or path to) the MBTiles file
+- (id)initWithMBTiles:(NSString *)fileName;
 
-- (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
+/// Coordinate system for the MBTiles file.  Probably spherical mercator.
+@property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
 
 @end
