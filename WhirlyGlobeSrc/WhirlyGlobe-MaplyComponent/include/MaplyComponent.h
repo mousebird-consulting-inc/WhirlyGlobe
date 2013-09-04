@@ -30,7 +30,7 @@
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
 #import <MaplyQuadPagingLayer.h>
-#import <MaplyQuadEarthTilesLayer.h>
+#import <MaplyQuadImageTilesLayer.h>
 #import <MaplyTileSource.h>
 #import <MaplyWMSTileSource.h>
 #import <MaplyMBTileSource.h>
