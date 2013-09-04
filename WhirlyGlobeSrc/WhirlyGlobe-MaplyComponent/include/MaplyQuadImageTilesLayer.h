@@ -1,5 +1,5 @@
 /*
- *  MaplyQuadEarthTilesLayer.h
+ *  MaplyQuadImageTilesLayer.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
@@ -27,7 +27,7 @@
     In general this is useful for feature data, such as vector features.  The image
     base maps have their own layers.
   */
-@interface MaplyQuadEarthTilesLayer : MaplyViewControllerLayer
+@interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
 /// Construct with the coordinate system and the tile source
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
@@ -41,7 +41,24 @@
 /// Whether or not we try to cover the poles
 @property (nonatomic,assign) bool coverPoles;
 
-/// Where we'll store cached images
+/// If true (by default) run the fetching code on an async thread.
+/// Set this to 'no' if you've got a very quick turnaround for tiles
+@property (nonatomic,assign) bool asyncFetching;
+
+/// The number of images we're expecting per tile.  1 by default.
+/// You must provide this number of images in the tileSource delegate.
+@property (nonatomic,assign) unsigned int imageDepth;
+
+/// Set the current image we're displaying.
+/// Non integer values will get you a blend.  If you set this directly it
+///  will disable animation.
+@property (nonatomic, assign) float currentImage;
+
+/// If set non-zero we'll switch through all the images over the given period.
+@property (nonatomic, assign) float animationPeriod;
+
+/// Where we'll store cached images.  Leave this nil to
+///  disable caching.
 @property (nonatomic) NSString *cacheDir;
 
 @end

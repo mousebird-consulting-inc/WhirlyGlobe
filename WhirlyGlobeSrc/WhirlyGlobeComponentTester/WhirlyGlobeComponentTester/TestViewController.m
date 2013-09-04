@@ -260,7 +260,7 @@ LocationInfo locations[NumLocations] =
     {
         MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
         tileSource.transparent = true;
-        MaplyQuadEarthTilesLayer *imageLayer = [[MaplyQuadEarthTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
+        MaplyQuadImageTilesLayer *imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
         imageLayer.cacheDir = thisCacheDir;
@@ -629,7 +629,8 @@ static const int NumMegaMarkers = 40000;
     {
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
-        MaplyQuadEarthWithMBTiles *layer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:@"geography-class"];
+        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = true;
         layer.coverPoles = true;
@@ -661,7 +662,8 @@ static const int NumMegaMarkers = 40000;
         // These are the Stamen Watercolor tiles.
         // They're beautiful, but the server isn't so great.
         thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-        MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
         layer.cacheDir = thisCacheDir;
         [baseViewC addLayer:layer];
@@ -678,7 +680,8 @@ static const int NumMegaMarkers = 40000;
         self.title = @"OpenStreetMap - Remote";
         // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
         thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-        MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.drawPriority = 0;
         layer.handleEdges = true;
         layer.cacheDir = thisCacheDir;
@@ -733,7 +736,8 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -746,22 +750,17 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
-        layer.depth = 4;
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        tileSource.pixelsPerSide = 128;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.imageDepth = 4;
         // We'll cycle through at 1s per layer
-        layer.period = 4.0;
+        layer.animationPeriod = 4.0;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;        
     }
-    
-    // Fill out the cache dir if there is one
-    if (thisCacheDir)
-    {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-    }
-    
+        
     // If we're fetching one of the JSON tile specs, kick that off
     if (jsonTileSpec)
     {
@@ -772,7 +771,8 @@ static const int NumMegaMarkers = 40000;
                                                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
          {
              // Add a quad earth paging layer based on the tile spec we just fetched
-             MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:JSON];
+             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.cacheDir = thisCacheDir;
              [baseViewC addLayer:layer];
@@ -824,7 +824,9 @@ static const int NumMegaMarkers = 40000;
                 [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
             } else if (![layerName compare:kMaplyTestOWM])
             {
-                MaplyQuadEarthWithRemoteTiles *weatherLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+                weatherLayer.coverPoles = false;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
                 [baseViewC addLayer:weatherLayer];

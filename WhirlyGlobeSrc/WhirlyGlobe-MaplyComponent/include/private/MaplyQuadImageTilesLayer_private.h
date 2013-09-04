@@ -1,8 +1,8 @@
 /*
- *  MaplyQuadEarthWithRemoteTiles.h
+ *  MaplyQuadImageTilesLayer_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 7/24/12.
+ *  Created by Steve Gifford on 5/13/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,11 @@
  *
  */
 
+#import "MaplyQuadImageTilesLayer.h"
 #import "MaplyViewControllerLayer_private.h"
-#import "MaplyQuadEarthWithRemoteTiles.h"
+#import "WhirlyGlobe.h"
 
-@interface MaplyQuadEarthWithRemoteTiles()
+@interface MaplyQuadImageTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 

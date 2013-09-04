@@ -46,7 +46,7 @@ public:
     
     /// For drawables that can point to a range of textures, we keep the source texture IDs around and remap
     ///  to the destination texture IDs like so.  This doesn't actually make the changes
-    void mapDrawableTextures(const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes);
+    void mapDrawableTextures(unsigned int which,const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes);
         
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();

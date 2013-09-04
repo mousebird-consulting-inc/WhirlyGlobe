@@ -206,7 +206,7 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     return true;
 }
     
-void DynamicDrawableAtlas::mapDrawableTextures(const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes)
+void DynamicDrawableAtlas::mapDrawableTextures(unsigned int which,const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin();
          it != bigDrawables.end(); ++it)
@@ -215,11 +215,7 @@ void DynamicDrawableAtlas::mapDrawableTextures(const std::vector<SimpleIdentity>
         SimpleIdentity baseTexId = it->baseTexId;
         for (unsigned int ii=0;ii<srcTexIDs.size();ii++)
             if (baseTexId == srcTexIDs[ii])
-            {
-                std::vector<SimpleIdentity> newTexIds;
-                newTexIds.push_back(destTexIds[ii]);
-                changes.push_back(new BigDrawableTexChangeRequest(it->bigDraw->getId(),newTexIds));
-            }
+                changes.push_back(new BigDrawableTexChangeRequest(it->bigDraw->getId(),which,destTexIds[ii]));
     }
 }
     
