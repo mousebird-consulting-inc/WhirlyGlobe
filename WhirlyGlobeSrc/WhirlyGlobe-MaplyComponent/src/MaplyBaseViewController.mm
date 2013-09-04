@@ -378,63 +378,6 @@ static const float PerfOutputDelay = 15.0;
     scene->addProgram(theSceneName, shader.program);
 }
 
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
-{
-    MaplyQuadEarthWithMBTiles *newLayer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:name];
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
-{
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    newLayer.cacheDir = cacheDir;
-
-    if (!newLayer)
-        return nil;
-
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir
-{
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:jsonDict];
-    
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    newLayer.cacheDir = cacheDir;
-    
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet
-{
-    MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithTexGroup:imageSet];
-    
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls

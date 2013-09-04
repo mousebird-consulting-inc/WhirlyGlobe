@@ -21,8 +21,6 @@
 #import <WhirlyGlobe.h>
 #import "MaplyViewController.h"
 #import "MaplyViewController_private.h"
-#import "MaplyQuadEarthWithMBTiles_private.h"
-#import "MaplyQuadEarthWithRemoteTiles_private.h"
 #import "MaplyInteractionLayer_private.h"
 
 using namespace Eigen;

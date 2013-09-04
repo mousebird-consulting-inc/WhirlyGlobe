@@ -666,10 +666,7 @@ void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES 
     DrawableRef draw = scene->getDrawable(drawId);
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
-    {
-        for (unsigned int ii=0;ii<texIDs.size();ii++)
-            bigDraw->setTexID(ii,texIDs[ii]);
-    }
+        bigDraw->setTexID(which,texId);
 }
 
 }

@@ -863,10 +863,18 @@ Point3f BasicDrawable::getPoint(int which)
     return points[which];
 }
 
-void BasicDrawable::addTexCoord(unsigned int which,TexCoord coord)
+void BasicDrawable::addTexCoord(int which,TexCoord coord)
 {
-    setupTexCoordEntry(which, 0);
-    vertexAttributes[texInfo[which].texCoordEntry]->addVector2f(coord);
+    if (which == -1)
+    {
+        // In this mode, add duplicate texture coords in each of the vertex attrs
+        // Note: This could be optimized to a single set of vertex attrs for all the texture coords
+        for (unsigned int ii=0;ii<texInfo.size();ii++)
+            vertexAttributes[texInfo[ii].texCoordEntry]->addVector2f(coord);
+    } else {
+        setupTexCoordEntry(which, 0);
+        vertexAttributes[texInfo[which].texCoordEntry]->addVector2f(coord);
+    }
 }
 
 void BasicDrawable::addColor(RGBAColor color)
@@ -916,18 +924,25 @@ void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 }
         
 // Move the texture coordinates around and apply a new texture
-void BasicDrawable::applySubTexture(unsigned int which,SubTexture subTex,int startingAt)
+void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
 {
-    setupTexCoordEntry(which, 0);
-    
-    TexInfo &thisTexInfo = texInfo[which];
-    thisTexInfo.texId = subTex.texId;
-    std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
-    
-    for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
+    if (which == -1)
     {
-        Point2f tc = (*texCoords)[ii];
-        (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+        // Apply the mapping everywhere
+        for (unsigned int ii=0;ii<texInfo.size();ii++)
+            applySubTexture(ii, subTex, startingAt);
+    } else {
+        setupTexCoordEntry(which, 0);
+        
+        TexInfo &thisTexInfo = texInfo[which];
+        thisTexInfo.texId = subTex.texId;
+        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
+        
+        for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
+        {
+            Point2f tc = (*texCoords)[ii];
+            (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+        }
     }
 }
     

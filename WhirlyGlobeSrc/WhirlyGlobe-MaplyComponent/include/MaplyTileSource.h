@@ -39,10 +39,21 @@ typedef struct
 /// Maximum zoom level (e.g. 17)
 - (int)maxZoom;
 
-/// Number of pixels on the side of a single tile (e.g. 128, 256)
+/// Number of pixels on the side of a single tile (e.g. 128, 256).
+/// We use this for screen space calculation, so you don't have to
+///  return the exact number of pixels in the imageForTile calls.
 - (int)tileSize;
 
-/// Return the image for a given tile
-- (NSData *)imageForTile:(MaplyTileID)tileID;
+@optional
+
+/// Return the image for a given tile.  Use this version if you've got
+///  a single image per tile.  You can return a UIImage or an NSData
+///  object that contains a PNG or JPEG.
+- (id)imageForTile:(MaplyTileID)tileID;
+
+/// Return an array of images for a given tile.  Use this version if you've
+///  got multiple images per tile.  You can return an NSArray of UIImages or
+///  NSData objects that contain PNGs or JPEGs.
+- (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages;
 
 @end
