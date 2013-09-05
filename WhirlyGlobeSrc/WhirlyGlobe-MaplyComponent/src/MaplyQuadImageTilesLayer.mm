@@ -104,7 +104,7 @@ using namespace WhirlyKit;
     coordSys = inCoordSys;
     tileSource = inTileSource;
     _coverPoles = true;
-    _numSimultaneousFetches = 16;
+    _numSimultaneousFetches = 8;
     _imageDepth = 1;
     _currentImage = 0;
     _animationPeriod = 0;
