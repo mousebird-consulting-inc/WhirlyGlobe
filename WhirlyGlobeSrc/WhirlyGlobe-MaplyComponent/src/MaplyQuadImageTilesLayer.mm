@@ -95,6 +95,7 @@ using namespace WhirlyKit;
     int tileSize;
     bool sourceSupportsMulti;
     ActiveImageUpdater *imageUpdater;
+    SimpleIdentity _customShader;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 }
 
@@ -135,6 +136,8 @@ using namespace WhirlyKit;
     tileLoader.coverPoles = _coverPoles;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
+    if (_color)
+        tileLoader.color = [_color asRGBAColor];
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
 
     // If there's a cache dir, make sure it's there
@@ -143,7 +146,15 @@ using namespace WhirlyKit;
         NSError *error = nil;
         [[NSFileManager defaultManager] createDirectoryAtPath:_cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
     }
-        
+    
+    // Look for a custom program
+    if (_shaderProgramName)
+    {
+        _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
+        tileLoader.programId = _customShader;
+    } else
+        _customShader = EmptyIdentity;
+    
     // If we're switching images, we'll need the right program
     //  and an active object to do the updates
     if (_imageDepth > 1)
@@ -154,8 +165,10 @@ using namespace WhirlyKit;
         imageUpdater.period = _animationPeriod;
         imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
         imageUpdater.numImages = _imageDepth;
-        imageUpdater.programId = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-        tileLoader.programId = imageUpdater.programId;
+        if (!_customShader)
+            _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+        imageUpdater.programId = _customShader;
+        tileLoader.programId = _customShader;
         [viewC addActiveObject:imageUpdater];
     }
     

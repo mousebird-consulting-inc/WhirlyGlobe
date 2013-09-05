@@ -89,6 +89,8 @@
 		2BC988EC17D794010071DA9E /* MaplyAnimationTestTileSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC988E917D794010071DA9E /* MaplyAnimationTestTileSource.m */; };
 		2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */; };
 		2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */; };
+		2BC9896E17D93EA60071DA9E /* MaplyMultiplexTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */; };
+		2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */; };
 		2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA689117416A7000696BA8 /* MaplyViewControllerLayer.h */; };
 		2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA689C1741913200696BA8 /* MaplyTileSource.h */; };
 		2BCA68A31741957700696BA8 /* MaplyCoordinateSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */; };
@@ -207,6 +209,8 @@
 		2BC988E917D794010071DA9E /* MaplyAnimationTestTileSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyAnimationTestTileSource.m; path = src/MaplyAnimationTestTileSource.m; sourceTree = SOURCE_ROOT; };
 		2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyRemoteTileSource.mm; path = src/MaplyRemoteTileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyMBTileSource.mm; path = src/MaplyMBTileSource.mm; sourceTree = SOURCE_ROOT; };
+		2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMultiplexTileSource.h; path = include/MaplyMultiplexTileSource.h; sourceTree = SOURCE_ROOT; };
+		2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyMultiplexTileSource.m; path = src/MaplyMultiplexTileSource.m; sourceTree = SOURCE_ROOT; };
 		2BCA689117416A7000696BA8 /* MaplyViewControllerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewControllerLayer.h; path = include/MaplyViewControllerLayer.h; sourceTree = SOURCE_ROOT; };
 		2BCA689C1741913200696BA8 /* MaplyTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyTileSource.h; path = include/MaplyTileSource.h; sourceTree = SOURCE_ROOT; };
 		2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyCoordinateSystem.mm; path = src/MaplyCoordinateSystem.mm; sourceTree = SOURCE_ROOT; };
@@ -520,6 +524,8 @@
 				2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */,
 				2BC988E517D793F30071DA9E /* MaplyMBTileSource.h */,
 				2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */,
+				2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */,
+				2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */,
 			);
 			name = "Tile Sources";
 			sourceTree = "<group>";
@@ -601,6 +607,7 @@
 				2BC988E617D793F30071DA9E /* MaplyAnimationTestTileSource.h in Headers */,
 				2BC988E717D793F30071DA9E /* MaplyRemoteTileSource.h in Headers */,
 				2BC988E817D793F30071DA9E /* MaplyMBTileSource.h in Headers */,
+				2BC9896E17D93EA60071DA9E /* MaplyMultiplexTileSource.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -709,6 +716,7 @@
 				2BC988EC17D794010071DA9E /* MaplyAnimationTestTileSource.m in Sources */,
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
+				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
