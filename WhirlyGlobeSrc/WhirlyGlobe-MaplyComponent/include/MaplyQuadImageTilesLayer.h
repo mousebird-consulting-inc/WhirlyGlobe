@@ -32,6 +32,10 @@
 /// Construct with the coordinate system and the tile source
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/// Construct with the coordinate system and multiple tiles sources.  These should match up to
+///  multiple image layers
+- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSources:(NSObject<MaplyTileSource> *)tileSources;
+
 /// Change the number of fetches allowed at once
 @property (nonatomic,assign) int numSimultaneousFetches;
 
