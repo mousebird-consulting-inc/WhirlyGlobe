@@ -90,6 +90,7 @@ using namespace WhirlyKit;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
     NSObject<MaplyTileSource> *tileSource;
+    NSArray *tileSources;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceSupportsMulti;
