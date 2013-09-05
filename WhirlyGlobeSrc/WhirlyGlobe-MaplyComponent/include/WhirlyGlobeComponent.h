@@ -36,6 +36,7 @@
 #import <MaplyTileSource.h>
 #import <MaplyWMSTileSource.h>
 #import <MaplyMBTileSource.h>
+#import <MaplyMultiplexTileSource.h>
 #import <MaplyRemoteTileSource.h>
 #import <MaplyAnimationTestTileSource.h>
 #import <MaplyElevationSource.h>

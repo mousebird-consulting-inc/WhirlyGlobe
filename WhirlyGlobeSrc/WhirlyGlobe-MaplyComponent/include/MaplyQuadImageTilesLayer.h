@@ -57,6 +57,14 @@
 /// If set non-zero we'll switch through all the images over the given period.
 @property (nonatomic, assign) float animationPeriod;
 
+/// Color for the geometry we create to put the images on.
+/// This is how you can get transparency in there (short of a shader)
+@property (nonatomic) UIColor *color;
+
+/// If set, we'll try to use this shader program for the tiles we create.
+/// Set this immediately after creation
+@property (nonatomic) NSString *shaderProgramName;
+
 /// Where we'll store cached images.  Leave this nil to
 ///  disable caching.
 @property (nonatomic) NSString *cacheDir;
