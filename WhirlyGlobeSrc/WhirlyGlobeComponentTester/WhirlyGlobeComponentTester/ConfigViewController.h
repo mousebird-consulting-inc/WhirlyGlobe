@@ -38,7 +38,7 @@
 
 #define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
-#define kMaplyTestForecastIO @"Forecast.IO Snapshop - Remote"
+#define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"

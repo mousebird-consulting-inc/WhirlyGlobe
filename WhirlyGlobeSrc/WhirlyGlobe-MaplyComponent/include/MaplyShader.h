@@ -34,6 +34,9 @@
 /// Initialize a shader with the vertex and fragment programs in strings
 - (id)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC;
 
+/// Name (but not scene name)
+@property NSString *name;
+
 /// After creating it, check that it's valid
 - (bool)valid;
 

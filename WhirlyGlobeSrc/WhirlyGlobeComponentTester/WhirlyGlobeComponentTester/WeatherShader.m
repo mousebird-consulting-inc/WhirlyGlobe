@@ -108,13 +108,13 @@ static const char *fragmentShaderTriMultiTex =
 
 + (NSString *)setupWeatherShader:(MaplyBaseViewController *)viewC
 {
-    static NSString *shaderName = nil;
+    NSString *shaderName = @"Weather Shader";
     
-    if (shaderName)
+    MaplyShader *shader = [viewC getShaderByName:shaderName];
+    if (shader)
         return shaderName;
     
-    shaderName = @"Weather Shader";
-    MaplyShader *shader = [[MaplyShader alloc] initWithName:shaderName
+    shader = [[MaplyShader alloc] initWithName:shaderName
                                                      vertex:[NSString stringWithFormat:@"%s",vertexShaderTriMultiTex]
                                                    fragment:[NSString stringWithFormat:@"%s",fragmentShaderTriMultiTex]
                                                       viewC:viewC];

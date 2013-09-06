@@ -179,6 +179,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// If you use one of the well known scene names, you can replace the defaults.
 - (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName;
 
+/// Look for a shader with the given name.  This is the shader's own name,
+///  not the scene name;
+- (MaplyShader *)getShaderByName:(NSString *)name;
+
 /// Turn on/off performance output (goes to the log periodically)
 @property (nonatomic,assign) bool performanceOutput;
 
