@@ -34,6 +34,14 @@ using namespace WhirlyKit;
 @public
     int defaultSphereTessX,defaultSphereTessY;
     std::vector<DynamicTextureAtlas *> texAtlases;
+
+    // The texture atlas mappings keep track of textures we've created
+    //  in each of the atlases as well as how the drawable atlas is using
+    //  them.  We put them here so we can switch them in another thread
+    pthread_mutex_t texAtlasMappingLock;
+    std::vector<std::vector<SimpleIdentity> > texAtlasMappings;
+    std::vector<DynamicDrawableAtlas::DrawTexInfo> drawTexInfo;
+    
     DynamicDrawableAtlas *drawAtlas;
     bool doingUpdate;
     // Number of border texels we need in an image
@@ -591,6 +599,7 @@ void LoadedTile::Print(Quadtree *tree)
         _textureAtlasSize = 2048;
         _activeTextures = -1;
         pthread_mutex_init(&tileLock, NULL);
+        pthread_mutex_init(&texAtlasMappingLock, NULL);
     }
     
     return self;
@@ -614,6 +623,11 @@ void LoadedTile::Print(Quadtree *tree)
     pthread_mutex_unlock(&tileLock);
     tileSet.clear();
     pthread_mutex_destroy(&tileLock);
+    
+    pthread_mutex_lock(&texAtlasMappingLock);
+    texAtlasMappings.clear();
+    pthread_mutex_unlock(&texAtlasMappingLock);
+    pthread_mutex_destroy(&texAtlasMappingLock);
     
     for (unsigned int ii=0;ii<texAtlases.size();ii++)
     {
@@ -657,6 +671,10 @@ void LoadedTile::Print(Quadtree *tree)
         tile->clearContents(self,layer,scene,theChangeRequests);
     }
     pthread_mutex_unlock(&tileLock);
+    
+    pthread_mutex_lock(&texAtlasMappingLock);
+    texAtlasMappings.clear();
+    pthread_mutex_unlock(&texAtlasMappingLock);
     
     for (unsigned int ii=0;ii<texAtlases.size();ii++)
     {
@@ -1269,6 +1287,29 @@ void LoadedTile::Print(Quadtree *tree)
     }
 }
 
+// Update the texture usage info for the texture atlases
+- (void)updateTexAtlasMapping
+{
+    std::vector<std::vector<SimpleIdentity> > newTexAtlasMappings;
+    std::vector<DynamicDrawableAtlas::DrawTexInfo> newDrawTexInfo;
+    
+    for (unsigned int ii=0;ii<texAtlases.size();ii++)
+    {
+        std::vector<SimpleIdentity> texIDs;
+        texAtlases[ii]->getTextureIDs(texIDs);
+        newTexAtlasMappings.push_back(texIDs);
+    }
+    
+    if (drawAtlas)
+        drawAtlas->getDrawableTextures(newDrawTexInfo);
+    
+    // Move the new data over at once (to avoid stalling the main thread)
+    pthread_mutex_lock(&texAtlasMappingLock);
+    texAtlasMappings = newTexAtlasMappings;
+    drawTexInfo = newDrawTexInfo;
+    pthread_mutex_unlock(&texAtlasMappingLock);
+}
+
 // Dump out some information on resource usage
 - (void)log
 {
@@ -1450,6 +1491,8 @@ static const int SingleElementSize = sizeof(GLushort);
     
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
+
+    [self updateTexAtlasMapping];
 }
 
 // We'll get this before a series of unloads and loads
@@ -1480,12 +1523,14 @@ static const int SingleElementSize = sizeof(GLushort);
         delete theTile;
     }
     pthread_mutex_unlock(&tileLock);
-
+    
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
     if (tileInfo.ident.level > 0)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
+
+    [self updateTexAtlasMapping];
 }
 
 // Thus ends the unloads.  Now we can update parents
@@ -1503,44 +1548,61 @@ static const int SingleElementSize = sizeof(GLushort);
 {
     if (!_quadLayer)
         return;
-    
-    // We'll look through the tiles and change them all accordingly
-    pthread_mutex_lock(&tileLock);
 
     if (currentImage0 != newImage || currentImage1 != 0)
     {
+        // Note: Might be a race condition with updating these guys
         currentImage0 = newImage;
         currentImage1 = 0;
         
-        // Change all the draw atlases at once
-        if (!texAtlases.empty())
+        // Change the draw atlases' drawables at once
+        if (_useDynamicAtlas)
         {
-            // We need the base texture IDs
+            std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
             std::vector<SimpleIdentity> baseTexIDs,newTexIDs;
-            texAtlases[0]->getTextureIDs(baseTexIDs);
-            texAtlases[newImage]->getTextureIDs(newTexIDs);
-            drawAtlas->mapDrawableTextures(0, baseTexIDs, newTexIDs, theChanges);
+
+            // Copy this out to avoid locking too long
+            pthread_mutex_lock(&texAtlasMappingLock);
+            if (texAtlases.size() > 0)
+                baseTexIDs = texAtlasMappings[0];
+            if (newImage < texAtlases.size())
+                newTexIDs = texAtlasMappings[newImage];
+            theDrawTexInfo = drawTexInfo;
+            pthread_mutex_unlock(&texAtlasMappingLock);
+            
+            // If these are different something's gone very wrong
+            if (baseTexIDs.size() == newTexIDs.size())
+            {
+                // Now for the change requests
+                for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
+                {
+                    const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
+                    for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
+                        if (drawInfo.baseTexId == baseTexIDs[jj])
+                            theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,newTexIDs[jj]));
+                }
+            }
         } else {
+            // We'll look through the tiles and change them all accordingly
+            pthread_mutex_lock(&tileLock);
+
             // No atlases, so changes tiles individually
             for (LoadedTileSet::iterator it = tileSet.begin();
                  it != tileSet.end(); ++it)
             {
                 (*it)->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, theChanges);
             }
+
+            pthread_mutex_unlock(&tileLock);
         }
     }
-    
-    pthread_mutex_unlock(&tileLock);
 }
 
 - (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
         return;
-    
-    // We'll look through the tiles and change them all accordingly
-    pthread_mutex_lock(&tileLock);
-    
+        
     if (currentImage0 != startImage || currentImage1 != endImage)
     {
         currentImage0 = startImage;
@@ -1549,31 +1611,49 @@ static const int SingleElementSize = sizeof(GLushort);
         // Change all the draw atlases at once
         if (!texAtlases.empty())
         {
-            // We need the base texture IDs
-            std::vector<SimpleIdentity> baseTexIDs,newTexIDs0,newTexIDs1;
-            texAtlases[0]->getTextureIDs(baseTexIDs);
-            // What we're mapping to for the first image
+            std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
+            std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
+            
+            // Copy this out to avoid locking too long
+            pthread_mutex_lock(&texAtlasMappingLock);
+            if (texAtlases.size() > 0)
+                baseTexIDs = texAtlasMappings[0];
             if (startImage < texAtlases.size())
-            {
-                texAtlases[startImage]->getTextureIDs(newTexIDs0);
-                drawAtlas->mapDrawableTextures(0, baseTexIDs, newTexIDs0, theChanges);
-            }
+                startTexIDs = texAtlasMappings[startImage];
             if (endImage < texAtlases.size())
+                endTexIDs = texAtlasMappings[endImage];
+            theDrawTexInfo = drawTexInfo;
+            pthread_mutex_unlock(&texAtlasMappingLock);
+            
+            // If these are different something's gone very wrong
+            if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
             {
-                texAtlases[endImage]->getTextureIDs(newTexIDs1);
-                drawAtlas->mapDrawableTextures(1, baseTexIDs, newTexIDs1, theChanges);
+                // Now for the change requests
+                for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
+                {
+                    const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
+                    for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
+                        if (drawInfo.baseTexId == baseTexIDs[jj])
+                        {
+                            theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,startTexIDs[jj]));
+                            theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,endTexIDs[jj]));
+                        }
+                }
             }
         } else {
+            // We'll look through the tiles and change them all accordingly
+            pthread_mutex_lock(&tileLock);
+
             // No atlases, so changes tiles individually
             for (LoadedTileSet::iterator it = tileSet.begin();
                  it != tileSet.end(); ++it)
             {
                 (*it)->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, theChanges);
             }
+
+            pthread_mutex_unlock(&tileLock);
         }
     }
-    
-    pthread_mutex_unlock(&tileLock);    
 }
 
 
