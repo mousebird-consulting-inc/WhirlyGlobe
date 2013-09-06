@@ -23,6 +23,7 @@
 #import "AFJSONRequestOperation.h"
 #import "AFKissXMLRequestOperation.h"
 #import "AnimationTest.h"
+#import "WeatherShader.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -830,6 +831,29 @@ static const int NumMegaMarkers = 40000;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
                 [baseViewC addLayer:weatherLayer];
+            } else if (![layerName compare:kMaplyTestForecastIO])
+            {
+                // Collect up the various precipitation sources
+                NSMutableArray *tileSources = [NSMutableArray array];
+                for (unsigned int ii=0;ii<5;ii++)
+                {
+                    MaplyRemoteTileSource *precipTileSource =
+                    [[MaplyRemoteTileSource alloc]
+                     initWithBaseURL:[NSString stringWithFormat:@"http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer%d/",ii] ext:@"png" minZoom:0 maxZoom:6];
+                    [tileSources addObject:precipTileSource];
+                }
+                MaplyMultiplexTileSource *precipTileSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
+                // Create a precipitation layer that animates
+                MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
+                precipLayer.imageDepth = [tileSources count];
+                precipLayer.animationPeriod = 6.0;
+                precipLayer.numSimultaneousFetches = 4;
+                precipLayer.handleEdges = false;
+                precipLayer.coverPoles = false;
+                precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
+                precipLayer.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weater/",cacheDir];
+                [baseViewC addLayer:precipLayer];
+                layer = precipLayer;
             }
             
             // And keep track of it
