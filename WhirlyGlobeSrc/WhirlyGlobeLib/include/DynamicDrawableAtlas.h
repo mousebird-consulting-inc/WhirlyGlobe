@@ -44,9 +44,18 @@ public:
     /// Enable/disable a drawable we're representing
     void setEnableDrawable(SimpleIdentity drawId,bool enabled);
     
-    /// For drawables that can point to a range of textures, we keep the source texture IDs around and remap
-    ///  to the destination texture IDs like so.  This doesn't actually make the changes
-    void mapDrawableTextures(unsigned int which,const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes);
+    /// Used to track the remappings we need from one set of textures to another
+    class DrawTexInfo
+    {
+    public:
+        DrawTexInfo(SimpleIdentity drawId,SimpleIdentity baseTexId) : drawId(drawId), baseTexId(baseTexId) { }
+        SimpleIdentity drawId;
+        SimpleIdentity baseTexId;
+    };
+
+    /// Get a list of the active drawables and their texture IDs.
+    /// We need this for remapping things later
+    void getDrawableTextures(std::vector<DrawTexInfo> &remaps);
         
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
