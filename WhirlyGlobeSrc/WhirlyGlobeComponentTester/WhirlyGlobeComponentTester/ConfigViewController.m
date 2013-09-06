@@ -80,7 +80,9 @@
                 [ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
                                                 rows:
                                @{kMaplyTestUSGSOrtho: @(NO),
-                                       kMaplyTestOWM: @(NO)} singleSelect:false],
+                                       kMaplyTestOWM: @(NO),
+                                kMaplyTestForecastIO: @(NO)}
+                                        singleSelect:false],
                 [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                 rows:
                                  @{kMaplyTestLabel2D: @(NO),
