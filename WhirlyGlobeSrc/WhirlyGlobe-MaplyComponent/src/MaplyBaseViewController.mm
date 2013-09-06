@@ -378,6 +378,15 @@ static const float PerfOutputDelay = 15.0;
     scene->addProgram(theSceneName, shader.program);
 }
 
+- (MaplyShader *)getShaderByName:(NSString *)name
+{
+    for (MaplyShader *shader in shaders)
+        if (![shader.name compare:name])
+            return shader;
+    
+    return nil;
+}
+
 #pragma mark - Defaults and descriptions
 
 // Merge the two dictionaries, add taking precidence, and then look for NSNulls

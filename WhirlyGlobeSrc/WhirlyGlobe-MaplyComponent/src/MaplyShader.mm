@@ -35,6 +35,7 @@ using namespace WhirlyKit;
 - (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
 {
     NSError *error = nil;
+    _name = name;
     NSString *vertexShader = [NSString stringWithContentsOfFile:vertexFileName encoding:NSASCIIStringEncoding error:&error];
     if (!vertexShader)
     {
@@ -70,6 +71,7 @@ using namespace WhirlyKit;
         return nil;
     }
     
+    _name = name;
     std::string vertexStr = [vertexProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string fragStr = [fragProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string nameStr = [name cStringUsingEncoding:NSASCIIStringEncoding];
