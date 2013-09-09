@@ -190,7 +190,7 @@
 		2BC9890C17D8EE2A0071DA9E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks/GDAL.framework/Versions/1.9\"";
+				HEADER_SEARCH_PATHS = /Library/Frameworks/GDAL.framework/Headers;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/GDAL.framework/Versions/1.9\"",
@@ -202,7 +202,7 @@
 		2BC9890D17D8EE2A0071DA9E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = "\"$(LOCAL_LIBRARY_DIR)/Frameworks/GDAL.framework/Versions/1.9\"";
+				HEADER_SEARCH_PATHS = /Library/Frameworks/GDAL.framework/Headers;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(LOCAL_LIBRARY_DIR)/Frameworks/GDAL.framework/Versions/1.9\"",

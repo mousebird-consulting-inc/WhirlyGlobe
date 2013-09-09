@@ -29,6 +29,9 @@
 /// Create with the name (or path to) the MBTiles file
 - (id)initWithMBTiles:(NSString *)fileName;
 
+/// You can set this to limit the zoom
+@property (nonatomic) int maxZoom;
+
 /// Coordinate system for the MBTiles file.  Probably spherical mercator.
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
 
