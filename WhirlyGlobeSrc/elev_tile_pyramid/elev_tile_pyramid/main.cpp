@@ -120,7 +120,6 @@ int main(int argc, char * argv[])
     double xmin,ymin,xmax,ymax;
     int pixelsX = 16, pixelsY = 16;
     bool flipY = false;
-    GDALProgressFunc pfnProgress = GDALTermProgress;
 
     GDALAllRegister();
     argc = GDALGeneralCmdLineProcessor( argc, &argv, 0 );
@@ -322,6 +321,10 @@ int main(int argc, char * argv[])
     // Work through the levels of detail, starting from the top
     for (unsigned int level=0;level<levels;level++)
     {
+        printf("Level %d: ",level);
+        fflush(stdout);
+        GDALTermProgress(0.0,NULL,NULL);
+
         std::stringstream levelDir;
         if (targetDir)
         {
@@ -469,10 +472,16 @@ int main(int argc, char * argv[])
                         zeroTiles++;
                     }                    
                 }
+                
+                double done = (ix*numChunks+iy)/((double)numChunks*numChunks);
+                GDALTermProgress(done,NULL,NULL);
             }
         }
+        
+        GDALTermProgress(1.0,NULL,NULL);
     }
     
+    printf("Flushing database...");  fflush(stdout);
     // Flush out one big one
     if (targetDb)
     {
@@ -485,6 +494,7 @@ int main(int argc, char * argv[])
         elevPyr->flush();
         elevPyr->createIndex();
     }
+    printf("done\n");
     
     if (sqliteDb)
     {
