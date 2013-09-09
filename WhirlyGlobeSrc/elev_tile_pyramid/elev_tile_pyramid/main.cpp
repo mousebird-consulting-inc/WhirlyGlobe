@@ -110,6 +110,7 @@ int main(int argc, char * argv[])
     bool teSet = false;
     double xmin,ymin,xmax,ymax;
     int pixelsX = 16, pixelsY = 16;
+    bool flipY = false;
 
     GDALAllRegister();
     argc = GDALGeneralCmdLineProcessor( argc, &argv, 0 );
@@ -180,6 +181,10 @@ int main(int argc, char * argv[])
                 return -1;
             }
             strncpy(outFormat, argv[ii+1],99);
+        } else if (EQUAL(argv[ii],"-flipy"))
+        {
+            numArgs = 1;
+            flipY = true;
         } else
         {
             if (inputFile)
@@ -202,6 +207,7 @@ int main(int argc, char * argv[])
     hSrcDS = GDALOpen( inputFile, GA_ReadOnly );
     if( hSrcDS == NULL )
         return -1;
+    GDALSetCacheMax64(2*1024*1024*1024);
 
     // Set up a coordinate transformation
     OGRCoordinateTransformationH hCT = NULL,hCTBack = NULL;
@@ -266,6 +272,10 @@ int main(int argc, char * argv[])
         return -1;
     }
     mkdir(targetDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    
+    // Text version of SRS so we can write it
+    char *trgSrsWKT = NULL;
+    OSRExportToWkt( hTrgSRS, &trgSrsWKT );
 
     // Work through the levels of detail, starting from the top
     for (unsigned int level=0;level<levels;level++)
@@ -281,21 +291,21 @@ int main(int argc, char * argv[])
         double cellX = sizeX/(pixelsX-1);
 
         // Now through the individual files
-        for (unsigned int iy=0;iy<numChunks;iy++)
+        for (unsigned int ix=0;ix<numChunks;ix++)
         {
-            std::stringstream yDir;
-            yDir << levelDir.str() << "/" << iy;
-            mkdir(yDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-
-            double tileMinY = ymin+iy*sizeY;
+            std::stringstream xDir;
+            xDir << levelDir.str() << "/" << ix;
+            mkdir(xDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
             
-            for (unsigned int ix=0;ix<numChunks;ix++)
+            for (unsigned int iy=0;iy<numChunks;iy++)
             {
                 // Extents for this particular tile
                 double tileMinX = xmin+ix*sizeX;
+                double tileMinY = ymin+iy*sizeY;
                 
                 std::stringstream fileName;
-                fileName << yDir.str() << "/" << ix << ".tif";
+                int outY = (flipY ? (numChunks-1-iy) : iy);
+                fileName << xDir.str() << "/" << outY << ".tif";
                 
                 // Create the output file
                 GDALDatasetH hDestDS = CreateOutputDataFile(outFileFormat,fileName.str().c_str(),pixelsX,pixelsY,outFormat);
@@ -307,6 +317,8 @@ int main(int argc, char * argv[])
                     fprintf(stderr,"Failed to create output band.");
                     return -1;
                 }
+                
+                float tileData[pixelsX*pixelsY];
                 
                 // Run through and query the various cells
                 for (unsigned int cy=0;cy<pixelsY;cy++)
@@ -332,17 +344,34 @@ int main(int argc, char * argv[])
                         
                         // Fetch the pixel
                         float pixVal;
-                        if (GDALRasterIO( hBand, GF_Read, pixXint, pixYint, 1, 1, &pixVal, 1, 1, GDT_CFloat32, 0,  0) != CE_None)
+                        if (GDALRasterIO( hBand, GF_Read, pixXint, pixYint, 1, 1, &pixVal, 1, 1, GDT_Float32, 0,  0) != CE_None)
                         {
                             fprintf(stderr,"Query failure in GDALRasterIO");
                             return -1;
                         }
-                        if (GDALRasterIO( hBandOut, GF_Write, cx, cy, 1, 1, &pixVal, 1, 1, GDT_CFloat32, 0, 0) != CE_None)
-                        {
-                            fprintf(stderr,"Failed to write output data");
-                            return -1;
-                        }
+                        tileData[cy*pixelsX+cx] = pixVal;
                     }
+                
+                // Write all the data at once
+                if (GDALRasterIO( hBandOut, GF_Write, 0, 0, pixelsX, pixelsY, tileData, pixelsX, pixelsX, GDT_Float32, 0, 0) != CE_None)
+                {
+                    fprintf(stderr,"Failed to write output data");
+                    return -1;
+                }
+
+                // Set projection and extents
+                GDALSetProjection(hDestDS, trgSrsWKT);
+                double tileMaxX = tileMinX + pixelsX * cellX;
+                double tileMaxY = tileMinY + pixelsY * cellY;
+                
+                double adfOutTransform[6];
+                adfOutTransform[0] = tileMinX;
+                adfOutTransform[1] = (tileMaxX-tileMinX)/pixelsX;
+                adfOutTransform[2] = 0;
+                adfOutTransform[3] = tileMinY;
+                adfOutTransform[4] = 0;
+                adfOutTransform[5] = (tileMaxY-tileMinY)/pixelsY;
+                GDALSetGeoTransform(hDestDS, adfOutTransform);
                 
                 // Close the output file
                 GDALClose(hDestDS);

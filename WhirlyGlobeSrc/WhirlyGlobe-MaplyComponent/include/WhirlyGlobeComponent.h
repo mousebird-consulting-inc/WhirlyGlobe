@@ -40,3 +40,4 @@
 #import <MaplyRemoteTileSource.h>
 #import <MaplyAnimationTestTileSource.h>
 #import <MaplyElevationSource.h>
+#import <MaplyElevationDatabase.h>

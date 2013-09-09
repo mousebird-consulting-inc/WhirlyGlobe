@@ -38,3 +38,4 @@
 #import <MaplyMultiplexTileSource.h>
 #import <MaplyAnimationTestTileSource.h>
 #import <MaplyElevationSource.h>
+#import <MaplyElevationDatabase.h>
