@@ -101,12 +101,15 @@ LocationInfo locations[NumLocations] =
     NSMutableDictionary *loftPolyDict;
 
     // A source of elevation data, if we're in that mode
-    MaplyElevationSourceTester *elevSource;
+    NSObject<MaplyElevationSourceDelegate> *elevSource;
     
     // The view we're using to track a selected object
     MaplyViewTracker *selectedViewTrack;
     
     NSDictionary *screenLabelDesc,*labelDesc,*vectorDesc;
+    
+    // If we're in 3D mode, how far the elevation goes
+    int zoomLimit;
 }
 
 // Change what we're showing based on the Configuration
@@ -151,6 +154,7 @@ LocationInfo locations[NumLocations] =
     [configViewC view];
 
     // Create an empty globe or map controller
+    zoomLimit = 0;
     switch (startupMapType)
     {
         case MaplyGlobe:
@@ -198,9 +202,12 @@ LocationInfo locations[NumLocations] =
         // Tilt, so we can see it
         if (globeViewC)
             [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+        globeViewC.frameInterval = 2;  // 30fps
 
         // An elevation source.  This one just makes up sine waves to get some data in there
-        elevSource = [[MaplyElevationSourceTester alloc] init];
+//        elevSource = [[MaplyElevationSourceTester alloc] init];
+        elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
+        zoomLimit = elevSource.maxZoom;
         baseViewC.elevDelegate = elevSource;
         
         // Don't forget to turn on the z buffer permanently
@@ -631,6 +638,8 @@ static const int NumMegaMarkers = 40000;
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
         MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+            tileSource.maxZoom = zoomLimit;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = true;
@@ -663,7 +672,10 @@ static const int NumMegaMarkers = 40000;
         // These are the Stamen Watercolor tiles.
         // They're beautiful, but the server isn't so great.
         thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+        int maxZoom = 10;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
         layer.cacheDir = thisCacheDir;
@@ -681,7 +693,10 @@ static const int NumMegaMarkers = 40000;
         self.title = @"OpenStreetMap - Remote";
         // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
         thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+        int maxZoom = 17;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.drawPriority = 0;
         layer.handleEdges = true;
@@ -773,6 +788,8 @@ static const int NumMegaMarkers = 40000;
          {
              // Add a quad earth paging layer based on the tile spec we just fetched
              MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+                 tileSource.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.cacheDir = thisCacheDir;

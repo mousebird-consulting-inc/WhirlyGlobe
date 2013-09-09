@@ -36,6 +36,9 @@
 /// Base URL we're fetching tiles from
 @property (nonatomic,readonly) NSString *baseURL;
 
+/// We can limit the max zoom if we like
+@property (nonatomic) int maxZoom;
+
 /// Image extension (e.g. png, jpeg)
 @property (nonatomic,readonly) NSString *ext;
 

@@ -1,9 +1,9 @@
 /*
- *  AppDelegate.h
- *  NaturalEarthData
+ *  NSData+Zlib.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 12/23/12.
- *  Copyright 2011-2012 mousebird consulting
+ *  Created by Steve Gifford on 9/7/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
-@class ViewController;
+@interface NSData(zlib)
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+/// Return a compressed version of the given data
+- (NSData *) compressData;
 
-@property (strong, nonatomic) UIWindow *window;
+/// Return an uncompressed verison of the given data
+- (NSData *) uncompressGZip;
 
-@property (strong, nonatomic) ViewController *viewController;
 
 @end

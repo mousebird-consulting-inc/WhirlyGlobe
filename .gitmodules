@@ -31,3 +31,6 @@
 [submodule "third-party/AFKissXMLRequestOperation"]
 	path = third-party/AFKissXMLRequestOperation
 	url = https://github.com/AFNetworking/AFKissXMLRequestOperation.git
+[submodule "third-party/fmdb"]
+	path = third-party/fmdb
+	url = https://github.com/ccgus/fmdb.git
