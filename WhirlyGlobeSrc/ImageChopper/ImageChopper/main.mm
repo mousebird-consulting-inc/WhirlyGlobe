@@ -122,7 +122,7 @@ int main (int argc, const char * argv[])
 
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
-    if (argc < 6)
+    if (argc < 4)
     {
         fprintf(stderr,"syntax: %s <in.img> <outName> <outDir> [-singleres <outX> <outY>] [-multires <maxzoom>] [-outSize <outSize>] [-borderSize <borderSize>] [-texTool <textool path>] [-outformat tiff/jpeg/png]\n",argv[0]);
         return -1;
