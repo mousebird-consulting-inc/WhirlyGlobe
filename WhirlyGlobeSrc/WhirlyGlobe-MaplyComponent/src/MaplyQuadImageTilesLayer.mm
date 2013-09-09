@@ -136,6 +136,7 @@ using namespace WhirlyKit;
     tileLoader.coverPoles = _coverPoles;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
+    tileLoader.includeElev = _includeElevAttrForShader;
     if (_color)
         tileLoader.color = [_color asRGBAColor];
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
