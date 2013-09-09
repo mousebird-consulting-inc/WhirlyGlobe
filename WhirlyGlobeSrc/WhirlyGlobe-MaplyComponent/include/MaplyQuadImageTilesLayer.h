@@ -57,6 +57,11 @@
 /// If set non-zero we'll switch through all the images over the given period.
 @property (nonatomic, assign) float animationPeriod;
 
+/// If set we'll include the original z values in the tile geometry.
+/// You need this if you're writing a shader that uses them.
+/// The shader attribute is called "a_elev"
+@property (nonatomic, assign) bool includeElevAttrForShader;
+
 /// Color for the geometry we create to put the images on.
 /// This is how you can get transparency in there (short of a shader)
 @property (nonatomic) UIColor *color;
