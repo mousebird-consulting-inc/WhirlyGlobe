@@ -15,6 +15,14 @@
 #include "cpl_minixml.h"
 #include <dirent.h>
 #include <vector>
+#include "KompexSQLitePrerequisites.h"
+#include "KompexSQLiteDatabase.h"
+#include "KompexSQLiteStatement.h"
+#include "KompexSQLiteException.h"
+#include "KompexSQLiteStreamRedirection.h"
+#include "KompexSQLiteBlob.h"
+#include "KompexSQLiteException.h"
+#include "ElevationPyramid.h"
 
 /************************************************************************/
 /*                             SanitizeSRS                              */
@@ -103,6 +111,7 @@ int main(int argc, char * argv[])
 {
     const char *inputFile = NULL;
     const char *targetDir = NULL;
+    const char *targetDb = NULL;
     char outFileFormat[100] = "GTiff";
     char outFormat[100] = "CFloat32";
     char *destSRS = NULL;
@@ -111,6 +120,7 @@ int main(int argc, char * argv[])
     double xmin,ymin,xmax,ymax;
     int pixelsX = 16, pixelsY = 16;
     bool flipY = false;
+    GDALProgressFunc pfnProgress = GDALTermProgress;
 
     GDALAllRegister();
     argc = GDALGeneralCmdLineProcessor( argc, &argv, 0 );
@@ -185,6 +195,15 @@ int main(int argc, char * argv[])
         {
             numArgs = 1;
             flipY = true;
+        } else if (EQUAL(argv[ii],"-targetdb"))
+        {
+            numArgs = 2;
+            if (ii+numArgs >= argc)
+            {
+                fprintf(stderr,"Expecting output database name for -targetdb");
+                return -1;
+            }
+            targetDb = argv[ii+1];
         } else
         {
             if (inputFile)
@@ -199,6 +218,11 @@ int main(int argc, char * argv[])
     if (!inputFile)
     {
         fprintf(stderr, "Need at least one input file.");
+        return -1;
+    }
+    if (!targetDir && !targetDb)
+    {
+        fprintf(stderr, "Expecting output dir or output DB.");
         return -1;
     }
     
@@ -266,23 +290,44 @@ int main(int argc, char * argv[])
         return -1;
     }
 
-    if (!targetDir)
+    if (targetDir)
+        mkdir(targetDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    
+    Kompex::SQLiteDatabase *sqliteDb = NULL;
+    ElevationPyramid *elevPyr = NULL;
+    if (targetDb)
     {
-        fprintf(stderr, "Expecting a targetdir");
-        return -1;
+        // Create a new database.  Blow away the old one if it's there
+        remove(targetDb);
+        sqliteDb = new Kompex::SQLiteDatabase(targetDb, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
+        if (!sqliteDb->GetDatabaseHandle())
+        {
+            fprintf(stderr, "Invalid sqlite database: %s\n",targetDb);
+            return -1;
+        }
+        elevPyr = new ElevationPyramid(sqliteDb,destSRS,GDT_Int16,xmin,ymin,xmax,ymax,pixelsX,pixelsY,true,0,levels-1);
     }
-    mkdir(targetDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     
     // Text version of SRS so we can write it
     char *trgSrsWKT = NULL;
     OSRExportToWkt( hTrgSRS, &trgSrsWKT );
 
+    if (targetDb)
+    {
+        Kompex::SQLiteStatement transactStmt(sqliteDb);
+        transactStmt.SqlStatement((std::string)"BEGIN TRANSACTION");
+    }
+
+    int totalTiles = 0,zeroTiles = 0;
     // Work through the levels of detail, starting from the top
     for (unsigned int level=0;level<levels;level++)
     {
         std::stringstream levelDir;
-        levelDir << targetDir << "/" << level;
-        mkdir(levelDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        if (targetDir)
+        {
+            levelDir << targetDir << "/" << level;
+            mkdir(levelDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        }
         
         int numChunks = 1<<level;
         double sizeY = (ymax-ymin)/numChunks;
@@ -294,8 +339,11 @@ int main(int argc, char * argv[])
         for (unsigned int ix=0;ix<numChunks;ix++)
         {
             std::stringstream xDir;
-            xDir << levelDir.str() << "/" << ix;
-            mkdir(xDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            if (targetDir)
+            {
+                xDir << levelDir.str() << "/" << ix;
+                mkdir(xDir.str().c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            }
             
             for (unsigned int iy=0;iy<numChunks;iy++)
             {
@@ -303,19 +351,24 @@ int main(int argc, char * argv[])
                 double tileMinX = xmin+ix*sizeX;
                 double tileMinY = ymin+iy*sizeY;
                 
-                std::stringstream fileName;
-                int outY = (flipY ? (numChunks-1-iy) : iy);
-                fileName << xDir.str() << "/" << outY << ".tif";
-                
-                // Create the output file
-                GDALDatasetH hDestDS = CreateOutputDataFile(outFileFormat,fileName.str().c_str(),pixelsX,pixelsY,outFormat);
-                if (!hDestDS)
-                    return -1;
-                GDALRasterBandH hBandOut = GDALGetRasterBand(hDestDS, 1);
-                if (!hBandOut)
+                GDALDatasetH hDestDS = NULL;
+                GDALRasterBandH hBandOut = NULL;
+                if (targetDir)
                 {
-                    fprintf(stderr,"Failed to create output band.");
-                    return -1;
+                    std::stringstream fileName;
+                    int outY = (flipY ? (numChunks-1-iy) : iy);
+                    fileName << xDir.str() << "/" << outY << ".tif";
+                
+                    // Create the output file
+                    hDestDS = CreateOutputDataFile(outFileFormat,fileName.str().c_str(),pixelsX,pixelsY,outFormat);
+                    if (!hDestDS)
+                        return -1;
+                    hBandOut = GDALGetRasterBand(hDestDS, 1);
+                    if (!hBandOut)
+                    {
+                        fprintf(stderr,"Failed to create output band.");
+                        return -1;
+                    }
                 }
                 
                 float tileData[pixelsX*pixelsY];
@@ -344,41 +397,109 @@ int main(int argc, char * argv[])
                         
                         // Fetch the pixel
                         float pixVal;
-                        if (GDALRasterIO( hBand, GF_Read, pixXint, pixYint, 1, 1, &pixVal, 1, 1, GDT_Float32, 0,  0) != CE_None)
+                        short pixValShort;
+                        if (GDALRasterIO( hBand, GF_Read, pixXint, pixYint, 1, 1, &pixValShort, 1, 1, GDT_Int16, 0,  0) != CE_None)
                         {
                             fprintf(stderr,"Query failure in GDALRasterIO");
                             return -1;
                         }
+                        pixVal = pixValShort;
                         tileData[cy*pixelsX+cx] = pixVal;
                     }
                 
-                // Write all the data at once
-                if (GDALRasterIO( hBandOut, GF_Write, 0, 0, pixelsX, pixelsY, tileData, pixelsX, pixelsX, GDT_Float32, 0, 0) != CE_None)
+                // Output directory
+                if (targetDir)
                 {
-                    fprintf(stderr,"Failed to write output data");
-                    return -1;
-                }
+                    // Write all the data at once
+                    if (GDALRasterIO( hBandOut, GF_Write, 0, 0, pixelsX, pixelsY, tileData, pixelsX, pixelsX, GDT_Int16, 0, 0) != CE_None)
+                    {
+                        fprintf(stderr,"Failed to write output data");
+                        return -1;
+                    }
 
-                // Set projection and extents
-                GDALSetProjection(hDestDS, trgSrsWKT);
-                double tileMaxX = tileMinX + pixelsX * cellX;
-                double tileMaxY = tileMinY + pixelsY * cellY;
+                    // Set projection and extents
+                    GDALSetProjection(hDestDS, trgSrsWKT);
+                    double tileMaxX = tileMinX + pixelsX * cellX;
+                    double tileMaxY = tileMinY + pixelsY * cellY;
+                    
+                    double adfOutTransform[6];
+                    adfOutTransform[0] = tileMinX;
+                    adfOutTransform[1] = (tileMaxX-tileMinX)/pixelsX;
+                    adfOutTransform[2] = 0;
+                    adfOutTransform[3] = tileMinY;
+                    adfOutTransform[4] = 0;
+                    adfOutTransform[5] = (tileMaxY-tileMinY)/pixelsY;
+                    GDALSetGeoTransform(hDestDS, adfOutTransform);
+                    
+                    // Close the output file
+                    GDALClose(hDestDS);
+                }
                 
-                double adfOutTransform[6];
-                adfOutTransform[0] = tileMinX;
-                adfOutTransform[1] = (tileMaxX-tileMinX)/pixelsX;
-                adfOutTransform[2] = 0;
-                adfOutTransform[3] = tileMinY;
-                adfOutTransform[4] = 0;
-                adfOutTransform[5] = (tileMaxY-tileMinY)/pixelsY;
-                GDALSetGeoTransform(hDestDS, adfOutTransform);
-                
-                // Close the output file
-                GDALClose(hDestDS);
+                // Output pyramid sqlite db
+                if (elevPyr)
+                {
+                    // See if anything of is non-zero
+                    bool nonZero = false;
+                    for (unsigned int ip=0;ip<pixelsX*pixelsY;ip++)
+                        if (tileData[ip] != 0)
+                        {
+                            nonZero = true;
+                            break;
+                        }
+                    
+                    totalTiles++;
+                    if (nonZero)
+                    {
+                        // Need int16 data
+                        short tileDataShort[pixelsX*pixelsY];
+                        for (unsigned int ii=0;ii<pixelsX*pixelsY;ii++)
+                            tileDataShort[ii] = tileData[ii];
+
+                        if (!elevPyr->addElevationTile(tileDataShort, ix, iy, level))
+                        {
+                            fprintf(stderr, "Failed to write tile %d: %d, %d",level,ix,iy);
+                            return -1;
+                        }
+                    } else {
+                        if (!elevPyr->addElevationTile(NULL, ix, iy, level))
+                        {
+                            fprintf(stderr, "Failed to write empty tile %d: %d, %d",level,ix,iy);
+                            return -1;
+                        }
+                        zeroTiles++;
+                    }                    
+                }
             }
         }
     }
     
+    // Flush out one big one
+    if (targetDb)
+    {
+        Kompex::SQLiteStatement transactStmt(sqliteDb);
+        transactStmt.SqlStatement((std::string)"END TRANSACTION");
+    }
+
+    if (elevPyr)
+    {
+        elevPyr->flush();
+        elevPyr->createIndex();
+    }
+    
+    if (sqliteDb)
+    {
+        try {
+            sqliteDb->Close();
+        }
+        catch (Kompex::SQLiteException &except)
+        {
+            fprintf(stderr,"Failed to write blob to database:\n%s\n",except.GetString().c_str());
+            return false;
+        }
+    }
+    
+    fprintf(stdout,"Wrote %d tiles, of which %d were empty.\n",totalTiles,zeroTiles);
+
     return 0;
 }
 
