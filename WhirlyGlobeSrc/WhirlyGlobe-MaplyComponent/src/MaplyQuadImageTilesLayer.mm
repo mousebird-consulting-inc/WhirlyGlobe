@@ -96,6 +96,7 @@ using namespace WhirlyKit;
     bool sourceSupportsMulti;
     ActiveImageUpdater *imageUpdater;
     SimpleIdentity _customShader;
+    float _minElev,_maxElev;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 }
 
@@ -112,6 +113,8 @@ using namespace WhirlyKit;
     _animationPeriod = 0;
     _cacheDir = NULL;
     _asyncFetching = true;
+    _minElev = -100.0;
+    _maxElev = 8900;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -139,6 +142,7 @@ using namespace WhirlyKit;
     tileLoader.includeElev = _includeElevAttrForShader;
     if (_color)
         tileLoader.color = [_color asRGBAColor];
+    
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
 
     // If there's a cache dir, make sure it's there
@@ -249,7 +253,14 @@ using namespace WhirlyKit;
     if (ident.level == 0)
         return MAXFLOAT;
     
-    float import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    float import = 0.0;
+    if (elevDelegate)
+    {
+        import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+    } else {
+        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    }
+    
     return import;
 }
 
