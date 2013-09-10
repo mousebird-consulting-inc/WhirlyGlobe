@@ -12,7 +12,8 @@
 using namespace Kompex;
 
 ElevationPyramid::ElevationPyramid(Kompex::SQLiteDatabase *db,const char *srs,GDALDataType dataType,double minX,double minY,double maxX,double maxY,unsigned int tileSizeX,unsigned int tileSizeY,bool compress,int minLevel,int maxLevel)
-: db(db), dataType(dataType), compress(compress), tileSizeX(tileSizeX), tileSizeY(tileSizeY), insertStmt(NULL)
+: db(db), dataType(dataType), compress(compress), tileSizeX(tileSizeX), tileSizeY(tileSizeY), insertStmt(NULL),
+    minLevel(minLevel), maxLevel(maxLevel), minx(minX), miny(minY), maxx(maxX), maxy(maxY), srs(srs)
 {
     SQLiteStatement stmt(db);
     
@@ -31,13 +32,53 @@ ElevationPyramid::ElevationPyramid(Kompex::SQLiteDatabase *db,const char *srs,GD
         sprintf(stmtStr,"INSERT INTO manifest (minx,miny,maxx,maxy,tilesizex,tilesizey,compressed,format,minlevel,maxlevel,srs) VALUES (%f,%f,%f,%f,%d,%d,%d,'%s',%d,%d,'%s');",minX,minY,maxX,maxY,tileSizeX,tileSizeY,1,"int16",minLevel,maxLevel,(srs ? srs : ""));
         stmt.SqlStatement(stmtStr);
         
-        stmt.SqlStatement("CREATE TABLE elevationtiles (data BLOB,level INTEGER,x INTEGER,y INTEGER,quadindex INTEGER PRIMARY KEY);");        
+        stmt.SqlStatement("CREATE TABLE elevationtiles (data BLOB,level INTEGER,x INTEGER,y INTEGER,quadindex INTEGER PRIMARY KEY);");
     } catch (SQLiteException &exc) {
         fprintf(stderr,"Failed to write to database:\n%s\n",exc.GetString().c_str());
         valid = false;
     }
     
     valid = true;
+}
+
+ElevationPyramid::ElevationPyramid(Kompex::SQLiteDatabase *db,int newMaxLevel)
+: db(db)
+{
+    SQLiteStatement stmt(db);
+    
+    try {
+        stmt.Sql((std::string)"SELECT * FROM manifest where rowid = 1;");
+        if (stmt.FetchRow())
+        {
+            minx = stmt.GetColumnDouble("minx");
+            miny = stmt.GetColumnDouble("miny");
+            maxx = stmt.GetColumnDouble("maxx");
+            maxy = stmt.GetColumnDouble("maxy");
+            tileSizeX = stmt.GetColumnInt("tilesizex");
+            tileSizeY = stmt.GetColumnInt("tilesizey");
+            compress = stmt.GetColumnInt("compressed");
+            minLevel = stmt.GetColumnInt("minlevel");
+            maxLevel = stmt.GetColumnInt("minlevel");
+            srs = stmt.GetColumnString("srs");
+        } else
+            valid = false;
+        
+        // Might need to update the levels
+        if (newMaxLevel > maxLevel)
+        {
+            maxLevel = newMaxLevel;
+            SQLiteStatement manStmt(db);
+            char stmtStr[1024];
+            sprintf(stmtStr, "UPDATE manifest SET maxlevel = %d WHERE rowid = 1;", maxLevel);
+            manStmt.Sql((std::string)stmtStr);
+            manStmt.Execute();
+        }
+        
+        valid = true;
+    } catch (SQLiteException &exc) {
+        fprintf(stderr,"Failed to read from database:\n%s\n",exc.GetString().c_str());
+        valid = false;
+    }
 }
 
 // Compress data
@@ -95,7 +136,7 @@ bool ElevationPyramid::addElevationTile(void *tileData,int x,int y,int level)
         insertStmt = new SQLiteStatement(db);
         insertStmt->Sql("INSERT INTO elevationtiles (data,level,x,y,quadindex) VALUES (@data,@level,@x,@y,@quadinex);");
     }
-
+    
     // Here we've got data to insert
     if (tileData)
     {
