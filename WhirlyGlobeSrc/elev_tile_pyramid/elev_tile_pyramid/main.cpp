@@ -301,7 +301,11 @@ int main(int argc, char * argv[])
     // Open the database for update (if there is one)
     if (updateDb)
     {
-        sqliteDb = new Kompex::SQLiteDatabase(updateDb, SQLITE_OPEN_READWRITE, 0);
+        try {
+            sqliteDb = new Kompex::SQLiteDatabase(updateDb, SQLITE_OPEN_READWRITE, 0);
+        } catch (Kompex::SQLiteException &exc) {
+            fprintf(stderr,"Failed to open database:\n%s\n",exc.GetString().c_str());
+        }
         if (!sqliteDb->GetDatabaseHandle())
         {
             fprintf(stderr, "Invalid sqlite database: %s\n",targetDb);
