@@ -115,6 +115,8 @@ using namespace WhirlyKit;
     _asyncFetching = true;
     _minElev = -100.0;
     _maxElev = 8900;
+    _texturAtlasSize = 2048;
+    _imageFormat = MaplyImageIntRGBA;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -140,6 +142,27 @@ using namespace WhirlyKit;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
     tileLoader.includeElev = _includeElevAttrForShader;
+    tileLoader.textureAtlasSize = _texturAtlasSize;
+    switch (_imageFormat)
+    {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            tileLoader.imageType = WKTileIntRGBA;
+            break;
+        case MaplyImageUShort565:
+            tileLoader.imageType = WKTileUShort565;
+            break;
+        case MaplyImageUShort4444:
+            tileLoader.imageType = WKTileUShort4444;
+            break;
+        case MaplyImageUShort5551:
+            tileLoader.imageType = WKTileUShort5551;
+            break;
+        case MaplyImageUByte:
+            tileLoader.imageType = WKTileUByte;
+            break;
+    }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
     
