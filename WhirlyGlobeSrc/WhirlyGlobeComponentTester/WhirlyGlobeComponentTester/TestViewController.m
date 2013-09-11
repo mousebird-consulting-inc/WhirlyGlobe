@@ -150,8 +150,7 @@ LocationInfo locations[NumLocations] =
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
-    // Force the view to load so we can get the default switch values
-    [configViewC view];
+    configViewC.allOptions = true;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -212,7 +211,13 @@ LocationInfo locations[NumLocations] =
         
         // Don't forget to turn on the z buffer permanently
         [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
+        
+        // Turn off most of the options for globe mode
+        configViewC.allOptions = false;
     }
+    
+    // Force the view to load so we can get the default switch values
+    [configViewC view];
     
     // Maximum number of objects for the layout engine to display
     [baseViewC setMaxLayoutObjects:1000];
@@ -896,7 +901,8 @@ static const int NumMegaMarkers = 40000;
 - (void)changeMapContents
 {
     [self setupBaseLayer:((ConfigSection *)configViewC.values[0]).rows];
-    [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
+    if ([configViewC.values count] > 1)
+        [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
     
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLabel2D])
     {
