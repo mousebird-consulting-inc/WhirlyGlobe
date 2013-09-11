@@ -205,6 +205,17 @@ using namespace WhirlyKit;
         tileLoader.drawPriority = drawPriority;
 }
 
+- (void)reload
+{
+    if ([NSThread currentThread] != layerThread)
+    {
+        [self performSelector:@selector(reload) onThread:layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+
+    [quadLayer refresh];
+}
+
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     [_viewC removeActiveObject:imageUpdater];
