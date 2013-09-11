@@ -110,6 +110,7 @@ LocationInfo locations[NumLocations] =
     
     // If we're in 3D mode, how far the elevation goes
     int zoomLimit;
+    bool requireElev;
 }
 
 // Change what we're showing based on the Configuration
@@ -154,6 +155,7 @@ LocationInfo locations[NumLocations] =
 
     // Create an empty globe or map controller
     zoomLimit = 0;
+    requireElev = false;
     switch (startupMapType)
     {
         case MaplyGlobe:
@@ -207,6 +209,7 @@ LocationInfo locations[NumLocations] =
 //        elevSource = [[MaplyElevationSourceTester alloc] init];
         elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
         zoomLimit = elevSource.maxZoom;
+        requireElev = true;
         baseViewC.elevDelegate = elevSource;
         
         // Don't forget to turn on the z buffer permanently
@@ -277,6 +280,7 @@ LocationInfo locations[NumLocations] =
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
         imageLayer.cacheDir = thisCacheDir;
+        imageLayer.requireElev = requireElev;
         [baseViewC addLayer:imageLayer];
         
         if (ovlName)
@@ -649,6 +653,7 @@ static const int NumMegaMarkers = 40000;
         baseLayer = layer;
         layer.handleEdges = true;
         layer.coverPoles = true;
+        layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
 
@@ -683,6 +688,7 @@ static const int NumMegaMarkers = 40000;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
+        layer.requireElev = requireElev;
         layer.cacheDir = thisCacheDir;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
@@ -705,6 +711,7 @@ static const int NumMegaMarkers = 40000;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.drawPriority = 0;
         layer.handleEdges = true;
+        layer.requireElev = requireElev;
         layer.cacheDir = thisCacheDir;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
@@ -759,6 +766,7 @@ static const int NumMegaMarkers = 40000;
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -774,6 +782,7 @@ static const int NumMegaMarkers = 40000;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
         tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.requireElev = requireElev;
         layer.imageDepth = 4;
         // We'll cycle through at 1s per layer
         layer.animationPeriod = 4.0;
@@ -797,6 +806,7 @@ static const int NumMegaMarkers = 40000;
                  tileSource.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
+             layer.requireElev = requireElev;
              layer.cacheDir = thisCacheDir;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
