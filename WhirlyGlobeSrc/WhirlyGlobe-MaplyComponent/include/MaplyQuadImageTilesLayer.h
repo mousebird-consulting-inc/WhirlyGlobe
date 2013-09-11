@@ -62,6 +62,11 @@
 /// The shader attribute is called "a_elev"
 @property (nonatomic, assign) bool includeElevAttrForShader;
 
+/// If we've got elevation, we can require a valid elevation tile
+///  before we put an image on it.  This ensures we match sparse
+///  elevation data sets.
+@property (nonatomic, assign) bool requireElev;
+
 /// Color for the geometry we create to put the images on.
 /// This is how you can get transparency in there (short of a shader)
 @property (nonatomic) UIColor *color;

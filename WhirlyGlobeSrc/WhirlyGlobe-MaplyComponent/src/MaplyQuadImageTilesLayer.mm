@@ -288,6 +288,28 @@ using namespace WhirlyKit;
     ^{
         NSArray *imageDataArr = [NSMutableArray array];
 
+        // Start with elevation
+        MaplyElevationChunk *elevChunk = nil;
+        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        {
+            elevChunk = [elevDelegate elevForTile:tileID];
+        }
+        
+        // Needed elevation and failed to load, so stop
+        if (elevDelegate && _requireElev && !elevChunk)
+        {
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level)];
+            if (layerThread)
+            {
+                if ([NSThread currentThread] == layerThread)
+                    [self performSelector:@selector(mergeTile:) withObject:args];
+                else
+                    [self performSelector:@selector(mergeTile:) onThread:layerThread withObject:args waitUntilDone:NO];
+            }
+            
+            return;
+        }
+
         // Look for it in the cache first
         if (_cacheDir)
         {
@@ -371,17 +393,10 @@ using namespace WhirlyKit;
             loadTile = nil;
         
         // Let's not forget the elevation
-        if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevDelegate)
+        if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
         {
-            if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
-            {
-                MaplyElevationChunk *elevChunk = [elevDelegate elevForTile:tileID];
-                if (elevChunk)
-                {
-                    WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
-                    loadTile.elevChunk = wkChunk;
-                }
-            }
+            WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+            loadTile.elevChunk = wkChunk;
         }
             
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
