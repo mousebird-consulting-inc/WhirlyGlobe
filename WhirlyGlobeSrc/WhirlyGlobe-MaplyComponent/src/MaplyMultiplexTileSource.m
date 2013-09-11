@@ -63,7 +63,7 @@
 
 - (int)tileSize
 {
-    return [_tileSources[0] tileSize];
+    return [((NSObject<MaplyTileSource> *)_tileSources[0]) tileSize];
 }
 
 - (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages

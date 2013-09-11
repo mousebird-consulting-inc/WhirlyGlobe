@@ -22,6 +22,9 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 
+/// The various image formats we support.  RGBA is the default, and most expensive.
+typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByte,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
+
 /** This is a generic quad earth paging interface.  Hand it your coordinate system,
     bounds, and tile source object and it will page tiles for you.
     In general this is useful for feature data, such as vector features.  The image
@@ -74,6 +77,14 @@
 /// If set, we'll try to use this shader program for the tiles we create.
 /// Set this immediately after creation
 @property (nonatomic) NSString *shaderProgramName;
+
+/// The size of texture atlases created to hold the textures.
+/// This starts out at 2048 by default, it can only be a power of 2, ideally 1024 or 512 (at least)
+@property (nonatomic) unsigned int texturAtlasSize;
+
+/// How tile images are stored.  These are RGBA (32 bit) by default.
+/// Other options are potentially less expensive, but lossy
+@property (nonatomic) MaplyQuadImageFormat imageFormat;
 
 /// Where we'll store cached images.  Leave this nil to
 ///  disable caching.
