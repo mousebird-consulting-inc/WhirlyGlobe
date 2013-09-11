@@ -104,20 +104,36 @@
     quadIdx += tileID.y*(1<<tileID.level)+tileID.x;
 
     NSData * __block uncompressedData=nil;
+    bool __block tilePresent = false;
     // Note: Need to sort this out
     [queue inDatabase:^(FMDatabase *theDb) {
         // Now look for the tile
         FMResultSet *res = [theDb executeQuery:[NSString stringWithFormat:@"SELECT data FROM elevationtiles WHERE quadindex=%d;",quadIdx]];
         NSData *data = nil;
         if ([res next])
+        {
+            tilePresent = true;
             data = [res dataForColumn:@"data"];
+        }
         if (data && [data length] > 0)
             uncompressedData = [data uncompressGZip];
         [res close];
     }];
     
     if (!uncompressedData || [uncompressedData length] == 0)
-        return nil;
+    {
+        if (tilePresent)
+        {
+            // Return a tile with all zeros
+            // Note: This could be optimized
+            float *floats = (float *)malloc(sizeof(float)*_tileSizeX*_tileSizeY);
+            memset(floats, 0, sizeof(float)*_tileSizeX*_tileSizeY);
+            NSData *floatData = [NSData dataWithBytesNoCopy:floats length:_tileSizeX*_tileSizeY*sizeof(float) freeWhenDone:YES];
+            MaplyElevationChunk *chunk = [[MaplyElevationChunk alloc] initWithData:floatData numX:_tileSizeX numY:_tileSizeY];
+            return chunk;
+        } else
+            return nil;
+    }
     
     float *floats = (float *)malloc(sizeof(float)*_tileSizeX*_tileSizeY);
     for (unsigned int ii=0;ii<_tileSizeX*_tileSizeY;ii++)
