@@ -79,4 +79,8 @@
 ///  disable caching.
 @property (nonatomic) NSString *cacheDir;
 
+/// Force the layer to reload all data.  You do this when you change
+///  change something about the tile source, usually contents.
+- (void)reload;
+
 @end
