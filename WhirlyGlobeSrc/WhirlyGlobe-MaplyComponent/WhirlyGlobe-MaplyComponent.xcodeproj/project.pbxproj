@@ -30,6 +30,8 @@
 		2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D62FD17A2EDA300C3298D /* DDXMLNode.h */; };
 		2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D62FE17A2EDA300C3298D /* DDXMLNode.m */; };
 		2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0D630017A2EDA300C3298D /* DDXMLPrivate.h */; };
+		2B11057217E237CD00735C46 /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CA17DC23310071DA9E /* FMDatabase.m */; };
+		2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C617DC21570071DA9E /* MaplyElevationDatabase.mm */; };
 		2B11E0DF15B4C030007AAE3F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B11E0DE15B4C030007AAE3F /* Foundation.framework */; };
 		2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2E2FF616C4885800CAD143 /* MaplyShader.h */; };
 		2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */; };
@@ -65,6 +67,10 @@
 		2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */; };
 		2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9015BC6CEE00250F23 /* MaplyViewControllerLayer.mm */; };
 		2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */; };
+		2B97AFED17E3D6CE00D4B33D /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CC17DC23310071DA9E /* FMDatabaseAdditions.m */; };
+		2B97AFEF17E3D6D200D4B33D /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CE17DC23310071DA9E /* FMDatabasePool.m */; };
+		2B97AFF017E3D6D400D4B33D /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989D017DC23310071DA9E /* FMDatabaseQueue.m */; };
+		2B97AFF117E3D6D700D4B33D /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989D317DC23310071DA9E /* FMResultSet.m */; };
 		2BACF3F416C4B94A00C7A4AC /* MaplyShader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */; };
 		2BB071771676B58F00DE387D /* WhirlyGlobeViewController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB071761676B58F00DE387D /* WhirlyGlobeViewController_private.h */; };
 		2BB0717B1676B5A800DE387D /* MaplySticker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB0717A1676B5A800DE387D /* MaplySticker.h */; };
@@ -94,17 +100,11 @@
 		2BC989C117DC1F130071DA9E /* NSData+Zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989C017DC1F130071DA9E /* NSData+Zlib.h */; };
 		2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C217DC1F1E0071DA9E /* NSData+Zlib.m */; };
 		2BC989C517DC214E0071DA9E /* MaplyElevationDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989C417DC214E0071DA9E /* MaplyElevationDatabase.h */; };
-		2BC989C717DC21570071DA9E /* MaplyElevationDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C617DC21570071DA9E /* MaplyElevationDatabase.mm */; };
 		2BC989D417DC23310071DA9E /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989C917DC23310071DA9E /* FMDatabase.h */; };
-		2BC989D517DC23310071DA9E /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CA17DC23310071DA9E /* FMDatabase.m */; };
 		2BC989D617DC23310071DA9E /* FMDatabaseAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989CB17DC23310071DA9E /* FMDatabaseAdditions.h */; };
-		2BC989D717DC23310071DA9E /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CC17DC23310071DA9E /* FMDatabaseAdditions.m */; };
 		2BC989D817DC23310071DA9E /* FMDatabasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989CD17DC23310071DA9E /* FMDatabasePool.h */; };
-		2BC989D917DC23310071DA9E /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989CE17DC23310071DA9E /* FMDatabasePool.m */; };
 		2BC989DA17DC23310071DA9E /* FMDatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989CF17DC23310071DA9E /* FMDatabaseQueue.h */; };
-		2BC989DB17DC23310071DA9E /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989D017DC23310071DA9E /* FMDatabaseQueue.m */; };
 		2BC989DD17DC23310071DA9E /* FMResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989D217DC23310071DA9E /* FMResultSet.h */; };
-		2BC989DE17DC23310071DA9E /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989D317DC23310071DA9E /* FMResultSet.m */; };
 		2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA689117416A7000696BA8 /* MaplyViewControllerLayer.h */; };
 		2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA689C1741913200696BA8 /* MaplyTileSource.h */; };
 		2BCA68A31741957700696BA8 /* MaplyCoordinateSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */; };
@@ -745,11 +745,14 @@
 				2B897A8515BB5DEB00250F23 /* WhirlyGlobeViewController.mm in Sources */,
 				2B897A8715BBB83E00250F23 /* WGInteractionLayer.mm in Sources */,
 				2B897A8915BC664A00250F23 /* MaplyCoordinate.mm in Sources */,
+				2B11057217E237CD00735C46 /* FMDatabase.m in Sources */,
 				2B897A8B15BC698800250F23 /* MaplyScreenMarker.m in Sources */,
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
 				2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */,
+				2B97AFED17E3D6CE00D4B33D /* FMDatabaseAdditions.m in Sources */,
 				2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */,
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
+				2B97AFF117E3D6D700D4B33D /* FMResultSet.m in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */,
@@ -762,6 +765,7 @@
 				2BE8848C160A46C700E92A0A /* MaplyInteractionLayer.mm in Sources */,
 				2BD115961615E16900A4BF5D /* MaplyShape.mm in Sources */,
 				2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */,
+				2B97AFEF17E3D6D200D4B33D /* FMDatabasePool.m in Sources */,
 				2B0A4DB8167BDAD3000D5786 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
 				2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */,
@@ -774,6 +778,7 @@
 				2B0D62D317A1D9BB00C3298D /* MaplyWMSTileSource.mm in Sources */,
 				2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */,
 				2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */,
+				2B97AFF017E3D6D400D4B33D /* FMDatabaseQueue.m in Sources */,
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
 				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,
@@ -782,13 +787,8 @@
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
 				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */,
+				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
 				2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */,
-				2BC989C717DC21570071DA9E /* MaplyElevationDatabase.mm in Sources */,
-				2BC989D517DC23310071DA9E /* FMDatabase.m in Sources */,
-				2BC989D717DC23310071DA9E /* FMDatabaseAdditions.m in Sources */,
-				2BC989D917DC23310071DA9E /* FMDatabasePool.m in Sources */,
-				2BC989DB17DC23310071DA9E /* FMDatabaseQueue.m in Sources */,
-				2BC989DE17DC23310071DA9E /* FMResultSet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -816,6 +816,7 @@
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -827,12 +828,14 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -844,6 +847,7 @@
 				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
+				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					"../../third-party/boost/",
@@ -854,10 +858,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
 			};
@@ -866,9 +867,11 @@
 		2B11E0EA15B4C030007AAE3F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_DEBUG_INFORMATION_LEVEL = "line-tables-only";
 				DSTROOT = /tmp/WhirlyGlobeComponent.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobe-MaplyComponent/WhirlyGlobe-MaplyComponent-Prefix.pch";
+				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					"../../third-party/boost/",
@@ -879,12 +882,10 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = all;
 			};
 			name = Release;
 		};
