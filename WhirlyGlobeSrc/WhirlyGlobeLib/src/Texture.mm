@@ -92,17 +92,18 @@ NSData *ConvertRGBATo8(NSData *inData)
     uint32_t pixelCount = [inData length]/4;
     void *temp = malloc(pixelCount);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
-    uint8_t *outPixel16 = (uint8_t *)temp;
+    uint8_t *outPixel8 = (uint8_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
         uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
         uint32_t g = ((*inPixel32 >> 8)  & 0xFF);
         uint32_t b = ((*inPixel32 >> 16) & 0xFF);
-//        uint32_t a = ((*inPixel32 >> 24) & 0xFF);
+        uint32_t a = ((*inPixel32 >> 24) & 0xFF);
         int sum = ((int)r + (int)g + (int)b)/3;
+//        int sum = a;
         
-        *outPixel16++ = (uint8_t)sum;
+        *outPixel8++ = (uint8_t)sum;
     }
     
     return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];

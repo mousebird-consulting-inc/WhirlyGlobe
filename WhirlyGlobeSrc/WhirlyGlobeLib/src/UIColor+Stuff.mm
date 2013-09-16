@@ -87,3 +87,7 @@ using namespace Eigen;
 }
 
 @end
+
+void UIColorDummyFunc()
+{
+}

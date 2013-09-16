@@ -1616,11 +1616,11 @@ static const int SingleElementSize = sizeof(GLushort);
             
             // Copy this out to avoid locking too long
             pthread_mutex_lock(&texAtlasMappingLock);
-            if (texAtlases.size() > 0)
+            if (texAtlasMappings.size() > 0)
                 baseTexIDs = texAtlasMappings[0];
-            if (startImage < texAtlases.size())
+            if (startImage < texAtlasMappings.size())
                 startTexIDs = texAtlasMappings[startImage];
-            if (endImage < texAtlases.size())
+            if (endImage < texAtlasMappings.size())
                 endTexIDs = texAtlasMappings[endImage];
             theDrawTexInfo = drawTexInfo;
             pthread_mutex_unlock(&texAtlasMappingLock);

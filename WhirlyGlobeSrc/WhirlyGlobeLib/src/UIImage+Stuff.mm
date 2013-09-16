@@ -134,3 +134,7 @@ using namespace WhirlyKit;
 
 
 @end
+
+void UIImageDummyFunc()
+{    
+}
