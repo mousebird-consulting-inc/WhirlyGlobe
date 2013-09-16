@@ -879,8 +879,8 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.imageDepth = [tileSources count];
                 precipLayer.animationPeriod = 6.0;
                 // Note: Doesn't currently work
-//                precipLayer.imageFormat = MaplyImageUByteAlpha;
-                precipLayer.texturAtlasSize = 1024;
+                precipLayer.imageFormat = MaplyImageUByteRed;
+                precipLayer.texturAtlasSize = 2048;
                 precipLayer.numSimultaneousFetches = 4;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
