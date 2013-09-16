@@ -49,7 +49,7 @@ using namespace WhirlyKit;
     int texelBinSize;
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
+- (bool)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
@@ -204,13 +204,13 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+bool LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
     {
         placeholder = true;
-        return;
+        return true;
     }
     
     BasicDrawable *draw = NULL;
@@ -218,7 +218,8 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
     std::vector<Texture *> texs(loadImages.size(),NULL);
     if (!loader->texAtlases.empty())
         subTexs.resize(loadImages.size());
-    [loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev];
+    if (![loader buildTile:&nodeInfo draw:&draw skirtDraw:&skirtDraw tex:(!loadImages.empty() ? &texs : NULL) activeTextures:loader.activeTextures texScale:Point2f(1.0,1.0) texOffset:Point2f(0.0,0.0) lines:layer.lineMode layer:layer imageData:&loadImages elevData:loadElev])
+        return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
     for (unsigned int ii=0;ii<texs.size();ii++)
@@ -268,6 +269,8 @@ void LoadedTile::addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplay
         childDrawIds[ii] = EmptyIdentity;
         childSkirtDrawIds[ii] = EmptyIdentity;
     }
+    
+    return true;
 }
 
 // Clean out the geometry and texture associated with the given tile
@@ -824,7 +827,7 @@ void LoadedTile::Print(Quadtree *tree)
     }
 }
 
-- (void)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData
+- (bool)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData
 {
     Mbr theMbr = nodeInfo->mbr;
     
@@ -883,6 +886,7 @@ void LoadedTile::Print(Quadtree *tree)
     // Get textures (locally)
     if (texs)
     {
+        bool texturesClean = true;
         if (loadImages && (*loadImages)[0].type != WKLoadedImagePlaceholder)
         {
             // They'll all be the same width
@@ -901,13 +905,26 @@ void LoadedTile::Print(Quadtree *tree)
                     newTex->setSingleByteSource([self singleByteSource]);
                     (*texs)[ii] = newTex;
                 } else {
-                    NSLog(@"Got bad image in quad tile loader.  Skipping.");
+                    texturesClean = false;
                     (*texs)[ii] = NULL;
                 }
             }
         } else {
             for (unsigned int ii=0;ii<texs->size();ii++)
                 (*texs)[ii] = NULL;
+        }
+        
+        // If the textures didn't build cleanly, we'll delete them and fail
+        if (!texturesClean)
+        {
+            if (texs)
+                for (unsigned int ii=0;ii<texs->size();ii++)
+                    if ((*texs)[ii])
+                    {
+                        delete (*texs)[ii];
+                        (*texs)[ii] = NULL;
+                    }
+            return false;
         }
     }
     
@@ -1257,6 +1274,8 @@ void LoadedTile::Print(Quadtree *tree)
         
         *draw = chunk;
     }
+        
+    return true;
 }
 
 // Look for a specific tile
@@ -1493,17 +1512,24 @@ static const int SingleElementSize = sizeof(GLushort);
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
+    bool loadingSuccess = true;
     if (!loadImages.empty() || loadElev)
     {
         tile->elevData = loadElev;
-        tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImages,currentImage0,currentImage1,loadElev,changeRequests);
-        // If we have more than one image to dispay, make sure we're doing the right one
-        if (_numImages > 1 && texAtlases.empty())
+        if (tile->addToScene(self,_quadLayer,_quadLayer.scene,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
         {
-            tile->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, changeRequests);
-        }
-        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
-    } else {
+            // If we have more than one image to dispay, make sure we're doing the right one
+            if (_numImages > 1 && texAtlases.empty())
+            {
+                tile->setCurrentImages(self, _quadLayer, currentImage0, currentImage1, changeRequests);
+            }
+            [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+        } else
+            loadingSuccess = false;
+    }
+
+    if (!loadingSuccess)
+    {
         // Shouldn't have a visual representation, so just lose it
         [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
         tileSet.erase(it);

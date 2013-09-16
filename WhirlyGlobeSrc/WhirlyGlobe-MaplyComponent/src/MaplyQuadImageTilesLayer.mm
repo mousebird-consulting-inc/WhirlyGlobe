@@ -322,6 +322,9 @@ using namespace WhirlyKit;
     return _numSimultaneousFetches;
 }
 
+// Turn this on to break a fraction of the images.  This is for internal testing
+//#define TRASHTEST 1
+
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
@@ -332,7 +335,7 @@ using namespace WhirlyKit;
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
     ^{
-        NSArray *imageDataArr = [NSMutableArray array];
+        NSMutableArray *imageDataArr = [NSMutableArray array];
 
         // Start with elevation
         MaplyElevationChunk *elevChunk = nil;
@@ -369,6 +372,7 @@ using namespace WhirlyKit;
                     if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                     {
                         NSData *imgData = [NSData dataWithContentsOfFile:localName];
+                        
                         if (imgData)
                             [(NSMutableArray *)imageDataArr addObject:imgData];
                         else
@@ -392,7 +396,7 @@ using namespace WhirlyKit;
         if ([imageDataArr count] != _imageDepth)
         {
             if (sourceSupportsMulti)
-                imageDataArr = [tileSource imagesForTile:tileID numImages:_imageDepth];
+                imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
             else {
                 NSData *imgData = [tileSource imageForTile:tileID];
                 if (imgData)
@@ -419,7 +423,27 @@ using namespace WhirlyKit;
                 }
             }
         }
-        
+
+#ifdef TRASHTEST
+        // Mess with some of the images to test corruption
+        if (tileID.level > 1)
+        {
+            for (unsigned int ii=0;ii<_imageDepth;ii++)
+            {
+                NSObject *imgData = [imageDataArr objectAtIndex:ii];
+                // Every so often let's return garbage
+                if (imgData && (int)(drand48()*5) == 4)
+                {
+                    unsigned char *trash = (unsigned char *) malloc(2048);
+                    for (unsigned int ii=0;ii<2048;ii++)
+                        trash[ii] = drand48()*255;
+                    imgData = [[NSData alloc] initWithBytesNoCopy:trash length:2048 freeWhenDone:YES];
+                }
+                [imageDataArr replaceObjectAtIndex:ii withObject:imgData];
+            }
+        }
+#endif
+
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
         if ([imageDataArr count] == _imageDepth)
         {
