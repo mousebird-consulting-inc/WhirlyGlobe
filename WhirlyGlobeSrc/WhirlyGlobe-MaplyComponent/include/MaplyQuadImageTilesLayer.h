@@ -23,7 +23,7 @@
 #import "MaplyTileSource.h"
 
 /// The various image formats we support.  RGBA is the default, and most expensive.
-typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByte,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
+typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
 /** This is a generic quad earth paging interface.  Hand it your coordinate system,
     bounds, and tile source object and it will page tiles for you.

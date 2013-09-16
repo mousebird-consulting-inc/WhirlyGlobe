@@ -159,8 +159,20 @@ using namespace WhirlyKit;
         case MaplyImageUShort5551:
             tileLoader.imageType = WKTileUShort5551;
             break;
-        case MaplyImageUByte:
-            tileLoader.imageType = WKTileUByte;
+        case MaplyImageUByteRed:
+            tileLoader.imageType = WKTileUByteRed;
+            break;
+        case MaplyImageUByteGreen:
+            tileLoader.imageType = WKTileUByteGreen;
+            break;
+        case MaplyImageUByteBlue:
+            tileLoader.imageType = WKTileUByteBlue;
+            break;
+        case MaplyImageUByteAlpha:
+            tileLoader.imageType = WKTileUByteAlpha;
+            break;
+        case MaplyImageUByteRGB:
+            tileLoader.imageType = WKTileUByteRGB;
             break;
     }
     if (_color)
