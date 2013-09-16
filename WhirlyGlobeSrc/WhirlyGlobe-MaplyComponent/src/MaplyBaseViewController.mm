@@ -148,7 +148,7 @@ using namespace WhirlyKit;
 - (void) loadSetup
 {
     // Need this logic here to pull in the categories
-    static bool dummyInit = true;
+    static bool dummyInit = false;
     if (!dummyInit)
     {
         NSDataDummyFunc();
