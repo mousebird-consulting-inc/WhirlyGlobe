@@ -93,7 +93,7 @@ public:
 {
     // We do this to pull in the categories without the -ObjC flag.
     // It's dumb, but it works
-    static bool dummyInit = true;
+    static bool dummyInit = false;
     if (!dummyInit)
     {
         UIImageDummyFunc();
