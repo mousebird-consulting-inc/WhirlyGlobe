@@ -72,3 +72,7 @@
 }
 
 @end
+
+void NSDictionaryDummyFunc()
+{    
+}

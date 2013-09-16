@@ -206,7 +206,6 @@ LocationInfo locations[NumLocations] =
         globeViewC.frameInterval = 2;  // 30fps
 
         // An elevation source.  This one just makes up sine waves to get some data in there
-//        elevSource = [[MaplyElevationSourceTester alloc] init];
         elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
         zoomLimit = elevSource.maxZoom;
         requireElev = true;
@@ -879,6 +878,8 @@ static const int NumMegaMarkers = 40000;
                 MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
                 precipLayer.imageDepth = [tileSources count];
                 precipLayer.animationPeriod = 6.0;
+                // Note: Ideally this would be one byte, but it's not picking up the right channel in the example
+//                precipLayer.imageFormat = MaplyImageUByte;
                 precipLayer.numSimultaneousFetches = 4;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;

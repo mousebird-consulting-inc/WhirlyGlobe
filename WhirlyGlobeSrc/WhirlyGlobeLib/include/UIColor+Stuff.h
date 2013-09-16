@@ -32,5 +32,10 @@
 /// Convert a UIColor to Vector4, which we also use internally
 - (Eigen::Vector4f) asVec4;
 
-
 @end
+
+// A function we can call to force the linker to bring in categories
+#ifdef __cplusplus
+extern "C"
+#endif
+void UIColorDummyFunc();

@@ -42,3 +42,8 @@
 }
 
 @end
+
+// A function we can call to force the linker to bring in categories
+void NSStringDummyFunc()
+{
+}

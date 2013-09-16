@@ -20,6 +20,7 @@
 
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
+#import "NSData+Zlib.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -146,6 +147,14 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+    // Need this logic here to pull in the categories
+    static bool dummyInit = true;
+    if (!dummyInit)
+    {
+        NSDataDummyFunc();
+        dummyInit = true;
+    }
+    
     userLayers = [NSMutableArray array];
     
     [self loadSetup_glView];

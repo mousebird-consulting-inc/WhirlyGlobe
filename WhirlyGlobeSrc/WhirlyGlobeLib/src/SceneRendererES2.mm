@@ -22,6 +22,9 @@
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "DefaultShaderPrograms.h"
+#import "UIImage+Stuff.h"
+#import "NSDictionary+Stuff.h"
+#import "NSString+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -88,6 +91,18 @@ public:
 
 - (id) init
 {
+    // We do this to pull in the categories without the -ObjC flag.
+    // It's dumb, but it works
+    static bool dummyInit = true;
+    if (!dummyInit)
+    {
+        UIImageDummyFunc();
+        NSDictionaryDummyFunc();
+        UIColorDummyFunc();
+        NSStringDummyFunc();
+        dummyInit = true;
+    }
+
     self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
     lights = [NSMutableArray array];
     
