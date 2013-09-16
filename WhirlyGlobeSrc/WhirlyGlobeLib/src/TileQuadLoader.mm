@@ -745,7 +745,11 @@ void LoadedTile::Print(Quadtree *tree)
         case WKTileUShort5551:
             return GL_UNSIGNED_SHORT_5_5_5_1;
             break;
-        case WKTileUByte:
+        case WKTileUByteRed:
+        case WKTileUByteGreen:
+        case WKTileUByteBlue:
+        case WKTileUByteAlpha:
+        case WKTileUByteRGB:
             return GL_ALPHA;
             break;
         case WKTilePVRTC4:
@@ -754,6 +758,30 @@ void LoadedTile::Print(Quadtree *tree)
     }
     
     return GL_UNSIGNED_BYTE;
+}
+
+// If we're doing single byte conversion, where from?
+- (WKSingleByteSource)singleByteSource
+{
+    switch (_imageType)
+    {
+        case WKTileUByteRed:
+            return WKSingleRed;
+            break;
+        case WKTileUByteGreen:
+            return WKSingleGreen;
+            break;
+        case WKTileUByteBlue:
+            return WKSingleBlue;
+            break;
+        case WKTileUByteAlpha:
+            return WKSingleAlpha;
+            break;
+        case WKTileUByteRGB:
+        default:
+            return WKSingleRGB;
+            break;
+    }
 }
 
 // Figure out the target size for an image based on our settings
@@ -870,6 +898,7 @@ void LoadedTile::Print(Quadtree *tree)
                 if (newTex)
                 {
                     newTex->setFormat([self glFormat]);
+                    newTex->setSingleByteSource([self singleByteSource]);
                     (*texs)[ii] = newTex;
                 } else {
                     NSLog(@"Got bad image in quad tile loader.  Skipping.");
