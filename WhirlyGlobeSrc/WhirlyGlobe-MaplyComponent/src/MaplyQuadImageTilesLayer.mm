@@ -327,6 +327,7 @@ using namespace WhirlyKit;
 
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
+// Note: Not handling the case where we get a corrupt image and then store it to the cache.
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
 {
     MaplyTileID tileID;
