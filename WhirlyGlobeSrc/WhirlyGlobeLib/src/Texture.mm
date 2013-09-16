@@ -121,8 +121,6 @@ NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
                 sum = a;
                 break;
         }
-        // Note: Debugging
-        sum = drand48()*255;
         *outPixel8++ = (uint8_t)sum;
     }
     
