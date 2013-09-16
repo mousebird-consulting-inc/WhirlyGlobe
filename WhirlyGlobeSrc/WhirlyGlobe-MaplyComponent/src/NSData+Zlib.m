@@ -117,3 +117,6 @@
 
 @end
 
+void NSDataDummyFunc()
+{
+}
