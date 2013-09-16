@@ -878,9 +878,8 @@ static const int NumMegaMarkers = 40000;
                 MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
                 precipLayer.imageDepth = [tileSources count];
                 precipLayer.animationPeriod = 6.0;
-                // Note: Doesn't currently work
                 precipLayer.imageFormat = MaplyImageUByteRed;
-                precipLayer.texturAtlasSize = 2048;
+//                precipLayer.texturAtlasSize = 512;
                 precipLayer.numSimultaneousFetches = 4;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
