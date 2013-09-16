@@ -117,7 +117,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
