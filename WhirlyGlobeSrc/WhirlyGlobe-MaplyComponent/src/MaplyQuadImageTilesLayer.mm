@@ -117,6 +117,7 @@ using namespace WhirlyKit;
     _maxElev = 8900;
     _texturAtlasSize = 2048;
     _imageFormat = MaplyImageIntRGBA;
+    _flipY = true;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -332,6 +333,13 @@ using namespace WhirlyKit;
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
+
+    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    if (!_flipY)
+    {
+        int y = (1<<level)-tileID.y-1;
+        tileID.y = y;
+    }
     
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
