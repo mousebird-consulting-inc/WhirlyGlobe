@@ -658,7 +658,7 @@ static const int NumMegaMarkers = 40000;
 
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
-        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];        
     } else if (![baseLayerName compare:kMaplyTestBlueMarble])
     {
         self.title = @"Blue Marble Single Res";
