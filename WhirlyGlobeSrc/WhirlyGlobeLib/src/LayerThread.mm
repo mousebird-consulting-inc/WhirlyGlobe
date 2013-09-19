@@ -182,7 +182,9 @@ using namespace WhirlyKit;
     
     // If anything needed a flush after that, let's do it
     if (requiresFlush && _allowFlush)
+    {
         glFlush();
+    }
     
     _scene->addChangeRequests(changesToAdd);
     changeRequests.clear();
