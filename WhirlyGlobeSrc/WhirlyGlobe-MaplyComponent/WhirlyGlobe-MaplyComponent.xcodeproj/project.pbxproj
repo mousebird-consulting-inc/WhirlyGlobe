@@ -178,8 +178,8 @@
 		2B61D7AC16078A3B007888CF /* MaplyComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyComponent.h; path = include/MaplyComponent.h; sourceTree = "<group>"; };
 		2B61D7AD16078A3B007888CF /* MaplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewController.h; path = include/MaplyViewController.h; sourceTree = "<group>"; };
 		2B61D7B016078A50007888CF /* MaplyViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyViewController.mm; path = src/MaplyViewController.mm; sourceTree = "<group>"; };
-		2B61D7BC1607939C007888CF /* WGCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGCoordinate.h; path = "WhirlyGlobe-MaplyComponent/include/WGCoordinate.h"; sourceTree = "<group>"; };
-		2B61D7BD1607939C007888CF /* WGCoordinate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGCoordinate.mm; path = "WhirlyGlobe-MaplyComponent/src/WGCoordinate.mm"; sourceTree = "<group>"; };
+		2B61D7BC1607939C007888CF /* WGCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGCoordinate.h; path = include/WGCoordinate.h; sourceTree = "<group>"; };
+		2B61D7BD1607939C007888CF /* WGCoordinate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGCoordinate.mm; path = src/WGCoordinate.mm; sourceTree = "<group>"; };
 		2B61D7C21607ACC3007888CF /* WGViewControllerLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGViewControllerLayer_private.h; path = include/private/WGViewControllerLayer_private.h; sourceTree = "<group>"; };
 		2B61D7C31607ACC3007888CF /* WGViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGViewControllerLayer.mm; path = src/WGViewControllerLayer.mm; sourceTree = "<group>"; };
 		2B897A6415BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeComponent-Prefix.h"; sourceTree = SOURCE_ROOT; };
@@ -378,7 +378,8 @@
 				2B897A8415BB5DEB00250F23 /* WhirlyGlobeViewController.mm */,
 				2B897A7815BB5AC600250F23 /* WGInteractionLayer_private.h */,
 				2B897A8615BBB83E00250F23 /* WGInteractionLayer.mm */,
-				2B61D7B216078B3A007888CF /* coordinates */,
+				2B61D7BC1607939C007888CF /* WGCoordinate.h */,
+				2B61D7BD1607939C007888CF /* WGCoordinate.mm */,
 				2B1D05F315B5C20500B844C4 /* gestures */,
 				2B61D7C1160795DE007888CF /* layer wrappers */,
 				2B11E0E115B4C030007AAE3F /* Supporting Files */,
@@ -402,28 +403,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2B11E11715B4DAFF007AAE3F /* layer wrappers */ = {
+		2B11E11715B4DAFF007AAE3F /* layers */ = {
 			isa = PBXGroup;
 			children = (
 				2BCA689117416A7000696BA8 /* MaplyViewControllerLayer.h */,
 				2B897A7415BB5A6A00250F23 /* MaplyViewControllerLayer_private.h */,
 				2B897A9015BC6CEE00250F23 /* MaplyViewControllerLayer.mm */,
-				2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */,
-				2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */,
-				2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */,
 				2B44E816174B20A800474C2B /* MaplyQuadPagingLayer.h */,
 				2B44E81D174B20F500474C2B /* MaplyQuadPagingLayer_private.h */,
 				2B44E81B174B20C700474C2B /* MaplyQuadPagingLayer.mm */,
-				2BCA689C1741913200696BA8 /* MaplyTileSource.h */,
 				2BCA68A6174195A800696BA8 /* MaplyQuadImageTilesLayer.h */,
 				2BCA68A9174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h */,
 				2BCA68A21741957700696BA8 /* MaplyQuadImageTilesLayer.mm */,
-				2BC988E117D791040071DA9E /* Tile Sources */,
 				2B37059716B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h */,
 				2B37059816B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h */,
 				2B37059D16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm */,
 			);
-			name = "layer wrappers";
+			name = layers;
 			path = WhirlyGlobeComponent;
 			sourceTree = "<group>";
 		};
@@ -438,19 +434,12 @@
 			name = gestures;
 			sourceTree = "<group>";
 		};
-		2B1D05FF15B5CBB300B844C4 /* coordinates */ = {
+		2B1D061215B5CE0300B844C4 /* visible objects */ = {
 			isa = PBXGroup;
 			children = (
-				2B897A7015BB5A2F00250F23 /* MaplyCoordinate.h */,
-				2B897A8815BC664A00250F23 /* MaplyCoordinate.mm */,
-			);
-			name = coordinates;
-			path = WhirlyGlobeComponent;
-			sourceTree = "<group>";
-		};
-		2B1D061215B5CE0300B844C4 /* object wrappers */ = {
-			isa = PBXGroup;
-			children = (
+				2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */,
+				2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */,
+				2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */,
 				2BEA1E57171E0EBD0039F1A4 /* MaplyActiveObject.h */,
 				2BEA1E5B171E0EBD0039F1A4 /* MaplyActiveObject_private.h */,
 				2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */,
@@ -468,9 +457,6 @@
 				2BB9E01D15BF9EF200F1DDD8 /* MaplyMarker.m */,
 				2B897A6815BB59F300250F23 /* MaplyScreenMarker.h */,
 				2B897A8A15BC698800250F23 /* MaplyScreenMarker.m */,
-				2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */,
-				2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */,
-				2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */,
 				2BB7FB4E16B9AD050017EB2F /* MaplyLight.h */,
 				2BB7FB5216B9AD0D0017EB2F /* MaplyLight.m */,
 				2BE43865160930B200A81959 /* MaplyComponentObject.h */,
@@ -483,7 +469,7 @@
 				2BCA68AB174197C500696BA8 /* MaplyCoordinateSystem_private.h */,
 				2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */,
 			);
-			name = "object wrappers";
+			name = "visible objects";
 			path = WhirlyGlobeComponent;
 			sourceTree = "<group>";
 		};
@@ -496,7 +482,6 @@
 				2B61D7B016078A50007888CF /* MaplyViewController.mm */,
 				2BE88489160A46BA00E92A0A /* MaplyInteractionLayer_private.h */,
 				2BE8848B160A46C700E92A0A /* MaplyInteractionLayer.mm */,
-				2B61D7C0160793C1007888CF /* gestures */,
 			);
 			name = MaplyComponent;
 			sourceTree = "<group>";
@@ -505,31 +490,15 @@
 			isa = PBXGroup;
 			children = (
 				2BE88485160A437D00E92A0A /* MaplySharedAttributes.h */,
-				2B0A4DBA167BDC42000D5786 /* view controller */,
+				2B8C813817EA6033000794EF /* categories */,
 				2BE88490160A59DE00E92A0A /* utility */,
+				2B8C813917EA60C9000794EF /* image tiles */,
 				2BC989BE17DC1EC40071DA9E /* elevation */,
-				2B1D05FF15B5CBB300B844C4 /* coordinates */,
-				2B1D061215B5CE0300B844C4 /* object wrappers */,
-				2B11E11715B4DAFF007AAE3F /* layer wrappers */,
+				2B11E11715B4DAFF007AAE3F /* layers */,
+				2B1D061215B5CE0300B844C4 /* visible objects */,
+				2B0A4DBA167BDC42000D5786 /* view controller */,
 			);
 			name = "Component Base";
-			sourceTree = "<group>";
-		};
-		2B61D7B216078B3A007888CF /* coordinates */ = {
-			isa = PBXGroup;
-			children = (
-				2B61D7BC1607939C007888CF /* WGCoordinate.h */,
-				2B61D7BD1607939C007888CF /* WGCoordinate.mm */,
-			);
-			name = coordinates;
-			path = ..;
-			sourceTree = "<group>";
-		};
-		2B61D7C0160793C1007888CF /* gestures */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = gestures;
 			sourceTree = "<group>";
 		};
 		2B61D7C1160795DE007888CF /* layer wrappers */ = {
@@ -541,6 +510,24 @@
 				2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */,
 			);
 			name = "layer wrappers";
+			sourceTree = "<group>";
+		};
+		2B8C813817EA6033000794EF /* categories */ = {
+			isa = PBXGroup;
+			children = (
+				2BC989C017DC1F130071DA9E /* NSData+Zlib.h */,
+				2BC989C217DC1F1E0071DA9E /* NSData+Zlib.m */,
+			);
+			name = categories;
+			sourceTree = "<group>";
+		};
+		2B8C813917EA60C9000794EF /* image tiles */ = {
+			isa = PBXGroup;
+			children = (
+				2BCA689C1741913200696BA8 /* MaplyTileSource.h */,
+				2BC988E117D791040071DA9E /* Tile Sources */,
+			);
+			name = "image tiles";
 			sourceTree = "<group>";
 		};
 		2BC988E117D791040071DA9E /* Tile Sources */ = {
@@ -558,11 +545,15 @@
 				2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */,
 			);
 			name = "Tile Sources";
+			path = WhirlyGlobeComponent;
 			sourceTree = "<group>";
 		};
 		2BC989BE17DC1EC40071DA9E /* elevation */ = {
 			isa = PBXGroup;
 			children = (
+				2BB54EE917CFABDF0065451F /* MaplyElevationSource.h */,
+				2BB54EEE17CFB8030065451F /* MaplyElevationSource_private.h */,
+				2BB54EEC17CFABEA0065451F /* MaplyElevationSource.mm */,
 				2BC989C417DC214E0071DA9E /* MaplyElevationDatabase.h */,
 				2BC989C617DC21570071DA9E /* MaplyElevationDatabase.mm */,
 			);
@@ -589,10 +580,10 @@
 		2BE88490160A59DE00E92A0A /* utility */ = {
 			isa = PBXGroup;
 			children = (
+				2B897A7015BB5A2F00250F23 /* MaplyCoordinate.h */,
+				2B897A8815BC664A00250F23 /* MaplyCoordinate.mm */,
 				2BE88491160A59F900E92A0A /* ImageTexture_private.h */,
 				2BE8848E160A544D00E92A0A /* SelectObject_private.h */,
-				2BC989C017DC1F130071DA9E /* NSData+Zlib.h */,
-				2BC989C217DC1F1E0071DA9E /* NSData+Zlib.m */,
 			);
 			name = utility;
 			sourceTree = "<group>";

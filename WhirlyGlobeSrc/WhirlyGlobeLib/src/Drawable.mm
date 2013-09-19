@@ -1516,22 +1516,27 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
-
-    // Zero or more textures.
+    
+    // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
-    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+    int progTexBound = prog->bindTextures();
+    for (unsigned int ii=0;ii<progTexBound;ii++)
+        hasTexture[ii] = true;
+
+    // Zero or more textures in the drawable
+    for (unsigned int ii=progTexBound;0<WhirlyKitMaxTextures;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         char baseMapName[40];
         sprintf(baseMapName,"s_baseMap%d",ii);
         const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
-        hasTexture[ii] = glTexID != 0 && texUni;
-        if (hasTexture[ii])
+        hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
+        if (hasTexture[ii+progTexBound])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-            prog->setUniform(baseMapName, (int)ii);
+            prog->setUniform(baseMapName, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }

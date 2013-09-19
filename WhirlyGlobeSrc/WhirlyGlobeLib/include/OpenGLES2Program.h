@@ -33,7 +33,7 @@ namespace WhirlyKit
 class OpenGLESUniform
 {
 public:
-    OpenGLESUniform() : index(0), size(0), isSet(false) { }
+    OpenGLESUniform() : index(0), size(0), isSet(false), isTexture(false) { }
     OpenGLESUniform(const std::string &name) : name(name) { }
     
     /// Return true if this uniform is an array
@@ -49,6 +49,8 @@ public:
     GLint size;
     /// Uniform data type
     GLenum type;
+    /// Set if we know this is a texture
+    bool isTexture;
         
     /// Current value (if set)
     bool isSet;
@@ -131,6 +133,10 @@ public:
     bool setUniform(const std::string &name,const Eigen::Matrix4f &mat);
     bool setUniform(const std::string &name,int val);
     
+    /// Tie a given texture ID to the given name.
+    /// We have to set these up each time before drawing
+    bool setTexture(const std::string &name,GLuint val);
+    
     /// Check for the specific attribute associated with WhirlyKit lights
     bool hasLights();
     
@@ -146,6 +152,10 @@ public:
     
     /// Return the GL Program ID
     GLuint getProgram() { return program; }
+    
+    /// Bind any program specific textures right before we draw.
+    /// We get to start at 0 and return however many we bound
+    int bindTextures();
 
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     void cleanUp();

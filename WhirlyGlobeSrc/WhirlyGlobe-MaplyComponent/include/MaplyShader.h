@@ -37,6 +37,9 @@
 /// Name (but not scene name)
 @property NSString *name;
 
+/// Add the given texture as a named attribute.  Must be called on the main thread.
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)image;
+
 /// After creating it, check that it's valid
 - (bool)valid;
 

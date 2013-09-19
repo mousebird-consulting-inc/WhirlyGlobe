@@ -28,8 +28,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyShader
 {
+    WhirlyKit::Scene *scene;
     NSString *buildError;
     EAGLContext *context;
+    // Texture we created for use in this shader
+    SimpleIDSet texIDs;
 }
 
 - (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
@@ -90,10 +93,37 @@ using namespace WhirlyKit;
         return nil;
     }
     
+    scene = baseViewC->scene;
+    
     if (baseViewC->scene)
         baseViewC->scene->addProgram(_program);
     
     return self;
+}
+
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Tried to add texture, but not on main thread");
+        return;
+    }
+    
+    if (!scene)
+        return;
+    
+    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    SimpleIdentity auxTexId = auxTex->getId();
+    auxTex->createInGL(scene->getMemManager());
+    GLuint glTexId = auxTex->getGLId();
+    scene->addChangeRequest(new AddTextureReq(auxTex));
+    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (prog)
+    {
+        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
+    }
+    
+    texIDs.insert(auxTexId);
 }
 
 // We're assuming the view controller has set the proper context
@@ -104,6 +134,14 @@ using namespace WhirlyKit;
 //        _program->cleanUp();
 //        delete _program;
         _program = NULL;
+    }
+
+    if (scene)
+    {
+        ChangeSet changes;
+        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
+            changes.push_back(new RemTextureReq(*it));
+        scene->addChangeRequests(changes);
     }
 }
 
