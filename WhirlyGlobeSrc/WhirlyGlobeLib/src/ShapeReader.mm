@@ -105,7 +105,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         {
             VectorLinearRef linear = VectorLinear::createLinear();
             theShape = linear;
-            for (unsigned int ii=0;ii<thisShape->nParts;ii++)
+            for (unsigned int ii=0;ii<thisShape->nVertices;ii++)
             {
                 Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[ii]),WhirlyKit::DegToRad<float>(thisShape->padfY[ii]));
                 linear->pts.push_back(pt);
