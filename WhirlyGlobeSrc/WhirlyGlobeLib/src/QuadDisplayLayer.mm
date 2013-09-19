@@ -441,7 +441,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _debugMode = false;
         greedyMode = false;
         _maxUpdatePeriod = 0.0;
-//        _maxUpdatePeriod = 1/15.0;  // Won't spend more than 1/30 on updates by default
+//        _maxUpdatePeriod = 1/5.0;  // Won't spend more than 1/30 on updates by default
     }
     
     return self;

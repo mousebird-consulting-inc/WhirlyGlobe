@@ -699,7 +699,7 @@ void LoadedTile::Print(Quadtree *tree)
 }
 
 // Helper routine for constructing the skirt around a tile
-- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords skirtFactor:(float)skirtFactor
+- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords skirtFactor:(float)skirtFactor elev:(bool)haveElev
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -709,9 +709,15 @@ void LoadedTile::Print(Quadtree *tree)
         cornerTex[0] = texCoords[ii];
         corners[1] = pts[ii+1];
         cornerTex[1] = texCoords[ii+1];
-        corners[2] = pts[ii+1] * skirtFactor;
+        if (haveElev)
+            corners[2] = pts[ii+1].normalized();
+        else
+            corners[2] = pts[ii+1] * skirtFactor;
         cornerTex[2] = texCoords[ii+1];
-        corners[3] = pts[ii] * skirtFactor;
+        if (haveElev)
+            corners[3] = pts[ii].normalized();
+        else
+            corners[3] = pts[ii] * skirtFactor;
         cornerTex[3] = texCoords[ii];
 
         // Toss in the points, but point the normal up
@@ -1143,6 +1149,7 @@ void LoadedTile::Print(Quadtree *tree)
                 //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
                 //  disparity
                 float skirtFactor = 0.95;
+                bool haveElev = elevData && _useElevAsZ;
                 // Leave the big skirts in place if we're doing real elevation
                 if (!elevData || !_useElevAsZ)
                     skirtFactor = 1.0 - 0.2 / (1<<nodeInfo->ident.level);
@@ -1155,7 +1162,7 @@ void LoadedTile::Print(Quadtree *tree)
                     skirtLocs.push_back(locs[ix]);
                     skirtTexCoords.push_back(texCoords[ix]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor elev:haveElev];
                 // Top skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -1164,7 +1171,7 @@ void LoadedTile::Print(Quadtree *tree)
                     skirtLocs.push_back(locs[(sphereTessY)*(sphereTessX+1)+ix]);
                     skirtTexCoords.push_back(texCoords[(sphereTessY)*(sphereTessX+1)+ix]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor elev:haveElev];
                 // Left skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -1173,7 +1180,7 @@ void LoadedTile::Print(Quadtree *tree)
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+0]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+0]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor elev:haveElev];
                 // right skirt
                 skirtLocs.clear();
                 skirtTexCoords.clear();
@@ -1182,7 +1189,7 @@ void LoadedTile::Print(Quadtree *tree)
                     skirtLocs.push_back(locs[(sphereTessX+1)*iy+(sphereTessX)]);
                     skirtTexCoords.push_back(texCoords[(sphereTessX+1)*iy+(sphereTessX)]);
                 }
-                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor];
+                [self buildSkirt:skirtChunk pts:skirtLocs tex:skirtTexCoords skirtFactor:skirtFactor elev:haveElev];
                 
                 if (texs && !texs->empty() && !((*texs)[0]))
                     skirtChunk->setTexId(0,(*texs)[0]->getId());
@@ -1495,10 +1502,23 @@ static const int SingleElementSize = sizeof(GLushort);
         // Note: Trouble with PVRTC sub texture loading
         if (_imageType != WKTilePVRTC4)
         {
-            // At 256 pixels square we can hold 64 tiles in a texture atlas.  Round up to 1k.
-            int DrawBufferSize = ceil((2 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleVertexSize * 64) / 1024.0) * 1024;
+            int estTexX = defaultSphereTessX, estTexY = defaultSphereTessY;
+            if (loadElev)
+            {
+                estTexX = std::max(loadElev.numX-1,estTexX);
+                estTexY = std::max(loadElev.numY-1,estTexY);
+            }
+
+            // How many tiles can we stuff into a texture atlas, if we assume tiles 256 pixels in size
+            int NumTiles = _textureAtlasSize / 256; NumTiles = NumTiles*NumTiles;
+            int DrawBufferVertices = (estTexX + 1) * (estTexY + 1) * NumTiles;
+            // Have to be able to address them
+            // Note: Can't go up to 65536 for some reason
+            DrawBufferVertices = std::min(DrawBufferVertices,32768);
+            int DrawBufferSize = DrawBufferVertices * SingleVertexSize;
+
             // Two triangles per grid cell in a tile
-            int ElementBufferSize = ceil((2 * 6 * (defaultSphereTessX + 1) * (defaultSphereTessY + 1) * SingleElementSize * 64) / 1024.0) * 1024;
+            int ElementBufferSize = 6 * DrawBufferVertices * SingleElementSize;
             int texSortSize = (_tileScale == WKTileScaleFixed ? _fixedTileSize : texelBinSize);
             
             for (unsigned int ii=0;ii<_numImages;ii++)
