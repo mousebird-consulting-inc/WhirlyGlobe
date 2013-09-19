@@ -84,6 +84,23 @@ bool OpenGLES2Program::setUniform(const std::string &name,int val)
     
     return true;
 }
+    
+bool OpenGLES2Program::setTexture(const std::string &name,GLuint val)
+{
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
+        return false;
+    
+    uni->isTexture = true;
+    uni->isSet = true;
+    uni->val.iVals[0] = val;
+    
+    return true;
+}
+
 
 bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f &vec)
 {
@@ -369,5 +386,24 @@ bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,Whirl
     return lightsSet;
 }
 
+int OpenGLES2Program::bindTextures()
+{
+    int numTextures = 0;
+    
+    for (std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.begin();
+         it != uniforms.end(); ++it)
+    {
+        OpenGLESUniform *uni = *it;
+        if (uni->isTexture)
+        {
+            glActiveTexture(GL_TEXTURE0+numTextures);
+            glBindTexture(GL_TEXTURE_2D, uni->val.iVals[0]);
+            glUniform1i(uni->index,numTextures);
+            numTextures++;
+        }
+    }
+    
+    return numTextures;
+}
 
 }

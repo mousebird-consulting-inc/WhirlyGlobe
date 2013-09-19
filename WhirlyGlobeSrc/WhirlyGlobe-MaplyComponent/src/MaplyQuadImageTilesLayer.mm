@@ -23,6 +23,7 @@
 #import "QuadDisplayLayer.h"
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
+#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
@@ -214,7 +215,7 @@ using namespace WhirlyKit;
     }
     
     elevDelegate = _viewC.elevDelegate;
-
+    
     [layerThread addLayer:quadLayer];
 
     return true;
