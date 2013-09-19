@@ -1684,13 +1684,13 @@ static const int SingleElementSize = sizeof(GLushort);
         currentImage1 = endImage;
         
         // Change all the draw atlases at once
+        pthread_mutex_lock(&texAtlasMappingLock);
         if (!texAtlases.empty())
         {
             std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
             std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
             
             // Copy this out to avoid locking too long
-            pthread_mutex_lock(&texAtlasMappingLock);
             if (texAtlasMappings.size() > 0)
                 baseTexIDs = texAtlasMappings[0];
             if (startImage < texAtlasMappings.size())
@@ -1716,6 +1716,8 @@ static const int SingleElementSize = sizeof(GLushort);
                 }
             }
         } else {
+            pthread_mutex_unlock(&texAtlasMappingLock);
+
             // We'll look through the tiles and change them all accordingly
             pthread_mutex_lock(&tileLock);
 
