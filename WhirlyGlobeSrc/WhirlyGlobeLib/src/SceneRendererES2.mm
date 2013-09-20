@@ -78,6 +78,9 @@ public:
     
 }
 
+@implementation WhirlyKitFrameMessage
+@end
+
 @implementation WhirlyKitSceneRendererES2
 {
     NSMutableArray *lights;
@@ -208,6 +211,12 @@ static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
+    // Let anyone who cares know the frame draw is starting
+    WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
+    frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
+    frameMsg.frameInterval = duration;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
+
     if (_dispatchRendering)
     {
         if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
