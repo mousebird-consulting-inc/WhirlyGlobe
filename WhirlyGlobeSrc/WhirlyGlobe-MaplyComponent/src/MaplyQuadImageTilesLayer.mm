@@ -85,7 +85,6 @@ using namespace WhirlyKit;
 @implementation MaplyQuadImageTilesLayer
 {
     MaplyBaseViewController *_viewC;
-    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
@@ -129,7 +128,7 @@ using namespace WhirlyKit;
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
     _viewC = viewC;
-    layerThread = inLayerThread;
+    super.layerThread = inLayerThread;
     scene = inScene;
 
     // Cache min and max zoom.  Tile sources might do a lookup for these
@@ -216,7 +215,7 @@ using namespace WhirlyKit;
     
     elevDelegate = _viewC.elevDelegate;
     
-    [layerThread addLayer:quadLayer];
+    [super.layerThread addLayer:quadLayer];
 
     return true;
 }
@@ -244,9 +243,9 @@ using namespace WhirlyKit;
 
 - (void)reload
 {
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != super.layerThread)
     {
-        [self performSelector:@selector(reload) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(reload) onThread:super.layerThread withObject:nil waitUntilDone:NO];
         return;
     }
 
@@ -315,7 +314,7 @@ using namespace WhirlyKit;
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown
 {
-    layerThread = nil;
+    super.layerThread = nil;
 }
 
 // Note: Should allow the users to set this
@@ -358,12 +357,12 @@ using namespace WhirlyKit;
         if (elevDelegate && _requireElev && !elevChunk)
         {
             NSArray *args = @[[NSNull null],@(col),@(row),@(level)];
-            if (layerThread)
+            if (super.layerThread)
             {
-                if ([NSThread currentThread] == layerThread)
+                if ([NSThread currentThread] == super.layerThread)
                     [self performSelector:@selector(mergeTile:) withObject:args];
                 else
-                    [self performSelector:@selector(mergeTile:) onThread:layerThread withObject:args waitUntilDone:NO];
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
             }
             
             return;
@@ -480,12 +479,12 @@ using namespace WhirlyKit;
         }
             
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
-        if (layerThread)
+        if (super.layerThread)
         {
-            if ([NSThread currentThread] == layerThread)
+            if ([NSThread currentThread] == super.layerThread)
                 [self performSelector:@selector(mergeTile:) withObject:args];
             else
-                [self performSelector:@selector(mergeTile:) onThread:layerThread withObject:args waitUntilDone:NO];
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
         }
     };
     
@@ -503,7 +502,7 @@ using namespace WhirlyKit;
 // Merge the tile result back on the layer thread
 - (void)mergeTile:(NSArray *)args
 {
-    if (!layerThread)
+    if (!super.layerThread)
         return;
     
     WhirlyKitLoadedTile *loadTile = args[0];
