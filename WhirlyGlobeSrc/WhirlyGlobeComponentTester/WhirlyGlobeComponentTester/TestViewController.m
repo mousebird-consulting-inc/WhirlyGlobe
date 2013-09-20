@@ -182,6 +182,9 @@ LocationInfo locations[NumLocations] =
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
+
+    // Note: Debugging
+    baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
     baseViewC.clearColor = [UIColor blackColor];

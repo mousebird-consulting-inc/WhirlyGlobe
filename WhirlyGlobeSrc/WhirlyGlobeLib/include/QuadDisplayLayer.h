@@ -179,8 +179,6 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// How far the viewer has to move to force an update (if non-zero)
 @property (nonatomic,assign) float minUpdateDist;
-/// How much time we're willing to spend on a single update (if zero, we just go through one time)
-@property (nonatomic,assign) NSTimeInterval maxUpdatePeriod;
 /// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader that may be creating and deleting data as the quad tiles load
@@ -188,6 +186,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+/// If set we'll try to match the frame boundaries for our update
+@property (nonatomic,assign) bool meteredMode;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

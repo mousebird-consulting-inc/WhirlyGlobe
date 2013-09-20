@@ -25,6 +25,7 @@
 #import "UIImage+Stuff.h"
 #import "FlatMath.h"
 #import "VectorData.h"
+#import "SceneRendererES2.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
@@ -417,6 +418,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     
     /// State of the view the last time we were called
     WhirlyKitViewState *viewState;
+    
+    /// Frame times for metered mode
+    NSTimeInterval frameStart,frameInterval;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -440,8 +444,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _drawEmpty = false;
         _debugMode = false;
         greedyMode = false;
-        _maxUpdatePeriod = 0.0;
-//        _maxUpdatePeriod = 1/5.0;  // Won't spend more than 1/30 on updates by default
+        _meteredMode = true;
     }
     
     return self;
@@ -449,6 +452,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
     if (_quadtree)
         delete _quadtree;
 }
@@ -473,11 +478,15 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     // We want view updates, but only 1s in frequency
     if (_layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:_minUpdateDist maxLagTime:10.0];
+    
+    if (_meteredMode)
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];
 }
 
 - (void)shutdown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     if (_layerThread.viewWatcher) {
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
@@ -489,6 +498,15 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     _loader = nil;
     
     _scene = NULL;
+}
+
+// Called by the renderer (in that thread, so be careful)
+- (void)frameStart:(NSNotification *)note
+{
+    WhirlyKitFrameMessage *msg = note.object;
+    
+    frameStart = msg.frameStart;
+    frameInterval = msg.frameInterval;
 }
 
 // Called every so often by the view watcher
@@ -549,6 +567,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         [_loader log];
 }
 
+// How much of the frame time we're willing to spend
+static const NSTimeInterval AvailableFrame = 4.0/5.0;
+
 // Run the evaluation step for outstanding nodes
 - (void)evalStep:(id)Sender
 {
@@ -568,8 +589,6 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     }
 
     [_loader quadDisplayLayerStartUpdates:self];
-
-    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
 
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
@@ -630,9 +649,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
             // If we're not in greedy mode, we're only doing this for a certain time period, then we'll hand off
             NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-            if (!greedyMode)
+            if (!greedyMode && _meteredMode)
             {
-                if (now-startTime > _maxUpdatePeriod || ![_loader isReady])
+                if (now-frameStart > AvailableFrame*frameInterval || ![_loader isReady])
                     break;
             }
         }
