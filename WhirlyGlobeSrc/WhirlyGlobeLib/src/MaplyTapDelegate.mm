@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     // Just figure out where we tapped
 	Point3d hit;
     Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
-    CGPoint touchLoc = [tap locationOfTouch:0 inView:tap.view];    
+    CGPoint touchLoc = [tap locationInView:tap.view];
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
