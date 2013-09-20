@@ -186,6 +186,9 @@ LocationInfo locations[NumLocations] =
     // Set the background color for the globe
     baseViewC.clearColor = [UIColor blackColor];
     
+    // We'll let the toolkit create a thread per image layer.
+    baseViewC.threadPerLayer = true;
+    
     // This will get us taps and such
     if (globeViewC)
     {
@@ -703,7 +706,7 @@ static const int NumMegaMarkers = 40000;
         self.title = @"OpenStreetMap - Remote";
         // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
         thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-        int maxZoom = 17;
+        int maxZoom = 18;
         if (zoomLimit != 0 && zoomLimit < maxZoom)
             maxZoom = zoomLimit;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
@@ -763,7 +766,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];

@@ -72,13 +72,6 @@ using namespace WhirlyKit;
     sceneRenderer = nil;
     baseLayerThread = nil;
 
-//    markerLayer = nil;
-//    labelLayer = nil;
-//    vectorLayer = nil;
-//    shapeLayer = nil;
-//    chunkLayer = nil;
-//    layoutLayer = nil;
-//    loftLayer = nil;
     activeObjects = nil;
     
     interactLayer = nil;
@@ -197,40 +190,11 @@ using namespace WhirlyKit;
     sceneRenderer.scene = scene;
     [self loadSetup_lighting];
     
+    layerThreads = [NSMutableArray array];
+    
     // Need a layer thread to manage the layers
-	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer];
+	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:true];
     [layerThreads addObject:baseLayerThread];
-    
-#if 0
-	// Set up the vector layer where all our outlines will go
-	vectorLayer = [[WhirlyKitVectorLayer alloc] init];
-	[layerThread addLayer:vectorLayer];
-    
-    // Set up the shape layer.  Manages a set of simple shapes
-    shapeLayer = [[WhirlyKitShapeLayer alloc] init];
-    [layerThread addLayer:shapeLayer];
-    
-    // Set up the chunk layer.  Used for stickers.
-    chunkLayer = [[WhirlyKitSphericalChunkLayer alloc] init];
-    chunkLayer.ignoreEdgeMatching = true;
-    [layerThread addLayer:chunkLayer];
-    
-	// General purpose label layer.
-	labelLayer = [[WhirlyKitLabelLayer alloc] init];
-	[layerThread addLayer:labelLayer];
-    
-    // Marker layer
-    markerLayer = [[WhirlyKitMarkerLayer alloc] init];
-    [layerThread addLayer:markerLayer];
-    
-    // 2D layout engine layer
-    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
-    [layerThread addLayer:layoutLayer];
-    
-    // Lofted polygon layer
-    loftLayer = [[WhirlyKitLoftLayer alloc] init];
-    [layerThread addLayer:loftLayer];
-#endif
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
@@ -658,7 +622,15 @@ static const float PerfOutputDelay = 15.0;
 {
     if (newLayer && ![userLayers containsObject:newLayer])
     {
-        if ([newLayer startLayer:baseLayerThread scene:scene renderer:sceneRenderer viewC:self])
+        WhirlyKitLayerThread *layerThread = baseLayerThread;
+        if (_threadPerLayer)
+        {
+            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
+            [layerThreads addObject:layerThread];
+            [layerThread start];
+        }
+        
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
             newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
             [userLayers addObject:newLayer];
@@ -672,7 +644,8 @@ static const float PerfOutputDelay = 15.0;
 - (void)removeLayer:(MaplyViewControllerLayer *)layer
 {
     bool found = false;
-    for (MaplyViewControllerLayer *theLayer in userLayers)
+    MaplyViewControllerLayer *theLayer = nil;
+    for (theLayer in userLayers)
     {
         if (theLayer == layer)
         {
@@ -683,17 +656,28 @@ static const float PerfOutputDelay = 15.0;
     if (!found)
         return;
     
-    [layer cleanupLayers:baseLayerThread scene:scene];
+    WhirlyKitLayerThread *layerThread = layer.layerThread;
+    [layer cleanupLayers:layerThread scene:scene];
     [userLayers removeObject:layer];
+    
+    // Need to shut down the layer thread too
+    if (layerThread != baseLayerThread)
+    {
+        if ([layerThreads containsObject:layerThread])
+        {
+            [layerThreads removeObject:layerThread];
+            [layerThread addThingToRelease:theLayer];
+            [layerThread cancel];
+        }
+    }
 }
 
 - (void)removeAllLayers
 {
-    for (MaplyViewControllerLayer *theLayer in userLayers)
-    {
-        [theLayer cleanupLayers:baseLayerThread scene:scene];
-    }
-    [userLayers removeAllObjects];
+    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
+    
+    for (MaplyViewControllerLayer *theLayer in allLayers)
+        [self removeLayer:theLayer];
 }
 
 #pragma mark - Properties

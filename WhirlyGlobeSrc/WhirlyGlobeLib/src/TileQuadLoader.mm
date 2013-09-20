@@ -92,6 +92,7 @@ using namespace WhirlyKit;
         _tileScale = WKTileScaleNone;
         _fixedTileSize = 256;
         _textureAtlasSize = 2048;
+        _activeTextures = -1;
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -603,11 +604,10 @@ using namespace WhirlyKit;
         currentImage1 = endImage;
         
         // Change all the draw atlases at once
-        if (!_useDynamicAtlas)
+        if (_useDynamicAtlas)
         {
             if (tileBuilder)
             {
-                
                 std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
                 std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
 

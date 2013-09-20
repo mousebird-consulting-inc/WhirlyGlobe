@@ -40,16 +40,6 @@
     WhirlyKitLayerThread *baseLayerThread;
     NSMutableArray *layerThreads;
 
-    // The standard set of layers we create
-    // Most layers have been replaced by managers
-//    WhirlyKitMarkerLayer *markerLayer;
-//    WhirlyKitLabelLayer *labelLayer;
-//    WhirlyKitVectorLayer *vectorLayer;
-//    WhirlyKitShapeLayer *shapeLayer;
-//    WhirlyKitSphericalChunkLayer *chunkLayer;
-//    WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitLoftLayer *loftLayer;
-    
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
 
