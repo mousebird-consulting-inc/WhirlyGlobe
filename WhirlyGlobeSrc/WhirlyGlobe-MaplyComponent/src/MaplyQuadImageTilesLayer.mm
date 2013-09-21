@@ -452,7 +452,7 @@ using namespace WhirlyKit;
             }
         }
 #endif
-
+        
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
         if ([imageDataArr count] == _imageDepth)
         {
@@ -461,11 +461,17 @@ using namespace WhirlyKit;
                 WhirlyKitLoadedImage *loadImage = nil;
                 NSObject *imgData = [imageDataArr objectAtIndex:ii];
                 if ([imgData isKindOfClass:[UIImage class]])
+                {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
-                else if ([imgData isKindOfClass:[NSData class]])
+                } else if ([imgData isKindOfClass:[NSData class]])
+                {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                }
                 if (!loadImage)
                     break;
+                // This pulls the pixels out of their weird little compressed formats
+                // Since we're on our own thread here (probably) this may save time
+                [loadImage convertToRawData];
                 [loadTile.images addObject:loadImage];
             }
         } else
