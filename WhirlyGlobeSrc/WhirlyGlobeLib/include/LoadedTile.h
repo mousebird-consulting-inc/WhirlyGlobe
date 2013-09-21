@@ -84,6 +84,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// You could overload this, just be sure to respect the border pixels.
 - (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
 
+/// This will extract the pixels out of an image or NSData and store them for later use
+- (bool)convertToRawData;
+
 @end
 
 /** This is a more generic version of the Loaded Image.  It can be a single

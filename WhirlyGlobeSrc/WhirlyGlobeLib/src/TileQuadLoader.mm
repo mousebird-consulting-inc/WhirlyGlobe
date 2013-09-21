@@ -325,7 +325,7 @@ using namespace WhirlyKit;
     pthread_mutex_unlock(&tileLock);
     
     numFetches++;
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];    
 }
 
 // Check if we're in the process of loading the given tile
