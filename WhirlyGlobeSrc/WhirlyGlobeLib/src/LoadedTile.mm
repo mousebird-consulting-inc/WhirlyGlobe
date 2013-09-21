@@ -145,6 +145,30 @@ using namespace WhirlyKit;
     return newTex;
 }
 
+- (bool)convertToRawData
+{
+    switch (_type)
+    {
+        case WKLoadedImageUIImage:
+        {
+            int destWidth = _width;
+            int destHeight = _height;
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:0];
+            if (rawData)
+            {
+                _imageData = rawData;
+                _type = WKLoadedImageNSDataRawData;
+            }
+        }
+            break;
+        default:
+            return false;
+            break;
+    }
+    
+    return true;
+}
+
 @end
 
 namespace WhirlyKit
