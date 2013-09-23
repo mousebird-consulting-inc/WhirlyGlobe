@@ -27,6 +27,10 @@
  */
 @interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
 
+
+/// Set this to "true" to allow the globe movement stop when user taps the globe. (Default false)
+@property (nonatomic) Boolean stopGlobeMoveOnTap;
+
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 
