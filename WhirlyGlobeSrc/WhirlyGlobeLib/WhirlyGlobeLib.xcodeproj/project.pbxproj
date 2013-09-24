@@ -1354,31 +1354,23 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2BA13BF617EE9F1A000C43B7 /* vestigal */,
 				2BB25922177A042F00770619 /* BillboardDrawable.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
 				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
-				2BCAB9A912F897E20049D73C /* DataLayer.h */,
 				2B951C7D12EFA262005003AE /* GridLines.h */,
-				2B951D9812F09F31005003AE /* VectorLayer.h */,
 				2BB1F06813007031001F33CD /* LabelLayer.h */,
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
-				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
-				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
 				2B08059517EB955C0016C813 /* LoadedTile.h */,
 				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
-				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
-				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
-				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
 				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
-				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -1422,6 +1414,22 @@
 				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
 			);
 			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2BA13BF617EE9F1A000C43B7 /* vestigal */ = {
+			isa = PBXGroup;
+			children = (
+				2B93C81514522DE600D768BA /* MarkerLayer.h */,
+				2B951D9812F09F31005003AE /* VectorLayer.h */,
+				2BCAB9A912F897E20049D73C /* DataLayer.h */,
+				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
+				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
+				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
+				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
+				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
+			);
+			name = vestigal;
 			sourceTree = "<group>";
 		};
 		2BA2322A17984F1A0063CC84 /* glu */ = {
@@ -2358,6 +2366,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -2384,10 +2395,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -2397,6 +2405,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -2422,10 +2433,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

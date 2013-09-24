@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B0D630E17A2EE0400C3298D /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
 		2B0D632217A2EEAB00C3298D /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D631017A2EEAB00C3298D /* AFHTTPClient.m */; };
 		2B0D632317A2EEAB00C3298D /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D631217A2EEAB00C3298D /* AFHTTPRequestOperation.m */; };
 		2B0D632417A2EEAB00C3298D /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D631417A2EEAB00C3298D /* AFImageRequestOperation.m */; };
@@ -19,9 +18,6 @@
 		2B0D632A17A2EEAB00C3298D /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D632117A2EEAB00C3298D /* UIImageView+AFNetworking.m */; };
 		2B0D633117A2EEE900C3298D /* AFKissXMLRequestOperation.h in Resources */ = {isa = PBXBuildFile; fileRef = 2B0D632B17A2EEE900C3298D /* AFKissXMLRequestOperation.h */; };
 		2B0D633817A2F2BB00C3298D /* AFKissXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D633717A2F2BB00C3298D /* AFKissXMLRequestOperation.m */; };
-		2B62DD5E16E7F0BC001F52FC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD5D16E7F0BC001F52FC /* UIKit.framework */; };
-		2B62DD6016E7F0BC001F52FC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD5F16E7F0BC001F52FC /* Foundation.framework */; };
-		2B62DD6216E7F0BC001F52FC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD6116E7F0BC001F52FC /* CoreGraphics.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
 		2B62DD8616E7F3A2001F52FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD7B16E7F3A2001F52FC /* AppDelegate.m */; };
@@ -29,14 +25,15 @@
 		2B62DD8816E7F3A2001F52FC /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD7E16E7F3A2001F52FC /* ConfigViewController.xib */; };
 		2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8316E7F3A2001F52FC /* StartupViewController.m */; };
 		2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8516E7F3A2001F52FC /* TestViewController.m */; };
-		2B62DD9316E7F3D6001F52FC /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
-		2B62DDB416E7F4FD001F52FC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB316E7F4FD001F52FC /* QuartzCore.framework */; };
-		2B62DDB616E7F505001F52FC /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
-		2B62DDB816E7F509001F52FC /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB716E7F509001F52FC /* libsqlite3.dylib */; };
-		2B62DDBA16E7F514001F52FC /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */; };
-		2B62DDBC16E7F51B001F52FC /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */; };
-		2B62DDBE16E7F54B001F52FC /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
-		2B8218CD176FCB7C0012322A /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8218CC176FCB7C0012322A /* CoreLocation.framework */; };
+		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
+		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
+		2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
+		2BA13C0417F10E70000C43B7 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB716E7F509001F52FC /* libsqlite3.dylib */; };
+		2BA13C0517F10E93000C43B7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB916E7F514001F52FC /* SystemConfiguration.framework */; };
+		2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */; };
+		2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B8218CC176FCB7C0012322A /* CoreLocation.framework */; };
+		2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC989E117DC28350071DA9E /* libz.dylib */; };
+		2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13BF117EE1875000C43B7 /* libc++.dylib */; };
 		2BB54ECC17CEB8330065451F /* icon-iPhone.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECB17CEB8330065451F /* icon-iPhone.png */; };
 		2BB54ECF17CEB8380065451F /* icon-iPhone@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */; };
 		2BB54ED117CEB83E0065451F /* icon-iPad.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54ED017CEB83E0065451F /* icon-iPad.png */; };
@@ -49,9 +46,7 @@
 		2BB54EE017CEB8950065451F /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDC17CEB8830065451F /* Default.png */; };
 		2BB54EE217CEB8A20065451F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EE117CEB8A20065451F /* Default@2x.png */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
-		2BC989E217DC28350071DA9E /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BC989E117DC28350071DA9E /* libz.dylib */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
-		2BEA1E6B171E0F310039F1A4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BEA1E6A171E0F300039F1A4 /* CoreText.framework */; };
 		2BFD25DD170B92AD00127EF5 /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DA170B92AD00127EF5 /* map_pin.png */; };
 		2BFD25DE170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DB170B92AD00127EF5 /* Smiley_Face_Avatar_by_PixelTwist.png */; };
 		2BFD25DF170B92AD00127EF5 /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DC170B92AD00127EF5 /* Star.png */; };
@@ -377,6 +372,9 @@
 		2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2B8218CC176FCB7C0012322A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
+		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
+		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		2BB54ECB17CEB8330065451F /* icon-iPhone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone.png"; sourceTree = "<group>"; };
 		2BB54ECE17CEB8370065451F /* icon-iPhone@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPhone@2x.png"; sourceTree = "<group>"; };
 		2BB54ED017CEB83E0065451F /* icon-iPad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-iPad.png"; sourceTree = "<group>"; };
@@ -666,20 +664,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BC989E217DC28350071DA9E /* libz.dylib in Frameworks */,
-				2B0D630E17A2EE0400C3298D /* libxml2.dylib in Frameworks */,
-				2B8218CD176FCB7C0012322A /* CoreLocation.framework in Frameworks */,
-				2BEA1E6B171E0F310039F1A4 /* CoreText.framework in Frameworks */,
-				2B62DDBE16E7F54B001F52FC /* MobileCoreServices.framework in Frameworks */,
-				2B62DD6216E7F0BC001F52FC /* CoreGraphics.framework in Frameworks */,
-				2B62DDBC16E7F51B001F52FC /* libstdc++.dylib in Frameworks */,
-				2B62DDBA16E7F514001F52FC /* SystemConfiguration.framework in Frameworks */,
-				2B62DDB816E7F509001F52FC /* libsqlite3.dylib in Frameworks */,
-				2B62DDB616E7F505001F52FC /* OpenGLES.framework in Frameworks */,
-				2B62DDB416E7F4FD001F52FC /* QuartzCore.framework in Frameworks */,
-				2B62DD9316E7F3D6001F52FC /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
-				2B62DD5E16E7F0BC001F52FC /* UIKit.framework in Frameworks */,
-				2B62DD6016E7F0BC001F52FC /* Foundation.framework in Frameworks */,
+				2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */,
+				2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */,
+				2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */,
+				2BA13C0617F10EC1000C43B7 /* MobileCoreServices.framework in Frameworks */,
+				2BA13C0517F10E93000C43B7 /* SystemConfiguration.framework in Frameworks */,
+				2BA13C0417F10E70000C43B7 /* libsqlite3.dylib in Frameworks */,
+				2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */,
+				2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */,
+				2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -740,6 +733,9 @@
 		2B62DD5C16E7F0BC001F52FC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2BA13C0017F10E49000C43B7 /* CFNetwork.framework */,
+				2BA13BF317EE1884000C43B7 /* libc++abi.dylib */,
+				2BA13BF117EE1875000C43B7 /* libc++.dylib */,
 				2B62DD5D16E7F0BC001F52FC /* UIKit.framework */,
 				2B62DD5F16E7F0BC001F52FC /* Foundation.framework */,
 				2B62DD6116E7F0BC001F52FC /* CoreGraphics.framework */,
@@ -1499,8 +1495,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1509,7 +1505,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1531,8 +1527,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -1541,7 +1537,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -1556,6 +1552,9 @@
 		2B62DD7816E7F0BD001F52FC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -1564,6 +1563,7 @@
 					/usr/include/libxml2/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -1573,6 +1573,9 @@
 		2B62DD7916E7F0BD001F52FC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -1581,6 +1584,7 @@
 					/usr/include/libxml2/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeComponentTester/WhirlyGlobeComponentTester-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
