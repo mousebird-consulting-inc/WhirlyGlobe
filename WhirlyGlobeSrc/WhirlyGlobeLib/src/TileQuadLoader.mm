@@ -139,7 +139,12 @@ using namespace WhirlyKit;
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
-    [self flushUpdates:layer.layerThread];
+    // Flush out any existing change requests
+    if (!changeRequests.empty())
+    {
+        [layer.layerThread addChangeRequests:(changeRequests)];
+        changeRequests.clear();
+    }
     
     ChangeSet theChangeRequests;
 
@@ -479,7 +484,6 @@ using namespace WhirlyKit;
     // Various child state changed so let's update the parents
     if (level > 0)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
-    [self refreshParents:_quadLayer];
     
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
@@ -521,16 +525,25 @@ using namespace WhirlyKit;
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
     if (tileInfo.ident.level > 0)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
-
+    
     [self updateTexAtlasMapping];
+}
+
+// Run the parent updates, without doing a flush
+- (void)updateWithoutFlush
+{
+    [self refreshParents:_quadLayer];
 }
 
 // Thus ends the unloads.  Now we can update parents
 - (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
-    [self refreshParents:layer];
-    
-    [self flushUpdates:layer.layerThread];
+    if (doingUpdate)
+    {
+        [self refreshParents:layer];
+        
+        [self flushUpdates:layer.layerThread];
+    }
     
     doingUpdate = false;
 }
