@@ -480,11 +480,16 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:_minUpdateDist maxLagTime:10.0];
     
     if (_meteredMode)
+    {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];
+        [_loader quadDisplayLayerStartUpdates:self];
+    }
 }
 
 - (void)shutdown
 {
+    [_loader quadDisplayLayerEndUpdates:self];
+
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
@@ -507,6 +512,26 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     
     frameStart = msg.frameStart;
     frameInterval = msg.frameInterval;
+    
+    if (_meteredMode)
+        [self performSelector:@selector(frameStartThread) onThread:_layerThread withObject:nil waitUntilDone:NO];
+}
+
+- (void)frameStartThread
+{
+    NSTimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
+    if (howLong > 0.0)
+    {
+        [_loader quadDisplayLayerStartUpdates:self];
+        [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
+    }
+}
+
+- (void)frameEndThread
+{
+    // Flush out the updates and immediately start new ones
+    [_loader quadDisplayLayerEndUpdates:self];
+    [_loader quadDisplayLayerStartUpdates:self];
 }
 
 // Called every so often by the view watcher
@@ -588,7 +613,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         return;
     }
 
-    [_loader quadDisplayLayerStartUpdates:self];
+    if (!_meteredMode)
+        [_loader quadDisplayLayerStartUpdates:self];
 
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
@@ -660,7 +686,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
 
     // Let the loader know we're done with this eval step
-    [_loader quadDisplayLayerEndUpdates:self];
+    if (_meteredMode)
+    {
+        if ([_loader respondsToSelector:@selector(updateWithoutFlush)])
+            [_loader updateWithoutFlush];
+    } else
+        [_loader quadDisplayLayerEndUpdates:self];
 
 //    if (debugMode)
 //        [self dumpInfo];

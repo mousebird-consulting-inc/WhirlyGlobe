@@ -142,6 +142,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// Normally we'd call an endUpdates, but if we're holding that open for a while
+/// (e.g. matching frame boundaries), let's at least get all the work done.
+- (void)updateWithoutFlush;
+
 /// Dump some log info out to the console
 - (void)log;
 
