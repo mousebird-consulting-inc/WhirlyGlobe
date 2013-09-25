@@ -101,7 +101,7 @@ using namespace Maply;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self stopAnimation];
     
-    [layerThread addThingToDelete:coordAdapter];
+    [baseLayerThread addThingToDelete:coordAdapter];
     
     if (scrollView)
     {

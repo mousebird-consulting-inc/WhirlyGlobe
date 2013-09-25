@@ -28,6 +28,22 @@
 @class WhirlyKitSceneRendererES1;
 /// @endcond
 
+#define kWKFrameMessage @"WhirlyKitFrameMessage"
+
+/** This message is sent out by the renderer right
+    before it does its thing.  We use it to loosely
+    sync other threads to the render.
+  */
+@interface WhirlyKitFrameMessage : NSObject
+
+/// When the message is sent, basically
+@property (nonatomic) NSTimeInterval frameStart;
+
+/// The interval between frames
+@property (nonatomic) NSTimeInterval frameInterval;
+
+@end
+
 /** Scene Renderer for OpenGL ES2.
      This implements the actual rendering.  In theory it's
      somewhat composable, but in reality not all that much.
