@@ -57,6 +57,10 @@
 /// Return an elevation chunk (or nil) for a given tile
 - (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
 
+/// Let us know if the data is local or remote.  This is a hint to
+///  the pager.
+- (bool)tileIsLocal:(MaplyTileID)tileID;
+
 @end
 
 /** A simple test elevation source.  This just generates a bumpy elevation field.

@@ -142,7 +142,7 @@ using namespace WhirlyGlobe;
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
-    WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:globeScene texGroup:name];
+    WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:baseLayerThread scene:globeScene texGroup:name];
     newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
     if (!newLayer)
         return nil;
