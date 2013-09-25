@@ -128,7 +128,7 @@ static const float AnimLen = 1.0;
             
             // Save where we touched
             startTransform = [mapView calcFullMatrix];
-            [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:pan.view] transform:&startTransform
+            [mapView pointOnPlaneFromScreen:[pan locationInView:pan.view] transform:&startTransform
                                   frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
                                         hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
@@ -143,7 +143,7 @@ static const float AnimLen = 1.0;
                 
                 // Figure out where we are now
                 Point3d hit;
-                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
                                        frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)

@@ -49,4 +49,7 @@
 /// Set this to something else if you have something more unique.
 @property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
+/// If set, we'll store (and look for) cache images here.
+@property (nonatomic) NSString *cacheDir;
+
 @end
