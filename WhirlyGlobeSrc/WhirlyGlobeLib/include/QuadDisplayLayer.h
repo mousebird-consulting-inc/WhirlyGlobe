@@ -146,6 +146,12 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 /// (e.g. matching frame boundaries), let's at least get all the work done.
 - (void)updateWithoutFlush;
 
+/// Number of network fetches outstanding.  Used by the pager for optimization.
+- (int)networkFetches;
+
+/// Number of local fetches outstanding.  Used by the pager for optimizaiton.
+- (int)localFetches;
+
 /// Dump some log info out to the console
 - (void)log;
 

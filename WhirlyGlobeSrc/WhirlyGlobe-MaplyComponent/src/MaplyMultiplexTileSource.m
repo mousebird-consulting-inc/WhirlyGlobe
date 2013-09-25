@@ -66,6 +66,20 @@
     return [((NSObject<MaplyTileSource> *)_tileSources[0]) tileSize];
 }
 
+// It's local if all the tile sources say so
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    bool tileLocal = true;
+    for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+    {
+        tileLocal &= [tileSource tileIsLocal:tileID];
+        if (!tileLocal)
+            break;
+    }
+    
+    return tileLocal;
+}
+
 - (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages
 {
     if (numImages != [_tileSources count])
