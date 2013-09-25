@@ -56,6 +56,10 @@
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
 
+/// Check if the given tile is a local or remote fetch.  This is a hint
+///  to the pager.  It can display local tiles as a group faster.
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+
 @end
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
