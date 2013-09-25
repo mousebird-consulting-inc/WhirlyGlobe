@@ -132,6 +132,9 @@
 /// Coordinate system (used to build URLs)
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
 
+/// If set, we'll cache the images locally (a good idea with WMS)
+@property (nonatomic) NSString *cacheDir;
+
 /// Construct with the base URL and the layers we should fetch
 - (id)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;
 

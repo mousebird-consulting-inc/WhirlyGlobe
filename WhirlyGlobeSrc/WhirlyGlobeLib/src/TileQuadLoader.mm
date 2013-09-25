@@ -56,8 +56,8 @@ using namespace WhirlyKit;
     /// Change requests queued up between a begin and end
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     
-    /// How many fetches we have going at the moment
-    int numFetches;
+    // Keep track of the slow (e.g. network) fetches
+    std::set<WhirlyKit::Quadtree::Identifier> networkFetches,localFetches;
     
     // The images we're currently displaying, when we have more than one
     unsigned int currentImage0,currentImage1;
@@ -75,7 +75,6 @@ using namespace WhirlyKit;
         _drawPriority = 0;
         _color = RGBAColor(255,255,255,255);
         _hasAlpha = false;
-        numFetches = 0;
         _ignoreEdgeMatching = false;
         _minVis = DrawVisibleInvalid;
         _maxVis = DrawVisibleInvalid;
@@ -121,8 +120,6 @@ using namespace WhirlyKit;
     if (tileBuilder)
         delete tileBuilder;
     tileBuilder = NULL;
-    
-    numFetches = 0;
     
     parents.clear();
 }
@@ -307,7 +304,7 @@ using namespace WhirlyKit;
 - (bool)isReady
 {
     // Make sure we're not fetching too much at once
-    if (numFetches >= [dataSource maxSimultaneousFetches])
+    if (networkFetches.size()+localFetches.size() >= [dataSource maxSimultaneousFetches])
         return false;
     
     // And make sure we're not waiting on buffer switches
@@ -315,6 +312,16 @@ using namespace WhirlyKit;
         return false;
     
     return true;
+}
+
+- (int)networkFetches
+{
+    return networkFetches.size();
+}
+
+- (int)localFetches
+{
+    return localFetches.size();
 }
 
 // Ask the data source to start loading the image for this tile
@@ -329,8 +336,13 @@ using namespace WhirlyKit;
     tileSet.insert(newTile);
     pthread_mutex_unlock(&tileLock);
     
-    numFetches++;
-    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];    
+    bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:)] || ![dataSource tileIsLocalLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y];
+    if (isNetworkFetch)
+        networkFetches.insert(tileInfo.ident);
+    else
+        localFetches.insert(tileInfo.ident);
+    
+    [dataSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
 }
 
 // Check if we're in the process of loading the given tile
@@ -404,13 +416,21 @@ using namespace WhirlyKit;
         }
         tileBuilder->activeTextures = _activeTextures;
     }
-    
+
+    // Update stats, including network fetches
+    Quadtree::Identifier tileIdent(col,row,level);
+    std::set<WhirlyKit::Quadtree::Identifier>::iterator nit = networkFetches.find(tileIdent);
+    if (nit != networkFetches.end())
+        networkFetches.erase(nit);
+    nit = localFetches.find(tileIdent);
+    if (nit != localFetches.end())
+        localFetches.erase(nit);
+
     // Look for the tile
     // If it's not here, just drop this on the floor
     pthread_mutex_lock(&tileLock);
-    LoadedTile dummyTile(Quadtree::Identifier(col,row,level));
+    LoadedTile dummyTile(tileIdent);
     LoadedTileSet::iterator it = tileSet.find(&dummyTile);
-    numFetches--;
     if (it == tileSet.end())
     {
         pthread_mutex_unlock(&tileLock);
@@ -499,6 +519,14 @@ using namespace WhirlyKit;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    // Might be unloading something we're in the middle of fetches
+    std::set<WhirlyKit::Quadtree::Identifier>::iterator nit = networkFetches.find(tileInfo.ident);
+    if (nit != networkFetches.end())
+        networkFetches.erase(nit);
+    nit = localFetches.find(tileInfo.ident);
+    if (nit != localFetches.end())
+        localFetches.erase(nit);
+    
     // Get rid of an old tile
     pthread_mutex_lock(&tileLock);
     LoadedTile dummyTile;
@@ -666,7 +694,6 @@ using namespace WhirlyKit;
         }
     }
 }
-
 
 // We'll try to skip updates
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial

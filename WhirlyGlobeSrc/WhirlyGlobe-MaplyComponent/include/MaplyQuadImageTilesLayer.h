@@ -90,10 +90,6 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
 /// When off, this is standard TMS addressing.  On by default.
 @property (nonatomic) bool flipY;
 
-/// Where we'll store cached images.  Leave this nil to
-///  disable caching.
-@property (nonatomic) NSString *cacheDir;
-
 /// Force the layer to reload all data.  You do this when you change
 ///  change something about the tile source, usually contents.
 - (void)reload;

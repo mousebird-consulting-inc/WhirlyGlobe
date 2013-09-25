@@ -44,6 +44,11 @@ typedef struct
 ///  return the exact number of pixels in the imageForTile calls.
 - (int)tileSize;
 
+/// We may ask the tile source if the tile is local or needs to be fetched
+///  over the network.  This is a hint for the loader.  Don't return true
+///  in error, though, that'll hold up the paging.
+- (bool)tileIsLocal:(MaplyTileID)tileID;
+
 @optional
 
 /// Return the image for a given tile.  Use this version if you've got

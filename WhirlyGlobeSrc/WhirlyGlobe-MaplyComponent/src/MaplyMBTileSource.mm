@@ -139,6 +139,11 @@ using namespace WhirlyKit;
     return _pixelsPerTile;
 }
 
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    return true;
+}
+
 - (id)imageForTile:(MaplyTileID)tileID
 {
     NSData *imageData = nil;

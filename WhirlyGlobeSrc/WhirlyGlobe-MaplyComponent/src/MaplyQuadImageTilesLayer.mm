@@ -111,7 +111,6 @@ using namespace WhirlyKit;
     _imageDepth = 1;
     _currentImage = 0;
     _animationPeriod = 0;
-    _cacheDir = NULL;
     _asyncFetching = true;
     _minElev = -100.0;
     _maxElev = 8900;
@@ -180,13 +179,6 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-
-    // If there's a cache dir, make sure it's there
-    if (_cacheDir)
-    {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:_cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-    }
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -323,6 +315,29 @@ using namespace WhirlyKit;
     return _numSimultaneousFetches;
 }
 
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row
+{
+    MaplyTileID tileID;
+    tileID.x = col;  tileID.y = row;  tileID.level = level;
+    
+    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    if (!_flipY)
+    {
+        int y = (1<<level)-tileID.y-1;
+        tileID.y = y;
+    }
+
+    // Check with the tile source
+    bool isLocal = [tileSource tileIsLocal:tileID];
+    // And the elevation delegate, if there is one
+    if (isLocal && elevDelegate)
+    {
+        isLocal = [elevDelegate tileIsLocal:tileID];
+    }
+    
+    return isLocal;
+}
+
 // Turn this on to break a fraction of the images.  This is for internal testing
 //#define TRASHTEST 1
 
@@ -368,69 +383,13 @@ using namespace WhirlyKit;
             return;
         }
 
-        // Look for it in the cache first
-        if (_cacheDir)
-        {
-            if (_imageDepth > 1)
-            {
-                // We need all the images for depth > 1
-                for (unsigned int ii=0;ii<_imageDepth;ii++)
-                {
-                    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d__%d",_cacheDir,level,col,row,ii];
-                    
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
-                    {
-                        NSData *imgData = [NSData dataWithContentsOfFile:localName];
-                        
-                        if (imgData)
-                            [(NSMutableArray *)imageDataArr addObject:imgData];
-                        else
-                            break;
-                    }
-                }
-            } else {
-                // Just one image
-                NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,level,col,row];
-                
-                if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
-                {
-                    NSData *imgData = [NSData dataWithContentsOfFile:localName];
-                    if (imgData)
-                        [(NSMutableArray *)imageDataArr addObject:imgData];
-                }
-            }
-        }
-        
-        // Not in cache, so fetch 'em
-        if ([imageDataArr count] != _imageDepth)
-        {
-            if (sourceSupportsMulti)
-                imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
-            else {
-                NSData *imgData = [tileSource imageForTile:tileID];
-                if (imgData)
-                    [(NSMutableArray *)imageDataArr addObject:imgData];
-            }
-            
-            // Save out to the cache, if appropriate
-            if (_cacheDir)
-            {
-                if ([imageDataArr count] == _imageDepth)
-                {
-                    for (unsigned int ii=0;ii<_imageDepth;ii++)
-                    {
-                        NSString *localName = nil;
-                        if (_imageDepth == 1)
-                            localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,level,col,row];
-                        else
-                            localName = [NSString stringWithFormat:@"%@/%d_%d_%d__%d",_cacheDir,level,col,row,ii];
-                        
-                        NSData *imgData = [imageDataArr objectAtIndex:ii];
-                        if ([imgData isKindOfClass:[NSData class]])
-                            [imgData writeToFile:localName atomically:YES];
-                    }
-                }
-            }
+        // Fetch the images
+        if (sourceSupportsMulti)
+            imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
+        else {
+            NSData *imgData = [tileSource imageForTile:tileID];
+            if (imgData)
+                [(NSMutableArray *)imageDataArr addObject:imgData];
         }
 
 #ifdef TRASHTEST
