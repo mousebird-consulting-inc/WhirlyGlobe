@@ -22,12 +22,25 @@
 
 #import "SceneRendererES.h"
 
+
+@protocol EAGLViewTouchDelegate <NSObject>
+
+-(void)userTouchBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+
+@end
+
+
 /** OpenGL View is a
-	base class for implementing an open GL rendering view.
-	This is modeled off of the example.  We subclass this for
-    our own purposes.
+ base class for implementing an open GL rendering view.
+ This is modeled off of the example.  We subclass this for
+ our own purposes.
  */
-@interface WhirlyKitEAGLView  : UIView 
+@interface WhirlyKitEAGLView  : UIView
+
+
+@property (nonatomic,weak) id <EAGLViewTouchDelegate> delegate;
+
+
 
 /// We're only expecting this to be set once
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;

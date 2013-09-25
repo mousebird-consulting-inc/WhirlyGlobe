@@ -127,6 +127,8 @@
 		2BEA1E66171E0ED90039F1A4 /* MaplyActiveObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */; };
 		2BECC1BD15E548EF00FBD805 /* PinchDelegateFixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BECC1BC15E548EF00FBD805 /* PinchDelegateFixed.h */; };
 		2BECC1BF15E5490000FBD805 /* PinchDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */; };
+		D37FA56F17F3209600A75D5B /* TouchDelegateFixed.h in Headers */ = {isa = PBXBuildFile; fileRef = D37FA56E17F3209600A75D5B /* TouchDelegateFixed.h */; };
+		D37FA57217F320A800A75D5B /* TouchDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = D37FA57117F320A800A75D5B /* TouchDelegateFixed.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -261,6 +263,8 @@
 		2BEA1E62171E0ED90039F1A4 /* MaplyActiveObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyActiveObject.mm; path = src/MaplyActiveObject.mm; sourceTree = SOURCE_ROOT; };
 		2BECC1BC15E548EF00FBD805 /* PinchDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PinchDelegateFixed.h; path = include/private/PinchDelegateFixed.h; sourceTree = SOURCE_ROOT; };
 		2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PinchDelegateFixed.mm; path = src/PinchDelegateFixed.mm; sourceTree = SOURCE_ROOT; };
+		D37FA56E17F3209600A75D5B /* TouchDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TouchDelegateFixed.h; path = include/private/TouchDelegateFixed.h; sourceTree = "<group>"; };
+		D37FA57117F320A800A75D5B /* TouchDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TouchDelegateFixed.mm; path = src/TouchDelegateFixed.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -430,6 +434,8 @@
 				2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */,
 				2B897A7215BB5A5E00250F23 /* PanDelegateFixed.h */,
 				2B897A8E15BC6C7B00250F23 /* PanDelegateFixed.mm */,
+				D37FA56E17F3209600A75D5B /* TouchDelegateFixed.h */,
+				D37FA57117F320A800A75D5B /* TouchDelegateFixed.mm */,
 			);
 			name = gestures;
 			sourceTree = "<group>";
@@ -597,6 +603,7 @@
 			files = (
 				2B897A6515BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h in Headers */,
 				2B897A6D15BB59F300250F23 /* MaplyScreenMarker.h in Headers */,
+				D37FA56F17F3209600A75D5B /* TouchDelegateFixed.h in Headers */,
 				2B897A6E15BB59F300250F23 /* WhirlyGlobeComponent.h in Headers */,
 				2B897A6F15BB59F300250F23 /* WhirlyGlobeViewController.h in Headers */,
 				2B897A7115BB5A2F00250F23 /* MaplyCoordinate.h in Headers */,
@@ -744,6 +751,7 @@
 				2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */,
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
 				2B97AFF117E3D6D700D4B33D /* FMResultSet.m in Sources */,
+				D37FA57217F320A800A75D5B /* TouchDelegateFixed.mm in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */,
@@ -849,11 +857,11 @@
 					"../../third-party/KissXML/KissXML/",
 					/usr/include/libxml2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";
 				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
 			};
 			name = Debug;
 		};
@@ -875,7 +883,6 @@
 					"../../third-party/KissXML/KissXML/",
 					/usr/include/libxml2,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "WhirlyGlobe-MaplyComponent";

@@ -30,7 +30,7 @@ using namespace WhirlyGlobe;
 @end
 
 @implementation WhirlyGlobeViewController
-{    
+{
 }
 
 - (id) init
@@ -51,12 +51,12 @@ using namespace WhirlyGlobe;
     
     globeScene = NULL;
     globeView = nil;
-    
+    touchDelegate = nil;
     pinchDelegate = nil;
     panDelegate = nil;
     tapDelegate = nil;
     rotateDelegate = nil;
-    animateRotation = nil;    
+    animateRotation = nil;
 }
 
 - (void) dealloc
@@ -97,10 +97,13 @@ using namespace WhirlyGlobe;
     // Wire up the gesture recognizers
 	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
 	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
+    touchDelegate = [TouchDelegateFixed touchDelegateForView:glView globeView:globeView];
+    
+    
     // These will activate the appropriate gesture
     self.pinchGesture = true;
     self.rotateGesture = true;
-        
+    
     self.selection = true;
 }
 
@@ -215,7 +218,7 @@ using namespace WhirlyGlobe;
     {
         if (!rotateDelegate)
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
-    } else {        
+    } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
@@ -308,7 +311,7 @@ using namespace WhirlyGlobe;
     
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
-    globeView.delegate = animateRotation;        
+    globeView.delegate = animateRotation;
 }
 
 // External facing version of rotateToPoint
@@ -389,7 +392,7 @@ using namespace WhirlyGlobe;
 - (float)heading
 {
     float retHeading = 0.0;
-
+    
     // Figure out where the north pole went
     Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
     if (northPole.y() != 0.0)
@@ -412,7 +415,7 @@ using namespace WhirlyGlobe;
     WGCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
-
+    
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know

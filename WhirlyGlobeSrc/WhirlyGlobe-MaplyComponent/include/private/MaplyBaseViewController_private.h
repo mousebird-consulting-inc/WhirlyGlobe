@@ -30,6 +30,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "TouchDelegateFixed.h"
 
 @interface MaplyBaseViewController()
 {
@@ -38,7 +39,7 @@
     WhirlyKitSceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *layerThread;
-
+    
     // The standard set of layers we create
     WhirlyKitMarkerLayer *markerLayer;
     WhirlyKitLabelLayer *labelLayer;
@@ -50,13 +51,13 @@
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
-
+    
     // Layers (and associated data) created for the user
     NSMutableArray *userLayers;
     
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
-        
+    
     // General rendering and other display hints
     NSDictionary *hints;
     
