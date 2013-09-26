@@ -30,6 +30,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "TouchDelegateFixed.h"
 
 
 
