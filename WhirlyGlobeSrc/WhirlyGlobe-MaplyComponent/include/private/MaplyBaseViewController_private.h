@@ -30,7 +30,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
-#import "TouchDelegateFixed.h"
+
 
 
 @interface MaplyBaseViewController()
@@ -39,6 +39,7 @@
     WhirlyKitEAGLView *glView;
     WhirlyKitSceneRendererES2 *sceneRenderer;
     
+<<<<<<< HEAD
     WhirlyKitLayerThread *layerThread;
     
     // The standard set of layers we create
@@ -50,6 +51,11 @@
     WhirlyKitLayoutLayer *layoutLayer;
     WhirlyKitLoftLayer *loftLayer;
     
+=======
+    WhirlyKitLayerThread *baseLayerThread;
+    NSMutableArray *layerThreads;
+
+>>>>>>> 1ad763aca8bd0dd873c5d4b40ffb8c2767aee638
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
     

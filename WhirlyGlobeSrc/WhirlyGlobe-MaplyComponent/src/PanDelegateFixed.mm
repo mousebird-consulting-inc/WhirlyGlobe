@@ -85,9 +85,9 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     startTransform = [view calcFullMatrix];
     startQuat = view.rotQuat;
     spinQuat = view.rotQuat;
-    startPoint = [pan locationOfTouch:0 inView:glView];
+    startPoint = [pan locationInView:glView];
     spinDate = CFAbsoluteTimeGetCurrent();
-    lastTouch = [pan locationOfTouch:0 inView:glView];
+    lastTouch = [pan locationInView:glView];
     if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
         // We'll start out letting them play with box axes
@@ -149,7 +149,7 @@ static const float MomentumAnimLen = 1.0;
                 // So now restart the process
                 [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
 
-                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
             }
 			if (panType != PanNone)
@@ -158,7 +158,7 @@ static const float MomentumAnimLen = 1.0;
                 
 				// Figure out where we are now
 				Point3d hit;
-                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
 				[view pointOnSphereFromScreen:touchPt transform:&startTransform 
 									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];

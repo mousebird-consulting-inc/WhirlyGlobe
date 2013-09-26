@@ -46,10 +46,11 @@ using namespace WhirlyKit;
     pthread_mutex_t changeLock;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{
+        _mainLayerThread = mainLayerThread;
 		_scene = inScene;
         _renderer = inRenderer;
 		layers = [NSMutableArray array];
@@ -239,7 +240,8 @@ using namespace WhirlyKit;
     }
 
     // Tear the scene down.  It's unsafe to do it elsewhere
-    _scene->teardownGL();
+    if (_mainLayerThread)
+        _scene->teardownGL();
     
     // Delete outstanding change requests
     for (unsigned int ii=0;ii<changeRequests.size();ii++)

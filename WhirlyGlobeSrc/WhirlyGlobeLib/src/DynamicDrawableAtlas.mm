@@ -196,13 +196,6 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     // Set up the requests to clear the region
     bigDraw->clearRegion(represent.vertexPos, represent.vertexSize, represent.elementChunkId);
     
-    // And if there's nothing in that drawable, get rid of it
-    if (bigDraw->empty())
-    {
-        changes.push_back(new RemDrawableReq(bigDraw->getId()));
-        bigDrawables.erase(bit);
-    }
-    
     return true;
 }
     
@@ -237,11 +230,22 @@ void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL 
     swapChanges.clear();
     
     // Note: We could keep a list of changed ones if these get to be more than a few
+    std::vector<BigDrawableSet::iterator> toErase;
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = it->bigDraw;
         bigDraw->swap(changes,swapRequest);
+        
+        if (bigDraw->empty())
+        {
+            changes.push_back(new RemDrawableReq(bigDraw->getId()));
+            toErase.push_back(it);
+        }
     }
+    
+    // Now clear out the ones that are empty
+    for (unsigned int ii=0;ii<toErase.size();ii++)
+        bigDrawables.erase(toErase[ii]);
 }
     
 bool DynamicDrawableAtlas::waitingOnSwap()

@@ -56,6 +56,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///  one with the same coordinate system and extents.
 @property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 
+/// If set we'll create a new thread for every layer the user adds.
+@property (nonatomic,assign) bool threadPerLayer;
+
 /// Clear all the currently active lights.
 /// There are a default set of lights, so you'll need to do this before adding your own.
 - (void)clearLights;
