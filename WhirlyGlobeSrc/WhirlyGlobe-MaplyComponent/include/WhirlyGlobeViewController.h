@@ -80,7 +80,7 @@
 
 /// Set this to zoom in where the user has double tapped
 /// Off by default
-@property(nonatomic,assign) bool zoomInOnDoubleTap;
+@property(nonatomic,assign) bool  zoomInOnDoubleTap;
 
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
