@@ -43,6 +43,8 @@
     WhirlyGlobeRotateDelegate *rotateDelegate;
     
     AnimateViewRotation *animateRotation;
+    AnimateZoom *animateZoom;
+    
 }
 
 @end
