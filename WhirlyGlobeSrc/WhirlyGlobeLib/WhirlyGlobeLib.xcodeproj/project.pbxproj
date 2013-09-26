@@ -415,6 +415,7 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -873,6 +874,8 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
+		E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRotateDelegate.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1326,6 +1329,7 @@
 				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
 				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
+				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1822,6 +1826,7 @@
 				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
 				2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */,
 				2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */,
+				E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -2304,6 +2309,7 @@
 				2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */,
 				2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */,
 				2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */,
+				E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

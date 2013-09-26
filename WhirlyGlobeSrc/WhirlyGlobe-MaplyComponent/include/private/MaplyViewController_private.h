@@ -39,6 +39,7 @@
     MaplyTapDelegate *tapDelegate;
     MaplyPanDelegate *panDelegate;
     MaplyPinchDelegate *pinchDelegate;
+    MaplyRotateDelegate *rotateDelegate;
 
     /// Bounding box for the viewer
     MaplyCoordinate boundLL,boundUR;

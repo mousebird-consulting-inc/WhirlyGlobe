@@ -37,6 +37,7 @@ using namespace WhirlyKit;
         super.lastChangedTime = CFAbsoluteTimeGetCurrent();
         super.continuousZoom = false;
         _loc = Point3d(0,0,4);
+        _rotAngle = 0.0;
     }
     
     return self;
@@ -65,8 +66,9 @@ using namespace WhirlyKit;
 - (Eigen::Matrix4d)calcModelMatrix
 {
     Eigen::Affine3d trans(Eigen::Translation3d(-_loc.x(),-_loc.y(),-_loc.z()));
+    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
     
-    return trans.matrix();
+    return (rot * trans).matrix();
 }
 
 - (double)heightAboveSurface
@@ -87,6 +89,12 @@ using namespace WhirlyKit;
 - (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
     _loc = newLoc;
+    [self runViewUpdates];
+}
+
+- (void)setRotAngle:(double)newRotAngle
+{
+    _rotAngle = newRotAngle;
     [self runViewUpdates];
 }
 
