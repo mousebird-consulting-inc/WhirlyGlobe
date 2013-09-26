@@ -415,6 +415,8 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		D3556E8717F4286E008C8024 /* AnimateZoom.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3556E8617F4286E008C8024 /* AnimateZoom.mm */; };
+		D3556E8917F4289A008C8024 /* AnimateZoom.h in Headers */ = {isa = PBXBuildFile; fileRef = D3556E8817F4289A008C8024 /* AnimateZoom.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -873,6 +875,8 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D3556E8617F4286E008C8024 /* AnimateZoom.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateZoom.mm; sourceTree = "<group>"; };
+		D3556E8817F4289A008C8024 /* AnimateZoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateZoom.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1628,6 +1632,7 @@
 				2BC53FEA12DE23D400778431 /* GlobeScene.mm */,
 				2B389AA212E112D9006FC3A1 /* GlobeView.mm */,
 				2B194426138B0CD000E8FA42 /* AnimateRotation.mm */,
+				D3556E8617F4286E008C8024 /* AnimateZoom.mm */,
 				2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */,
 				2BC53FEC12DE23D400778431 /* TextureGroup.mm */,
 				2B66298213418D9A00A78F16 /* TextureAtlas.mm */,
@@ -1646,6 +1651,7 @@
 				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
 				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
 				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
+				D3556E8817F4289A008C8024 /* AnimateZoom.h */,
 			);
 			name = view;
 			sourceTree = "<group>";
@@ -1953,6 +1959,7 @@
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
 				2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */,
+				D3556E8917F4289A008C8024 /* AnimateZoom.h in Headers */,
 				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
@@ -2163,6 +2170,7 @@
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
 				2B7EF47E16025D8C00D4079F /* pj_latlong.c in Sources */,
+				D3556E8717F4286E008C8024 /* AnimateZoom.mm in Sources */,
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
