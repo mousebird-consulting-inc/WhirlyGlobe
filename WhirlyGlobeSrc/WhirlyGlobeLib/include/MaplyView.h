@@ -39,6 +39,8 @@
 
 /// Viewer location
 @property(nonatomic,readonly) WhirlyKit::Point3d &loc;
+/// Viewer rotation angle
+@property(nonatomic,readonly) double &rotAngle;
 /// Used to update position based on time (or whatever)
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
@@ -79,5 +81,8 @@
 
 /// Set the location we're looking from
 - (void)setLoc:(WhirlyKit::Point3d)newLoc;
+
+/// Set the rotation angle
+- (void)setRotAngle:(double)newRotAngle;
 
 @end
