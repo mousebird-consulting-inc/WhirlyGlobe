@@ -192,17 +192,22 @@ using namespace WhirlyKit;
     //  and an active object to do the updates
     if (_imageDepth > 1)
     {
-        imageUpdater = [[ActiveImageUpdater alloc] init];
-        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-        imageUpdater.tileLoader = tileLoader;
-        imageUpdater.period = _animationPeriod;
-        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-        imageUpdater.numImages = _imageDepth;
         if (!_customShader)
             _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-        imageUpdater.programId = _customShader;
-        tileLoader.programId = _customShader;
-        [viewC addActiveObject:imageUpdater];
+
+        if (_animationPeriod > 0.0)
+        {
+            imageUpdater = [[ActiveImageUpdater alloc] init];
+            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+            imageUpdater.tileLoader = tileLoader;
+            imageUpdater.period = _animationPeriod;
+            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+            imageUpdater.numImages = _imageDepth;
+            imageUpdater.programId = _customShader;
+            tileLoader.programId = _customShader;
+            [viewC addActiveObject:imageUpdater];
+        } else
+            [self setCurrentImage:_currentImage];
     }
     
     elevDelegate = _viewC.elevDelegate;
@@ -210,6 +215,40 @@ using namespace WhirlyKit;
     [super.layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setCurrentImage:(float)currentImage
+{
+    _currentImage = currentImage;
+    
+    if (imageUpdater)
+    {
+        [_viewC removeActiveObject:imageUpdater];
+        imageUpdater = nil;
+    }
+    
+    if (!scene)
+        return;
+
+    unsigned int image0 = floorf(_currentImage);
+    float t = _currentImage-image0;
+    unsigned int image1 = ceilf(_currentImage);
+    if (image1 == _imageDepth)
+        image1 = 0;
+    
+    // Change the images to give us start and finish
+    ChangeSet changes;
+    [tileLoader setCurrentImageStart:image0 end:image1 changes:changes];
+    if (!changes.empty())
+        scene->addChangeRequests(changes);
+    
+    // Set the interpolation in the program
+    OpenGLES2Program *prog = scene->getProgram(_customShader);
+    if (prog)
+    {
+        glUseProgram(prog->getProgram());
+        prog->setUniform("u_interp", t);
+    }
 }
 
 - (void)setHandleEdges:(bool)handleEdges
