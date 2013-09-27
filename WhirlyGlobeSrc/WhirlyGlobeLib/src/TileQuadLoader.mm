@@ -278,6 +278,13 @@ using namespace WhirlyKit;
             tileBuilder->drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
         }
     }
+
+    // If we added geometry or textures, we may need to reset this
+    if (tileBuilder)
+    {
+        [self runSetCurrentImage:changeRequests];
+    }
+    
     if (!changeRequests.empty())
     {
         [layerThread addChangeRequests:(changeRequests)];
@@ -461,6 +468,7 @@ using namespace WhirlyKit;
     }
     
     // Create the dynamic texture atlas before we need it
+    bool createdAtlases = false;
     if (_useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
     {
         int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
@@ -470,6 +478,8 @@ using namespace WhirlyKit;
             estTexY = std::max(loadElev.numY-1,estTexY);
         }
         tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
+
+        createdAtlases = true;
     }
     
     LoadedTile *tile = *it;
@@ -509,6 +519,11 @@ using namespace WhirlyKit;
         [self flushUpdates:_quadLayer.layerThread];
 
     [self updateTexAtlasMapping];
+
+    // They might have set the current image already
+    //  so we need to update things right here
+    if (createdAtlases)
+        [self runSetCurrentImage:changeRequests];
 }
 
 // We'll get this before a series of unloads and loads
@@ -634,11 +649,44 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)runSetCurrentImage:(WhirlyKit::ChangeSet &)theChanges
+{
+    std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
+    std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
+    
+    pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
+    // Copy this out to avoid locking too long
+    if (tileBuilder->texAtlasMappings.size() > 0)
+        baseTexIDs = tileBuilder->texAtlasMappings[0];
+    if (currentImage0 < tileBuilder->texAtlasMappings.size())
+        startTexIDs = tileBuilder->texAtlasMappings[currentImage0];
+    if (currentImage1 < tileBuilder->texAtlasMappings.size())
+        endTexIDs = tileBuilder->texAtlasMappings[currentImage1];
+    theDrawTexInfo = tileBuilder->drawTexInfo;
+    pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
+    
+    // If these are different something's gone very wrong
+    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
+    {
+        // Now for the change requests
+        for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
+        {
+            const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
+            for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
+                if (drawInfo.baseTexId == baseTexIDs[jj])
+                {
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,startTexIDs[jj]));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,endTexIDs[jj]));
+                }
+        }
+    }
+}
+
 - (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
         return;
-        
+    
     if (currentImage0 != startImage || currentImage1 != endImage)
     {
         currentImage0 = startImage;
@@ -648,37 +696,7 @@ using namespace WhirlyKit;
         if (_useDynamicAtlas)
         {
             if (tileBuilder)
-            {
-                std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
-                std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
-
-                pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
-                // Copy this out to avoid locking too long
-                if (tileBuilder->texAtlasMappings.size() > 0)
-                    baseTexIDs = tileBuilder->texAtlasMappings[0];
-                if (startImage < tileBuilder->texAtlasMappings.size())
-                    startTexIDs = tileBuilder->texAtlasMappings[startImage];
-                if (endImage < tileBuilder->texAtlasMappings.size())
-                    endTexIDs = tileBuilder->texAtlasMappings[endImage];
-                theDrawTexInfo = tileBuilder->drawTexInfo;
-                pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
-                
-                // If these are different something's gone very wrong
-                if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
-                {
-                    // Now for the change requests
-                    for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
-                    {
-                        const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
-                        for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
-                            if (drawInfo.baseTexId == baseTexIDs[jj])
-                            {
-                                theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,startTexIDs[jj]));
-                                theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,endTexIDs[jj]));
-                            }
-                    }
-                }
-            }
+                [self runSetCurrentImage:theChanges];
         } else {
             // We'll look through the tiles and change them all accordingly
             pthread_mutex_lock(&tileLock);
