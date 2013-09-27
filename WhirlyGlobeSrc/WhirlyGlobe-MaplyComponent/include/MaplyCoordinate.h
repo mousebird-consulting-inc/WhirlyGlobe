@@ -20,12 +20,19 @@
 
 #import <Foundation/Foundation.h>
 
+/** The Maply Coordinate is a simple 2 dimensional coordinate
+    passed around to numerous methods.  For geo-coordinates x
+    maps to longitude and y to latitude.
+  */
 typedef struct
 {
     float x,y;
 } MaplyCoordinate;
 
-/// The standard 3-space coordinate
+/** The 3D version of the Maply Coordinate adds a z values, often
+    in meters, but not always.  Consult the appropriate method to
+    be sure.
+  */
 typedef struct
 {
     float x,y,z;
