@@ -25,20 +25,36 @@
 /// The various image formats we support.  RGBA is the default, and most expensive.
 typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
-/** This is a generic quad earth paging interface.  Hand it your coordinate system,
-    bounds, and tile source object and it will page tiles for you.
-    In general this is useful for feature data, such as vector features.  The image
-    base maps have their own layers.
+/** The Maply Quad Image Tiles Layer is for paging image pyramids.
+    They can be local or remote, in any coordinate system Maply supports
+    and you provide a MaplyTileSource conformant object to do the
+    actual image tile fetching.
+    This is the main interface for image pyramid paging and so has
+    a lot of knobs you can twiddle.  The defaults should work fine
+    in most cases.
   */
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
-/// Construct with the coordinate system and the tile source
+/** Initialize with a coordinate system for the image pyramid and
+    the tile source object.  There are a variety of these you can
+    create, or you can fill in your own.
+    @param coordSys The coordinate system. This must match what your
+            image pyramid is in, or it will look weird.
+    @param tileSource This is an object conforming to the MaplyTileSource
+            protocol.  There are several you can pass in, or you can
+            write your own.
+  */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
-/// Change the number of fetches allowed at once
+/// This is the number of simultaneous fetches the layer will
+///  execute.  If your tile source does not support threading, set
+///  this to 1.
 @property (nonatomic,assign) int numSimultaneousFetches;
 
-/// Whether or not we use skirts
+/// Maply can support skirts between tiles in globe mode.  This
+///  is useful for not seeing betwen different levels of detail
+///  when tiles abut each other.  Set this to true in your base
+///  layer and to false (probably) in other layers.
 @property (nonatomic,assign) bool handleEdges;
 
 /// Whether or not we try to cover the poles

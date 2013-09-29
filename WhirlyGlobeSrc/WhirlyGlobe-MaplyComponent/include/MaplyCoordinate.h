@@ -20,16 +20,21 @@
 
 #import <Foundation/Foundation.h>
 
-/** The Maply Coordinate is a simple 2 dimensional coordinate
+/** @typedef struct MaplyCoordinate
+    @brief A 2D coordinate representation.
+    @details The Maply Coordinate is a simple 2 dimensional coordinate
     passed around to numerous methods.  For geo-coordinates x
-    maps to longitude and y to latitude.
+    maps to longitude and y to latitude and the values are
+    in radians.
   */
 typedef struct
 {
     float x,y;
 } MaplyCoordinate;
 
-/** The 3D version of the Maply Coordinate adds a z values, often
+/** @typedef struct MaplyCoordinate3d
+    @brief A 3D coordinate representation.
+    @details The 3D version of the Maply Coordinate adds a z values, often
     in meters, but not always.  Consult the appropriate method to
     be sure.
   */
@@ -42,9 +47,21 @@ typedef struct
 extern "C" {
 #endif
     
-/// Construct a MaplyGeoCoordinate with longitude and latitude values in degrees
+/** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
+    @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.
+    @param degLon The longitude value (east to west) in degrees.
+    @param degLat The latitude value (north to south) in degrees.
+    @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
+  */
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
-/// Convenience function for creating a 3D Maply coordinate
+    
+/** @brief Construct a MaplyCoordinat3d from the values given.
+    @param x The x value, or longitude in radians if we're making geo coordinates.
+    @param y The y value, or latitude in radians if we're making geo coordinates.
+    @param z The z value, sometimes this is display coordinates (radius == 1.0 for a sphere)
+              and sometimes this is meters.  It depends on how you're using it.
+    @return A 3D MaplyCorodinate3d in radians + other (if representing a lon/lat value).
+  */
 MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
 
 #if __cplusplus
