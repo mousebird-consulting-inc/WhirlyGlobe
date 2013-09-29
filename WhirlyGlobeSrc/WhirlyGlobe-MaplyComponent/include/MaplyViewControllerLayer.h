@@ -20,11 +20,19 @@
 
 #import <Foundation/Foundation.h>
 
-/// Used to keep track of resources for a layer the user has asked to be created.
-/// Don't mess with these directly.
+/** The Maply View Controller Layer is a base class for display
+    layers in general.  You'll never create one of these directly,
+    but they are used by other, more interesting layers.
+  */
 @interface MaplyViewControllerLayer : NSObject
 
-/// Set the priority for drawing
+/** Set the priority for drawing.  This is how
+    you control where the geometry produced by this
+    layer shows up with respect to other layers and
+    other geometry.  This must be set immediately
+    after creation.  It will have undefined behavior
+    after the layer has started.
+  */
 @property (nonatomic,assign) int drawPriority;
 
 @end

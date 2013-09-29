@@ -22,7 +22,8 @@
 #import "MaplyCoordinateSystem.h"
 
 /** The animation test tile source provides fake images to test the
-    animation functionality in the quad image tiles layer.
+    animation functionality in the quad image tiles layer.  In general,
+    don't use it for anything.
   */
 @interface MaplyAnimationTestTileSource : NSObject<MaplyTileSource>
 
@@ -32,7 +33,7 @@
 /// Coordinate system we're pretending to be in
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
 
-/// How big the images are
+/// How big the images we generate are
 @property (nonatomic) int pixelsPerSide;
 
 @end
