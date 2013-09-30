@@ -48,6 +48,9 @@
 /// This won't be called if they tapped and selected, just if they tapped.
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord;
 
+/// This won't be called if they tapped and selected, just if they double tapped.
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didDoubleTapAt:(WGCoordinate)coord;
+
 /// This is called when a given layer loads.
 /// Not all layers support this callback.  Those that load immediately (which is most of them)
 ///  won't trigger this.

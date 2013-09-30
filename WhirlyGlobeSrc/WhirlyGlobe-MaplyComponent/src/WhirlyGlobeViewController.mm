@@ -514,23 +514,43 @@ using namespace WhirlyGlobe;
         else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             [_delegate globeViewController:self didSelect:selectedObj];
     } else {
+       
         // The user didn't select anything, let the delegate know.
-        
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        // judge what to do according to the number of taps.
+        switch (msg.noOfTaps)
         {
-            [_delegate globeViewController:self didTapAt:coord];
+            case 1:
+                //if the user used single tap run didTapAt
+                if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+                {
+                    [_delegate globeViewController:self didTapAt:coord];
+                }
+                
+                // Didn't select anything, so rotate
+                if (_autoMoveToTap)
+                    [self rotateToPoint:msg.whereGeo time:1.0];
+                
+                break;
+            case 2:
+                //if the user used double tap run didDoubleTapAt
+                if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didDoubleTapAt:)])
+                {
+                    [_delegate globeViewController:self didDoubleTapAt:coord];
+                }
+                
+                if(_zoomInOnDoubleTap)
+                {
+                    
+                    float howMuchToZoom = msg.heightAboveSurface*0.5;
+                    [self zoomOnHeight:howMuchToZoom toPoint:msg.whereGeo time:0.3];
+                }
+                break;
+            default:
+                break;
         }
         
-        //if the user used double tap
-        if(msg.noOfTaps==2 && _zoomInOnDoubleTap)
-        {
-            
-            float howMuchToZoom = msg.heightAboveSurface*0.5;
-            [self zoomOnHeight:howMuchToZoom toPoint:msg.whereGeo time:0.3];
-        }
-        // Didn't select anything, so rotate
-        if (_autoMoveToTap)
-            [self rotateToPoint:msg.whereGeo time:1.0];
+        
+        
     }
 }
 
