@@ -25,7 +25,7 @@
 @class WhirlyGlobeViewController;
 
 /** Fill in this protocol to get called when the user taps on or near an object for
-    selection. 
+ selection.
  */
 @protocol WhirlyGlobeViewControllerDelegate <NSObject>
 
@@ -56,9 +56,9 @@
 @end
 
 /** This is the main object in the WhirlyGlobe Component.  You fire up one
-    of these, add its view to your view hierarchy and start tossing in data.
-    At the very least you'll want a base image layer and then you can put
-    markers, labels, and vectors on top of that.
+ of these, add its view to your view hierarchy and start tossing in data.
+ At the very least you'll want a base image layer and then you can put
+ markers, labels, and vectors on top of that.
  */
 @interface WhirlyGlobeViewController : MaplyBaseViewController
 
@@ -77,6 +77,10 @@
 /// Set this to move to a location where the user tapped
 /// On by default
 @property(nonatomic,assign) bool autoMoveToTap;
+
+/// Set this to zoom in where the user has double tapped
+/// Off by default
+@property(nonatomic,assign) bool  zoomInOnDoubleTap;
 
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
@@ -111,6 +115,9 @@
 
 /// Animate to the given position over the given amount of time
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+
+///Animate zoom to the given height and position, over the given amount of time
+- (void)animateZoomHeight: (float)heightAboveGlobe ToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong;
 
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will just do nothing

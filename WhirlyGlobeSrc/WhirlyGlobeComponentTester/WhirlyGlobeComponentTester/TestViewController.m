@@ -200,6 +200,8 @@ LocationInfo locations[NumLocations] =
         // Start up over San Francisco
         globeViewC.height = 0.8;
         [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
+        globeViewC.autoMoveToTap = true;
+        globeViewC.zoomInOnDoubleTap = true;
     } else {
         mapViewC.height = 1.0;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];

@@ -41,6 +41,11 @@
     
     WhirlyKitLayerThread *baseLayerThread;
     NSMutableArray *layerThreads;
+<<<<<<< HEAD
+
+=======
+    
+>>>>>>> bfa3539b5ef7b58ba22228ac9334a84defa43a66
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
     
