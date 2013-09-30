@@ -20,18 +20,13 @@
 
 #import <Foundation/Foundation.h>
 
-/** The Maply View Controller Layer is a base class for display
-    layers in general.  You'll never create one of these directly,
-    but they are used by other, more interesting layers.
+/** @brief The View Controller Layer is a base class for other display layers.
+    @details You don't create these directory.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
   */
 @interface MaplyViewControllerLayer : NSObject
 
-/** Set the priority for drawing.  This is how
-    you control where the geometry produced by this
-    layer shows up with respect to other layers and
-    other geometry.  This must be set immediately
-    after creation.  It will have undefined behavior
-    after the layer has started.
+/** @brief Set the priority for drawing.
+    @details This is how you control where the geometry produced by this layer shows up with respect to other layers and other geometry.  This must be set immediately after creation.  It will have undefined behavior after the layer has started.
   */
 @property (nonatomic,assign) int drawPriority;
 

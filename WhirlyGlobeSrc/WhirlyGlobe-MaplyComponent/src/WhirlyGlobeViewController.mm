@@ -76,7 +76,7 @@ using namespace WhirlyGlobe;
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyGlobe::GlobeScene(4);
+    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordAdapter,4);
     sceneRenderer.theView = globeView;
     
     return globeScene;
