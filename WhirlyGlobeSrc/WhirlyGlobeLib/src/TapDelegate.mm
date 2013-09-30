@@ -83,6 +83,10 @@ using namespace WhirlyKit;
 	} else
         // If we didn't hit, we generate a different message
         [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:[NSNull null]]];
+    
+    
+    
+    
 }
 
 @end

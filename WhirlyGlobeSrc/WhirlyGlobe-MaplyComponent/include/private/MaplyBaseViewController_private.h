@@ -32,6 +32,7 @@
 #import "MaplyActiveObject_private.h"
 #import "TouchDelegateFixed.h"
 
+
 @interface MaplyBaseViewController()
 {
 @public
