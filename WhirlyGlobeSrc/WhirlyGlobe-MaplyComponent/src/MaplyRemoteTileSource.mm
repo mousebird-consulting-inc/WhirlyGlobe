@@ -32,6 +32,7 @@ using namespace WhirlyKit;
     NSDictionary *_jsonSpec;
     NSArray *_tileURLs;
     WhirlyKit::Mbr _mbr;
+    bool cacheInit;
 }
 
 - (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
@@ -101,42 +102,101 @@ using namespace WhirlyKit;
     return _pixelsPerSide;
 }
 
+// Figure out the name for the tile, if it's local
+- (NSString *)cacheFileForTile:(MaplyTileID)tileID
+{
+    // If there's a cache dir, make sure it's there
+    if (!cacheInit)
+    {
+        if (_cacheDir)
+        {
+            NSError *error = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:_cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+        }
+        cacheInit = true;
+    }
+
+    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+    return localName;
+}
+
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    if (!_cacheDir)
+        return false;
+    
+    NSString *fileName = [self cacheFileForTile:tileID];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
+        return true;
+    
+    return false;
+}
+
 - (id)imageForTile:(MaplyTileID)tileID
 {
     int y = ((int)(1<<tileID.level)-tileID.y)-1;
-
+    
     NSData *imgData = nil;
-    if (_tileURLs)
+    bool wasCached = false;
+    NSString *fileName = nil;
+    // Look for the image in the cache first
+    if (_cacheDir)
     {
-        // Decide here which URL we'll use
-        NSString *tileURL = [_tileURLs objectAtIndex:tileID.x%[_tileURLs count]];
-
-        // Use the JSON tile spec
-        NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
-                                 stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
-                                stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
-        NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-        
-        // Fetch the image synchronously
-        NSURLResponse *resp = nil;
-        NSError *error = nil;
-        imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-        
-        if (error || !imgData)
-            imgData = nil;
-    } else {
-        // Fetch the traditional way
-        NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
-        NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-        
-        // Fetch the image synchronously
-        NSURLResponse *resp = nil;
-        NSError *error = nil;
-        imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-        
-        if (error || !imgData)
-            imgData = nil;
+        fileName = [self cacheFileForTile:tileID];
+        imgData = [NSData dataWithContentsOfFile:fileName];
+        if (imgData)
+            wasCached = true;
     }
+
+    NSError *error = nil;
+    if (!imgData)
+    {
+        if (_tileURLs)
+        {
+            // Decide here which URL we'll use
+            NSString *tileURL = [_tileURLs objectAtIndex:tileID.x%[_tileURLs count]];
+
+            // Use the JSON tile spec
+            NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+                                     stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                                    stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
+            NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            
+            // Fetch the image synchronously
+            NSURLResponse *resp = nil;
+            imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+            
+            if (error || !imgData)
+                imgData = nil;
+        } else {
+            // Fetch the traditional way
+            NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            
+            // Fetch the image synchronously
+            NSURLResponse *resp = nil;
+            imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+            
+            if (error || !imgData)
+                imgData = nil;
+        }
+    }
+    
+    if (_delegate)
+    {
+        if (imgData)
+        {
+            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                [_delegate remoteTileSource:self tileDidLoad:tileID];
+        } else {
+            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
+        }
+    }
+    
+    // Let's also write it back out for the cache
+    if (_cacheDir && !wasCached)
+        [imgData writeToFile:fileName atomically:YES];
 
     return imgData;
 }

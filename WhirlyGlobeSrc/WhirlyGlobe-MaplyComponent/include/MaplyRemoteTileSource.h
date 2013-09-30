@@ -21,6 +21,31 @@
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
+@class MaplyRemoteTileSource;
+
+/** The remote tile source delegate provides feedback on which
+    tiles loaded and which didn't.  You'll be called in all sorts of
+    random threads here, so act accordingly.
+  */
+@protocol MaplyRemoteTileSourceDelegate <NSObject>
+
+@optional
+
+/** The tile successfully loaded.
+    @param tileSource the remote tile source that loaded the tile.
+    @param tileID The ID of the tile we loaded.
+  */
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidLoad:(MaplyTileID)tileID;
+
+/** The tile failed to load.
+    @param tileSource The remote tile source that tried to load the tile.
+    @param tileId The tile ID of the tile that failed to load.
+    @param error The NSError message, probably from the network routine.
+  */
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+
+@end
+
 /** MapBox Tiles archive tile source.  This object knows how to read MBTiles
  files and return the appropriate tile when asked.
  */
@@ -48,5 +73,12 @@
 /// Coordinate system for the remote tiles.  Spherical Mercator by default.
 /// Set this to something else if you have something more unique.
 @property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
+
+/// If set, we'll store (and look for) cache images here.
+@property (nonatomic) NSString *cacheDir;
+
+/// If set, you'll get callbacks when the various tiles load (or don't).
+/// You get called in all sorts of threads.  Act accordingly.
+@property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
 @end

@@ -134,6 +134,8 @@ LocationInfo locations[NumLocations] =
 
 - (void)dealloc
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
     // This should release the globe view
     if (baseViewC)
     {
@@ -182,9 +184,15 @@ LocationInfo locations[NumLocations] =
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
+
+    // Note: Debugging
+    baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
     baseViewC.clearColor = [UIColor blackColor];
+    
+    // We'll let the toolkit create a thread per image layer.
+    baseViewC.threadPerLayer = true;
     
     // This will get us taps and such
     if (globeViewC)
@@ -274,11 +282,11 @@ LocationInfo locations[NumLocations] =
     if (layer && coordSys)
     {
         MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
+        tileSource.cacheDir = thisCacheDir;
         tileSource.transparent = true;
         MaplyQuadImageTilesLayer *imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
-        imageLayer.cacheDir = thisCacheDir;
         imageLayer.requireElev = requireElev;
         [baseViewC addLayer:imageLayer];
         
@@ -598,6 +606,9 @@ static const int NumMegaMarkers = 40000;
     [baseViewC addActiveObject:animSphere];
 }
 
+// Set this to reload the base layer ever so often.  Purely for testing
+//#define RELOADTEST 1
+
 // Set up the base layer depending on what they've picked.
 // Also tear down an old one
 - (void)setupBaseLayer:(NSDictionary *)baseSettings
@@ -641,6 +652,10 @@ static const int NumMegaMarkers = 40000;
     NSString *jsonTileSpec = nil;
     NSString *thisCacheDir = nil;
     
+#ifdef RELOADTEST
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
+#endif
+    
     if (![baseLayerName compare:kMaplyTestGeographyClass])
     {
         self.title = @"Geography Class - MBTiles Local";
@@ -658,7 +673,12 @@ static const int NumMegaMarkers = 40000;
 
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
-        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];        
+        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        
+#ifdef RELOADTEST
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
+
     } else if (![baseLayerName compare:kMaplyTestBlueMarble])
     {
         self.title = @"Blue Marble Single Res";
@@ -685,10 +705,10 @@ static const int NumMegaMarkers = 40000;
         if (zoomLimit != 0 && zoomLimit < maxZoom)
             maxZoom = zoomLimit;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
         layer.requireElev = requireElev;
-        layer.cacheDir = thisCacheDir;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -703,15 +723,15 @@ static const int NumMegaMarkers = 40000;
         self.title = @"OpenStreetMap - Remote";
         // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
         thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-        int maxZoom = 17;
+        int maxZoom = 18;
         if (zoomLimit != 0 && zoomLimit < maxZoom)
             maxZoom = zoomLimit;
         MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.drawPriority = 0;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
-        layer.cacheDir = thisCacheDir;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -763,7 +783,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
@@ -789,7 +809,7 @@ static const int NumMegaMarkers = 40000;
         layer.drawPriority = 0;
         baseLayer = layer;        
     }
-        
+    
     // If we're fetching one of the JSON tile specs, kick that off
     if (jsonTileSpec)
     {
@@ -801,15 +821,19 @@ static const int NumMegaMarkers = 40000;
          {
              // Add a quad earth paging layer based on the tile spec we just fetched
              MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             tileSource.cacheDir = thisCacheDir;
              if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
                  tileSource.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.requireElev = requireElev;
-             layer.cacheDir = thisCacheDir;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;
+
+#ifdef RELOADTEST
+             [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
          }
                                                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
          {
@@ -834,6 +858,19 @@ static const int NumMegaMarkers = 40000;
                    kMaplyVecWidth: @(vecWidth),
                    kMaplyFade: @(1.0)};
     
+}
+
+// Reload testing
+- (void)reloadLayer:(MaplyQuadImageTilesLayer *)layer
+{
+    if (baseLayer && [baseLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
+    {
+        MaplyQuadImageTilesLayer *layer = (MaplyQuadImageTilesLayer *)baseLayer;
+        NSLog(@"Reloading layer");
+        [layer reload];
+
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+    }
 }
 
 // Run through the overlays the user wants turned on
@@ -871,6 +908,7 @@ static const int NumMegaMarkers = 40000;
                     MaplyRemoteTileSource *precipTileSource =
                     [[MaplyRemoteTileSource alloc]
                      initWithBaseURL:[NSString stringWithFormat:@"http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer%d/",ii] ext:@"png" minZoom:0 maxZoom:6];
+                    precipTileSource.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weather_layer%d/",cacheDir,ii];
                     [tileSources addObject:precipTileSource];
                 }
                 MaplyMultiplexTileSource *precipTileSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
@@ -884,7 +922,6 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.handleEdges = false;
                 precipLayer.coverPoles = false;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
-                precipLayer.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weater/",cacheDir];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
             }

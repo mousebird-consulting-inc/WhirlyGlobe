@@ -101,7 +101,7 @@ using namespace Maply;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self stopAnimation];
     
-    [layerThread addThingToDelete:coordAdapter];
+    [baseLayerThread addThingToDelete:coordAdapter];
     
     if (scrollView)
     {
@@ -122,6 +122,7 @@ using namespace Maply;
     tapDelegate = nil;
     panDelegate = nil;
     pinchDelegate = nil;
+    rotateDelegate = nil;
 
     coordAdapter = NULL;
     _tetherView = NULL;
@@ -247,6 +248,7 @@ using namespace Maply;
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
         pinchDelegate.minZoom = [mapView minHeightAboveSurface];
         pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];

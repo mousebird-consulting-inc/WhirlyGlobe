@@ -1524,7 +1524,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         hasTexture[ii] = true;
 
     // Zero or more textures in the drawable
-    for (unsigned int ii=progTexBound;ii<WhirlyKitMaxTextures;ii++)
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         char baseMapName[40];

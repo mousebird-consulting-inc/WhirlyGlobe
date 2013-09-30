@@ -94,6 +94,11 @@
     return _maxZoom;
 }
 
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    return true;
+}
+
 - (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID
 {
     // Put together the precalculated quad index.  This is faster
