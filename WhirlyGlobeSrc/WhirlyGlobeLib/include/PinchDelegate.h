@@ -30,6 +30,9 @@
 /// If set, we'll also handle rotation.  On by default.
 @property (nonatomic,assign) bool doRotation;
 
+/// If set, we'll zoom around the pinch, rather than the center of the view
+@property (nonatomic,assign) bool zoomAroundPinch;
+
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
 + (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
