@@ -45,6 +45,7 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
     
@@ -100,6 +101,8 @@ Scene::~Scene()
     dispatch_release(dispatchQueue);
 #endif
 
+    pthread_mutex_destroy(&coordAdapterLock);
+
     if (cullTree)
     {
         delete cullTree;
@@ -141,6 +144,18 @@ Scene::~Scene()
         delete *it;
     glPrograms.clear();
     glProgramMap.clear();
+}
+    
+CoordSystemDisplayAdapter *Scene::getCoordAdapter()
+{
+    return coordAdapter;
+}
+    
+void Scene::setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter)
+{
+    pthread_mutex_lock(&coordAdapterLock);
+    coordAdapter = newCoordAdapter;
+    pthread_mutex_unlock(&coordAdapterLock);
 }
     
 SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)

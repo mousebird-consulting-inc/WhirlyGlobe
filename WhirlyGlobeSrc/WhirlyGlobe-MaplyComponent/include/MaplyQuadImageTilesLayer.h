@@ -25,13 +25,9 @@
 /// The various image formats we support.  RGBA is the default, and most expensive.
 typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
-/** The Maply Quad Image Tiles Layer is for paging image pyramids.
-    They can be local or remote, in any coordinate system Maply supports
-    and you provide a MaplyTileSource conformant object to do the
-    actual image tile fetching.
-    This is the main interface for image pyramid paging and so has
-    a lot of knobs you can twiddle.  The defaults should work fine
-    in most cases.
+/** @brief The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.
+    @details This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.
+    @details This is the main interface for image pyramid paging and so has a lot of knobs you can twiddle.  The defaults should work fine in most cases.
   */
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
