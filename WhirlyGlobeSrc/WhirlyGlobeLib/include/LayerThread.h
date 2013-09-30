@@ -45,9 +45,11 @@
 /// Turn this off to disable flushes to GL on the layer thread.
 /// The only reason to do this is going to background.  This is a temporary fix
 @property (nonatomic,assign) bool allowFlush;
+/// Set if this is the main layer thread, responsible for shutting down the scene
+@property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

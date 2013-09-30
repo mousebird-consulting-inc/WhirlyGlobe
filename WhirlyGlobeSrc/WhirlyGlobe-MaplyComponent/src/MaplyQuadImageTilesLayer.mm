@@ -85,7 +85,6 @@ using namespace WhirlyKit;
 @implementation MaplyQuadImageTilesLayer
 {
     MaplyBaseViewController *_viewC;
-    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
@@ -112,7 +111,6 @@ using namespace WhirlyKit;
     _imageDepth = 1;
     _currentImage = 0;
     _animationPeriod = 0;
-    _cacheDir = NULL;
     _asyncFetching = true;
     _minElev = -100.0;
     _maxElev = 8900;
@@ -129,7 +127,7 @@ using namespace WhirlyKit;
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
     _viewC = viewC;
-    layerThread = inLayerThread;
+    super.layerThread = inLayerThread;
     scene = inScene;
 
     // Cache min and max zoom.  Tile sources might do a lookup for these
@@ -181,13 +179,6 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-
-    // If there's a cache dir, make sure it's there
-    if (_cacheDir)
-    {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:_cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-    }
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -216,7 +207,7 @@ using namespace WhirlyKit;
     
     elevDelegate = _viewC.elevDelegate;
     
-    [layerThread addLayer:quadLayer];
+    [super.layerThread addLayer:quadLayer];
 
     return true;
 }
@@ -244,9 +235,9 @@ using namespace WhirlyKit;
 
 - (void)reload
 {
-    if ([NSThread currentThread] != layerThread)
+    if ([NSThread currentThread] != super.layerThread)
     {
-        [self performSelector:@selector(reload) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(reload) onThread:super.layerThread withObject:nil waitUntilDone:NO];
         return;
     }
 
@@ -315,13 +306,36 @@ using namespace WhirlyKit;
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown
 {
-    layerThread = nil;
+    super.layerThread = nil;
 }
 
 // Note: Should allow the users to set this
 - (int)maxSimultaneousFetches
 {
     return _numSimultaneousFetches;
+}
+
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row
+{
+    MaplyTileID tileID;
+    tileID.x = col;  tileID.y = row;  tileID.level = level;
+    
+    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    if (!_flipY)
+    {
+        int y = (1<<level)-tileID.y-1;
+        tileID.y = y;
+    }
+
+    // Check with the tile source
+    bool isLocal = [tileSource tileIsLocal:tileID];
+    // And the elevation delegate, if there is one
+    if (isLocal && elevDelegate)
+    {
+        isLocal = [elevDelegate tileIsLocal:tileID];
+    }
+    
+    return isLocal;
 }
 
 // Turn this on to break a fraction of the images.  This is for internal testing
@@ -358,80 +372,24 @@ using namespace WhirlyKit;
         if (elevDelegate && _requireElev && !elevChunk)
         {
             NSArray *args = @[[NSNull null],@(col),@(row),@(level)];
-            if (layerThread)
+            if (super.layerThread)
             {
-                if ([NSThread currentThread] == layerThread)
+                if ([NSThread currentThread] == super.layerThread)
                     [self performSelector:@selector(mergeTile:) withObject:args];
                 else
-                    [self performSelector:@selector(mergeTile:) onThread:layerThread withObject:args waitUntilDone:NO];
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
             }
             
             return;
         }
 
-        // Look for it in the cache first
-        if (_cacheDir)
-        {
-            if (_imageDepth > 1)
-            {
-                // We need all the images for depth > 1
-                for (unsigned int ii=0;ii<_imageDepth;ii++)
-                {
-                    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d__%d",_cacheDir,level,col,row,ii];
-                    
-                    if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
-                    {
-                        NSData *imgData = [NSData dataWithContentsOfFile:localName];
-                        
-                        if (imgData)
-                            [(NSMutableArray *)imageDataArr addObject:imgData];
-                        else
-                            break;
-                    }
-                }
-            } else {
-                // Just one image
-                NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,level,col,row];
-                
-                if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
-                {
-                    NSData *imgData = [NSData dataWithContentsOfFile:localName];
-                    if (imgData)
-                        [(NSMutableArray *)imageDataArr addObject:imgData];
-                }
-            }
-        }
-        
-        // Not in cache, so fetch 'em
-        if ([imageDataArr count] != _imageDepth)
-        {
-            if (sourceSupportsMulti)
-                imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
-            else {
-                NSData *imgData = [tileSource imageForTile:tileID];
-                if (imgData)
-                    [(NSMutableArray *)imageDataArr addObject:imgData];
-            }
-            
-            // Save out to the cache, if appropriate
-            if (_cacheDir)
-            {
-                if ([imageDataArr count] == _imageDepth)
-                {
-                    for (unsigned int ii=0;ii<_imageDepth;ii++)
-                    {
-                        NSString *localName = nil;
-                        if (_imageDepth == 1)
-                            localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,level,col,row];
-                        else
-                            localName = [NSString stringWithFormat:@"%@/%d_%d_%d__%d",_cacheDir,level,col,row,ii];
-                        
-                        NSData *imgData = [imageDataArr objectAtIndex:ii];
-                        if ([imgData isKindOfClass:[NSData class]])
-                            [imgData writeToFile:localName atomically:YES];
-                    }
-                }
-            }
+        // Fetch the images
+        if (sourceSupportsMulti)
+            imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
+        else {
+            NSData *imgData = [tileSource imageForTile:tileID];
+            if (imgData)
+                [(NSMutableArray *)imageDataArr addObject:imgData];
         }
 
 #ifdef TRASHTEST
@@ -453,7 +411,7 @@ using namespace WhirlyKit;
             }
         }
 #endif
-
+        
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
         if ([imageDataArr count] == _imageDepth)
         {
@@ -462,11 +420,17 @@ using namespace WhirlyKit;
                 WhirlyKitLoadedImage *loadImage = nil;
                 NSObject *imgData = [imageDataArr objectAtIndex:ii];
                 if ([imgData isKindOfClass:[UIImage class]])
+                {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
-                else if ([imgData isKindOfClass:[NSData class]])
+                } else if ([imgData isKindOfClass:[NSData class]])
+                {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                }
                 if (!loadImage)
                     break;
+                // This pulls the pixels out of their weird little compressed formats
+                // Since we're on our own thread here (probably) this may save time
+                [loadImage convertToRawData];
                 [loadTile.images addObject:loadImage];
             }
         } else
@@ -480,12 +444,12 @@ using namespace WhirlyKit;
         }
             
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
-        if (layerThread)
+        if (super.layerThread)
         {
-            if ([NSThread currentThread] == layerThread)
+            if ([NSThread currentThread] == super.layerThread)
                 [self performSelector:@selector(mergeTile:) withObject:args];
             else
-                [self performSelector:@selector(mergeTile:) onThread:layerThread withObject:args waitUntilDone:NO];
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
         }
     };
     
@@ -503,7 +467,7 @@ using namespace WhirlyKit;
 // Merge the tile result back on the layer thread
 - (void)mergeTile:(NSArray *)args
 {
-    if (!layerThread)
+    if (!super.layerThread)
         return;
     
     WhirlyKitLoadedTile *loadTile = args[0];

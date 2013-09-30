@@ -39,16 +39,8 @@
     WhirlyKitEAGLView *glView;
     WhirlyKitSceneRendererES2 *sceneRenderer;
     
-    WhirlyKitLayerThread *layerThread;
-    
-    // The standard set of layers we create
-    WhirlyKitMarkerLayer *markerLayer;
-    WhirlyKitLabelLayer *labelLayer;
-    WhirlyKitVectorLayer *vectorLayer;
-    WhirlyKitShapeLayer *shapeLayer;
-    WhirlyKitSphericalChunkLayer *chunkLayer;
-    WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitLoftLayer *loftLayer;
+    WhirlyKitLayerThread *baseLayerThread;
+    NSMutableArray *layerThreads;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
@@ -117,3 +109,5 @@
 - (void) useGLContext;
 
 @end
+
+

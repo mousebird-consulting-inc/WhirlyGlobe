@@ -72,6 +72,11 @@
     return 30;
 }
 
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    return true;
+}
+
 static const float MaxElev = 13420;
 static const float ScaleFactor = 300;
 

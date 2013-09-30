@@ -11,6 +11,8 @@
 		2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */; };
 		2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */; };
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
+		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
+		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
@@ -413,6 +415,8 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		D3556E8717F4286E008C8024 /* AnimateZoom.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3556E8617F4286E008C8024 /* AnimateZoom.mm */; };
+		D3556E8917F4289A008C8024 /* AnimateZoom.h in Headers */ = {isa = PBXBuildFile; fileRef = D3556E8817F4289A008C8024 /* AnimateZoom.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -424,6 +428,8 @@
 		2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapDelegate.h; sourceTree = "<group>"; };
 		2B076B31133951DE009D931D /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
+		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
 		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -869,6 +875,8 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D3556E8617F4286E008C8024 /* AnimateZoom.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateZoom.mm; sourceTree = "<group>"; };
+		D3556E8817F4289A008C8024 /* AnimateZoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateZoom.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1350,30 +1358,23 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2BA13BF617EE9F1A000C43B7 /* vestigal */,
 				2BB25922177A042F00770619 /* BillboardDrawable.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
 				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
-				2BCAB9A912F897E20049D73C /* DataLayer.h */,
 				2B951C7D12EFA262005003AE /* GridLines.h */,
-				2B951D9812F09F31005003AE /* VectorLayer.h */,
 				2BB1F06813007031001F33CD /* LabelLayer.h */,
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
-				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
-				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
+				2B08059517EB955C0016C813 /* LoadedTile.h */,
 				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
-				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
-				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
-				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
 				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
-				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -1407,6 +1408,7 @@
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
 				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
 				2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */,
+				2B08059717EB95A40016C813 /* LoadedTile.mm */,
 				2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */,
 				2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */,
 				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
@@ -1416,6 +1418,22 @@
 				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
 			);
 			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2BA13BF617EE9F1A000C43B7 /* vestigal */ = {
+			isa = PBXGroup;
+			children = (
+				2B93C81514522DE600D768BA /* MarkerLayer.h */,
+				2B951D9812F09F31005003AE /* VectorLayer.h */,
+				2BCAB9A912F897E20049D73C /* DataLayer.h */,
+				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
+				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
+				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
+				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
+				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
+			);
+			name = vestigal;
 			sourceTree = "<group>";
 		};
 		2BA2322A17984F1A0063CC84 /* glu */ = {
@@ -1614,6 +1632,7 @@
 				2BC53FEA12DE23D400778431 /* GlobeScene.mm */,
 				2B389AA212E112D9006FC3A1 /* GlobeView.mm */,
 				2B194426138B0CD000E8FA42 /* AnimateRotation.mm */,
+				D3556E8617F4286E008C8024 /* AnimateZoom.mm */,
 				2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */,
 				2BC53FEC12DE23D400778431 /* TextureGroup.mm */,
 				2B66298213418D9A00A78F16 /* TextureAtlas.mm */,
@@ -1632,6 +1651,7 @@
 				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
 				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
 				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
+				D3556E8817F4289A008C8024 /* AnimateZoom.h */,
 			);
 			name = view;
 			sourceTree = "<group>";
@@ -1911,6 +1931,7 @@
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
 				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
 				2B4AE4001766610900850F3F /* NumberToString.h in Headers */,
+				2B08059617EB955C0016C813 /* LoadedTile.h in Headers */,
 				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
 				2BB25920177A041E00770619 /* ElevationChunk.h in Headers */,
 				2BB25924177A042F00770619 /* BillboardLayer.h in Headers */,
@@ -1938,6 +1959,7 @@
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
 				2BA2328B17986ACA0063CC84 /* LabelManager.h in Headers */,
+				D3556E8917F4289A008C8024 /* AnimateZoom.h in Headers */,
 				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
@@ -2041,6 +2063,7 @@
 				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
 				2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */,
 				2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */,
+				2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */,
 				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
 				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
 				2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */,
@@ -2147,6 +2170,7 @@
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
 				2B7EF47E16025D8C00D4079F /* pj_latlong.c in Sources */,
+				D3556E8717F4286E008C8024 /* AnimateZoom.mm in Sources */,
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
@@ -2352,6 +2376,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -2378,10 +2403,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -2393,6 +2415,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -2418,10 +2441,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

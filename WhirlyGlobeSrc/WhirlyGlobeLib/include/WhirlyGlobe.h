@@ -27,6 +27,7 @@
 #import "GlobeView.h"
 #import "AnimateRotation.h"
 #import "AnimateViewMomentum.h"
+#import "AnimateZoom.h"
 #import "GlobeScene.h"
 #import "SphericalEarthLayer.h"
 #import "GridLines.h"

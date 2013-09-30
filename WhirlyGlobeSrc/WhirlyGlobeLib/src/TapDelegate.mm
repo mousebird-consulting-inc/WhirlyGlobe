@@ -44,10 +44,23 @@ using namespace WhirlyKit;
 {
 	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
     
-	[view addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
+    
+    UITapGestureRecognizer* singleTap = [[UITapGestureRecognizer alloc]
+                                         initWithTarget:tapDelegate action:@selector(singleTapAction:)];
+    singleTap.numberOfTapsRequired = 1;
+	[view addGestureRecognizer: singleTap];
+    
+    UITapGestureRecognizer* doubleTap = [[UITapGestureRecognizer alloc]
+                                         initWithTarget:tapDelegate action:@selector(doubleTapAction:)];
+    doubleTap.numberOfTapsRequired = 2;
+    [view addGestureRecognizer: doubleTap];
+    
+    [singleTap requireGestureRecognizerToFail:doubleTap];
     
 	return tapDelegate;
 }
+
+
 
 // We'll let other gestures run
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -55,20 +68,20 @@ using namespace WhirlyKit;
     return otherGestureRecognizer.view == gestureRecognizer.view;
 }
 
-// Called for a tap
-- (void)tapAction:(id)sender
+-(void) createAndDispatchTapMsgForNoOfTaps: (int) noOfTaps withSender: (UITapGestureRecognizer*)sender
 {
-	UITapGestureRecognizer *tap = sender;
     
-	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
+	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)sender.view;
 	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
-//    WhirlyKit::Scene *scene = sceneRender.scene;
-
+    //    WhirlyKit::Scene *scene = sceneRender.scene;
+    
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
 	Point3d hit;
 	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-    CGPoint touchLoc = [tap locationOfTouch:0 inView:glView];
+    CGPoint touchLoc = [sender locationInView:glView];
+    
+    //check if the tap is on the sphere
     if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
@@ -78,15 +91,34 @@ using namespace WhirlyKit;
         Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
         msg.heightAboveSurface = globeView.heightAboveGlobe;
-		
+		msg.noOfTaps = noOfTaps;
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
-	} else
+	}
+    else
         // If we didn't hit, we generate a different message
         [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapOutsideMsg object:[NSNull null]]];
     
     
     
     
+}
+
+
+//Called for a double tap
+- (void)doubleTapAction:(id)sender
+{
+//    NSLog(@"USER tapped TWICE");
+
+    [self createAndDispatchTapMsgForNoOfTaps:2 withSender:sender];
+}
+
+
+
+
+// Called for a single tap
+- (void)singleTapAction:(id)sender
+{
+        [self createAndDispatchTapMsgForNoOfTaps:1 withSender:sender];
 }
 
 @end

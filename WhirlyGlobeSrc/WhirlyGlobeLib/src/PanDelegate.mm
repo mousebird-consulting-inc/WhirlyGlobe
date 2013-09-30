@@ -83,7 +83,7 @@ using namespace WhirlyKit;
 			startTransform = [view calcFullMatrix];
 			startQuat = [view rotQuat];
 			panning = NO;
-            if ([view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+            if ([view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&startOnSphere normalized:true])
 				panning = YES;
@@ -97,7 +97,7 @@ using namespace WhirlyKit;
 
 				// Figure out where we are now
 				Point3d hit;
-                [view pointOnSphereFromScreen:[pan locationOfTouch:0 inView:glView] transform:&startTransform
+                [view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&hit normalized:true];
 
