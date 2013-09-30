@@ -654,6 +654,10 @@ static const int NumMegaMarkers = 40000;
     NSString *jsonTileSpec = nil;
     NSString *thisCacheDir = nil;
     
+#ifdef RELOADTEST
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
+#endif
+    
     if (![baseLayerName compare:kMaplyTestGeographyClass])
     {
         self.title = @"Geography Class - MBTiles Local";
@@ -671,7 +675,12 @@ static const int NumMegaMarkers = 40000;
 
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
-        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];        
+        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        
+#ifdef RELOADTEST
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
+
     } else if (![baseLayerName compare:kMaplyTestBlueMarble])
     {
         self.title = @"Blue Marble Single Res";
@@ -802,10 +811,6 @@ static const int NumMegaMarkers = 40000;
         layer.drawPriority = 0;
         baseLayer = layer;        
     }
-
-#ifdef RELOADTEST
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
-#endif
     
     // If we're fetching one of the JSON tile specs, kick that off
     if (jsonTileSpec)

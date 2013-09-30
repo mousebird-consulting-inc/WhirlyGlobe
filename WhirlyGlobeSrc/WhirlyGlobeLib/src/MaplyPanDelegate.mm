@@ -59,7 +59,9 @@ using namespace WhirlyKit;
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
 	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
-	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
+  	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+  	panRecognizer.delegate = panDelegate;
+	[view addGestureRecognizer:panRecognizer];
 	return panDelegate;
 }
 
