@@ -1,14 +1,17 @@
 If you're new to WhirlyGlobe-Maply, please go read the main page.
 http://mousebird.github.com/WhirlyGlobe/
 
+There's a mailing list for announcements.  Please join!
+http://eepurl.com/D30CD
+
 What is WhirlyGlobe-Maply?
 ---
 
-The WhirlyGlobe part is a self contained 3D earth display component suitable for use in iPhone and iPad applications. The globe is rendered in OpenGL ES with a pageable quad tree texture and support for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.
+The WhirlyGlobe part is a self contained 3D earth display component suitable for use in iPhone and iPad apps. The globe is rendered in OpenGL ES with a pageable quad tree texture and support for vector data overlays. It is intended as a (relatively) lightweight widget that can be dropped in to your app to do simple data overlay and interaction with a globe. It can also do more heavy duty data interaction if you want to use it as the centerpiece for a globe based app.
 
-The Maply part displays exactly the same data in much the same way except as a flat map (with perspective).  It's the same toolkit, with different entry points (view controllers, basically).  You get both in the WhirlyGlobe-Maply distribution.
+The Maply part displays exactly the same data in much the same way except as a flat map (with or without perspective).  It's the same toolkit, with different entry points (view controllers, basically).  You get both in the WhirlyGlobe-Maply distribution.
 
-This is the master branch of the WhirlyGlobe-Maply Component and API version 2.1.  It should be easy to compile, as all the crazy dependencies are in submodules.  You can also get a precompiled version.  Check the project page for that.
+This is the master branch of the WhirlyGlobe-Maply Component and API version 2.2.  It should be easy to compile, as all the crazy dependencies are in submodules.  You can also get a precompiled version.  Check the project page for that.
 
 ---
 
