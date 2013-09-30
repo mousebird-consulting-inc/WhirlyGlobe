@@ -28,19 +28,23 @@
 /// Only pull this in if you're subclassing
 @interface WhirlyGlobeViewController()
 {
-@public    
+@public
     WhirlyGlobe::GlobeScene *globeScene;
     WhirlyGlobeView *globeView;
     
     // Local interaction layer
     WGInteractionLayer *globeInteractLayer;
-        
+    
     // Gesture recognizers
     WGPinchDelegateFixed *pinchDelegate;
     PanDelegateFixed *panDelegate;
+    TouchDelegateFixed *touchDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
-    AnimateViewRotation *animateRotation;    
+    
+    AnimateViewRotation *animateRotation;
+    AnimateZoom *animateZoom;
+    
 }
 
 @end

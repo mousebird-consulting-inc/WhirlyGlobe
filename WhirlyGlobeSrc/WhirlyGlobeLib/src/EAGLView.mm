@@ -21,7 +21,7 @@
 #import "EAGLView.h"
 #import <QuartzCore/QuartzCore.h>
 
-@implementation WhirlyKitEAGLView 
+@implementation WhirlyKitEAGLView
 {
     CADisplayLink *displayLink;
     bool resizeFail;
@@ -51,8 +51,8 @@
                                         nil];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		
-	_animating = FALSE;
-	_frameInterval = 1;
+        _animating = FALSE;
+        _frameInterval = 1;
         self.useRetina = TRUE;
         resizeFail = false;
         resizeFailRetry = 0;
@@ -69,11 +69,11 @@
 - (void)setUseRetina:(BOOL)newVal
 {
     _useRetina = newVal;
-
+    
     // Either use the device scale or just 1.0
     float scale = [UIScreen mainScreen].scale;
     if (!_useRetina)
-            scale = 1.0;
+        scale = 1.0;
     self.contentScaleFactor = scale;
     self.layer.contentsScale = scale;
 }
@@ -105,7 +105,7 @@
             {
                 [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
             } else
-                [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];            
+                [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         } else
             displayLink.paused = NO;
         
@@ -132,7 +132,7 @@
     
     if (resizeFail)
         [self layoutSubviews];
-
+    
     [_renderer render:displayLink.duration*displayLink.frameInterval];
 }
 
@@ -162,10 +162,20 @@
     }
     resizeFail = false;
     resizeFailRetry = 0;
-
+    
 	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 
+
+
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([self.delegate respondsToSelector:@selector(userTouchBegan:withEvent:) ])
+    {
+        [self.delegate userTouchBegan:touches withEvent: event];
+    }
+}
 
 @end

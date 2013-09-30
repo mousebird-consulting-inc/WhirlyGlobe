@@ -414,6 +414,8 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		D38B6E7E17F98DC500F529A2 /* AnimateZoom.h in Headers */ = {isa = PBXBuildFile; fileRef = D38B6E7D17F98DC500F529A2 /* AnimateZoom.h */; };
+		D38B6E8017F98DD500F529A2 /* AnimateZoom.mm in Sources */ = {isa = PBXBuildFile; fileRef = D38B6E7F17F98DD500F529A2 /* AnimateZoom.mm */; };
 		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
@@ -873,6 +875,8 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D38B6E7D17F98DC500F529A2 /* AnimateZoom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateZoom.h; sourceTree = "<group>"; };
+		D38B6E7F17F98DD500F529A2 /* AnimateZoom.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AnimateZoom.mm; sourceTree = "<group>"; };
 		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
 		E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRotateDelegate.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1620,6 +1624,7 @@
 		2BCABA6712F8DA280049D73C /* scene & view */ = {
 			isa = PBXGroup;
 			children = (
+				D38B6E7F17F98DD500F529A2 /* AnimateZoom.mm */,
 				2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */,
 				2BB1F08013009935001F33CD /* Identifiable.mm */,
 				2BB1F08813009B17001F33CD /* Texture.mm */,
@@ -1646,6 +1651,7 @@
 		2BCF39DE14BB814F006B0FC0 /* view */ = {
 			isa = PBXGroup;
 			children = (
+				D38B6E7D17F98DC500F529A2 /* AnimateZoom.h */,
 				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
 				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
 				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
@@ -1916,6 +1922,7 @@
 				2B4AE3E51766610300850F3F /* JSONAllocator.h in Headers */,
 				2B4AE3E71766610300850F3F /* JSONChildren.h in Headers */,
 				2B4AE3E91766610300850F3F /* JSONDebug.h in Headers */,
+				D38B6E7E17F98DC500F529A2 /* AnimateZoom.h in Headers */,
 				2B4AE3EA1766610900850F3F /* JSONDefs.h in Headers */,
 				2B4AE3EB1766610900850F3F /* JSONGlobals.h in Headers */,
 				2B4AE3EE1766610900850F3F /* JSONMemory.h in Headers */,
@@ -2079,6 +2086,7 @@
 				2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */,
 				2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */,
 				2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */,
+				D38B6E8017F98DD500F529A2 /* AnimateZoom.mm in Sources */,
 				2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */,
 				2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */,
 				2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */,

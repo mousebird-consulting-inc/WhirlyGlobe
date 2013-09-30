@@ -1,3 +1,4 @@
+
 /*
  *  WhirlyGlobeViewController.mm
  *  WhirlyGlobeComponent
@@ -30,7 +31,7 @@ using namespace WhirlyGlobe;
 @end
 
 @implementation WhirlyGlobeViewController
-{    
+{
 }
 
 - (id) init
@@ -40,7 +41,7 @@ using namespace WhirlyGlobe;
         return nil;
     
     _autoMoveToTap = true;
-    
+    _zoomInOnDoubleTap = false;
     return self;
 }
 
@@ -51,12 +52,13 @@ using namespace WhirlyGlobe;
     
     globeScene = NULL;
     globeView = nil;
-    
+    touchDelegate = nil;
     pinchDelegate = nil;
     panDelegate = nil;
     tapDelegate = nil;
     rotateDelegate = nil;
-    animateRotation = nil;    
+    animateRotation = nil;
+    animateZoom = nil;
 }
 
 - (void) dealloc
@@ -68,7 +70,7 @@ using namespace WhirlyGlobe;
 // Create the globe view
 - (WhirlyKitView *) loadSetup_view
 {
-	globeView = [[WhirlyGlobeView alloc] init];
+    globeView = [[WhirlyGlobeView alloc] init];
     globeView.continuousZoom = true;
     
     return globeView;
@@ -95,12 +97,15 @@ using namespace WhirlyGlobe;
     [super loadSetup];
     
     // Wire up the gesture recognizers
-	panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
-	tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
+    panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView];
+    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
+    touchDelegate = [TouchDelegateFixed touchDelegateForView:glView globeView:globeView];
+    
+    
     // These will activate the appropriate gesture
     self.pinchGesture = true;
     self.rotateGesture = true;
-        
+    
     self.selection = true;
 }
 
@@ -123,7 +128,7 @@ using namespace WhirlyGlobe;
 {
     [super viewWillDisappear:animated];
     
-	// Stop tracking notifications
+    // Stop tracking notifications
     [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
@@ -215,7 +220,7 @@ using namespace WhirlyGlobe;
     {
         if (!rotateDelegate)
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
-    } else {        
+    } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
@@ -296,6 +301,89 @@ using namespace WhirlyGlobe;
 
 #pragma mark - Interaction
 
+
+
+
+//// Zoom to the given location over time
+//- (void)animateZoomToHeight: (float) heightAboveGlobe onPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+//{
+//
+//    [globeView cancelAnimation];
+//
+//    // Figure out where that points lands on the globe
+//    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+//    Point3d whereLoc;
+//    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc normalized:true])
+//    {
+//        CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
+//        Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+//        Eigen::Quaterniond endRot;
+//        endRot = QuatFromTwoVectors(destPt, whereLoc);
+//        Eigen::Quaterniond curRotQuat = globeView.rotQuat;
+//        Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
+//
+//        if (panDelegate.northUp)
+//        {
+//            // We'd like to keep the north pole pointed up
+//            // So we look at where the north pole is going
+//            Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
+//            if (northPole.y() != 0.0)
+//            {
+//                // Then rotate it back on to the YZ axis
+//                // This will keep it upward
+//                float ang = atan(northPole.x()/northPole.y());
+//                // However, the pole might be down now
+//                // If so, rotate it back up
+//                if (northPole.y() < 0.0)
+//                    ang += M_PI;
+//                Eigen::AngleAxisd upRot(ang,destPt);
+//                newRotQuat = newRotQuat * upRot;
+//            }
+//        }
+//
+//
+//        // Zoom and rotate to the given position over time
+//        animateZoom = [[AnimateZoom alloc] initWithView:globeView zoomHeightAboveGlobe:heightAboveGlobe rot:newRotQuat howLong:howLong];
+//
+//        globeView.delegate = animateZoom;
+//
+//    }
+//}
+
+
+
+// External facing version of zoomOnHeight
+- (void)animateZoomHeight: (float)heightAboveGlobe ToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
+{
+    [self zoomOnHeight:heightAboveGlobe toPoint:GeoCoord(newPos.x,newPos.y) time:howLong];
+}
+
+// Zoom to the given location over time
+- (void)zoomOnHeight: (float)heightAboveGlobe toPoint:(GeoCoord)whereGeo time:(NSTimeInterval)howLong
+{
+    // If we were rotating from one point to another, stop
+    [globeView cancelAnimation];
+    
+    // Construct a quaternion to rotate from where we are to where
+    //  the user tapped
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    
+    
+    // Zoom and rotate to the given position over time
+    animateZoom = [[AnimateZoom alloc] initWithView:globeView zoomHeightAboveGlobe:heightAboveGlobe rot:newRotQuat howLong:howLong];
+    
+    globeView.delegate = animateZoom;
+    
+}
+
+
+
+// External facing version of rotateToPoint
+- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
+{
+    [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:howLong];
+}
+
 // Rotate to the given location over time
 - (void)rotateToPoint:(GeoCoord)whereGeo time:(NSTimeInterval)howLong
 {
@@ -306,16 +394,16 @@ using namespace WhirlyGlobe;
     //  the user tapped
     Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
     
+    
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
-    globeView.delegate = animateRotation;        
+    globeView.delegate = animateRotation;
 }
 
-// External facing version of rotateToPoint
-- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
-{
-    [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:howLong];
-}
+
+
+
+
 
 // Figure out how to get the geolocation to the given point on the screen
 - (void)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
@@ -359,6 +447,11 @@ using namespace WhirlyGlobe;
     }
 }
 
+
+
+
+
+
 // External facing set position
 - (void)setPosition:(WGCoordinate)newPos
 {
@@ -389,7 +482,7 @@ using namespace WhirlyGlobe;
 - (float)heading
 {
     float retHeading = 0.0;
-
+    
     // Figure out where the north pole went
     Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
     if (northPole.y() != 0.0)
@@ -412,7 +505,7 @@ using namespace WhirlyGlobe;
     WGCoordinate coord;
     coord.x = msg.whereGeo.lon();
     coord.y = msg.whereGeo.lat();
-
+    
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
@@ -421,14 +514,43 @@ using namespace WhirlyGlobe;
         else if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didSelect:)])
             [_delegate globeViewController:self didSelect:selectedObj];
     } else {
+       
         // The user didn't select anything, let the delegate know.
-        if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+        // judge what to do according to the number of taps.
+        switch (msg.noOfTaps)
         {
-            [_delegate globeViewController:self didTapAt:coord];
+            case 1:
+                //if the user used single tap run didTapAt
+                if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didTapAt:)])
+                {
+                    [_delegate globeViewController:self didTapAt:coord];
+                }
+                
+                // Didn't select anything, so rotate
+                if (_autoMoveToTap)
+                    [self rotateToPoint:msg.whereGeo time:1.0];
+                
+                break;
+            case 2:
+                //if the user used double tap run didDoubleTapAt
+                if (_delegate && [_delegate respondsToSelector:@selector(globeViewController:didDoubleTapAt:)])
+                {
+                    [_delegate globeViewController:self didDoubleTapAt:coord];
+                }
+                
+                if(_zoomInOnDoubleTap)
+                {
+                    
+                    float howMuchToZoom = msg.heightAboveSurface*0.5;
+                    [self zoomOnHeight:howMuchToZoom toPoint:msg.whereGeo time:0.3];
+                }
+                break;
+            default:
+                break;
         }
-        // Didn't select anything, so rotate
-        if (_autoMoveToTap)
-            [self rotateToPoint:msg.whereGeo time:1.0];
+        
+        
+        
     }
 }
 
