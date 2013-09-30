@@ -46,6 +46,8 @@
 @property (nonatomic,assign) WhirlyKit::Point3f worldLoc;
 /// Where the eye was.  0 is sea level.
 @property (nonatomic,assign) float heightAboveSurface;
+/// How many times the user tapped
+@property (nonatomic) int noOfTaps;
 
 /// This version of set takes a set of doubles
 - (void)setWorldLocD:(WhirlyKit::Point3d)newLoc;

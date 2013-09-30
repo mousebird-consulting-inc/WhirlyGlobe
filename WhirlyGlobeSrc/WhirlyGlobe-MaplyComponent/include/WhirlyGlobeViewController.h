@@ -78,6 +78,10 @@
 /// On by default
 @property(nonatomic,assign) bool autoMoveToTap;
 
+/// Set this to zoom in where the user has double tapped
+/// Off by default
+@property(nonatomic,assign) bool  zoomInOnDoubleTap;
+
 /// Set this to get callbacks for various events.
 @property(nonatomic,weak) NSObject<WhirlyGlobeViewControllerDelegate> *delegate;
 
@@ -111,6 +115,9 @@
 
 /// Animate to the given position over the given amount of time
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+
+///Animate zoom to the given height and position, over the given amount of time
+- (void)animateZoomHeight: (float)heightAboveGlobe ToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong;
 
 /// Animate the given position to the given screen location over time.
 /// If this isn't physically possible, it will just do nothing
