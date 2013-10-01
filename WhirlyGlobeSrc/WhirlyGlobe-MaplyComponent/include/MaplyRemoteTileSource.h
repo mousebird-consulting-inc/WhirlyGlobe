@@ -21,18 +21,37 @@
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
-/** @brief The remote tile source knows how to fetch remote image pyramids.
-    @details This is the MaplyTileSource compliant object that communicates
-     with remote servers and fetches individual tiles as needed by the
-     MaplyQuadImageTileLayer.
-    @details It can be initialized in a couple of different ways depending
-     on the information you have available.  Either you explicitly provide
-     the baseURL, min and max levels and such, or hand in an NSDictionary
-     that's been parsed from a tile spec.
-    @details The remote tile source also handles cacheing if it you give
-     it a cacheDir to work in.  By default cacheing is off (so be careful).
-    @see MaplyQuadImageTilesLayer
+@class MaplyRemoteTileSource;
+
+/** The remote tile source delegate provides feedback on which
+    tiles loaded and which didn't.  You'll be called in all sorts of
+    random threads here, so act accordingly.
   */
+@protocol MaplyRemoteTileSourceDelegate <NSObject>
+
+@optional
+
+/** The tile successfully loaded.
+    @param tileSource the remote tile source that loaded the tile.
+    @param tileID The ID of the tile we loaded.
+  */
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidLoad:(MaplyTileID)tileID;
+
+/** The tile failed to load.
+    @param tileSource The remote tile source that tried to load the tile.
+    @param tileId The tile ID of the tile that failed to load.
+    @param error The NSError message, probably from the network routine.
+  */
+- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+
+@end
+
+/** @brief The remote tile source knows how to fetch remote image pyramids.
+    @details This is the MaplyTileSource compliant object that communicates with remote servers and fetches individual tiles as needed by the MaplyQuadImageTileLayer.
+    @details It can be initialized in a couple of different ways depending on the information you have available.  Either you explicitly provide the baseURL, min and max levels and such, or hand in an NSDictionary that's been parsed from a tile spec.
+    @details The remote tile source also handles cacheing if it you give it a cacheDir to work in.  By default cacheing is off (so be careful).
+    @see MaplyQuadImageTilesLayer
+ */
 @interface MaplyRemoteTileSource : NSObject<MaplyTileSource>
 
 /** @brief Initialize with enough information to fetch remote tiles.
@@ -106,5 +125,10 @@
     with a giant image pyramid, that could be problematic.
   */
 @property (nonatomic) NSString *cacheDir;
+
+/** @brief A delegate for tile loads and failures.
+    @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
+  */
+@property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
 @end
