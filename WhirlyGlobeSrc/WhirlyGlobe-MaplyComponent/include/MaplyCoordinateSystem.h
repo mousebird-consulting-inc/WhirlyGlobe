@@ -21,47 +21,51 @@
 #import <Foundation/Foundation.h>
 #import "MaplyCoordinate.h"
 
-/** The coordinate system is an opaque object representing a particular
-    spatial coordinate system (e.g. Plate Caree or Spherical Mercator)
-    and bounding box.
-    At present most users just need a couple of different coordinate systems,
-    even though WhirlyGlobe-Maply has much more flexible support.  Obviously,
-    this can be expanded in the future.
-  */
+/** @brief Coordinate system for tiling systems and data sources and such.
+    @details This object represents the spatial reference system and bounding box for objects like the MaplyTileSource or vectors or other things.  Not all data is in lat/lon geographic (actually MaplyPlateCaree) nor is it always in MaplySphericalMercator.  Sometimes it's in one or the other, or a bit of both.
+    @details We use this base class to express the coordinate system and we threw in the bounding box, which we will surely come to regret.  Oh well, it's in there.
+    @details This object gets passed around to tell us what coordinate system data is in or how we're displaying things.  Right now only MaplySphericalMercator and MaplyPlateCarree are represented.  In the future, there will be more.
+   */
 @interface MaplyCoordinateSystem : NSObject
 
-/// Set the bounding box in the coordinate system.
-/// If this one that uses degrees, use radians instead
+/** @brief Set the bounding box in the local coordinate system.
+    @details This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+  */
 - (void)setBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ll;
 
-/// Return the bounding box (in local coordinates)
+/** @brief Return the bounding box in local coordinates.
+    @details This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
+  */
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
 
-/// Express this coordinate system using SRS syntax
+/** @brief Express the coordinate system in an SRS compatible string.
+  */
 - (NSString *)getSRS;
 
-/// Can these coordinates be expressed as degrees?
-/// Some systems will need that
+/** @brief Can this coordinate system be expressed in degrees?
+    @details This is set for coordinate systems that express their extents in degrees.  This is useful for cases where we need to construct some metadata to go along with the system and you'd normally expect it to be in degrees rather than radians.
+  */
 - (bool)canBeDegrees;
 
 @end
 
-/** Plate Carree is just lat/lon stretched out to its full extents.
-    Use this if your data source return tiles that square in lat/lon.
+/** @brief Plate Carree is lat/lon stretched out to its full extents.
+    @details This coordinate system is used when we're tiling things over the whole earth, from -180 to +180 and from -90 to +90.  Use this if you chopped up your data in that way.
   */
 @interface MaplyPlateCarree : MaplyCoordinateSystem
 
-/// Plate Caree that covers the globe
+/// @brief Initialize with Plate Carree covering the whole globe.
 - (id)initFullCoverage;
 
 @end
 
-/** Spherical Mercator is what a the most common
-    remote tile sources use (e.g. MapBox, Google, Bing)
+/** @brief Spherical Mercator is what you'll most commonly see on web maps.
+    @details The Spherical Mercator system, with web extents is what MapBox, Google, Bing, etc. use for their maps.  If you ever want to annoy a cartographer, suggest that spherical mercator is all you ever really need.
+    @details The drawback with Spherical Mercator is that it doesn't cover the poles and it distorts (and how) its north and south extents.  Web Standard refers to the extents you'll find in most online maps.  This is probably want you want.
   */
 @interface MaplySphericalMercator : MaplyCoordinateSystem
 
-/// Create the standard extents used by MapBox, Google, Bing, etc.
+/// @brief Initialize with the -85...,+85... extents to match most commonly used online maps
 - (id)initWebStandard;
 
 @end
