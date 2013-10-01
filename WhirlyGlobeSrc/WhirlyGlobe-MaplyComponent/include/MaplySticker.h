@@ -21,16 +21,20 @@
 #import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
 
-/** A Maply Sticker is a rectangle that we'll stretch over the given coordinates
-    and then slap an optional image on top of.
+/** @brief Stickers are rectangles placed on the globe with an image.
+    @details The Maply Sticker will stretch a rectangle (in geographic) over the given extents and tack the given image on top of it.  Stickers differ from MaplyMarker objects in that they're big.  They can stretch over a larger are and need to be subdivided as such.
   */
 @interface MaplySticker : NSObject
 
-/// Extents of the stick
-@property (nonatomic,assign) MaplyCoordinate ll,ur;
-/// Angle of rotation around center
+/// @brief The lower left corner (in geographic) of the sticker
+@property (nonatomic,assign) MaplyCoordinate ll;
+/// @brief The upper right corner (in geographic) of the sticker
+@property (nonatomic,assign) MaplyCoordinate ur;
+/// @brief Angle of rotation around center
 @property (nonatomic,assign) float rotation;
-/// Image to stretch over the sticker
+/** @brief Image to stretch over the sticker.
+    @details The UIImage is cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with it.
+  */
 @property (nonatomic,strong) UIImage *image;
 
 @end
