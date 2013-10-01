@@ -115,10 +115,22 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) unsigned int texturAtlasSize;
 
-// Note: Table
 /** @brief Set the image format for the texture atlases (thus the imagery).
     @details OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
     @details Be sure to set this at layer creation, it won't do anything later on.
+ 
+| Image Format | Description |
+|:-------------|:------------|
+| MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+| MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+| MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+| MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+| MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+| MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+| MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+| MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+| MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+| MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
   */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
