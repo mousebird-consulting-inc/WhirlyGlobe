@@ -303,7 +303,6 @@
 		2BA2325E17984F510063CC84 /* glues_quad.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323717984F510063CC84 /* glues_quad.h */; };
 		2BA2325F17984F510063CC84 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323817984F510063CC84 /* glues_registry.c */; };
 		2BA2326017984F510063CC84 /* glues_registry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323917984F510063CC84 /* glues_registry.h */; };
-		2BA2326117984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323A17984F510063CC84 /* glues.h */; };
 		2BA2326217984F510063CC84 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323D17984F510063CC84 /* dict-list.h */; };
 		2BA2326317984F510063CC84 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323E17984F510063CC84 /* dict.c */; };
 		2BA2326417984F510063CC84 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323F17984F510063CC84 /* dict.h */; };
@@ -1942,7 +1941,6 @@
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
-				2BA2326117984F510063CC84 /* glues.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
