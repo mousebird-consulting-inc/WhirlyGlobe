@@ -1,0 +1,596 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
+		<title>MaplyTileSource Protocol Reference</title>
+		<meta id="xcode-display" name="xcode-display" content="render"/>
+		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
+		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
+		<meta name="generator" content="appledoc 2.2 (build 961)" />
+	</head>
+	<body>
+		<header id="top_header">
+			<div id="library" class="hideInXcode">
+				<h1><a id="libraryTitle" href="../index.html">WhirlyGlobe-Maply </a></h1>
+				<a id="developerHome" href="../index.html">mousebird consulting</a>
+			</div>
+			
+			<div id="title" role="banner">
+				<h1 class="hideInXcode">MaplyTileSource Protocol Reference</h1>
+			</div>
+			<ul id="headerButtons" role="toolbar">
+				<li id="toc_button">
+					<button aria-label="Show Table of Contents" role="checkbox" class="open" id="table_of_contents"><span class="disclosure"></span>Table of Contents</button>
+				</li>
+				<li id="jumpto_button" role="navigation">
+					<select id="jumpTo">
+	<option value="top">Jump To&#133;</option>
+	
+	<option value="overview">Overview</option>
+	
+	
+	
+	
+	<option value="tasks">Tasks</option>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<option value="instance_methods">Instance Methods</option>
+	
+	<option value="//api/name/imageForTile:">&nbsp;&nbsp;&nbsp;&nbsp;- imageForTile:</option>
+	
+	<option value="//api/name/imagesForTile:numImages:">&nbsp;&nbsp;&nbsp;&nbsp;- imagesForTile:numImages:</option>
+	
+	<option value="//api/name/maxZoom">&nbsp;&nbsp;&nbsp;&nbsp;- maxZoom</option>
+	
+	<option value="//api/name/minZoom">&nbsp;&nbsp;&nbsp;&nbsp;- minZoom</option>
+	
+	<option value="//api/name/tileIsLocal:">&nbsp;&nbsp;&nbsp;&nbsp;- tileIsLocal:</option>
+	
+	<option value="//api/name/tileSize">&nbsp;&nbsp;&nbsp;&nbsp;- tileSize</option>
+	
+	
+	
+</select>
+				</li>
+			</ul>
+		</header>
+		<nav id="tocContainer" class="isShowingTOC">
+			<ul id="toc" role="tree">
+				
+<li role="treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#overview">Overview</a></span></li>
+
+
+
+
+<li role="treeitem" id="task_treeitem"><span class="nodisclosure"></span><span class="sectionName"><a href="#tasks">Tasks</a></span><ul>
+	
+</ul></li>
+
+
+
+
+
+
+
+
+
+<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imageForTile:">imageForTile:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imagesForTile:numImages:">imagesForTile:numImages:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/maxZoom">maxZoom</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/minZoom">minZoom</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileIsLocal:">tileIsLocal:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileSize">tileSize</a></span></li>
+	
+</ul></li>
+
+
+			</ul>
+		</nav>
+		<article>
+			<div id="contents" class="isShowingTOC" role="main">
+				<a title="MaplyTileSource Protocol Reference" name="top"></a>
+				<div class="main-navigation navigation-top">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="header">
+					<div class="section-header">
+						<h1 class="title title-header">MaplyTileSource Protocol Reference</h1>
+					</div>		
+				</div>
+				<div id="container">	
+					
+					<div class="section section-specification"><table cellspacing="0"><tbody>
+						<tr>
+	<td class="specification-title">Declared in</td>
+	<td class="specification-value">MaplyTileSource.h</td>
+</tr>
+						</tbody></table></div>
+					
+                    
+                    
+					
+					<div class="section section-overview">
+						<a title="Overview" name="overview"></a>
+						<h2 class="subtitle subtitle-overview">Overview</h2>
+						<p>Fill out this protocol and you can pass in your own data tile by tile. This protocol is used by the <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a> to pull in image data per tile.  This can be one or more images, they can be local, remote or even generated on the fly.  It&rsquo;s up to the object itself to return suitable data as requested or indicate failure (by returning nil).</p><p>The tile source should know its coordinate system, which is handed to Maply separately.</p>
+					</div>
+					
+					
+					
+					
+					
+					<div class="section section-tasks">
+						<a title="Tasks" name="tasks"></a>
+						<h2 class="subtitle subtitle-tasks">Tasks</h2>
+						
+						
+						
+						
+
+						<ul class="task-list">
+							<li>
+	<span class="tooltip">
+		<code><a href="#//api/name/minZoom">&ndash;&nbsp;minZoom</a></code>
+	</span>
+	
+	<span class="task-item-suffix">required method</span>
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/maxZoom">&ndash;&nbsp;maxZoom</a></code>
+	</span>
+	
+	<span class="task-item-suffix">required method</span>
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tileSize">&ndash;&nbsp;tileSize</a></code>
+	</span>
+	
+	<span class="task-item-suffix">required method</span>
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tileIsLocal:">&ndash;&nbsp;tileIsLocal:</a></code>
+	</span>
+	
+	<span class="task-item-suffix">required method</span>
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/imageForTile:">&ndash;&nbsp;imageForTile:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/imagesForTile:numImages:">&ndash;&nbsp;imagesForTile:numImages:</a></code>
+	</span>
+	
+	
+</li>
+						</ul>
+						
+					</div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<div class="section section-methods">
+						<a title="Instance Methods" name="instance_methods"></a>
+						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
+						
+						<div class="section-method">
+	<a name="//api/name/imageForTile:" title="imageForTile:"></a>
+	<h3 class="subsubtitle method-title">imageForTile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Fetch the image for a given tile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (id)imageForTile:(MaplyTileID)<em>tileID</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Return a UIImage or an NSData containing raw PNG or JPEG data.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>You must fill in either imageForTile: or <a href="#//api/name/imagesForTile:numImages:">imagesForTile:numImages:</a>
+    if you&rsquo;re doing more than one image per tile.</p><p>For this method, you can return either a full UIImage or an NSData
+    containing an image that UIImage will recognize.  Typically that&rsquo;s
+    a PNG or JPEG image of the typical size (128 or 256 pixels on a side).</p><p>If you fail to load the image, just return nil.  At that point the paging
+    won&rsquo;t page in tiles below this image, assuming that image pyramid is
+    truncated at that point.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/imagesForTile:numImages:" title="imagesForTile:numImages:"></a>
+	<h3 class="subsubtitle method-title">imagesForTile:numImages:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Fetch an array of images for the given tile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (NSArray *)imagesForTile:(MaplyTileID)<em>tileID</em> numImages:(unsigned int)<em>numImages</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>An NSArray of UIImage or NSData objects.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>You must fill in either <a href="#//api/name/imageForTile:">imageForTile:</a> or imagesForTile:numImages:
+     if you&rsquo;re doing more than one image per tile.</p><p>This method is required if you&rsquo;ve told the <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a> that
+    the depth is greater than 1.  That is, it&rsquo;s expecting more than one image
+    per tile.  You&rsquo;d do this when you want to animate between them, for instance.</p><p>You must return an NSArray, but the array can contain UIImage or NSData
+    entries (or both).  For NSData we&rsquo;re expecting a raw PNG or JPEG data,
+    or anything that UIImage would interpret correctly.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/maxZoom" title="maxZoom"></a>
+	<h3 class="subsubtitle method-title">maxZoom</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the maximum allowable zoom layer.  Typically no more than 18,
+          but it depends on your implementation.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (int)maxZoom</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns the maximum allowable zoom layer.  Typically no more than 18,
+          but it depends on your implementation.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/minZoom" title="minZoom"></a>
+	<h3 class="subsubtitle method-title">minZoom</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Returns the minimum allowable zoom layer.  Ideally, this is 0.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (int)minZoom</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns the minimum allowable zoom layer.  Ideally, this is 0.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tileIsLocal:" title="tileIsLocal:"></a>
+	<h3 class="subsubtitle method-title">tileIsLocal:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Can the given tile be fetched locally or do we need a network call?</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)tileIsLocal:(MaplyTileID)<em>tileID</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Return true for local tile sources or if you have the tile cached.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don&rsquo;t return true in error, though, that&rsquo;ll hold up the paging.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/tileSize" title="tileSize"></a>
+	<h3 class="subsubtitle method-title">tileSize</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Number of pixels on the side of a single tile (e.g. 128, 256).</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (int)tileSize</code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns the number of pixels on a side for a single tile.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>We use this for screen space calculation, so you don&rsquo;t have to
+     return the exact number of pixels in the imageForTile calls.  It&rsquo;s
+     easier if you do, though.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+					</div>
+					
+					
+                    
+                    
+				</div>
+				<div class="main-navigation navigation-bottom">
+					<ul>
+	<li><a href="../index.html">Index</a></li>
+	<li><a href="../hierarchy.html">Hierarchy</a></li>
+</ul>
+				</div>
+				<div id="footer">
+					<hr />
+					<div class="footer-copyright">
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-02)</span><br />
+						
+						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
+						
+					</div>
+				</div>
+			</div>
+		</article>
+		<script type="text/javascript">
+			function jumpToChange()
+			{
+				window.location.hash = this.options[this.selectedIndex].value;
+			}
+			
+			function toggleTOC()
+			{
+				var contents = document.getElementById('contents');
+				var tocContainer = document.getElementById('tocContainer');
+				
+				if (this.getAttribute('class') == 'open')
+				{
+					this.setAttribute('class', '');
+					contents.setAttribute('class', '');
+					tocContainer.setAttribute('class', '');
+					
+					window.name = "hideTOC";
+				}
+				else
+				{
+					this.setAttribute('class', 'open');
+					contents.setAttribute('class', 'isShowingTOC');
+					tocContainer.setAttribute('class', 'isShowingTOC');
+					
+					window.name = "";
+				}
+				return false;
+			}
+			
+			function toggleTOCEntryChildren(e)
+			{
+				e.stopPropagation();
+				var currentClass = this.getAttribute('class');
+				if (currentClass == 'children') {
+					this.setAttribute('class', 'children open');
+				}
+				else if (currentClass == 'children open') {
+					this.setAttribute('class', 'children');
+				}
+				return false;
+			}
+			
+			function tocEntryClick(e)
+			{
+				e.stopPropagation();
+				return true;
+			}
+			
+			function init()
+			{
+				var selectElement = document.getElementById('jumpTo');
+				selectElement.addEventListener('change', jumpToChange, false);
+				
+				var tocButton = document.getElementById('table_of_contents');
+				tocButton.addEventListener('click', toggleTOC, false);
+				
+				var taskTreeItem = document.getElementById('task_treeitem');
+				if (taskTreeItem.getElementsByTagName('li').length > 0)
+				{
+					taskTreeItem.setAttribute('class', 'children');
+					taskTreeItem.firstChild.setAttribute('class', 'disclosure');
+				}
+				
+				var tocList = document.getElementById('toc');
+				
+				var tocEntries = tocList.getElementsByTagName('li');
+				for (var i = 0; i < tocEntries.length; i++) {
+					tocEntries[i].addEventListener('click', toggleTOCEntryChildren, false);
+				}
+				
+				var tocLinks = tocList.getElementsByTagName('a');
+				for (var i = 0; i < tocLinks.length; i++) {
+					tocLinks[i].addEventListener('click', tocEntryClick, false);
+				}
+				
+				if (window.name == "hideTOC") {
+					toggleTOC.call(tocButton);
+				}
+			}
+			
+			window.onload = init;
+			
+			// If showing in Xcode, hide the TOC and Header
+			if (navigator.userAgent.match(/xcode/i)) {
+				document.getElementById("contents").className = "hideInXcode"
+				document.getElementById("tocContainer").className = "hideInXcode"
+				document.getElementById("top_header").className = "hideInXcode"
+			}
+			
+		</script>
+	</body>
+</html>
