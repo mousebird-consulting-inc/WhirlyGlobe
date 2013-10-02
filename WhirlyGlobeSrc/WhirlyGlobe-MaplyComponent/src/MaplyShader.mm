@@ -29,6 +29,7 @@ using namespace WhirlyKit;
 @implementation MaplyShader
 {
     WhirlyKit::Scene *scene;
+    WhirlyKitSceneRendererES *renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -94,6 +95,7 @@ using namespace WhirlyKit;
     }
     
     scene = baseViewC->scene;
+    renderer = baseViewC->sceneRenderer;
     
     if (baseViewC->scene)
         baseViewC->scene->addProgram(_program);
@@ -109,8 +111,11 @@ using namespace WhirlyKit;
         return;
     }
     
-    if (!scene)
+    if (!scene || !renderer)
         return;
+
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
     
     Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
     SimpleIdentity auxTexId = auxTex->getId();
@@ -124,6 +129,9 @@ using namespace WhirlyKit;
     }
     
     texIDs.insert(auxTexId);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
 }
 
 // We're assuming the view controller has set the proper context
