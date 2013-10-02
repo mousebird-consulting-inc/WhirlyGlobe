@@ -30,91 +30,143 @@
 @class MaplyViewControllerLayer;
 @class MaplyViewController;
 
-/** Fill in this protocol for callbacks when the user taps on or near something.
+/** @brief A protocol to fill out for selection and tap messages from the MaplyViewController.
+    @details Fill out the protocol when you want to get back selection and tap messages.  All the methods are optional.
   */
 @protocol MaplyViewControllerDelegate <NSObject>
 
 @optional
 
-/// Called when the user taps on or near an object.
-/// You're given the object you passed in originally, such as a MaplyScreenMarker
+/** @brief Called when the user taps on or near an object.
+    @details You're given the object you passed in originally, such as a MaplyScreenMarker.  You can set a userObject on most of these to put your own data in there for tracking.
+  */
 - (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj;
 
-/// User tapped at a given location.
-/// This won't be called if they tapped and selected, just for taps.
+/** @brief User tapped at a given location.
+    @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
+  */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord;
 
 @end
 
-/** The main object for the Maply Component.  Create a view controller, add it to
-    your view hirarchy and start tossing in data.  You'll want a base layer at the
-    very least and then you can add markers, labels, and vectors on top.
+/** @brief This view controller implements a map.
+    @details This is the main entry point for displaying a 2D or 3D map.  Create one of these, fill it with data and let your users mess around with it.
+    @details You can display a variety of features on the map, including tile base maps (MaplyQuadImageTilesLayer), vectors (MaplyVectorObject), shapes (MaplyShape), and others.  Check out the add calls in the MaplyBaseViewController for details.
+    @details The Maply View Controller can be initialized in 3D map, 2D map mode.  The 2D mode can be tethered to a UIScrollView if you want to handle gestures that way.  That mode is very specific at the moment.
+    @details To get selection and tap callbacks, fill out the MaplyViewControllerDelegate and assign the delegate.
+    @details Most of the functionality is shared with MaplyBaseViewController.  Be sure to look in there first.
   */
 @interface MaplyViewController : MaplyBaseViewController
 
-/// Create a tethered flat map that obeys the given scroll view
-- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+/// @brief Initialize as a 3D map.
+- (id)init;
 
-/// Called when the owner resets the top level scroll and tether view
-- (void)resetTetheredFlatMap:(UIScrollView *)inScrollView tetherView:(UIView *)inTetherView;
-
-/// Create a flat map (no 3D)
+/// @brief Initialize as a 2D map.
 - (id)initAsFlatMap;
 
-/// Set if we're in 2D mode
+/** @brief Initialize as a 2D map tied to a UIScrollView.
+    @details In this mode we disable all the the gestures.
+    @param scrollView The UIScrollView to track.
+    @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
+  */
+- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+
+/** @brief Reset the UIScrollView for tethered mode.
+    @details Occasionally we need to reset the UIScrollView and tether view.  This will do that.
+    @param scrollView The UIScrollView to track.
+    @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
+  */
+- (void)resetTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+
+/// @brief Set if we're in 2D mode.
 @property (nonatomic,readonly) bool flatMode;
 
-/// If we're in tethered flat map mode, this is the view we're monitoring
-///  for size and offset changes
+/// @brief If we're in tethered flat map mode, this is the view we're monitoring for size and offset changes.
 @property(nonatomic,weak) UIView *tetherView;
 
-/// If set before load, we'll turn off all gestures and work only in tethered mode
+/// @brief If set before startup (after init), we'll turn off all gestures and work only in tethered mode.
 @property(nonatomic,assign) bool tetheredMode;
 
-/// Set this to trun on/off the pinch (zoom) gesture recognizer
-/// On by default
+/** @brief Turn the pinch (zoom) gesture recognizer on and off
+    @details On by default.
+  */
 @property(nonatomic,assign) bool pinchGesture;
 
-/// Set this to turn on or off the rotation gesture recognizer.
-/// On by default.
+/** @brief Turn the rotate gesture recognizer on and off
+    @details On by default.
+ */
 @property(nonatomic,assign) bool rotateGesture;
 
-/// Set this to get callbacks for various events.
+/** @brief Delegate for selection and location tapping.
+    @details Fill in the MaplyViewControllerDelegate and assign it here to get callbacks for object selection and tapping.
+  */
 @property(nonatomic,weak) NSObject<MaplyViewControllerDelegate> *delegate;
 
-/// Get/set the current height above terrain.
-/// The radius of the earth is 1.0.  Height above terrain is relative to that.
+/** @brief Current height above terrain.
+    @details In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.
+  */
 @property (nonatomic,assign) float height;
 
-/// Return the view extents.  This is the box the view point is allowed to be within.
+/** @brief The box the view point can be in.
+    @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
+  */
 - (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
-/// Set the view extents.  This is the box the view point is allowed to be within.
+/** @brief The box the view point can be in.
+    @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
+ */
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur;
 
-/// Animate to the given position over the given amount of time
+/** @brief Animate to the given position over time.
+    @param newPos A coordinate in geographic (lon/lat radians)
+    @param howLong A time in seconds.
+  */
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
 
-/// Animate to the given extents over time (only for flat view mode)
+/** @brief Animate to new window extents over time.
+    @details This method is similar to animateToPosition:time: but only works in 2D flat map mode.
+    @param windowSize The new window size we're matching.
+    @param contentOffset The contentOffset from the UIScrollView.
+    @param howLong The length of time to take getting there.
+  */
 - (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
 
-/// Animate the given position to the given screen location over time.
-/// If this isn't physically possible, it will do nothing
+/** @brief Animate the given position to the screen position over time.
+    @details This is similar to animateToPosition:time: except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you're looking at.
+    @details If it's impossible to move newPos to loc, then nothing happens.
+    @param newPos The geographic position (lon/lat in radians) to move to.
+    @param loc The location on the screen where we'd like it to go.
+    @param howLong How long in seconds to take getting there.
+  */
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
-/// Set the view to the given position immediately
+/** @brief Set the center of the screen to the given position immediately.
+    @param newPos The geographic position (lon/lat in radians) to move to.
+  */
 - (void)setPosition:(MaplyCoordinate)newPos;
 
-/// Set position and height at the same time
+/** @brief Set the center of the screen and the height offset immediately.
+    @param newPos The geographic position (lon/lat in radians) to move to.
+    @param height Height the view point above the map.  Doesn't work in 2D mode.
+  */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
-/// Get the current position and height
-- (void)getPosition:(WGCoordinate *)pos height:(float *)height;
+/** @brief Return the current center position and height.
+    @param pos The center of the screen in geographic (lon/lat in radians).
+    @param height The current view point's height above the map.
+  */
+- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
 
-/// Return the min and max heights above the globe for zooming
+/** @brief Return the zoom limits for 3D map mode.
+    @param minHeight The closest a viewer is allowed to get to the map surface.
+    @param maxHeight The farthest away a viewer is allowed to get from the map surface.
+  */
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
 
-/// Set the min and max heights above the globe for zooming
+/** @brief Set the zoom limits for 3D map mode.
+    @param minHeight The closest a viewer is allowed to get to the map surface.
+    @param maxHeight The farthest away a viewer is allowed to get from the map surface.
+ */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
 
 @end
