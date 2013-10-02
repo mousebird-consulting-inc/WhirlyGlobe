@@ -21,20 +21,30 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-/** The Maply Light is a simple interface to the basic lighting supported
-    provided by WhirlyGlobe-Maply.  You can set one of these up and add it
-    to the mix for a globe or map.
+/** @brief The Light provides a simple interface to basic lighting within the toolkit.
+    @details You can have up to 8 lights in the current version of the toolkit.  Obviously this is all shader implementation with OpenGL ES 2.0, so you can always just bypass this and do what you like.  However, the default shaders will look for these lights.
+    @details The lights are very simple, suitable for the globe, and contain a position, a couple of colors, and a view dependent flag.
   */
 @interface MaplyLight : NSObject
 
-/// Light position relative to the globe or map
+/** @brief The location of this particular light in display space.
+    @details This is a single light's location in display space.  Display space for the globe is based on a radius of 1.0.
+  */
 @property (nonatomic,assign) MaplyCoordinate3d pos;
-/// If set, this light moves with the model (usually the globe).  You'd use this for a real sun position.
-/// If not set, the light is static and does not move or rotate.
+
+/** @brief Controls whether the light takes the model matrix into account or not.
+    @details If set, this light moves with the model (usually the globe).  You'd use this for a real sun position. If not set, the light is static and does not move or rotate.
+  */
 @property (nonatomic,assign) bool viewDependent;
-/// Ambient color.  This is always present so no pixel should be darker than this
+
+/** @brief Ambient color for the light.
+    @details This color will always be added to any given pixel.  It provides a baseline lighting value.
+  */
 @property (nonatomic,strong) UIColor *ambient;
-/// The diffuse color is multiplied with the light vector and so is directional.
+
+/** @brief Diffuse light color.
+    @details The diffuse color is multiplied by a directional value and so will vary depending on geometry normals.
+  */
 @property (nonatomic,strong) UIColor *diffuse;
 
 @end
