@@ -264,7 +264,7 @@ public:
     
     /// Return the coordinate system adapter we're using.
     /// You can get the coordinate system we're using from that.
-    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter() { return coordAdapter; }
+    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter();
     
     /// Full set of Generators
     const GeneratorSet *getGenerators() { return &generators; }
@@ -354,6 +354,10 @@ public:
     void dumpStats();
 	
 public:
+    /// Don't be calling this
+    void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
+    
+    pthread_mutex_t coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;

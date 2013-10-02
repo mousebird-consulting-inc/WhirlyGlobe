@@ -49,6 +49,7 @@ using namespace WhirlyKit;
 		startZ = 0.0;
                 valid = false;
                 _doRotation = true;
+                _zoomAroundPinch = true;
 	}
 	
 	return self;
@@ -87,6 +88,8 @@ using namespace WhirlyKit;
 			startQuat = [globeView rotQuat];
 			// Store the starting Z and pinch center for comparison
 			startZ = globeView.heightAboveGlobe;
+            if (_zoomAroundPinch)
+            {
             if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&startTransform
                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                                hit:&startOnSphere normalized:true])
@@ -105,6 +108,8 @@ using namespace WhirlyKit;
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 startRot = atan2(dy, dx);
             }
+            } else
+                valid = true;
 			break;
 		case UIGestureRecognizerStateChanged:
             if (valid)
@@ -114,6 +119,8 @@ using namespace WhirlyKit;
                 // And adjust the height too
                 [globeView setHeightAboveGlobe:startZ/pinch.scale updateWatchers:false];
 
+                if (_zoomAroundPinch)
+                {
 				// Figure out where we are now
                 // We have to roll back to the original transform with the current height
                 //  to get the rotation we want
@@ -149,6 +156,7 @@ using namespace WhirlyKit;
                     newRotQuat = newRotQuat * rotQuat;
                 }
                     [globeView setRotQuat:(newRotQuat) updateWatchers:false];
+                }
                 
                 [globeView runViewUpdates];
             }

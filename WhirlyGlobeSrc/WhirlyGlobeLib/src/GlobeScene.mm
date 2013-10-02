@@ -28,14 +28,13 @@ using namespace WhirlyKit;
 namespace WhirlyGlobe
 {
         
-GlobeScene::GlobeScene(int depth)
+GlobeScene::GlobeScene(CoordSystemDisplayAdapter *inCoordAdapter,int depth)
 {
-    Init(&coordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1);
+    Init(inCoordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1);
 }
 
 GlobeScene::~GlobeScene()
 {
-    
 }
     
 void GlobeScene::addDrawable(DrawableRef draw)

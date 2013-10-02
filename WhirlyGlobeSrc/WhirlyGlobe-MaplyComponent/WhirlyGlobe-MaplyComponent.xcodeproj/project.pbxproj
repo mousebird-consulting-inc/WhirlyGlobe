@@ -471,9 +471,6 @@
 				2B2E2FF616C4885800CAD143 /* MaplyShader.h */,
 				2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */,
 				2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */,
-				2BCA68A5174195A800696BA8 /* MaplyCoordinateSystem.h */,
-				2BCA68AB174197C500696BA8 /* MaplyCoordinateSystem_private.h */,
-				2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */,
 			);
 			name = "visible objects";
 			path = WhirlyGlobeComponent;
@@ -590,6 +587,9 @@
 				2B897A8815BC664A00250F23 /* MaplyCoordinate.mm */,
 				2BE88491160A59F900E92A0A /* ImageTexture_private.h */,
 				2BE8848E160A544D00E92A0A /* SelectObject_private.h */,
+				2BCA68A5174195A800696BA8 /* MaplyCoordinateSystem.h */,
+				2BCA68AB174197C500696BA8 /* MaplyCoordinateSystem_private.h */,
+				2BCA68A11741957700696BA8 /* MaplyCoordinateSystem.mm */,
 			);
 			name = utility;
 			sourceTree = "<group>";

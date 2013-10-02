@@ -154,7 +154,8 @@ using namespace WhirlyKit;
     }
     pthread_mutex_unlock(&tileLock);
 
-    tileBuilder->clearAtlases(theChangeRequests);
+    if (tileBuilder)
+       tileBuilder->clearAtlases(theChangeRequests);
     
     [layer.layerThread addChangeRequests:(theChangeRequests)];
     

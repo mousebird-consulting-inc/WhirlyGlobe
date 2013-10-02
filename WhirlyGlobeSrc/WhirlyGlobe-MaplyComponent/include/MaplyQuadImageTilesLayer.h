@@ -25,73 +25,125 @@
 /// The various image formats we support.  RGBA is the default, and most expensive.
 typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
-/** This is a generic quad earth paging interface.  Hand it your coordinate system,
-    bounds, and tile source object and it will page tiles for you.
-    In general this is useful for feature data, such as vector features.  The image
-    base maps have their own layers.
+/** @brief The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.
+    @details This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.
+    @details This is the main interface for image pyramid paging and so has a lot of knobs you can twiddle.  The defaults should work fine in most cases.
+    @details You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileSource and MaplyMBTileSource objects, as well as MaplyMultiplexTileSource.  Those will do remote, local, and sources for animation respectively.  There's also MaplyWMSTileSource, but I wouldn't expect to use that.
+    @see MaplyRemoteTileSource
+    @see MaplyMBTileSource
+    @see MaplyMultiplexTileSource
+    @see MaplyWMSTileSource
   */
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
-/// Construct with the coordinate system and the tile source
+/** @brief Initialize with a coordinate system for the image pyramid and the tile source object.  
+    @details The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.
+    @param coordSys The coordinate system. This must match what your
+            image pyramid is in, or it will look weird.  Very weird.
+    @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
+  */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
-/// Change the number of fetches allowed at once
+/** @brief The number of simultaneous fetches the layer will attempt at once.
+    @details The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
+  */
 @property (nonatomic,assign) int numSimultaneousFetches;
 
-/// Whether or not we use skirts
+/** @brief If set, we'll generate skirts between different levels of details on the globe.
+    @details This option makes zero sense in 2D mode, some sense if 3D map mode (if you're doing elevation) and a lot of sense in globe mode.  What it does is generate skirts along the sides of each tile so you can't see between that tile and the next one when it abuts a different level of detail.
+    @details Best to set this explicitly.  For a base map (e.g. the first image layer you put down), it should probably be set.  For following layers it should probably not, but specifics can change.  Try it out.
+  */
 @property (nonatomic,assign) bool handleEdges;
 
-/// Whether or not we try to cover the poles
+/** @brief Generate pole geometry for projections that don't go all the way to the poles.
+    @details This is for spherical mercator with web extents.  That projection doesn't run all the way to the poles, but it gets fairly close.  If set, we close that gap for the north and south poles and generate the remaining geometry.
+    @details We'll pull a texture value from the edge of the images, so build your texture accordingly.  A nice flat color along the north and south border is the best idea.  If not, it'll look a little odd, but still okay.
+    @details Though this is designed for MaplySphericalMercator, it may work in similar projections.  It's not going to make any sense for, say UTM, but give it a try.
+  */
 @property (nonatomic,assign) bool coverPoles;
 
-/// If true (by default) run the fetching code on an async thread.
-/// Set this to 'no' if you've got a very quick turnaround for tiles
+/** @brief Controls whether the fetching code runs in a single thread or is spawned asyncronously.
+    @details If set, we'll kick off the tile fetches in their own dispatched blocks.  If not set, we'll just do it in the layer thread.
+  */
 @property (nonatomic,assign) bool asyncFetching;
 
-/// The number of images we're expecting per tile.  1 by default.
-/// You must provide this number of images in the tileSource delegate.
+/** @brief The number of images we're expecting to get per tile.
+    @details This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.
+    @details the MaplyTileSource delegate is always expected to provide this many imates.
+  */
 @property (nonatomic,assign) unsigned int imageDepth;
 
-/// Set the current image we're displaying.
-/// Non integer values will get you a blend.  If you set this directly it
-///  will disable animation.
+/** @brief Set the current image we're displaying.
+    @details This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you'll get just that image.  If set to a value between integers, you'll get a blend of the two.
+    @details This is incompatible with setting an animationPeriod.  Do just one or the other.
+   */
 @property (nonatomic, assign) float currentImage;
 
-/// If set non-zero we'll switch through all the images over the given period.
+/** @brief The length of time we'll take to switch through all available images (per tile).
+    @details If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
+    @details If you want tighter control use the currentImage property and set your own timer.
+  */
 @property (nonatomic, assign) float animationPeriod;
 
-/// If set we'll include the original z values in the tile geometry.
-/// You need this if you're writing a shader that uses them.
-/// The shader attribute is called "a_elev"
+/** @brief Include the original z values in the tile geometry for a custom shader.
+    @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
+    @details If set, this adds the z values back as a separate vertex attribute called "a_elev" for your shader to pick up.
+  */
 @property (nonatomic, assign) bool includeElevAttrForShader;
 
-/// If we've got elevation, we can require a valid elevation tile
-///  before we put an image on it.  This ensures we match sparse
-///  elevation data sets.
+/** @brief Requires an elevation chunk for every tile we display.
+    @details Elevation data is optional on the globe or map.  If it exists, via the MaplyElevationSource delegate on the view controller, then we'll use it to construct the tile.  This property requires elevation for any tile we display.
+    @details What this does is prevent flat tiles from showing up if there's more imagery than elevation.
+    @details We do make a distinction between missing tiles and tiles that are simply flat (at zero) in the MaplyElevationDatabase, so ocean will work correctly.
+  */
 @property (nonatomic, assign) bool requireElev;
 
-/// Color for the geometry we create to put the images on.
-/// This is how you can get transparency in there (short of a shader)
+/** @brief Color for the tile geometry.
+    @details The geometry we create for tiles has an RGBA color.  It's white/full alpha by default, but you can set it here.  You might want to do this if you'd like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.
+  */
 @property (nonatomic) UIColor *color;
 
-/// If set, we'll try to use this shader program for the tiles we create.
-/// Set this immediately after creation
+/** @brief Set the shader name to use for generated tiles.
+    @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
+    @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
+  */
 @property (nonatomic) NSString *shaderProgramName;
 
-/// The size of texture atlases created to hold the textures.
-/// This starts out at 2048 by default, it can only be a power of 2, ideally 1024 or 512 (at least)
+/** @brief Set the (power of two) size of texture atlases the layer will create.
+    @details The system makes extensive use of texture atlases for rendering tiles.  Typically we'll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
+    @details This option controls the size of those texture atlases.  It's set to 2048 by default (2048x2048 texels).  If you're going to change it, set it to 1024, but don't go any lower unless you know something we don't.  It must always be a power of 2.
+  */
 @property (nonatomic) unsigned int texturAtlasSize;
 
-/// How tile images are stored.  These are RGBA (32 bit) by default.
-/// Other options are potentially less expensive, but lossy
+/** @brief Set the image format for the texture atlases (thus the imagery).
+    @details OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
+    @details Be sure to set this at layer creation, it won't do anything later on.
+ 
+| Image Format | Description |
+|:-------------|:------------|
+| MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+| MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+| MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+| MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+| MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+| MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+| MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+| MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+| MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+| MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
+  */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
-/// If set we'll use the OSM approach to Y (same as Google Maps).
-/// When off, this is standard TMS addressing.  On by default.
+/** @brief Control how tiles are indexed, either from the lower left or the upper left.
+    @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
+    @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+  */
 @property (nonatomic) bool flipY;
 
-/// Force the layer to reload all data.  You do this when you change
-///  change something about the tile source, usually contents.
+/** @brief Force a full reload of all tiles.
+    @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
+    @details This is good for tile sources, like weather, that need to be refreshed every so often.
+  */
 - (void)reload;
 
 @end

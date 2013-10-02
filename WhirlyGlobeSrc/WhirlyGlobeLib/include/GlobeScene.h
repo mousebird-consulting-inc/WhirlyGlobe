@@ -32,8 +32,8 @@ namespace WhirlyGlobe
 class GlobeScene : public WhirlyKit::Scene
 {
 public:
-    /// Construct with the depth of the culling tree
-    GlobeScene(int depth);
+    /// Construct with the depth of the culling tree and the display adapter
+    GlobeScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int depth);
     virtual ~GlobeScene();
     
     /// Add a drawable, taking overlap into account
@@ -41,12 +41,6 @@ public:
     
     /// Remove a drawable
     virtual void remDrawable(WhirlyKit::DrawableRef drawable);
-    
-protected:
-    /// Display adapter and coordinate system used by a globe scene.
-    /// The coordinate system in lat/lon/elev and the display adapter converts
-    ///  to fake geocentric.
-    WhirlyKit::FakeGeocentricDisplayAdapter coordAdapter;
 };
     
 }

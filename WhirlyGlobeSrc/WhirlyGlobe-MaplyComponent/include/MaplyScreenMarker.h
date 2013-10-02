@@ -21,26 +21,41 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-/** The Maply Screen Marker is a 2D object that displays an image on the screen
-    tracking a given location on the globe (or map).  It's an overlay and it will
-    not change size depending on the position of the viewer.
+/** @brief The Screen Marker is a 2D object that displays an image on the screen tracking a given location.
+    @details The screen marker will track the given geographic location and display a centered rectangle with the given image.  Essentially it's a free floating icon, similar to the MaplyScreenLabel and it will always be drawn on top of other objects.  If the location would be behind the globe (in globe mode), the marker will disappear.
+    @details If you're looking for a 3D marker object, that's the MaplyMarker.
   */
 @interface MaplyScreenMarker : NSObject
 
-/// For user data
-@property (nonatomic,strong) NSObject *userObject;
-/// Location in geographic (lat/lon) in radians
+/** @brief The location we're tracking for this particular screen marker.
+    @details Locations are in geographic (lon/lat in radians).
+  */
 @property (nonatomic,assign) MaplyCoordinate loc;
-/// Size on the screen, in points
+
+/** @brief Screen size in points.
+    @details The marker will always be this size on the screen.  The size is specified in display coordinates.  For the globe those are based on a radius of 1.0.
+  */
 @property (nonatomic,assign) CGSize size;
-/// If set, this is the image to use for the marker
+
+/** @brief Image to use for the marker.
+    @details If set we'll stretch this UIImage out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this UIImage and will reuse its texture and dispose of it as needed.
+  */
 @property (nonatomic,strong) UIImage *image;
-/// If set, this label can be selected.  On by default.
-@property (nonatomic,assign) bool selectable;
-/// For the layout engine, this is the importance of this particular
-///  marker.  It's set to MAXFLOAT by defaut, which means it always shows up.
-/// Set it to another value to actually be laid out with constraints.
+
+/** @brief The layout importance compared to other features. MAXFLOAT (always) by default.
+    @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular marker.  By default that importance is infinite (MAXFLOAT) and so the label will always appearing.  Setting this value to 1.0, for example, will mean that this marker competes with other screen objects for space.
+ */
 @property (nonatomic,assign) float layoutImportance;
+
+/** @brief Screen marker selectability.  On by default
+    @details If set, this marker can be selected by the user.  If not set, this screen marker will never appear in selection results.
+ */
+@property (nonatomic,assign) bool selectable;
+
+/** @brief User data object for selection
+    @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
+ */
+@property (nonatomic,strong) NSObject *userObject;
 
 @end
 
