@@ -23,6 +23,10 @@
 
 using namespace WhirlyKit;
 
+@implementation MaplyShape
+
+@end
+
 @implementation MaplyShapeCircle
 
 @end
