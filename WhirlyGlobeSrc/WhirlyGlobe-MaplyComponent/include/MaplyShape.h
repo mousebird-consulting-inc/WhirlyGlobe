@@ -22,10 +22,11 @@
 #import "WGCoordinate.h"
 
 /** @brief Maply Shape is the base class for the actual shape objects.
+    @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
   */
 @interface MaplyShape : NSObject
 
-/** @brief The color of the circle.
+/** @brief The color of the shape.
  @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
  */
 @property (nonatomic,strong) UIColor *color;
