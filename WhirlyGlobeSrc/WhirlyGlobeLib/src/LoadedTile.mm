@@ -494,19 +494,24 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
             chunk->setType(GL_TRIANGLES);
             // Generate point, texture coords, and normals
             std::vector<Point3f> locs((sphereTessX+1)*(sphereTessY+1));
-            std::vector<float> elevs((sphereTessX+1)*(sphereTessY+1));
+            std::vector<float> elevs;
+            if (includeElev || useElevAsZ)
+                elevs.resize((sphereTessX+1)*(sphereTessY+1));
             std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
             for (unsigned int iy=0;iy<sphereTessY+1;iy++)
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
                     float locZ = 0.0;
-                    if (elevData)
+                    if (!elevs.empty())
                     {
-                        float whereX = ix*texScale.x() + (elevData.numX-1)*texOffset.x();
-                        float whereY = iy*texScale.y() + (elevData.numY-1)*texOffset.y();
-                        locZ = [elevData interpolateElevationAtX:whereX y:whereY];
+                        if (elevData)
+                        {
+                            float whereX = ix*texScale.x() + (elevData.numX-1)*texOffset.x();
+                            float whereY = iy*texScale.y() + (elevData.numY-1)*texOffset.y();
+                            locZ = [elevData interpolateElevationAtX:whereX y:whereY];
+                        }
+                        elevs[iy*(sphereTessX+1)+ix] = locZ;
                     }
-                    elevs[iy*(sphereTessX+1)+ix] = locZ;
                     // We don't want real elevations in the mesh, just off in another attribute
                     if (!useElevAsZ)
                         locZ = 0.0;
@@ -521,7 +526,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 }
             
             // If there's elevation data, we need per triangle normals, which means more vertices
-            if (elevData)
+            if (!elevs.empty())
             {
                 // Two triangles per cell
                 for (unsigned int iy=0;iy<sphereTessY;iy++)
@@ -602,7 +607,6 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
                         Point3f &loc3D = locs[iy*(sphereTessX+1)+ix];
-                        float elev = elevs[iy*(sphereTessX+1)+ix];
                         
                         // And the normal
                         Point3f norm3D;
@@ -616,8 +620,6 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                         chunk->addPoint(loc3D);
                         chunk->addNormal(norm3D);
                         chunk->addTexCoord(-1,texCoord);
-                        if (elevEntry != 0)
-                            chunk->addAttributeValue(elevEntry, elev);
                     }
                 
                 // Two triangles per cell
