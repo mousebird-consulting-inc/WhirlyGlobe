@@ -72,6 +72,7 @@
 #define kMaplyTestCategoryInternal @"Internals"
 #define kMaplyTestCulling @"Culling Optimization"
 #define kMaplyTestPerf @"Performance Output"
+#define kMaplyTestWaitLoad @"Image waitLoad"
 
 
 // Section in the configuration panel
