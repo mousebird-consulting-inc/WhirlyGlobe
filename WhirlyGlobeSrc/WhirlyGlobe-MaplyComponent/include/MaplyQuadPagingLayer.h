@@ -71,7 +71,7 @@
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
-@property (nonatomic,readonly) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,readonly) MaplyBaseViewController *viewC;
 
 /** @brief Initialize with coordinate system and delegate for paging.
     @details This initializer takes the coordinate system we're working in and the MaplyPagingDelegate object.  Fill out that to do the real work.

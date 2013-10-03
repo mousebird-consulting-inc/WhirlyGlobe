@@ -84,7 +84,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageTilesLayer
 {
-    MaplyBaseViewController *_viewC;
+    MaplyBaseViewController * __weak _viewC;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;

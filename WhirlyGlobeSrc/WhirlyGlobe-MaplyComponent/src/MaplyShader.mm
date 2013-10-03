@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 @implementation MaplyShader
 {
     WhirlyKit::Scene *scene;
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
