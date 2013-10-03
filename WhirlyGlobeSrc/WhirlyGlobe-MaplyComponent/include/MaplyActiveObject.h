@@ -44,6 +44,6 @@
 - (id)initWithViewController:(MaplyBaseViewController *)viewC;
 
 /// @brief The view controller this active object is associated with
-@property (nonatomic,readonly) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,readonly) MaplyBaseViewController *viewC;
 
 @end
