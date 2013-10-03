@@ -118,7 +118,8 @@
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryInternal
                     rows:
                     @{kMaplyTestCulling: @(NO),
-                                      kMaplyTestPerf: @(NO)}
+                      kMaplyTestPerf: @(NO),
+                      kMaplyTestWaitLoad: @(NO)}
                              singleSelect:false]];
     
     _values = newValues;

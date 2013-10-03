@@ -118,7 +118,7 @@ using namespace WhirlyKit;
     _imageFormat = MaplyImageIntRGBA;
     _flipY = true;
     _waitLoad = false;
-    _waitLoadTimeout = 2.0;
+    _waitLoadTimeout = 4.0;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
