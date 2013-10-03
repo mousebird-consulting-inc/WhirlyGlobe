@@ -111,6 +111,7 @@ LocationInfo locations[NumLocations] =
     // If we're in 3D mode, how far the elevation goes
     int zoomLimit;
     bool requireElev;
+    bool imageWaitLoad;
 }
 
 // Change what we're showing based on the Configuration
@@ -288,6 +289,7 @@ LocationInfo locations[NumLocations] =
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
         imageLayer.requireElev = requireElev;
+        imageLayer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:imageLayer];
         
         if (ovlName)
@@ -668,6 +670,7 @@ static const int NumMegaMarkers = 40000;
         layer.handleEdges = true;
         layer.coverPoles = true;
         layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
 
@@ -711,6 +714,7 @@ static const int NumMegaMarkers = 40000;
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
+        layer.waitLoad = imageWaitLoad;
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -732,6 +736,7 @@ static const int NumMegaMarkers = 40000;
         layer.drawPriority = 0;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -785,6 +790,7 @@ static const int NumMegaMarkers = 40000;
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
@@ -801,6 +807,7 @@ static const int NumMegaMarkers = 40000;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
         tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         layer.imageDepth = 4;
         // We'll cycle through at 1s per layer
@@ -826,6 +833,7 @@ static const int NumMegaMarkers = 40000;
                  tileSource.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
+             layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
@@ -948,6 +956,8 @@ static const int NumMegaMarkers = 40000;
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeMapContents
 {
+    imageWaitLoad = [configViewC valueForSection:kMaplyTestCategoryInternal row:kMaplyTestWaitLoad];
+    
     [self setupBaseLayer:((ConfigSection *)configViewC.values[0]).rows];
     if ([configViewC.values count] > 1)
         [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
