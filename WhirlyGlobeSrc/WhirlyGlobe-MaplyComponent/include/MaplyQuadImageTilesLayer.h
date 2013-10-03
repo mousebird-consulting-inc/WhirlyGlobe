@@ -67,6 +67,16 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic,assign) bool asyncFetching;
 
+/** @brief Have the layer wait until all local tiles are loaded before updating the renderer.
+    @details This will have the layer sit on updates until all the local tiles are in.  You won't see the lower levels loading in.  See waitLoadTimeout.
+  */
+@property (nonatomic,assign) bool waitLoad;
+
+/** @brief The timeout for wait loads.  We can't wait longer than this for local updates to come back.
+    @details If waitLoad is on, this is the maximum time we'll wait for local tile fetches to complete.  There's a limit to the volume of scene changes we can let build up int he queue before we have to flush them.
+  */
+@property (nonatomic,assign) NSTimeInterval waitLoadTimeout;
+
 /** @brief The number of images we're expecting to get per tile.
     @details This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we're going to animate between them.
     @details the MaplyTileSource delegate is always expected to provide this many imates.
