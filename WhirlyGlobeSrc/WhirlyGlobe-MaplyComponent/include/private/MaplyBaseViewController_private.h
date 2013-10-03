@@ -38,6 +38,7 @@
     WhirlyKitSceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *baseLayerThread;
+    WhirlyKitLayoutLayer *layoutLayer;
     NSMutableArray *layerThreads;
 
     // Our own interaction layer does most of the work
