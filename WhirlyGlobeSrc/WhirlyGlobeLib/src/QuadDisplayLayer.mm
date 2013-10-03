@@ -517,6 +517,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 {
     WhirlyKitFrameMessage *msg = note.object;
     
+    // If it's not coming from our renderer, we can ignore it
+    if (msg.renderer != _renderer)
+        return;
+    
     frameStart = msg.frameStart;
     frameInterval = msg.frameInterval;
     

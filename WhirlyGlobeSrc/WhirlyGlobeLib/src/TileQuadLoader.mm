@@ -34,6 +34,7 @@ using namespace WhirlyKit;
 @public
     bool doingUpdate;
     TileBuilder *tileBuilder;
+    int defaultTessX,defaultTessY;
 }
 
 //- (bool)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
@@ -92,6 +93,7 @@ using namespace WhirlyKit;
         _fixedTileSize = 256;
         _textureAtlasSize = 2048;
         _activeTextures = -1;
+        defaultTessX = defaultTessY = 10;
         pthread_mutex_init(&tileLock, NULL);
     }
     
@@ -160,6 +162,12 @@ using namespace WhirlyKit;
     [layer.layerThread addChangeRequests:(theChangeRequests)];
     
     [self clear];
+}
+
+- (void)setTesselationSizeX:(int)x y:(int)y
+{
+    defaultTessX = x;
+    defaultTessY = y;
 }
 
 // Convert from our image type to a GL enum
@@ -401,7 +409,8 @@ using namespace WhirlyKit;
         tileBuilder->coverPoles = _coverPoles;
         tileBuilder->glFormat = [self glFormat];
         tileBuilder->singleByteSource = [self singleByteSource];
-        tileBuilder->defaultSphereTessX = tileBuilder->defaultSphereTessY = 10;
+        tileBuilder->defaultSphereTessX = defaultTessX;
+        tileBuilder->defaultSphereTessY = defaultTessY;
         tileBuilder->texelBinSize = 64;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
@@ -464,6 +473,9 @@ using namespace WhirlyKit;
     if (_numImages != loadImages.size())
     {
         pthread_mutex_unlock(&tileLock);
+        // Only print out a message if they bothered to hand in something.  If not, they meant
+        //  to tell us it was empty.
+        if (loadTile)
         NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
         return;
     }
