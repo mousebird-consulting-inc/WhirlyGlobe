@@ -27,7 +27,7 @@
 @interface MaplyShape : NSObject
 
 /** @brief The color of the shape.
- @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
+    @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
  */
 @property (nonatomic,strong) UIColor *color;
 
@@ -39,7 +39,7 @@
 @end
 
 /** @brief Shows a circle at the given location on the globe or map.
-    @details This object represents a circle at the givne geographic location.  It needs a radius (in display coordinates) and can optionally have a height above the globe or map.
+    @details This object represents a circle at the given geographic location.  It needs a radius (in display coordinates) and can optionally have a height above the globe or map.
  */
 @interface MaplyShapeCircle : MaplyShape
 
