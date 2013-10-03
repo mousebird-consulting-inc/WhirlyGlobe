@@ -730,7 +730,9 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
                         Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
-                        float elev = elevs[(iy*(sphereTessX+1)+ix)];
+                        float elev = 0.0;
+                        if (!elevs.empty())
+                            elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,1.0));
                         chunk->addTexCoord(-1,singleTexCoord);
@@ -767,7 +769,9 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                     for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                     {
                         Point3f pt = locs[(iy*(sphereTessX+1)+ix)];
-                        float elev = elevs[(iy*(sphereTessX+1)+ix)];
+                        float elev = 0.0;
+                        if (!elevs.empty())
+                            elev = elevs[(iy*(sphereTessX+1)+ix)];
                         chunk->addPoint(pt);
                         chunk->addNormal(Point3f(0,0,-1.0));
                         chunk->addTexCoord(-1,singleTexCoord);
