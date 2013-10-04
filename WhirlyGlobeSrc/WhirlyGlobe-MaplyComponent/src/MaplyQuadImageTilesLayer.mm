@@ -84,7 +84,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageTilesLayer
 {
-    MaplyBaseViewController *_viewC;
+    MaplyBaseViewController * __weak _viewC;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
@@ -117,6 +117,8 @@ using namespace WhirlyKit;
     _texturAtlasSize = 2048;
     _imageFormat = MaplyImageIntRGBA;
     _flipY = true;
+    _waitLoad = false;
+    _waitLoadTimeout = 4.0;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -142,6 +144,7 @@ using namespace WhirlyKit;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
     tileLoader.includeElev = _includeElevAttrForShader;
+    tileLoader.useElevAsZ = (viewC.elevDelegate != nil);
     tileLoader.textureAtlasSize = _texturAtlasSize;
     switch (_imageFormat)
     {
@@ -179,6 +182,8 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.fullLoad = _waitLoad;
+    quadLayer.fullLoadTimeout = _waitLoadTimeout;
     
     // Look for a custom program
     if (_shaderProgramName)

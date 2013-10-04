@@ -215,6 +215,7 @@ static const float ScreenOverlap = 0.1;
     WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
     frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
     frameMsg.frameInterval = duration;
+    frameMsg.renderer = self;
     [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
 
     if (_dispatchRendering)

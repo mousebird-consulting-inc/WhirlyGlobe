@@ -451,6 +451,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _debugMode = false;
         greedyMode = false;
         _meteredMode = true;
+        _fullLoad = false;
+        _fullLoadTimeout = 4.0;
         waitForLocalLoads = false;
     }
     
@@ -491,6 +493,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];
         [_loader quadDisplayLayerStartUpdates:self];
     }
+
+    if (_fullLoad)
+        waitForLocalLoads = true;
 }
 
 - (void)shutdown
@@ -517,6 +522,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 {
     WhirlyKitFrameMessage *msg = note.object;
     
+    // If it's not coming from our renderer, we can ignore it
+    if (msg.renderer != _renderer)
+        return;
+    
     frameStart = msg.frameStart;
     frameInterval = msg.frameInterval;
     
@@ -534,24 +543,25 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     }
 }
 
-// The maximum time we're willing to go without flushing
-static NSTimeInterval MaxTimeWithoutFlush = 2.0;
-
 - (void)frameEndThread
 {
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
 
     // We'll hold off for local loads...up to a point
-    if (now - lastFlush < MaxTimeWithoutFlush)
+    bool forcedFlush = false;
+    if (now - lastFlush < _fullLoadTimeout)
     {
         if ([self waitingForLocalLoads])
             return;
-    }
+    } else
+        forcedFlush = true;
     
     // Flush out the updates and immediately start new ones
     [_loader quadDisplayLayerEndUpdates:self];
     [_loader quadDisplayLayerStartUpdates:self];
-    waitForLocalLoads = false;
+    // If we forced out a flush, we can wait for more local loads
+    if (!forcedFlush)
+        waitForLocalLoads = false;
     lastFlush = now;
 }
 
@@ -573,6 +583,9 @@ static NSTimeInterval MaxTimeWithoutFlush = 2.0;
     if ([_loader respondsToSelector:@selector(shouldUpdate:initial:)])
         if (![_loader shouldUpdate:inViewState initial:(viewState == nil)])
             return;
+    
+    if (_fullLoad)
+        waitForLocalLoads = true;
         
     viewState = inViewState;
     nodesForEval.clear();

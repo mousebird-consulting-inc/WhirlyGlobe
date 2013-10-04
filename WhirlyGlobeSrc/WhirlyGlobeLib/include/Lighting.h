@@ -54,13 +54,16 @@
 @interface WhirlyKitMaterial : NSObject
 
 /// Ambient material color
-@property (nonatomic,assign) Eigen::Vector4f &ambient;
+@property (nonatomic,readonly) Eigen::Vector4f &ambient;
+- (void)setAmbient:(Eigen::Vector4f)ambient;
 /// Diffuse material color
-@property (nonatomic,assign) Eigen::Vector4f &diffuse;
+@property (nonatomic) Eigen::Vector4f &diffuse;
+- (void)setDiffuse:(Eigen::Vector4f)diffuse;
 /// Specular component of material color
-@property (nonatomic,assign) Eigen::Vector4f &specular;
+@property (nonatomic) Eigen::Vector4f &specular;
+- (void)setSpecular:(Eigen::Vector4f)specular;
 /// Specular exponent used in lighting
-@property (nonatomic,assign) float specularExponent;
+@property (nonatomic) float specularExponent;
 
 /// Bind this material to a the given OpenGL ES program.
 /// Don't call this yourself.

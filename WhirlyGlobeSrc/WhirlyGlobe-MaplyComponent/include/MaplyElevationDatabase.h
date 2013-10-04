@@ -27,7 +27,7 @@
     elev_tile_pyramid command line tool.  See that for details.
     Suffice it to say that each tile is separate, contains one extra
     cell on the northern and eastern sides and is made up for shorts (16 bit).
-    @see MalyElevationSourceDelegate
+    @see MaplyElevationSourceDelegate
   */
 @interface MaplyElevationDatabase : NSObject <MaplyElevationSourceDelegate>
 
