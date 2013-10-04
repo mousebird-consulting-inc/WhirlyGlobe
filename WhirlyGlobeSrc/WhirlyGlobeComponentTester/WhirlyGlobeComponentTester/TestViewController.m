@@ -413,6 +413,7 @@ LocationInfo locations[NumLocations] =
         cyl.baseCenter = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         cyl.radius = 0.01;
         cyl.height = 0.06;
+        cyl.selectable = true;
         [cyls addObject:cyl];
     }
     
@@ -429,6 +430,7 @@ LocationInfo locations[NumLocations] =
         MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
         sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         sphere.radius = 0.04;
+        sphere.selectable = true;
         [spheres addObject:sphere];
     }
 
@@ -1266,6 +1268,16 @@ static const int NumMegaMarkers = 40000;
                 }
             }
         }
+    } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
+    {
+        MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
+        loc = sphere.center;
+        msg = @"Sphere";
+    } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
+    {
+        MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
+        loc = cyl.baseCenter;
+        msg = @"Cylinder";
     } else
         // Don't know what it is
         return;
