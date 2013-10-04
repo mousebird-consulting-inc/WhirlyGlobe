@@ -18,7 +18,8 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>om
+
 #import <WhirlyGlobe.h>
 #import "WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"

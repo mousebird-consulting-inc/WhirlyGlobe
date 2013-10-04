@@ -57,6 +57,12 @@
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(WGCoordinate)coord;
 
+/** @brief Called when the user double taps the globe but doesn't select anything.
+ @param viewC The view controller where the user selected something.
+ @param coord The location (geographic lon/lat in radians) where the user tapped.
+ */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didDoubleTapAt:(WGCoordinate)coord;
+
 /** @brief This is an older method called when some layers load.
     @details Certain image layers call this method when they finish loading.  More modern layers don't, so don't rely on this.
   */
@@ -105,6 +111,10 @@
 /** @brief Tilt in radians.  0 is looking straight down (the default).  PI/2 is looking toward the horizon.
   */
 @property(nonatomic,assign) float tilt;
+
+/** @brief Activates to zoom in animation on user double tap (inside the globe). Default is false (deactivated).
+ */
+@property (nonatomic,assign) bool zoomInOnDoubleTap;
 
 /** @brief The current rotation away from north.
     @details If keepNorthUp is set this is always 0.
