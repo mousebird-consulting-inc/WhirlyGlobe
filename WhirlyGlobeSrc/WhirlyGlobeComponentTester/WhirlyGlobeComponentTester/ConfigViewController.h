@@ -92,14 +92,16 @@
 
 @end
 
+typedef enum {ConfigOptionsAll,ConfigOptionsTerrain,ConfigOptionsFlat} ConfigOptions;
+
 // Configuration view lets the user decide what to turn on and off
 @interface ConfigViewController : UIViewController <UITableViewDataSource,UITableViewDelegate>
 
 // Dictionary reflecting the current values from the table
 @property (nonatomic,readonly) NSArray *values;
 
-// If on we'll display all available options, not just the first set
-@property (nonatomic,assign) bool allOptions;
+// What we'll display in terms of user options
+@property (nonatomic,assign) ConfigOptions configOptions;
 
 // Return the configuration value for a section/row
 - (bool)valueForSection:(NSString *)section row:(NSString *)row;

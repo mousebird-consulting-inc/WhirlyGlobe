@@ -154,7 +154,7 @@ LocationInfo locations[NumLocations] =
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
-    configViewC.allOptions = true;
+    configViewC.configOptions = ConfigOptionsAll;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -176,6 +176,7 @@ LocationInfo locations[NumLocations] =
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
             mapViewC.delegate = self;
             baseViewC = mapViewC;
+            configViewC.configOptions = ConfigOptionsFlat;
             break;
 //        case MaplyScrollViewMap:
 //            break;
@@ -224,7 +225,7 @@ LocationInfo locations[NumLocations] =
         [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
         
         // Turn off most of the options for globe mode
-        configViewC.allOptions = false;
+        configViewC.configOptions = ConfigOptionsTerrain;
     }
     
     // Force the view to load so we can get the default switch values
@@ -1171,6 +1172,7 @@ static const int NumMegaMarkers = 40000;
     {
         popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
         popControl.delegate = self;
+        [popControl setPopoverContentSize:CGSizeMake(400.0,4.0/5.0*self.view.bounds.size.height)];
         [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
     } else {
         configViewC.navigationItem.hidesBackButton = YES;
