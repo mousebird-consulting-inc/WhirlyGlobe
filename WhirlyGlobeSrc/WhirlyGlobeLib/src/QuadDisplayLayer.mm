@@ -598,8 +598,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             Quadtree::NodeInfo thisNode = _quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
-        
-//    NSLog(@"View update called: (eye) = (%f,%f,%f), nodesForEval = %lu",eyeVec3.x(),eyeVec3.y(),eyeVec3.z(),nodesForEval.size());
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
@@ -675,7 +674,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         _quadtree->removeTile(remNodeInfo.ident);
         [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
-
+        
         didSomething = true;
     }
     
@@ -746,8 +745,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     } else
         [_loader quadDisplayLayerEndUpdates:self];
 
-//    if (debugMode)
-//        [self dumpInfo];
+    if (_debugMode)
+        [self dumpInfo];
     
     if (didSomething)
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];

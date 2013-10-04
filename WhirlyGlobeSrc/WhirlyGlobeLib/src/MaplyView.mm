@@ -88,8 +88,14 @@ using namespace WhirlyKit;
 
 - (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
+    [self setLoc:newLoc runUpdates:true];
+}
+
+- (void)setLoc:(WhirlyKit::Point3d &)newLoc runUpdates:(bool)runUpdates
+{
     _loc = newLoc;
-    [self runViewUpdates];
+    if (runUpdates)
+        [self runViewUpdates];
 }
 
 - (void)setRotAngle:(double)newRotAngle
