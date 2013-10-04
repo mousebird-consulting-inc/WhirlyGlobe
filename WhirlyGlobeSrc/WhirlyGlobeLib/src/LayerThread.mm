@@ -44,6 +44,10 @@ using namespace WhirlyKit;
     
     /// We can get change requests from other threads (!)
     pthread_mutex_t changeLock;
+    
+    /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
+    /// Yes, I'm certain there's a better way to do this.
+    pthread_mutex_t existenceLock;
 }
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
@@ -71,6 +75,7 @@ using namespace WhirlyKit;
         _allowFlush = true;
         
         pthread_mutex_init(&changeLock,NULL);
+        pthread_mutex_init(&existenceLock,NULL);
 	}
 	
 	return self;
@@ -79,6 +84,7 @@ using namespace WhirlyKit;
 - (void)dealloc
 {
     pthread_mutex_destroy(&changeLock);
+    pthread_mutex_destroy(&existenceLock);
     // Note: It's not clear why we'd do this here.
     //       What run loop would it be referring to?
 //    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
@@ -208,6 +214,8 @@ using namespace WhirlyKit;
 // We'll just spend our time in here
 - (void)main
 {
+    pthread_mutex_lock(&existenceLock);
+    
     // This should be the default context.  If you change it yourself, change it back
     [EAGLContext setCurrentContext:_glContext];
 
@@ -238,10 +246,26 @@ using namespace WhirlyKit;
             [self removeLayerThread:[layers objectAtIndex:0]];
         layers = nil;
     }
-
-    // Tear the scene down.  It's unsafe to do it elsewhere
+    
+    // Okay, we're shutting down, so release the existence lock
+    pthread_mutex_unlock(&existenceLock);
+    
     if (_mainLayerThread)
+    {
+        // If any of the things we're to releas are other layer threads
+        //  we need to wait for them to shut down.
+        for (NSObject *thing in thingsToRelease)
+        {
+            if ([thing isKindOfClass:[WhirlyKitLayerThread class]])
+            {
+                WhirlyKitLayerThread *otherLayerThread = (WhirlyKitLayerThread *)thing;
+                pthread_mutex_lock(&otherLayerThread->existenceLock);
+            }
+        }
+
+        // Tear the scene down.  It's unsafe to do it elsewhere
         _scene->teardownGL();
+    }
     
     // Delete outstanding change requests
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
