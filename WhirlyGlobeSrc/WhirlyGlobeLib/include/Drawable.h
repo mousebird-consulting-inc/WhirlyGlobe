@@ -36,9 +36,10 @@
 @class WhirlyKitSceneRendererES;
 /// @endcond
 
-/// @cond
-@class WhirlyKitRendererFrameInfo;
-/// @endcon
+namespace WhirlyKit
+{
+    class RendererFrameInfo;
+}
 
 /** This is the configuration info passed to setupGL for each
     drawable.  Sometimes this will be render thread side, sometimes
@@ -155,7 +156,7 @@ public:
     virtual SimpleIdentity getProgram() const = 0;
 	
 	/// We're allowed to turn drawables off completely
-	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
+	virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const = 0;
 	
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
@@ -166,13 +167,13 @@ public:
 	virtual void teardownGL(OpenGLMemManager *memManage) { };
 
 	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) = 0;
+	virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const = 0;
     
     /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
+    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
     virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
@@ -344,18 +345,18 @@ public:
     virtual void setupVAO(OpenGLES2Program *prog);
 	
 	/// Fill this in to draw the basic drawable
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+	virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
 	
 	/// Draw priority
 	virtual unsigned int getDrawPriority() const;
 	
 	/// We use the on/off flag as well as a visibility check
-	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+	virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
 	/// True to turn it on, false to turn it off
 	void setOnOff(bool onOff);
     
     /// Used for alpha sorting
-    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff);
 	    
@@ -531,7 +532,7 @@ protected:
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Draw routine for OpenGL 2.0
-    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
     /// Override this to add your own data to interleaved vertex buffers.
     virtual void addPointToBuffer(unsigned char *basePtr,int which);
@@ -540,9 +541,9 @@ protected:
     /// Called after the drawable has bound all its various data, but before it actually
     /// renders.  This is where you would bind your own attributes and uniforms, if you
     /// haven't already done so in setupAdditionalVAO()
-    virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
+    virtual void bindAdditionalRenderObjects(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene) { }
     /// Called at the end of the drawOGL2() call
-    virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
+    virtual void postDrawCallback(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene) { }
     
     // Attributes associated with each vertex, some standard some not
     std::vector<VertexAttribute *> vertexAttributes;

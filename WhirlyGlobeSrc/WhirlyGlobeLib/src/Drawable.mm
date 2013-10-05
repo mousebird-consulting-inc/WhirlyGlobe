@@ -684,12 +684,12 @@ unsigned int BasicDrawable::getDrawPriority() const
     return drawPriority;
 }
     
-bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
 
-    double visVal = [frameInfo.theView heightAboveSurface];
+    double visVal = [frameInfo->theView heightAboveSurface];
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
              (maxVisible <= visVal && visVal <= minVisible));
@@ -700,7 +700,7 @@ void BasicDrawable::setOnOff(bool onOff)
     on = onOff;
 }
     
-bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
@@ -712,10 +712,10 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
     if (fadeDown < fadeUp)
     {
         // Heading to 1
-        if (frameInfo.currentTime < fadeDown)
+        if (frameInfo->currentTime < fadeDown)
             return false;
         else
-            if (frameInfo.currentTime > fadeUp)
+            if (frameInfo->currentTime > fadeUp)
                 return false;
             else
                 return true;
@@ -723,10 +723,10 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
         if (fadeUp < fadeDown)
         {
             // Heading to 0
-            if (frameInfo.currentTime < fadeUp)
+            if (frameInfo->currentTime < fadeUp)
                 return false;
             else
-                if (frameInfo.currentTime > fadeDown)
+                if (frameInfo->currentTime > fadeDown)
                     return false;
                 else
                     return true;
@@ -734,9 +734,9 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
     
     // Note: Need to move this elsewhere
     if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
-        [frameInfo.theView isKindOfClass:[WhirlyGlobeView class]])
+        [frameInfo->theView isKindOfClass:[WhirlyGlobeView class]])
     {
-        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
         float height = globeView.heightAboveGlobe;
         if (height > minVisible && height < minVisible + minVisibleFadeBand)
         {
@@ -1366,7 +1366,7 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
         vertexAttributes[ii]->buffer = 0;
 }
 	
-void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BasicDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
     drawOGL2(frameInfo,scene);
 }
@@ -1439,48 +1439,48 @@ void BasicDrawable::setupVAO(OpenGLES2Program *prog)
 }
     
 // Draw Vertex Buffer Objects, OpenGL 2.0
-void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
-    OpenGLES2Program *prog = frameInfo.program;
+    OpenGLES2Program *prog = frameInfo->program;
 
     // Figure out if we're fading in or out
     float fade = 1.0;
     if (fadeDown < fadeUp)
     {
         // Heading to 1
-        if (frameInfo.currentTime < fadeDown)
+        if (frameInfo->currentTime < fadeDown)
             fade = 0.0;
         else
-            if (frameInfo.currentTime > fadeUp)
+            if (frameInfo->currentTime > fadeUp)
                 fade = 1.0;
             else
-                fade = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
+                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
     } else {
         if (fadeUp < fadeDown)
         {
             // Heading to 0
-            if (frameInfo.currentTime < fadeUp)
+            if (frameInfo->currentTime < fadeUp)
                 fade = 1.0;
             else
-                if (frameInfo.currentTime > fadeDown)
+                if (frameInfo->currentTime > fadeDown)
                     fade = 0.0;
                 else
-                    fade = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
         }
     }
     // Deal with the range based fade
-    if (frameInfo.heightAboveSurface > 0.0)
+    if (frameInfo->heightAboveSurface > 0.0)
     {
         float factor = 1.0;
         if (minVisibleFadeBand != 0.0)
         {
-            float a = (frameInfo.heightAboveSurface - minVisible)/minVisibleFadeBand;
+            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
             if (a >= 0.0 && a < 1.0)
                 factor = a;
         }
         if (maxVisibleFadeBand != 0.0)
         {
-            float b = (maxVisible - frameInfo.heightAboveSurface)/maxVisibleFadeBand;
+            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
             if (b >= 0.0 && b < 1.0)
                 factor = b;
         }
@@ -1504,9 +1504,9 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+    prog->setUniform("u_mvpMatrix", frameInfo->mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo->viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo->viewModelNormalMat);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
@@ -1515,7 +1515,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_hasTexture", anyTextures);
     
     // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+    prog->setUniform("u_eyeVec", frameInfo->fullEyeVec);
     
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -1533,7 +1533,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapName, (int)ii+progTexBound);
@@ -1607,7 +1607,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                [frameInfo.stateOpt setLineWidth:lineWidth];
+                frameInfo->stateOpt->setLineWidth(lineWidth);
                 glDrawArrays(type, 0, numPoints);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
@@ -1640,7 +1640,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                [frameInfo.stateOpt setLineWidth:lineWidth];
+                frameInfo->stateOpt->setLineWidth(lineWidth);
                 CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                 glDrawArrays(type, 0, numPoints);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
@@ -1656,7 +1656,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 

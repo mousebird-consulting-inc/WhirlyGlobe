@@ -41,7 +41,7 @@
     return true;
 }
 
-//- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+//- (void)updateForFrame:(WhirlyKit::RendererFrameInfo *)frameInfo
 - (void)updateForFrame:(id)frameInfo
 {
     if (sphereObj)

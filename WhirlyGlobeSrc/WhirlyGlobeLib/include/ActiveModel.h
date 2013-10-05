@@ -40,7 +40,7 @@
 - (bool)hasUpdate;
 
 /// Update your stuff for display, but be quick!
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
+- (void)updateForFrame:(WhirlyKit::RendererFrameInfo *)frameInfo;
 
 /// Time to clean up your toys
 - (void)shutdown;

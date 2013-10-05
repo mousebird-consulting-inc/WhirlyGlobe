@@ -57,15 +57,15 @@ void ViewPlacementGenerator::removeView(UIView *view)
 }
     
 // Work through the list of views, moving things around and/or hiding as needed
-void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables)
+void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables)
 {
-    CoordSystemDisplayAdapter *coordAdapter = frameInfo.scene->getCoordAdapter();
+    CoordSystemDisplayAdapter *coordAdapter = frameInfo->scene->getCoordAdapter();
     
     // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
     if (![globeView isKindOfClass:[WhirlyGlobeView class]])
         globeView = nil;
-    MaplyView *mapView = (MaplyView *)frameInfo.theView;
+    MaplyView *mapView = (MaplyView *)frameInfo->theView;
     if (![mapView isKindOfClass:[MaplyView class]])
         mapView = nil;
     if (!globeView && !mapView)
@@ -74,10 +74,10 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     // Overall extents we'll look at.  Everything else is tossed.
     // Note: This is too simple
     Mbr frameMbr;
-    float marginX = frameInfo.sceneRenderer.framebufferWidth * 1.1;
-    float marginY = frameInfo.sceneRenderer.framebufferHeight * 1.1;
+    float marginX = frameInfo->sceneRenderer.framebufferWidth * 1.1;
+    float marginY = frameInfo->sceneRenderer.framebufferHeight * 1.1;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
+    frameMbr.ur() = Point2f(frameInfo->sceneRenderer.framebufferWidth + marginX,frameInfo->sceneRenderer.framebufferHeight + marginY);
     
     for (std::set<ViewInstance>::iterator it = viewInstanceSet.begin();
          it != viewInstanceSet.end(); ++it)
@@ -87,7 +87,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         CGPoint screenPt;
         
         // Height above globe test
-        float visVal = [frameInfo.theView heightAboveSurface];
+        float visVal = [frameInfo->theView heightAboveSurface];
         if (!(viewInst.minVis == DrawVisibleInvalid || viewInst.maxVis == DrawVisibleInvalid ||
               ((viewInst.minVis <= visVal && visVal <= viewInst.maxVis) ||
                (viewInst.maxVis <= visVal && visVal <= viewInst.minVis))))
@@ -103,18 +103,18 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
             {
                 // Make sure this one is facing toward the viewer
                 Point3f worldLoc3f(worldLoc.x(),worldLoc.y(),worldLoc.z());
-                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
+                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
                     hidden = YES;
             }
 
             if (!hidden)
             {
                 // Project the world location to the screen
-                Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
+                Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
                 if (globeView)
-                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
                 else
-                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
                 
                 // Note: This check is too simple
                 if (!hidden &&

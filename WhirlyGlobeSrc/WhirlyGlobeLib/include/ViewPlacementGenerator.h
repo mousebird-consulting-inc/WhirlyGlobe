@@ -77,7 +77,7 @@ public:
     void removeView(UIView *view);
 
     /// Rather than generate drawables here, we update our locations
-    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);        
+    void generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);        
             
     /// Print out stats for debugging
     void dumpStats();

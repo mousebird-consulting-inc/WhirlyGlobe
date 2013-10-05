@@ -66,7 +66,7 @@ public:
     virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
 
     /// Always on for the moment
-    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+    bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
 
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -75,13 +75,13 @@ public:
     void teardownGL(OpenGLMemManager *memManager);
 
     /// Called on the rendering thread to draw
-    void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
 
     /// Just triangle strips for now
     GLenum getType() const { return GL_TRIANGLE_STRIP; }
     
     /// At the moment, no alpha
-    bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
+    bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
     void updateRenderer(WhirlyKitSceneRendererES *renderer);

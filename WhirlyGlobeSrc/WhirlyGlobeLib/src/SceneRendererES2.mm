@@ -37,7 +37,7 @@ namespace WhirlyKit
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useAlpha,bool useZBuffer,WhirlyKit::RendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
@@ -73,7 +73,7 @@ public:
     }
     
     bool useAlpha,useZBuffer;
-    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+    WhirlyKit::RendererFrameInfo *frameInfo;
 };
     
 }
@@ -89,7 +89,7 @@ public:
     dispatch_queue_t contextQueue;
     dispatch_semaphore_t frameRenderingSemaphore;
     bool renderSetup;
-    WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
+    WhirlyKit::OpenGLStateOptimizer *renderStateOptimizer;
 }
 
 - (id) init
@@ -139,6 +139,9 @@ public:
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
     dispatch_release(contextQueue);
 #endif
+    if (renderStateOptimizer)
+        delete renderStateOptimizer;
+    renderStateOptimizer = nil;
 }
 
 - (void)forceRenderSetup
@@ -245,7 +248,7 @@ static const float ScreenOverlap = 0.1;
         return;
 
     if (!renderStateOptimizer)
-        renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
+        renderStateOptimizer = new OpenGLStateOptimizer();
 
 	[super.theView animate];
 
@@ -308,18 +311,18 @@ static const float ScreenOverlap = 0.1;
     switch (super.zBufferMode)
     {
         case zBufferOn:
-            [renderStateOptimizer setDepthMask:GL_TRUE];
-            [renderStateOptimizer setEnableDepthTest:true];
-            [renderStateOptimizer setDepthFunc:GL_LESS];
+            renderStateOptimizer->setDepthMask(GL_TRUE);
+            renderStateOptimizer->setEnableDepthTest(true);
+            renderStateOptimizer->setDepthFunc(GL_LESS);
             break;
         case zBufferOff:
-            [renderStateOptimizer setDepthMask:GL_FALSE];
-            [renderStateOptimizer setEnableDepthTest:false];
+            renderStateOptimizer->setDepthMask(GL_FALSE);
+            renderStateOptimizer->setEnableDepthTest(false);
             break;
         case zBufferOffDefault:
-            [renderStateOptimizer setDepthMask:GL_TRUE];
-            [renderStateOptimizer setEnableDepthTest:true];
-            [renderStateOptimizer setDepthFunc:GL_ALWAYS];
+            renderStateOptimizer->setDepthMask(GL_TRUE);
+            renderStateOptimizer->setEnableDepthTest(true);
+            renderStateOptimizer->setDepthFunc(GL_ALWAYS);
             break;
     }
     
@@ -353,20 +356,20 @@ static const float ScreenOverlap = 0.1;
             return;
         }
         
-        WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
-        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
-        frameInfo.sceneRenderer = self;
-        frameInfo.theView = super.theView;
-        frameInfo.modelTrans = modelTrans;
-        frameInfo.scene = scene;
-//        frameInfo.frameLen = duration;
-        frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
-        frameInfo.projMat = projMat;
-        frameInfo.mvpMat = mvpMat;
-        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
-        frameInfo.viewAndModelMat = modelAndViewMat;
-        frameInfo.lights = lights;
-        frameInfo.stateOpt = renderStateOptimizer;
+        WhirlyKit::RendererFrameInfo *frameInfo = new RendererFrameInfo();
+        frameInfo->oglVersion = kEAGLRenderingAPIOpenGLES2;
+        frameInfo->sceneRenderer = self;
+        frameInfo->theView = super.theView;
+        frameInfo->modelTrans = modelTrans;
+        frameInfo->scene = scene;
+//        frameInfo->frameLen = duration;
+        frameInfo->currentTime = CFAbsoluteTimeGetCurrent();
+        frameInfo->projMat = projMat;
+        frameInfo->mvpMat = mvpMat;
+        frameInfo->viewModelNormalMat = modelAndViewNormalMat;
+        frameInfo->viewAndModelMat = modelAndViewMat;
+        frameInfo->lights = lights;
+        frameInfo->stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -394,15 +397,15 @@ static const float ScreenOverlap = 0.1;
 		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        frameInfo.eyeVec = eyeVec3;
+        frameInfo->eyeVec = eyeVec3;
         Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
         Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
         Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        frameInfo.fullEyeVec = -fullEyeVec3;
-        frameInfo.heightAboveSurface = 0.0;
+        frameInfo->fullEyeVec = -fullEyeVec3;
+        frameInfo->heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            frameInfo.heightAboveSurface = globeView.heightAboveSurface;
+            frameInfo->heightAboveSurface = globeView.heightAboveSurface;
 		
         // If we're looking at a globe, run the culling
         std::set<DrawableRef> toDraw;
@@ -479,7 +482,7 @@ static const float ScreenOverlap = 0.1;
                 if (depthMaskOn && super.depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
                     depthMaskOn = false;
-                    [renderStateOptimizer setEnableDepthTest:false];
+                    renderStateOptimizer->setEnableDepthTest(false);
                 }
             }
             
@@ -488,10 +491,10 @@ static const float ScreenOverlap = 0.1;
             {
                 if (drawable->getRequestZBuffer())
                 {
-                    [renderStateOptimizer setDepthFunc:GL_LESS];
+                    renderStateOptimizer->setDepthFunc(GL_LESS);
                     depthMaskOn = true;
                 } else {
-                    [renderStateOptimizer setDepthFunc:GL_ALWAYS];
+                    renderStateOptimizer->setDepthFunc(GL_ALWAYS);
                 }
             }
 
@@ -499,9 +502,9 @@ static const float ScreenOverlap = 0.1;
             if (super.zBufferMode != zBufferOff)
             {
                 if (drawable->getWriteZbuffer())
-                    [renderStateOptimizer setDepthMask:GL_TRUE];
+                    renderStateOptimizer->setDepthMask(GL_TRUE);
                 else
-                    [renderStateOptimizer setDepthMask:GL_FALSE];
+                    renderStateOptimizer->setDepthMask(GL_FALSE);
             }
             
             // If it has a local transform, apply that
@@ -510,7 +513,7 @@ static const float ScreenOverlap = 0.1;
             {
                 Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
                 Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                frameInfo.mvpMat = newMvpMat4f;
+                frameInfo->mvpMat = newMvpMat4f;
             }
             
             // Figure out the program to use for drawing
@@ -527,11 +530,11 @@ static const float ScreenOverlap = 0.1;
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
+                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo->mvpMat);
                     // Explicitly turn the lights on
                     program->setUniform(kWKOGLNumLights, (int)[lights count]);
 
-                    frameInfo.program = program;
+                    frameInfo->program = program;
                 }
             }
             if (drawProgramId == EmptyIdentity)
@@ -542,7 +545,7 @@ static const float ScreenOverlap = 0.1;
             
             // If we had a local matrix, set the frame info back to the general one
             if (localMat)
-                frameInfo.mvpMat = mvpMat;
+                frameInfo->mvpMat = mvpMat;
             
             numDrawables++;
             if (perfInterval > 0)
@@ -572,7 +575,7 @@ static const float ScreenOverlap = 0.1;
         {
             curProgramId = EmptyIdentity;
             
-            [renderStateOptimizer setEnableDepthTest:false];
+            renderStateOptimizer->setEnableDepthTest(false);
             // Sort by draw priority (and alpha, I guess)
             for (unsigned int ii=0;ii<screenDrawables.size();ii++)
             {
@@ -594,9 +597,9 @@ static const float ScreenOverlap = 0.1;
             orthoMat(1,3) = -framebufferHeight / delta.y();
             orthoMat(2,2) = -2.0f / delta.z();
             orthoMat(2,3) = 0.0f;
-            frameInfo.mvpMat = orthoMat;
+            frameInfo->mvpMat = orthoMat;
             // Turn off lights
-            frameInfo.lights = nil;
+            frameInfo->lights = nil;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -618,7 +621,7 @@ static const float ScreenOverlap = 0.1;
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
-                            frameInfo.program = program;
+                            frameInfo->program = program;
                         }
                     }
 
