@@ -32,135 +32,11 @@
 #import "QuadDisplayLayer.h"
 #import "TextureAtlas.h"
 #import "ElevationChunk.h"
+#import "LoadedTile.h"
 
 /// @cond
 @class WhirlyKitQuadTileLoader;
 /// @endcond
-
-/** Type of the image being passed to the tile loader.
-    UIImage - A UIImage object.
-    NSDataAsImage - An NSData object containing PNG or JPEG data.    
-    WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
-    PVRTC4 - Compressed PVRTC, 4 bit, no alpha
-    Placeholder - This is an empty image (so no visual representation)
-                that is nonetheless "valid" so its children will be paged.
-  */
-typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
-
-/** The Loaded Image is handed back to the Tile Loader when an image
- is finished.  It can either be loaded or empty, or something of that sort.
- */
-@interface WhirlyKitLoadedImage : NSObject
-
-/// The data we're passing back
-@property (nonatomic,assign) WhirlyKitLoadedImageType type;
-/// Set if there are any border pixels in the image
-@property (nonatomic,assign) int borderSize;
-/// The UIImage or NSData object
-@property (nonatomic) NSObject *imageData;
-/// Some formats contain no size info (e.g. PVRTC).  In which case, this is set
-@property (nonatomic,assign) int width,height;
-
-/// Return a loaded image made of a standard UIImage
-+ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image;
-
-/// Return a loaded image made from an NSData object containing PVRTC
-+ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize;
-
-/// Return a loaded image that's just an empty placeholder.
-/// This means there's nothing to display, but the children are valid
-+ (WhirlyKitLoadedImage *)PlaceholderImage;
-
-/// Return a loaded image made from an NSData object that contains a PNG or JPG.
-/// Basically somethign that UIImage will recognize if you initialize it with one.
-+ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData;
-
-/// Generate an appropriate texture.
-/// You could overload this, just be sure to respect the border pixels.
-- (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
-
-@end
-
-/** This is a more generic version of the Loaded Image.  It can be a single
-    loaded image, a stack of them (for animation) and/or a terrain chunk.
-    If you're doing a stack of images, make sure you set up the tile quad loader
-    that way.
-  */
-@interface WhirlyKitLoadedTile : NSObject
-
-@property (nonatomic,readonly) NSMutableArray *images;
-@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
-
-@end
-
-namespace WhirlyKit
-{
-    
-/** The Loaded Tile is used to track tiles that have been
- loaded in to memory, but may be in various states.  It's also
- used to fill in child outlines that may be missing.
- */
-class LoadedTile
-{
-public:
-    LoadedTile();
-    LoadedTile(const WhirlyKit::Quadtree::Identifier &);
-    ~LoadedTile() { }
-    
-    /// Build the data needed for a scene representation
-    void addToScene(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    
-    /// Remove data from scene.  This just sets up the changes requests.
-    /// They must still be passed to the scene
-    void clearContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Scene *scene,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    
-    /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,WhirlyKit::Quadtree *tree,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    
-    /// Switch to
-    void setCurrentImage(WhirlyKitQuadTileLoader *loader,WhirlyKitQuadDisplayLayer *layer,unsigned int whichImage,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
-    
-    /// Dump out to the log
-    void Print(WhirlyKit::Quadtree *tree);
-    
-    // Details of which node we're representing
-    WhirlyKit::Quadtree::NodeInfo nodeInfo;
-    
-    /// Set if this is just a placeholder (no geometry)
-    bool placeholder;    
-    /// Set if this tile is in the process of loading
-    bool isLoading;
-    // DrawID for this parent tile
-    WhirlyKit::SimpleIdentity drawId;
-    // Optional ID for the skirts
-    WhirlyKit::SimpleIdentity skirtDrawId;
-    // Texture IDs for the parent tile
-    std::vector<WhirlyKit::SimpleIdentity> texIds;
-    /// If set, these are subsets of a larger dynamic texture
-    std::vector<WhirlyKit::SubTexture> subTexs;
-    /// If here, the elevation data needed to build geometry
-    WhirlyKitElevationChunk *elevData;
-    
-    // IDs for the various fake child geometry
-    WhirlyKit::SimpleIdentity childDrawIds[4];
-    WhirlyKit::SimpleIdentity childSkirtDrawIds[4];
-};
-
-/// This is a comparison operator for sorting loaded tile pointers by
-/// Quadtree node identifier.
-typedef struct
-{
-    /// Comparison operator based on node identifier
-    bool operator() (const LoadedTile *a,const LoadedTile *b)
-    {
-        return a->nodeInfo.ident < b->nodeInfo.ident;
-    }
-} LoadedTileSorter;
-
-/// A set that sorts loaded MB Tiles by Quad tree identifier
-typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
-
-}
 
 /** Quad Tile Image Data Source is used to load individual images
     to put on top of the simple geometry created by the quad tile loader.
@@ -180,13 +56,11 @@ typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
 /// Store your expensive to generate key/value pairs here.
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
 
+/// Check if the given tile is a local or remote fetch.  This is a hint
+///  to the pager.  It can display local tiles as a group faster.
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+
 @end
-
-/// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByte,WKTilePVRTC4} WhirlyKitTileImageType;
-
-/// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
-typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and
     creates simple terrain (chunks of the sphere) and asks for images
@@ -214,6 +88,8 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,assign) bool useElevAsZ;
 /// The number of image layers we're expecting to be given.  By default, 1
 @property (nonatomic,assign) unsigned int numImages;
+/// Number of active textures we'll have in drawables.  Informational only.
+@property (nonatomic,readonly) int activeTextures;
 /// Base color for the drawables created by the layer
 @property (nonatomic,assign) WhirlyKit::RGBAColor color;
 /// Set this if the tile images are partially transparent
@@ -242,6 +118,10 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// Set this up with an object that'll return an image per tile and a name (for debugging)
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
 
+/// If you're passing in elevation (even some of the time), set this to the maximum
+///  sampling you're going to pass in.  If you don't set ths, you may lose tiles.
+- (void)setTesselationSizeX:(int)x y:(int)y;
+
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
@@ -260,5 +140,9 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// Set up the change requests to make the given image layer the active one
 /// The call is thread safe
 - (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)changeRequests;
+
+/// Set up the change requests to make the given images current.
+/// This will also interpolate between the two
+- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
 @end

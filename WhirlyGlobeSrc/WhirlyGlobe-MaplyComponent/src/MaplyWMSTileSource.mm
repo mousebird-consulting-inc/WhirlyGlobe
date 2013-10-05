@@ -272,6 +272,9 @@
 @end
 
 @implementation MaplyWMSTileSource
+{
+    bool cacheInit;
+}
 
 - (id)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize
 {
@@ -296,50 +299,97 @@
     return self;
 }
 
+// Figure out the name for the tile, if it's local
+- (NSString *)cacheFileForTile:(MaplyTileID)tileID
+{
+    // If there's a cache dir, make sure it's there
+    if (!cacheInit)
+    {
+        if (_cacheDir)
+        {
+            NSError *error = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:_cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+        }
+        cacheInit = true;
+    }
+    
+    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+    return localName;
+}
+
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    if (!_cacheDir)
+    return false;
+    
+    NSString *fileName = [self cacheFileForTile:tileID];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
+    return true;
+    
+    return false;
+}
 
 /// Return the image for a given tile
 - (NSData *)imageForTile:(MaplyTileID)tileID
 {
-    // SRS string for the coordinate system
-    NSString *srsStr = [_coordSys getSRS];
-
-    // Coordinates of the tile we're asking for
-    MaplyCoordinate ll,ur;
-    [_coordSys getBoundsLL:&ll ur:&ur];
-    MaplyCoordinate tileLL,tileUR;
-    int numSide = 1<<tileID.level;
-    tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;;
-    tileLL.y = tileID.y * (ur.y-ll.y)/numSide + ll.y;
-    tileUR.x = (tileID.x+1) * (ur.x-ll.x)/numSide + ll.x;
-    tileUR.y = (tileID.y+1) * (ur.y-ll.y)/numSide + ll.y;
-
-    if ([_coordSys canBeDegrees])
+    NSData *imgData = nil;
+    bool wasCached = false;
+    NSString *fileName = nil;
+    // Look for the image in the cache first
+    if (_cacheDir)
     {
-        tileLL.x = tileLL.x * 180 / M_PI;
-        tileLL.y = tileLL.y * 180 / M_PI;
-        tileUR.x = tileUR.x * 180 / M_PI;
-        tileUR.y = tileUR.y * 180 / M_PI;
+        fileName = [self cacheFileForTile:tileID];
+        imgData = [NSData dataWithContentsOfFile:fileName];
+        wasCached = true;
     }
     
-    // Put the layer request together
-    NSMutableString *layerStr = [NSMutableString string];
-    [layerStr appendString:_layer.name];
-    
-    NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?service=WMS&version=1.1.1&request=GetMap&layers=%@&styles=&srs=%@&bbox=%f,%f,%f,%f&width=%d&height=%d&format=%@&transparent=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
-    if (_style)
-        [reqStr appendFormat:@"&style=%@",_style.name];
-    NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
-    
-    // Fetch the image synchronously
-    NSURLResponse *resp = nil;
-    NSError *error = nil;
-    NSData *imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-    if (error || !imgData)
+    if (!imgData)
     {
-        NSLog(@"Failed to fetch image at: %@",reqStr);
-        return nil;
+        // SRS string for the coordinate system
+        NSString *srsStr = [_coordSys getSRS];
+
+        // Coordinates of the tile we're asking for
+        MaplyCoordinate ll,ur;
+        [_coordSys getBoundsLL:&ll ur:&ur];
+        MaplyCoordinate tileLL,tileUR;
+        int numSide = 1<<tileID.level;
+        tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;;
+        tileLL.y = tileID.y * (ur.y-ll.y)/numSide + ll.y;
+        tileUR.x = (tileID.x+1) * (ur.x-ll.x)/numSide + ll.x;
+        tileUR.y = (tileID.y+1) * (ur.y-ll.y)/numSide + ll.y;
+
+        if ([_coordSys canBeDegrees])
+        {
+            tileLL.x = tileLL.x * 180 / M_PI;
+            tileLL.y = tileLL.y * 180 / M_PI;
+            tileUR.x = tileUR.x * 180 / M_PI;
+            tileUR.y = tileUR.y * 180 / M_PI;
+        }
+        
+        // Put the layer request together
+        NSMutableString *layerStr = [NSMutableString string];
+        [layerStr appendString:_layer.name];
+        
+        NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?service=WMS&version=1.1.1&request=GetMap&layers=%@&styles=&srs=%@&bbox=%f,%f,%f,%f&width=%d&height=%d&format=%@&transparent=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
+        if (_style)
+            [reqStr appendFormat:@"&style=%@",_style.name];
+        NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
+        
+        // Fetch the image synchronously
+        NSURLResponse *resp = nil;
+        NSError *error = nil;
+        NSData *imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+        if (error || !imgData)
+        {
+            NSLog(@"Failed to fetch image at: %@",reqStr);
+            return nil;
+        }
     }
+    
+    // Let's also write it back out for the cache
+    if (_cacheDir && !wasCached)
+        [imgData writeToFile:fileName atomically:YES];
     
     return imgData;
 }

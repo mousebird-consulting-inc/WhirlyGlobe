@@ -22,6 +22,9 @@
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "DefaultShaderPrograms.h"
+#import "UIImage+Stuff.h"
+#import "NSDictionary+Stuff.h"
+#import "NSString+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -75,6 +78,9 @@ public:
     
 }
 
+@implementation WhirlyKitFrameMessage
+@end
+
 @implementation WhirlyKitSceneRendererES2
 {
     NSMutableArray *lights;
@@ -88,6 +94,18 @@ public:
 
 - (id) init
 {
+    // We do this to pull in the categories without the -ObjC flag.
+    // It's dumb, but it works
+    static bool dummyInit = false;
+    if (!dummyInit)
+    {
+        UIImageDummyFunc();
+        NSDictionaryDummyFunc();
+        UIColorDummyFunc();
+        NSStringDummyFunc();
+        dummyInit = true;
+    }
+
     self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
     lights = [NSMutableArray array];
     
@@ -193,6 +211,13 @@ static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
+    // Let anyone who cares know the frame draw is starting
+    WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
+    frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
+    frameMsg.frameInterval = duration;
+    frameMsg.renderer = self;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
+
     if (_dispatchRendering)
     {
         if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)

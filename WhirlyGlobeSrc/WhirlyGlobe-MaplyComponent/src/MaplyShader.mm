@@ -28,13 +28,18 @@ using namespace WhirlyKit;
 
 @implementation MaplyShader
 {
+    WhirlyKit::Scene *scene;
+    WhirlyKitSceneRendererES * __weak renderer;
     NSString *buildError;
     EAGLContext *context;
+    // Texture we created for use in this shader
+    SimpleIDSet texIDs;
 }
 
 - (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
 {
     NSError *error = nil;
+    _name = name;
     NSString *vertexShader = [NSString stringWithContentsOfFile:vertexFileName encoding:NSASCIIStringEncoding error:&error];
     if (!vertexShader)
     {
@@ -70,6 +75,7 @@ using namespace WhirlyKit;
         return nil;
     }
     
+    _name = name;
     std::string vertexStr = [vertexProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string fragStr = [fragProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string nameStr = [name cStringUsingEncoding:NSASCIIStringEncoding];
@@ -88,10 +94,44 @@ using namespace WhirlyKit;
         return nil;
     }
     
+    scene = baseViewC->scene;
+    renderer = baseViewC->sceneRenderer;
+    
     if (baseViewC->scene)
         baseViewC->scene->addProgram(_program);
     
     return self;
+}
+
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Tried to add texture, but not on main thread");
+        return;
+    }
+    
+    if (!scene || !renderer)
+        return;
+
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    
+    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    SimpleIdentity auxTexId = auxTex->getId();
+    auxTex->createInGL(scene->getMemManager());
+    GLuint glTexId = auxTex->getGLId();
+    scene->addChangeRequest(new AddTextureReq(auxTex));
+    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (prog)
+    {
+        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
+    }
+    
+    texIDs.insert(auxTexId);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
 }
 
 // We're assuming the view controller has set the proper context
@@ -102,6 +142,14 @@ using namespace WhirlyKit;
 //        _program->cleanUp();
 //        delete _program;
         _program = NULL;
+    }
+
+    if (scene)
+    {
+        ChangeSet changes;
+        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
+            changes.push_back(new RemTextureReq(*it));
+        scene->addChangeRequests(changes);
     }
 }
 

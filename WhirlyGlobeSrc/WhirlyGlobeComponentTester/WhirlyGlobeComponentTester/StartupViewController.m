@@ -98,6 +98,9 @@
         case MaplyGlobe:
             cell.textLabel.text = @"Globe (3D)";
             break;
+        case MaplyGlobeWithElevation:
+            cell.textLabel.text = @"Globe w/ Elevation (3D)";
+            break;
         case Maply2DMap:
             cell.textLabel.text = @"Map (2D)";
             break;

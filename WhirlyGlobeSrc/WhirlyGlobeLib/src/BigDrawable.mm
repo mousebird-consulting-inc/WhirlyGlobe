@@ -37,7 +37,7 @@ BigDrawable::Buffer::Buffer()
 }
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
-    : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), texId(0), drawPriority(0), requestZBuffer(false),
+    : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
     waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0)
 {
     activeBuffer = -1;
@@ -76,13 +76,19 @@ bool BigDrawable::isCompatible(BasicDrawable *draw)
 
 void BigDrawable::setModes(BasicDrawable *draw)
 {
-    texId = draw->getTexId();
+    texInfo = draw->getTexInfo();
     requestZBuffer = draw->getRequestZBuffer();
     writeZBuffer = draw->getWriteZbuffer();
     drawPriority = draw->getDrawPriority();
     draw->getVisibleRange(minVis, maxVis, minVisibleFadeBand, maxVisibleFadeBand);
 }
 
+void BigDrawable::setTexID(unsigned int which,SimpleIdentity texId)
+{
+    if (which < texInfo.size())
+        texInfo[which].texId = texId;
+}
+    
 void BigDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
     if (buffers[0].vertexBufferId)
@@ -164,13 +170,15 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     
     OpenGLES2Program *prog = frameInfo.program;
     
-    // GL Texture ID
-    GLuint glTexID = 0;
-    if (texId != EmptyIdentity)
+    // GL Texture IDs
+    std::vector<GLuint> glTexIDs;
+    for (unsigned int ii=0;ii<texInfo.size();ii++)
     {
-        glTexID = scene->getGLTexture(texId);
-        if (!glTexID)
-            NSLog(@"Dangling texture reference.");
+        const BasicDrawable::TexInfo &thisTexInfo = texInfo[ii];
+        GLuint glTexID = 0;
+        if (thisTexInfo.texId != EmptyIdentity)
+            glTexID = scene->getGLTexture(thisTexInfo.texId);
+        glTexIDs.push_back(glTexID);
     }
     
     if (!prog)
@@ -200,24 +208,37 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
     
     // Let the shaders know if we even have a texture
-    prog->setUniform("u_hasTexture", (glTexID != 0));
+    prog->setUniform("u_hasTexture", !glTexIDs.empty());
 
-    // Texture
-    const OpenGLESUniform *texUni = prog->findUniform("s_baseMap");
-    bool hasTexture = glTexID != 0 && texUni;
-    if (hasTexture)
+    // The program itself may have some textures to bind
+    bool hasTexture[WhirlyKitMaxTextures];
+    int progTexBound = prog->bindTextures();
+    for (unsigned int ii=0;ii<progTexBound;ii++)
+        hasTexture[ii] = true;
+    
+    // Zero or more textures.
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
-        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
-        CheckGLError("BigDrawable::draw() setActiveTexture");
-        glBindTexture(GL_TEXTURE_2D, glTexID);
-        CheckGLError("BigDrawable::draw() glBindTexture");
-        prog->setUniform("s_baseMap", 0);
-        CheckGLError("BigDrawable::draw() glUniform1i");
+        GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
+        char baseMapName[40];
+        sprintf(baseMapName,"s_baseMap%d",ii);
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+        hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
+        if (hasTexture[ii+progTexBound])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            glBindTexture(GL_TEXTURE_2D, glTexID);
+            CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
+            prog->setUniform(baseMapName, (int)ii+progTexBound);
+            CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+        }
     }
 
     // Figure out what we're using
@@ -289,11 +310,12 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     glBindVertexArrayOES(0);
     
     // Unbind any texture
-    if (hasTexture)
-    {
-        [frameInfo.stateOpt setActiveTexture:GL_TEXTURE0];
-        glBindTexture(GL_TEXTURE_2D, 0);
-}
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+        if (hasTexture[ii])
+        {
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 }
     
 SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled)
@@ -651,9 +673,7 @@ void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES 
     DrawableRef draw = scene->getDrawable(drawId);
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
-    {
-        bigDraw->setTexId(newTexId);
-    }
+        bigDraw->setTexID(which,texId);
 }
 
 }

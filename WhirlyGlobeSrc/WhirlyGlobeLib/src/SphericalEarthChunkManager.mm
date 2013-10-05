@@ -72,7 +72,7 @@ static const float SkirtFactor = 0.95;
             draw->addPoint(corners[jj]);
             draw->addNormal((pts[ii]+pts[ii+1])/2.0);
             TexCoord texCoord = cornerTex[jj];
-            draw->addTexCoord(texCoord);
+            draw->addTexCoord(0,texCoord);
         }
         
         // Add two triangles
@@ -124,7 +124,7 @@ static const float SkirtFactor = 0.95;
     drawable->setLocalMbr(_mbr);
     drawable->setDrawPriority(_drawPriority);
     drawable->setDrawOffset(_drawOffset);
-    drawable->setTexId(_texId);
+    drawable->setTexId(0,_texId);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
     drawable->setRequestZBuffer(self.readZBuffer);
@@ -169,7 +169,7 @@ static const float SkirtFactor = 0.95;
                 texCoords[iy*(thisSampleX+1)+ix] = texCoord;
                 
                 drawable->addPoint(dispLoc);
-                drawable->addTexCoord(texCoord);
+                drawable->addTexCoord(0,texCoord);
                 drawable->addNormal(dispLoc);
             }
     } else {
@@ -212,7 +212,7 @@ static const float SkirtFactor = 0.95;
                 texCoords[iy*(thisSampleX+1)+ix] = texCoord;
                 
                 drawable->addPoint(dispLoc);
-                drawable->addTexCoord(texCoord);
+                drawable->addTexCoord(0,texCoord);
                 drawable->addNormal(dispLoc);
             }
     }
@@ -243,7 +243,7 @@ static const float SkirtFactor = 0.95;
         skirtDrawable->setLocalMbr(_mbr);
         skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(_drawOffset);
-        skirtDrawable->setTexId(_texId);
+        skirtDrawable->setTexId(0,_texId);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(_minVis, _maxVis);
         skirtDrawable->setRequestZBuffer(true);
@@ -521,15 +521,15 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 if (chunkRep->usesAtlas && drawAtlas)
                 {
                     pthread_mutex_lock(&atlasLock);
-                    skirtDraw->applySubTexture(chunkRep->subTex);
+                    skirtDraw->applySubTexture(0,chunkRep->subTex);
                     drawAtlas->addDrawable(skirtDraw, changes);
                     delete skirtDraw;
                     pthread_mutex_unlock(&atlasLock);
                 } else {
                     if (texAtlas)
-                        skirtDraw->applySubTexture(chunkRep->subTex);
+                        skirtDraw->applySubTexture(0,chunkRep->subTex);
                         else
-                            skirtDraw->setTexId(texId);
+                            skirtDraw->setTexId(0,texId);
                             changes.push_back(new AddDrawableReq(skirtDraw));
                             }
             }
@@ -538,15 +538,15 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             if (chunkRep->usesAtlas && drawAtlas)
             {
                 pthread_mutex_lock(&atlasLock);
-                drawable->applySubTexture(chunkRep->subTex);
+                drawable->applySubTexture(0,chunkRep->subTex);
                 drawAtlas->addDrawable(drawable, changes);
                 delete drawable;
                 pthread_mutex_unlock(&atlasLock);
             } else {
                 if (texAtlas)
-                    drawable->applySubTexture(chunkRep->subTex);
+                    drawable->applySubTexture(0,chunkRep->subTex);
                     else
-                        drawable->setTexId(texId);
+                        drawable->setTexId(0,texId);
                         changes.push_back(new AddDrawableReq(drawable));
                         }
             

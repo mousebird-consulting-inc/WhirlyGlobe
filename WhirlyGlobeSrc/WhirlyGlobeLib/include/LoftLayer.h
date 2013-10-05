@@ -41,6 +41,7 @@
      <list type="bullet">
      <item>color       [UIColor]
      <item>height      [NSNumber float]
+     <item>base        [NSNumber float]
      <item>drawPriority [NSNumber int]
      <item>minVis      [NSNumber float]
      <item>maxVis      [NSNumber float]

@@ -86,4 +86,7 @@
 /// Compare this view state to the other one.  Returns true if they're identical.
 - (bool)isSameAs:(WhirlyKitViewState *)other;
 
+/// Dump out info about the view state
+- (void)log;
+
 @end
