@@ -142,6 +142,16 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// Normally we'd call an endUpdates, but if we're holding that open for a while
+/// (e.g. matching frame boundaries), let's at least get all the work done.
+- (void)updateWithoutFlush;
+
+/// Number of network fetches outstanding.  Used by the pager for optimization.
+- (int)networkFetches;
+
+/// Number of local fetches outstanding.  Used by the pager for optimizaiton.
+- (int)localFetches;
+
 /// Dump some log info out to the console
 - (void)log;
 
@@ -179,8 +189,6 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// How far the viewer has to move to force an update (if non-zero)
 @property (nonatomic,assign) float minUpdateDist;
-/// How much time we're willing to spend on a single update (if zero, we just go through one time)
-@property (nonatomic,assign) NSTimeInterval maxUpdatePeriod;
 /// Data source for the quad tree structure
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader that may be creating and deleting data as the quad tiles load
@@ -188,6 +196,12 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+/// If set we'll try to match the frame boundaries for our update
+@property (nonatomic,assign) bool meteredMode;
+/// If set, we'll try to completely load everything (local, at least) before switching
+@property (nonatomic,assign) bool fullLoad;
+/// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
+@property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

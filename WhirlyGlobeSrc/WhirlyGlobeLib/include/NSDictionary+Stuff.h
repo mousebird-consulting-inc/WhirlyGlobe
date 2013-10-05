@@ -44,3 +44,9 @@
 - (NSString *)stringForKey:(NSString *)name default:(NSString *)theDefault;
 
 @end
+
+// A function we can call to force the linker to bring in categories
+#ifdef __cplusplus
+extern "C"
+#endif
+void NSDictionaryDummyFunc();

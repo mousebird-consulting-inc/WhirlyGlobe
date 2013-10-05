@@ -11,6 +11,8 @@
 		2B03701A14C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */; };
 		2B03702014CA01C600A51AC4 /* MaplyTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */; };
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
+		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
+		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
@@ -301,7 +303,6 @@
 		2BA2325E17984F510063CC84 /* glues_quad.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323717984F510063CC84 /* glues_quad.h */; };
 		2BA2325F17984F510063CC84 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323817984F510063CC84 /* glues_registry.c */; };
 		2BA2326017984F510063CC84 /* glues_registry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323917984F510063CC84 /* glues_registry.h */; };
-		2BA2326117984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323A17984F510063CC84 /* glues.h */; };
 		2BA2326217984F510063CC84 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323D17984F510063CC84 /* dict-list.h */; };
 		2BA2326317984F510063CC84 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323E17984F510063CC84 /* dict.c */; };
 		2BA2326417984F510063CC84 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323F17984F510063CC84 /* dict.h */; };
@@ -413,6 +414,7 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -424,6 +426,8 @@
 		2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapDelegate.h; sourceTree = "<group>"; };
 		2B076B31133951DE009D931D /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
+		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
 		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -869,6 +873,8 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
+		E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRotateDelegate.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1322,6 +1328,7 @@
 				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
 				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
+				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1350,30 +1357,23 @@
 		2B951D9612F09EE1005003AE /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
-				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2BA13BF617EE9F1A000C43B7 /* vestigal */,
 				2BB25922177A042F00770619 /* BillboardDrawable.h */,
 				2BEA1E4B171E0E0F0039F1A4 /* FontTextureManager.h */,
 				2BEA1E4C171E0E0F0039F1A4 /* LabelRenderer.h */,
 				2BEA1E4D171E0E0F0039F1A4 /* ShapeDrawableBuilder.h */,
 				2BA2BB84153E0BC700DAB382 /* LayerViewWatcher.h */,
 				2BCAB9BF12F8A3860049D73C /* LayerThread.h */,
-				2BCAB9A912F897E20049D73C /* DataLayer.h */,
 				2B951C7D12EFA262005003AE /* GridLines.h */,
-				2B951D9812F09F31005003AE /* VectorLayer.h */,
 				2BB1F06813007031001F33CD /* LabelLayer.h */,
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
-				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
-				2B93C81514522DE600D768BA /* MarkerLayer.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
+				2B08059517EB955C0016C813 /* LoadedTile.h */,
 				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
-				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
-				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
-				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
 				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
-				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -1407,6 +1407,7 @@
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
 				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
 				2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */,
+				2B08059717EB95A40016C813 /* LoadedTile.mm */,
 				2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */,
 				2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */,
 				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
@@ -1416,6 +1417,22 @@
 				2BB071881676B69400DE387D /* SphericalEarthChunkLayer.mm */,
 			);
 			name = "layers & loaders";
+			sourceTree = "<group>";
+		};
+		2BA13BF617EE9F1A000C43B7 /* vestigal */ = {
+			isa = PBXGroup;
+			children = (
+				2B93C81514522DE600D768BA /* MarkerLayer.h */,
+				2B951D9812F09F31005003AE /* VectorLayer.h */,
+				2BCAB9A912F897E20049D73C /* DataLayer.h */,
+				2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */,
+				2BB25921177A042F00770619 /* BillboardLayer.h */,
+				2B7EF5161603E01400D4079F /* MBTileQuadSource.h */,
+				2B7EF5171603E01400D4079F /* NetworkTileQuadSource.h */,
+				2BD1158C1615979300A4BF5D /* ShapeLayer.h */,
+				2BB071811676B5FE00DE387D /* LayoutLayer.h */,
+			);
+			name = vestigal;
 			sourceTree = "<group>";
 		};
 		2BA2322A17984F1A0063CC84 /* glu */ = {
@@ -1808,6 +1825,7 @@
 				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
 				2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */,
 				2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */,
+				E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1911,6 +1929,7 @@
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
 				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
 				2B4AE4001766610900850F3F /* NumberToString.h in Headers */,
+				2B08059617EB955C0016C813 /* LoadedTile.h in Headers */,
 				2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */,
 				2BB25920177A041E00770619 /* ElevationChunk.h in Headers */,
 				2BB25924177A042F00770619 /* BillboardLayer.h in Headers */,
@@ -1922,7 +1941,6 @@
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
-				2BA2326117984F510063CC84 /* glues.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
@@ -2041,6 +2059,7 @@
 				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
 				2B44187C13A2DA3C00514EDE /* RotateDelegate.mm in Sources */,
 				2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */,
+				2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */,
 				2B58C6931445439700EEF3C3 /* Generator.mm in Sources */,
 				2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */,
 				2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */,
@@ -2288,6 +2307,7 @@
 				2BB1787A17A8315C00AD0614 /* BillboardManager.mm in Sources */,
 				2BB1787B17A8315C00AD0614 /* ParticleSystemManager.mm in Sources */,
 				2BB1787C17A8315C00AD0614 /* LoftManager.mm in Sources */,
+				E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2311,11 +2331,12 @@
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2331,16 +2352,17 @@
 					__USE_SDL_GLES__,
 					__IPHONEOS__,
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_THUMB_SUPPORT = YES;
 				"GCC_THUMB_SUPPORT[arch=armv6]" = NO;
 				GCC_VERSION = "";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_MASTER_OBJECT_FILE = NO;
 				HEADER_SEARCH_PATHS = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2350,6 +2372,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -2376,10 +2401,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -2389,11 +2411,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_OBJCPP_ARC_ABI = YES;
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
 				DSTROOT = /tmp/WhirlyGlobeLib.dst;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "WhirlyGlobeLib/WhirlyGlobeLib-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
@@ -2413,10 +2439,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-all_load",
-				);
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

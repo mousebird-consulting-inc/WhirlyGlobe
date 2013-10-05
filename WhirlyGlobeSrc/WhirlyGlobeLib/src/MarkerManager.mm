@@ -344,7 +344,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                         draw->setColor([markerInfo.color asRGBAColor]);
                         draw->setDrawPriority(markerInfo.drawPriority);
                         draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
-                        draw->setTexId(subTex.texId);
+                        draw->setTexId(0,subTex.texId);
                         draw->setOnOff(markerInfo.enable);
                         drawables[subTex.texId] = draw;
                         markerRep->drawIDs.insert(draw->getId());
@@ -357,7 +357,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     Point3f &pt = pts[ii];
                     draw->addPoint(pt);
                     draw->addNormal(norm);
-                    draw->addTexCoord(texCoord[ii]);
+                    draw->addTexCoord(0,texCoord[ii]);
                     Mbr localMbr = draw->getLocalMbr();
                     Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));

@@ -163,6 +163,9 @@
 #define kMaplyVecMinSample @"minSample"
 
 /// These are the various shader programs we set up by default
-#define kMaplyShaderDefaultTri @"Default Triangle Program"
-#define kMaplyShaderDefaultLine @"Default Line Program"
-#define kMaplyShaderDefaultTriNoLighting 
+#define kMaplyShaderDefaultTri @"Default Triangle;lighting=yes"
+#define kMaplyShaderDefaultTriNoLighting @"Default Triangle;lighting=no"
+#define kMaplyShaderDefaultTriMultiTex @"Default Triangle;multitex=yes;lighting=yes"
+#define kMaplyShaderDefaultLine @"Default Line;backface=yes"
+#define kMaplyShaderDefaultLineNoBackface @"Default Line;backface=no"
+

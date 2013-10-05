@@ -59,7 +59,9 @@ using namespace WhirlyKit;
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
 	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
-	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
+  	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+  	panRecognizer.delegate = panDelegate;
+	[view addGestureRecognizer:panRecognizer];
 	return panDelegate;
 }
 
@@ -128,7 +130,7 @@ static const float AnimLen = 1.0;
             
             // Save where we touched
             startTransform = [mapView calcFullMatrix];
-            [mapView pointOnPlaneFromScreen:[pan locationOfTouch:0 inView:pan.view] transform:&startTransform
+            [mapView pointOnPlaneFromScreen:[pan locationInView:pan.view] transform:&startTransform
                                   frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
                                         hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
@@ -143,7 +145,7 @@ static const float AnimLen = 1.0;
                 
                 // Figure out where we are now
                 Point3d hit;
-                CGPoint touchPt = [pan locationOfTouch:0 inView:glView];
+                CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
                                        frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
@@ -152,7 +154,7 @@ static const float AnimLen = 1.0;
                 // Note: Just doing a translation for now.  Won't take angle into account
                 Point3d oldLoc = mapView.loc;
                 Point3d newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc];
+                [mapView setLoc:newLoc runUpdates:false];
                 
                 // We'll do a hard stop if we're not within the bounds
                 // Note: We're trying this location out, then backing off if it failed.
@@ -160,16 +162,18 @@ static const float AnimLen = 1.0;
                 {
                     // How about if we leave the x alone?
                     Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-                    [mapView setLoc:testLoc];
+                    [mapView setLoc:testLoc runUpdates:false];
                     if (![self withinBounds:testLoc view:glView renderer:sceneRender])
                     {
                         // How about leaving y alone?
                         testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-                        [mapView setLoc:testLoc];
+                        [mapView setLoc:testLoc runUpdates:false];
                         if (![self withinBounds:testLoc view:glView renderer:sceneRender])
-                            [mapView setLoc:oldLoc];
+                            [mapView setLoc:oldLoc runUpdates:false];
                     }
                 }
+                
+                [mapView runViewUpdates];
             }
         }
             break;

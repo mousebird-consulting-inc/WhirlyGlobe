@@ -40,4 +40,7 @@
 /// Remove a group of billboards named by the given ID
 - (void) removeBillboards:(WhirlyKit::SimpleIdentity)billId;
 
+/// Replace a group of billboards with the ones given
+- (WhirlyKit::SimpleIdentity) replaceBillboards:(WhirlyKit::SimpleIdentity)oldBillID withBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
+
 @end

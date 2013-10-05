@@ -1052,7 +1052,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Add lofted polys
-// Note: Need to handle the thread mode
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];

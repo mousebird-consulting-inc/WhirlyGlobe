@@ -20,6 +20,7 @@
 
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
+#import "NSData+Zlib.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -45,31 +46,33 @@ using namespace WhirlyKit;
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
     
-    if (layerThread)
+    // Kill off all the other layers first
+    for (unsigned int ii=1;ii<[layerThreads count];ii++)
     {
-        [layerThread addThingToDelete:scene];
-        [layerThread addThingToRelease:layerThread];
-        [layerThread addThingToRelease:visualView];
-        [layerThread addThingToRelease:glView];
-        [layerThread addThingToRelease:sceneRenderer];
+        WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
         [layerThread cancel];
+        [baseLayerThread addThingToRelease:layerThread];
     }
+    
+    if (baseLayerThread)
+    {
+        [baseLayerThread addThingToDelete:scene];
+        [baseLayerThread addThingToRelease:baseLayerThread];
+        [baseLayerThread addThingToRelease:visualView];
+        [baseLayerThread addThingToRelease:glView];
+        [baseLayerThread addThingToRelease:sceneRenderer];
+        [baseLayerThread cancel];
+    }
+    layerThreads = nil;
     
     scene = NULL;
     visualView = nil;
 
     glView = nil;
     sceneRenderer = nil;
-
-    layerThread = nil;
-    
-    markerLayer = nil;
-    labelLayer = nil;
-    vectorLayer = nil;
-    shapeLayer = nil;
-    chunkLayer = nil;
+    baseLayerThread = nil;
     layoutLayer = nil;
-    loftLayer = nil;
+    
     activeObjects = nil;
     
     interactLayer = nil;
@@ -146,6 +149,14 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+    // Need this logic here to pull in the categories
+    static bool dummyInit = false;
+    if (!dummyInit)
+    {
+        NSDataDummyFunc();
+        dummyInit = true;
+    }
+    
     userLayers = [NSMutableArray array];
     
     [self loadSetup_glView];
@@ -163,7 +174,7 @@ using namespace WhirlyKit;
     // Set up the GL View to display it in
 	glView = [[WhirlyKitEAGLView alloc] init];
 	glView.renderer = sceneRenderer;
-	glView.frameInterval = _frameInterval;  // 60 fps
+	glView.frameInterval = _frameInterval;
     [self.view insertSubview:glView atIndex:0];
     self.view.backgroundColor = [UIColor blackColor];
     self.view.opaque = YES;
@@ -180,44 +191,20 @@ using namespace WhirlyKit;
     sceneRenderer.scene = scene;
     [self loadSetup_lighting];
     
+    layerThreads = [NSMutableArray array];
+    
     // Need a layer thread to manage the layers
-	layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer];
+	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:true];
+    [layerThreads addObject:baseLayerThread];
     
-    // Note: Layer are no longer necessary in the new library
-    
-	// Set up the vector layer where all our outlines will go
-	vectorLayer = [[WhirlyKitVectorLayer alloc] init];
-	[layerThread addLayer:vectorLayer];
-    
-    // Set up the shape layer.  Manages a set of simple shapes
-    shapeLayer = [[WhirlyKitShapeLayer alloc] init];
-    [layerThread addLayer:shapeLayer];
-    
-    // Set up the chunk layer.  Used for stickers.
-    chunkLayer = [[WhirlyKitSphericalChunkLayer alloc] init];
-    chunkLayer.ignoreEdgeMatching = true;
-    [layerThread addLayer:chunkLayer];
-    
-	// General purpose label layer.
-	labelLayer = [[WhirlyKitLabelLayer alloc] init];
-	[layerThread addLayer:labelLayer];
-    
-    // Marker layer
-    markerLayer = [[WhirlyKitMarkerLayer alloc] init];
-    [layerThread addLayer:markerLayer];
-    
-    // 2D layout engine layer
+    // Layout still needs a layer to kick it off
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
-    [layerThread addLayer:layoutLayer];
-    
-    // Lofted polygon layer
-    loftLayer = [[WhirlyKitLoftLayer alloc] init];
-    [layerThread addLayer:loftLayer];
+    [baseLayerThread addLayer:layoutLayer];
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
     interactLayer.glView = glView;
-    [layerThread addLayer:interactLayer];
+    [baseLayerThread addLayer:interactLayer];
     
 	// Give the renderer what it needs
 	sceneRenderer.theView = visualView;
@@ -226,7 +213,7 @@ using namespace WhirlyKit;
 	
 	// Kick off the layer thread
 	// This will start loading things
-	[layerThread start];
+	[baseLayerThread start];
     
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -378,59 +365,11 @@ static const float PerfOutputDelay = 15.0;
     scene->addProgram(theSceneName, shader.program);
 }
 
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithMBTiles:(NSString *)name
+- (MaplyShader *)getShaderByName:(NSString *)name
 {
-    MaplyQuadEarthWithMBTiles *newLayer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:name];
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSString *)baseURL imageExt:(NSString *)ext cache:(NSString *)cacheDir minZoom:(int)minZoom maxZoom:(int)maxZoom;
-{
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    newLayer.cacheDir = cacheDir;
-
-    if (!newLayer)
-        return nil;
-
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadEarthLayerWithRemoteSource:(NSDictionary *)jsonDict cache:(NSString *)cacheDir
-{
-    MaplyQuadEarthWithRemoteTiles *newLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:jsonDict];
-    
-    newLayer.handleEdges = (sceneRenderer.zBufferMode != zBufferOff);
-    newLayer.cacheDir = cacheDir;
-    
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
-    
-    return nil;
-}
-
-- (MaplyViewControllerLayer *)addQuadSphericalEarthLayerWithImageSet:(NSString *)imageSet
-{
-    MaplySphericalQuadEarthWithTexGroup *newLayer = [[MaplySphericalQuadEarthWithTexGroup alloc] initWithWithTexGroup:imageSet];
-    
-    if (!newLayer)
-        return nil;
-    
-    if ([self addLayer:newLayer])
-        return newLayer;
+    for (MaplyShader *shader in shaders)
+        if (![shader.name compare:name])
+            return shader;
     
     return nil;
 }
@@ -464,8 +403,8 @@ static const float PerfOutputDelay = 15.0;
     hints = [self mergeAndCheck:hints changeDict:changeDict];
     
     // Settings we store in the hints
-    BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:true];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOffDefault : zBufferOff);
+    BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
+    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
     sceneRenderer.doCulling = culling;
 }
@@ -609,7 +548,9 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
-    layoutLayer.maxDisplayObjects = maxLayoutObjects;
+    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    if (layoutManager)
+        layoutManager->setMaxDisplayObjects(maxLayoutObjects);
 }
 
 - (void)removeObject:(MaplyComponentObject *)theObj
@@ -686,6 +627,14 @@ static const float PerfOutputDelay = 15.0;
 {
     if (newLayer && ![userLayers containsObject:newLayer])
     {
+        WhirlyKitLayerThread *layerThread = baseLayerThread;
+        if (_threadPerLayer)
+        {
+            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
+            [layerThreads addObject:layerThread];
+            [layerThread start];
+        }
+        
         if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
             newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
@@ -700,7 +649,8 @@ static const float PerfOutputDelay = 15.0;
 - (void)removeLayer:(MaplyViewControllerLayer *)layer
 {
     bool found = false;
-    for (MaplyViewControllerLayer *theLayer in userLayers)
+    MaplyViewControllerLayer *theLayer = nil;
+    for (theLayer in userLayers)
     {
         if (theLayer == layer)
         {
@@ -711,17 +661,28 @@ static const float PerfOutputDelay = 15.0;
     if (!found)
         return;
     
+    WhirlyKitLayerThread *layerThread = layer.layerThread;
     [layer cleanupLayers:layerThread scene:scene];
     [userLayers removeObject:layer];
+    
+    // Need to shut down the layer thread too
+    if (layerThread != baseLayerThread)
+    {
+        if ([layerThreads containsObject:layerThread])
+        {
+            [layerThreads removeObject:layerThread];
+            [layerThread addThingToRelease:theLayer];
+            [layerThread cancel];
+        }
+    }
 }
 
 - (void)removeAllLayers
 {
-    for (MaplyViewControllerLayer *theLayer in userLayers)
-    {
-        [theLayer cleanupLayers:layerThread scene:scene];
-    }
-    [userLayers removeAllObjects];
+    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
+    
+    for (MaplyViewControllerLayer *theLayer in allLayers)
+        [self removeLayer:theLayer];
 }
 
 #pragma mark - Properties

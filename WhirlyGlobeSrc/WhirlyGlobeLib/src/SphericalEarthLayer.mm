@@ -152,7 +152,7 @@ using namespace WhirlyGlobe;
 			TexCoord texCoord((ix*texIncr.x())*adjTexSpan.x()+adjTexMin.x(),adjTexMax.y()-(iy*texIncr.y())*adjTexSpan.y());
 			
 			chunk->addPoint(loc);
-			chunk->addTexCoord(texCoord);
+			chunk->addTexCoord(0,texCoord);
 			chunk->addNormal(loc);
 		}
 	
@@ -182,7 +182,7 @@ using namespace WhirlyGlobe;
     tex->setHeight(texGroup.pixelsSquare);
 	changeRequests.push_back(new AddTextureReq(tex));
     texIDs.push_back(tex->getId());
-	chunk->setTexId(tex->getId());
+	chunk->setTexId(0,tex->getId());
     if (_fade > 0)
     {
         NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -244,7 +244,7 @@ using namespace WhirlyGlobe;
             
             // Reassign the drawable and delete the old texture
             SimpleIdentity drawId = drawIDs[y*texGroup.numX+x];
-            [layerThread addChangeRequest:(new DrawTexChangeRequest(drawId,tex->getId()))];
+            [layerThread addChangeRequest:(new DrawTexChangeRequest(drawId,0,tex->getId()))];
             [layerThread addChangeRequest:(new RemTextureReq(oldTexId))];
         }
 }

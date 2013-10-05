@@ -22,6 +22,8 @@
 #import "Texture.h"
 #import "UIImage+Stuff.h"
 
+using namespace WhirlyKit;
+
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
 NSData *ConvertRGBATo565(NSData *inData)
@@ -87,44 +89,61 @@ NSData *ConvertRGBATo5551(NSData *inData)
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
-NSData *ConvertRGBATo8(NSData *inData)
+NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
 {
     uint32_t pixelCount = [inData length]/4;
     void *temp = malloc(pixelCount);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
-    uint8_t *outPixel16 = (uint8_t *)temp;
+    uint8_t *outPixel8 = (uint8_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
     {
         uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
         uint32_t g = ((*inPixel32 >> 8)  & 0xFF);
         uint32_t b = ((*inPixel32 >> 16) & 0xFF);
-//        uint32_t a = ((*inPixel32 >> 24) & 0xFF);
-        int sum = ((int)r + (int)g + (int)b)/3;
-        
-        *outPixel16++ = (uint8_t)sum;
+        uint32_t a = ((*inPixel32 >> 24) & 0xFF);
+        int sum = 0;
+        switch (source)
+        {
+            case WKSingleRed:
+                sum = r;
+                break;
+            case WKSingleGreen:
+                sum = g;
+                break;
+            case WKSingleBlue:
+                sum = b;
+                break;
+            case WKSingleRGB:
+                sum = ((int)r + (int)g + (int)b)/3;
+                break;
+            case WKSingleAlpha:
+                sum = a;
+                break;
+        }
+        *outPixel8++ = (uint8_t)sum;
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
+    return [NSData dataWithBytesNoCopy:temp length:pixelCount freeWhenDone:YES];
 }
 
 namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+	: TextureBase(name), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,NSData *texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 { 
 }
 
 // Set up the texture from a filename
 Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
-    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 {	
 	if (![ext compare:@"pvrtc"])
 	{
@@ -157,7 +176,7 @@ Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
 
 // Construct with a UIImage
 Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
-    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE)
+    : TextureBase(name), texData(nil), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 {
 	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
@@ -190,7 +209,7 @@ NSData *Texture::processData()
                 return ConvertRGBATo5551(texData);
                 break;
             case GL_ALPHA:
-                return ConvertRGBATo8(texData);
+                return ConvertRGBATo8(texData,byteSource);
                 break;
         }
 	}

@@ -25,6 +25,7 @@
 #import "UIImage+Stuff.h"
 #import "FlatMath.h"
 #import "VectorData.h"
+#import "SceneRendererES2.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
@@ -417,6 +418,15 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     
     /// State of the view the last time we were called
     WhirlyKitViewState *viewState;
+    
+    /// Frame times for metered mode
+    NSTimeInterval frameStart,frameInterval;
+    
+    /// Set if we're waiting for local loads (e.g. a reload)
+    bool waitForLocalLoads;
+    
+    // In metered mode, the last time we flushed data to the scene
+    NSTimeInterval lastFlush;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -431,7 +441,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _mbr = [_dataStructure validExtents];
         minZoom = [_dataStructure minZoom];
         maxZoom = [_dataStructure maxZoom];
-        _maxTiles = 256;
+        _maxTiles = 128;
         _minImportance = 1.0;
         _viewUpdatePeriod = 0.1;
         _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);
@@ -440,8 +450,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _drawEmpty = false;
         _debugMode = false;
         greedyMode = false;
-        _maxUpdatePeriod = 0.0;
-//        _maxUpdatePeriod = 1/15.0;  // Won't spend more than 1/30 on updates by default
+        _meteredMode = true;
+        _fullLoad = false;
+        _fullLoadTimeout = 4.0;
+        waitForLocalLoads = false;
     }
     
     return self;
@@ -449,6 +461,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+
     if (_quadtree)
         delete _quadtree;
 }
@@ -473,11 +487,23 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     // We want view updates, but only 1s in frequency
     if (_layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:_minUpdateDist maxLagTime:10.0];
+    
+    if (_meteredMode)
+    {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];
+        [_loader quadDisplayLayerStartUpdates:self];
+    }
+
+    if (_fullLoad)
+        waitForLocalLoads = true;
 }
 
 - (void)shutdown
 {
+    [_loader quadDisplayLayerEndUpdates:self];
+
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     if (_layerThread.viewWatcher) {
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
@@ -489,6 +515,54 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     _loader = nil;
     
     _scene = NULL;
+}
+
+// Called by the renderer (in that thread, so be careful)
+- (void)frameStart:(NSNotification *)note
+{
+    WhirlyKitFrameMessage *msg = note.object;
+    
+    // If it's not coming from our renderer, we can ignore it
+    if (msg.renderer != _renderer)
+        return;
+    
+    frameStart = msg.frameStart;
+    frameInterval = msg.frameInterval;
+    
+    if (_meteredMode)
+        [self performSelector:@selector(frameStartThread) onThread:_layerThread withObject:nil waitUntilDone:NO];
+}
+
+- (void)frameStartThread
+{
+    NSTimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
+    if (howLong > 0.0)
+    {
+        [_loader quadDisplayLayerStartUpdates:self];
+        [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
+    }
+}
+
+- (void)frameEndThread
+{
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+
+    // We'll hold off for local loads...up to a point
+    bool forcedFlush = false;
+    if (now - lastFlush < _fullLoadTimeout)
+    {
+        if ([self waitingForLocalLoads])
+            return;
+    } else
+        forcedFlush = true;
+    
+    // Flush out the updates and immediately start new ones
+    [_loader quadDisplayLayerEndUpdates:self];
+    [_loader quadDisplayLayerStartUpdates:self];
+    // If we forced out a flush, we can wait for more local loads
+    if (!forcedFlush)
+        waitForLocalLoads = false;
+    lastFlush = now;
 }
 
 // Called every so often by the view watcher
@@ -504,11 +578,14 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     // Just put ourselves on hold for a while
     if (!inViewState)
         return;
-
+    
     // Check if we should even be doing an update
     if ([_loader respondsToSelector:@selector(shouldUpdate:initial:)])
         if (![_loader shouldUpdate:inViewState initial:(viewState == nil)])
             return;
+    
+    if (_fullLoad)
+        waitForLocalLoads = true;
         
     viewState = inViewState;
     nodesForEval.clear();
@@ -521,8 +598,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             Quadtree::NodeInfo thisNode = _quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
-        
-//    NSLog(@"View update called: (eye) = (%f,%f,%f), nodesForEval = %lu",eyeVec3.x(),eyeVec3.y(),eyeVec3.z(),nodesForEval.size());
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }
@@ -549,6 +625,28 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         [_loader log];
 }
 
+// Check if we're waiting for local (e.g. fast) loads to finish
+- (bool)waitingForLocalLoads
+{
+    if (!waitForLocalLoads)
+        return false;
+    
+    // Check for local fetches ongoing
+    bool localActivity = !nodesForEval.empty();
+    if (!localActivity && [_loader respondsToSelector:@selector(localFetches)])
+        localActivity = [_loader localFetches] != 0;
+    
+    if (!localActivity)
+        return false;
+
+    // Note: Cut short if there's network activity
+    
+    return true;
+}
+
+// How much of the frame time we're willing to spend
+static const NSTimeInterval AvailableFrame = 4.0/5.0;
+
 // Run the evaluation step for outstanding nodes
 - (void)evalStep:(id)Sender
 {
@@ -567,9 +665,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         return;
     }
 
-    [_loader quadDisplayLayerStartUpdates:self];
-
-    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
+    if (!_meteredMode)
+        [_loader quadDisplayLayerStartUpdates:self];
 
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
@@ -577,7 +674,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     {
         _quadtree->removeTile(remNodeInfo.ident);
         [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
-
+        
         didSomething = true;
     }
     
@@ -630,9 +727,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
             // If we're not in greedy mode, we're only doing this for a certain time period, then we'll hand off
             NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-            if (!greedyMode)
+            if (!greedyMode && _meteredMode)
             {
-                if (now-startTime > _maxUpdatePeriod || ![_loader isReady])
+                if (now-frameStart > AvailableFrame*frameInterval || ![_loader isReady])
                     break;
             }
         }
@@ -641,13 +738,29 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     }
 
     // Let the loader know we're done with this eval step
-    [_loader quadDisplayLayerEndUpdates:self];
+    if (_meteredMode || [self waitingForLocalLoads] || didSomething)
+    {
+        if ([_loader respondsToSelector:@selector(updateWithoutFlush)])
+            [_loader updateWithoutFlush];
+    } else
+        [_loader quadDisplayLayerEndUpdates:self];
 
-//    if (debugMode)
-//        [self dumpInfo];
+    if (_debugMode)
+        [self dumpInfo];
     
     if (didSomething)
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    else {
+        // If we're not waiting for local reloads, we may be done
+        if (!_meteredMode && ![self waitingForLocalLoads])
+            [_loader quadDisplayLayerEndUpdates:self];
+        
+        // We're done waiting for local fetches.  Let the next frame boundary catch it
+        if (waitForLocalLoads && ![self waitingForLocalLoads])
+        {
+            waitForLocalLoads = false;
+        }
+    }
 }
 
 // This is called by the loader when it finished loading a tile
@@ -695,6 +808,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         return;
     }
     
+    // We're still dealing with the last one
+    if (waitForLocalLoads)
+        return;
+    
     // Clean out anything we might be currently evaluating
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     nodesForEval.clear();
@@ -708,8 +825,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _quadtree->removeTile(remNodeInfo.ident);
         [_loader quadDisplayLayer:self unloadTile:remNodeInfo];        
     }
-    [_loader quadDisplayLayerEndUpdates:self];
-
+    waitForLocalLoads = true;
+    
     // Add everything at the minLevel back in
     for (int ix=0;ix<1<<minZoom;ix++)
         for (int iy=0;iy<1<<minZoom;iy++)
@@ -717,6 +834,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
             Quadtree::NodeInfo thisNode = _quadtree->generateNode(Quadtree::Identifier(ix,iy,minZoom));
             nodesForEval.insert(thisNode);
         }
+    
+    [_loader quadDisplayLayerStartUpdates:self];
 
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }

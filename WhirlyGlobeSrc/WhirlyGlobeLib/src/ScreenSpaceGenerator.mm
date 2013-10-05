@@ -178,7 +178,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         {
             draw = new BasicDrawable("Screen Space Generator");
             draw->setType(GL_TRIANGLES);
-            draw->setTexId(geom.texID);
+            draw->setTexId(0,geom.texID);
             drawables[geom.texID] = draw;
         } else
             draw = it->second;
@@ -225,7 +225,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         {
             Point2f coord = pts[ii];
             draw->addPoint(Point3f(coord.x()+orgX,coord.y()+orgY,0.0));
-            draw->addTexCoord(geom.texCoords[ii]);
+            draw->addTexCoord(0,geom.texCoords[ii]);
             draw->addColor(color);
             draw->addNormal(Point3f(0,0,1));
         }

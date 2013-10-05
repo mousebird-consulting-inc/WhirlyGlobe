@@ -20,6 +20,7 @@
 
 #import "MaplyQuadPagingLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
+#import "MaplyViewController_private.h"
 
 using namespace WhirlyKit;
 
@@ -111,7 +112,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 @implementation MaplyQuadPagingLayer
 {
-    WhirlyKitLayerThread * __weak layerThread;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
@@ -149,7 +149,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
 {
-    layerThread = inLayerThread;
+    super.layerThread = inLayerThread;
     scene = inScene;
     _viewC = inViewC;
     
@@ -162,7 +162,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // A tile needs to take up this much screen space
     quadLayer.minImportance = 512*512;
     
-    [layerThread addLayer:quadLayer];
+    [super.layerThread addLayer:quadLayer];
     
     return true;
 }
@@ -256,7 +256,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown
 {
-    layerThread = nil;
+    super.layerThread = nil;
     quadLayer = nil;
 }
 
@@ -401,7 +401,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self runTileUpdate];
     }
     
-    [self performSelector:@selector(loadFailNotify:) onThread:layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
+    [self performSelector:@selector(loadFailNotify:) onThread:super.layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
 }
 
 // Recursively evaluate what tiles should and shouldn't be on
@@ -502,7 +502,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     
     [self runTileUpdate];
     
-    [self performSelector:@selector(loadNotify:) onThread:layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
+    [self performSelector:@selector(loadNotify:) onThread:super.layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
 }
 
 // As long as we're not loading the tile, we can load the children

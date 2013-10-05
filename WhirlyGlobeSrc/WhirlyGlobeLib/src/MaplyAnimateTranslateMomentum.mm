@@ -115,7 +115,7 @@ using namespace WhirlyKit;
     Point3d oldLoc = mapView.loc;
     double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3d newLoc = org + dir * dist;
-    theMapView.loc = newLoc;
+    [theMapView setLoc:newLoc runUpdates:false];
 
     // We'll do a hard stop if we're not within the bounds
     // Note: We're trying this location out, then backing off if it failed.
@@ -123,20 +123,21 @@ using namespace WhirlyKit;
     {
         // How about if we leave the x alone?
         Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-        [mapView setLoc:testLoc];
+        [mapView setLoc:testLoc runUpdates:false];
         if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
         {
             // How about leaving y alone?
             testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-            [mapView setLoc:testLoc];
+            [mapView setLoc:testLoc runUpdates:false];
             if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
-                [mapView setLoc:oldLoc];
+                [mapView setLoc:oldLoc runUpdates:false];
         }
     }
     
-    
     if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
-        theMapView.loc = oldLoc;
+        [theMapView setLoc:oldLoc runUpdates:false];
+    
+    [theMapView runViewUpdates];
 }
 
 
