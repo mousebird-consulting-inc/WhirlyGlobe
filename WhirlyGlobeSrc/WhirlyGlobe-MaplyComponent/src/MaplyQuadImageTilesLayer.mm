@@ -119,6 +119,7 @@ using namespace WhirlyKit;
     _flipY = true;
     _waitLoad = false;
     _waitLoadTimeout = 4.0;
+    _maxTiles = 128;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -184,6 +185,7 @@ using namespace WhirlyKit;
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.fullLoad = _waitLoad;
     quadLayer.fullLoadTimeout = _waitLoadTimeout;
+    quadLayer.maxTiles = _maxTiles;
     
     // Look for a custom program
     if (_shaderProgramName)

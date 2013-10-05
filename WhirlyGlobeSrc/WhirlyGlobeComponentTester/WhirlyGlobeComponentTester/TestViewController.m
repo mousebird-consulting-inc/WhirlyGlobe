@@ -795,6 +795,7 @@ static const int NumMegaMarkers = 40000;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
+        layer.maxTiles = 256;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
