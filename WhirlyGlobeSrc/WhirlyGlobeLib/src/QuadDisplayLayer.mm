@@ -441,7 +441,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _mbr = [_dataStructure validExtents];
         minZoom = [_dataStructure minZoom];
         maxZoom = [_dataStructure maxZoom];
-        _maxTiles = 256;
+        _maxTiles = 128;
         _minImportance = 1.0;
         _viewUpdatePeriod = 0.1;
         _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);

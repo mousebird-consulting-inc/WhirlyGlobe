@@ -90,7 +90,7 @@ using namespace WhirlyKit;
         _includeElev = false;
         _useElevAsZ = true;
         _tileScale = WKTileScaleNone;
-        _fixedTileSize = 128;
+        _fixedTileSize = 256;
         _textureAtlasSize = 2048;
         _activeTextures = -1;
         defaultTessX = defaultTessY = 10;
