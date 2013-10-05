@@ -23,6 +23,7 @@
 #import "AFJSONRequestOperation.h"
 #import "AFKissXMLRequestOperation.h"
 #import "AnimationTest.h"
+#import "WeatherShader.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -98,11 +99,19 @@ LocationInfo locations[NumLocations] =
     MaplyComponentObject *autoLabels;
     MaplyActiveObject *animSphere;
     NSMutableDictionary *loftPolyDict;
+
+    // A source of elevation data, if we're in that mode
+    NSObject<MaplyElevationSourceDelegate> *elevSource;
     
     // The view we're using to track a selected object
     MaplyViewTracker *selectedViewTrack;
     
     NSDictionary *screenLabelDesc,*labelDesc,*vectorDesc;
+    
+    // If we're in 3D mode, how far the elevation goes
+    int zoomLimit;
+    bool requireElev;
+    bool imageWaitLoad;
 }
 
 // Change what we're showing based on the Configuration
@@ -126,6 +135,8 @@ LocationInfo locations[NumLocations] =
 
 - (void)dealloc
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
     // This should release the globe view
     if (baseViewC)
     {
@@ -145,13 +156,15 @@ LocationInfo locations[NumLocations] =
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
-    // Force the view to load so we can get the default switch values
-    [configViewC view];
+    configViewC.configOptions = ConfigOptionsAll;
 
     // Create an empty globe or map controller
+    zoomLimit = 0;
+    requireElev = false;
     switch (startupMapType)
     {
         case MaplyGlobe:
+        case MaplyGlobeWithElevation:
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
             baseViewC = globeViewC;
@@ -165,6 +178,7 @@ LocationInfo locations[NumLocations] =
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
             mapViewC.delegate = self;
             baseViewC = mapViewC;
+            configViewC.configOptions = ConfigOptionsFlat;
             break;
 //        case MaplyScrollViewMap:
 //            break;
@@ -174,9 +188,15 @@ LocationInfo locations[NumLocations] =
     [self.view addSubview:baseViewC.view];
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
+
+    // Note: Debugging
+    baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
     baseViewC.clearColor = [UIColor blackColor];
+    
+    // We'll let the toolkit create a thread per image layer.
+    baseViewC.threadPerLayer = true;
     
     // This will get us taps and such
     if (globeViewC)
@@ -189,10 +209,29 @@ LocationInfo locations[NumLocations] =
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
     }
 
-    // Test the tilt
-//    if (globeViewC)
-//        [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+    // For elevation mode, we need to do some other stuff
+    if (startupMapType == MaplyGlobeWithElevation)
+    {
+        // Tilt, so we can see it
+        if (globeViewC)
+            [globeViewC setTiltMinHeight:0.001 maxHeight:0.04 minTilt:1.21771169 maxTilt:0.0];
+        globeViewC.frameInterval = 2;  // 30fps
 
+        // An elevation source.  This one just makes up sine waves to get some data in there
+        elevSource = [[MaplyElevationDatabase alloc] initWithName:@"world_web_mercator"];
+        zoomLimit = elevSource.maxZoom;
+        requireElev = true;
+        baseViewC.elevDelegate = elevSource;
+        
+        // Don't forget to turn on the z buffer permanently
+        [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
+        
+        // Turn off most of the options for globe mode
+        configViewC.configOptions = ConfigOptionsTerrain;
+    }
+    
+    // Force the view to load so we can get the default switch values
+    [configViewC view];
     
     // Maximum number of objects for the layout engine to display
     [baseViewC setMaxLayoutObjects:1000];
@@ -247,11 +286,13 @@ LocationInfo locations[NumLocations] =
     if (layer && coordSys)
     {
         MaplyWMSTileSource *tileSource = [[MaplyWMSTileSource alloc] initWithBaseURL:baseURL capabilities:cap layer:layer style:style coordSys:coordSys minZoom:0 maxZoom:16 tileSize:256];
+        tileSource.cacheDir = thisCacheDir;
         tileSource.transparent = true;
-        MaplyQuadEarthTilesLayer *imageLayer = [[MaplyQuadEarthTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
+        MaplyQuadImageTilesLayer *imageLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:coordSys tileSource:tileSource];
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
-        imageLayer.cacheDir = thisCacheDir;
+        imageLayer.requireElev = requireElev;
+        imageLayer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:imageLayer];
         
         if (ovlName)
@@ -375,6 +416,7 @@ LocationInfo locations[NumLocations] =
         cyl.baseCenter = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         cyl.radius = 0.01;
         cyl.height = 0.06;
+        cyl.selectable = true;
         [cyls addObject:cyl];
     }
     
@@ -391,6 +433,7 @@ LocationInfo locations[NumLocations] =
         MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
         sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         sphere.radius = 0.04;
+        sphere.selectable = true;
         [spheres addObject:sphere];
     }
 
@@ -570,6 +613,9 @@ static const int NumMegaMarkers = 40000;
     [baseViewC addActiveObject:animSphere];
 }
 
+// Set this to reload the base layer ever so often.  Purely for testing
+//#define RELOADTEST 1
+
 // Set up the base layer depending on what they've picked.
 // Also tear down an old one
 - (void)setupBaseLayer:(NSDictionary *)baseSettings
@@ -613,20 +659,34 @@ static const int NumMegaMarkers = 40000;
     NSString *jsonTileSpec = nil;
     NSString *thisCacheDir = nil;
     
+#ifdef RELOADTEST
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
+#endif
+    
     if (![baseLayerName compare:kMaplyTestGeographyClass])
     {
         self.title = @"Geography Class - MBTiles Local";
         // This is the Geography Class MBTiles data set from MapBox
-        MaplyQuadEarthWithMBTiles *layer = [[MaplyQuadEarthWithMBTiles alloc] initWithMbTiles:@"geography-class"];
+        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+            tileSource.maxZoom = zoomLimit;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         baseLayer = layer;
         layer.handleEdges = true;
         layer.coverPoles = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
 
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        
+#ifdef RELOADTEST
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
+
     } else if (![baseLayerName compare:kMaplyTestBlueMarble])
     {
         self.title = @"Blue Marble Single Res";
@@ -649,11 +709,17 @@ static const int NumMegaMarkers = 40000;
         // These are the Stamen Watercolor tiles.
         // They're beautiful, but the server isn't so great.
         thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-        MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:10];
+        int maxZoom = 10;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.handleEdges = true;
-        layer.cacheDir = thisCacheDir;
+        layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
+        layer.waitLoad = imageWaitLoad;
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -666,10 +732,16 @@ static const int NumMegaMarkers = 40000;
         self.title = @"OpenStreetMap - Remote";
         // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
         thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-        MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:17];
+        int maxZoom = 18;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.drawPriority = 0;
         layer.handleEdges = true;
-        layer.cacheDir = thisCacheDir;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -721,7 +793,11 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
+        layer.requireElev = requireElev;
+        layer.maxTiles = 256;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -734,20 +810,17 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyQuadTestLayer *layer = [[MaplyQuadTestLayer alloc] initWithMaxZoom:17];
-        layer.depth = 4;
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        tileSource.pixelsPerSide = 128;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
+        layer.requireElev = requireElev;
+        layer.imageDepth = 4;
         // We'll cycle through at 1s per layer
-        layer.period = 4.0;
+        layer.animationPeriod = 4.0;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;        
-    }
-    
-    // Fill out the cache dir if there is one
-    if (thisCacheDir)
-    {
-        NSError *error = nil;
-        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
     }
     
     // If we're fetching one of the JSON tile specs, kick that off
@@ -760,12 +833,21 @@ static const int NumMegaMarkers = 40000;
                                                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
          {
              // Add a quad earth paging layer based on the tile spec we just fetched
-             MaplyQuadEarthWithRemoteTiles *layer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithTilespec:JSON];
+             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             tileSource.cacheDir = thisCacheDir;
+             if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+                 tileSource.maxZoom = zoomLimit;
+             MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
-             layer.cacheDir = thisCacheDir;
+             layer.waitLoad = imageWaitLoad;
+             layer.requireElev = requireElev;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;
+
+#ifdef RELOADTEST
+             [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
          }
                                                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
          {
@@ -792,6 +874,19 @@ static const int NumMegaMarkers = 40000;
     
 }
 
+// Reload testing
+- (void)reloadLayer:(MaplyQuadImageTilesLayer *)layer
+{
+    if (baseLayer && [baseLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
+    {
+        MaplyQuadImageTilesLayer *layer = (MaplyQuadImageTilesLayer *)baseLayer;
+        NSLog(@"Reloading layer");
+        [layer reload];
+
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+    }
+}
+
 // Run through the overlays the user wants turned on
 - (void)setupOverlays:(NSDictionary *)baseSettings
 {
@@ -812,10 +907,37 @@ static const int NumMegaMarkers = 40000;
                 [self fetchWMSLayer:@"http://raster.nationalmap.gov/ArcGIS/services/Orthoimagery/USGS_EDC_Ortho_NAIP/ImageServer/WMSServer" layer:@"0" style:nil cacheDir:thisCacheDir ovlName:layerName];
             } else if (![layerName compare:kMaplyTestOWM])
             {
-                MaplyQuadEarthWithRemoteTiles *weatherLayer = [[MaplyQuadEarthWithRemoteTiles alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+                weatherLayer.coverPoles = false;
                 layer = weatherLayer;
                 weatherLayer.handleEdges = false;
                 [baseViewC addLayer:weatherLayer];
+            } else if (![layerName compare:kMaplyTestForecastIO])
+            {
+                // Collect up the various precipitation sources
+                NSMutableArray *tileSources = [NSMutableArray array];
+                for (unsigned int ii=0;ii<5;ii++)
+                {
+                    MaplyRemoteTileSource *precipTileSource =
+                    [[MaplyRemoteTileSource alloc]
+                     initWithBaseURL:[NSString stringWithFormat:@"http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer%d/",ii] ext:@"png" minZoom:0 maxZoom:6];
+                    precipTileSource.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weather_layer%d/",cacheDir,ii];
+                    [tileSources addObject:precipTileSource];
+                }
+                MaplyMultiplexTileSource *precipTileSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
+                // Create a precipitation layer that animates
+                MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
+                precipLayer.imageDepth = [tileSources count];
+                precipLayer.animationPeriod = 6.0;
+                precipLayer.imageFormat = MaplyImageUByteRed;
+//                precipLayer.texturAtlasSize = 512;
+                precipLayer.numSimultaneousFetches = 4;
+                precipLayer.handleEdges = false;
+                precipLayer.coverPoles = false;
+                precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
+                [baseViewC addLayer:precipLayer];
+                layer = precipLayer;
             }
             
             // And keep track of it
@@ -840,8 +962,11 @@ static const int NumMegaMarkers = 40000;
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeMapContents
 {
+    imageWaitLoad = [configViewC valueForSection:kMaplyTestCategoryInternal row:kMaplyTestWaitLoad];
+    
     [self setupBaseLayer:((ConfigSection *)configViewC.values[0]).rows];
-    [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
+    if ([configViewC.values count] > 1)
+        [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
     
     if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLabel2D])
     {
@@ -1050,6 +1175,7 @@ static const int NumMegaMarkers = 40000;
     {
         popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
         popControl.delegate = self;
+        [popControl setPopoverContentSize:CGSizeMake(400.0,4.0/5.0*self.view.bounds.size.height)];
         [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
     } else {
         configViewC.navigationItem.hidesBackButton = YES;
@@ -1147,6 +1273,16 @@ static const int NumMegaMarkers = 40000;
                 }
             }
         }
+    } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
+    {
+        MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
+        loc = sphere.center;
+        msg = @"Sphere";
+    } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
+    {
+        MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
+        loc = cyl.baseCenter;
+        msg = @"Cylinder";
     } else
         // Don't know what it is
         return;

@@ -76,7 +76,7 @@ using namespace WhirlyGlobe;
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyGlobe::GlobeScene(4);
+    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordAdapter,4);
     sceneRenderer.theView = globeView;
     
     return globeScene;
@@ -142,7 +142,7 @@ using namespace WhirlyGlobe;
 /// Add a spherical earth layer with the given set of base images
 - (WGViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
 {
-    WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:layerThread scene:globeScene texGroup:name];
+    WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:baseLayerThread scene:globeScene texGroup:name];
     newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
     if (!newLayer)
         return nil;

@@ -184,7 +184,6 @@ protected:
     
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
-    pthread_mutex_t textureLock;
     typedef std::set<DynamicTexture *,IdentifiableSorter> DynamicTextureSet;
     DynamicTextureSet textures;
 };

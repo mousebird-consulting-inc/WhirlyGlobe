@@ -54,6 +54,10 @@ using namespace WhirlyKit;
 - (void)shutdown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
+    if (!scene)
+        return;
+    
     ChangeSet changes;
     
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);

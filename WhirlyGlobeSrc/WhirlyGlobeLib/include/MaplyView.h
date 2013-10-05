@@ -39,6 +39,8 @@
 
 /// Viewer location
 @property(nonatomic,readonly) WhirlyKit::Point3d &loc;
+/// Viewer rotation angle
+@property(nonatomic,readonly) double &rotAngle;
 /// Used to update position based on time (or whatever)
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
 
@@ -66,6 +68,9 @@
 /// Maximum valid height above plane
 - (double)maxHeightAboveSurface;
 
+/// Set the location, but we may or may not run updates
+- (void)setLoc:(WhirlyKit::Point3d &)loc runUpdates:(bool)runUpdates;
+
 /** Given a location on the screen and the screen size, figure out where we touched
     the plane.  Returns true if we hit and where.
     Returns false if we didn't, which can only happened if we're turned away.
@@ -79,5 +84,8 @@
 
 /// Set the location we're looking from
 - (void)setLoc:(WhirlyKit::Point3d)newLoc;
+
+/// Set the rotation angle
+- (void)setRotAngle:(double)newRotAngle;
 
 @end

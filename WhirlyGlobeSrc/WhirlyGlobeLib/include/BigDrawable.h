@@ -32,6 +32,7 @@ class BigDrawableSwap;
   */
 class BigDrawable : public Drawable
 {
+    friend class DynamicDrawableAtlas;
 public:
     /// Construct with a debugging name, a compatible drawable, and the total number of bytes
     BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes ,int singleElementSize,int numVertexBytes,int numElementBytes);
@@ -52,10 +53,12 @@ public:
     unsigned int getDrawPriority() const { return drawPriority; }
     void setDrawPriority(unsigned int newPriority) { drawPriority = newPriority; }
     
-    /// Texture to use in drawing
-    SimpleIdentity getTexId() const { return texId; }
-    void setTexId(SimpleIdentity newTexId) { texId = newTexId; }
-
+    /// Set all the texture info at once
+    void setTexInfo(const std::vector<BasicDrawable::TexInfo> &newTexInfo) { texInfo = newTexInfo; }
+    
+    /// Set the texture ID for a given entry
+    void setTexID(unsigned int which,SimpleIdentity texId);
+    
     /// Program to use for rendering
     virtual SimpleIdentity getProgram() const { return programId; }
     
@@ -128,7 +131,7 @@ public:
     
 protected:
     GLuint programId;
-    SimpleIdentity texId;
+    std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
@@ -276,14 +279,15 @@ protected:
 class BigDrawableTexChangeRequest : public ChangeRequest
 {
 public:
-    BigDrawableTexChangeRequest(SimpleIdentity drawId,SimpleIdentity newTexId) : drawId(drawId), newTexId(newTexId) { }
+    BigDrawableTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) : drawId(drawId), which(which), texId(newTexId) { }
     
     /// Run the flush.  The renderer calls this
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity drawId;
-    SimpleIdentity newTexId;
+    unsigned int which;
+    SimpleIdentity texId;
 };
 
 

@@ -89,7 +89,8 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawableInfo bigDrawInfo = *it;
-        if (bigDrawInfo.baseTexId == draw->getTexId() && bigDrawInfo.bigDraw->isCompatible(draw))
+        if (bigDrawInfo.baseTexId == draw->getTexId(0)
+            && bigDrawInfo.bigDraw->isCompatible(draw))
         {
             if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
@@ -114,9 +115,11 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
         changes.push_back(new AddDrawableReq(newBigDraw));
-        bigDrawables.insert(BigDrawableInfo(newBigDraw->getTexId(),newBigDraw));
-        if (destTexId != EmptyIdentity)
-            newBigDraw->setTexId(destTexId);
+        bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDraw));
+        if (destTexId != EmptyIdentity && newBigDraw->texInfo.size() > 0)
+        {
+            newBigDraw->texInfo[0].texId = destTexId;
+        }
         represent.bigDrawId = newBigDraw->getId();
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
@@ -193,26 +196,15 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     // Set up the requests to clear the region
     bigDraw->clearRegion(represent.vertexPos, represent.vertexSize, represent.elementChunkId);
     
-    // And if there's nothing in that drawable, get rid of it
-    if (bigDraw->empty())
-    {
-        changes.push_back(new RemDrawableReq(bigDraw->getId()));
-        bigDrawables.erase(bit);
-    }
-    
     return true;
 }
     
-void DynamicDrawableAtlas::mapDrawableTextures(const std::vector<SimpleIdentity> &srcTexIDs,const std::vector<SimpleIdentity> &destTexIds,ChangeSet &changes)
+void DynamicDrawableAtlas::getDrawableTextures(std::vector<DrawTexInfo> &remaps)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin();
          it != bigDrawables.end(); ++it)
     {
-        // Look for the base texture ID
-        SimpleIdentity baseTexId = it->baseTexId;
-        for (unsigned int ii=0;ii<srcTexIDs.size();ii++)
-            if (baseTexId == srcTexIDs[ii])
-                changes.push_back(new BigDrawableTexChangeRequest(it->bigDraw->getId(),destTexIds[ii]));
+        remaps.push_back(DrawTexInfo(it->bigDraw->getId(),it->baseTexId));
     }
 }
     
@@ -238,11 +230,22 @@ void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL 
     swapChanges.clear();
     
     // Note: We could keep a list of changed ones if these get to be more than a few
+    std::vector<BigDrawableSet::iterator> toErase;
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
         BigDrawable *bigDraw = it->bigDraw;
         bigDraw->swap(changes,swapRequest);
+        
+        if (bigDraw->empty())
+        {
+            changes.push_back(new RemDrawableReq(bigDraw->getId()));
+            toErase.push_back(it);
+        }
     }
+    
+    // Now clear out the ones that are empty
+    for (unsigned int ii=0;ii<toErase.size();ii++)
+        bigDrawables.erase(toErase[ii]);
 }
     
 bool DynamicDrawableAtlas::waitingOnSwap()

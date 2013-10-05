@@ -33,3 +33,9 @@
 -(NSData *)rawDataScaleWidth:(unsigned int)width height:(unsigned int)height border:(int)border;
 
 @end
+
+// A function we can call to force the linker to bring in categories
+#ifdef __cplusplus
+extern "C"
+#endif
+void UIImageDummyFunc();

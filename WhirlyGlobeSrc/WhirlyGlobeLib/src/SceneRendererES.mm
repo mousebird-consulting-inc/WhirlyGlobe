@@ -77,13 +77,14 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     depthFunc = -1;
 }
 
+// Note: using glActiveTexture elsewhere so we can't optimize this
 - (void)setActiveTexture:(GLenum)newActiveTexture
 {
-    if (newActiveTexture != activeTexture)
-    {
+//    if (newActiveTexture != activeTexture)
+//    {
         glActiveTexture(newActiveTexture);
         activeTexture = newActiveTexture;
-    }
+//    }
 }
 
 - (void)setDepthMask:(bool)newDepthMask

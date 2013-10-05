@@ -21,15 +21,19 @@
 #import <UIKit/UIKit.h>
 #import "WGCoordinate.h"
 
-/** The View Tracker keeps track of a UIView and a corresponding geographic
-    location.  We'll use this to place the view on the screen according to
-    the location.
- */
+/** @brief The View Tracker associates a view with a geographic location.
+    @details The Maply View Tracker will move a UIView around to keep track of a geographic location.  This is basically used for popups.  The system will move the view around at the end of the frame render.  It will hide the UIView if needed or make it reappear.  The UIView should be a child of view controller's view.
+  */
 @interface MaplyViewTracker : NSObject
 
-/// The view we want to place
+/** @brief The UIView we want moved around.
+    @details This is the UIView we'll tie to the geographic location.  If you want to center it, use offsets within the UIView.
+  */
 @property (nonatomic,strong) UIView *view;
-/// Where we want to place it
+
+/** @brief The geographic location where we want to place the UIView.
+    @details This is the location (lon/lat in radians) where we want to stick the UIView.  The location on screen will be updated as the user manipulates the map or globe.
+  */
 @property (nonatomic,assign) MaplyCoordinate loc;
 
 @end

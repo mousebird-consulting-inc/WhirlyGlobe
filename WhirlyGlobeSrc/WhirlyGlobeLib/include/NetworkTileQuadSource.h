@@ -31,6 +31,8 @@
 @property (nonatomic,assign) int numSimultaneous;
 /// Location of cache, if set
 @property (nonatomic,retain) NSString *cacheDir;
+/// If set, we call this delegate to get some elevation
+@property (nonatomic,weak) NSObject<WhirlyKitElevationHelper> *elevDelegate;
 
 @end
 

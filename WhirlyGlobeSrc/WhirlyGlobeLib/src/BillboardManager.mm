@@ -104,7 +104,7 @@ void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float hei
         drawable->setType(GL_TRIANGLES);
         drawable->setVisibleRange(billInfo.minVis,billInfo.maxVis);
         drawable->setProgram(billboardProgram);
-        drawable->setTexId(texId);
+        drawable->setTexId(0,texId);
         drawable->setDrawPriority(billInfo.drawPriority);
         //        drawable->setForceZBufferOn(true);
     }
@@ -132,7 +132,7 @@ void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float hei
     {
         drawable->addPoint(center);
         drawable->addOffset(pts[ii]);
-        drawable->addTexCoord(texCoords[ii]);
+        drawable->addTexCoord(0,texCoords[ii]);
         drawable->addNormal(axisY);
         drawable->addColor(color);
     }

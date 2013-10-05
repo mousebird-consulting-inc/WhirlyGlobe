@@ -60,6 +60,9 @@ protected:
     /// Used for debugging
     std::string name;
 };
+    
+/// For single byte pixels, what's the source, R G B or A?
+typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 
 /** Your basic Texture representation.
     This is how you get an image sent over to the
@@ -101,6 +104,8 @@ public:
     void setWrap(bool inWrapU,bool inWrapV) { wrapU = inWrapU;  wrapV = inWrapV; }
     /// Set the format (before createInGL() is called)
     void setFormat(GLenum inFormat) { format = inFormat; }
+    /// If we're converting to a single byte, set the source
+    void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
 
     /// Render side only.  Don't call this.  Create the openGL version
 	virtual bool createInGL(OpenGLMemManager *memManager);
@@ -115,6 +120,8 @@ protected:
 	bool isPVRTC;
     /// If not PVRTC, the format we'll use for the texture
     GLenum format;
+    /// If we're converting down to one byte, where do we get it?
+    WKSingleByteSource byteSource;
 	
 	unsigned int width,height;
     bool usesMipmaps;
