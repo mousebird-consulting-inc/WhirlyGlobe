@@ -59,6 +59,8 @@
 	
 	<option value="//api/name/includeElevAttrForShader">&nbsp;&nbsp;&nbsp;&nbsp;includeElevAttrForShader</option>
 	
+	<option value="//api/name/maxTiles">&nbsp;&nbsp;&nbsp;&nbsp;maxTiles</option>
+	
 	<option value="//api/name/numSimultaneousFetches">&nbsp;&nbsp;&nbsp;&nbsp;numSimultaneousFetches</option>
 	
 	<option value="//api/name/requireElev">&nbsp;&nbsp;&nbsp;&nbsp;requireElev</option>
@@ -66,6 +68,10 @@
 	<option value="//api/name/shaderProgramName">&nbsp;&nbsp;&nbsp;&nbsp;shaderProgramName</option>
 	
 	<option value="//api/name/texturAtlasSize">&nbsp;&nbsp;&nbsp;&nbsp;texturAtlasSize</option>
+	
+	<option value="//api/name/waitLoad">&nbsp;&nbsp;&nbsp;&nbsp;waitLoad</option>
+	
+	<option value="//api/name/waitLoadTimeout">&nbsp;&nbsp;&nbsp;&nbsp;waitLoadTimeout</option>
 	
 	
 	
@@ -122,6 +128,8 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/includeElevAttrForShader">includeElevAttrForShader</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/maxTiles">maxTiles</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/numSimultaneousFetches">numSimultaneousFetches</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/requireElev">requireElev</a></span></li>
@@ -129,6 +137,10 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/shaderProgramName">shaderProgramName</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/texturAtlasSize">texturAtlasSize</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/waitLoad">waitLoad</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/waitLoadTimeout">waitLoadTimeout</a></span></li>
 	
 </ul></li>
 
@@ -227,6 +239,18 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/waitLoad">&nbsp;&nbsp;waitLoad</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/waitLoadTimeout">&nbsp;&nbsp;waitLoadTimeout</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/imageDepth">&nbsp;&nbsp;imageDepth</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
@@ -258,6 +282,12 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/color">&nbsp;&nbsp;color</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/maxTiles">&nbsp;&nbsp;maxTiles</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -767,6 +797,47 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/maxTiles" title="maxTiles"></a>
+	<h3 class="subsubtitle method-title">maxTiles</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Maximum number of tiles to load in at once.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) int maxTiles</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.</p><p>Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageTilesLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/numSimultaneousFetches" title="numSimultaneousFetches"></a>
 	<h3 class="subsubtitle method-title">numSimultaneousFetches</h3>
 	
@@ -930,6 +1001,88 @@
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/waitLoad" title="waitLoad"></a>
+	<h3 class="subsubtitle method-title">waitLoad</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Have the layer wait until all local tiles are loaded before updating the renderer.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) bool waitLoad</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will have the layer sit on updates until all the local tiles are in.  You won&rsquo;t see the lower levels loading in.  See <a href="#//api/name/waitLoadTimeout">waitLoadTimeout</a>.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageTilesLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/waitLoadTimeout" title="waitLoadTimeout"></a>
+	<h3 class="subsubtitle method-title">waitLoadTimeout</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The timeout for wait loads.  We can&rsquo;t wait longer than this for local updates to come back.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic, assign) NSTimeInterval waitLoadTimeout</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If <a href="#//api/name/waitLoad">waitLoad</a> is on, this is the maximum time we&rsquo;ll wait for local tile fetches to complete.  There&rsquo;s a limit to the volume of scene changes we can let build up int he queue before we have to flush them.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageTilesLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -1053,7 +1206,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-02)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						
