@@ -41,7 +41,7 @@ namespace WhirlyKit
 class DrawListSortStruct
 {
 public:
-    DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
+    DrawListSortStruct(bool useAlpha,bool useZBuffer,WhirlyKit::RendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     ~DrawListSortStruct() { }
@@ -73,80 +73,93 @@ public:
     }
     
     bool useAlpha,useZBuffer;
-    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+    WhirlyKit::RendererFrameInfo *frameInfo;
 };
-
-}
 
 /// OpenGL ES state optimizer.  This short circuits many of the OGL state
 ///  changes that would otherwise be redundant.
-@interface WhirlyKitOpenGLStateOptimizer : NSObject
+class OpenGLStateOptimizer
+{
+public:
+    OpenGLStateOptimizer();
+    
+    /// Calls glActiveTextures
+    void setActiveTexture(GLenum activeTexture);
 
-/// Calls glActiveTextures
-- (void)setActiveTexture:(GLenum)activeTexture;
+    /// Calls glDepthMask
+    void setDepthMask(bool depthMask);
 
-/// Calls glDepthMask
-- (void)setDepthMask:(bool)depthMask;
+    /// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
+    void setEnableDepthTest(bool enable);
 
-/// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
-- (void)setEnableDepthTest:(bool)enable;
+    /// Calls glDepthFunc
+    void setDepthFunc(GLenum depthFuncVal);
 
-/// Calls glDepthFunc
-- (void)setDepthFunc:(GLenum)depthFuncVal;
+    /// Calls glUseProgram
+    void setUseProgram(GLuint progId);
 
-/// Calls glUseProgram
-- (void)setUseProgram:(GLuint)progId;
+    /// Calls glLineWidth
+    void setLineWidth(GLfloat lineWidth);
 
-/// Calls glLineWidth
-- (void)setLineWidth:(GLfloat)lineWidth;
+    /// Called by the render to clear state
+    void reset();
 
-/// Called by the render to clear state
-- (void)reset;
-
-@end
+protected:
+    int activeTexture;
+    int depthMask;
+    int depthTest;
+    int progId;
+    int depthFunc;
+    GLfloat lineWidth;
+};
 
 /** Renderer Frame Info.
- Data about the current frame, passed around by the renderer.
+    Data about the current frame, passed around by the renderer.
  */
-@interface WhirlyKitRendererFrameInfo : NSObject
+class RendererFrameInfo
+{
+public:
+    RendererFrameInfo();
+    
+    /// Renderer version (e.g. OpenGL ES 1 vs 2)
+    EAGLRenderingAPI oglVersion;
+    /// Renderer itself
+    WhirlyKitSceneRendererES * __weak sceneRenderer;
+    /// View
+    WhirlyKitView * __weak theView;
+    /// Current model matrix from the view
+    Eigen::Matrix4f modelTrans,viewTrans;
+    /// Current projection matrix
+    Eigen::Matrix4f projMat;
+    /// What's currently in the GL model matrix.
+    /// We combine view and model together
+    Eigen::Matrix4f viewAndModelMat;
+    /// The model, view, and projection matrix all rolled into one
+    Eigen::Matrix4f mvpMat;
+    /// Model, and view matrix but for normal transformation
+    Eigen::Matrix4f viewModelNormalMat;
+    /// Scene itself.  Don't mess with this
+    WhirlyKit::Scene *scene;
+    /// Expected length of the current frame
+    float frameLen;
+    /// Time at the start of frame
+    NSTimeInterval currentTime;
+    /// Vector pointing up from the globe describing where the view point is
+    Eigen::Vector3f eyeVec;
+    /// Vector out from the eye point, including tilt
+    Eigen::Vector3f fullEyeVec;
+    /// Height above surface, if that makes sense
+    float heightAboveSurface;
+    /// If using OpenGL ES 2.x, this is the shader
+    WhirlyKit::OpenGLES2Program *program;
+    /// Lights, if applicableNSArray *lights;
+    NSArray *lights;
+    /// State optimizer.  Used when setting state for drawing
+    OpenGLStateOptimizer *stateOpt;
+};
+    
+}
 
-/// Renderer version (e.g. OpenGL ES 1 vs 2)
-@property (nonatomic,assign) EAGLRenderingAPI oglVersion;
-/// Renderer itself
-@property (nonatomic,weak) WhirlyKitSceneRendererES *sceneRenderer;
-/// View
-@property (nonatomic,weak) WhirlyKitView *theView;
-/// Current model matrix from the view
-@property (nonatomic,assign) Eigen::Matrix4f modelTrans,viewTrans;
-/// Current projection matrix
-@property (nonatomic,assign) Eigen::Matrix4f &projMat;
-/// What's currently in the GL model matrix.
-/// We combine view and model together
-@property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
-/// The model, view, and projection matrix all rolled into one
-@property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
-/// Model, and view matrix but for normal transformation
-@property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
-/// Scene itself.  Don't mess with this
-@property (nonatomic,assign) WhirlyKit::Scene *scene;
-/// Expected length of the current frame
-@property (nonatomic,assign) float frameLen;
-/// Time at the start of frame
-@property (nonatomic,assign) NSTimeInterval currentTime;
-/// Vector pointing up from the globe describing where the view point is
-@property (nonatomic,assign) Eigen::Vector3f eyeVec;
-/// Vector out from the eye point, including tilt
-@property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
-/// Height above surface, if that makes sense
-@property (nonatomic,assign) float heightAboveSurface;
-/// If using OpenGL ES 2.x, this is the shader
-@property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
-/// Lights, if applicableNSArray *lights;
-@property (nonatomic,strong) NSArray *lights;
-/// State optimizer.  Used when setting state for drawing
-@property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
-
-@end
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
     (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
@@ -244,7 +257,7 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 - (void)setClearColor:(UIColor *)inClearColor;
 
 /// Used by the subclasses for culling
-- (void)findDrawables:(WhirlyKit::Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(WhirlyKit::Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Eigen::Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(WhirlyKit::Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<WhirlyKit::DrawableRef> *) toDraw considered:(int *)drawablesConsidered;
+- (void)findDrawables:(WhirlyKit::Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(WhirlyKit::Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Eigen::Vector3f)eyeVec frameInfo:(WhirlyKit::RendererFrameInfo *)frameInfo screenMbr:(WhirlyKit::Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<WhirlyKit::DrawableRef> *) toDraw considered:(int *)drawablesConsidered;
 
 /// Used by the subclasses to determine if the view changed and needs to be updated
 - (bool) viewDidChange;

@@ -42,32 +42,20 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     
     return true;
 }
-
-}
-
-@implementation WhirlyKitRendererFrameInfo
-
-@end
-
-@implementation WhirlyKitOpenGLStateOptimizer
-{
-    int activeTexture;
-    int depthMask;
-    int depthTest;
-    int progId;
-    int depthFunc;
-    GLfloat lineWidth;
-}
-
-- (id)init
-{
-    self = [super init];
-    [self reset];
     
-    return self;
+RendererFrameInfo::RendererFrameInfo()
+    : oglVersion(0), sceneRenderer(nil), theView(nil), scene(NULL), frameLen(0), currentTime(0),
+    heightAboveSurface(0), program(NULL), lights(NULL), stateOpt(NULL)
+{
+    
+}
+    
+OpenGLStateOptimizer::OpenGLStateOptimizer()
+{
+    reset();
 }
 
-- (void)reset
+void OpenGLStateOptimizer::reset()
 {
     activeTexture = -1;
     depthMask = 0;
@@ -78,7 +66,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
 
 // Note: using glActiveTexture elsewhere so we can't optimize this
-- (void)setActiveTexture:(GLenum)newActiveTexture
+void OpenGLStateOptimizer::setActiveTexture(GLenum newActiveTexture)
 {
 //    if (newActiveTexture != activeTexture)
 //    {
@@ -87,7 +75,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 //    }
 }
 
-- (void)setDepthMask:(bool)newDepthMask
+void OpenGLStateOptimizer::setDepthMask(bool newDepthMask)
 {
     if (depthMask == -1 || (bool)depthMask != newDepthMask)
     {
@@ -96,7 +84,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
-- (void)setEnableDepthTest:(bool)newEnable
+void OpenGLStateOptimizer::setEnableDepthTest(bool newEnable)
 {
     if (depthTest == -1 || (bool)depthTest != newEnable)
     {
@@ -108,7 +96,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
-- (void)setDepthFunc:(GLenum)newDepthFunc
+void OpenGLStateOptimizer::setDepthFunc(GLenum newDepthFunc)
 {
     if (depthFunc == -1 || newDepthFunc != depthFunc)
     {
@@ -117,7 +105,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
-- (void)setUseProgram:(GLuint)newProgId
+void OpenGLStateOptimizer::setUseProgram(GLuint newProgId)
 {
 //    if (progId != newProgId)
 //    {
@@ -126,7 +114,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 //    }
 }
 
-- (void)setLineWidth:(GLfloat)newLineWidth
+void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
 {
     if (lineWidth != newLineWidth || lineWidth == -1.0)
     {
@@ -138,7 +126,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
-@end
+}
 
 @implementation WhirlyKitSceneRendererES
 {
@@ -314,7 +302,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     return localScreenMbr;
 }
 
-- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKit::RendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -330,7 +318,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     }
 }
 
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKit::RendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     CoordSystemDisplayAdapter *coordAdapter = _scene->getCoordAdapter();
     

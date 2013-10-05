@@ -51,7 +51,7 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(WhirlyKit::RendererFrameInfo *)frameInfo
 {
     if (!_tileLoader)
         return;

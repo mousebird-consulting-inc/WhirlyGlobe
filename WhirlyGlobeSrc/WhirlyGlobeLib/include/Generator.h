@@ -25,12 +25,10 @@
 #import "Drawable.h" 
 #import "GlobeView.h"
 
-/// @cond
-@class WhirlyKitRendererFrameInfo;
-/// @endcond
-
 namespace WhirlyKit
 {
+
+class RendererFrameInfo;
     
 /** The Generator is a base class for objects that want to produce
     Drawables every frame.  This is for things like particle systems
@@ -46,7 +44,7 @@ public:
     /// Generate drawables in one of two lists for the renderer.
     /// World drawables are drawn in 3D, then screen drawables are drawn in 2D.
     /// The renderer deletes the drawables at the end of the frame.
-    virtual void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,
+    virtual void generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,
                                    std::vector<DrawableRef> &worldDrawables,std::vector<DrawableRef> &screenDrawables) { };
     
     /// An optional name used to identify the generator

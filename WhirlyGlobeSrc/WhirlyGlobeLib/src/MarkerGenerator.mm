@@ -25,21 +25,21 @@ namespace WhirlyKit
 {
 
 // Add this marker to the appropriate drawable
-void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
+void MarkerGenerator::Marker::addToDrawables(WhirlyKit::RendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres)
 {
     if (!enable)
         return;
-    float visVal = [frameInfo.theView heightAboveSurface];
+    float visVal = [frameInfo->theView heightAboveSurface];
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
          ((minVis <= visVal && visVal <= maxVis) ||
           (maxVis <= visVal && visVal <= minVis))))
         return;
     
     // If it's pointed away from the user, don't bother
-    if (norm.dot(frameInfo.eyeVec) < 0.0)
+    if (norm.dot(frameInfo->eyeVec) < 0.0)
         return;
     
-    float where = fmod(frameInfo.currentTime - start,period);
+    float where = fmod(frameInfo->currentTime - start,period);
     int which = where/(float)period * texIDs.size();
 
     std::vector<TexCoord> &theTexCoords = texCoords[which];
@@ -83,29 +83,29 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKitRendererFrameInfo *frameIn
         if (fadeDown < fadeUp)
         {
             // Heading to 1
-            if (frameInfo.currentTime < fadeDown)
+            if (frameInfo->currentTime < fadeDown)
                 scale = 0.0;
             else
-                if (frameInfo.currentTime > fadeUp)
+                if (frameInfo->currentTime > fadeUp)
                     scale = 1.0;
                 else
                 {
-                    scale = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
+                    scale = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
                     hasAlpha = true;
                 }
         } else
             if (fadeUp < fadeDown)
             {
                 // Heading to 0
-                if (frameInfo.currentTime < fadeUp)
+                if (frameInfo->currentTime < fadeUp)
                     scale = 1.0;
                 else
-                    if (frameInfo.currentTime > fadeDown)
+                    if (frameInfo->currentTime > fadeDown)
                         scale = 0.0;
                     else
                     {
                         hasAlpha = true;
-                        scale = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+                        scale = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
                     }
             }
         draw->addColor(RGBAColor(scale*color.r,scale*color.g,scale*color.b,scale*color.a));
@@ -186,12 +186,12 @@ MarkerGenerator::Marker *MarkerGenerator::getMarker(SimpleIdentity markerId)
     return NULL;
 }
     
-void MarkerGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
+void MarkerGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
     if (markers.empty())
         return;
 
-    float minZres = [frameInfo.theView calcZbufferRes];
+    float minZres = [frameInfo->theView calcZbufferRes];
     
     // Keep drawables sorted by destination texture ID
     DrawableMap drawables;

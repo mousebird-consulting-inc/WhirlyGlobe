@@ -145,12 +145,12 @@ void BigDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
     }
 }
 
-bool BigDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BigDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (minVis == DrawVisibleInvalid)
         return true;
     
-    float visVal = [frameInfo.theView heightAboveSurface];
+    float visVal = [frameInfo->theView heightAboveSurface];
     
     return ((minVis <= visVal && visVal <= maxVis) ||
             (minVis <= visVal && visVal <= maxVis));
@@ -159,16 +159,16 @@ bool BigDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)(base) + (off))
 
-void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
-    if (frameInfo.oglVersion < kEAGLRenderingAPIOpenGLES2)
+    if (frameInfo->oglVersion < kEAGLRenderingAPIOpenGLES2)
         return;
     
     Buffer &theBuffer = buffers[activeBuffer];
     if (theBuffer.numElement <= 0)
         return;
     
-    OpenGLES2Program *prog = frameInfo.program;
+    OpenGLES2Program *prog = frameInfo->program;
     
     // GL Texture IDs
     std::vector<GLuint> glTexIDs;
@@ -187,18 +187,18 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     float fade = 1.0;
 
     // Only range based fade on the big drawables
-    if (frameInfo.heightAboveSurface > 0.0)
+    if (frameInfo->heightAboveSurface > 0.0)
     {
         float factor = 1.0;
         if (minVisibleFadeBand != 0.0)
         {
-            float a = (frameInfo.heightAboveSurface - minVis)/minVisibleFadeBand;
+            float a = (frameInfo->heightAboveSurface - minVis)/minVisibleFadeBand;
             if (a >= 0.0 && a < 1.0)
                 factor = a;
         }
         if (maxVisibleFadeBand != 0.0)
         {
-            float b = (maxVis - frameInfo.heightAboveSurface)/maxVisibleFadeBand;
+            float b = (maxVis - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
             if (b >= 0.0 && b < 1.0)
                 factor = b;
         }
@@ -207,9 +207,9 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
 
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+    prog->setUniform("u_mvpMatrix", frameInfo->mvpMat);
+    prog->setUniform("u_mvMatrix", frameInfo->viewAndModelMat);
+    prog->setUniform("u_mvNormalMatrix", frameInfo->viewModelNormalMat);
     
     // Fade is always mixed in
     prog->setUniform("u_fade", fade);
@@ -233,7 +233,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapName, (int)ii+progTexBound);
@@ -313,7 +313,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 }

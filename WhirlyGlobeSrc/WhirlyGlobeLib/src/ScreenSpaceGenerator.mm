@@ -52,9 +52,9 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
 }
 
 // Calculate its position and add this feature to the appropriate drawable
-void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
+void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::RendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
 {
-    float visVal = [frameInfo.theView heightAboveSurface];
+    float visVal = [frameInfo->theView heightAboveSurface];
     if (!shape->enable || !(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
           ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
@@ -62,23 +62,23 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         
     // Project the world location to the screen
     CGPoint screenPt;
-    Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
+    Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
 
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-    MaplyView *mapView = (MaplyView *)frameInfo.theView;
+    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
+    MaplyView *mapView = (MaplyView *)frameInfo->theView;
     if ([globeView isKindOfClass:[WhirlyGlobeView class]])
     {
         mapView = nil;
         // Make sure this one is facing toward the viewer
-        if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
+        if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
             return;
 
         // Note: Need to move to the view frustum logic
-        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
     } else {
         globeView = nil;
         if ([mapView isKindOfClass:[MaplyView class]])
-            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
         else
             // No idea what this could be
             return;
@@ -89,7 +89,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
     
-    float resScale = frameInfo.sceneRenderer.scale;
+    float resScale = frameInfo->sceneRenderer.scale;
 
     screenPt.x += shape->offset.x()*resScale;
     screenPt.y += shape->offset.y()*resScale;
@@ -128,9 +128,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
         CGPoint outScreenPt;
         if (globeView)
-            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
         else
-            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }
@@ -141,29 +141,29 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     if (shape->fadeDown < shape->fadeUp)
     {
         // Heading to 1
-        if (frameInfo.currentTime < shape->fadeDown)
+        if (frameInfo->currentTime < shape->fadeDown)
             scale = 0.0;
         else
-            if (frameInfo.currentTime > shape->fadeUp)
+            if (frameInfo->currentTime > shape->fadeUp)
                 scale = 1.0;
             else
             {
-                scale = (frameInfo.currentTime - shape->fadeDown)/(shape->fadeUp - shape->fadeDown);
+                scale = (frameInfo->currentTime - shape->fadeDown)/(shape->fadeUp - shape->fadeDown);
                 hasAlpha = true;
             }
     } else
         if (shape->fadeUp < shape->fadeDown)
         {
             // Heading to 0
-            if (frameInfo.currentTime < shape->fadeUp)
+            if (frameInfo->currentTime < shape->fadeUp)
                 scale = 1.0;
             else
-                if (frameInfo.currentTime > shape->fadeDown)
+                if (frameInfo->currentTime > shape->fadeDown)
                     scale = 0.0;
                 else
                 {
                     hasAlpha = true;
-                    scale = 1.0-(frameInfo.currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
+                    scale = 1.0-(frameInfo->currentTime - shape->fadeUp)/(shape->fadeDown - shape->fadeUp);
                 }
         }
 
@@ -190,7 +190,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
     
         // Set up the point, including snap to make it look better
-        float resScale = frameInfo.sceneRenderer.scale;
+        float resScale = frameInfo->sceneRenderer.scale;
         std::vector<Point2f> pts;
         pts.resize(geom.coords.size());
         Point2f org(MAXFLOAT,MAXFLOAT);
@@ -300,7 +300,7 @@ void ScreenSpaceGenerator::removeConvexShapes(std::vector<SimpleIdentity> &shape
         removeConvexShape(shapeIDs[ii]);
 }
     
-void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
+void ScreenSpaceGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo, std::vector<DrawableRef> &outDrawables, std::vector<DrawableRef> &screenDrawables)
 {
     if (activeShapes.empty())
         return;
@@ -310,10 +310,10 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frameIn
     
     // Overall extents we'll look at.  Everything else is tossed.
     Mbr frameMbr;
-    float marginX = frameInfo.sceneRenderer.framebufferWidth * margin.x();
-    float marginY = frameInfo.sceneRenderer.framebufferHeight * margin.y();
+    float marginX = frameInfo->sceneRenderer.framebufferWidth * margin.x();
+    float marginY = frameInfo->sceneRenderer.framebufferHeight * margin.y();
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
+    frameMbr.ur() = Point2f(frameInfo->sceneRenderer.framebufferWidth + marginX,frameInfo->sceneRenderer.framebufferHeight + marginY);
     
     // Keep track of where the shapes wound up
     std::vector<ProjectedPoint> newProjPts;

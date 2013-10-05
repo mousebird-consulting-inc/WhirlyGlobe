@@ -41,7 +41,7 @@ public:
     virtual ~ScreenSpaceGenerator();
     
     /// Generate drawables for the current frame
-    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
+    void generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
     
@@ -97,7 +97,7 @@ public:
     } ProjectedPoint;
 
     /// Called by the marker generator build the geometry
-    void addToDrawables(ConvexShape *,WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts);
+    void addToDrawables(ConvexShape *,WhirlyKit::RendererFrameInfo *frameInfo,DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts);
     
     /// Called by the render to add shapes from a layer
     void addConvexShapes(std::vector<ConvexShape *> shape);

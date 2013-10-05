@@ -42,7 +42,7 @@
     return false;
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(WhirlyKit::RendererFrameInfo *)frameInfo
 {
     
 }

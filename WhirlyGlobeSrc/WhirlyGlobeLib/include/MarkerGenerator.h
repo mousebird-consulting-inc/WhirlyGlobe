@@ -38,7 +38,7 @@ public:
     virtual ~MarkerGenerator();
 
     /// Generate the drawables for the given frame
-    void generateDrawables(WhirlyKitRendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
+    void generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
     
     typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
@@ -50,7 +50,7 @@ public:
     {
     public:
         /// Called by the marker generator build the geometry
-        void addToDrawables(WhirlyKitRendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
+        void addToDrawables(WhirlyKit::RendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         
         bool enable;
         RGBAColor color;
