@@ -240,6 +240,15 @@ using namespace WhirlyKit;
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
+        // If we're not the main thread, let's clean up our layers before we shut down
+        if (!_mainLayerThread)
+        {
+            for (NSObject<WhirlyKitLayer> *layer in layers)
+                [layer shutdown];
+            
+            [self runAddChangeRequests];
+        }
+
         _runLoop = nil;
         // For some reason we need to do this explicitly in some cases
         while ([layers count] > 0)
