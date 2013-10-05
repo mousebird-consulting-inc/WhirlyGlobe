@@ -113,6 +113,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) UIColor *color;
 
+/** @brief Maximum number of tiles to load in at once.
+    @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that's generally good enough.  However, if your tile size is small, you may want to load in more.
+    @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.
+  */
+@property (nonatomic) int maxTiles;
+
 /** @brief Set the shader name to use for generated tiles.
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
