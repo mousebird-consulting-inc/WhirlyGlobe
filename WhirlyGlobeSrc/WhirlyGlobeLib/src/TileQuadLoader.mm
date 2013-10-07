@@ -37,7 +37,6 @@ using namespace WhirlyKit;
     int defaultTessX,defaultTessY;
 }
 
-//- (bool)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
