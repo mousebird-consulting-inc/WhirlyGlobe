@@ -50,6 +50,14 @@ using namespace WhirlyKit;
     
     coordSys = inCoordSys;
     tileSource = inTileSource;
+    _maxTiles = 256;
+    _numSimultaneousFetches = 8;
+    _flipY = true;
+    _imageDepth = 1;
+    _asyncFetching = true;
+    
+    // Check if the source can handle multiple images
+    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
     
     return self;
 }
@@ -141,6 +149,114 @@ using namespace WhirlyKit;
     
     return import;
 }
+
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+{
+    MaplyTileID tileID;
+    tileID.x = col;  tileID.y = row;  tileID.level = level;
+    
+    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    if (!_flipY)
+    {
+        int y = (1<<level)-tileID.y-1;
+        tileID.y = y;
+    }
+    
+    // This is the fetching block.  We'll invoke it a couple of different ways below.
+    void (^workBlock)() =
+    ^{
+        NSMutableArray *imageDataArr = [NSMutableArray array];
+        
+        // Fetch the images
+        if (sourceSupportsMulti)
+            imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
+        else {
+            NSData *imgData = [tileSource imageForTile:tileID];
+            if (imgData)
+                [(NSMutableArray *)imageDataArr addObject:imgData];
+        }
+        
+#ifdef TRASHTEST
+        // Mess with some of the images to test corruption
+        if (tileID.level > 1)
+        {
+            for (unsigned int ii=0;ii<_imageDepth;ii++)
+            {
+                NSObject *imgData = [imageDataArr objectAtIndex:ii];
+                // Every so often let's return garbage
+                if (imgData && (int)(drand48()*5) == 4)
+                {
+                    unsigned char *trash = (unsigned char *) malloc(2048);
+                    for (unsigned int ii=0;ii<2048;ii++)
+                        trash[ii] = drand48()*255;
+                    imgData = [[NSData alloc] initWithBytesNoCopy:trash length:2048 freeWhenDone:YES];
+                }
+                [imageDataArr replaceObjectAtIndex:ii withObject:imgData];
+            }
+        }
+#endif
+        
+        WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        if ([imageDataArr count] == _imageDepth)
+        {
+            for (unsigned int ii=0;ii<_imageDepth;ii++)
+            {
+                WhirlyKitLoadedImage *loadImage = nil;
+                NSObject *imgData = [imageDataArr objectAtIndex:ii];
+                if ([imgData isKindOfClass:[UIImage class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
+                } else if ([imgData isKindOfClass:[NSData class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                }
+                if (!loadImage)
+                    break;
+                // This pulls the pixels out of their weird little compressed formats
+                // Since we're on our own thread here (probably) this may save time
+                [loadImage convertToRawData];
+                [loadTile.images addObject:loadImage];
+            }
+        } else
+            loadTile = nil;
+        
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+        if (super.layerThread)
+        {
+            if ([NSThread currentThread] == super.layerThread)
+                [self performSelector:@selector(mergeTile:) withObject:args];
+            else
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+        }
+    };
+    
+    // For async mode, off we go
+    if (_asyncFetching)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                       workBlock);
+    } else {
+        // In sync mode, we just do the work
+        workBlock();
+    }
+}
+
+// Merge the tile result back on the layer thread
+- (void)mergeTile:(NSArray *)args
+{
+    if (!super.layerThread)
+        return;
+    
+    WhirlyKitLoadedTile *loadTile = args[0];
+    if ([loadTile isKindOfClass:[NSNull class]])
+        loadTile = nil;
+    int col = [args[1] intValue];
+    int row = [args[2] intValue];
+    int level = [args[3] intValue];
+    
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+}
+
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown
 {

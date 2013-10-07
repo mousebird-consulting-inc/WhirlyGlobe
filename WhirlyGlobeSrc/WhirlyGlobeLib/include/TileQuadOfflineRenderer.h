@@ -49,6 +49,9 @@
 /// Size (in pixels) of the output image we're building
 @property (nonatomic,assign) int sizeX,sizeY;
 
+/// Depth of the image stack per tile
+@property (nonatomic,assign) int numImages;
+
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
 
