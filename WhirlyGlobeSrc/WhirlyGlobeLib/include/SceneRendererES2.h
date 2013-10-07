@@ -24,10 +24,10 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
-/// @cond
-@class WhirlyKitSceneRendererES1;
-@class WhirlyKitSceneRendererES2;
-/// @endcond
+namespace WhirlyKit
+{
+class SceneRendererES2;
+}
 
 #define kWKFrameMessage @"WhirlyKitFrameMessage"
 
@@ -44,33 +44,60 @@
 @property (nonatomic) NSTimeInterval frameInterval;
 
 /// The message is coming from this renderer
-@property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
+@property (nonatomic) WhirlyKit::SceneRendererES2 *renderer;
 
 @end
 
+namespace WhirlyKit
+{
 /** Scene Renderer for OpenGL ES2.
      This implements the actual rendering.  In theory it's
      somewhat composable, but in reality not all that much.
      Just set this up as in the examples and let it run.
  */
-@interface WhirlyKitSceneRendererES2 : WhirlyKitSceneRendererES
+class SceneRendererES2 : SceneRendererES
+{
+public:
+    SceneRendererES2();
+    virtual ~SceneRendererES2();
+    
+    /// Add a light to the existing set
+    void addLight(WhirlyKitDirectionalLight *light);
+    
+    /// Replace all the lights at once. nil turns off lighting
+    void replaceLights(NSArray *lights);
+    
+    /// Set the default material
+    void setDefaultMaterial(WhirlyKitMaterial *mat);
+    
+    /// The next time through we'll redo the render setup.
+    /// We might need this if the view has switched away and then back.
+    void forceRenderSetup();
+    
+    void setScene(WhirlyKit::Scene *inScene);
+    
+    void setClearColor(UIColor *color);
+    
+    BOOL resizeFromLayer(CAEAGLLayer *layer);
+    
+    void render(CFTimeInterval duration);
+protected:
+    
+    void renderAsync();
+    
+    /// If set, we'll let the render run on a dispatch queue.
+    /// This lets the UI run in the main thread without interference,
+    ///  but it does mean you can't mess with the rendering context.
+    bool _dispatchRendering;
 
-/// Add a light to the existing set
-- (void)addLight:(WhirlyKitDirectionalLight *)light;
+    NSMutableArray *lights;
+    CFTimeInterval lightsLastUpdated;
+    WhirlyKitMaterial *defaultMat;
+    dispatch_queue_t contextQueue;
+    dispatch_semaphore_t frameRenderingSemaphore;
+    bool renderSetup;
+    WhirlyKit::OpenGLStateOptimizer *renderStateOptimizer;
+};
+        
+}
 
-/// Replace all the lights at once. nil turns off lighting
-- (void)replaceLights:(NSArray *)lights;
-
-/// Set the default material
-- (void)setDefaultMaterial:(WhirlyKitMaterial *)mat;
-
-/// The next time through we'll redo the render setup.
-/// We might need this if the view has switched away and then back.
-- (void)forceRenderSetup;
-
-/// If set, we'll let the render run on a dispatch queue.
-/// This lets the UI run in the main thread without interference,
-///  but it does mean you can't mess with the rendering context.
-@property (nonatomic,assign) bool dispatchRendering;
-
-@end

@@ -35,7 +35,7 @@
 {
 @public
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES2 *sceneRenderer;
+    WhirlyKit::SceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;

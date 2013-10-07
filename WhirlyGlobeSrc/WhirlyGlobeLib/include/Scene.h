@@ -40,10 +40,12 @@
 /// How the scene refers to the default line shader (and how you replace it)
 #define kSceneDefaultLineShader "Default Line Shader"
 
-/// @cond
-@class WhirlyKitSceneRendererES;
+namespace WhirlyKit
+{
+class SceneRendererES;
+}
+
 @class WhirlyKitFontTextureManager;
-/// @endcond
 
 namespace WhirlyKit
 {
@@ -241,14 +243,14 @@ public:
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
-    virtual void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
+    virtual void setRenderer(SceneRendererES *inRenderer) { renderer = inRenderer; }
 
     /// Set the scene we're part of
     virtual void setScene(Scene *inScene) { scene = inScene; }
     
 protected:
     Scene *scene;
-    WhirlyKitSceneRendererES * __weak renderer;
+    SceneRendererES *renderer;
 };
 
 /** This is the top level scene object for WhirlyKit.
@@ -320,7 +322,7 @@ public:
     ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
     
     /// Called once by the renderer so we can reset any managers that care
-    void setRenderer(WhirlyKitSceneRendererES *renderer);
+    void setRenderer(SceneRendererES *renderer);
     
     /// Return the given manager.  This is thread safe;
     SceneManager *getManager(const char *name);

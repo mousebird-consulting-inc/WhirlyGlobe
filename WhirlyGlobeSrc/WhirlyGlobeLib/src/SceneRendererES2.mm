@@ -81,18 +81,8 @@ public:
 @implementation WhirlyKitFrameMessage
 @end
 
-@implementation WhirlyKitSceneRendererES2
-{
-    NSMutableArray *lights;
-    CFTimeInterval lightsLastUpdated;
-    WhirlyKitMaterial *defaultMat;
-    dispatch_queue_t contextQueue;
-    dispatch_semaphore_t frameRenderingSemaphore;
-    bool renderSetup;
-    WhirlyKit::OpenGLStateOptimizer *renderStateOptimizer;
-}
-
-- (id) init
+SceneRendererES2::SceneRendererES2()
+: SceneRendererES(kEAGLRenderingAPIOpenGLES2), renderStateOptimizer(NULL), renderSetup(false)
 {
     // We do this to pull in the categories without the -ObjC flag.
     // It's dumb, but it works
@@ -106,7 +96,6 @@ public:
         dummyInit = true;
     }
 
-    self = [super initWithOpenGLESVersion:kEAGLRenderingAPIOpenGLES2];
     lights = [NSMutableArray array];
     
     // Add a simple default light
@@ -116,10 +105,11 @@ public:
     light.ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
     light.diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
     light.specular = Vector4f(0, 0, 0, 0);
-    [self addLight:light];
+    lightsLastUpdated = 0;
+    addLight(light);
 
     // And a basic material
-    [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
+    setDefaultMaterial([[WhirlyKitMaterial alloc] init]);
 
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
     
@@ -130,11 +120,9 @@ public:
 
     // Note: Try to turn this back on at some point
     _dispatchRendering = false;
-
-    return self;
 }
 
-- (void) dealloc
+SceneRendererES2::~SceneRendererES2()
 {
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
     dispatch_release(contextQueue);
@@ -144,67 +132,64 @@ public:
     renderStateOptimizer = nil;
 }
 
-- (void)forceRenderSetup
+void SceneRendererES2::forceRenderSetup()
 {
     renderSetup = false;
 }
 
 // When the scene is set, we'll compile our shaders
-- (void)setScene:(WhirlyKit::Scene *)inScene
+void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 {
-    [super setScene:inScene];
-    super.scene = inScene;
-
-    if (!super.scene)
-        return;
+    SceneRendererES::setScene(inScene);
+    scene = inScene;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != super.context)
-        [EAGLContext setCurrentContext:super.context];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
     
-    SetupDefaultShaders(super.scene);
+    SetupDefaultShaders(scene);
     
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 
-    if (oldContext != super.context)
+    if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
 }
 
 /// Add a light to the existing set
-- (void)addLight:(WhirlyKitDirectionalLight *)light
+void SceneRendererES2::addLight(WhirlyKitDirectionalLight *light)
 {
     if (!lights)
         lights = [NSMutableArray array];
     [lights addObject:light];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
-- (void)replaceLights:(NSArray *)inLights
+void SceneRendererES2::replaceLights(NSArray *inLights)
 {
     lights = [NSMutableArray arrayWithArray:inLights];
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    triggerDraw = true;
 }
 
-- (void)setDefaultMaterial:(WhirlyKitMaterial *)mat
+void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
 {
     defaultMat = mat;
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    triggerDraw = true;
 }
 
-- (void) setClearColor:(UIColor *)color
+void SceneRendererES2::setClearColor(UIColor *color)
 {
     _clearColor = [color asRGBAColor];
     renderSetup = false;
 }
 
-- (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
+BOOL SceneRendererES2::resizeFromLayer(CAEAGLLayer *layer)
 {
     renderSetup = false;
-    bool ret = [super resizeFromLayer:layer];
+    bool ret = SceneRendererES::resizeFromLayer(layer);
     
     return ret;
 }
@@ -212,13 +197,13 @@ public:
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
-- (void) render:(CFTimeInterval)duration
+void SceneRendererES2::render(CFTimeInterval duration)
 {
     // Let anyone who cares know the frame draw is starting
     WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
     frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
     frameMsg.frameInterval = duration;
-    frameMsg.renderer = self;
+    frameMsg.renderer = this;
     [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
 
     if (_dispatchRendering)
@@ -228,36 +213,32 @@ static const float ScreenOverlap = 0.1;
         
         dispatch_async(contextQueue,
                        ^{
-                           [self renderAsync];
+                           renderAsync();
                            dispatch_semaphore_signal(frameRenderingSemaphore);
                        });
     } else
-        [self renderAsync];
+        renderAsync();
 }
 
-- (void) renderAsync
+void SceneRendererES2::renderAsync()
 {
-    Scene *scene = super.scene;
-    
     if (!scene)
         return;
     
     frameCount++;
     
-    if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
+    if (framebufferWidth <= 0 || framebufferHeight <= 0)
         return;
 
     if (!renderStateOptimizer)
         renderStateOptimizer = new OpenGLStateOptimizer();
 
-	[super.theView animate];
+	[theView animate];
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && ![self viewDidChange])
+    if (!scene->hasChanges() && !viewDidChange())
         return;
-    
-    NSTimeInterval perfInterval = super.perfInterval;
-    
+        
     lastDraw = CFAbsoluteTimeGetCurrent();
         
     if (perfInterval > 0)
@@ -266,7 +247,6 @@ static const float ScreenOverlap = 0.1;
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
-    EAGLContext *context = super.context;
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
         [EAGLContext setCurrentContext:context];
@@ -281,11 +261,11 @@ static const float ScreenOverlap = 0.1;
 
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
-    if ([super.theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)super.theView;
+    if ([theView isKindOfClass:[WhirlyGlobeView class]])
+        globeView = (WhirlyGlobeView *)theView;
 
-    GLint framebufferWidth = super.framebufferWidth;
-    GLint framebufferHeight = super.framebufferHeight;
+    GLint framebufferWidth = framebufferWidth;
+    GLint framebufferHeight = framebufferHeight;
     if (!renderSetup)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
@@ -295,20 +275,20 @@ static const float ScreenOverlap = 0.1;
     }
 
     // Get the model and view matrices
-    Eigen::Matrix4d modelTrans4d = [super.theView calcModelMatrix];
+    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4d viewTrans4d = [super.theView calcViewMatrix];
+    Eigen::Matrix4d viewTrans4d = [theView calcViewMatrix];
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Eigen::Matrix4d projMat4d = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
-    switch (super.zBufferMode)
+    switch (zBufferMode)
     {
         case zBufferOn:
             renderStateOptimizer->setDepthMask(GL_TRUE);
@@ -356,20 +336,20 @@ static const float ScreenOverlap = 0.1;
             return;
         }
         
-        WhirlyKit::RendererFrameInfo *frameInfo = new RendererFrameInfo();
-        frameInfo->oglVersion = kEAGLRenderingAPIOpenGLES2;
-        frameInfo->sceneRenderer = self;
-        frameInfo->theView = super.theView;
-        frameInfo->modelTrans = modelTrans;
-        frameInfo->scene = scene;
-//        frameInfo->frameLen = duration;
-        frameInfo->currentTime = CFAbsoluteTimeGetCurrent();
-        frameInfo->projMat = projMat;
-        frameInfo->mvpMat = mvpMat;
-        frameInfo->viewModelNormalMat = modelAndViewNormalMat;
-        frameInfo->viewAndModelMat = modelAndViewMat;
-        frameInfo->lights = lights;
-        frameInfo->stateOpt = renderStateOptimizer;
+        WhirlyKit::RendererFrameInfo frameInfo;
+        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
+        frameInfo.sceneRenderer = this;
+        frameInfo.theView = theView;
+        frameInfo.modelTrans = modelTrans;
+        frameInfo.scene = scene;
+//        frameInfo.frameLen = duration;
+        frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
+        frameInfo.projMat = projMat;
+        frameInfo.mvpMat = mvpMat;
+        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
+        frameInfo.viewAndModelMat = modelAndViewMat;
+        frameInfo.lights = lights;
+        frameInfo.stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -397,15 +377,15 @@ static const float ScreenOverlap = 0.1;
 		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        frameInfo->eyeVec = eyeVec3;
+        frameInfo.eyeVec = eyeVec3;
         Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
         Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
         Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        frameInfo->fullEyeVec = -fullEyeVec3;
-        frameInfo->heightAboveSurface = 0.0;
+        frameInfo.fullEyeVec = -fullEyeVec3;
+        frameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            frameInfo->heightAboveSurface = globeView.heightAboveSurface;
+            frameInfo.heightAboveSurface = globeView.heightAboveSurface;
 		
         // If we're looking at a globe, run the culling
         std::set<DrawableRef> toDraw;
@@ -416,7 +396,7 @@ static const float ScreenOverlap = 0.1;
         // Stretch the screen MBR a little for safety
         screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
         screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+        findDrawables(cullTree->getTopCullable(),globeView,Point2f(framebufferWidth,framebufferHeight),&modelTrans4d,eyeVec3 ,frameInfo,screenMbr,true,&toDraw,&drawablesConsidered);
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;
@@ -444,7 +424,7 @@ static const float ScreenOverlap = 0.1;
         const GeneratorSet *generators = scene->getGenerators();
         for (GeneratorSet::iterator it = generators->begin();
              it != generators->end(); ++it)
-            (*it)->generateDrawables(frameInfo, generatedDrawables, screenDrawables);
+            (*it)->generateDrawables(&frameInfo, generatedDrawables, screenDrawables);
         
         // Add the generated drawables and sort them all together
         for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
@@ -453,7 +433,7 @@ static const float ScreenOverlap = 0.1;
             if (theDrawable)
                 drawList.push_back(theDrawable);
         }
-        bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
+        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,frameInfo));
         
         if (perfInterval > 0)
@@ -470,16 +450,16 @@ static const float ScreenOverlap = 0.1;
         
         SimpleIdentity curProgramId = EmptyIdentity;
 		
-        bool depthMaskOn = (super.zBufferMode == zBufferOn);
+        bool depthMaskOn = (zBufferMode == zBufferOn);
 		for (unsigned int ii=0;ii<drawList.size();ii++)
 		{
 			Drawable *drawable = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
-            if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
+            if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
             {
-                if (depthMaskOn && super.depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
                 {
                     depthMaskOn = false;
                     renderStateOptimizer->setEnableDepthTest(false);
@@ -487,7 +467,7 @@ static const float ScreenOverlap = 0.1;
             }
             
             // For this mode we turn the z buffer off until we get a request to turn it on
-            if (super.zBufferMode == zBufferOffDefault)
+            if (zBufferMode == zBufferOffDefault)
             {
                 if (drawable->getRequestZBuffer())
                 {
@@ -513,7 +493,7 @@ static const float ScreenOverlap = 0.1;
             {
                 Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
                 Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                frameInfo->mvpMat = newMvpMat4f;
+                frameInfo.mvpMat = newMvpMat4f;
             }
             
             // Figure out the program to use for drawing
@@ -530,11 +510,11 @@ static const float ScreenOverlap = 0.1;
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo->mvpMat);
+                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
                     // Explicitly turn the lights on
                     program->setUniform(kWKOGLNumLights, (int)[lights count]);
 
-                    frameInfo->program = program;
+                    frameInfo.program = program;
                 }
             }
             if (drawProgramId == EmptyIdentity)
@@ -545,7 +525,7 @@ static const float ScreenOverlap = 0.1;
             
             // If we had a local matrix, set the frame info back to the general one
             if (localMat)
-                frameInfo->mvpMat = mvpMat;
+                frameInfo.mvpMat = mvpMat;
             
             numDrawables++;
             if (perfInterval > 0)
@@ -597,9 +577,9 @@ static const float ScreenOverlap = 0.1;
             orthoMat(1,3) = -framebufferHeight / delta.y();
             orthoMat(2,2) = -2.0f / delta.z();
             orthoMat(2,3) = 0.0f;
-            frameInfo->mvpMat = orthoMat;
+            frameInfo.mvpMat = orthoMat;
             // Turn off lights
-            frameInfo->lights = nil;
+            frameInfo.lights = nil;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
@@ -621,7 +601,7 @@ static const float ScreenOverlap = 0.1;
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
-                            frameInfo->program = program;
+                            frameInfo.program = program;
                         }
                     }
 
