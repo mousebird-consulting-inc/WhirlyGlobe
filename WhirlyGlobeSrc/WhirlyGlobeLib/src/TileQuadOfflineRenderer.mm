@@ -96,6 +96,79 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     [self clear];
 }
 
+- (void)setPeriod:(NSTimeInterval)period
+{
+    _period = period;
+    
+    if (!_quadLayer)
+        return;
+    
+    // Note: Does this work on our thread?
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(imageRender) object:nil];
+    
+    if (_period > 0.0)
+        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
+}
+
+- (void)imageRender
+{
+    if (_outputDelegate)
+    {
+        NSMutableArray *images = [NSMutableArray array];
+        
+        // Draw each entry in the image stack individually
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        CGContextRef theContext = CGBitmapContextCreate(NULL, _sizeX, _sizeY, 8, _sizeX * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+        for (unsigned int ii=0;ii<_numImages;ii++)
+        {
+            // Work through the tiles, drawing as we go
+            for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
+            {
+                OfflineTile *tile = *it;
+                if (tile->isLoading)
+                    continue;
+                // Scale the extents to the output image
+                Mbr tileMbr = _quadLayer.quadtree->generateMbrForNode(tile->ident);
+                Mbr drawMbr;
+                if (!tileMbr.overlaps(_mbr))
+                    continue;
+                Point2f org;
+                org.x() = _sizeX * (tileMbr.ll().x() - _mbr.ll().x()) / (_mbr.ur().x()-_mbr.ll().x());
+                org.y() = _sizeY * (tileMbr.ll().y() - _mbr.ll().y()) / (_mbr.ur().y()-_mbr.ll().y());
+                Point2f span;
+                span.x() = _sizeX * (tileMbr.ur().x()-tileMbr.ll().x()) / (_mbr.ur().x()-_mbr.ll().x());
+                span.y() = _sizeY * (tileMbr.ur().y()-tileMbr.ll().y()) / (_mbr.ur().y()-_mbr.ll().y());
+                
+                // Find the right input image
+                UIImage *imageToDraw = nil;
+                if (ii < tile->images.size())
+                {
+                    imageToDraw = (UIImage *)tile->images[ii].imageData;
+                    if ([imageToDraw isKindOfClass:[NSData class]])
+                        imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
+                    if (![imageToDraw isKindOfClass:[UIImage class]])
+                        imageToDraw = nil;
+                }
+                
+                if (imageToDraw)
+                    CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+            }
+            
+            CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
+            UIImage *image = [UIImage imageWithCGImage:imageRef];
+            if (image)
+                [images addObject:image];
+        }
+        CGContextRelease(theContext);
+        CGColorSpaceRelease(colorSpace);
+        
+        [_outputDelegate loader:self image:images];
+    }
+    
+    if (_period > 0.0)
+        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
+}
+
 #pragma mark - WhirlyKitQuadLoader
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
@@ -111,6 +184,9 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
     _quadLayer = layer;
+    
+    if (_period > 0.0)
+        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
 }
 
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
@@ -191,9 +267,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         [_quadLayer loader:self tileDidNotLoad:tileIdent];
         return;
     }
+    tile->images = loadImages;
 
-    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
+//    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
     [_quadLayer loader:self tileDidLoad:tileIdent];
 }
+
 
 @end
