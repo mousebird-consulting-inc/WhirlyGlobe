@@ -248,7 +248,7 @@ Generator *Scene::getGenerator(SimpleIdentity genId)
     return retGen;
 }
     
-void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
+void Scene::setRenderer(WhirlyKit::SceneRendererES *renderer)
 {
     pthread_mutex_lock(&managerLock);
     

@@ -115,9 +115,6 @@ using namespace WhirlyKit;
 
 - (void) loadSetup_lighting
 {
-    if (![sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
-        return;
-    
     NSString *lightingType = hints[kWGRendererLightingMode];
     int lightingRegular = true;
     if ([lightingType respondsToSelector:@selector(compare:)])
@@ -162,14 +159,14 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
 
 	// Set up the OpenGL ES renderer
-    sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
-    sceneRenderer.zBufferMode = zBufferOffDefault;
+    sceneRenderer = new SceneRendererES2();
+    sceneRenderer->setZBufferMode(zBufferOffDefault);
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
-	[sceneRenderer useContext];
+    sceneRenderer->useContext();
 
     theClearColor = [UIColor blackColor];
-    [sceneRenderer setClearColor:theClearColor];
+    sceneRenderer->setClearColor(theClearColor);
 
     // Set up the GL View to display it in
 	glView = [[WhirlyKitEAGLView alloc] init];

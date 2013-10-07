@@ -126,76 +126,63 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     }
 }
 
-}
-
-@implementation WhirlyKitSceneRendererES
+SceneRendererES::SceneRendererES(EAGLRenderingAPI apiVersion)
 {
-    // View state from the last render, for comparison
-    Eigen::Matrix4d modelMat,viewMat,projMat;    
+    frameCount = 0;
+    framesPerSec = 0.0;
+    numDrawables = 0;
+    frameCountStart = nil;
+    zBufferMode = zBufferOn;
+    doCulling = true;
+    _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
+    perfInterval = -1;
+    scale = [[UIScreen mainScreen] scale];
+    
+    context = [[EAGLContext alloc] initWithAPI:apiVersion];
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+//    if (!context || ![EAGLContext setCurrentContext:context])
+//    {
+//        return nil;
+//    }
+    
+    // Create default framebuffer object.
+    glGenFramebuffers(1, &defaultFramebuffer);
+    CheckGLError("SceneRendererES: glGenFramebuffers");
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+    CheckGLError("SceneRendererES: glBindFramebuffer");
+    
+    // Create color render buffer and allocate backing store.
+    glGenRenderbuffers(1, &colorRenderbuffer);
+    CheckGLError("SceneRendererES: glGenRenderbuffers");
+    glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
+    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
+    
+    // Allocate depth buffer
+    glGenRenderbuffers(1, &depthRenderbuffer);
+    CheckGLError("SceneRendererES: glGenRenderbuffers");
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
+    
+    // All the animations should work now, except for particle systems
+    useViewChanged = true;
+
+    // No longer really ncessary
+    sortAlphaToEnd = false;
+    
+    // Off by default.  Because duh.
+    depthBufferOffForAlpha = false;
+    
+    [EAGLContext setCurrentContext:oldContext];        
 }
 
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion
-{
-	if ((self = [super init]))
-	{
-		frameCount = 0;
-		_framesPerSec = 0.0;
-        _numDrawables = 0;
-		frameCountStart = nil;
-        _zBufferMode = zBufferOn;
-        _doCulling = true;
-        _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
-        _perfInterval = -1;
-        _scale = [[UIScreen mainScreen] scale];
-		
-		_context = [[EAGLContext alloc] initWithAPI:apiVersion];
-        
-        EAGLContext *oldContext = [EAGLContext currentContext];
-        if (!_context || ![EAGLContext setCurrentContext:_context])
-		{
-            return nil;
-        }
-        
-        // Create default framebuffer object.
-        glGenFramebuffers(1, &defaultFramebuffer);
-        CheckGLError("SceneRendererES: glGenFramebuffers");
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-        CheckGLError("SceneRendererES: glBindFramebuffer");
-        
-        // Create color render buffer and allocate backing store.
-        glGenRenderbuffers(1, &colorRenderbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
-        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
-        
-		// Allocate depth buffer
-		glGenRenderbuffers(1, &depthRenderbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
-		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
-        
-        // All the animations should work now, except for particle systems
-        _useViewChanged = true;
-
-        // No longer really ncessary
-        _sortAlphaToEnd = false;
-        
-        // Off by default.  Because duh.
-        _depthBufferOffForAlpha = false;
-        
-        [EAGLContext setCurrentContext:oldContext];        
-	}
-	
-	return self;
-}
-
-- (void) dealloc
+SceneRendererES::~SceneRendererES()
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != _context)
-        [EAGLContext setCurrentContext:_context];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
     	
 	if (defaultFramebuffer)
 	{
@@ -215,54 +202,54 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
 		depthRenderbuffer = 0;
 	}
 	
-	if (oldContext != _context)
+	if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
-	_context = nil;	
+	context = nil;
 }
 
 // We'll take the maximum requested time
-- (void)setRenderUntil:(NSTimeInterval)newRenderUntil
+void SceneRendererES::setRenderUntil(NSTimeInterval newRenderUntil)
 {
     renderUntil = std::max(renderUntil,newRenderUntil);
 }
 
-- (void)setTriggerDraw
+void SceneRendererES::setTriggerDraw()
 {
-    _triggerDraw = true;
+    triggerDraw = true;
 }
 
-- (void)setScene:(WhirlyKit::Scene *)newScene
+void SceneRendererES::setScene(WhirlyKit::Scene *newScene)
 {
-    _scene = newScene;
-    if (_scene)
+    scene = newScene;
+    if (scene)
     {
-        _scene->setRenderer(self);
+        scene->setRenderer(this);
     }
 }
 
-- (void)useContext
+void SceneRendererES::useContext()
 {
-	if (_context && [EAGLContext currentContext] != _context)
-		[EAGLContext setCurrentContext:_context];
+	if (context && [EAGLContext currentContext] != context)
+		[EAGLContext setCurrentContext:context];
 }
 
-- (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
+BOOL SceneRendererES::resizeFromLayer(CAEAGLLayer *layer)
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != _context)
-        [EAGLContext setCurrentContext:_context];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
     
 	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
+	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
     
 	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
 	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _framebufferWidth, _framebufferHeight);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, framebufferWidth, framebufferHeight);
     CheckGLError("SceneRendererES: glRenderbufferStorage");
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
@@ -270,25 +257,25 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-        if (oldContext != _context)
+        if (oldContext != context)
             [EAGLContext setCurrentContext:oldContext];
 		return NO;
 	}
 		
     lastDraw = 0;
 	
-    if (oldContext != _context)
+    if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
 	return YES;
 }
 
-- (void) setClearColor:(UIColor *)color
+void SceneRendererES::setClearColor(UIColor *color)
 {
     _clearColor = [color asRGBAColor];
 }
 
 // Calculate an acceptable MBR from world coords
-- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4d *)modelTrans frameSize:(Point2f)frameSize
+Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
 {
     Mbr localScreenMbr;
     
@@ -302,7 +289,7 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     return localScreenMbr;
 }
 
-- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKit::RendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered)
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -318,9 +305,9 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     }
 }
 
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKit::RendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+void SceneRendererES::findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
 {
-    CoordSystemDisplayAdapter *coordAdapter = _scene->getCoordAdapter();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     // Check the four corners of the cullable to see if they're pointed away
     // But just for the globe case
@@ -339,15 +326,15 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
             }
         }
     }
-    if (_doCulling && !inView)
+    if (doCulling && !inView)
         return;
     
     Mbr localScreenMbr;
     if (globeView)
-        localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
+        localScreenMbr = calcCurvedMBR(&cullable->cornerPoints[0],globeView,modelTrans,frameSize);
     
     // If this doesn't overlap what we're viewing, we're done
-    if (_doCulling && !screenMbr.overlaps(localScreenMbr))
+    if (doCulling && !screenMbr.overlaps(localScreenMbr))
         return;
     
     // If the footprint of this level on the screen is larger than
@@ -357,25 +344,25 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     if (isTopLevel || (localScreenArea > screenArea/4 && cullable->hasChildren()))
     {
         // Grab the drawables at this level
-        [self mergeDrawableSet:cullable->getDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
+        mergeDrawableSet(cullable->getDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
         
         // And recurse downward for the rest
         for (unsigned int ii=0;ii<4;ii++)
         {
             Cullable *child = cullable->getChild(ii);
             if (child)
-                [self findDrawables:child view:globeView frameSize:frameSize modelTrans:modelTrans eyeVec:eyeVec frameInfo:frameInfo screenMbr:screenMbr topLevel:false toDraw:toDraw considered:drawablesConsidered];
+                findDrawables(child,globeView,frameSize,modelTrans,eyeVec,frameInfo,screenMbr,false,toDraw,drawablesConsidered);
         }
     } else {
         // If not, then just return what we found here
-        [self mergeDrawableSet:cullable->getChildDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
+        mergeDrawableSet(cullable->getChildDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
     }
 }
 
 // Check if the view changed from the last frame
-- (bool) viewDidChange
+bool SceneRendererES::viewDidChange()
 {
-    if (!_useViewChanged)
+    if (!useViewChanged)
         return true;
     
     // First time through
@@ -383,9 +370,9 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
         return true;
     
     // Something wants to be sure we draw on the next frame
-    if (_triggerDraw)
+    if (triggerDraw)
     {
-        _triggerDraw = false;
+        triggerDraw = false;
         return true;
     }
     
@@ -394,9 +381,9 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     if (lastDraw < renderUntil)
         return true;
     
-    Matrix4d newModelMat = [_theView calcModelMatrix];
-    Matrix4d newViewMat = [_theView calcViewMatrix];
-    Matrix4d newProjMat = [_theView calcProjectionMatrix:Point2f(_framebufferWidth,_framebufferHeight) margin:0.0];
+    Matrix4d newModelMat = [theView calcModelMatrix];
+    Matrix4d newViewMat = [theView calcViewMatrix];
+    Matrix4d newProjMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
     
     // Should be exactly the same
     if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat) && matrixAisSameAsB(newProjMat, projMat))
@@ -408,16 +395,16 @@ void OpenGLStateOptimizer::setLineWidth(GLfloat newLineWidth)
     return true;
 }
 
-- (void)forceDrawNextFrame
+void SceneRendererES::forceDrawNextFrame()
 {
     lastDraw = 0;
 }
 
-- (void)render:(NSTimeInterval)duration
+void SceneRendererES::render(NSTimeInterval duration)
 {
     return;
 }
 
-@end
+}
 
 
