@@ -28,7 +28,7 @@
 
 using namespace WhirlyKit;
 
-@interface MaplyQuadImageOfflineLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+@interface MaplyQuadImageOfflineLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource,WhirlyKitQuadTileOfflineDelegate>
 @end
 
 @implementation MaplyQuadImageOfflineLayer
@@ -55,11 +55,21 @@ using namespace WhirlyKit;
     _flipY = true;
     _imageDepth = 1;
     _asyncFetching = true;
+    _period = 0.0;
+    _bbox.ll = MaplyCoordinateMakeWithDegrees(-180, -90);
+    _bbox.ur = MaplyCoordinateMakeWithDegrees(+180, +90);
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
     
     return self;
+}
+
+- (void)setBbox:(MaplyBoundingBox)bbox
+{
+    _bbox = bbox;
+    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
+    tileLoader.mbr = mbr;
 }
 
 - (void)reload
@@ -92,6 +102,11 @@ using namespace WhirlyKit;
 
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileOfflineLoader alloc] initWithName:@"Offline" dataSource:self];
+    tileLoader.outputDelegate = self;
+    tileLoader.period = _period;
+    Mbr mbr = Mbr(Point2f(_bbox.ll.x,_bbox.ll.y),Point2f(_bbox.ur.x,_bbox.ur.y));
+    tileLoader.mbr = mbr;
+    tileLoader.outputDelegate = self;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;
@@ -212,9 +227,6 @@ using namespace WhirlyKit;
                 }
                 if (!loadImage)
                     break;
-                // This pulls the pixels out of their weird little compressed formats
-                // Since we're on our own thread here (probably) this may save time
-                [loadImage convertToRawData];
                 [loadTile.images addObject:loadImage];
             }
         } else
@@ -268,5 +280,16 @@ using namespace WhirlyKit;
 {
     return _numSimultaneousFetches;
 }
+
+#pragma mark - WhirlyKitQuadTileOfflineDelegate
+
+// Here's where we get the generated image back.
+// We're not on the main thread, Dorothy.
+- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images
+{
+    if (_delegate && images && [images count])
+        [_delegate offlineLayer:self images:images];
+}
+
 
 @end

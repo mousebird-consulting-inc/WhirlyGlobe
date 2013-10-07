@@ -38,6 +38,16 @@
   */
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
 
+/** @brief Convert a coordinate from geographic to the local coordinate system.
+    @details Take a geo coordinate (lon/lat in radians) and convert to the local space.
+  */
+- (MaplyCoordinate)geoToLocal:(MaplyCoordinate)coord;
+
+/** @brief Convert a coordinate from the local space to geographic.
+    @details This takes a coordinate in this coordinate system and converts it to geographic (lat/lon in radians).
+  */
+- (MaplyCoordinate)localToGeo:(MaplyCoordinate)coord;
+
 /** @brief Express the coordinate system in an SRS compatible string.
   */
 - (NSString *)getSRS;
