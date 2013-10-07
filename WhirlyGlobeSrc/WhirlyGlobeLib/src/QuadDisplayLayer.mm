@@ -436,7 +436,6 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     {
         _dataStructure = inDataStructure;
         _loader = inLoader;
-        [_loader setQuadLayer:self];
         _coordSys = [_dataStructure coordSystem];
         _mbr = [_dataStructure validExtents];
         minZoom = [_dataStructure minZoom];
@@ -483,7 +482,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 {
     _layerThread = inLayerThread;
 	_scene = inScene;
-        
+    [_loader setQuadLayer:self];
+    
     // We want view updates, but only 1s in frequency
     if (_layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:_minUpdateDist maxLagTime:10.0];

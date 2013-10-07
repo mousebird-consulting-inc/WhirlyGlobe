@@ -43,6 +43,16 @@ typedef struct
     float x,y,z;
 } MaplyCoordinate3d;
 
+/** @typedef struct MaplyBoundingBox
+    @brief Represents a bounding box in a particular coordinate system.
+    @details ll is the lower left and ur is the upper right.
+  */
+typedef struct
+{
+    MaplyCoordinate ll;
+    MaplyCoordinate ur;
+} MaplyBoundingBox;
+
 #if __cplusplus
 extern "C" {
 #endif
@@ -63,7 +73,7 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
     @return A 3D MaplyCorodinate3d in radians + other (if representing a lon/lat value).
   */
 MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
-
+    
 #if __cplusplus
 }
 #endif
