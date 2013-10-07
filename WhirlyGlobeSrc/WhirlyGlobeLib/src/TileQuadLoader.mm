@@ -469,19 +469,20 @@ using namespace WhirlyKit;
         loadElev = toLoad.elevChunk;
     }
     
+    bool loadingSuccess = true;
     if (_numImages != loadImages.size())
     {
         pthread_mutex_unlock(&tileLock);
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
         if (loadTile)
-        NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
-        return;
+            NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
+        loadingSuccess = false;
     }
     
     // Create the dynamic texture atlas before we need it
     bool createdAtlases = false;
-    if (_useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
+    if (loadingSuccess && _useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
     {
         int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
         if (loadElev)
@@ -496,8 +497,7 @@ using namespace WhirlyKit;
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    bool loadingSuccess = true;
-    if (!loadImages.empty() || loadElev)
+    if (loadingSuccess && (!loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
         if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
