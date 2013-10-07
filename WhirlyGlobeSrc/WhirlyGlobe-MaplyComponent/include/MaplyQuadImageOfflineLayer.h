@@ -30,7 +30,11 @@
 
 @property (nonatomic,assign) unsigned int imageDepth;
 
+@property (nonatomic) bool flipY;
+
 @property (nonatomic) int maxTiles;
+
+@property (nonatomic,assign) bool asyncFetching;
 
 - (void)reload;
 
