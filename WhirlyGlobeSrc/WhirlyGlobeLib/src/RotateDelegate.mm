@@ -91,6 +91,8 @@ using namespace WhirlyGlobe;
             [globeView cancelAnimation];
 
             [self startRotationMaipulation:rotate sceneRender:sceneRender glView:glView];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
 			break;
 		case UIGestureRecognizerStateChanged:
             [globeView cancelAnimation];
@@ -106,6 +108,7 @@ using namespace WhirlyGlobe;
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidEnd object:globeView];
             rotType = RotNone;
             break;
         default:

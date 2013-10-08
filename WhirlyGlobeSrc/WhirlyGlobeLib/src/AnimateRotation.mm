@@ -51,8 +51,9 @@
 	if (remain < 0)
 	{
 		[globeView setRotQuat:_endRot];
-                _startDate = 0;
-                _endDate = 0;
+        _startDate = 0;
+        _endDate = 0;
+        [globeView cancelAnimation];
 	} else {
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;

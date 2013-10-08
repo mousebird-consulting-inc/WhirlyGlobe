@@ -30,7 +30,8 @@ using namespace WhirlyGlobe;
 @end
 
 @implementation WhirlyGlobeViewController
-{    
+{
+    bool isPanning,isRotating,isZooming,isAnimating;
 }
 
 - (id) init
@@ -124,9 +125,7 @@ using namespace WhirlyGlobe;
     [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
 }
@@ -137,6 +136,29 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnGlobe:) name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOutsideGlobe:) name:WhirlyGlobeTapOutsideMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sphericalEarthLayerLoaded:) name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kPinchDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidEnd:) name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidStart:) name:kRotateDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidEnd:) name:kRotateDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
+}
+
+- (void)unregisterForEvents
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
 }
 
 /// Add a spherical earth layer with the given set of base images
@@ -447,6 +469,131 @@ using namespace WhirlyGlobe;
 {
     if (self.selection && _delegate && [_delegate respondsToSelector:@selector(globeViewControllerDidTapOutside:)])
         [_delegate globeViewControllerDidTapOutside:self];
+}
+
+- (void) handleStartMoving
+{
+    if (!isPanning && !isRotating && !isZooming && !isAnimating)
+        [_delegate globeViewControllerDidStartMoving:self];
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving
+{
+    if (isPanning || isRotating || isZooming || isAnimating)
+        return;
+    
+    MaplyCoordinate corners[4];
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point3d hit;
+        if ([globeView pointOnSphereFromScreen:screenCorners[ii] transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+        {
+            Point3d geoHit = scene->getCoordAdapter()->displayToLocal(hit);
+            corners[ii].x = geoHit.x();  corners[ii].y = geoHit.y();
+        } else {
+            corners[ii].x = MAXFLOAT;  corners[ii].y = MAXFLOAT;
+        }
+    }
+    
+    [_delegate globeViewController:self didStopMoving:corners];
+}
+
+// Called when the pan delegate starts moving
+- (void) panDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pan started");
+
+    [self handleStartMoving];
+    isPanning = true;
+}
+
+// Called when the pan delegate stops moving
+- (void) panDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pan ended");
+    
+    isPanning = false;
+    [self handleStopMoving];
+}
+
+- (void) pinchDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pinch started");
+    
+    [self handleStartMoving];
+    isZooming = true;
+}
+
+- (void) pinchDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pinch ended");
+
+    isZooming = false;
+    [self handleStopMoving];
+}
+
+- (void) rotateDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Rotate started");
+    
+    [self handleStartMoving];
+    isRotating = true;
+}
+
+- (void) rotateDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Rotate ended");
+    
+    isRotating = false;
+    [self handleStopMoving];
+}
+
+- (void) animationDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Animation started");
+
+    [self handleStartMoving];
+    isAnimating = true;
+}
+
+- (void) animationDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Animation ended");
+    
+    isAnimating = false;
+    [self handleStopMoving];
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
