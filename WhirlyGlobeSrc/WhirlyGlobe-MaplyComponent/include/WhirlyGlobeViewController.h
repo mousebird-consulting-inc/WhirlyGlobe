@@ -62,6 +62,18 @@
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer;
 
+/** @brief Called when the globe starts moving.
+    @details This is called when something (probably the user) starts moving the globe.
+  */
+- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC;
+
+/** @brief Called when the globe stops moving.
+    @details This is called when the globe stops moving.  It passes in the corners of the current viewspace.
+    @param viewC The globe view controller.
+    @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners;
+
 @end
 
 /** @brief This view controller implements a 3D interactive globe.

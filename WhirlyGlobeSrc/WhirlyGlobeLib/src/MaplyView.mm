@@ -43,10 +43,23 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setDelegate:(NSObject<MaplyAnimationDelegate> *)delegate
+{
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+    }
+    
+    _delegate = delegate;
+}
 
 - (void)cancelAnimation
 {
-    self.delegate = nil;
+    if (_delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    
+    _delegate = nil;
 }
 
 - (void)animate
