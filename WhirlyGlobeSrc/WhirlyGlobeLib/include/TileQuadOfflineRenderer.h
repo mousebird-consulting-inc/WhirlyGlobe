@@ -41,7 +41,7 @@
 @protocol WhirlyKitQuadTileOfflineDelegate <NSObject>
 
 /// Here's the generated image.  Query the loader for extents.
-- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images;
+- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images mbr:(WhirlyKit::Mbr)mbr;
 
 @end
 

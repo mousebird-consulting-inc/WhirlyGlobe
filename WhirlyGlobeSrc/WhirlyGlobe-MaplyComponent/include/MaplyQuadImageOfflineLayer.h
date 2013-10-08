@@ -27,7 +27,7 @@
 @protocol MaplyQuadImageOfflineDelegate<NSObject>
 
 /// Called to update the image when there's a new one
-- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(NSArray *)image;
+- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(NSArray *)image bbox:(MaplyBoundingBox)bbox;
 
 @end
 

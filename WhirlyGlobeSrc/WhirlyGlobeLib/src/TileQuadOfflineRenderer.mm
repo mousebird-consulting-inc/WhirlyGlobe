@@ -114,11 +114,15 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 {
     if (_outputDelegate)
     {
+        int sizeX = _sizeX;
+        int sizeY = _sizeY;
+        Mbr mbr = _mbr;
+        
         NSMutableArray *images = [NSMutableArray array];
         
         // Draw each entry in the image stack individually
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGContextRef theContext = CGBitmapContextCreate(NULL, _sizeX, _sizeY, 8, _sizeX * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+        CGContextRef theContext = CGBitmapContextCreate(NULL, sizeX, sizeY, 8, sizeX * 4, colorSpace, kCGImageAlphaPremultipliedLast);
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
             // Work through the tiles, drawing as we go
@@ -130,14 +134,14 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 // Scale the extents to the output image
                 Mbr tileMbr = _quadLayer.quadtree->generateMbrForNode(tile->ident);
                 Mbr drawMbr;
-                if (!tileMbr.overlaps(_mbr))
+                if (!tileMbr.overlaps(mbr))
                     continue;
                 Point2f org;
-                org.x() = _sizeX * (tileMbr.ll().x() - _mbr.ll().x()) / (_mbr.ur().x()-_mbr.ll().x());
-                org.y() = _sizeY * (tileMbr.ll().y() - _mbr.ll().y()) / (_mbr.ur().y()-_mbr.ll().y());
+                org.x() = sizeX * (tileMbr.ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                org.y() = sizeY * (tileMbr.ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 Point2f span;
-                span.x() = _sizeX * (tileMbr.ur().x()-tileMbr.ll().x()) / (_mbr.ur().x()-_mbr.ll().x());
-                span.y() = _sizeY * (tileMbr.ur().y()-tileMbr.ll().y()) / (_mbr.ur().y()-_mbr.ll().y());
+                span.x() = sizeX * (tileMbr.ur().x()-tileMbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                span.y() = sizeY * (tileMbr.ur().y()-tileMbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
                 
                 // Find the right input image
                 UIImage *imageToDraw = nil;
@@ -156,13 +160,14 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
             
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
             UIImage *image = [UIImage imageWithCGImage:imageRef];
+            CGImageRelease(imageRef);
             if (image)
                 [images addObject:image];
         }
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
-        [_outputDelegate loader:self image:images];
+        [_outputDelegate loader:self image:images mbr:mbr];
     }
     
     if (_period > 0.0)
