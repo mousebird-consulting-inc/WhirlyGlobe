@@ -124,11 +124,12 @@ static const float SkirtFactor = 0.95;
     drawable->setLocalMbr(_mbr);
     drawable->setDrawPriority(_drawPriority);
     drawable->setDrawOffset(_drawOffset);
-    drawable->setTexId(0,_texId);
+    drawable->setTexIDs(_texIDs);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
     drawable->setRequestZBuffer(self.readZBuffer);
     drawable->setWriteZBuffer(self.writeZBuffer);
+    drawable->setProgram(_programID);
     
     int thisSampleX = _sampleX, thisSampleY = _sampleY;
     
@@ -243,11 +244,12 @@ static const float SkirtFactor = 0.95;
         skirtDrawable->setLocalMbr(_mbr);
         skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(_drawOffset);
-        skirtDrawable->setTexId(0,_texId);
+        skirtDrawable->setTexIDs(_texIDs);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(_minVis, _maxVis);
         skirtDrawable->setRequestZBuffer(true);
         skirtDrawable->setWriteZBuffer(false);
+        skirtDrawable->setProgram(_programID);
         
         // Bottom skirt
         std::vector<Point3f> skirtLocs;
@@ -499,11 +501,13 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             } else {
                 if (newTex)
                 {
-                    chunk.texId = newTex->getId();
+                    chunk.texIDs.push_back(newTex->getId());
                     chunkRep->texIDs.insert(newTex->getId());
                     changes.push_back(new AddTextureReq(newTex));
                 }
-                texId = chunk.texId;
+                texId = EmptyIdentity;
+                if (!chunk.texIDs.empty())
+                    texId = chunk.texIDs[0];
             }
             
             // Build the main drawable and possibly skirt
@@ -528,10 +532,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 } else {
                     if (texAtlas)
                         skirtDraw->applySubTexture(0,chunkRep->subTex);
-                        else
-                            skirtDraw->setTexId(0,texId);
-                            changes.push_back(new AddDrawableReq(skirtDraw));
-                            }
+                    else
+                        skirtDraw->setTexId(0,texId);
+                        changes.push_back(new AddDrawableReq(skirtDraw));
+                }
             }
             
             chunkRep->drawIDs.insert(drawable->getId());
@@ -545,10 +549,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             } else {
                 if (texAtlas)
                     drawable->applySubTexture(0,chunkRep->subTex);
-                    else
-                        drawable->setTexId(0,texId);
-                        changes.push_back(new AddDrawableReq(drawable));
-                        }
+                else
+                    drawable->setTexId(0,texId);
+                changes.push_back(new AddDrawableReq(drawable));
+            }
             
             pthread_mutex_lock(&repLock);
             chunkReps.insert(chunkRep);
