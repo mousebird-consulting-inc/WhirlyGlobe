@@ -107,6 +107,7 @@ using namespace WhirlyKit;
     Mbr mbr = Mbr(Point2f(_bbox.ll.x,_bbox.ll.y),Point2f(_bbox.ur.x,_bbox.ur.y));
     tileLoader.mbr = mbr;
     tileLoader.outputDelegate = self;
+    tileLoader.numImages = _imageDepth;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;
