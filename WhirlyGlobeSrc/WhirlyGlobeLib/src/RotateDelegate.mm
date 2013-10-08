@@ -81,6 +81,8 @@ using namespace WhirlyGlobe;
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)
     {
+        if (rotType != RotNone)
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidEnd object:globeView];
         rotType = RotNone;
         return;
     }
