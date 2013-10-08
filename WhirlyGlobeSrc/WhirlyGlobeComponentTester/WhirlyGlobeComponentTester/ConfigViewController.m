@@ -79,33 +79,61 @@
                                     kMaplyTestQuadTestAnimate: @(NO)}
                                                  singleSelect:true]];
     
-    if (_allOptions)
+    // We won't let the user do some things in terrain mode (overlay, basically)
+    //  or 2D flatmap mode (shapes, basically)
+    switch (_configOptions)
+    {
+        case ConfigOptionsAll:
+            [newValues addObjectsFromArray:
+             @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
+                                               rows:
+                @{kMaplyTestUSGSOrtho: @(NO),
+                  kMaplyTestOWM: @(NO),
+                  kMaplyTestForecastIO: @(NO)}
+                                       singleSelect:false],
+               [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
+                                               rows:
+                @{kMaplyTestLabel2D: @(NO),
+                  kMaplyTestLabel3D: @(NO),
+                  kMaplyTestMarker2D: @(NO),
+                  kMaplyTestMarker3D: @(NO),
+                  kMaplyTestSticker: @(NO),
+                  kMaplyTestShapeCylinder: @(NO),
+                  kMaplyTestShapeSphere: @(NO),
+                  kMaplyTestShapeGreatCircle: @(NO),
+                  kMaplyTestCountry: @(NO),
+                  kMaplyTestLoftedPoly: @(NO),
+                  kMaplyTestMegaMarkers: @(NO),
+                  kMaplyTestLatLon: @(NO)}
+                                       singleSelect:false],
+               [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
+                                               rows:
+                @{kMaplyTestAnimateSphere: @(NO)}
+                                       singleSelect:false]]];
+            break;
+        case ConfigOptionsTerrain:
+            break;
+        case ConfigOptionsFlat:
         [newValues addObjectsFromArray:
          @[[ConfigSection ConfigSectionWithName:kMaplyTestCategoryOverlayLayers
-                                         rows:
-          @{kMaplyTestUSGSOrtho: @(NO),
-                                kMaplyTestOWM: @(NO),
-                         kMaplyTestForecastIO: @(NO)}
-                                 singleSelect:false],
-         [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
-                                         rows:
-          @{kMaplyTestLabel2D: @(NO),
-                            kMaplyTestLabel3D: @(NO),
-                           kMaplyTestMarker2D: @(NO),
-                           kMaplyTestMarker3D: @(NO),
-                            kMaplyTestSticker: @(NO),
-                      kMaplyTestShapeCylinder: @(NO),
-                        kMaplyTestShapeSphere: @(NO),
-                   kMaplyTestShapeGreatCircle: @(NO),
-                            kMaplyTestCountry: @(NO),
-                         kMaplyTestLoftedPoly: @(NO),
-                        kMaplyTestMegaMarkers: @(NO),
-                             kMaplyTestLatLon: @(NO)}
-                                 singleSelect:false],
-         [ConfigSection ConfigSectionWithName:kMaplyTestCategoryAnimation
-                                         rows:
-          @{kMaplyTestAnimateSphere: @(NO)}
-                                 singleSelect:false]]];
+                                           rows:
+            @{kMaplyTestUSGSOrtho: @(NO),
+              kMaplyTestOWM: @(NO),
+              kMaplyTestForecastIO: @(NO)}
+                                   singleSelect:false],
+           [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
+                                           rows:
+            @{kMaplyTestLabel2D: @(NO),
+              kMaplyTestLabel3D: @(NO),
+              kMaplyTestMarker2D: @(NO),
+              kMaplyTestMarker3D: @(NO),
+              kMaplyTestSticker: @(NO),
+              kMaplyTestCountry: @(NO),
+              kMaplyTestMegaMarkers: @(NO),
+              kMaplyTestLatLon: @(NO)}
+                                   singleSelect:false]]];
+            break;
+    }
 
     [newValues addObject:
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
