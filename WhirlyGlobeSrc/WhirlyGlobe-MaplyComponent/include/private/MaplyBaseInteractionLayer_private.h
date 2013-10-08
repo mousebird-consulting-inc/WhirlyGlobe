@@ -25,6 +25,7 @@
 #import "SelectObject_private.h"
 #import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -98,7 +99,7 @@
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
-- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
 
 // Remove the texture associated with an image  or just decrement its reference count
 - (void)removeImage:(UIImage *)image;

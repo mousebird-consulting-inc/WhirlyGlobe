@@ -121,7 +121,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
     SimpleIdentity texID = EmptyIdentity;
     
@@ -144,6 +144,43 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     {
         // Add it and download it
         Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        switch (imageFormat)
+        {
+            case MaplyImageIntRGBA:
+            case MaplyImage4Layer8Bit:
+            default:
+                tex->setFormat(GL_UNSIGNED_BYTE);
+                break;
+            case MaplyImageUShort565:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+                break;
+            case MaplyImageUShort4444:
+                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+                break;
+            case MaplyImageUShort5551:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+                break;
+            case MaplyImageUByteRed:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRed);
+                break;
+            case MaplyImageUByteGreen:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleGreen);
+                break;
+            case MaplyImageUByteBlue:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleBlue);
+                break;
+            case MaplyImageUByteAlpha:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleAlpha);
+                break;
+            case MaplyImageUByteRGB:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRGB);
+                break;
+        }
         
         ChangeSet changes;
         changes.push_back(new AddTextureReq(tex));
@@ -262,7 +299,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image mode:threadMode];
+            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
@@ -351,7 +388,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image mode:threadMode];
+            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
@@ -435,7 +472,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage mode:threadMode];
+            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -536,7 +573,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage mode:threadMode];
+            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -952,19 +989,32 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     for (MaplySticker *sticker in stickers)
     {
-        SimpleIdentity texId = EmptyIdentity;
+        std::vector<SimpleIdentity> texIDs;
         if (sticker.image) {
-            texId = [self addImage:sticker.image mode:threadMode];
+            SimpleIdentity texId = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
+            if (texId != EmptyIdentity)
+                texIDs.push_back(texId);
             compObj.images.insert(sticker.image);
+        }
+        for (UIImage *image in sticker.images)
+        {
+            if ([image isKindOfClass:[UIImage class]])
+            {
+                SimpleIdentity texId = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
+                if (texId != EmptyIdentity)
+                    texIDs.push_back(texId);
+                compObj.images.insert(image);
+            }
         }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
         GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
         chunk.mbr = geoMbr;
-        chunk.texId = texId;
+        chunk.texIDs = texIDs;
         chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
         chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
         chunk.sampleX = [inDesc[@"sampleX"] intValue];
         chunk.sampleY = [inDesc[@"sampleY"] intValue];
+        chunk.programID = [inDesc[kMaplyShader] intValue];
         NSNumber *bufRead = inDesc[kMaplyZBufferRead];
         if (bufRead)
             chunk.readZBuffer = [bufRead boolValue];
