@@ -67,6 +67,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     NSObject<WhirlyKitQuadTileImageDataSource> *_imageSource;
     OfflineTileSet tiles;
     int numFetches;
+    bool renderScheduled;
 }
 
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource
@@ -80,6 +81,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     _numImages = 1;
     _sizeX = _sizeY = 1024;
     _mbr = Mbr(GeoCoord::CoordFromDegrees(0.0,0.0),GeoCoord::CoordFromDegrees(1.0, 1.0));
+    renderScheduled = false;
     
     return self;
 }
@@ -103,11 +105,38 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     if (!_quadLayer)
         return;
     
-    // Note: Does this work on our thread?
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(imageRender) object:nil];
+    if (_period > 0.0 && !renderScheduled)
+    {
+        renderScheduled = true;
+        [self performSelector:@selector(imageRenderPeriodic) withObject:nil afterDelay:_period];
+    }
+}
+
+- (void)setMbr:(WhirlyKit::Mbr &)mbr
+{
+    if (!_quadLayer)
+        return;
     
-    if (_period > 0.0)
-        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
+    _mbr = mbr;
+    [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
+}
+
+- (void)imageRenderImmediate
+{
+    [self imageRender];
+}
+
+- (void)imageRenderPeriodic
+{
+    renderScheduled = false;
+
+    [self imageRender];
+    
+    if (_period > 0.0 && !renderScheduled)
+    {
+        renderScheduled = true;
+        [self performSelector:@selector(imageRenderPeriodic) withObject:nil afterDelay:_period];
+    }
 }
 
 - (void)imageRender
@@ -169,9 +198,6 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         
         [_outputDelegate loader:self image:images mbr:mbr];
     }
-    
-    if (_period > 0.0)
-        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
 }
 
 #pragma mark - WhirlyKitQuadLoader
@@ -190,8 +216,10 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 {
     _quadLayer = layer;
     
-    if (_period > 0.0)
-        [self performSelector:@selector(imageRender) withObject:nil afterDelay:_period];
+    if (_period > 0.0 && !renderScheduled) {
+        renderScheduled = true;
+        [self performSelector:@selector(imageRenderPeriodic) withObject:nil afterDelay:_period];
+    }
 }
 
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
