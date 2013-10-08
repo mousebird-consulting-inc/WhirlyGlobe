@@ -474,13 +474,19 @@ using namespace WhirlyGlobe;
 - (void) handleStartMoving
 {
     if (!isPanning && !isRotating && !isZooming && !isAnimating)
-        [_delegate globeViewControllerDidStartMoving:self];
+    {
+        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:)])
+            [_delegate globeViewControllerDidStartMoving:self];
+    }
 }
 
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving
 {
     if (isPanning || isRotating || isZooming || isAnimating)
+        return;
+    
+    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
         return;
     
     MaplyCoordinate corners[4];
