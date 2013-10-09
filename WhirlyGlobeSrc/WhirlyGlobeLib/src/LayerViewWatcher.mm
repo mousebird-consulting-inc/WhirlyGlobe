@@ -408,4 +408,15 @@ public:
     return true;
 }
 
+- (void)log
+{
+    NSLog(@"--- ViewState ---");
+    NSLog(@"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",_eyeVec.x(),_eyeVec.y(),_eyeVec.z(),_eyeVecModel.x(),_eyeVecModel.y(),_eyeVecModel.z());
+    NSMutableString *matStr = [NSMutableString string];
+    for (unsigned int ii=0;ii<16;ii++)
+        [matStr appendFormat:@" %f",_fullMatrix.data()[ii]];
+    NSLog(@"fullMatrix = %@",matStr);
+    NSLog(@"---     ---   ---");
+}
+
 @end

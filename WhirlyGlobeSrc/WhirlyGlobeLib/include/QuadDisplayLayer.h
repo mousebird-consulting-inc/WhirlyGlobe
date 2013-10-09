@@ -198,6 +198,10 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 @property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
 /// If set we'll try to match the frame boundaries for our update
 @property (nonatomic,assign) bool meteredMode;
+/// If set, we'll try to completely load everything (local, at least) before switching
+@property (nonatomic,assign) bool fullLoad;
+/// If fullLoad is on, we need a timeout.  Otherwise changes just pile up until we run out of memory
+@property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

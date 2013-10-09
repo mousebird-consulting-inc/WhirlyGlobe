@@ -32,6 +32,7 @@ using namespace WhirlyGlobe;
 - (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName
 {
     self = [super init];
+    super.layerThread = layerThread;
     if (self)
     {
         NSString *infoPath = [[NSBundle mainBundle] pathForResource:texGroupName ofType:@"plist"];

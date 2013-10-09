@@ -154,7 +154,7 @@ static const float AnimLen = 1.0;
                 // Note: Just doing a translation for now.  Won't take angle into account
                 Point3d oldLoc = mapView.loc;
                 Point3d newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc];
+                [mapView setLoc:newLoc runUpdates:false];
                 
                 // We'll do a hard stop if we're not within the bounds
                 // Note: We're trying this location out, then backing off if it failed.
@@ -162,16 +162,18 @@ static const float AnimLen = 1.0;
                 {
                     // How about if we leave the x alone?
                     Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-                    [mapView setLoc:testLoc];
+                    [mapView setLoc:testLoc runUpdates:false];
                     if (![self withinBounds:testLoc view:glView renderer:sceneRender])
                     {
                         // How about leaving y alone?
                         testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-                        [mapView setLoc:testLoc];
+                        [mapView setLoc:testLoc runUpdates:false];
                         if (![self withinBounds:testLoc view:glView renderer:sceneRender])
-                            [mapView setLoc:oldLoc];
+                            [mapView setLoc:oldLoc runUpdates:false];
                     }
                 }
+                
+                [mapView runViewUpdates];
             }
         }
             break;

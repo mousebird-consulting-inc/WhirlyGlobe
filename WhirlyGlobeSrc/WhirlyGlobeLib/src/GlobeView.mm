@@ -62,8 +62,6 @@ using namespace Eigen;
 
 - (void)dealloc
 {
-    if (super.coordAdapter)
-        delete super.coordAdapter;
     super.coordAdapter = nil;
 }
 
@@ -119,12 +117,44 @@ using namespace Eigen;
 
 - (void)setHeightAboveGlobe:(double)newH
 {
-    [self setHeightAboveGlobe:newH updateWatchers:true];
+    [self privateSetHeightAboveGlobe:newH updateWatchers:true];
+}
+
+- (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers
+{
+    [self privateSetHeightAboveGlobe:newH updateWatchers:updateWatchers];
+}
+
+- (void)setHeightAboveGlobeNoLimits:(double)newH updateWatchers:(bool)updateWatchers
+{
+	_heightAboveGlobe = newH;
+    
+    // If we get down below the inflection point we'll start messing
+    //  with the field of view.  Not ideal, but simple.
+    if (super.continuousZoom)
+    {
+        if (_heightAboveGlobe < heightInflection)
+        {
+            double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+        } else {
+            super.nearPlane = defaultNearPlane;
+            //            farPlane = defaultFarPlane;
+        }
+		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
+    }
+    
+    
+    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
+    
+    if (updateWatchers)
+        [self runViewUpdates];    
 }
 
 // Set the height above the globe, but constrain it
 // Also keep track of when we did it
-- (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
+- (void)privateSetHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
 {
 	double minH = [self minHeightAboveGlobe];
 	_heightAboveGlobe = std::max(newH,minH);
@@ -254,9 +284,23 @@ using namespace Eigen;
     return retPt;
 }
 
+- (void)setDelegate:(NSObject<WhirlyGlobeAnimationDelegate> *)delegate
+{
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+    }
+    
+    _delegate = delegate;
+}
+
 - (void)cancelAnimation
 {
-    self.delegate = nil;
+    if (_delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+
+    _delegate = nil;
 }
 
 // Run the rotation animation

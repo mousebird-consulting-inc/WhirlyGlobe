@@ -148,6 +148,7 @@ using namespace WhirlyKit;
             wasCached = true;
     }
 
+    NSError *error = nil;
     if (!imgData)
     {
         if (_tileURLs)
@@ -163,7 +164,6 @@ using namespace WhirlyKit;
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
-            NSError *error = nil;
             imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
             
             if (error || !imgData)
@@ -175,11 +175,22 @@ using namespace WhirlyKit;
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
-            NSError *error = nil;
             imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
             
             if (error || !imgData)
                 imgData = nil;
+        }
+    }
+    
+    if (_delegate)
+    {
+        if (imgData)
+        {
+            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                [_delegate remoteTileSource:self tileDidLoad:tileID];
+        } else {
+            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
         }
     }
     

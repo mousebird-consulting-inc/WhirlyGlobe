@@ -30,37 +30,77 @@
 /// Okay to place below a point
 #define kMaplyLayoutBelow  (1<<3)
 
-/** The Maply Screen Label is a 2D label that tracks a certain position on the globe (or map).
-    It's an overlay and will always stay the same size no matter the position.
+/** @brief The Screen Label is a 2D label that tracks a given geographic location.
+    @details This screen label will track the given geographic position.  If it's behind the globe it will disappear.  The label is rendered in a fixed size and will always appear on top of other geometry.
   */
 @interface MaplyScreenLabel : NSObject
 
-/// Put yer user data here
-@property (nonatomic,strong) NSObject *userObject;
-/// Location in geographic (lat/lon) in radians
+/** @brief Location of the screen label in geographic (lat/lon) in radians.
+    @details The screen label will track this position.  If it would be behind the globe (in globe mode), then it will disappear.
+  */
 @property (nonatomic,assign) MaplyCoordinate loc;
-/// Optional rotation
+
+/** @brief An optional rotation to apply to the screen label.
+    @details This is a rotation we'll apply after the screen position has been calculated.  You can use this to do things like track the orientation of roads.
+  */
 @property (nonatomic,assign) float rotation;
-/// Size on the screen, in points.  In general, set the height, but not the width.
+
+/** @brief The size of the label on the screen, in points.
+    @details This is the label size the user will see.  If you leave a value set to 0.0, we'll calculate it.  So the best strategy is to set the height to something (e.g. 20.0), but leave the width 0.0.  That way we'll calculate the right width for your text and base it on your height.
+  */
 @property (nonatomic,assign) CGSize size;
-/// Text to display
+
+/** @brief The actual text to display.
+    @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
+  */
 @property (nonatomic,strong) NSString *text;
-/// If set, this is the image to use for the marker
+
+/** @brief Text can be accompanied by an optional icon image.
+    @details If set, we'll put this image to the left of the text in the screen label.  The UIImage will be tracked by the view controller and reused as needed or disposed of when no longer needed.
+  */
 @property (nonatomic,strong) UIImage *iconImage;
-/// Size of the icon on screen
+
+/** @brief Icon size in points.
+    @details If there is an icon image, this is how big it is.
+  */
 @property (nonatomic,assign) CGSize iconSize;
-/// Offset the text on screen by this amount.  Defaults to zero.
+
+/** @brief An optional offset for the whole screen label.
+    @details If set, we'll move the screen label around by this amount before rendering it.  These are screen coordinates, not geographic.
+  */
 @property (nonatomic,assign) CGSize offset;
-/// If set, this color overrides the default
+
+/** @brief An option color override.
+    @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
+  */
 @property (nonatomic,strong) UIColor *color;
-/// If set, this label can be selected.  On by default.
+
+/** @brief Label selectability.  On by default
+    @details If set, this label can be selected by the user.  If not set, this screen label will never appear in selection results.
+  */
 @property (nonatomic,assign) bool selectable;
-/// For the label layout engine, this is the importance of this particular
-///  label.  It's set to MAXFLOAT by defaut, which means it always shows up.
-/// Set it to another value to actually be laid out with constraints.
+
+/** @brief The layout importance compared to other features. MAXFLOAT (always) by default.
+    @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular label.  By default that importance is infinite (MAXFLOAT) and so the label will always appearing.  Setting this value to 1.0, for example, will mean that this label competes with other screen objects for space.
+  */
 @property (nonatomic,assign) float layoutImportance;
-/// If we're using label importance, how we're allowed to place the label in the layout engine
+
+/** @brief The placement rules for the layout engine to follow.
+    @details The layout engine isn't the brightest bulb in the string and it needs placement hints.  This value tells the engine where we can move the label around.  These are bit flags, so OR them together as needed.  The default is everything.
+ 
+|Layout Flag|Meaning|
+|:----------|:------|
+|kMaplyLayoutRight|The layout engine can put this label to the right of the location point.|
+|kMaplyLayoutLeft|The layout engine can put this label to the left of the location point.|
+|kMaplyLayoutAbove|The layout engine may put this label above the location point, centered.|
+|kMaplyLayoutBelow|The layout engine may put this albel below the location point, centered.|
+ */
 @property (nonatomic,assign) int layoutPlacement;
+
+/** @brief User data object for selection
+    @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
+  */
+@property (nonatomic,strong) NSObject *userObject;
 
 @end
 

@@ -84,13 +84,12 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageTilesLayer
 {
-    MaplyBaseViewController *_viewC;
+    MaplyBaseViewController * __weak _viewC;
     WhirlyKitQuadTileLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
     NSObject<MaplyTileSource> *tileSource;
-    NSArray *tileSources;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceSupportsMulti;
@@ -117,6 +116,9 @@ using namespace WhirlyKit;
     _texturAtlasSize = 2048;
     _imageFormat = MaplyImageIntRGBA;
     _flipY = true;
+    _waitLoad = false;
+    _waitLoadTimeout = 4.0;
+    _maxTiles = 128;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -142,6 +144,7 @@ using namespace WhirlyKit;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
     tileLoader.includeElev = _includeElevAttrForShader;
+    tileLoader.useElevAsZ = (viewC.elevDelegate != nil);
     tileLoader.textureAtlasSize = _texturAtlasSize;
     switch (_imageFormat)
     {
@@ -179,6 +182,9 @@ using namespace WhirlyKit;
         tileLoader.color = [_color asRGBAColor];
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.fullLoad = _waitLoad;
+    quadLayer.fullLoadTimeout = _waitLoadTimeout;
+    quadLayer.maxTiles = _maxTiles;
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -192,17 +198,22 @@ using namespace WhirlyKit;
     //  and an active object to do the updates
     if (_imageDepth > 1)
     {
-        imageUpdater = [[ActiveImageUpdater alloc] init];
-        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-        imageUpdater.tileLoader = tileLoader;
-        imageUpdater.period = _animationPeriod;
-        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-        imageUpdater.numImages = _imageDepth;
         if (!_customShader)
             _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
-        imageUpdater.programId = _customShader;
-        tileLoader.programId = _customShader;
-        [viewC addActiveObject:imageUpdater];
+
+        if (_animationPeriod > 0.0)
+        {
+            imageUpdater = [[ActiveImageUpdater alloc] init];
+            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+            imageUpdater.tileLoader = tileLoader;
+            imageUpdater.period = _animationPeriod;
+            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+            imageUpdater.numImages = _imageDepth;
+            imageUpdater.programId = _customShader;
+            tileLoader.programId = _customShader;
+            [viewC addActiveObject:imageUpdater];
+        } else
+            [self setCurrentImage:_currentImage];
     }
     
     elevDelegate = _viewC.elevDelegate;
@@ -210,6 +221,40 @@ using namespace WhirlyKit;
     [super.layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setCurrentImage:(float)currentImage
+{
+    _currentImage = currentImage;
+    
+    if (imageUpdater)
+    {
+        [_viewC removeActiveObject:imageUpdater];
+        imageUpdater = nil;
+    }
+    
+    if (!scene)
+        return;
+
+    unsigned int image0 = floorf(_currentImage);
+    float t = _currentImage-image0;
+    unsigned int image1 = ceilf(_currentImage);
+    if (image1 == _imageDepth)
+        image1 = 0;
+    
+    // Change the images to give us start and finish
+    ChangeSet changes;
+    [tileLoader setCurrentImageStart:image0 end:image1 changes:changes];
+    if (!changes.empty())
+        scene->addChangeRequests(changes);
+    
+    // Set the interpolation in the program
+    OpenGLES2Program *prog = scene->getProgram(_customShader);
+    if (prog)
+    {
+        glUseProgram(prog->getProgram());
+        prog->setUniform("u_interp", t);
+    }
 }
 
 - (void)setHandleEdges:(bool)handleEdges
@@ -299,6 +344,8 @@ using namespace WhirlyKit;
     } else {
         import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     }
+    
+//    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }

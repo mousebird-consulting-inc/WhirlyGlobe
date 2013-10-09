@@ -56,6 +56,7 @@ using namespace Eigen;
         [mapView setLoc:_endLoc];
         _startDate = 0;
         _endDate = 0;
+        [mapView cancelAnimation];
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;
