@@ -406,7 +406,8 @@ using namespace WhirlyGlobe;
     
     middle->x = pts.back().x();
     middle->y = pts.back().y();
-    *rot = 0.0;
+    if (rot)
+        *rot = 0.0;
     
     return true;
 }
