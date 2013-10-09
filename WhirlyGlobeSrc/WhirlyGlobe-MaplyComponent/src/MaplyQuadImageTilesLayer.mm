@@ -402,6 +402,7 @@ using namespace WhirlyKit;
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
     }
+    int borderTexel = quadLoader.borderTexel;
     
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
@@ -477,7 +478,7 @@ using namespace WhirlyKit;
                     break;
                 // This pulls the pixels out of their weird little compressed formats
                 // Since we're on our own thread here (probably) this may save time
-                [loadImage convertToRawData];
+                [loadImage convertToRawData:borderTexel];
                 [loadTile.images addObject:loadImage];
             }
         } else

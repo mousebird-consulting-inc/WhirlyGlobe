@@ -145,7 +145,7 @@ using namespace WhirlyKit;
     return newTex;
 }
 
-- (bool)convertToRawData
+- (bool)convertToRawData:(int)borderTexel
 {
     switch (_type)
     {
@@ -153,7 +153,7 @@ using namespace WhirlyKit;
         {
             int destWidth = _width;
             int destHeight = _height;
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:0];
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
             if (rawData)
             {
                 _imageData = rawData;
@@ -277,10 +277,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         
         for (unsigned int ii=0;ii<numImages;ii++)
             texAtlases.push_back(new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat));
-        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
-        
-        // We want some room around these
-        borderTexel = 1;
+        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);        
     }
 }
     
