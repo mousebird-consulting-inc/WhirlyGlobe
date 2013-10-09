@@ -20,9 +20,12 @@
 
 #import <Foundation/Foundation.h>
 
+/** The NSData zlib category adds compress and uncompress methods to
+    NSData.
+  */
 @interface NSData(zlib)
 
-/// Return a compressed version of the given data
+/// Return a compressed version of the data.
 - (NSData *) compressData;
 
 /// Return an uncompressed verison of the given data

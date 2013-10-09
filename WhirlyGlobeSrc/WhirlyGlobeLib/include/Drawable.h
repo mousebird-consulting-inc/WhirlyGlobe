@@ -390,6 +390,9 @@ public:
 
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
 	void setTexId(unsigned int which,SimpleIdentity inId);
+    
+    /// Set all the textures at once
+    void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
 
     /// Return the default color
     RGBAColor getColor() const;

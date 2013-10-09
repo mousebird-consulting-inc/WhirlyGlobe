@@ -63,6 +63,7 @@ using namespace WhirlyKit;
         [flatView setWindowSize:destWindowSize contentOffset:destContentOffset];
         startDate = 0;
         endDate = 0;
+        [mapView cancelAnimation];
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;

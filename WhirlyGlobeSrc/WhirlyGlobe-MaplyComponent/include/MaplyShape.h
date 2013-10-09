@@ -21,107 +21,155 @@
 #import <UIKit/UIKit.h>
 #import "WGCoordinate.h"
 
-/** This will display a circle at the given location
-    with the given radius.
- */
-@interface MaplyShapeCircle : NSObject
+/** @brief Maply Shape is the base class for the actual shape objects.
+    @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
+  */
+@interface MaplyShape : NSObject
 
-/// Center of the circle in local coordinates
-@property (nonatomic,assign) MaplyCoordinate center;
-/// Radius of the circle in display units.
-/// For WhirlyGlobe, remember that the radius of the sphere is 1.0.
-@property (nonatomic,assign) float radius;
-/// Height above the globe.  This is in units of radius = 1.0
-@property (nonatomic,assign) float height;
-/// Optional color
+/** @brief The color of the shape.
+    @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
+ */
 @property (nonatomic,strong) UIColor *color;
+
+/** @brief User data for object.
+ @details User data can be set by the caller and is ignored by the toolkit.  This is useful for including custom data for selection.
+ */
+@property (nonatomic,strong) NSObject *userObject;
+
+@end
+
+/** @brief Shows a circle at the given location on the globe or map.
+    @details This object represents a circle at the given geographic location.  It needs a radius (in display coordinates) and can optionally have a height above the globe or map.
+ */
+@interface MaplyShapeCircle : MaplyShape
+
+/** @brief Center of the circle in local coordinates.
+    @details This is the center of the circle in geographic.
+  */
+@property (nonatomic,assign) MaplyCoordinate center;
+
+/** @brief Radius of the circle in display units.
+    @details This is the radius of the circle, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+  */
+@property (nonatomic,assign) float radius;
+
+/** @brief Offset height above the globe in display units.
+    @details This is the height above the globe for the center of the circle.  It's also in display units, like the radius.
+  */
+@property (nonatomic,assign) float height;
 
 @end
 
 typedef MaplyShapeCircle WGShapeCircle;
 
-/** This will display a sphere at the given location
-    with the given radius.
+/** @brief Display a sphere at the given location with the given radius.
+    @details This object represents a sphere at the
   */
-@interface MaplyShapeSphere : NSObject
+@interface MaplyShapeSphere : MaplyShape
 
-/// Put yer user data here
-@property (nonatomic,strong) NSObject *userObject;
-/// Center of the sphere in local coordinates
+/** @brief Center of the sphere in local coordinates.
+    @details The x and y coordinates correspond to longitude and latitude and are in geographic (radians).  The Z value is in display coordinates.  For that globe that's based on a radius of 1.0.  Scale accordingly.
+ */
 @property (nonatomic,assign) MaplyCoordinate center;
-/// Radius in display units (1.0 is the size of the earth)
+
+/** @brief Radius of the sphere in display units.
+    @details This is the radius of the sphere, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+ */
 @property (nonatomic,assign) float radius;
-/// Offset from the globe (in display units)
+
+/** @brief Offset height above the globe in display units.
+    @details This is the height above the globe for the center of the sphere.  It's also in display units, like the radius.
+ */
 @property (nonatomic,assign) float height;
-/// Optional color
-@property (nonatomic,strong) UIColor *color;
-/// If set, this cylinder can be selected.  On by default.
+
+/** @brief If set, the sphere is selectable
+    @details The sphere is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+  */
 @property (nonatomic,assign) bool selectable;
 
 @end
 
 typedef MaplyShapeSphere WGShapeSphere;
 
-/** This will display a cylinder with its base at the
-    given loation with the given radius and height.
- */
-@interface MaplyShapeCylinder : NSObject
+/** @brief Represent a cyclinder on the globe or map.
+    @details This object represents a cylinder with it's base tied to the surface of the globe or map and it's top pointed outward (on the globe anyway).  The base can be offset and the overall radius and height are adjustable.
+  */
+@interface MaplyShapeCylinder : MaplyShape
 
-/// Put yer user data here
-@property (nonatomic,strong) NSObject *userObject;
-/// Center of the base in local coordinates
+/** @brief Center of the cylinder's base in geographic.
+    @details The x and y coordinates correspond to longitude and latitude and are in geographic (radians).
+ */
 @property (nonatomic,assign) MaplyCoordinate baseCenter;
-/// An optional height offset for the base (e.g. cylinder starts at this height)
+
+/** @brief Base height above the globe in display units.
+    @details This is an optional base offset from the globe or map.  The cylinder will be offset by this amount.  It's also in display units, like the radius.
+ */
 @property (nonatomic,assign) float baseHeight;
-/// Radius in display units (1.0 is the size of the earth)
+
+/** @brief Radius of the cylinder in display units.
+    @details This is the radius of the cylinder, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+ */
 @property (nonatomic,assign) float radius;
-/// Height in display units
+
+/** @brief Height of the cylinder in display units.
+    @details This is the height of the cylinder.  The top of the cylinder will be at baseHeight+height.  It's also in display units, like the radius.
+ */
 @property (nonatomic,assign) float height;
-/// Optional color
-@property (nonatomic,strong) UIColor *color;
-/// If set, this cylinder can be selected.  On by default.
+
+/** @brief If set, the cylinder is selectable
+    @details The cylinder is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+ */
 @property (nonatomic,assign) bool selectable;
 
 @end
 
 typedef MaplyShapeCylinder WGShapeCylinder;
 
-/** A great circle with start and end points
-    and a height we'll reach above the globe in the middle.
+/** @brief Represent an great circle or great circle with height.
+    @details Great circles are the shortest distance between two points on a globe.  We extend that a bit here, by adding height.  The result is a curved object that can either sit on top of the globe or rise above it.  In either case it begins and ends at the specified points on the globe.
  */
-@interface MaplyShapeGreatCircle : NSObject
+@interface MaplyShapeGreatCircle : MaplyShape
 
-/// Put yer user data here
-@property (nonatomic,strong) NSObject *userObject;
-/// Start and end points in geographic
-@property (nonatomic,assign) MaplyCoordinate startPt,endPt;
-/// Height is related to radius == 1.0 for the earth
+/// @brief Starting point in geographic coordinates.
+@property (nonatomic,assign) MaplyCoordinate startPt;
+
+/// @brief End point in geographic coordinates
+@property (nonatomic,assign) MaplyCoordinate endPt;
+
+/** @brief Height of the great circle shape right in its middle.
+    @details This is the height of the great circle right in the middle.  It will built toward that height and then go back down as it reaches the endPt.  The height is in display units.  For the globe that's based on a radius of 1.0.
+ */
 @property (nonatomic,assign) float height;
-/// Line width is in pixels
-@property (nonatomic,assign) float lineWidth;
-/// Optional color
-@property (nonatomic,strong) UIColor *color;
 
-/// Return the angle between the two points in radians
+/** @brief Line width for the great circle geometry.
+    @details The great circle is implemented as a set of lines. This is the width, in pixels, of those lines.
+  */
+@property (nonatomic,assign) float lineWidth;
+
+/** @brief Angle between start and end points in radians
+  */
 - (float)calcAngleBetween;
 
 @end
 
-/** A linear feature that's offset from the globe.
-    The feature can be arbitrarily large.  The first two
-    values of each coordinate are lon/lat and the third
-    is a Z offset in display units.
+/** @brief A linear feature offset from the globe.
+    @details The main difference between this object and a regular MaplyVectorObject is that you specify coordiantes in 3D.  You can use this to create linear features that are offset from the globe.
   */
-@interface MaplyShapeLinear : NSObject
-/// Line width in pixels
-@property (nonatomic,assign) float lineWidth;
-/// Optional color
-@property (nonatomic,strong) UIColor *color;
+@interface MaplyShapeLinear : MaplyShape
 
-/// Initialize with the coordinate data (will be copied in)
+/** @brief Line width in pixels
+    @details The linear is implemented as a set of line segments in OpenGL ES.  This is their line width in pixels.
+  */
+@property (nonatomic,assign) float lineWidth;
+
+/** @brief Initialize with coordinates and coordinate array size
+    @details This initializer will make a copy of the coordinates and use them to draw the lines.  The x and y values are in geographic.  The z values are offsets from the globe (or map) and are in display units.  For the globe display units are based on a radius of 1.0.
+  */
 - (id)initWithCoords:(MaplyCoordinate3d *)coords numCoords:(int)numCoords;
 
-/// Return the coordinates
+/** @brief Return the coordinates for this linear feature.
+    @return Returns the number of coordinates and a pointer to the coordinate array.
+  */
 - (int)getCoords:(MaplyCoordinate3d **)retCoords;
 
 @end

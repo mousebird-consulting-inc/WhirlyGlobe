@@ -128,6 +128,21 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setAmbient:(Eigen::Vector4f)ambient
+{
+    _ambient = ambient;
+}
+
+- (void)setDiffuse:(Eigen::Vector4f)diffuse
+{
+    _diffuse = diffuse;
+}
+
+- (void)setSpecular:(Eigen::Vector4f)specular
+{
+    _specular = specular;
+}
+
 - (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program
 {
     return program->setUniform("material.ambient", _ambient) &&

@@ -24,6 +24,11 @@
 namespace WhirlyGlobe
 {
 
+// Sent out when the rotation delegate takes control
+#define kRotateDelegateDidStart @"WKRotateDelegateStarted"
+// Sent out when the rotation delegate finished (but hands off to momentum)
+#define kRotateDelegateDidEnd @"WKRotateDelegateEnded"
+
 /// The state of our rotation
 ///  which is not currently in use.
 typedef enum {RotNone,RotFree} RotationType;

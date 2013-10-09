@@ -38,10 +38,14 @@
 /// Bounding box for the chunk to display
 @property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
 /// Texture we'll wrap over the top
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> texIDs;
+/// Format we'll store the textures in
+@property (nonatomic) WhirlyKitTileImageType imageFormat;
 /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
 /// The implication here is that we're going to stick these in an atlas.
-@property (nonatomic,strong) WhirlyKitLoadedImage *loadImage;
+@property (nonatomic) WhirlyKitLoadedImage *loadImage;
+/// If set, the shader problem we'll use to draw this
+@property (nonatomic) WhirlyKit::SimpleIdentity programID;
 /// Z offset for the generated geometry
 @property (nonatomic,assign) float drawOffset;
 /// Sorting priority for the generated geometry

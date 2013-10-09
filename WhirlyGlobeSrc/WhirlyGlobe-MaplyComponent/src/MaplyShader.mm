@@ -29,6 +29,7 @@ using namespace WhirlyKit;
 @implementation MaplyShader
 {
     WhirlyKit::Scene *scene;
+    WhirlyKitSceneRendererES * __weak renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -94,6 +95,7 @@ using namespace WhirlyKit;
     }
     
     scene = baseViewC->scene;
+    renderer = baseViewC->sceneRenderer;
     
     if (baseViewC->scene)
         baseViewC->scene->addProgram(_program);
@@ -109,8 +111,12 @@ using namespace WhirlyKit;
         return;
     }
     
-    if (!scene)
+    if (!scene || !renderer)
         return;
+
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
     
     Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
     SimpleIdentity auxTexId = auxTex->getId();
@@ -124,6 +130,107 @@ using namespace WhirlyKit;
     }
     
     texIDs.insert(auxTexId);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+}
+
+- (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    bool ret = _program->setUniform(name, val);
+
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformIntNamed:(NSString *)uniName val:(int)val
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    bool ret = _program->setUniform(name, val);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformVector2Named:(NSString *)uniName x:(float)x y:(float)y
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    Point2f val(x,y);
+    bool ret = _program->setUniform(name, val);
+
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformVector3Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    Point3f val(x,y,z);
+    bool ret = _program->setUniform(name, val);
+
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformVector4Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z w:(float)w
+{    
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    glUseProgram(_program->getProgram());
+
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    Eigen::Vector4f val;
+    val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
+    bool ret = _program->setUniform(name, val);
+
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
 }
 
 // We're assuming the view controller has set the proper context

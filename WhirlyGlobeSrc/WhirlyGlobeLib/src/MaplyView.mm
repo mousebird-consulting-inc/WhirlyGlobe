@@ -43,10 +43,23 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setDelegate:(NSObject<MaplyAnimationDelegate> *)delegate
+{
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+    }
+    
+    _delegate = delegate;
+}
 
 - (void)cancelAnimation
 {
-    self.delegate = nil;
+    if (_delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    
+    _delegate = nil;
 }
 
 - (void)animate
@@ -88,8 +101,14 @@ using namespace WhirlyKit;
 
 - (void)setLoc:(WhirlyKit::Point3d)newLoc
 {
+    [self setLoc:newLoc runUpdates:true];
+}
+
+- (void)setLoc:(WhirlyKit::Point3d &)newLoc runUpdates:(bool)runUpdates
+{
     _loc = newLoc;
-    [self runViewUpdates];
+    if (runUpdates)
+        [self runViewUpdates];
 }
 
 - (void)setRotAngle:(double)newRotAngle

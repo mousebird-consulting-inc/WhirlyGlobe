@@ -36,6 +36,7 @@ using namespace WhirlyKit;
     // For a creation request
     ShapeSet    shapes;
     float       height;
+    float       base;
     float       minVis,maxVis;
     int         priority;
     bool        top,side;
@@ -89,6 +90,7 @@ using namespace WhirlyKit;
     priority = [dict intForKey:@"drawPriority" default:0];
     priority = [dict intForKey:@"priority" default:priority];
     height = [dict floatForKey:@"height" default:.01];
+    base = [dict floatForKey:@"base" default:0.0];
     minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
     maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
     _fade = [dict floatForKey:@"fade" default:0.0];
@@ -237,7 +239,7 @@ public:
     }
     
     // Add a triangle, keeping track of limits
-    void addLoftTriangle(Point2f verts[3])
+    void addLoftTriangle(Point2f verts[3],float height)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         setupDrawable(3);
@@ -251,7 +253,7 @@ public:
             Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
             Point3f dispPt = coordAdapter->localToDisplay(localPt);
             Point3f norm = coordAdapter->normalForLocal(localPt);
-            Point3f pt1 = dispPt + norm * polyInfo->height;
+            Point3f pt1 = dispPt + norm * height;
             
             drawable->addPoint(pt1);
             drawable->addNormal(norm);
@@ -275,7 +277,14 @@ public:
             {
                 Point2f verts[3];
                 verts[2] = tri[0];  verts[1] = tri[1];  verts[0] = tri[2];
-                addLoftTriangle(verts);
+                addLoftTriangle(verts,polyInfo->height);
+                // If they've got a base, we want to see it from the underside, probably
+                if (polyInfo->base > 0.0)
+                {
+                    Point2f verts[3];
+                    verts[1] = tri[0];  verts[2] = tri[1];  verts[0] = tri[2];
+                    addLoftTriangle(verts,polyInfo->base);                    
+                }
             }
         }
     }
@@ -348,6 +357,8 @@ public:
             Point3f norm = coordAdapter->normalForLocal(localPt);
             Point3f pt0 = coordAdapter->localToDisplay(localPt);
             Point3f pt1 = pt0 + norm * polyInfo->height;
+            if (polyInfo->base > 0.0)
+                pt0 = pt0 + norm * polyInfo->base;
             
             // Add to drawable
             if (jj > 0)
@@ -360,6 +371,7 @@ public:
                 
                 // Normal points out
                 Point3f crossNorm = norm.cross(pt1-prevPt1);
+                crossNorm.normalize();
                 crossNorm *= -1;
                 
                 drawable->addNormal(crossNorm);
