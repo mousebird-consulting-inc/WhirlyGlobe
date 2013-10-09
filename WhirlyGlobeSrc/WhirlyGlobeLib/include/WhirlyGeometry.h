@@ -60,6 +60,6 @@ bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
 float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
 
 /// Return the area of the 3D polygon
-float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
+double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
     
 }
