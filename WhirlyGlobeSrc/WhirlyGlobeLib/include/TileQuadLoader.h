@@ -36,7 +36,24 @@
 
 /// @cond
 @class WhirlyKitQuadTileLoader;
+@protocol WhirlyKitQuadTileImageDataSource;
 /// @endcond
+
+/** This protocol outlines the method that a WhirlyKitQuadTileImageDataSource
+ compliant object uses to tell the tile loader that a tile has loaded or
+ failed to load.  We break it out so that other objects can talk to
+ tile loading objects without subclassing WhirlyKitQuadTileLoader.
+ */
+@protocol WhirlyKitQuadTileLoaderSupport<NSObject>
+
+/// When a data source has finished its fetch for a given tile, it
+///  calls this method to hand the data (along with key info) back to the
+///  quad tile loader.
+/// You can pass back a WhirlyKitLoadedTile or a WhirlyKitLoadedImage or
+///  just a WhirlyKitElevationChunk.
+- (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadImage forLevel:(int)level col:(int)col row:(int)row;
+
+@end
 
 /** Quad Tile Image Data Source is used to load individual images
     to put on top of the simple geometry created by the quad tile loader.
@@ -50,11 +67,11 @@
 /// The quad loader is letting us know to start loading the image.
 /// We'll call the loader back with the image when it's ready.
 /// This is now deprecated.  Used the other version.
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row __deprecated;
+- (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row __deprecated;
 
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
-- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
+- (void)quadTileLoader:(NSObject<WhirlyKitQuadTileLoaderSupport> *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs;
 
 /// Check if the given tile is a local or remote fetch.  This is a hint
 ///  to the pager.  It can display local tiles as a group faster.
@@ -66,7 +83,7 @@
     creates simple terrain (chunks of the sphere) and asks for images
     to put on top.
  */
-@interface WhirlyKitQuadTileLoader : NSObject<WhirlyKitQuadLoader>
+@interface WhirlyKitQuadTileLoader : NSObject<WhirlyKitQuadLoader,WhirlyKitQuadTileLoaderSupport>
 
 /// Offset for the data being generated
 @property (nonatomic,assign) int drawOffset;
@@ -117,6 +134,10 @@
 
 /// Set this up with an object that'll return an image per tile and a name (for debugging)
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
+
+/// If you're passing in elevation (even some of the time), set this to the maximum
+///  sampling you're going to pass in.  If you don't set ths, you may lose tiles.
+- (void)setTesselationSizeX:(int)x y:(int)y;
 
 /// Called when the layer shuts down
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;

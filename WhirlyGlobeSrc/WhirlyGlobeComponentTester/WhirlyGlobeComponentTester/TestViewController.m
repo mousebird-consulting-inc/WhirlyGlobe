@@ -111,6 +111,7 @@ LocationInfo locations[NumLocations] =
     // If we're in 3D mode, how far the elevation goes
     int zoomLimit;
     bool requireElev;
+    bool imageWaitLoad;
 }
 
 // Change what we're showing based on the Configuration
@@ -153,7 +154,7 @@ LocationInfo locations[NumLocations] =
     
     // Configuration controller for turning features on and off
     configViewC = [[ConfigViewController alloc] initWithNibName:@"ConfigViewController" bundle:nil];
-    configViewC.allOptions = true;
+    configViewC.configOptions = ConfigOptionsAll;
 
     // Create an empty globe or map controller
     zoomLimit = 0;
@@ -175,6 +176,7 @@ LocationInfo locations[NumLocations] =
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
             mapViewC.delegate = self;
             baseViewC = mapViewC;
+            configViewC.configOptions = ConfigOptionsFlat;
             break;
 //        case MaplyScrollViewMap:
 //            break;
@@ -223,7 +225,7 @@ LocationInfo locations[NumLocations] =
         [baseViewC setHints:@{kMaplyRenderHintZBuffer: @(YES)}];
         
         // Turn off most of the options for globe mode
-        configViewC.allOptions = false;
+        configViewC.configOptions = ConfigOptionsTerrain;
     }
     
     // Force the view to load so we can get the default switch values
@@ -288,6 +290,7 @@ LocationInfo locations[NumLocations] =
         imageLayer.coverPoles = false;
         imageLayer.handleEdges = true;
         imageLayer.requireElev = requireElev;
+        imageLayer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:imageLayer];
         
         if (ovlName)
@@ -411,6 +414,7 @@ LocationInfo locations[NumLocations] =
         cyl.baseCenter = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         cyl.radius = 0.01;
         cyl.height = 0.06;
+        cyl.selectable = true;
         [cyls addObject:cyl];
     }
     
@@ -427,6 +431,7 @@ LocationInfo locations[NumLocations] =
         MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
         sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
         sphere.radius = 0.04;
+        sphere.selectable = true;
         [spheres addObject:sphere];
     }
 
@@ -668,6 +673,7 @@ static const int NumMegaMarkers = 40000;
         layer.handleEdges = true;
         layer.coverPoles = true;
         layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
 
@@ -711,6 +717,7 @@ static const int NumMegaMarkers = 40000;
         layer.requireElev = requireElev;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
+        layer.waitLoad = imageWaitLoad;
         baseLayer = layer;
         screenLabelColor = [UIColor whiteColor];
         screenLabelBackColor = [UIColor whiteColor];
@@ -732,6 +739,7 @@ static const int NumMegaMarkers = 40000;
         layer.drawPriority = 0;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -785,7 +793,9 @@ static const int NumMegaMarkers = 40000;
         vecWidth = 4.0;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
+        layer.maxTiles = 256;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -801,6 +811,7 @@ static const int NumMegaMarkers = 40000;
         MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
         tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
         layer.imageDepth = 4;
         // We'll cycle through at 1s per layer
@@ -826,6 +837,7 @@ static const int NumMegaMarkers = 40000;
                  tileSource.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
+             layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
@@ -948,6 +960,8 @@ static const int NumMegaMarkers = 40000;
 // Look at the configuration controller and decide what to turn off or on
 - (void)changeMapContents
 {
+    imageWaitLoad = [configViewC valueForSection:kMaplyTestCategoryInternal row:kMaplyTestWaitLoad];
+    
     [self setupBaseLayer:((ConfigSection *)configViewC.values[0]).rows];
     if ([configViewC.values count] > 1)
         [self setupOverlays:((ConfigSection *)configViewC.values[1]).rows];
@@ -1159,6 +1173,7 @@ static const int NumMegaMarkers = 40000;
     {
         popControl = [[UIPopoverController alloc] initWithContentViewController:configViewC];
         popControl.delegate = self;
+        [popControl setPopoverContentSize:CGSizeMake(400.0,4.0/5.0*self.view.bounds.size.height)];
         [popControl presentPopoverFromRect:CGRectMake(0, 0, 10, 10) inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
     } else {
         configViewC.navigationItem.hidesBackButton = YES;
@@ -1256,6 +1271,16 @@ static const int NumMegaMarkers = 40000;
                 }
             }
         }
+    } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])
+    {
+        MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
+        loc = sphere.center;
+        msg = @"Sphere";
+    } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
+    {
+        MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
+        loc = cyl.baseCenter;
+        msg = @"Cylinder";
     } else
         // Don't know what it is
         return;

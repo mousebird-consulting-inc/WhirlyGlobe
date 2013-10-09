@@ -38,8 +38,8 @@ class SceneManager;
 class Selectable
 {
 public:
-    Selectable() : enable(true) { }
-    Selectable(SimpleIdentity theID) : selectID(theID) { }
+    Selectable() : enable(true), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid) { }
+    Selectable(SimpleIdentity theID) : selectID(theID), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid) { }
     
     bool enable;
     /// Used to identify this selectable

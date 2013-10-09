@@ -21,6 +21,11 @@
 #import <Foundation/Foundation.h>
 #import "WhirlyGlobe.h"
 
+// Sent out when the pan delegate takes control
+#define kPanDelegateDidStart @"WKPanDelegateStarted"
+// Sent out when the pan delegate finished (but hands off to momentum)
+#define kPanDelegateDidEnd @"WKPanDelegateEnded"
+
 // Version of pan delegate specific to this app
 // The pan delegate handles panning and rotates the globe accordingly
 @interface PanDelegateFixed : NSObject<UIGestureRecognizerDelegate> 

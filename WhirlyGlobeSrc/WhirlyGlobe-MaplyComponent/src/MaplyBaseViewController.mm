@@ -71,7 +71,8 @@ using namespace WhirlyKit;
     glView = nil;
     sceneRenderer = nil;
     baseLayerThread = nil;
-
+    layoutLayer = nil;
+    
     activeObjects = nil;
     
     interactLayer = nil;
@@ -195,6 +196,10 @@ using namespace WhirlyKit;
     // Need a layer thread to manage the layers
 	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:true];
     [layerThreads addObject:baseLayerThread];
+    
+    // Layout still needs a layer to kick it off
+    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
+    [baseLayerThread addLayer:layoutLayer];
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];

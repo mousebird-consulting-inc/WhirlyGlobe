@@ -26,6 +26,7 @@
 
 /// @cond
 @class WhirlyKitSceneRendererES1;
+@class WhirlyKitSceneRendererES2;
 /// @endcond
 
 #define kWKFrameMessage @"WhirlyKitFrameMessage"
@@ -41,6 +42,9 @@
 
 /// The interval between frames
 @property (nonatomic) NSTimeInterval frameInterval;
+
+/// The message is coming from this renderer
+@property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 
 @end
 
