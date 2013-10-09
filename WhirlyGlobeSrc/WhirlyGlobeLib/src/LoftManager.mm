@@ -44,6 +44,8 @@ using namespace WhirlyKit;
     bool        outline;
     UIColor     *outlineColor;
     float       outlineWidth;
+    bool        readZBuffer;
+    bool        writeZBuffer;
     bool        enable;
     NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
@@ -98,6 +100,8 @@ using namespace WhirlyKit;
     outline = [dict boolForKey:@"outline" default:false];
     outlineColor = [dict objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
+    readZBuffer = [dict boolForKey:@"zbufferread" default:YES];
+    writeZBuffer = [dict boolForKey:@"zbufferwrite" default:NO];
     enable = [dict boolForKey:@"enable" default:true];
     self.key = inKey;
 }
@@ -227,15 +231,9 @@ public:
             drawable->setColor([((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo->outlineColor) asRGBAColor]);
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
-            if (polyInfo->layered)
-            {
-                drawable->setDrawPriority(polyInfo->priority);
-//                drawable->setAlpha(true);
-            } else {
-//                drawable->setAlpha(true);
-                drawable->setDrawPriority(polyInfo->priority);
-                drawable->setRequestZBuffer(true);
-            }
+            drawable->setDrawPriority(polyInfo->priority);
+            drawable->setRequestZBuffer(polyInfo->readZBuffer);
+            drawable->setWriteZBuffer(polyInfo->writeZBuffer);
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
     }
