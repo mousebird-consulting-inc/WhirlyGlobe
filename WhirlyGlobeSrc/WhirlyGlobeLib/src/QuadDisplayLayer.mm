@@ -427,6 +427,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     
     // In metered mode, the last time we flushed data to the scene
     NSTimeInterval lastFlush;
+    
+    // In metered mode, we'll only flush if something happened
+    bool somethingHappened;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -453,6 +456,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _fullLoad = false;
         _fullLoadTimeout = 4.0;
         waitForLocalLoads = false;
+        somethingHappened = false;
     }
     
     return self;
@@ -539,12 +543,16 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     if (howLong > 0.0)
     {
         [_loader quadDisplayLayerStartUpdates:self];
+        somethingHappened = false;
         [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
     }
 }
 
 - (void)frameEndThread
 {
+    if (!somethingHappened)
+        return;
+    
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
 
     // We'll hold off for local loads...up to a point
@@ -761,6 +769,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             waitForLocalLoads = false;
         }
     }
+    
+    somethingHappened |= didSomething;
 }
 
 // This is called by the loader when it finished loading a tile
@@ -788,6 +798,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Make sure we actually evaluate them
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    
+    somethingHappened = true;
 }
 
 // Tile failed to load.
@@ -797,6 +809,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Might get stuck here
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];    
+
+    somethingHappened = true;
 }
 
 // Clear out all the existing tiles and start over
@@ -838,6 +852,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     [_loader quadDisplayLayerStartUpdates:self];
 
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+
+    somethingHappened = true;
 }
 
 - (void)wakeUp
