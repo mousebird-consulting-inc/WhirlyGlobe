@@ -128,6 +128,8 @@
 @property (nonatomic,assign) int fixedTileSize;
 /// If set, the default texture atlas size.  Must be a power of two.
 @property (nonatomic,assign) int textureAtlasSize;
+/// How many texels we put around the borders of each tile
+@property (nonatomic,assign) int borderTexel;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

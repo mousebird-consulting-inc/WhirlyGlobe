@@ -232,9 +232,9 @@ static float const BoundsEps = 10.0 / EarthRadius;
     return dispSolid;
 }
 
-float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
 {
-    float origArea = PolygonArea(poly,norm);
+    double origArea = PolygonArea(poly,norm);
     origArea = std::abs(origArea);
     
     std::vector<Eigen::Vector4d> pts;
@@ -269,7 +269,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
         screenPts.push_back(screenPt);
     }
     
-    float screenArea = CalcLoopArea(screenPts);
+    double screenArea = CalcLoopArea(screenPts);
     screenArea = std::abs(screenArea);
     if (boost::math::isnan(screenArea))
         screenArea = 0.0;
@@ -284,13 +284,13 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
         backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
     }
     // Then calculate the area
-    float backArea = PolygonArea(backPts,norm);
+    double backArea = PolygonArea(backPts,norm);
     backArea = std::abs(backArea);
     
     // Now we know how much of the original polygon made it out to the screen
     // We can scale its importance accordingly.
     // This gets rid of small slices of big tiles not getting loaded
-    float scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
+    double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
     
     // Note: Turned off for the moment
     return std::abs(screenArea) * scale;
@@ -309,7 +309,7 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     return true;
 }
 
-- (float)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
     Point3d eyePos = viewState.eyePos;
     
@@ -335,10 +335,10 @@ float PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirly
     }
     
     // Now work through the polygons and project each to the screen
-    float totalImport = 0.0;
+    double totalImport = 0.0;
     for (unsigned int ii=0;ii<_polys.size();ii++)
     {
-        float import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
+        double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
         totalImport += import;
     }
     
@@ -351,7 +351,7 @@ namespace WhirlyKit
 {
 
 // Calculate the max pixel size for a tile
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -367,7 +367,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     if ([dispSolid isKindOfClass:[NSNull null]])
         return 0.0;
 
-    float import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -377,7 +377,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 }
 
 // This version is for volumes with height
-float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -393,7 +393,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     if ([dispSolid isKindOfClass:[NSNull null]])
         return 0.0;
     
-    float import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -427,6 +427,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     
     // In metered mode, the last time we flushed data to the scene
     NSTimeInterval lastFlush;
+    
+    // In metered mode, we'll only flush if something happened
+    bool somethingHappened;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -453,6 +456,7 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
         _fullLoad = false;
         _fullLoadTimeout = 4.0;
         waitForLocalLoads = false;
+        somethingHappened = false;
     }
     
     return self;
@@ -545,6 +549,9 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
 
 - (void)frameEndThread
 {
+    if (!somethingHappened)
+        return;
+    
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
 
     // We'll hold off for local loads...up to a point
@@ -563,6 +570,8 @@ float ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSiz
     if (!forcedFlush)
         waitForLocalLoads = false;
     lastFlush = now;
+    
+    somethingHappened = false;
 }
 
 // Called every so often by the view watcher
@@ -761,6 +770,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             waitForLocalLoads = false;
         }
     }
+    
+    somethingHappened |= didSomething;
 }
 
 // This is called by the loader when it finished loading a tile
@@ -788,6 +799,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Make sure we actually evaluate them
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    
+    somethingHappened = true;
 }
 
 // Tile failed to load.
@@ -797,6 +810,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Might get stuck here
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];    
+
+    somethingHappened = true;
 }
 
 // Clear out all the existing tiles and start over
@@ -838,6 +853,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     [_loader quadDisplayLayerStartUpdates:self];
 
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+
+    somethingHappened = true;
 }
 
 - (void)wakeUp
@@ -851,11 +868,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     // Note: Might be better to check if an eval is scheduled, rather than cancel it
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
+    somethingHappened = true;
 }
 
 #pragma mark - Quad Tree Importance Delegate
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
 {
     return [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:attrs];
 }
