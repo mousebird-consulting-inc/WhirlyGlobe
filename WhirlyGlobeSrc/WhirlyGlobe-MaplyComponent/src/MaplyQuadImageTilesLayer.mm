@@ -119,6 +119,8 @@ using namespace WhirlyKit;
     _waitLoad = false;
     _waitLoadTimeout = 4.0;
     _maxTiles = 128;
+    _minVis = DrawVisibleInvalid;
+    _maxVis = DrawVisibleInvalid;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -141,6 +143,8 @@ using namespace WhirlyKit;
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     tileLoader.ignoreEdgeMatching = !_handleEdges;
     tileLoader.coverPoles = _coverPoles;
+    tileLoader.minVis = _minVis;
+    tileLoader.maxVis = _maxVis;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
     tileLoader.includeElev = _includeElevAttrForShader;
@@ -203,15 +207,7 @@ using namespace WhirlyKit;
 
         if (_animationPeriod > 0.0)
         {
-            imageUpdater = [[ActiveImageUpdater alloc] init];
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.tileLoader = tileLoader;
-            imageUpdater.period = _animationPeriod;
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.numImages = _imageDepth;
-            imageUpdater.programId = _customShader;
-            tileLoader.programId = _customShader;
-            [viewC addActiveObject:imageUpdater];
+            self.animationPeriod = _animationPeriod;
         } else
             [self setCurrentImage:_currentImage];
     }
@@ -221,6 +217,35 @@ using namespace WhirlyKit;
     [super.layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setAnimationPeriod:(float)animationPeriod
+{
+    _animationPeriod = animationPeriod;
+    
+    if (imageUpdater)
+    {
+        if (_animationPeriod > 0.0)
+        {
+            imageUpdater.period = _animationPeriod;
+        } else {
+            [_viewC addActiveObject:imageUpdater];
+            imageUpdater = nil;
+        }
+    }
+    
+    if (_animationPeriod > 0.0)
+    {
+        imageUpdater = [[ActiveImageUpdater alloc] init];
+        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+        imageUpdater.tileLoader = tileLoader;
+        imageUpdater.period = _animationPeriod;
+        imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+        imageUpdater.numImages = _imageDepth;
+        imageUpdater.programId = _customShader;
+        tileLoader.programId = _customShader;
+        [_viewC addActiveObject:imageUpdater];
+    }
 }
 
 - (void)setCurrentImage:(float)currentImage

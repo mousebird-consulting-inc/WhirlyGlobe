@@ -29,6 +29,7 @@
 #import "MaplyCoordinate.h"
 #import "ImageTexture_private.h"
 #import "MaplySharedAttributes.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -1007,14 +1008,22 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             }
         }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
-        GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
-        chunk.mbr = geoMbr;
+        Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
+        chunk.mbr = mbr;
         chunk.texIDs = texIDs;
         chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
         chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
         chunk.sampleX = [inDesc[@"sampleX"] intValue];
         chunk.sampleY = [inDesc[@"sampleY"] intValue];
         chunk.programID = [inDesc[kMaplyShader] intValue];
+        if (inDesc[kMaplySubdivEpsilon] != nil)
+            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+        if (sticker.coordSys)
+            chunk.coordSys = [sticker.coordSys getCoordSystem];
+        if (inDesc[kMaplyMinVis] != nil)
+            chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
+        if (inDesc[kMaplyMaxVis] != nil)
+            chunk.maxVis = [inDesc[kMaplyMaxVis] floatValue];
         NSNumber *bufRead = inDesc[kMaplyZBufferRead];
         if (bufRead)
             chunk.readZBuffer = [bufRead boolValue];
