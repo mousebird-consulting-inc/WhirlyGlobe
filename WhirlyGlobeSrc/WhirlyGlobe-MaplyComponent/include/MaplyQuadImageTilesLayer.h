@@ -62,6 +62,16 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic,assign) bool coverPoles;
 
+/** @brief Set the minimum viewer height the layer will be visible at.
+    @details This is off by default.  When on the layer will not be visible unless the viewer is above this height.
+  */
+@property (nonatomic,assign) float minVis;
+
+/** @brief Set the maximum viewer height the layer will be visible at.
+    @details This is off by default.  When on the layer will not be visible unless the viewer is below this height.
+  */
+@property (nonatomic,assign) float maxVis;
+
 /** @brief Controls whether the fetching code runs in a single thread or is spawned asyncronously.
     @details If set, we'll kick off the tile fetches in their own dispatched blocks.  If not set, we'll just do it in the layer thread.
   */
