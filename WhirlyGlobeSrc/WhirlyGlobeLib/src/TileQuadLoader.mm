@@ -92,6 +92,7 @@ using namespace WhirlyKit;
         _fixedTileSize = 256;
         _textureAtlasSize = 2048;
         _activeTextures = -1;
+        _borderTexel = 1;
         defaultTessX = defaultTessY = 10;
         pthread_mutex_init(&tileLock, NULL);
     }
@@ -413,6 +414,7 @@ using namespace WhirlyKit;
         tileBuilder->texelBinSize = 64;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
+        tileBuilder->borderTexel = _borderTexel;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)

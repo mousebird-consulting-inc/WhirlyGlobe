@@ -85,7 +85,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 - (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
 
 /// This will extract the pixels out of an image or NSData and store them for later use
-- (bool)convertToRawData;
+- (bool)convertToRawData:(int)borderTexel;
 
 @end
 

@@ -40,9 +40,9 @@ float CalcLoopArea(const VectorRing &loop)
     return area;
 }
     
-float CalcLoopArea(const std::vector<Point2d> &loop)
+double CalcLoopArea(const std::vector<Point2d> &loop)
 {
-    float area = 0.0;
+    double area = 0.0;
     for (unsigned int ii=0;ii<loop.size();ii++)
     {
         const Point2d &p1 = loop[ii];
