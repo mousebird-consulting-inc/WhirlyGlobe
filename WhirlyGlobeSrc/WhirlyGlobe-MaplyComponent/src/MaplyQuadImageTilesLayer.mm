@@ -23,6 +23,7 @@
 #import "QuadDisplayLayer.h"
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplyBaseViewController_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
@@ -277,8 +278,14 @@ using namespace WhirlyKit;
     OpenGLES2Program *prog = scene->getProgram(_customShader);
     if (prog)
     {
+        EAGLContext *oldContext = [EAGLContext currentContext];
+        [_viewC useGLContext];
+
         glUseProgram(prog->getProgram());
         prog->setUniform("u_interp", t);
+
+        if (oldContext)
+            [EAGLContext setCurrentContext:oldContext];
     }
 }
 
