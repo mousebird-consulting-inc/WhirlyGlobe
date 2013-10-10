@@ -36,7 +36,7 @@
 @interface WhirlyKitSphericalChunk : NSObject
 
 /// Bounding box for the chunk to display
-@property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
+@property (nonatomic,assign) WhirlyKit::Mbr &mbr;
 /// Texture we'll wrap over the top
 @property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> texIDs;
 /// Format we'll store the textures in
@@ -72,6 +72,8 @@
 @property (nonatomic,assign) bool readZBuffer;
 /// This chunk writes itself to the z buffer
 @property (nonatomic,assign) bool writeZBuffer;
+/// The chunks extents are in this coordinate system.  Geographic if not set.
+@property (nonatomic,assign) WhirlyKit::CoordSystem *coordSys;
 
 // Create one or more drawables to represent the chunk.
 // Only call this if you know what you're doing

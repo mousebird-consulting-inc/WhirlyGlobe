@@ -68,7 +68,9 @@ using namespace WhirlyKit;
 - (void)setBbox:(MaplyBoundingBox)bbox
 {
     _bbox = bbox;
-    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
+    Mbr mbr;
+    mbr.ll().x() = bbox.ll.x;  mbr.ll().y() = bbox.ll.y;
+    mbr.ur().x() = bbox.ur.x;  mbr.ur().y() = bbox.ur.y;
     tileLoader.mbr = mbr;
 }
 

@@ -116,6 +116,14 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 {
     if (!_quadLayer)
         return;
+
+    if (mbr.ll().x() < 0 && mbr.ur().x() > 0)
+    {
+        float tmp = mbr.ll().x();
+        mbr.ll().x() = mbr.ur().x();
+        mbr.ur().x() = tmp;
+        mbr.ur().x() += 2*M_PI;
+    }
     
     _mbr = mbr;
     [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
@@ -146,6 +154,17 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         int sizeX = _sizeX;
         int sizeY = _sizeY;
         Mbr mbr = _mbr;
+
+        // Note: Assuming geographic or spherical mercator
+        GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
+        std::vector<Mbr> testMbrs;
+        if (geoMbr.ur().x() > M_PI)
+        {
+            testMbrs.push_back(Mbr(geoMbr.ll(),Point2f((float)M_PI,geoMbr.ur().y())));
+            testMbrs.push_back(Mbr(Point2f((float)(M_PI),geoMbr.ll().y()),geoMbr.ur()));
+        } else {
+            testMbrs.push_back(Mbr(geoMbr.ll(),geoMbr.ur()));
+        }
         
         NSMutableArray *images = [NSMutableArray array];
         
@@ -154,6 +173,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRef theContext = CGBitmapContextCreate(NULL, sizeX, sizeY, 8, sizeX * 4, colorSpace, kCGImageAlphaPremultipliedLast);
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
+            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
+            CGContextFillRect(theContext, CGRectMake(0, 0, sizeX, sizeY));
             // Work through the tiles, drawing as we go
             for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
@@ -161,30 +182,46 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 if (tile->isLoading)
                     continue;
                 // Scale the extents to the output image
-                Mbr tileMbr = _quadLayer.quadtree->generateMbrForNode(tile->ident);
-                Mbr drawMbr;
-                if (!tileMbr.overlaps(mbr))
-                    continue;
-                Point2f org;
-                org.x() = sizeX * (tileMbr.ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                org.y() = sizeY * (tileMbr.ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
-                Point2f span;
-                span.x() = sizeX * (tileMbr.ur().x()-tileMbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
-                span.y() = sizeY * (tileMbr.ur().y()-tileMbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
-                
-                // Find the right input image
-                UIImage *imageToDraw = nil;
-                if (ii < tile->images.size())
+                Mbr tileMbr[2];
+                tileMbr[0] = _quadLayer.quadtree->generateMbrForNode(tile->ident);
+                bool overlaps = tileMbr[0].overlaps(testMbrs[0]);
+                if (testMbrs.size() > 1 && !overlaps)
                 {
-                    imageToDraw = (UIImage *)tile->images[ii].imageData;
-                    if ([imageToDraw isKindOfClass:[NSData class]])
-                        imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
-                    if (![imageToDraw isKindOfClass:[UIImage class]])
-                        imageToDraw = nil;
+                    tileMbr[1] = tileMbr[0];
+                    tileMbr[1].ll().x() += 2*M_PI;
+                    tileMbr[1].ur().x() += 2*M_PI;
+                    overlaps = tileMbr[1].overlaps(testMbrs[1]);
                 }
+                if (!overlaps)
+                    continue;
                 
-                if (imageToDraw)
-                    CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+                for (unsigned int jj=0;jj<testMbrs.size();jj++)
+                {
+                    Mbr &testMbr = testMbrs[jj];
+                    if (!tileMbr[jj].overlaps(testMbr))
+                        continue;
+                    
+                    Point2f org;
+                    org.x() = sizeX * (tileMbr[jj].ll().x() - mbr.ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                    org.y() = sizeY * (tileMbr[jj].ll().y() - mbr.ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                    Point2f span;
+                    span.x() = sizeX * (tileMbr[jj].ur().x()-tileMbr[jj].ll().x()) / (mbr.ur().x()-mbr.ll().x());
+                    span.y() = sizeY * (tileMbr[jj].ur().y()-tileMbr[jj].ll().y()) / (mbr.ur().y()-mbr.ll().y());
+                    
+                    // Find the right input image
+                    UIImage *imageToDraw = nil;
+                    if (ii < tile->images.size())
+                    {
+                        imageToDraw = (UIImage *)tile->images[ii].imageData;
+                        if ([imageToDraw isKindOfClass:[NSData class]])
+                            imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
+                        if (![imageToDraw isKindOfClass:[UIImage class]])
+                            imageToDraw = nil;
+                    }
+                    
+                    if (imageToDraw)
+                        CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+                }
             }
             
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);

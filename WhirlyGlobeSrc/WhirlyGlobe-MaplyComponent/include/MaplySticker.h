@@ -36,6 +36,11 @@
 /// @brief Angle of rotation around center
 @property (nonatomic,assign) float rotation;
 
+/** @brief If present, this is the coordinate system the sticker is represented in.
+    @details By default the coordinates are in geographic.  If this is present, the coordinates are in this system.
+  */
+@property (nonatomic) MaplyCoordinateSystem *coordSys;
+
 /** @brief Image to stretch over the sticker.
     @details The UIImage is cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with it.
   */
