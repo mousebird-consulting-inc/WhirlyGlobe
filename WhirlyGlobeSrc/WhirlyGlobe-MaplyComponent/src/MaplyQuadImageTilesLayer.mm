@@ -100,6 +100,7 @@ using namespace WhirlyKit;
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
     WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitViewState *lastViewState;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 }
 
@@ -340,10 +341,41 @@ using namespace WhirlyKit;
     return [coordSys getCoordSystem];
 }
 
+- (int)targetZoomLevel
+{
+    if (!lastViewState || !_renderer || !scene)
+        return minZoom;
+    
+    int zoomLevel = 0;
+    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    while (zoomLevel < maxZoom)
+    {
+        WhirlyKit::Quadtree::Identifier ident;
+        ident.x = 0;  ident.y = 0;  ident.level = maxShortCircuitLevel;
+        // Make an MBR right in the middle of where we're looking
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = center - span/2.0;
+        mbr.ur() = center + span/2.0;
+        float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+        {
+            zoomLevel--;
+            break;
+        }
+        zoomLevel++;
+    }
+    
+    return zoomLevel;
+}
+
+
 /// Called when we get a new view state
 /// We need to decide if we can short circuit the screen space calculations
 - (void)newViewState:(WhirlyKitViewState *)viewState
 {
+    lastViewState = viewState;
+    
     canShortCircuitImportance = true;
     if (!viewState.coordAdapter->isFlat())
     {
@@ -365,25 +397,7 @@ using namespace WhirlyKit;
     }
     
     // We need to feel our way down to the appropriate level
-    maxShortCircuitLevel = 0;
-    WhirlyKit::Point2f center = Point2f(viewState.eyePos.x(),viewState.eyePos.y());
-    while (maxShortCircuitLevel < maxZoom)
-    {
-        WhirlyKit::Quadtree::Identifier ident;
-        ident.x = 0;  ident.y = 0;  ident.level = maxShortCircuitLevel;
-        // Make an MBR right in the middle of where we're looking
-        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
-        Point2f span = mbr.ur()-mbr.ll();
-        mbr.ll() = center - span/2.0;
-        mbr.ur() = center + span/2.0;
-        float import = ScreenImportance(viewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
-        if (import <= quadLayer.minImportance)
-        {
-            maxShortCircuitLevel--;
-            break;
-        }
-        maxShortCircuitLevel++;
-    }
+    maxShortCircuitLevel = [self targetZoomLevel];
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
