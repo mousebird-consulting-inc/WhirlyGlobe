@@ -97,6 +97,9 @@ using namespace WhirlyKit;
     ActiveImageUpdater *imageUpdater;
     SimpleIdentity _customShader;
     float _minElev,_maxElev;
+    bool canShortCircuitImportance;
+    int maxShortCircuitLevel;
+    WhirlyKitSceneRendererES *_renderer;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 }
 
@@ -122,6 +125,8 @@ using namespace WhirlyKit;
     _maxTiles = 128;
     _minVis = DrawVisibleInvalid;
     _maxVis = DrawVisibleInvalid;
+    canShortCircuitImportance = false;
+    maxShortCircuitLevel = -1;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -134,12 +139,13 @@ using namespace WhirlyKit;
     _viewC = viewC;
     super.layerThread = inLayerThread;
     scene = inScene;
+    _renderer = renderer;
 
     // Cache min and max zoom.  Tile sources might do a lookup for these
     minZoom = [tileSource minZoom];
     maxZoom = [tileSource maxZoom];
     tileSize = [tileSource tileSize];
-
+    
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     tileLoader.ignoreEdgeMatching = !_handleEdges;
@@ -334,6 +340,52 @@ using namespace WhirlyKit;
     return [coordSys getCoordSystem];
 }
 
+/// Called when we get a new view state
+/// We need to decide if we can short circuit the screen space calculations
+- (void)newViewState:(WhirlyKitViewState *)viewState
+{
+    canShortCircuitImportance = true;
+    if (!viewState.coordAdapter->isFlat())
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    // We happen to store tilt in the view matrix.
+    Eigen::Matrix4d &viewMat = viewState.viewMatrix;
+    if (!viewMat.isIdentity())
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    // The tile source coordinate system must be the same as the display's system
+    if (!coordSys->coordSystem->isSameAs(viewState.coordAdapter->getCoordSystem()))
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = 0;
+    WhirlyKit::Point2f center = Point2f(viewState.eyePos.x(),viewState.eyePos.y());
+    while (maxShortCircuitLevel < maxZoom)
+    {
+        WhirlyKit::Quadtree::Identifier ident;
+        ident.x = 0;  ident.y = 0;  ident.level = maxShortCircuitLevel;
+        // Make an MBR right in the middle of where we're looking
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = center - span/2.0;
+        mbr.ur() = center + span/2.0;
+        float import = ScreenImportance(viewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+        {
+            maxShortCircuitLevel--;
+            break;
+        }
+        maxShortCircuitLevel++;
+    }
+}
+
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
 - (WhirlyKit::Mbr)totalExtents
 {
@@ -368,15 +420,23 @@ using namespace WhirlyKit;
 {
     if (ident.level == 0)
         return MAXFLOAT;
-    
+
     double import = 0.0;
-    if (elevDelegate)
+    if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
-        import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), mbr, ident, attrs))
+            import = 1.0/(ident.level+10);
+        if (ident.level <= maxShortCircuitLevel)
+            import += 1.0;
     } else {
-        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+        if (elevDelegate)
+        {
+            import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+        } else {
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+        }
     }
-    
+
 //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
