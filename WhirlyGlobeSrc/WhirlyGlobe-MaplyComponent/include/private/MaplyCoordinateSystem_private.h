@@ -29,6 +29,8 @@
     MaplyCoordinate ll,ur;
 }
 
+- (id)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem;
+
 /// Return the low level Maply Coordinate system that represents this one.
 /// The object owns this and must clean it up.
 - (WhirlyKit::CoordSystem *)getCoordSystem;
