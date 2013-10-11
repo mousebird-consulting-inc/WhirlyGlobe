@@ -35,7 +35,13 @@ using namespace WhirlyGlobe;
     super.layerThread = layerThread;
     if (self)
     {
-        NSString *infoPath = [[NSBundle mainBundle] pathForResource:texGroupName ofType:@"plist"];
+        NSString *infoPath = nil;
+        if ([[NSFileManager defaultManager] fileExistsAtPath:texGroupName])
+            infoPath = texGroupName;
+        else
+            infoPath = [[NSBundle mainBundle] pathForResource:texGroupName ofType:@"plist"];
+        if (!infoPath)
+            return nil;
         texGroup = [[WhirlyKitTextureGroup alloc] initWithInfo:infoPath];
         if (!texGroup)
         {
