@@ -166,6 +166,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool flipY;
 
+/** @brief Use the target zoom level shortcut when possible.
+    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
+    @details It's on by default and will activate only when this layer's coordinate system is the same as the display system and there's no view matrix (e.g. tilt) set.
+  */
+@property (nonatomic) bool useTargetZoomLevel;
+
 /** @brief Force a full reload of all tiles.
     @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
     @details This is good for tile sources, like weather, that need to be refreshed every so often.

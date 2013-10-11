@@ -128,6 +128,7 @@ using namespace WhirlyKit;
     _maxVis = DrawVisibleInvalid;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
+    _useTargetZoomLevel = true;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -375,6 +376,14 @@ using namespace WhirlyKit;
 - (void)newViewState:(WhirlyKitViewState *)viewState
 {
     lastViewState = viewState;
+
+    if (!_useTargetZoomLevel)
+    {
+        canShortCircuitImportance = false;
+        maxShortCircuitLevel = -1;
+        return;
+    }
+    
     
     canShortCircuitImportance = true;
     if (!viewState.coordAdapter->isFlat())
@@ -481,7 +490,9 @@ using namespace WhirlyKit;
     }
 
     // Check with the tile source
-    bool isLocal = [tileSource tileIsLocal:tileID];
+    bool isLocal = [tileSource respondsToSelector:@selector(tileIsLocal:)];
+    if (isLocal)
+        isLocal = [tileSource tileIsLocal:tileID];
     // And the elevation delegate, if there is one
     if (isLocal && elevDelegate)
     {
