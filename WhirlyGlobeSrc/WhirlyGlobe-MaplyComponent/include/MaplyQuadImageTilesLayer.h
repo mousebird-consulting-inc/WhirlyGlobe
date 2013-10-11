@@ -172,4 +172,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (void)reload;
 
+/** @brief The target zoom level for this layer given the current view settings.
+    @details Calculates the target zoom level for the middle of the screen.
+    @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
+    @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
+  */
+- (int)targetZoomLevel;
+
 @end
