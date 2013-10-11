@@ -351,7 +351,7 @@ using namespace WhirlyKit;
     while (zoomLevel < maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
-        ident.x = 0;  ident.y = 0;  ident.level = maxShortCircuitLevel;
+        ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
         // Make an MBR right in the middle of where we're looking
         Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
