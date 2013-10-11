@@ -72,7 +72,10 @@
     bool tileLocal = true;
     for (NSObject<MaplyTileSource> *tileSource in _tileSources)
     {
-        tileLocal &= [tileSource tileIsLocal:tileID];
+        if ([tileSource respondsToSelector:@selector(tileIsLocal:)])
+            tileLocal &= [tileSource tileIsLocal:tileID];
+        else
+            tileLocal = false;
         if (!tileLocal)
             break;
     }
