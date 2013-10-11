@@ -33,10 +33,6 @@ using namespace Maply;
 
 @implementation MaplyViewController
 {
-    // Flat view for 2D mode
-    MaplyFlatView * flatView;
-    // Scroll view for tethered mode
-    UIScrollView * __weak scrollView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
