@@ -2415,6 +2415,8 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
 				VALID_ARCHS = "armv7 armv7s i386";
 			};
 			name = Debug;
@@ -2459,6 +2461,8 @@
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				STRIP_STYLE = all;
 				VALID_ARCHS = "armv7 armv7s i386";
 			};
 			name = Release;
