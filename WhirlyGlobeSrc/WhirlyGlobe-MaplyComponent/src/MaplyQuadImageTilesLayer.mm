@@ -238,7 +238,7 @@ using namespace WhirlyKit;
         {
             imageUpdater.period = _animationPeriod;
         } else {
-            [_viewC addActiveObject:imageUpdater];
+            [_viewC removeActiveObject:imageUpdater];
             imageUpdater = nil;
         }
     }
