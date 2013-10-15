@@ -58,6 +58,7 @@ using namespace WhirlyKit;
     _period = 0.0;
     _bbox.ll = MaplyCoordinateMakeWithDegrees(-180, -90);
     _bbox.ur = MaplyCoordinateMakeWithDegrees(+180, +90);
+    _on = true;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -72,6 +73,18 @@ using namespace WhirlyKit;
     mbr.ll().x() = bbox.ll.x;  mbr.ll().y() = bbox.ll.y;
     mbr.ur().x() = bbox.ur.x;  mbr.ur().y() = bbox.ur.y;
     tileLoader.mbr = mbr;
+}
+
+- (void)setOn:(bool)on
+{
+    _on = on;
+    tileLoader.on = _on;
+}
+
+- (void)setPeriod:(float)period
+{
+    _period = period;
+    tileLoader.period = period;
 }
 
 - (void)reload

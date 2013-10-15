@@ -55,6 +55,9 @@
 /// Set this up with an object that'll return an image per tile and a name (for debugging)
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
 
+/// Set if we're doing any rendering.  On by default.
+@property (nonatomic,assign) bool on;
+
 /// Depth of the image stack per tile
 @property (nonatomic,assign) int numImages;
 

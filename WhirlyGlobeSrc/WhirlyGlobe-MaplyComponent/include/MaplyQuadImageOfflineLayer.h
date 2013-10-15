@@ -35,6 +35,8 @@
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+@property (nonatomic,assign) bool on;
+
 @property (nonatomic,assign) int numSimultaneousFetches;
 
 @property (nonatomic,assign) unsigned int imageDepth;
