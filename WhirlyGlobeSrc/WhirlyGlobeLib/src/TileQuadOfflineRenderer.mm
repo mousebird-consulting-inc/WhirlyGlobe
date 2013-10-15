@@ -68,6 +68,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     OfflineTileSet tiles;
     int numFetches;
     bool renderScheduled;
+    CFTimeInterval lastRender;
+    bool somethingChanged;
 }
 
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource
@@ -82,6 +84,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     _sizeX = _sizeY = 1024;
     _mbr = Mbr(GeoCoord::CoordFromDegrees(0.0,0.0),GeoCoord::CoordFromDegrees(1.0, 1.0));
     renderScheduled = false;
+    _on = true;
+    somethingChanged = true;
     
     return self;
 }
@@ -91,6 +95,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     for (OfflineTileSet::iterator it = tiles.begin();it != tiles.end();++it)
         delete *it;
     tiles.clear();
+    somethingChanged = true;
 }
 
 - (void)dealloc
@@ -126,19 +131,26 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     }
     
     _mbr = mbr;
+    somethingChanged = true;
     [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
 }
 
 - (void)imageRenderImmediate
 {
-    [self imageRender];
+    if (_on)
+        [self imageRender];
 }
 
 - (void)imageRenderPeriodic
 {
     renderScheduled = false;
 
-    [self imageRender];
+    if (_on && somethingChanged)
+    {
+        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+        if (now - lastRender >= _period)
+            [self imageRender];
+    }
     
     if (_period > 0.0 && !renderScheduled)
     {
@@ -151,6 +163,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 {
     if (_outputDelegate)
     {
+        lastRender = CFAbsoluteTimeGetCurrent();
+        
         int sizeX = _sizeX;
         int sizeY = _sizeY;
         Mbr mbr = _mbr;
@@ -235,6 +249,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         
         [_outputDelegate loader:self image:images mbr:mbr];
     }
+    
+    somethingChanged = false;
 }
 
 #pragma mark - WhirlyKitQuadLoader
@@ -276,6 +292,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     
     [_imageSource quadTileLoader:self startFetchForLevel:tileInfo.ident.level col:tileInfo.ident.x row:tileInfo.ident.y attrs:tileInfo.attrs];
     numFetches++;
+    somethingChanged = true;
 }
 
 - (OfflineTile *)getTile:(const WhirlyKit::Quadtree::Identifier)ident
@@ -298,6 +315,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         delete theTile;
         tiles.erase(it);
     }
+    somethingChanged = true;
 }
 
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
@@ -341,6 +359,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 //    NSLog(@"Loaded tile %d: (%d,%d)",level,col,row);
     [_quadLayer loader:self tileDidLoad:tileIdent];
+    somethingChanged = true;
 }
 
 

@@ -232,27 +232,31 @@ using namespace WhirlyKit;
 {
     _animationPeriod = animationPeriod;
     
-    if (imageUpdater)
+    
+    if (_viewC)
     {
-        if (_animationPeriod > 0.0)
+        if (imageUpdater)
         {
-            imageUpdater.period = _animationPeriod;
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater.period = _animationPeriod;
+            } else {
+                [_viewC removeActiveObject:imageUpdater];
+                imageUpdater = nil;
+            }
         } else {
-            [_viewC removeActiveObject:imageUpdater];
-            imageUpdater = nil;
-        }
-    } else {
-        if (_animationPeriod > 0.0)
-        {
-            imageUpdater = [[ActiveImageUpdater alloc] init];
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.tileLoader = tileLoader;
-            imageUpdater.period = _animationPeriod;
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.numImages = _imageDepth;
-            imageUpdater.programId = _customShader;
-            tileLoader.programId = _customShader;
-            [_viewC addActiveObject:imageUpdater];
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater = [[ActiveImageUpdater alloc] init];
+                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+                imageUpdater.tileLoader = tileLoader;
+                imageUpdater.period = _animationPeriod;
+                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+                imageUpdater.numImages = _imageDepth;
+                imageUpdater.programId = _customShader;
+                tileLoader.programId = _customShader;
+                [_viewC addActiveObject:imageUpdater];
+            }
         }
     }
 }
