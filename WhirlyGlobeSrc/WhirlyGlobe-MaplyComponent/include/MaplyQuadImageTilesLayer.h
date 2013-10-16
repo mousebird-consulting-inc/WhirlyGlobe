@@ -77,6 +77,20 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic,assign) bool asyncFetching;
 
+/** @brief Set the minimum time for an update based on the viewer's location and orientation.
+    @details Paging layers watch the viewer to see what it's up to.  When the viewer moves, the layer updates its contents accordingly.  However, the viewer can be moving constantly so we need a way to keep things under control.
+    @details This value (in seconds) specifies the minimum time between updates.  In other words, we won't recalculate things more often than this.  Default value is 1/10s.
+  */
+@property (nonatomic,assign) NSTimeInterval viewUpdatePeriod;
+
+/** @brief Set the minimum movement for an update based on the viewer's location.
+    @details This is useful for throttling layer updates based on how far a viewer moves.  This will only kick off a view update if the viewer moves the given distance (in display coordinates).
+    @details We do not take orientation into account here, so you'd probably be better looking straight down.  Default is off.
+    @details I suggest not using this unless you've already run into the problem this solves.  Specifically that's where you've moving constantly, but in small increments and are burning too much CPU.
+    @see viewUpdatePeriod
+  */
+@property (nonatomic,assign) float minUpdateDist;
+
 /** @brief Have the layer wait until all local tiles are loaded before updating the renderer.
     @details This will have the layer sit on updates until all the local tiles are in.  You won't see the lower levels loading in.  See waitLoadTimeout.
   */
