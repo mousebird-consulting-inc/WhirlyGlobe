@@ -28,6 +28,9 @@
 
 using namespace WhirlyKit;
 
+@implementation MaplyPlaceholderTile
+@end
+
 /* An active model is called by the renderer right before
  we render a frame.  This lets us mess with the images
  being displayed by a tile layer in an immediate way.
@@ -129,6 +132,7 @@ using namespace WhirlyKit;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
+    _viewUpdatePeriod = 0.1;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
@@ -198,6 +202,8 @@ using namespace WhirlyKit;
     quadLayer.fullLoad = _waitLoad;
     quadLayer.fullLoadTimeout = _waitLoadTimeout;
     quadLayer.maxTiles = _maxTiles;
+    quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
+    quadLayer.minUpdateDist = _minUpdateDist;
     
     // Look for a custom program
     if (_shaderProgramName)
@@ -582,6 +588,7 @@ using namespace WhirlyKit;
 #endif
         
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        bool isPlaceholder = false;
         if ([imageDataArr count] == _imageDepth)
         {
             for (unsigned int ii=0;ii<_imageDepth;ii++)
@@ -594,6 +601,10 @@ using namespace WhirlyKit;
                 } else if ([imgData isKindOfClass:[NSData class]])
                 {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                } else if ([imgData isKindOfClass:[MaplyPlaceholderTile class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage PlaceholderImage];
+                    isPlaceholder = true;
                 }
                 if (!loadImage)
                     break;
@@ -606,7 +617,7 @@ using namespace WhirlyKit;
             loadTile = nil;
         
         // Let's not forget the elevation
-        if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
+        if (!isPlaceholder && [loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
         {
             WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
             loadTile.elevChunk = wkChunk;
