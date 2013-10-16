@@ -20,6 +20,12 @@
 
 #import <UIKit/UIKit.h>
 
+/** @brief The Placeholder Tile indicates that data for a tile doesn't exist, but we don't want it treated as an end to paging.
+    @see MaplyTileSource imageForTile:
+  */
+@interface MaplyPlaceholderTile : NSObject
+@end
+
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
     @details Each tile in an image (or vector tile) pyramid can be uniquely
@@ -69,18 +75,11 @@ typedef struct
 @optional
 
 /** @brief Fetch the image for a given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages:
-    if you're doing more than one image per tile.
- 
-    @details For this method, you can return either a full UIImage or an NSData
-    containing an image that UIImage will recognize.  Typically that's
-    a PNG or JPEG image of the typical size (128 or 256 pixels on a side).
- 
-    @details If you fail to load the image, just return nil.  At that point the paging
-    won't page in tiles below this image, assuming that image pyramid is
-    truncated at that point.
- 
-    @return Return a UIImage or an NSData containing raw PNG or JPEG data.
+    @details You must fill in either imageForTile: or imagesForTile:numImages: if you're doing more than one image per tile.
+    @details For this method, you can return either a full UIImage or an NSData containing an image that UIImage will recognize.  Typically that's a PNG or JPEG image of the typical size (128 or 256 pixels on a side).
+    @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
+    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyPlaceholderTile.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
+    @return Return a UIImage, an NSData containing raw PNG or JPEG data, or a MaplyPlaceholderTile.
   */
 - (id)imageForTile:(MaplyTileID)tileID;
 
