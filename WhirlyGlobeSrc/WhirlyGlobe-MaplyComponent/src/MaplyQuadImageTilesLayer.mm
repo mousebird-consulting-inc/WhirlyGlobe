@@ -157,49 +157,7 @@ using namespace WhirlyKit;
     
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
-    tileLoader.ignoreEdgeMatching = !_handleEdges;
-    tileLoader.coverPoles = _coverPoles;
-    tileLoader.minVis = _minVis;
-    tileLoader.maxVis = _maxVis;
-    tileLoader.drawPriority = super.drawPriority;
-    tileLoader.numImages = _imageDepth;
-    tileLoader.includeElev = _includeElevAttrForShader;
-    tileLoader.useElevAsZ = (viewC.elevDelegate != nil);
-    tileLoader.textureAtlasSize = _texturAtlasSize;
-    switch (_imageFormat)
-    {
-        case MaplyImageIntRGBA:
-        case MaplyImage4Layer8Bit:
-        default:
-            tileLoader.imageType = WKTileIntRGBA;
-            break;
-        case MaplyImageUShort565:
-            tileLoader.imageType = WKTileUShort565;
-            break;
-        case MaplyImageUShort4444:
-            tileLoader.imageType = WKTileUShort4444;
-            break;
-        case MaplyImageUShort5551:
-            tileLoader.imageType = WKTileUShort5551;
-            break;
-        case MaplyImageUByteRed:
-            tileLoader.imageType = WKTileUByteRed;
-            break;
-        case MaplyImageUByteGreen:
-            tileLoader.imageType = WKTileUByteGreen;
-            break;
-        case MaplyImageUByteBlue:
-            tileLoader.imageType = WKTileUByteBlue;
-            break;
-        case MaplyImageUByteAlpha:
-            tileLoader.imageType = WKTileUByteAlpha;
-            break;
-        case MaplyImageUByteRGB:
-            tileLoader.imageType = WKTileUByteRGB;
-            break;
-    }
-    if (_color)
-        tileLoader.color = [_color asRGBAColor];
+    [self setupTileLoader];
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.fullLoad = _waitLoad;
@@ -235,6 +193,53 @@ using namespace WhirlyKit;
     [super.layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setupTileLoader
+{
+    tileLoader.ignoreEdgeMatching = !_handleEdges;
+    tileLoader.coverPoles = _coverPoles;
+    tileLoader.minVis = _minVis;
+    tileLoader.maxVis = _maxVis;
+    tileLoader.drawPriority = super.drawPriority;
+    tileLoader.numImages = _imageDepth;
+    tileLoader.includeElev = _includeElevAttrForShader;
+    tileLoader.useElevAsZ = (_viewC.elevDelegate != nil);
+    tileLoader.textureAtlasSize = _texturAtlasSize;
+    switch (_imageFormat)
+    {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            tileLoader.imageType = WKTileIntRGBA;
+            break;
+        case MaplyImageUShort565:
+            tileLoader.imageType = WKTileUShort565;
+            break;
+        case MaplyImageUShort4444:
+            tileLoader.imageType = WKTileUShort4444;
+            break;
+        case MaplyImageUShort5551:
+            tileLoader.imageType = WKTileUShort5551;
+            break;
+        case MaplyImageUByteRed:
+            tileLoader.imageType = WKTileUByteRed;
+            break;
+        case MaplyImageUByteGreen:
+            tileLoader.imageType = WKTileUByteGreen;
+            break;
+        case MaplyImageUByteBlue:
+            tileLoader.imageType = WKTileUByteBlue;
+            break;
+        case MaplyImageUByteAlpha:
+            tileLoader.imageType = WKTileUByteAlpha;
+            break;
+        case MaplyImageUByteRGB:
+            tileLoader.imageType = WKTileUByteRGB;
+            break;
+    }
+    if (_color)
+        tileLoader.color = [_color asRGBAColor];
 }
 
 - (void)setAnimationPeriod:(float)animationPeriod
@@ -339,6 +344,7 @@ using namespace WhirlyKit;
         return;
     }
 
+    [self setupTileLoader];
     [quadLayer refresh];
 }
 
