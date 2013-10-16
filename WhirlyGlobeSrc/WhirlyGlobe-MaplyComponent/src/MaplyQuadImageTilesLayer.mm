@@ -97,6 +97,7 @@ using namespace WhirlyKit;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceSupportsMulti;
+    bool sourceWantsAsync;
     ActiveImageUpdater *imageUpdater;
     SimpleIdentity _customShader;
     float _minElev,_maxElev;
@@ -136,6 +137,8 @@ using namespace WhirlyKit;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
+    // See if we're letting the source do the async calls r what
+    sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchForTile:)];
     
     return self;
 }
@@ -523,13 +526,21 @@ using namespace WhirlyKit;
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
 
-    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
     {
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
     }
     int borderTexel = quadLoader.borderTexel;
+    
+    // The tile source wants to do all the async management
+    // Well fine.  I'm not offended.  Really.  It's fine.
+    if (sourceWantsAsync)
+    {
+        [tileSource startFetchForTile:tileID];
+        return;
+    }
     
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
@@ -641,6 +652,89 @@ using namespace WhirlyKit;
     } else {
         // In sync mode, we just do the work
         workBlock();
+    }
+}
+
+- (void)loadedImages:(NSObject *)images forTile:(MaplyTileID)tileID
+{
+    int borderTexel = tileLoader.borderTexel;
+
+    NSMutableArray *imageDataArr = [NSMutableArray array];
+    
+    // Start with elevation
+    MaplyElevationChunk *elevChunk = nil;
+    if (images)
+    {
+        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        {
+            elevChunk = [elevDelegate elevForTile:tileID];
+        }
+        
+        // Needed elevation and failed to load, so stop
+        if (elevDelegate && _requireElev && !elevChunk)
+        {
+            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level)];
+            if (super.layerThread)
+            {
+                if ([NSThread currentThread] == super.layerThread)
+                    [self performSelector:@selector(mergeTile:) withObject:args];
+                else
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+            }
+            
+            return;
+        }
+    }
+    
+    // Fetch the images
+    if ([images isKindOfClass:[NSArray class]])
+        imageDataArr = [NSMutableArray arrayWithArray:(NSArray *)images];
+    else
+        [imageDataArr addObject:images];
+    
+    WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+    bool isPlaceholder = false;
+    if ([imageDataArr count] == _imageDepth)
+    {
+        for (unsigned int ii=0;ii<_imageDepth;ii++)
+        {
+            WhirlyKitLoadedImage *loadImage = nil;
+            NSObject *imgData = [imageDataArr objectAtIndex:ii];
+            if ([imgData isKindOfClass:[UIImage class]])
+            {
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
+            } else if ([imgData isKindOfClass:[NSData class]])
+            {
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+            } else if ([imgData isKindOfClass:[MaplyPlaceholderTile class]])
+            {
+                loadImage = [WhirlyKitLoadedImage PlaceholderImage];
+                isPlaceholder = true;
+            }
+            if (!loadImage)
+                break;
+            // This pulls the pixels out of their weird little compressed formats
+            // Since we're on our own thread here (probably) this may save time
+            [loadImage convertToRawData:borderTexel];
+            [loadTile.images addObject:loadImage];
+        }
+    } else
+        loadTile = nil;
+    
+    // Let's not forget the elevation
+    if (!isPlaceholder && [loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
+    {
+        WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+        loadTile.elevChunk = wkChunk;
+    }
+    
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level)];
+    if (super.layerThread)
+    {
+        if ([NSThread currentThread] == super.layerThread)
+            [self performSelector:@selector(mergeTile:) withObject:args];
+        else
+            [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
 }
 

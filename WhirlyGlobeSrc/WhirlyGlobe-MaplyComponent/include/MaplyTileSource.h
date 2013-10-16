@@ -84,19 +84,17 @@ typedef struct
 - (id)imageForTile:(MaplyTileID)tileID;
 
 /** @brief Fetch an array of images for the given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages:
-     if you're doing more than one image per tile.
- 
-    @details This method is required if you've told the MaplyQuadImageTilesLayer that
-    the depth is greater than 1.  That is, it's expecting more than one image
-    per tile.  You'd do this when you want to animate between them, for instance.
- 
-    @details You must return an NSArray, but the array can contain UIImage or NSData
-    entries (or both).  For NSData we're expecting a raw PNG or JPEG data,
-    or anything that UIImage would interpret correctly.
- 
+    @details You must fill in either imageForTile: or imagesForTile:numImages: if you're doing more than one image per tile.
+    @details This method is required if you've told the MaplyQuadImageTilesLayer that the depth is greater than 1.  That is, it's expecting more than one image per tile.  You'd do this when you want to animate between them, for instance.
+    @details You must return an NSArray, but the array can contain UIImage or NSData entries (or both).  For NSData we're expecting a raw PNG or JPEG data, or anything that UIImage would interpret correctly.
     @return An NSArray of UIImage or NSData objects.
   */
 - (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages;
+
+/** @brief Start fetching the given tile, probably with your own threads.
+    @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
+    @details If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+  */
+- (void)startFetchForTile:(MaplyTileID)tileID;
 
 @end
