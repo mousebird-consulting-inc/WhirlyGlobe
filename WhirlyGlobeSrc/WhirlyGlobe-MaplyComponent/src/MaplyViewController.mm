@@ -44,6 +44,8 @@ using namespace Maply;
     if (!self)
         return nil;
     
+    _autoMoveToTap = true;
+    
     return self;
 }
 
@@ -502,7 +504,8 @@ using namespace Maply;
         {
             [_delegate maplyViewController:self didTapAt:coord];
         }
-        [self animateToPosition:coord time:1.0];
+        if (_autoMoveToTap)
+            [self animateToPosition:coord time:1.0];
     }
 }
 

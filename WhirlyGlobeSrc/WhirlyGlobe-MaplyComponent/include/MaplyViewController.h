@@ -97,6 +97,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief If set, we'll automatically move to wherever the user tapped.
+    @details When on we'll move the current location to wherever the user tapped if they tapped the globe.  That's true for selection as well.  On by default.
+ */
+@property(nonatomic,assign) bool autoMoveToTap;
+
 /** @brief Delegate for selection and location tapping.
     @details Fill in the MaplyViewControllerDelegate and assign it here to get callbacks for object selection and tapping.
   */
