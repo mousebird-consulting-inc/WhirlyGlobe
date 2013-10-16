@@ -199,4 +199,10 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (int)targetZoomLevel;
 
+/** @brief Pass back the loaded image(s) for a given tile.
+    @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
+    @details When we're loading just one image per tile, call this with an NSData or UIImage or MaplyPlaceholderImage. If we're expecting multiple images (see: imageDepth) then pass in an NSArray with the appropriate types.
+  */
+- (void)loadedImages:(NSObject *)images forTile:(MaplyTileID)tileID;
+
 @end
