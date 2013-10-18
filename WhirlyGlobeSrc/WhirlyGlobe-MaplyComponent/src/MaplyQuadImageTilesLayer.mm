@@ -23,9 +23,13 @@
 #import "QuadDisplayLayer.h"
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplyBaseViewController_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+@implementation MaplyPlaceholderTile
+@end
 
 /* An active model is called by the renderer right before
  we render a frame.  This lets us mess with the images
@@ -93,9 +97,14 @@ using namespace WhirlyKit;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceSupportsMulti;
+    bool sourceWantsAsync;
     ActiveImageUpdater *imageUpdater;
     SimpleIdentity _customShader;
     float _minElev,_maxElev;
+    bool canShortCircuitImportance;
+    int maxShortCircuitLevel;
+    WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitViewState *lastViewState;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
 }
 
@@ -119,9 +128,17 @@ using namespace WhirlyKit;
     _waitLoad = false;
     _waitLoadTimeout = 4.0;
     _maxTiles = 128;
+    _minVis = DrawVisibleInvalid;
+    _maxVis = DrawVisibleInvalid;
+    canShortCircuitImportance = false;
+    maxShortCircuitLevel = -1;
+    _useTargetZoomLevel = true;
+    _viewUpdatePeriod = 0.1;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
+    // See if we're letting the source do the async calls r what
+    sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchForTile:)];
     
     return self;
 }
@@ -131,20 +148,63 @@ using namespace WhirlyKit;
     _viewC = viewC;
     super.layerThread = inLayerThread;
     scene = inScene;
+    _renderer = renderer;
 
     // Cache min and max zoom.  Tile sources might do a lookup for these
     minZoom = [tileSource minZoom];
     maxZoom = [tileSource maxZoom];
     tileSize = [tileSource tileSize];
-
+    
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
+    [self setupTileLoader];
+    
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.fullLoad = _waitLoad;
+    quadLayer.fullLoadTimeout = _waitLoadTimeout;
+    quadLayer.maxTiles = _maxTiles;
+    quadLayer.viewUpdatePeriod = _viewUpdatePeriod;
+    quadLayer.minUpdateDist = _minUpdateDist;
+    
+    // Look for a custom program
+    if (_shaderProgramName)
+    {
+        _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
+        tileLoader.programId = _customShader;
+    } else
+        _customShader = EmptyIdentity;
+    
+    // If we're switching images, we'll need the right program
+    //  and an active object to do the updates
+    if (_imageDepth > 1)
+    {
+        if (!_customShader)
+            _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+
+        if (_animationPeriod > 0.0)
+        {
+            self.animationPeriod = _animationPeriod;
+        } else
+            [self setCurrentImage:_currentImage];
+    }
+    
+    elevDelegate = _viewC.elevDelegate;
+    
+    [super.layerThread addLayer:quadLayer];
+
+    return true;
+}
+
+- (void)setupTileLoader
+{
     tileLoader.ignoreEdgeMatching = !_handleEdges;
     tileLoader.coverPoles = _coverPoles;
+    tileLoader.minVis = _minVis;
+    tileLoader.maxVis = _maxVis;
     tileLoader.drawPriority = super.drawPriority;
     tileLoader.numImages = _imageDepth;
     tileLoader.includeElev = _includeElevAttrForShader;
-    tileLoader.useElevAsZ = (viewC.elevDelegate != nil);
+    tileLoader.useElevAsZ = (_viewC.elevDelegate != nil);
     tileLoader.textureAtlasSize = _texturAtlasSize;
     switch (_imageFormat)
     {
@@ -180,47 +240,39 @@ using namespace WhirlyKit;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
-    
-    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-    quadLayer.fullLoad = _waitLoad;
-    quadLayer.fullLoadTimeout = _waitLoadTimeout;
-    quadLayer.maxTiles = _maxTiles;
-    
-    // Look for a custom program
-    if (_shaderProgramName)
-    {
-        _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-        tileLoader.programId = _customShader;
-    } else
-        _customShader = EmptyIdentity;
-    
-    // If we're switching images, we'll need the right program
-    //  and an active object to do the updates
-    if (_imageDepth > 1)
-    {
-        if (!_customShader)
-            _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
+}
 
-        if (_animationPeriod > 0.0)
+- (void)setAnimationPeriod:(float)animationPeriod
+{
+    _animationPeriod = animationPeriod;
+    
+    
+    if (_viewC)
+    {
+        if (imageUpdater)
         {
-            imageUpdater = [[ActiveImageUpdater alloc] init];
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.tileLoader = tileLoader;
-            imageUpdater.period = _animationPeriod;
-            imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-            imageUpdater.numImages = _imageDepth;
-            imageUpdater.programId = _customShader;
-            tileLoader.programId = _customShader;
-            [viewC addActiveObject:imageUpdater];
-        } else
-            [self setCurrentImage:_currentImage];
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater.period = _animationPeriod;
+            } else {
+                [_viewC removeActiveObject:imageUpdater];
+                imageUpdater = nil;
+            }
+        } else {
+            if (_animationPeriod > 0.0)
+            {
+                imageUpdater = [[ActiveImageUpdater alloc] init];
+                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+                imageUpdater.tileLoader = tileLoader;
+                imageUpdater.period = _animationPeriod;
+                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
+                imageUpdater.numImages = _imageDepth;
+                imageUpdater.programId = _customShader;
+                tileLoader.programId = _customShader;
+                [_viewC addActiveObject:imageUpdater];
+            }
+        }
     }
-    
-    elevDelegate = _viewC.elevDelegate;
-    
-    [super.layerThread addLayer:quadLayer];
-
-    return true;
 }
 
 - (void)setCurrentImage:(float)currentImage
@@ -252,8 +304,14 @@ using namespace WhirlyKit;
     OpenGLES2Program *prog = scene->getProgram(_customShader);
     if (prog)
     {
+        EAGLContext *oldContext = [EAGLContext currentContext];
+        [_viewC useGLContext];
+
         glUseProgram(prog->getProgram());
         prog->setUniform("u_interp", t);
+
+        if (oldContext)
+            [EAGLContext setCurrentContext:oldContext];
     }
 }
 
@@ -286,6 +344,7 @@ using namespace WhirlyKit;
         return;
     }
 
+    [self setupTileLoader];
     [quadLayer refresh];
 }
 
@@ -300,6 +359,73 @@ using namespace WhirlyKit;
 - (WhirlyKit::CoordSystem *)coordSystem
 {
     return [coordSys getCoordSystem];
+}
+
+- (int)targetZoomLevel
+{
+    if (!lastViewState || !_renderer || !scene)
+        return minZoom;
+    
+    int zoomLevel = 0;
+    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    while (zoomLevel < maxZoom)
+    {
+        WhirlyKit::Quadtree::Identifier ident;
+        ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
+        // Make an MBR right in the middle of where we're looking
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = center - span/2.0;
+        mbr.ur() = center + span/2.0;
+        float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+        {
+            zoomLevel--;
+            break;
+        }
+        zoomLevel++;
+    }
+    
+    return zoomLevel;
+}
+
+
+/// Called when we get a new view state
+/// We need to decide if we can short circuit the screen space calculations
+- (void)newViewState:(WhirlyKitViewState *)viewState
+{
+    lastViewState = viewState;
+
+    if (!_useTargetZoomLevel)
+    {
+        canShortCircuitImportance = false;
+        maxShortCircuitLevel = -1;
+        return;
+    }
+    
+    
+    canShortCircuitImportance = true;
+    if (!viewState.coordAdapter->isFlat())
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    // We happen to store tilt in the view matrix.
+    Eigen::Matrix4d &viewMat = viewState.viewMatrix;
+    if (!viewMat.isIdentity())
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    // The tile source coordinate system must be the same as the display's system
+    if (!coordSys->coordSystem->isSameAs(viewState.coordAdapter->getCoordSystem()))
+    {
+        canShortCircuitImportance = false;
+        return;
+    }
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = [self targetZoomLevel];
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
@@ -332,19 +458,27 @@ using namespace WhirlyKit;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return MAXFLOAT;
-    
-    float import = 0.0;
-    if (elevDelegate)
+
+    double import = 0.0;
+    if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
-        import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), mbr, ident, attrs))
+            import = 1.0/(ident.level+10);
+        if (ident.level <= maxShortCircuitLevel)
+            import += 1.0;
     } else {
-        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+        if (elevDelegate)
+        {
+            import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+        } else {
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+        }
     }
-    
+
 //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
@@ -375,7 +509,9 @@ using namespace WhirlyKit;
     }
 
     // Check with the tile source
-    bool isLocal = [tileSource tileIsLocal:tileID];
+    bool isLocal = [tileSource respondsToSelector:@selector(tileIsLocal:)];
+    if (isLocal)
+        isLocal = [tileSource tileIsLocal:tileID];
     // And the elevation delegate, if there is one
     if (isLocal && elevDelegate)
     {
@@ -396,11 +532,20 @@ using namespace WhirlyKit;
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
 
-    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
     {
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
+    }
+    int borderTexel = quadLoader.borderTexel;
+    
+    // The tile source wants to do all the async management
+    // Well fine.  I'm not offended.  Really.  It's fine.
+    if (sourceWantsAsync)
+    {
+        [tileSource startFetchForTile:tileID];
+        return;
     }
     
     // This is the fetching block.  We'll invoke it a couple of different ways below.
@@ -460,6 +605,7 @@ using namespace WhirlyKit;
 #endif
         
         WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        bool isPlaceholder = false;
         if ([imageDataArr count] == _imageDepth)
         {
             for (unsigned int ii=0;ii<_imageDepth;ii++)
@@ -472,19 +618,23 @@ using namespace WhirlyKit;
                 } else if ([imgData isKindOfClass:[NSData class]])
                 {
                     loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                } else if ([imgData isKindOfClass:[MaplyPlaceholderTile class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage PlaceholderImage];
+                    isPlaceholder = true;
                 }
                 if (!loadImage)
                     break;
                 // This pulls the pixels out of their weird little compressed formats
                 // Since we're on our own thread here (probably) this may save time
-                [loadImage convertToRawData];
+                [loadImage convertToRawData:borderTexel];
                 [loadTile.images addObject:loadImage];
             }
         } else
             loadTile = nil;
         
         // Let's not forget the elevation
-        if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
+        if (!isPlaceholder && [loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
         {
             WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
             loadTile.elevChunk = wkChunk;
@@ -508,6 +658,89 @@ using namespace WhirlyKit;
     } else {
         // In sync mode, we just do the work
         workBlock();
+    }
+}
+
+- (void)loadedImages:(NSObject *)images forTile:(MaplyTileID)tileID
+{
+    int borderTexel = tileLoader.borderTexel;
+
+    NSMutableArray *imageDataArr = [NSMutableArray array];
+    
+    // Start with elevation
+    MaplyElevationChunk *elevChunk = nil;
+    if (images)
+    {
+        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        {
+            elevChunk = [elevDelegate elevForTile:tileID];
+        }
+        
+        // Needed elevation and failed to load, so stop
+        if (elevDelegate && _requireElev && !elevChunk)
+        {
+            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level)];
+            if (super.layerThread)
+            {
+                if ([NSThread currentThread] == super.layerThread)
+                    [self performSelector:@selector(mergeTile:) withObject:args];
+                else
+                    [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+            }
+            
+            return;
+        }
+    }
+    
+    // Fetch the images
+    if ([images isKindOfClass:[NSArray class]])
+        imageDataArr = [NSMutableArray arrayWithArray:(NSArray *)images];
+    else
+        [imageDataArr addObject:images];
+    
+    WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+    bool isPlaceholder = false;
+    if ([imageDataArr count] == _imageDepth)
+    {
+        for (unsigned int ii=0;ii<_imageDepth;ii++)
+        {
+            WhirlyKitLoadedImage *loadImage = nil;
+            NSObject *imgData = [imageDataArr objectAtIndex:ii];
+            if ([imgData isKindOfClass:[UIImage class]])
+            {
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
+            } else if ([imgData isKindOfClass:[NSData class]])
+            {
+                loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+            } else if ([imgData isKindOfClass:[MaplyPlaceholderTile class]])
+            {
+                loadImage = [WhirlyKitLoadedImage PlaceholderImage];
+                isPlaceholder = true;
+            }
+            if (!loadImage)
+                break;
+            // This pulls the pixels out of their weird little compressed formats
+            // Since we're on our own thread here (probably) this may save time
+            [loadImage convertToRawData:borderTexel];
+            [loadTile.images addObject:loadImage];
+        }
+    } else
+        loadTile = nil;
+    
+    // Let's not forget the elevation
+    if (!isPlaceholder && [loadTile isKindOfClass:[WhirlyKitLoadedTile class]] && elevChunk)
+    {
+        WhirlyKitElevationChunk *wkChunk = [[WhirlyKitElevationChunk alloc] initWithFloatData:elevChunk.data sizeX:elevChunk.numX sizeY:elevChunk.numY];
+        loadTile.elevChunk = wkChunk;
+    }
+    
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level)];
+    if (super.layerThread)
+    {
+        if ([NSThread currentThread] == super.layerThread)
+            [self performSelector:@selector(mergeTile:) withObject:args];
+        else
+            [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
 }
 

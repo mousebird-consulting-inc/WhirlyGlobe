@@ -112,6 +112,7 @@ LocationInfo locations[NumLocations] =
     int zoomLimit;
     bool requireElev;
     bool imageWaitLoad;
+    int maxLayerTiles;
 }
 
 // Change what we're showing based on the Configuration
@@ -159,6 +160,7 @@ LocationInfo locations[NumLocations] =
     // Create an empty globe or map controller
     zoomLimit = 0;
     requireElev = false;
+    maxLayerTiles = 256;
     switch (startupMapType)
     {
         case MaplyGlobe:
@@ -166,6 +168,7 @@ LocationInfo locations[NumLocations] =
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
             baseViewC = globeViewC;
+            maxLayerTiles = 128;
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
@@ -740,6 +743,7 @@ static const int NumMegaMarkers = 40000;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -839,6 +843,7 @@ static const int NumMegaMarkers = 40000;
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
+             layer.maxTiles = maxLayerTiles;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;

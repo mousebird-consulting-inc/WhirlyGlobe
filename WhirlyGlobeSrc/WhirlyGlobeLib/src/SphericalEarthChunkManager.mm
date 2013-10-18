@@ -118,36 +118,51 @@ static const float SkirtFactor = 0.95;
 - (void)buildDrawable:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw enabled:(bool)enable adapter:(CoordSystemDisplayAdapter *)coordAdapter
 {
     CoordSystem *localSys = coordAdapter->getCoordSystem();
+
+    CoordSystem *srcSystem = nil;
+    GeoCoordSystem geoSystem;
+    if (_coordSys)
+    {
+        srcSystem = _coordSys;
+    } else {
+        srcSystem = &geoSystem;
+    }
     
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
     drawable->setType(GL_TRIANGLES);
-    drawable->setLocalMbr(_mbr);
+//    drawable->setLocalMbr(_mbr);
     drawable->setDrawPriority(_drawPriority);
     drawable->setDrawOffset(_drawOffset);
-    drawable->setTexId(0,_texId);
+    drawable->setTexIDs(_texIDs);
     drawable->setOnOff(enable);
     drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
     drawable->setRequestZBuffer(self.readZBuffer);
     drawable->setWriteZBuffer(self.writeZBuffer);
+    drawable->setProgram(_programID);
     
     int thisSampleX = _sampleX, thisSampleY = _sampleY;
     
+    Mbr localMbr;
     Point3f dispPts[4];
-    dispPts[0] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ll()));
-    dispPts[1] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.lr()));
-    dispPts[2] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ur()));
-    dispPts[3] = coordAdapter->localToDisplay(localSys->geographicToLocal(_mbr.ul()));
+    std::vector<Point2f> pts;
+    _mbr.asPoints(pts);
+    std::vector<GeoCoord> geoCoords(4);
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        geoCoords[ii] = srcSystem->localToGeographic(Point3f(pts[ii].x(),pts[ii].y(),0.0));
+        dispPts[ii] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoCoords[ii]));
+    }
     
     std::vector<Point3f> locs;
     std::vector<TexCoord> texCoords;
     
     Point2f texIncr;
-    // Without rotation, we'll just follow the geographic boundaries
+    // Without rotation, we'll just follow the boundaries
     if (_rotation == 0.0)
     {
         Point3f localLL,localUR;
-        localLL = localSys->geographicToLocal(_mbr.ll());
-        localUR = localSys->geographicToLocal(_mbr.ur());
+        localLL = localSys->geographicToLocal(geoCoords[0]);
+        localUR = localSys->geographicToLocal(geoCoords[2]);
         
         // Calculate a reasonable sample size
         [self calcSampleX:thisSampleX sampleY:thisSampleY fromPoints:dispPts];
@@ -162,6 +177,7 @@ static const float SkirtFactor = 0.95;
             for (unsigned int ix=0;ix<thisSampleX+1;ix++)
             {
                 Point3f loc(localLL.x() + ix * localIncr.x(), localLL.y() + iy * localIncr.y(), 0.0);
+                localMbr.addPoint(Point2f(loc.x(),loc.y()));
                 Point3f dispLoc = coordAdapter->localToDisplay(loc);
                 
                 locs[iy*(thisSampleX+1)+ix] = dispLoc;
@@ -204,6 +220,8 @@ static const float SkirtFactor = 0.95;
                 Point3f ptA = dispPts[0] + ix * vecA / thisSampleX;
                 Point3f ptB = dispPts[3] + ix * vecB / thisSampleX;
                 Point3f dispLoc = ptA + iy * (ptB-ptA) / thisSampleY;
+                Point3f loc = coordAdapter->displayToLocal(dispLoc);
+                localMbr.addPoint(Point2f(loc.x(),loc.y()));
                 if (!coordAdapter->isFlat())
                     dispLoc.normalize();
                 
@@ -216,6 +234,7 @@ static const float SkirtFactor = 0.95;
                 drawable->addNormal(dispLoc);
             }
     }
+    drawable->setLocalMbr(localMbr);
     
     // Two triangles per cell
     for (unsigned int iy=0;iy<thisSampleY;iy++)
@@ -243,11 +262,12 @@ static const float SkirtFactor = 0.95;
         skirtDrawable->setLocalMbr(_mbr);
         skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(_drawOffset);
-        skirtDrawable->setTexId(0,_texId);
+        skirtDrawable->setTexIDs(_texIDs);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(_minVis, _maxVis);
         skirtDrawable->setRequestZBuffer(true);
         skirtDrawable->setWriteZBuffer(false);
+        skirtDrawable->setProgram(_programID);
         
         // Bottom skirt
         std::vector<Point3f> skirtLocs;
@@ -474,8 +494,6 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkInfo->chunkId));
             WhirlyKitSphericalChunk *chunk = request.chunk;
             
-            GeoMbr geoMbr = chunk.mbr;
-            
             // May need to set up the texture
             SimpleIdentity texId = EmptyIdentity;
             chunkRep->usesAtlas = false;
@@ -499,11 +517,13 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             } else {
                 if (newTex)
                 {
-                    chunk.texId = newTex->getId();
+                    chunk.texIDs.push_back(newTex->getId());
                     chunkRep->texIDs.insert(newTex->getId());
                     changes.push_back(new AddTextureReq(newTex));
                 }
-                texId = chunk.texId;
+                texId = EmptyIdentity;
+                if (!chunk.texIDs.empty())
+                    texId = chunk.texIDs[0];
             }
             
             // Build the main drawable and possibly skirt
@@ -528,10 +548,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 } else {
                     if (texAtlas)
                         skirtDraw->applySubTexture(0,chunkRep->subTex);
-                        else
-                            skirtDraw->setTexId(0,texId);
-                            changes.push_back(new AddDrawableReq(skirtDraw));
-                            }
+                    else
+                        skirtDraw->setTexId(0,texId);
+                        changes.push_back(new AddDrawableReq(skirtDraw));
+                }
             }
             
             chunkRep->drawIDs.insert(drawable->getId());
@@ -545,10 +565,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             } else {
                 if (texAtlas)
                     drawable->applySubTexture(0,chunkRep->subTex);
-                    else
-                        drawable->setTexId(0,texId);
-                        changes.push_back(new AddDrawableReq(drawable));
-                        }
+                else
+                    drawable->setTexId(0,texId);
+                changes.push_back(new AddDrawableReq(drawable));
+            }
             
             pthread_mutex_lock(&repLock);
             chunkReps.insert(chunkRep);

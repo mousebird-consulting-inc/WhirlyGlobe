@@ -28,7 +28,7 @@
 
 using namespace WhirlyKit;
 
-@interface MaplyQuadImageOfflineLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
+@interface MaplyQuadImageOfflineLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource,WhirlyKitQuadTileOfflineDelegate>
 @end
 
 @implementation MaplyQuadImageOfflineLayer
@@ -50,8 +50,41 @@ using namespace WhirlyKit;
     
     coordSys = inCoordSys;
     tileSource = inTileSource;
+    _maxTiles = 256;
+    _numSimultaneousFetches = 8;
+    _flipY = true;
+    _imageDepth = 1;
+    _asyncFetching = true;
+    _period = 0.0;
+    _bbox.ll = MaplyCoordinateMakeWithDegrees(-180, -90);
+    _bbox.ur = MaplyCoordinateMakeWithDegrees(+180, +90);
+    _on = true;
+    
+    // Check if the source can handle multiple images
+    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
     
     return self;
+}
+
+- (void)setBbox:(MaplyBoundingBox)bbox
+{
+    _bbox = bbox;
+    Mbr mbr;
+    mbr.ll().x() = bbox.ll.x;  mbr.ll().y() = bbox.ll.y;
+    mbr.ur().x() = bbox.ur.x;  mbr.ur().y() = bbox.ur.y;
+    tileLoader.mbr = mbr;
+}
+
+- (void)setOn:(bool)on
+{
+    _on = on;
+    tileLoader.on = _on;
+}
+
+- (void)setPeriod:(float)period
+{
+    _period = period;
+    tileLoader.period = period;
 }
 
 - (void)reload
@@ -84,6 +117,12 @@ using namespace WhirlyKit;
 
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileOfflineLoader alloc] initWithName:@"Offline" dataSource:self];
+    tileLoader.outputDelegate = self;
+    tileLoader.period = _period;
+    Mbr mbr = Mbr(Point2f(_bbox.ll.x,_bbox.ll.y),Point2f(_bbox.ur.x,_bbox.ur.y));
+    tileLoader.mbr = mbr;
+    tileLoader.outputDelegate = self;
+    tileLoader.numImages = _imageDepth;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;
@@ -129,18 +168,123 @@ using namespace WhirlyKit;
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return MAXFLOAT;
     
-    float import = 0.0;
+    double import = 0.0;
     import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
     //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
+
+- (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
+{
+    MaplyTileID tileID;
+    tileID.x = col;  tileID.y = row;  tileID.level = level;
+    
+    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    if (!_flipY)
+    {
+        int y = (1<<level)-tileID.y-1;
+        tileID.y = y;
+    }
+    
+    // This is the fetching block.  We'll invoke it a couple of different ways below.
+    void (^workBlock)() =
+    ^{
+        NSMutableArray *imageDataArr = [NSMutableArray array];
+        
+        // Fetch the images
+        if (sourceSupportsMulti)
+            imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
+        else {
+            NSData *imgData = [tileSource imageForTile:tileID];
+            if (imgData)
+                [(NSMutableArray *)imageDataArr addObject:imgData];
+        }
+        
+#ifdef TRASHTEST
+        // Mess with some of the images to test corruption
+        if (tileID.level > 1)
+        {
+            for (unsigned int ii=0;ii<_imageDepth;ii++)
+            {
+                NSObject *imgData = [imageDataArr objectAtIndex:ii];
+                // Every so often let's return garbage
+                if (imgData && (int)(drand48()*5) == 4)
+                {
+                    unsigned char *trash = (unsigned char *) malloc(2048);
+                    for (unsigned int ii=0;ii<2048;ii++)
+                        trash[ii] = drand48()*255;
+                    imgData = [[NSData alloc] initWithBytesNoCopy:trash length:2048 freeWhenDone:YES];
+                }
+                [imageDataArr replaceObjectAtIndex:ii withObject:imgData];
+            }
+        }
+#endif
+        
+        WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
+        if ([imageDataArr count] == _imageDepth)
+        {
+            for (unsigned int ii=0;ii<_imageDepth;ii++)
+            {
+                WhirlyKitLoadedImage *loadImage = nil;
+                NSObject *imgData = [imageDataArr objectAtIndex:ii];
+                if ([imgData isKindOfClass:[UIImage class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
+                } else if ([imgData isKindOfClass:[NSData class]])
+                {
+                    loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
+                }
+                if (!loadImage)
+                    break;
+                [loadTile.images addObject:loadImage];
+            }
+        } else
+            loadTile = nil;
+        
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+        if (super.layerThread)
+        {
+            if ([NSThread currentThread] == super.layerThread)
+                [self performSelector:@selector(mergeTile:) withObject:args];
+            else
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+        }
+    };
+    
+    // For async mode, off we go
+    if (_asyncFetching)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                       workBlock);
+    } else {
+        // In sync mode, we just do the work
+        workBlock();
+    }
+}
+
+// Merge the tile result back on the layer thread
+- (void)mergeTile:(NSArray *)args
+{
+    if (!super.layerThread)
+        return;
+    
+    WhirlyKitLoadedTile *loadTile = args[0];
+    if ([loadTile isKindOfClass:[NSNull class]])
+        loadTile = nil;
+    int col = [args[1] intValue];
+    int row = [args[2] intValue];
+    int level = [args[3] intValue];
+    
+    [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
+}
+
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown
 {
@@ -152,5 +296,21 @@ using namespace WhirlyKit;
 {
     return _numSimultaneousFetches;
 }
+
+#pragma mark - WhirlyKitQuadTileOfflineDelegate
+
+// Here's where we get the generated image back.
+// We're not on the main thread, Dorothy.
+- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images mbr:(Mbr)mbr
+{
+    if (_delegate && images && [images count])
+    {
+        MaplyBoundingBox bbox;
+        bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+        bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
+        [_delegate offlineLayer:self images:images bbox:bbox];
+    }
+}
+
 
 @end

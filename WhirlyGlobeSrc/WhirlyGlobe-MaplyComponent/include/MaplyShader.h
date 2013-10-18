@@ -117,6 +117,31 @@ These are the per vertex attributes provided to each vertex shader.
   */
 - (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)image;
 
+/** @brief Set a float uniform in the shader with the given name.
+    @return Returns true if there was such a uniform, false otherwise.
+  */
+- (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val;
+
+/** @brief Set an integer uniform in the shader with the given name.
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformIntNamed:(NSString *)uniName val:(int)val;
+
+/** @brief Set a 2 component float uniform in the shader with the given name.
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector2Named:(NSString *)uniName x:(float)x y:(float)y;
+
+/** @brief Set a 3 component float uniform in the shader with the given name.
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector3Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z;
+
+/** @brief Set a 4 component float uniform in the shader with the given name.
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector4Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
+
 /** @brief Check if the shader is valid.
     @details The shader setup can fail in a number of ways.  Check this after creating the shader to see if it succeded.  If not, look to getError to see why.
   */

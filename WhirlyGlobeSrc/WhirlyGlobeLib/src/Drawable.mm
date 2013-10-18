@@ -802,6 +802,15 @@ void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
     texInfo[which].texId = inId;
 }
     
+void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
+{
+    for (unsigned int ii=0;ii<texIDs.size();ii++)
+    {
+        setupTexCoordEntry(ii, 0);
+        texInfo[ii].texId = texIDs[ii];
+    }
+}
+    
 void BasicDrawable::setColor(RGBAColor inColor)
 {
     color = inColor;
@@ -1524,7 +1533,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         hasTexture[ii] = true;
 
     // Zero or more textures in the drawable
-    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         char baseMapName[40];
