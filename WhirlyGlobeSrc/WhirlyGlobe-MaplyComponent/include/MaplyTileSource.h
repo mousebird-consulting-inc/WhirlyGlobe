@@ -94,7 +94,9 @@ typedef struct
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
     @details If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
+    @param tileID The tile you should start fetching.
   */
-- (void)startFetchForTile:(MaplyTileID)tileID;
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
 
 @end

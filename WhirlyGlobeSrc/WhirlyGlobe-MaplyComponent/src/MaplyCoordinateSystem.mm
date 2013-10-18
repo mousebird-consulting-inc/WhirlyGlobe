@@ -102,6 +102,16 @@ using namespace WhirlyKit;
 
 @implementation MaplyPlateCarree
 
+- (id)initWithBoundingBox:(MaplyBoundingBox)bbox
+{
+    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
+    self = [super initWithCoordSystem:coordSys];
+    ll = bbox.ll;
+    ur = bbox.ur;
+    
+    return self;
+}
+
 - (id)initFullCoverage
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();

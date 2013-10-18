@@ -389,9 +389,33 @@ using namespace WhirlyKit;
     [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
 }
 
+- (bool)tileIsPlaceholder:(id)loadTile
+{
+    if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
+    {
+        WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)loadTile;
+        return loadImage.type == WKLoadedImagePlaceholder;
+    }
+    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+        return false;
+    else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
+    {
+        WhirlyKitLoadedTile *theTile = (WhirlyKitLoadedTile *)loadTile;
+        if ([theTile.images count] > 0)
+        {
+            WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)[theTile.images objectAtIndex:0];
+            return loadImage.type == WKLoadedImagePlaceholder;
+        }
+    }
+    
+    return false;
+}
+
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
-    if (!tileBuilder)
+    bool isPlaceholder = [self tileIsPlaceholder:loadTile];
+    
+    if (!isPlaceholder && !tileBuilder)
     {
         tileBuilder = new TileBuilder(_quadLayer.coordSys,_quadLayer.mbr,_quadLayer.quadtree);
         tileBuilder->tileScale = _tileScale;
@@ -472,9 +496,8 @@ using namespace WhirlyKit;
     }
     
     bool loadingSuccess = true;
-    if (_numImages != loadImages.size())
+    if (!isPlaceholder && _numImages != loadImages.size())
     {
-        pthread_mutex_unlock(&tileLock);
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
         if (loadTile)
@@ -484,7 +507,7 @@ using namespace WhirlyKit;
     
     // Create the dynamic texture atlas before we need it
     bool createdAtlases = false;
-    if (loadingSuccess && _useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
+    if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
     {
         int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
         if (loadElev)
@@ -499,23 +522,23 @@ using namespace WhirlyKit;
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    if (loadingSuccess && (!loadImages.empty() || loadElev))
+    if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
         if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
         {
             // If we have more than one image to dispay, make sure we're doing the right one
-            if (_numImages > 1 && tileBuilder->texAtlases.empty())
+            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlases.empty())
             {
                 tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
             }
-            [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
         } else
             loadingSuccess = false;
     }
 
-    if (!loadingSuccess)
-    {
+    if (loadingSuccess)
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+    else {
         // Shouldn't have a visual representation, so just lose it
         [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
         tileSet.erase(it);
@@ -532,7 +555,8 @@ using namespace WhirlyKit;
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
 
-    [self updateTexAtlasMapping];
+    if (!isPlaceholder)
+        [self updateTexAtlasMapping];
 
     // They might have set the current image already
     //  so we need to update things right here

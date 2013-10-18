@@ -199,7 +199,6 @@ LocationInfo locations[NumLocations] =
     // We'll let the toolkit create a thread per image layer.
     baseViewC.threadPerLayer = true;
     
-    // This will get us taps and such
     if (globeViewC)
     {
         // Start up over San Francisco
