@@ -964,15 +964,18 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
     }
-    for (unsigned int ii=0;ii<tileBuilder->texAtlases.size();ii++)
+    if (tileBuilder)
     {
-        if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
+        for (unsigned int ii=0;ii<tileBuilder->texAtlases.size();ii++)
         {
-            tileBuilder->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
-            subTexs[ii].texId = EmptyIdentity;
+            if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
+            {
+                tileBuilder->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
+                subTexs[ii].texId = EmptyIdentity;
+            }
         }
+        subTexs.clear();
     }
-    subTexs.clear();
     for (unsigned int ii=0;ii<texIds.size();ii++)
         if (texIds[ii] != EmptyIdentity)
         {
@@ -1008,6 +1011,9 @@ bool TileBuilder::isValidTile(const Mbr &theMbr)
 void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],ChangeSet &changeRequests)
 {
     bool childrenExist = false;
+    
+    if (placeholder)
+        return;
     
     // Work through the possible children
     int whichChild = 0;

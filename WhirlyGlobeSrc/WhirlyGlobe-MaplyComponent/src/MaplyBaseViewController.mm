@@ -158,6 +158,7 @@ using namespace WhirlyKit;
     }
     
     userLayers = [NSMutableArray array];
+    _threadPerLayer = true;
     
     [self loadSetup_glView];
 
