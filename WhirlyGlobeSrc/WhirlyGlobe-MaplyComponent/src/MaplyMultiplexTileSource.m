@@ -83,22 +83,19 @@
     return tileLocal;
 }
 
-- (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages
+- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
 {
-    if (numImages != [_tileSources count])
-        return nil;
-    
     // Hit up each source
-    NSMutableArray *tiles = [NSMutableArray array];
-    for (unsigned int ii=0;ii<numImages;ii++)
+    NSMutableArray *tileDataArray = [NSMutableArray array];
+    for (NSObject<MaplyTileSource> *tileSource in _tileSources)
     {
-        id tile = [_tileSources[ii] imageForTile:tileID];
+        id tile = [tileSource imageForTile:tileID];
         if (!tile)
             return nil;
-        [tiles addObject:tile];
+        [tileDataArray addObject:tile];
     }
     
-    return tiles;
+    return [[MaplyImageTile alloc] initWithRandomData:tileDataArray];
 }
 
 @end
