@@ -19,12 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-
-/** @brief The Placeholder Tile indicates that data for a tile doesn't exist, but we don't want it treated as an end to paging.
-    @see MaplyTileSource imageForTile:
-  */
-@interface MaplyPlaceholderTile : NSObject
-@end
+#import "MaplyImageTile.h"
 
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
@@ -75,21 +70,12 @@ typedef struct
 @optional
 
 /** @brief Fetch the image for a given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages: if you're doing more than one image per tile.
-    @details For this method, you can return either a full UIImage or an NSData containing an image that UIImage will recognize.  Typically that's a PNG or JPEG image of the typical size (128 or 256 pixels on a side).
+    @details For this method, you can return either a full UIImage or a MaplyImageTile.
     @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
-    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyPlaceholderTile.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
-    @return Return a UIImage, an NSData containing raw PNG or JPEG data, or a MaplyPlaceholderTile.
+    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
+    @return Return a UIImage or a MaplyImageTile.
   */
 - (id)imageForTile:(MaplyTileID)tileID;
-
-/** @brief Fetch an array of images for the given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages: if you're doing more than one image per tile.
-    @details This method is required if you've told the MaplyQuadImageTilesLayer that the depth is greater than 1.  That is, it's expecting more than one image per tile.  You'd do this when you want to animate between them, for instance.
-    @details You must return an NSArray, but the array can contain UIImage or NSData entries (or both).  For NSData we're expecting a raw PNG or JPEG data, or anything that UIImage would interpret correctly.
-    @return An NSArray of UIImage or NSData objects.
-  */
-- (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages;
 
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
