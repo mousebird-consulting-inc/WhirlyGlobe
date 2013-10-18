@@ -178,6 +178,45 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enable)
+{
+    pthread_mutex_lock(&mutex);
+    
+    for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
+    {
+        SimpleIdentity selectID = *sit;
+        RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
+        
+        if (it != rect3Dselectables.end())
+        {
+            RectSelectable3D sel = *it;
+            rect3Dselectables.erase(it);
+            sel.enable = enable;
+            rect3Dselectables.insert(sel);
+        }
+        
+        RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+        if (it2 != rect2Dselectables.end())
+        {
+            RectSelectable2D sel = *it2;
+            rect2Dselectables.erase(it2);
+            sel.enable = enable;
+            rect2Dselectables.insert(sel);
+        }
+        
+        PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+        if (it3 != polytopeSelectables.end())
+        {
+            PolytopeSelectable sel = *it3;
+            polytopeSelectables.erase(it3);
+            sel.enable = enable;
+            polytopeSelectables.insert(sel);
+        }
+    }
+    
+    pthread_mutex_unlock(&mutex);
+}
+
 // Remove the given selectable from consideration
 void SelectionManager::removeSelectable(SimpleIdentity selectID)
 {
@@ -196,6 +235,30 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
 
+    pthread_mutex_unlock(&mutex);
+}
+
+void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
+{
+    pthread_mutex_lock(&mutex);
+    
+    for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
+    {
+        SimpleIdentity selectID = *sit;
+        RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
+        
+        if (it != rect3Dselectables.end())
+            rect3Dselectables.erase(it);
+        
+        RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+        if (it2 != rect2Dselectables.end())
+            rect2Dselectables.erase(it2);
+        
+        PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+        if (it3 != polytopeSelectables.end())
+            polytopeSelectables.erase(it3);
+    }
+    
     pthread_mutex_unlock(&mutex);
 }
 
