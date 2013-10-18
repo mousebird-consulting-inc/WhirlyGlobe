@@ -138,7 +138,7 @@ using namespace WhirlyKit;
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
     // See if we're letting the source do the async calls r what
-    sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchForTile:)];
+    sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
     
     return self;
 }
@@ -544,7 +544,7 @@ using namespace WhirlyKit;
     // Well fine.  I'm not offended.  Really.  It's fine.
     if (sourceWantsAsync)
     {
-        [tileSource startFetchForTile:tileID];
+        [tileSource startFetchLayer:self tile:tileID];
         return;
     }
     
@@ -669,7 +669,7 @@ using namespace WhirlyKit;
     
     // Start with elevation
     MaplyElevationChunk *elevChunk = nil;
-    if (images)
+    if (images && elevDelegate)
     {
         if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
         {
@@ -696,7 +696,8 @@ using namespace WhirlyKit;
     if ([images isKindOfClass:[NSArray class]])
         imageDataArr = [NSMutableArray arrayWithArray:(NSArray *)images];
     else
-        [imageDataArr addObject:images];
+        if (images)
+            [imageDataArr addObject:images];
     
     WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
     bool isPlaceholder = false;

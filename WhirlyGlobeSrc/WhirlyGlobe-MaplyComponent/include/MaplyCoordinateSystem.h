@@ -67,6 +67,9 @@
 /// @brief Initialize with Plate Carree covering the whole globe.
 - (id)initFullCoverage;
 
+/// @brief Initialize with the given bounding box (in radians)
+- (id)initWithBoundingBox:(MaplyBoundingBox)bbox;
+
 @end
 
 /** @brief Spherical Mercator is what you'll most commonly see on web maps.
