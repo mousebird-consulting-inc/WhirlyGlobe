@@ -25,6 +25,7 @@
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
 #import "WhirlyGlobe.h"
+#import "MaplyImageTile_private.h"
 
 using namespace WhirlyKit;
 
@@ -61,7 +62,7 @@ using namespace WhirlyKit;
     _on = true;
     
     // Check if the source can handle multiple images
-    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imagesForTile:numImages:)];
+    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
     
     return self;
 }
@@ -196,57 +197,10 @@ using namespace WhirlyKit;
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
     ^{
-        NSMutableArray *imageDataArr = [NSMutableArray array];
-        
-        // Fetch the images
-        if (sourceSupportsMulti)
-            imageDataArr = [NSMutableArray arrayWithArray:[tileSource imagesForTile:tileID numImages:_imageDepth]];
-        else {
-            NSData *imgData = [tileSource imageForTile:tileID];
-            if (imgData)
-                [(NSMutableArray *)imageDataArr addObject:imgData];
-        }
-        
-#ifdef TRASHTEST
-        // Mess with some of the images to test corruption
-        if (tileID.level > 1)
-        {
-            for (unsigned int ii=0;ii<_imageDepth;ii++)
-            {
-                NSObject *imgData = [imageDataArr objectAtIndex:ii];
-                // Every so often let's return garbage
-                if (imgData && (int)(drand48()*5) == 4)
-                {
-                    unsigned char *trash = (unsigned char *) malloc(2048);
-                    for (unsigned int ii=0;ii<2048;ii++)
-                        trash[ii] = drand48()*255;
-                    imgData = [[NSData alloc] initWithBytesNoCopy:trash length:2048 freeWhenDone:YES];
-                }
-                [imageDataArr replaceObjectAtIndex:ii withObject:imgData];
-            }
-        }
-#endif
-        
-        WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
-        if ([imageDataArr count] == _imageDepth)
-        {
-            for (unsigned int ii=0;ii<_imageDepth;ii++)
-            {
-                WhirlyKitLoadedImage *loadImage = nil;
-                NSObject *imgData = [imageDataArr objectAtIndex:ii];
-                if ([imgData isKindOfClass:[UIImage class]])
-                {
-                    loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:(UIImage *)imgData];
-                } else if ([imgData isKindOfClass:[NSData class]])
-                {
-                    loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:(NSData *)imgData];
-                }
-                if (!loadImage)
-                    break;
-                [loadTile.images addObject:loadImage];
-            }
-        } else
-            loadTile = nil;
+        // Get the data for the tile and sort out what the delegate returned to us
+        id tileReturn = [tileSource imageForTile:tileID];
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0];
         
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
         if (super.layerThread)
