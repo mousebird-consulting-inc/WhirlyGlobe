@@ -153,11 +153,19 @@ using namespace WhirlyKit;
         {
             int destWidth = _width;
             int destHeight = _height;
+            // We need this to be square.  Because duh.
+            if (destWidth != destHeight)
+            {
+                int size = std::max(destWidth,destHeight);
+                destWidth = destHeight = size;
+            }
             NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
             if (rawData)
             {
                 _imageData = rawData;
                 _type = WKLoadedImageNSDataRawData;
+                _width = destWidth;
+                _height = destHeight;
             }
         }
             break;
