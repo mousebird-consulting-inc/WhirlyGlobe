@@ -539,7 +539,17 @@ using namespace WhirlyKit;
     // Well fine.  I'm not offended.  Really.  It's fine.
     if (sourceWantsAsync)
     {
-        [tileSource startFetchLayer:self tile:tileID];
+        // Tile sources often do work in the startFetch so let's spin that off
+        if (_asyncFetching)
+        {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                           ^{                               
+                               [tileSource startFetchLayer:self tile:tileID];
+                           }
+                           );
+        } else {
+            [tileSource startFetchLayer:self tile:tileID];
+        }
         return;
     }
     
