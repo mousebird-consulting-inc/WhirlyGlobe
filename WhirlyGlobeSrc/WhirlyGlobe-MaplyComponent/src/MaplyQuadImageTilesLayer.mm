@@ -264,7 +264,6 @@ using namespace WhirlyKit;
 
 - (void)setCurrentImage:(float)currentImage cancelUpdater:(bool)cancelUpdater
 {
-    NSLog(@"where = %f",_currentImage);
     _currentImage = currentImage;
     
     if (cancelUpdater && imageUpdater)
