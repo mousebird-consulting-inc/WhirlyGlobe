@@ -26,7 +26,7 @@ typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage,MaplyImgTy
 @interface MaplyImageTile()
 
 // Generate a WhirlyKit compatible tile
-- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel;
+- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw;
 
 // Internal type
 @property (nonatomic) MaplyImgType type;
