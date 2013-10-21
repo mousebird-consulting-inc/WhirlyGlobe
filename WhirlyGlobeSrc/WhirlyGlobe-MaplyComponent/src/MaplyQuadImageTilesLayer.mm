@@ -296,6 +296,7 @@ using namespace WhirlyKit;
 
         glUseProgram(prog->getProgram());
         prog->setUniform("u_interp", t);
+        [_renderer forceDrawNextFrame];
 
         if (oldContext)
             [EAGLContext setCurrentContext:oldContext];
