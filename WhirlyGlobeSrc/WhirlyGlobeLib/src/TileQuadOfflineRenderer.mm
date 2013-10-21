@@ -187,7 +187,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRef theContext = CGBitmapContextCreate(NULL, sizeX, sizeY, 8, sizeX * 4, colorSpace, kCGImageAlphaPremultipliedLast);
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
-            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
+            CGContextSetRGBFillColor(theContext, 0, 0, 0, 1);
             CGContextFillRect(theContext, CGRectMake(0, 0, sizeX, sizeY));
             // Work through the tiles, drawing as we go
             for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
@@ -337,7 +337,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
     tile->isLoading = false;
 
-    // Assemble the iamges
+    // Assemble the images
     std::vector<WhirlyKitLoadedImage *> loadImages;
     if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
         loadImages.push_back(loadTile);

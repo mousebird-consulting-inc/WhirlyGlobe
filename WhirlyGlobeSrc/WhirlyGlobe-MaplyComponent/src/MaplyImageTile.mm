@@ -171,7 +171,7 @@
     return self;
 }
 
-- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel
+- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw
 {
     WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
     
@@ -210,7 +210,8 @@
 
         // This pulls the pixels out of their weird little compressed formats
         // Since we're on our own thread here (probably) this may save time
-        [loadImage convertToRawData:borderTexel];
+        if (convertToRaw)
+            [loadImage convertToRawData:borderTexel];
         [loadTile.images addObject:loadImage];
     }
     

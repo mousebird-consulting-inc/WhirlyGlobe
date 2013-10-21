@@ -160,9 +160,9 @@ static const float SkirtFactor = 0.95;
     // Without rotation, we'll just follow the boundaries
     if (_rotation == 0.0)
     {
-        Point3f localLL,localUR;
-        localLL = localSys->geographicToLocal(geoCoords[0]);
-        localUR = localSys->geographicToLocal(geoCoords[2]);
+        Point3f srcLL,srcUR;
+        srcLL = Point3f(pts[0].x(),pts[0].y(),0.0);
+        srcUR = Point3f(pts[2].x(),pts[2].y(),0.0);
         
         // Calculate a reasonable sample size
         [self calcSampleX:thisSampleX sampleY:thisSampleY fromPoints:dispPts];
@@ -170,25 +170,27 @@ static const float SkirtFactor = 0.95;
         texCoords.resize((thisSampleX+1)*(thisSampleY+1));
         texIncr = Point2f(1.0/thisSampleX,1.0/thisSampleY);
         
-        Point2f localIncr((localUR.x()-localLL.x())/thisSampleX,(localUR.y()-localLL.y())/thisSampleY);
+        Point2f localIncr((srcUR.x()-srcLL.x())/thisSampleX,(srcUR.y()-srcLL.y())/thisSampleY);
         
         // Vertices
         for (unsigned int iy=0;iy<thisSampleY+1;iy++)
             for (unsigned int ix=0;ix<thisSampleX+1;ix++)
             {
-                Point3f loc(localLL.x() + ix * localIncr.x(), localLL.y() + iy * localIncr.y(), 0.0);
-                localMbr.addPoint(Point2f(loc.x(),loc.y()));
-                Point3f dispLoc = coordAdapter->localToDisplay(loc);
+                Point3d srcLoc(srcLL.x() + ix * localIncr.x(), srcLL.y() + iy * localIncr.y(), 0.0);
+                localMbr.addPoint(Point2f(srcLoc.x(),srcLoc.y()));
+                Point3d dispLoc = coordAdapter->localToDisplay(CoordSystemConvert3d(srcSystem, localSys, srcLoc));
+                Point3f dispLoc3f = Point3f(dispLoc.x(),dispLoc.y(),dispLoc.z());
                 
-                locs[iy*(thisSampleX+1)+ix] = dispLoc;
+                locs[iy*(thisSampleX+1)+ix] = dispLoc3f;
                 TexCoord texCoord(ix * texIncr.x(), 1.0-iy * texIncr.y());
                 texCoords[iy*(thisSampleX+1)+ix] = texCoord;
                 
-                drawable->addPoint(dispLoc);
+                drawable->addPoint(dispLoc3f);
                 drawable->addTexCoord(0,texCoord);
-                drawable->addNormal(dispLoc);
+                drawable->addNormal(dispLoc3f);
             }
     } else {
+        // Note: Not sure this works with specific coordinate systems
         // With rotation, we need to handle this differently
         // Convert the four corners into place
         // Rotate around the center
