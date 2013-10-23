@@ -414,7 +414,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
-    return [interactLayer addScreenMarkers:markers desc:screenMarkerDesc mode:threadMode];
+    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
@@ -464,7 +464,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
-    return [interactLayer addSelectionVectors:vectors desc:vectorDesc];
+    return [interactLayer addSelectionVectors:vectors desc:nil];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
