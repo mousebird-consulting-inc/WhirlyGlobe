@@ -29,13 +29,17 @@
 
 using namespace WhirlyKit;
 
+@interface MaplyQuadImageTilesLayer()
+- (void)setCurrentImage:(float)currentImage cancelUpdater:(bool)cancelUpdater;
+@end
+
 /* An active model is called by the renderer right before
  we render a frame.  This lets us mess with the images
  being displayed by a tile layer in an immediate way.
  */
 @interface ActiveImageUpdater : MaplyActiveObject
 // Tile loader that's got the images we need
-@property (nonatomic,weak) WhirlyKitQuadTileLoader *tileLoader;
+@property (nonatomic,weak) MaplyQuadImageTilesLayer *tileLayer;
 // Number of images layers
 @property unsigned int numImages;
 // The period over which we'll switch them all
@@ -55,30 +59,13 @@ using namespace WhirlyKit;
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
-    if (!_tileLoader)
+    if (!_tileLayer)
         return;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    float where = fmodf(now-_startTime,_period)/_period * (_numImages);
-    unsigned int image0 = floorf(where);
-    float t = where-image0;
-    unsigned int image1 = ceilf(where);
-    if (image1 == _numImages)
-        image1 = 0;
+    float where = fmodf(now-_startTime,_period)/_period * (_numImages-1);
     
-    // Change the images to give us start and finish
-    ChangeSet changes;
-    [_tileLoader setCurrentImageStart:image0 end:image1 changes:changes];
-    if (!changes.empty())
-        scene->addChangeRequests(changes);
-    
-    // Set the interpolation in the program
-    OpenGLES2Program *prog = scene->getProgram(_programId);
-    if (prog)
-    {
-        glUseProgram(prog->getProgram());
-        prog->setUniform("u_interp", t);
-    }
+    [_tileLayer setCurrentImage:where cancelUpdater:false];
 }
 
 @end
@@ -241,7 +228,6 @@ using namespace WhirlyKit;
 {
     _animationPeriod = animationPeriod;
     
-    
     if (_viewC)
     {
         if (imageUpdater)
@@ -258,9 +244,10 @@ using namespace WhirlyKit;
             {
                 imageUpdater = [[ActiveImageUpdater alloc] init];
                 imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-                imageUpdater.tileLoader = tileLoader;
+                if (_imageDepth > 1)
+                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_imageDepth-1)*_animationPeriod;
+                imageUpdater.tileLayer = self;
                 imageUpdater.period = _animationPeriod;
-                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
                 imageUpdater.numImages = _imageDepth;
                 imageUpdater.programId = _customShader;
                 tileLoader.programId = _customShader;
@@ -272,9 +259,14 @@ using namespace WhirlyKit;
 
 - (void)setCurrentImage:(float)currentImage
 {
+    [self setCurrentImage:currentImage cancelUpdater:YES];
+}
+
+- (void)setCurrentImage:(float)currentImage cancelUpdater:(bool)cancelUpdater
+{
     _currentImage = currentImage;
     
-    if (imageUpdater)
+    if (cancelUpdater && imageUpdater)
     {
         [_viewC removeActiveObject:imageUpdater];
         imageUpdater = nil;
@@ -304,6 +296,7 @@ using namespace WhirlyKit;
 
         glUseProgram(prog->getProgram());
         prog->setUniform("u_interp", t);
+        [_renderer forceDrawNextFrame];
 
         if (oldContext)
             [EAGLContext setCurrentContext:oldContext];
@@ -581,7 +574,7 @@ using namespace WhirlyKit;
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = [tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-        WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
 #ifdef TRASHTEST
         // Mess with some of the images to test corruption
@@ -637,7 +630,7 @@ using namespace WhirlyKit;
 
     // Get the data for the tile and sort out what the delegate returned to us
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-    WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel];
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
 
     // Start with elevation
     MaplyElevationChunk *elevChunk = nil;

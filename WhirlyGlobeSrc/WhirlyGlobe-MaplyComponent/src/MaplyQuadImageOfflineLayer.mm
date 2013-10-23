@@ -200,7 +200,7 @@ using namespace WhirlyKit;
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = [tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
-        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         
         NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
         if (super.layerThread)
