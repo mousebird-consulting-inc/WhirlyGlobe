@@ -337,10 +337,11 @@ LocationInfo locations[NumLocations] =
         marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
         marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+        marker.layoutImportance = 0.0;
         [markers addObject:marker];
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:nil];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(0.5)}];
 }
 
 // Add 3D markers
