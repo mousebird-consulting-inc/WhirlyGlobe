@@ -118,6 +118,7 @@ using namespace WhirlyKit;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
     _viewUpdatePeriod = 0.1;
+    _enable = true;
     
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -188,6 +189,7 @@ using namespace WhirlyKit;
     tileLoader.includeElev = _includeElevAttrForShader;
     tileLoader.useElevAsZ = (_viewC.elevDelegate != nil);
     tileLoader.textureAtlasSize = _texturAtlasSize;
+    tileLoader.enable = _enable;
     switch (_imageFormat)
     {
         case MaplyImageIntRGBA:
@@ -301,6 +303,12 @@ using namespace WhirlyKit;
         if (oldContext)
             [EAGLContext setCurrentContext:oldContext];
     }
+}
+
+- (void)setEnable:(bool)enable
+{
+    _enable = enable;
+    tileLoader.enable = _enable;
 }
 
 - (void)setHandleEdges:(bool)handleEdges

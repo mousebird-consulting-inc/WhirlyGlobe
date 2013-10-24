@@ -35,6 +35,7 @@ using namespace WhirlyKit;
     bool doingUpdate;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
+    bool _enable;
 }
 
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
@@ -93,6 +94,7 @@ using namespace WhirlyKit;
         _textureAtlasSize = 2048;
         _activeTextures = -1;
         _borderTexel = 1;
+        _enable = true;
         defaultTessX = defaultTessY = 10;
         pthread_mutex_init(&tileLock, NULL);
     }
@@ -748,6 +750,56 @@ using namespace WhirlyKit;
 
             pthread_mutex_unlock(&tileLock);
         }
+    }
+}
+
+- (void)runSetEnable:(NSNumber *)newEnableObj
+{
+    bool newEnable = [newEnableObj boolValue];
+    if (newEnable == _enable)
+        return;
+    
+    _enable = newEnable;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->enabled = _enable;
+            tileBuilder->drawAtlas->setEnableAllDrawables(_enable, theChanges);
+        }
+    } else {
+        // We'll look through the tiles and change them all accordingly
+        pthread_mutex_lock(&tileLock);
+        
+        // No atlases, so changes tiles individually
+        for (LoadedTileSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+            (*it)->setEnable(tileBuilder, _enable, theChanges);
+        
+        pthread_mutex_unlock(&tileLock);
+    }
+    
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setEnable:(bool)enable
+{
+    if (!_quadLayer)
+    {
+        _enable = enable;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
+    } else {
+        [self runSetEnable:@(enable)];
     }
 }
 
