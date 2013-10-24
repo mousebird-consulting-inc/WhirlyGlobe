@@ -44,6 +44,9 @@ public:
     /// Enable/disable a drawable we're representing
     void setEnableDrawable(SimpleIdentity drawId,bool enabled);
     
+    /// Enable/disable all the big drawables we're using
+    void setEnableAllDrawables(bool enabled,ChangeSet &changes);
+    
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
     {
@@ -56,6 +59,9 @@ public:
     /// Get a list of the active drawables and their texture IDs.
     /// We need this for remapping things later
     void getDrawableTextures(std::vector<DrawTexInfo> &remaps);
+    
+    /// Return the list of current drawables by ID
+    void getDrawableIDs(SimpleIDSet &drawIDs);
         
     /// Check if there are any active updates in any of the drawable buffers
     bool hasUpdates();
@@ -95,6 +101,7 @@ protected:
         SimpleIdentity elementChunkId;
     };
 
+    bool enable;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
     OpenGLMemManager *memManager;

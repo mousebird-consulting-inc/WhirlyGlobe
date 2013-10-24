@@ -70,9 +70,24 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
     @param y The y value, or latitude in radians if we're making geo coordinates.
     @param z The z value, sometimes this is display coordinates (radius == 1.0 for a sphere)
               and sometimes this is meters.  It depends on how you're using it.
-    @return A 3D MaplyCorodinate3d in radians + other (if representing a lon/lat value).
+    @return A 3D MaplyCoordinate3d in radians + other (if representing a lon/lat value).
   */
 MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
+
+/** @brief Construct a MaplyBoundingBox from the values given.
+    @details The inputs are in degrees and the order is longitude *then* latitude.
+    @param degLon0 The left side of the bounding box in degrees.
+    @param degLat0 The bottom of the bounding box in degrees.
+    @param degLon1 The right side of the bounding box in degrees.
+    @param degLat1 The top of the bounding box in degrees.
+    @return A MaplyBoundingBox in radians.
+  */
+MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1);
+    
+/** @brief Check if two bounding boxes overlap.
+    @return Returns true if they did overlap, false otherwise.
+ */
+bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
     
 #if __cplusplus
 }
