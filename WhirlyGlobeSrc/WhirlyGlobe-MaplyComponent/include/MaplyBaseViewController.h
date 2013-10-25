@@ -392,6 +392,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief Remove a MaplyViewControllerLayer from the globe or map.
 - (void)removeLayer:(MaplyViewControllerLayer *)layer;
 
+/// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
+- (void)removeLayers:(NSArray *)layers;
+
 /// @brief Remove all the user created MaplyViewControllerLayer objects from the globe or map.
 - (void)removeAllLayers;
 

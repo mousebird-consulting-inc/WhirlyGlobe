@@ -41,7 +41,7 @@ public:
     QuadPagingLoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     {
         compObjs = nil;
-        nodeInfo.ident = ident;
+        nodeIdent = ident;
         isLoading = false;
         enable = false;
         childrenEnable = false;
@@ -52,7 +52,7 @@ public:
     NSMutableArray *compObjs;
 
     // Details of which node we're representing
-    WhirlyKit::Quadtree::NodeInfo nodeInfo;
+    WhirlyKit::Quadtree::Identifier nodeIdent;
 
     /// Set if this tile is in the process of loading
     bool isLoading;
@@ -81,7 +81,7 @@ typedef struct
     /// Comparison operator based on node identifier
     bool operator() (const QuadPagingLoadedTile *a,const QuadPagingLoadedTile *b)
     {
-        return a->nodeInfo.ident < b->nodeInfo.ident;
+        return a->nodeIdent < b->nodeIdent;
     }
 } QuadPagingLoadedTileSorter;
 
@@ -172,6 +172,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [inLayerThread removeLayer:quadLayer];
     
     // Note: Need to wait for anything that's been dispatched to finish
+    pthread_mutex_lock(&tileSetLock);
+    for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
+         it != tileSet.end(); ++it)
+        delete *it;
+    pthread_mutex_unlock(&tileSetLock);
 }
 
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
@@ -219,7 +224,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return minZoom;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -283,6 +288,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 // Called on the layer thread
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    MaplyTileID tileID;
+    tileID.x = tileInfo.ident.x;
+    tileID.y = tileInfo.ident.y;
+    tileID.level = tileInfo.ident.level;
+    
     bool isThere = false;
     
     // Look for the existing tile, just in case
@@ -308,11 +318,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     // Now let the delegate know we'd like that tile.
-    MaplyTileID tileID;
-    tileID.x = tileInfo.ident.x;
-    tileID.y = tileInfo.ident.y;
-    tileID.level = tileInfo.ident.level;
-    [tileSource startFetchForTile:tileID forLayer:self];
+    if (tileID.level >= minZoom)
+        [tileSource startFetchForTile:tileID forLayer:self];
+    else {
+        [self tileDidLoad:tileID];
+    }
 }
 
 // Called on the layer thread
@@ -337,7 +347,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [_viewC removeObjects:compObjs];
     
     // Check the parent
-    if (tileInfo.ident.level > 0)
+    if (tileInfo.ident.level >= minZoom)
     {
         MaplyTileID parentID;
         parentID.x = tileInfo.ident.x/2;
@@ -414,9 +424,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         for (unsigned int iy=0;iy<2;iy++)
         {
             MaplyTileID childID;
-            childID.x = 2*tile->nodeInfo.ident.x + ix;
-            childID.y = 2*tile->nodeInfo.ident.y + iy;
-            childID.level = tile->nodeInfo.ident.level + 1;
+            childID.x = 2*tile->nodeIdent.x + ix;
+            childID.y = 2*tile->nodeIdent.y + iy;
+            childID.level = tile->nodeIdent.level + 1;
             QuadPagingLoadedTile childTile(Quadtree::Identifier(childID.x,childID.y,childID.level));
             QuadPagingLoadedTileSet::iterator it = tileSet.find(&childTile);
             if (it != tileSet.end() && (*it)->didLoad)

@@ -629,7 +629,8 @@ static const float PerfOutputDelay = 15.0;
     if (newLayer && ![userLayers containsObject:newLayer])
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
-        if (_threadPerLayer)
+        // Only supporting quad image tiles layer for the thread per layer
+        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];
@@ -676,6 +677,12 @@ static const float PerfOutputDelay = 15.0;
             [layerThread cancel];
         }
     }
+}
+
+- (void)removeLayers:(NSArray *)layers
+{
+    for (MaplyViewControllerLayer *layer in layers)
+        [self removeLayer:layer];
 }
 
 - (void)removeAllLayers
