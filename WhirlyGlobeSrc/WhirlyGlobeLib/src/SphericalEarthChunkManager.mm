@@ -434,6 +434,31 @@ SimpleIdentity SphericalChunkManager::addChunk(WhirlyKitSphericalChunk *chunk,bo
     
     return chunkID;
 }
+    
+bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes)
+{
+    SimpleIDSet drawIDs;
+//    SimpleIDSet oldTexIDs;
+    
+    pthread_mutex_lock(&repLock);
+    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+    if (it != chunkReps.end())
+    {
+        drawIDs = (*it)->drawIDs;
+//        oldTexIDs = (*it)->texIDs;
+    }
+    pthread_mutex_unlock(&repLock);
+
+    // Make sure we have the same number of textures
+//    if (oldTexIDs.size() != texIDs.size())
+//        return false;
+    
+    for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
+        changes.push_back(new DrawTexturesChangeRequest(*it,texIDs));
+    
+    return true;
+}
 
 /// Enable or disable the given chunk
 void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes)
