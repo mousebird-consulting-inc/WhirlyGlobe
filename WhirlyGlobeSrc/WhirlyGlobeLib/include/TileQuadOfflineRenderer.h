@@ -64,6 +64,9 @@
 /// Size (in pixels) of the output image we're building
 @property (nonatomic,assign) int sizeX,sizeY;
 
+/// If set, the output size is a maximum.  We'll try to track input resolution
+@property (nonatomic,assign) bool autoRes;
+
 /// The bounding box for the image we're trying to build
 @property (nonatomic,assign) WhirlyKit::Mbr &mbr;
 
