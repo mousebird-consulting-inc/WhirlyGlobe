@@ -38,3 +38,23 @@ MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z)
     coord.x = x;  coord.y = y;  coord.z = z;
     return coord;
 }
+
+MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1)
+{
+    MaplyBoundingBox bbox;
+    bbox.ll = MaplyCoordinateMakeWithDegrees(degLon0, degLat0);
+    bbox.ur = MaplyCoordinateMakeWithDegrees(degLon1, degLat1);
+    
+    return bbox;
+}
+
+bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
+{
+    Mbr mbr0,mbr1;
+    mbr0.ll() = Point2f(bbox0.ll.x,bbox0.ll.y);
+    mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
+    mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
+    mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
+    
+    return mbr0.overlaps(mbr1);
+}

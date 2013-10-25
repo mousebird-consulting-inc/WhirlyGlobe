@@ -122,7 +122,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     if (!_quadLayer)
         return;
 
-    if (mbr.ll().x() < 0 && mbr.ur().x() > 0)
+    if (mbr.ll().x() < 0 && mbr.ur().x() > 0 && (mbr.ur().x() - mbr.ll().x() > M_PI))
     {
         float tmp = mbr.ll().x();
         mbr.ll().x() = mbr.ur().x();

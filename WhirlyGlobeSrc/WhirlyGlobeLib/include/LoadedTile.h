@@ -182,6 +182,9 @@ public:
     // Image format for textures
     GLenum glFormat;
     WKSingleByteSource singleByteSource;
+    
+    // Whether we start new drawables enabled or disabled
+    bool enabled;
 
     // Number of samples to use for tiles
     int defaultSphereTessX,defaultSphereTessY;
@@ -194,7 +197,7 @@ public:
     std::vector<std::vector<SimpleIdentity> > texAtlasMappings;
     std::vector<DynamicDrawableAtlas::DrawTexInfo> drawTexInfo;
     int texelBinSize;
-    
+        
     // Drawable atlas to match the texture atlas
     DynamicDrawableAtlas *drawAtlas;
     
@@ -235,8 +238,11 @@ public:
     /// Update what we're displaying based on the quad tree, particulary for children
     void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
-    /// Switch to
+    /// Switch to the given images
     void setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    
+    /// Turn drawables on/off
+    void setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges);
     
     /// Dump out to the log
     void Print(TileBuilder *tileBuilder);
