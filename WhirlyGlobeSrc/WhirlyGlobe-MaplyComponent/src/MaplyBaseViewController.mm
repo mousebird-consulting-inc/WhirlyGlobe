@@ -497,6 +497,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addStickers:stickers desc:desc mode:MaplyThreadAny];
 }
 
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];

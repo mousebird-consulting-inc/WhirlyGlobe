@@ -653,6 +653,18 @@ protected:
     SimpleIdentity newTexId;
 };
     
+/// Change the textures used by a drawable
+class DrawTexturesChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    const std::vector<SimpleIdentity> newTexIDs;
+};
+    
 /// Change the transform matrix on a drawable
 class TransformChangeRequest : public DrawableChangeRequest
 {

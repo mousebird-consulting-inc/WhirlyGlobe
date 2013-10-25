@@ -254,7 +254,6 @@ using namespace WhirlyKit;
                     imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_imageDepth-1)*_animationPeriod;
                 imageUpdater.tileLayer = self;
                 imageUpdater.period = _animationPeriod;
-                imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
                 imageUpdater.numImages = _imageDepth;
                 imageUpdater.programId = _customShader;
                 tileLoader.programId = _customShader;

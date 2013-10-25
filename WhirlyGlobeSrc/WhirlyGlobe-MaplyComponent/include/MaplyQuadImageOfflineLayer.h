@@ -45,6 +45,8 @@
 
 @property (nonatomic) int maxTiles;
 
+@property (nonatomic) CGSize textureSize;
+
 @property (nonatomic,assign) bool asyncFetching;
 
 /// How often we'll generate a new image
