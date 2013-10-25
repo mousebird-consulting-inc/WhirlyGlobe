@@ -237,7 +237,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     borderTexel(0),
     scene(NULL),
     lineMode(false),
-    activeTextures(-1)
+    activeTextures(-1),
+    enabled(true)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -824,7 +825,8 @@ void TileBuilder::updateAtlasMappings()
         texAtlases[ii]->getTextureIDs(texIDs);
         newTexAtlasMappings.push_back(texIDs);
     }
-    
+
+    SimpleIDSet newDrawIDs;
     if (drawAtlas)
         drawAtlas->getDrawableTextures(newDrawTexInfo);
     
@@ -832,7 +834,7 @@ void TileBuilder::updateAtlasMappings()
     pthread_mutex_lock(&texAtlasMappingLock);
     texAtlasMappings = newTexAtlasMappings;
     drawTexInfo = newDrawTexInfo;
-    pthread_mutex_unlock(&texAtlasMappingLock);
+    pthread_mutex_unlock(&texAtlasMappingLock);    
 }
     
 bool TileBuilder::isReady()
@@ -1188,7 +1190,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
     //    tree->Print();
 }
     
-void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,ChangeSet &changeRequests)
 {
     std::vector<unsigned int> whichImages;
     if (whichImage0 != EmptyIdentity)
@@ -1218,6 +1220,22 @@ void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichIma
                 }
             }
         }
+    }
+}
+    
+void LoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges)
+{
+    if (drawId != EmptyIdentity)
+        theChanges.push_back(new OnOffChangeRequest(drawId,enable));
+    if (skirtDrawId != EmptyIdentity)
+        theChanges.push_back(new OnOffChangeRequest(skirtDrawId,enable));
+
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        if (childDrawIds[ii] != EmptyIdentity)
+            theChanges.push_back(new OnOffChangeRequest(childDrawIds[ii],enable));
+        if (childSkirtDrawIds[ii] != EmptyIdentity)
+            theChanges.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],enable));
     }
 }
 

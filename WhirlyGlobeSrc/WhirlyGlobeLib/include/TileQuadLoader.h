@@ -164,4 +164,7 @@
 /// This will also interpolate between the two
 - (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
+/// By default we're on, but we can be turned off
+- (void)setEnable:(bool)enable;
+
 @end
