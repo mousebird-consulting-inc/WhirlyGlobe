@@ -142,6 +142,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
         delete *it;
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
     pthread_mutex_destroy(&tileSetLock);
@@ -176,6 +177,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
         delete *it;
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
 }
 
@@ -543,6 +545,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             [compObjs addObjectsFromArray:(*it)->compObjs];
         delete *it;
     }
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
     [_viewC removeObjects:compObjs];
