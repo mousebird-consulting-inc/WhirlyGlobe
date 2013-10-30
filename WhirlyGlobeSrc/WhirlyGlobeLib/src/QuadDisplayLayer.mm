@@ -419,10 +419,6 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         std::vector<Quadtree::NodeInfo> childNodes;
         _quadtree->generateChildren(tileIdent, childNodes);
         nodesForEval.insert(childNodes.begin(),childNodes.end());
-        
-        // Make sure we actually evaluate them
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
-        [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
 
     // Make sure we actually evaluate them

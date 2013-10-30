@@ -60,6 +60,8 @@ using namespace WhirlyKit;
     _bbox.ll = MaplyCoordinateMakeWithDegrees(-180, -90);
     _bbox.ur = MaplyCoordinateMakeWithDegrees(+180, +90);
     _on = true;
+    _textureSize = CGSizeMake(1024, 1024);
+    _autoRes = true;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
@@ -124,6 +126,9 @@ using namespace WhirlyKit;
     tileLoader.mbr = mbr;
     tileLoader.outputDelegate = self;
     tileLoader.numImages = _imageDepth;
+    tileLoader.sizeX = _textureSize.width;
+    tileLoader.sizeY = _textureSize.height;
+    tileLoader.autoRes = _autoRes;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;

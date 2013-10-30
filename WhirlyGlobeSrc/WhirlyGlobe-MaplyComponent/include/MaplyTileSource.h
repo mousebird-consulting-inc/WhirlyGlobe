@@ -69,6 +69,13 @@ typedef struct
 
 @optional
 
+/** @brief For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
+    @details If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.
+    @details But if you must do variable sized tiles (Why?) fill in this method to give the importance function some clue as to what you're doing.  This will be called per tile to figure out when to load things.
+    @details Variable sized tiles will screw up other things.  SO DON'T DO IT.
+ */
+- (int)tileSizeForTile:(MaplyTileID)tileID;
+
 /** @brief Fetch the image for a given tile.
     @details For this method, you can return either a full UIImage or a MaplyImageTile.
     @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.

@@ -743,7 +743,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Actually do the vector change
-// Called in the layer thread
 - (void)changeVectorRun:(NSArray *)argArray
 {
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
@@ -757,7 +756,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         isHere = [userObjects containsObject:vecObj];
         pthread_mutex_unlock(&userLock);
         
-        if (isHere)
+        if (!isHere)
             return;
 
         VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
@@ -1065,6 +1064,89 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     }
     
     return compObj;
+}
+
+// Actually do the sticker change
+- (void)changeStickerRun:(NSArray *)argArray
+{
+    MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
+    NSDictionary *desc = [argArray objectAtIndex:1];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    
+    @synchronized(stickerObj)
+    {
+        bool isHere = false;
+        pthread_mutex_lock(&userLock);
+        isHere = [userObjects containsObject:stickerObj];
+        pthread_mutex_unlock(&userLock);
+        
+        if (!isHere)
+            return;
+        
+        SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+        
+        if (chunkManager)
+        {
+            // Change the images being displayed
+            NSArray *newImages = desc[kMaplyStickerImages];
+            if ([newImages isKindOfClass:[NSArray class]])
+            {
+                MaplyQuadImageFormat newFormat = MaplyImageIntRGBA;
+                if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
+                    newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
+                std::vector<SimpleIdentity> newTexIDs;
+                std::set<UIImage *> oldImages = stickerObj.images;
+                stickerObj.images.clear();
+
+                // Add in the new images
+                for (UIImage *image in newImages)
+                {
+                    if ([image isKindOfClass:[UIImage class]])
+                    {
+                        SimpleIdentity texId = [self addImage:image imageFormat:newFormat mode:threadMode];
+                        if (texId != EmptyIdentity)
+                            newTexIDs.push_back(texId);
+                        stickerObj.images.insert(image);
+                    }
+                }
+                
+                // Clear out the old images
+                for (std::set<UIImage *>::iterator it = oldImages.begin(); it != oldImages.end(); ++it)
+                    [self removeImage:*it];
+                
+                ChangeSet changes;
+                for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
+                     it != stickerObj.chunkIDs.end(); ++it)
+                    chunkManager->modifyChunkTextures(*it, newTexIDs, changes);
+                [self flushChanges:changes mode:threadMode];
+            }
+        }
+    }
+}
+
+// Change stickers
+- (void)changeSticker:(MaplyComponentObject *)stickerObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (!stickerObj)
+        return;
+    
+    if (!desc)
+        desc = [NSDictionary dictionary];
+    NSArray *argArray = @[stickerObj, desc, @(threadMode)];
+    
+    // If the object is under construction, toss this over to the layer thread
+    if (stickerObj.underConstruction)
+        threadMode = MaplyThreadAny;
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self changeStickerRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(changeStickerRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
 }
 
 // Actually add the lofted polys.

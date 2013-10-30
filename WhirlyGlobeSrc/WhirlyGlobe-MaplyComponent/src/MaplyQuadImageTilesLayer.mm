@@ -90,6 +90,7 @@ using namespace WhirlyKit;
     WhirlyKitSceneRendererES *_renderer;
     WhirlyKitViewState *lastViewState;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
+    bool variableSizeTiles;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -122,6 +123,9 @@ using namespace WhirlyKit;
     
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
+    
+    // See if the delegate is doing variable sized tiles (kill me)
+    variableSizeTiles = [tileSource respondsToSelector:@selector(tileSizeForTile:)];
     
     return self;
 }
@@ -459,6 +463,16 @@ using namespace WhirlyKit;
     if (ident.level == 0)
         return MAXFLOAT;
 
+    MaplyTileID tileID;
+    tileID.level = ident.level;
+    tileID.x = ident.x;
+    tileID.y = ident.y;
+    int thisTileSize = tileSize;
+    if (variableSizeTiles)
+    {
+        thisTileSize = [tileSource tileSizeForTile:tileID];
+    }
+
     double import = 0.0;
     if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
@@ -469,9 +483,9 @@ using namespace WhirlyKit;
     } else {
         if (elevDelegate)
         {
-            import = ScreenImportance(viewState, frameSize, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+            import = ScreenImportance(viewState, frameSize, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
         } else {
-            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
         }
     }
 
