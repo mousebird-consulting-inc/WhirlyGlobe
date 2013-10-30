@@ -296,6 +296,17 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Modify an existing sticker.  This only supports changing the active textures.
+    @details This method will change attributes of a sticker that's currently in use.  At present that's just the images it's displaying.  
+    @param compObj The component object representing one or more existing stickers.
+    @param desc The description dictionary for changes we're making to the sticker.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyStickerImages|NSARray|The array of images to apply to the sticker.  You can reuse old ones or introduce new ones.|
+  */
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Add vectors that can be used for selections.
     @details These are MaplyVectorObject's that will show up in user selection, but won't be visible.  So if a user taps on one, you get the vector in your delegate.  Otherwise, no one will know it's there.
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
@@ -391,6 +402,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 
 /// @brief Remove a MaplyViewControllerLayer from the globe or map.
 - (void)removeLayer:(MaplyViewControllerLayer *)layer;
+
+/// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
+- (void)removeLayers:(NSArray *)layers;
 
 /// @brief Remove all the user created MaplyViewControllerLayer objects from the globe or map.
 - (void)removeAllLayers;

@@ -133,6 +133,9 @@ public:
     /// Add the given chunk (enabled or disabled)
     SimpleIdentity addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes);
     
+    /// Modify the given chunk (new texture IDs)
+    bool modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes);
+    
     /// Enable or disable the given chunk
     void enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes);
     

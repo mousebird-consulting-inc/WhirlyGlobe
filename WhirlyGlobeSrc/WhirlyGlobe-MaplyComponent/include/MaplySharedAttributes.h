@@ -146,6 +146,10 @@
 /// Sampling size along one dimension
 #define kMaplySampleY @"sampleY"
 #define kWGSampleY kMaplySampleY
+/// Images to use when changing a sticker
+#define kMaplyStickerImages @"images"
+/// Image format to use for the new images
+#define kMaplyStickerImageFormat @"imageformat"
 
 /// These are used for lofted polygons
 

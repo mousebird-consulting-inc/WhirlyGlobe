@@ -47,7 +47,7 @@
 @property (nonatomic) UIImage *image;
 
 /** @brief Images to stretch over the sticker.
-    @details This is an NSArray of UIImages.  The images iwll be cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with them.
+    @details This is an NSArray of UIImages.  The images will be cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with them.
     @details All the images passed in here will be presented to the shader program, if it has variables for them.  It' sup to you to do something with them in the shader.
   */
 @property (nonatomic) NSArray *images;

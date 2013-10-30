@@ -1747,6 +1747,18 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
         basicDrawable->setTexId(which,newTexId);
 }
 
+DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs)
+: DrawableChangeRequest(drawId), newTexIDs(newTexIDs)
+{
+}
+
+void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setTexIDs(newTexIDs);
+}
+
 TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)
     : DrawableChangeRequest(drawId), newMat(*newMat)
 {
