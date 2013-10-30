@@ -67,8 +67,8 @@ public:
 
     /// Whether it's currently displaying
     bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
-	/// True to turn it on, false to turn it off
-	void setOnOff(bool onOff);
+    /// True to turn it on, false to turn it off
+    void setOnOff(bool onOff);
 
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
