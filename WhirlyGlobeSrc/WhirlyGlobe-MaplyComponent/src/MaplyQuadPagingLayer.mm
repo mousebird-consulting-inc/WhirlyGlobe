@@ -191,6 +191,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ur->y = geoMbr.ur().y();
 }
 
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
+{
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    ll->x = mbr.ll().x();
+    ll->y = mbr.ll().y();
+    ur->x = mbr.ur().x();
+    ur->y = mbr.ur().y();
+}
+
 #pragma mark - WhirlyKitQuadDataStructure protocol
 
 /// Return the coordinate system we're working in
@@ -219,7 +229,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return minZoom;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -533,9 +543,15 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             [compObjs addObjectsFromArray:(*it)->compObjs];
         delete *it;
     }
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
     [_viewC removeObjects:compObjs];
+}
+
+- (void)reload
+{
+    [quadLayer refresh];
 }
 
 @end

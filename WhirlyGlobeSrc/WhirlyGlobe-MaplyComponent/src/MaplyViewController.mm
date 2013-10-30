@@ -462,6 +462,16 @@ using namespace Maply;
     *height = loc.z();
 }
 
+- (void)setHeading:(float)heading
+{
+    mapView.rotAngle = heading;
+}
+
+- (float)heading
+{
+    return mapView.rotAngle;
+}
+
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
 {
