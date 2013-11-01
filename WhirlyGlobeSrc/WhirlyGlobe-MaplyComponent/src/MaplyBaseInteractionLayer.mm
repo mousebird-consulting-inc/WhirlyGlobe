@@ -26,6 +26,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShape.h"
 #import "MaplySticker.h"
+#import "MaplyBillboard.h"
 #import "MaplyCoordinate.h"
 #import "ImageTexture_private.h"
 #import "MaplySharedAttributes.h"
@@ -307,6 +308,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
+        if (marker.rotation != 0.0)
+        {
+            wgMarker.rotation = marker.rotation;
+            wgMarker.lockRotation = true;
+        }
         if (marker.selectable)
         {
             wgMarker.isSelectable = true;
@@ -1150,7 +1156,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Actually add the lofted polys.
-// Called in the layer thread.
 - (void)addLoftedPolysRun:(NSArray *)argArray
 {
     NSArray *vectors = [argArray objectAtIndex:0];
@@ -1212,6 +1217,82 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually add the lofted polys.
+- (void)addBillboardsRun:(NSArray *)argArray
+{
+    NSArray *bills = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    CoordSystemDisplayAdapter *coordAdapter = visualView.coordAdapter;
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc];
+    
+    ChangeSet changes;
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    if (billManager)
+    {
+        NSMutableArray *wkBills = [NSMutableArray array];
+        for (MaplyBillboard *bill in bills)
+        {
+            WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
+            Point3f localPt = coordSys->geographicToLocal(GeoCoord(bill.center.x,bill.center.y));
+            Point3f dispPt = coordAdapter->localToDisplay(Point3f(localPt.x(),localPt.y(),bill.center.z));
+            wkBill.center = dispPt;
+            wkBill.width = bill.size.width;
+            wkBill.height = bill.size.height;
+            wkBill.color = bill.color;
+        
+            UIImage *image = bill.image;
+            if (image)
+            {
+                SimpleIdentity texId = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                if (texId != EmptyIdentity)
+                {
+                    compObj.images.insert(image);
+                    wkBill.texId = texId;
+                }
+            }
+            [wkBills addObject:wkBill];
+        }
+        
+        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, EmptyIdentity, changes);
+        compObj.billIDs.insert(billId);
+        compObj.isSelectable = false;
+    }
+    [self flushChanges:changes mode:threadMode];
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
+}
+
+// Add lofted polys
+- (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addBillboardsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addBillboardsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
 
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
@@ -1225,6 +1306,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
         
@@ -1252,6 +1334,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                     loftManager->removeLoftedPolys(userObj.loftIDs, changes);
                 if (chunkManager)
                     chunkManager->removeChunks(userObj.chunkIDs, changes);
+                if (billManager)
+                    billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
                 for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
@@ -1319,6 +1403,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1338,6 +1423,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 labelManager->enableLabels(compObj.labelIDs, enable, changes);
             if (shapeManager && !compObj.shapeIDs.empty())
                 shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
+            if (billManager && !compObj.billIDs.empty())
+                billManager->enableBillboards(compObj.billIDs, enable, changes);
             if (chunkManager && !compObj.chunkIDs.empty())
             {
                 for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
@@ -1411,6 +1498,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSObject *selObj = nil;
     
+    pthread_mutex_lock(&userLock);
     for (MaplyComponentObject *userObj in userObjects)
     {
         if (userObj.vectors && userObj.isSelectable)
@@ -1435,6 +1523,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 break;
         }
     }
+    pthread_mutex_unlock(&userLock);
     
     return selObj;
 }
