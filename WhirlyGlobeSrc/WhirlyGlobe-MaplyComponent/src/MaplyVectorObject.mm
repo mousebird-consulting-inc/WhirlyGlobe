@@ -415,7 +415,7 @@ using namespace WhirlyGlobe;
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
-    // Find the loop with the larest area
+    // Find the loop with the largest area
     float bigArea = -1.0;
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
@@ -458,6 +458,59 @@ using namespace WhirlyGlobe;
         }
     }
 
+    return true;
+}
+
+- (bool)centroid:(MaplyCoordinate *)centroid
+{
+    // Find the loop with the largest area
+    float bigArea = -1.0;
+    const VectorRing *bigLoop = NULL;
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
+    {
+        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal && areal->loops.size() > 0)
+        {
+            for (unsigned int ii=0;ii<areal->loops.size();ii++)
+            {
+                float area = std::abs(CalcLoopArea(areal->loops[ii]));
+                if (area > bigArea)
+                {
+                    bigLoop = &areal->loops[ii];
+                    bigArea = area;
+                }
+            }
+        }
+    }
+    
+    if (bigArea < 0.0)
+        return false;
+
+    if (bigLoop)
+    {
+        float area = 0.0;
+        for (unsigned int ii=0;ii<bigLoop->size()-1;ii++)
+        {
+            const Point2f p0 = (*bigLoop)[ii];
+            const Point2f p1 = (*bigLoop)[(ii+1)%bigLoop->size()];
+            area += (p0.x()*p1.y()-p1.x()*p0.y());
+        }
+        area /= 2.0;
+        
+        Point2f sum(0,0);
+        for (unsigned int ii=0;ii<bigLoop->size()-1;ii++)
+        {
+            const Point2f p0 = (*bigLoop)[ii];
+            const Point2f p1 = (*bigLoop)[(ii+1)%bigLoop->size()];
+            float b = (p0.x()*p1.y()-p1.x()*p0.y());
+            sum.x() += (p0.x()+p1.x())*b;
+            sum.y() += (p0.y()+p1.y())*b;
+        }
+        centroid->x = sum.x()/(6*area);
+        centroid->y = sum.y()/(6*area);
+    } else
+        return false;
+    
     return true;
 }
 
