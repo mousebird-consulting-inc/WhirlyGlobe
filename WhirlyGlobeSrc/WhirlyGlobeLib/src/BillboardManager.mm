@@ -223,6 +223,26 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
     
     return billID;
 }
+    
+void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
+{
+    pthread_mutex_lock(&billLock);
+    
+    for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
+    {
+        BillboardSceneRep dummyRep(*bit);
+        BillboardSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+        if (it != sceneReps.end())
+        {
+            BillboardSceneRep *billRep = *it;
+            for (SimpleIDSet::iterator dit = billRep->drawIDs.begin();
+                 dit != billRep->drawIDs.end(); ++dit)
+                changes.push_back(new OnOffChangeRequest((*dit), enable));
+        }
+    }
+    
+    pthread_mutex_unlock(&billLock);
+}
 
 /// Remove a group of billboards named by the given ID
 void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)

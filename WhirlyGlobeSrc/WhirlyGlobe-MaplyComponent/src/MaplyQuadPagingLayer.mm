@@ -255,7 +255,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Just the importance of this tile.
 //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
-//    NSLog(@"tile (%d,%d,%d) = %f",ident.x,ident.y,ident.level,import);
+//    NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
@@ -534,7 +534,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return ret;
 }
 
-- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)clearContents
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     pthread_mutex_lock(&tileSetLock);
@@ -549,6 +549,22 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     [_viewC removeObjects:compObjs];
+}
+
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+{
+    [self clearContents];
+}
+
+- (void)reload
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(reload) onThread:super.layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    [quadLayer refresh];
 }
 
 @end
