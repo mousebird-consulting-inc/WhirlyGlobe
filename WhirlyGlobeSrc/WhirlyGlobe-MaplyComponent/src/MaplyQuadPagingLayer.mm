@@ -198,6 +198,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ur->y = geoMbr.ur().y();
 }
 
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
+{
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    ll->x = mbr.ll().x();
+    ll->y = mbr.ll().y();
+    ur->x = mbr.ur().x();
+    ur->y = mbr.ur().y();
+}
+
 #pragma mark - WhirlyKitQuadDataStructure protocol
 
 /// Return the coordinate system we're working in

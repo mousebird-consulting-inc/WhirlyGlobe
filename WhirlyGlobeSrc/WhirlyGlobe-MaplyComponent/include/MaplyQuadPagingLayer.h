@@ -99,17 +99,25 @@
  */
 - (void)tileDidLoad:(MaplyTileID)tileID;
 
-/** @brief Calculate the bounding box for a single tile.
+/** @brief Calculate the bounding box for a single tile in geographic.
     @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).
+    @param tileID The ID for the tile we're interested in.
+    @param ll The lower left corner of the tile in geographic coordinates.
+    @param ur The upper right corner of the tile in geographic coordinates.
+  */
+- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the bounding box for a single tile in the local coordinate system.
+    @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
     @param tileID The ID for the tile we're interested in.
     @param ll The lower left corner of the tile in local coordinates.
     @param ur The upper right corner of the tile in local coordinates.
   */
-- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur ;
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
-/** @brief Force a full reload of all tiles.
-    @details This will notify the system to flush out all the existing tiles and start reloading from the top.
- */
+/** @brief Reload the paging layer contents.
+    @details This asks the paging layer to clean out its current data and reload everything from scratch.
+  */
 - (void)reload;
 
 @end
