@@ -26,6 +26,7 @@
 #import <MaplyScreenMarker.h>
 #import <MaplyShape.h>
 #import <MaplySticker.h>
+#import <MaplyBillboard.h>
 #import <MaplyVectorObject.h>
 #import <MaplyViewTracker.h>
 #import <MaplyViewController.h>

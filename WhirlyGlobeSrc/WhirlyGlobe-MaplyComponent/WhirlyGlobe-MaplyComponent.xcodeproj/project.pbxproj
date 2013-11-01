@@ -88,6 +88,8 @@
 		2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01C15BF9EF200F1DDD8 /* MaplyLabel.m */; };
 		2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01D15BF9EF200F1DDD8 /* MaplyMarker.m */; };
 		2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01E15BF9EF200F1DDD8 /* MaplyScreenLabel.m */; };
+		2BBAA907181EEE3100BE1277 /* MaplyBillboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */; };
+		2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */; };
 		2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */; };
 		2BBEB82F15CB06AD00E363E7 /* MaplyVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */; };
 		2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */; };
@@ -222,6 +224,8 @@
 		2BB9E01C15BF9EF200F1DDD8 /* MaplyLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyLabel.m; path = src/MaplyLabel.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01D15BF9EF200F1DDD8 /* MaplyMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyMarker.m; path = src/MaplyMarker.m; sourceTree = SOURCE_ROOT; };
 		2BB9E01E15BF9EF200F1DDD8 /* MaplyScreenLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyScreenLabel.m; path = src/MaplyScreenLabel.m; sourceTree = SOURCE_ROOT; };
+		2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBillboard.h; path = include/MaplyBillboard.h; sourceTree = SOURCE_ROOT; };
+		2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyBillboard.mm; path = src/MaplyBillboard.mm; sourceTree = SOURCE_ROOT; };
 		2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject.h; path = include/MaplyVectorObject.h; sourceTree = SOURCE_ROOT; };
 		2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorObject.mm; path = src/MaplyVectorObject.mm; sourceTree = SOURCE_ROOT; };
 		2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject_private.h; path = include/private/MaplyVectorObject_private.h; sourceTree = SOURCE_ROOT; };
@@ -479,6 +483,8 @@
 				2B2E2FF616C4885800CAD143 /* MaplyShader.h */,
 				2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */,
 				2B2E2FFB16C4886800CAD143 /* MaplyShader.mm */,
+				2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */,
+				2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */,
 			);
 			name = "visible objects";
 			path = WhirlyGlobeComponent;
@@ -657,6 +663,7 @@
 				2BEA1E60171E0EBD0039F1A4 /* MaplyActiveObject_private.h in Headers */,
 				2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */,
 				2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */,
+				2BBAA907181EEE3100BE1277 /* MaplyBillboard.h in Headers */,
 				2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */,
 				2BCA68A8174195A800696BA8 /* MaplyQuadImageTilesLayer.h in Headers */,
 				2BCA68AA174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h in Headers */,
@@ -760,6 +767,7 @@
 				2B11057217E237CD00735C46 /* FMDatabase.m in Sources */,
 				2B897A8B15BC698800250F23 /* MaplyScreenMarker.m in Sources */,
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
+				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,
 				2B4AFB8F18031C2B00C3F948 /* MaplyQuadImageOfflineLayer.mm in Sources */,
 				2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */,
 				2B97AFED17E3D6CE00D4B33D /* FMDatabaseAdditions.m in Sources */,

@@ -90,6 +90,9 @@
 // Add lofted polys
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode;
 
+// Add billboards
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
