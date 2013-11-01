@@ -112,6 +112,7 @@ LocationInfo locations[NumLocations] =
     int zoomLimit;
     bool requireElev;
     bool imageWaitLoad;
+    int maxLayerTiles;
 }
 
 // Change what we're showing based on the Configuration
@@ -161,6 +162,7 @@ LocationInfo locations[NumLocations] =
     // Create an empty globe or map controller
     zoomLimit = 0;
     requireElev = false;
+    maxLayerTiles = 256;
     switch (startupMapType)
     {
         case MaplyGlobe:
@@ -168,6 +170,7 @@ LocationInfo locations[NumLocations] =
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
             baseViewC = globeViewC;
+            maxLayerTiles = 128;
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
@@ -198,7 +201,6 @@ LocationInfo locations[NumLocations] =
     // We'll let the toolkit create a thread per image layer.
     baseViewC.threadPerLayer = true;
     
-    // This will get us taps and such
     if (globeViewC)
     {
         // Start up over San Francisco
@@ -337,10 +339,11 @@ LocationInfo locations[NumLocations] =
         marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
         marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+        marker.layoutImportance = MAXFLOAT;
         [markers addObject:marker];
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:nil];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0)}];
 }
 
 // Add 3D markers
@@ -742,6 +745,7 @@ static const int NumMegaMarkers = 40000;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -793,7 +797,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21 depth:1];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
@@ -810,7 +814,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17 depth:4];
         tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
@@ -841,6 +845,7 @@ static const int NumMegaMarkers = 40000;
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
+             layer.maxTiles = maxLayerTiles;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;

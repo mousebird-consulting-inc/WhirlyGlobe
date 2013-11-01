@@ -158,6 +158,7 @@ using namespace WhirlyKit;
     }
     
     userLayers = [NSMutableArray array];
+    _threadPerLayer = true;
     
     [self loadSetup_glView];
 
@@ -413,7 +414,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
-    return [interactLayer addScreenMarkers:markers desc:screenMarkerDesc mode:threadMode];
+    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
@@ -461,9 +462,14 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
-    return [interactLayer addSelectionVectors:vectors desc:vectorDesc];
+    return [interactLayer addSelectionVectors:vectors desc:nil];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -494,6 +500,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
 {
     return [self addStickers:stickers desc:desc mode:MaplyThreadAny];
+}
+
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -544,6 +555,16 @@ static const float PerfOutputDelay = 15.0;
             [theTracker.view removeFromSuperview];
         sceneRenderer.triggerDraw = true;
     }
+}
+
+- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer addImage:image imageFormat:imageFormat mode:threadMode];
+}
+
+- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer removeImage:image];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
@@ -628,7 +649,8 @@ static const float PerfOutputDelay = 15.0;
     if (newLayer && ![userLayers containsObject:newLayer])
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
-        if (_threadPerLayer)
+        // Only supporting quad image tiles layer for the thread per layer
+        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];
@@ -675,6 +697,12 @@ static const float PerfOutputDelay = 15.0;
             [layerThread cancel];
         }
     }
+}
+
+- (void)removeLayers:(NSArray *)layers
+{
+    for (MaplyViewControllerLayer *layer in layers)
+        [self removeLayer:layer];
 }
 
 - (void)removeAllLayers
