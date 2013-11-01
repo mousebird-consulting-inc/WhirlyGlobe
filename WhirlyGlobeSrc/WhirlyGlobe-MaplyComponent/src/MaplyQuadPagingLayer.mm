@@ -337,7 +337,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self tileDidLoad:tileID];
     }
     
-    NSLog(@"Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//    NSLog(@"Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called on the layer thread

@@ -49,4 +49,45 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
     return outPt;
 }
     
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d center)
+    : CoordSystemDisplayAdapter(coordSys,center), ll(ll), ur(ur), center(center), coordSys(coordSys)
+{
+}
+
+GeneralCoordSystemDisplayAdapter::~GeneralCoordSystemDisplayAdapter()
+{
+}
+
+bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
+{
+    outLL = Point3f(ll.x(),ll.y(),ll.z());
+    outUR = Point3f(ur.x(),ur.y(),ur.z());
+    return true;
+}
+    
+WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3f localPt)
+{
+    Point3f dispPt = localPt-Point3f(center.x(),center.y(),center.z());
+    return dispPt;
+}
+
+WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3d localPt)
+{
+    Point3d dispPt = localPt-center;
+    return dispPt;
+}
+    
+WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt)
+{
+    Point3f localPt = dispPt+Point3f(center.x(),center.y(),center.z());
+    return localPt;
+}
+
+WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3d dispPt)
+{
+    Point3d localPt = dispPt+center;
+    return localPt;
+}
+
+    
 }
