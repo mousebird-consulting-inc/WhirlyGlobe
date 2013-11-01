@@ -134,8 +134,15 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details The vector object contains a number of half baked geometric queries, this being one of them.
     @details If this vector contains at least one areal feature, we'll determine which loop is the largest and return the center of that loop, as well as its bounding box.
     @details Why?  Think label placement on an areal feature.
+    @return Returns false if there was no loop (i.e. probably isn't an areal)
   */
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the centroid of the largest loop in the areal feature.
+    @details The centroid is a better center for label placement than the middle of the largest loop as calculated by largestLoopCenter:mbrLL:mbrUR:
+    @return Returns false if there was no loop (probably wasn't an areal).
+  */
+- (bool)centroid:(MaplyCoordinate *)centroid;
 
 /** @brief Calculate the bounding box of all the features in this vector object.
   */

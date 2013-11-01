@@ -543,15 +543,17 @@ LocationInfo locations[NumLocations] =
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
                              MaplyCoordinate center;
-                             [wgVecObj largestLoopCenter:&center mbrLL:nil mbrUR:nil];
-                             screenLabel.loc = center;
-                             screenLabel.size = CGSizeMake(0, 20);
-                             screenLabel.layoutImportance = 1.0;
-                             screenLabel.text = vecName;
-                             screenLabel.userObject = screenLabel.text;
-                             screenLabel.selectable = true;
-                             if (screenLabel.text)
-                                 [locAutoLabels addObject:screenLabel];
+                             if ([wgVecObj centroid:&center])
+                             {
+                                 screenLabel.loc = center;
+                                 screenLabel.size = CGSizeMake(0, 20);
+                                 screenLabel.layoutImportance = 1.0;
+                                 screenLabel.text = vecName;
+                                 screenLabel.userObject = screenLabel.text;
+                                 screenLabel.selectable = true;
+                                 if (screenLabel.text)
+                                     [locAutoLabels addObject:screenLabel];
+                             }
                              if (compObj)
                                  [locVecObjects addObject:compObj];
                          }
@@ -1263,18 +1265,20 @@ static const int NumMegaMarkers = 40000;
     } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
-        [vecObj largestLoopCenter:&loc mbrLL:nil mbrUR:nil];
-        NSString *name = (NSString *)vecObj.userObject;
-        msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
-        if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
+        if ([vecObj centroid:&loc])
         {
-            // See if there already is one
-            if (!loftPolyDict[name])
+            NSString *name = (NSString *)vecObj.userObject;
+            msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
+            if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
             {
-                MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)}];
-                if (compObj)
+                // See if there already is one
+                if (!loftPolyDict[name])
                 {
-                    loftPolyDict[name] = compObj;
+                    MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)}];
+                    if (compObj)
+                    {
+                        loftPolyDict[name] = compObj;
+                    }
                 }
             }
         }
