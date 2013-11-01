@@ -84,6 +84,11 @@
   */
 @property (nonatomic,readonly) NSString *baseURL;
 
+/** @brief The minimum zoom level available.
+     @details This is the lowest level we'll try to fetch.  Any levels below that will be filled in with placeholders.  Those are empty, but they allow us to load tiles beneath.
+ */
+@property (nonatomic) int minZoom;
+
 /** @brief The maximum zoom level available.
     @details This is the highest level (e.g. largest) that we'll
      fetch for a given pyramid tile source.  The source can sparse,
