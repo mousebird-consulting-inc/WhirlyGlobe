@@ -22,6 +22,7 @@
 #import "MaplyViewController.h"
 #import "MaplyViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -192,7 +193,15 @@ using namespace Maply;
 
 - (WhirlyKitView *) loadSetup_view
 {
-    coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    if (_coordSys)
+    {
+        MaplyCoordinate ll,ur;
+        [_coordSys getBoundsLL:&ll ur:&ur];
+        Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
+        coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
+    } else
+        coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     
     if (scrollView)
     {

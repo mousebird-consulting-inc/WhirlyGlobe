@@ -403,29 +403,39 @@ using namespace WhirlyKit;
         return;
     }
     
+    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
+    Point3d center = coordAdapter->getCenter();
+    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+    {
+        canShortCircuitImportance = true;
+        if (!coordAdapter->isFlat())
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+        // We happen to store tilt in the view matrix.
+        Eigen::Matrix4d &viewMat = viewState.viewMatrix;
+        if (!viewMat.isIdentity())
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+        // The tile source coordinate system must be the same as the display's system
+        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+        
+        // We need to feel our way down to the appropriate level
+        maxShortCircuitLevel = [self targetZoomLevel];
+    } else {
+        // Note: Can't short circuit in this case.  Something wrong with the math
+        canShortCircuitImportance = false;
+    }
     
-    canShortCircuitImportance = true;
-    if (!viewState.coordAdapter->isFlat())
-    {
-        canShortCircuitImportance = false;
-        return;
-    }
-    // We happen to store tilt in the view matrix.
-    Eigen::Matrix4d &viewMat = viewState.viewMatrix;
-    if (!viewMat.isIdentity())
-    {
-        canShortCircuitImportance = false;
-        return;
-    }
-    // The tile source coordinate system must be the same as the display's system
-    if (!coordSys->coordSystem->isSameAs(viewState.coordAdapter->getCoordSystem()))
-    {
-        canShortCircuitImportance = false;
-        return;
-    }
-    
-    // We need to feel our way down to the appropriate level
-    maxShortCircuitLevel = [self targetZoomLevel];
+    // Note: Debugging
+    canShortCircuitImportance = false;
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
