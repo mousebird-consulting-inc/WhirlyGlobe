@@ -462,6 +462,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
     return [interactLayer addSelectionVectors:vectors desc:nil];
@@ -550,6 +555,16 @@ static const float PerfOutputDelay = 15.0;
             [theTracker.view removeFromSuperview];
         sceneRenderer.triggerDraw = true;
     }
+}
+
+- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer addImage:image imageFormat:imageFormat mode:threadMode];
+}
+
+- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer removeImage:image];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
