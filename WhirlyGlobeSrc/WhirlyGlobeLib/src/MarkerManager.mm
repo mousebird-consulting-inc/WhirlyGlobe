@@ -56,7 +56,6 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
             screenIDVec.push_back(*idIt);
         changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
     }
-    screenShapeIDs.clear();
     
     if (selectManager && !selectIDs.empty())
         selectManager->enableSelectables(selectIDs, enable);

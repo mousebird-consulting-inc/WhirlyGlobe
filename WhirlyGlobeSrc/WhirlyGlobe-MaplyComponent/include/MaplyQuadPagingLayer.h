@@ -107,4 +107,9 @@
   */
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur ;
 
+/** @brief Force a full reload of all tiles.
+    @details This will notify the system to flush out all the existing tiles and start reloading from the top.
+ */
+- (void)reload;
+
 @end

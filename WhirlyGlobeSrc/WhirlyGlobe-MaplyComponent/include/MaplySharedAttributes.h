@@ -75,6 +75,7 @@
 #define kMaplyLabelDrawPriorityDefault 60000
 #define kMaplyLoftedPolysDrawPriorityDefault 70000
 #define kMaplyShapeDrawPriorityDefault 80000
+#define kMaplyBillboardDrawPriorityDefault 90000
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault

@@ -130,6 +130,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic, assign) bool includeElevAttrForShader;
 
+/** @brief If true we'll actuall use the elevation values to modify the mesh.
+    @details When this is on we'll modify the mesh to actually use elevation values passed in through the elevation delegate. On is the default, logically enough.
+    @details Why would you ever turn it off?  If you wanted a flat (or curved for the globe) mesh with elevation values in their seperate attribute array.  You might want a shading effect rather than actual geometry.
+  */
+@property (nonatomic, assign) bool useElevAsZ;
+
 /** @brief Requires an elevation chunk for every tile we display.
     @details Elevation data is optional on the globe or map.  If it exists, via the MaplyElevationSource delegate on the view controller, then we'll use it to construct the tile.  This property requires elevation for any tile we display.
     @details What this does is prevent flat tiles from showing up if there's more imagery than elevation.

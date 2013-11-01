@@ -103,6 +103,14 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (SimpleIdentity)getShaderID
+{
+    if (!_program)
+        return EmptyIdentity;
+    
+    return _program->getId();
+}
+
 - (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
 {
     if ([NSThread currentThread] != [NSThread mainThread])

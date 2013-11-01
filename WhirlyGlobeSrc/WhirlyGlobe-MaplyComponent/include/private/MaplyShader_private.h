@@ -24,6 +24,9 @@
 
 @property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
 
+/// Internal Shader ID used below the Component level
+- (WhirlyKit::SimpleIdentity)getShaderID;
+
 /// Called by the view controller to clear out the shader program
 - (void)shutdown;
 
