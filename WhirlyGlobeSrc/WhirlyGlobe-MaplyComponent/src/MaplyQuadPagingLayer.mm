@@ -162,6 +162,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:self renderer:renderer];
     // A tile needs to take up this much screen space
     quadLayer.minImportance = 512*512;
+    quadLayer.maxTiles = 256;
     
     [super.layerThread addLayer:quadLayer];
     
@@ -335,6 +336,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     else {
         [self tileDidLoad:tileID];
     }
+    
+    NSLog(@"Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called on the layer thread
