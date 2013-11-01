@@ -1498,6 +1498,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 {
     NSObject *selObj = nil;
     
+    pthread_mutex_lock(&userLock);
     for (MaplyComponentObject *userObj in userObjects)
     {
         if (userObj.vectors && userObj.isSelectable)
@@ -1522,6 +1523,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 break;
         }
     }
+    pthread_mutex_unlock(&userLock);
     
     return selObj;
 }
