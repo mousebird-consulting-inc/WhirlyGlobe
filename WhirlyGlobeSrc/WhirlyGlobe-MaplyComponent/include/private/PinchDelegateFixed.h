@@ -21,6 +21,11 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
 
+// Sent out when the pinch delegate takes control
+#define kPinchDelegateDidStart @"WKPinchDelegateStarted"
+// Sent out when the pinch delegate finished (but hands off to momentum)
+#define kPinchDelegateDidEnd @"WKPinchDelegateEnded"
+
 /** WhirlyGlobe Pinch Gesture Delegate
  Responds to pinches on a UIView and manipulates the globe view
  accordingly.

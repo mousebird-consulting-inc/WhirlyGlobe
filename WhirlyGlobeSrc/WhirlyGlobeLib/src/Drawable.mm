@@ -802,6 +802,15 @@ void BasicDrawable::setTexId(unsigned int which,SimpleIdentity inId)
     texInfo[which].texId = inId;
 }
     
+void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
+{
+    for (unsigned int ii=0;ii<texIDs.size();ii++)
+    {
+        setupTexCoordEntry(ii, 0);
+        texInfo[ii].texId = texIDs[ii];
+    }
+}
+    
 void BasicDrawable::setColor(RGBAColor inColor)
 {
     color = inColor;
@@ -1524,7 +1533,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         hasTexture[ii] = true;
 
     // Zero or more textures in the drawable
-    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         char baseMapName[40];
@@ -1736,6 +1745,18 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setTexId(which,newTexId);
+}
+
+DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs)
+: DrawableChangeRequest(drawId), newTexIDs(newTexIDs)
+{
+}
+
+void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setTexIDs(newTexIDs);
 }
 
 TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matrix4d *newMat)

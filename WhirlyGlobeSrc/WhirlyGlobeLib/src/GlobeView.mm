@@ -284,9 +284,23 @@ using namespace Eigen;
     return retPt;
 }
 
+- (void)setDelegate:(NSObject<WhirlyGlobeAnimationDelegate> *)delegate
+{
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+    }
+    
+    _delegate = delegate;
+}
+
 - (void)cancelAnimation
 {
-    self.delegate = nil;
+    if (_delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+
+    _delegate = nil;
 }
 
 // Run the rotation animation

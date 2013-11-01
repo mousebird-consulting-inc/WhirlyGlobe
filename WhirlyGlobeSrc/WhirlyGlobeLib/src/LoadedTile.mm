@@ -145,7 +145,7 @@ using namespace WhirlyKit;
     return newTex;
 }
 
-- (bool)convertToRawData
+- (bool)convertToRawData:(int)borderTexel
 {
     switch (_type)
     {
@@ -153,11 +153,19 @@ using namespace WhirlyKit;
         {
             int destWidth = _width;
             int destHeight = _height;
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:0];
+            // We need this to be square.  Because duh.
+            if (destWidth != destHeight)
+            {
+                int size = std::max(destWidth,destHeight);
+                destWidth = destHeight = size;
+            }
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
             if (rawData)
             {
                 _imageData = rawData;
                 _type = WKLoadedImageNSDataRawData;
+                _width = destWidth;
+                _height = destHeight;
             }
         }
             break;
@@ -229,7 +237,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     borderTexel(0),
     scene(NULL),
     lineMode(false),
-    activeTextures(-1)
+    activeTextures(-1),
+    enabled(true)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -277,10 +286,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         
         for (unsigned int ii=0;ii<numImages;ii++)
             texAtlases.push_back(new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat));
-        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
-        
-        // We want some room around these
-        borderTexel = 1;
+        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);        
     }
 }
     
@@ -819,7 +825,8 @@ void TileBuilder::updateAtlasMappings()
         texAtlases[ii]->getTextureIDs(texIDs);
         newTexAtlasMappings.push_back(texIDs);
     }
-    
+
+    SimpleIDSet newDrawIDs;
     if (drawAtlas)
         drawAtlas->getDrawableTextures(newDrawTexInfo);
     
@@ -827,7 +834,7 @@ void TileBuilder::updateAtlasMappings()
     pthread_mutex_lock(&texAtlasMappingLock);
     texAtlasMappings = newTexAtlasMappings;
     drawTexInfo = newDrawTexInfo;
-    pthread_mutex_unlock(&texAtlasMappingLock);
+    pthread_mutex_unlock(&texAtlasMappingLock);    
 }
     
 bool TileBuilder::isReady()
@@ -967,15 +974,18 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
             changeRequests.push_back(new RemDrawableReq(skirtDrawId));
         skirtDrawId = EmptyIdentity;
     }
-    for (unsigned int ii=0;ii<tileBuilder->texAtlases.size();ii++)
+    if (tileBuilder)
     {
-        if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
+        for (unsigned int ii=0;ii<tileBuilder->texAtlases.size();ii++)
         {
-            tileBuilder->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
-            subTexs[ii].texId = EmptyIdentity;
+            if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
+            {
+                tileBuilder->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
+                subTexs[ii].texId = EmptyIdentity;
+            }
         }
+        subTexs.clear();
     }
-    subTexs.clear();
     for (unsigned int ii=0;ii<texIds.size();ii++)
         if (texIds[ii] != EmptyIdentity)
         {
@@ -1011,6 +1021,9 @@ bool TileBuilder::isValidTile(const Mbr &theMbr)
 void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],ChangeSet &changeRequests)
 {
     bool childrenExist = false;
+    
+    if (placeholder)
+        return;
     
     // Work through the possible children
     int whichChild = 0;
@@ -1177,7 +1190,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
     //    tree->Print();
 }
     
-void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,ChangeSet &changeRequests)
 {
     std::vector<unsigned int> whichImages;
     if (whichImage0 != EmptyIdentity)
@@ -1207,6 +1220,22 @@ void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichIma
                 }
             }
         }
+    }
+}
+    
+void LoadedTile::setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges)
+{
+    if (drawId != EmptyIdentity)
+        theChanges.push_back(new OnOffChangeRequest(drawId,enable));
+    if (skirtDrawId != EmptyIdentity)
+        theChanges.push_back(new OnOffChangeRequest(skirtDrawId,enable));
+
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        if (childDrawIds[ii] != EmptyIdentity)
+            theChanges.push_back(new OnOffChangeRequest(childDrawIds[ii],enable));
+        if (childSkirtDrawIds[ii] != EmptyIdentity)
+            theChanges.push_back(new OnOffChangeRequest(childSkirtDrawIds[ii],enable));
     }
 }
 

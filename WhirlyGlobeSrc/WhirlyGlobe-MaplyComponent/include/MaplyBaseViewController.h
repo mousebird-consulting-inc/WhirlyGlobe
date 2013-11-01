@@ -30,6 +30,7 @@
 #import "MaplyShader.h"
 #import "MaplyActiveObject.h"
 #import "MaplyElevationSource.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -296,6 +297,33 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Modify an existing sticker.  This only supports changing the active textures.
+    @details This method will change attributes of a sticker that's currently in use.  At present that's just the images it's displaying.  
+    @param compObj The component object representing one or more existing stickers.
+    @param desc The description dictionary for changes we're making to the sticker.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyStickerImages|NSARray|The array of images to apply to the sticker.  You can reuse old ones or introduce new ones.|
+  */
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add one or more MaplyBillboard objects to the current scene.
+    @details This method will add the given MaplyBillboard objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+    @param billboards An NSArray of MaplyBillboard objects.
+    @param desc The description dictionary that controls how the billboards will look.  It takes the following entries.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the stickers.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The billboards will only be visible if the user is below this height.  Off by default.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyBillboardDrawPriorityDefault.|
+
+    @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+  */
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /** @brief Add vectors that can be used for selections.
     @details These are MaplyVectorObject's that will show up in user selection, but won't be visible.  So if a user taps on one, you get the vector in your delegate.  Otherwise, no one will know it's there.
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
@@ -340,6 +368,34 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
+
+/** @brief Add an image as a texture and keep track of it.
+    @details We reference count UIImages and turn them into internal textures.  If you know you're going to be using the same image and adding and removing the object its attached to, this is a good way to lock the image down.  Otherwise we'll be constantly recreating the texture.
+    @details You don't have call this before using a UIImage in a MaplyScreenMarker or other object.  The system takes care of it for you.  This is purely for optimization.
+    @param image The image we wish to retain the texture for.
+    @param imageFormat If we create this image, this is the texture format we want it to use.
+ 
+ | Image Format | Description |
+ |:-------------|:------------|
+ | MaplyImageIntRGBA | 32 bit RGBA with 8 bits per channel.  The default. |
+ | MaplyImageUShort565 | 16 bits with 5/6/5 for RGB and none for A. |
+ | MaplyImageUShort4444 | 16 bits with 4 bits for each channel. |
+ | MaplyImageUShort5551 | 16 bits with 5/5/5 bits for RGB and 1 bit for A. |
+ | MaplyImageUByteRed | 8 bits, where we choose the R and ignore the rest. |
+ | MaplyImageUByteGreen | 8 bits, where we choose the G and ignore the rest. |
+ | MaplyImageUByteBlue | 8 bits, where we choose the B and ignore the rest. |
+ | MaplyImageUByteAlpha | 8 bits, where we choose the A and ignore the rest. |
+ | MaplyImageUByteRGB | 8 bits, where we average RGB for the value. |
+ | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
+
+    @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
+  */
+- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
+
+/** @brief Decrement the reference count on an image and possibly remove its associated texture.
+    @details See addImage:mode: for details on why this is here.  It's the corresponding decrement method for UIImage textures.
+  */
+- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
@@ -391,6 +447,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 
 /// @brief Remove a MaplyViewControllerLayer from the globe or map.
 - (void)removeLayer:(MaplyViewControllerLayer *)layer;
+
+/// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
+- (void)removeLayers:(NSArray *)layers;
 
 /// @brief Remove all the user created MaplyViewControllerLayer objects from the globe or map.
 - (void)removeAllLayers;

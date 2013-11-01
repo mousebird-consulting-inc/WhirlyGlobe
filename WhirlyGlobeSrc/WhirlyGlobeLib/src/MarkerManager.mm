@@ -33,7 +33,6 @@ namespace WhirlyKit
     
 MarkerSceneRep::MarkerSceneRep()
 {
-    selectID = EmptyIdentity;
 }
     
 void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
@@ -57,10 +56,9 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
             screenIDVec.push_back(*idIt);
         changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
     }
-    screenShapeIDs.clear();
     
-    if (selectManager && selectID != EmptyIdentity)
-        selectManager->enableSelectable(selectID, enable);
+    if (selectManager && !selectIDs.empty())
+        selectManager->enableSelectables(selectIDs, enable);
     
     if (layoutManager)
         layoutManager->enableLayoutObjects(screenShapeIDs, enable);
@@ -94,8 +92,8 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     }
     screenShapeIDs.clear();
     
-    if (selectManager && selectID != EmptyIdentity)
-        selectManager->removeSelectable(selectID);
+    if (selectManager && !selectIDs.empty())
+        selectManager->removeSelectables(selectIDs);
     
     if (layoutManager)
         layoutManager->removeLayoutObjects(screenShapeIDs);
@@ -245,7 +243,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             if (!marker.selectID)
                 marker.selectID = Identifiable::genId();
             
-            markerRep->selectID = marker.selectID;
+            markerRep->selectIDs.insert(marker.selectID);
             if (markerInfo.screenObject)
             {
                 Point2f pts2d[4];

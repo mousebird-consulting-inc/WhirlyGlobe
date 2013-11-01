@@ -73,6 +73,7 @@ using namespace Eigen;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
+        [globeView cancelAnimation];
     }
     
     // Calculate the offset based on angle

@@ -137,6 +137,7 @@ static const float MomentumAnimLen = 1.0;
             runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
 		}
 			break;
 		case UIGestureRecognizerStateChanged:
@@ -202,6 +203,8 @@ static const float MomentumAnimLen = 1.0;
 		}
 			break;
         case UIGestureRecognizerStateFailed:
+            if (panType != PanNone)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
             panType = PanNone;
             break;
 		case UIGestureRecognizerStateEnded:
@@ -253,6 +256,9 @@ static const float MomentumAnimLen = 1.0;
                 }
                
             }
+
+            if (panType != PanNone)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
         }
 			break;
         default:

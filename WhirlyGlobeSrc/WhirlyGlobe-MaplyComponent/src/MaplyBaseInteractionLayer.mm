@@ -26,9 +26,11 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShape.h"
 #import "MaplySticker.h"
+#import "MaplyBillboard.h"
 #import "MaplyCoordinate.h"
 #import "ImageTexture_private.h"
 #import "MaplySharedAttributes.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -121,7 +123,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
     SimpleIdentity texID = EmptyIdentity;
     
@@ -144,6 +146,43 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     {
         // Add it and download it
         Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        switch (imageFormat)
+        {
+            case MaplyImageIntRGBA:
+            case MaplyImage4Layer8Bit:
+            default:
+                tex->setFormat(GL_UNSIGNED_BYTE);
+                break;
+            case MaplyImageUShort565:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+                break;
+            case MaplyImageUShort4444:
+                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+                break;
+            case MaplyImageUShort5551:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+                break;
+            case MaplyImageUByteRed:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRed);
+                break;
+            case MaplyImageUByteGreen:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleGreen);
+                break;
+            case MaplyImageUByteBlue:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleBlue);
+                break;
+            case MaplyImageUByteAlpha:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleAlpha);
+                break;
+            case MaplyImageUByteRGB:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRGB);
+                break;
+        }
         
         ChangeSet changes;
         changes.push_back(new AddTextureReq(tex));
@@ -262,13 +301,18 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image mode:threadMode];
+            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
+        if (marker.rotation != 0.0)
+        {
+            wgMarker.rotation = marker.rotation;
+            wgMarker.lockRotation = true;
+        }
         if (marker.selectable)
         {
             wgMarker.isSelectable = true;
@@ -351,7 +395,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         SimpleIdentity texID = EmptyIdentity;
         if (marker.image)
         {
-            texID = [self addImage:marker.image mode:threadMode];
+            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(marker.image);
         }
         if (texID != EmptyIdentity)
@@ -435,7 +479,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage mode:threadMode];
+            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -536,7 +580,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         wgLabel.text = label.text;
         SimpleIdentity texID = EmptyIdentity;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage mode:threadMode];
+            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(label.iconImage);
         }
         wgLabel.iconTexture = texID;
@@ -705,7 +749,6 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Actually do the vector change
-// Called in the layer thread
 - (void)changeVectorRun:(NSArray *)argArray
 {
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
@@ -719,7 +762,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         isHere = [userObjects containsObject:vecObj];
         pthread_mutex_unlock(&userLock);
         
-        if (isHere)
+        if (!isHere)
             return;
 
         VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
@@ -952,19 +995,40 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     for (MaplySticker *sticker in stickers)
     {
-        SimpleIdentity texId = EmptyIdentity;
+        std::vector<SimpleIdentity> texIDs;
         if (sticker.image) {
-            texId = [self addImage:sticker.image mode:threadMode];
+            SimpleIdentity texId = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
+            if (texId != EmptyIdentity)
+                texIDs.push_back(texId);
             compObj.images.insert(sticker.image);
         }
+        for (UIImage *image in sticker.images)
+        {
+            if ([image isKindOfClass:[UIImage class]])
+            {
+                SimpleIdentity texId = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
+                if (texId != EmptyIdentity)
+                    texIDs.push_back(texId);
+                compObj.images.insert(image);
+            }
+        }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
-        GeoMbr geoMbr = GeoMbr(GeoCoord(sticker.ll.x,sticker.ll.y), GeoCoord(sticker.ur.x,sticker.ur.y));
-        chunk.mbr = geoMbr;
-        chunk.texId = texId;
+        Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
+        chunk.mbr = mbr;
+        chunk.texIDs = texIDs;
         chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
         chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
         chunk.sampleX = [inDesc[@"sampleX"] intValue];
         chunk.sampleY = [inDesc[@"sampleY"] intValue];
+        chunk.programID = [inDesc[kMaplyShader] intValue];
+        if (inDesc[kMaplySubdivEpsilon] != nil)
+            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+        if (sticker.coordSys)
+            chunk.coordSys = [sticker.coordSys getCoordSystem];
+        if (inDesc[kMaplyMinVis] != nil)
+            chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
+        if (inDesc[kMaplyMaxVis] != nil)
+            chunk.maxVis = [inDesc[kMaplyMaxVis] floatValue];
         NSNumber *bufRead = inDesc[kMaplyZBufferRead];
         if (bufRead)
             chunk.readZBuffer = [bufRead boolValue];
@@ -1008,8 +1072,90 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually do the sticker change
+- (void)changeStickerRun:(NSArray *)argArray
+{
+    MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
+    NSDictionary *desc = [argArray objectAtIndex:1];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    
+    @synchronized(stickerObj)
+    {
+        bool isHere = false;
+        pthread_mutex_lock(&userLock);
+        isHere = [userObjects containsObject:stickerObj];
+        pthread_mutex_unlock(&userLock);
+        
+        if (!isHere)
+            return;
+        
+        SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+        
+        if (chunkManager)
+        {
+            // Change the images being displayed
+            NSArray *newImages = desc[kMaplyStickerImages];
+            if ([newImages isKindOfClass:[NSArray class]])
+            {
+                MaplyQuadImageFormat newFormat = MaplyImageIntRGBA;
+                if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
+                    newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
+                std::vector<SimpleIdentity> newTexIDs;
+                std::set<UIImage *> oldImages = stickerObj.images;
+                stickerObj.images.clear();
+
+                // Add in the new images
+                for (UIImage *image in newImages)
+                {
+                    if ([image isKindOfClass:[UIImage class]])
+                    {
+                        SimpleIdentity texId = [self addImage:image imageFormat:newFormat mode:threadMode];
+                        if (texId != EmptyIdentity)
+                            newTexIDs.push_back(texId);
+                        stickerObj.images.insert(image);
+                    }
+                }
+                
+                // Clear out the old images
+                for (std::set<UIImage *>::iterator it = oldImages.begin(); it != oldImages.end(); ++it)
+                    [self removeImage:*it];
+                
+                ChangeSet changes;
+                for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
+                     it != stickerObj.chunkIDs.end(); ++it)
+                    chunkManager->modifyChunkTextures(*it, newTexIDs, changes);
+                [self flushChanges:changes mode:threadMode];
+            }
+        }
+    }
+}
+
+// Change stickers
+- (void)changeSticker:(MaplyComponentObject *)stickerObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (!stickerObj)
+        return;
+    
+    if (!desc)
+        desc = [NSDictionary dictionary];
+    NSArray *argArray = @[stickerObj, desc, @(threadMode)];
+    
+    // If the object is under construction, toss this over to the layer thread
+    if (stickerObj.underConstruction)
+        threadMode = MaplyThreadAny;
+    
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self changeStickerRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(changeStickerRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
+
 // Actually add the lofted polys.
-// Called in the layer thread.
 - (void)addLoftedPolysRun:(NSArray *)argArray
 {
     NSArray *vectors = [argArray objectAtIndex:0];
@@ -1071,6 +1217,82 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     return compObj;
 }
 
+// Actually add the lofted polys.
+- (void)addBillboardsRun:(NSArray *)argArray
+{
+    NSArray *bills = argArray[0];
+    MaplyComponentObject *compObj = argArray[1];
+    NSMutableDictionary *inDesc = argArray[2];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+    
+    CoordSystemDisplayAdapter *coordAdapter = visualView.coordAdapter;
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc];
+    
+    ChangeSet changes;
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    if (billManager)
+    {
+        NSMutableArray *wkBills = [NSMutableArray array];
+        for (MaplyBillboard *bill in bills)
+        {
+            WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
+            Point3f localPt = coordSys->geographicToLocal(GeoCoord(bill.center.x,bill.center.y));
+            Point3f dispPt = coordAdapter->localToDisplay(Point3f(localPt.x(),localPt.y(),bill.center.z));
+            wkBill.center = dispPt;
+            wkBill.width = bill.size.width;
+            wkBill.height = bill.size.height;
+            wkBill.color = bill.color;
+        
+            UIImage *image = bill.image;
+            if (image)
+            {
+                SimpleIdentity texId = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                if (texId != EmptyIdentity)
+                {
+                    compObj.images.insert(image);
+                    wkBill.texId = texId;
+                }
+            }
+            [wkBills addObject:wkBill];
+        }
+        
+        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, EmptyIdentity, changes);
+        compObj.billIDs.insert(billId);
+        compObj.isSelectable = false;
+    }
+    [self flushChanges:changes mode:threadMode];
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
+}
+
+// Add lofted polys
+- (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self addBillboardsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(addBillboardsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
 
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
@@ -1084,6 +1306,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
         
@@ -1111,6 +1334,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                     loftManager->removeLoftedPolys(userObj.loftIDs, changes);
                 if (chunkManager)
                     chunkManager->removeChunks(userObj.chunkIDs, changes);
+                if (billManager)
+                    billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
                 for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
@@ -1178,6 +1403,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1197,6 +1423,8 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 labelManager->enableLabels(compObj.labelIDs, enable, changes);
             if (shapeManager && !compObj.shapeIDs.empty())
                 shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
+            if (billManager && !compObj.billIDs.empty())
+                billManager->enableBillboards(compObj.billIDs, enable, changes);
             if (chunkManager && !compObj.chunkIDs.empty())
             {
                 for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();

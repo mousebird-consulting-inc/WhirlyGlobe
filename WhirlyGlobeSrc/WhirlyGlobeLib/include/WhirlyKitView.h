@@ -25,6 +25,11 @@
 #import "WhirlyKitView.h"
 #import "CoordSystem.h"
 
+// Sent when a WhirlyKitView animation starts
+#define kWKViewAnimationStarted @"WKViewAnimationStarted"
+// Sent when a WhirlyKitView animation is cancelled
+#define kWKViewAnimationEnded @"WKViewAnimationEnded"
+
 /// @cond
 @class WhirlyKitView;
 /// @endcond
