@@ -132,8 +132,14 @@ public:
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);
     
+    /// Remove a set of selectables from consideration
+    void removeSelectables(const SimpleIDSet &selectIDs);
+    
     /// Enable/disable selectable
     void enableSelectable(SimpleIdentity selectID,bool enable);
+    
+    /// Enable/disable a set of selectables
+    void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);

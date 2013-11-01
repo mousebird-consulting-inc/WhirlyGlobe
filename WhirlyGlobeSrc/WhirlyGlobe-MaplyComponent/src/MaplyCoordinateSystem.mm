@@ -20,6 +20,7 @@
 
 #import "MaplyCoordinateSystem_private.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation MaplyCoordinateSystem
@@ -75,9 +76,41 @@ using namespace WhirlyKit;
         *ret_ur = ur;
 }
 
+- (MaplyCoordinate)geoToLocal:(MaplyCoordinate)coord
+{
+    GeoCoord pt(coord.x,coord.y);
+    Point3d retPt = coordSystem->geographicToLocal3d(pt);
+    
+    MaplyCoordinate retCoord;
+    retCoord.x = retPt.x();  retCoord.y = retPt.y();
+    
+    return retCoord;
+}
+
+- (MaplyCoordinate)localToGeo:(MaplyCoordinate)coord
+{
+    Point3d pt(coord.x,coord.y,0.0);
+    GeoCoord retPt = coordSystem->localToGeographic(pt);
+    
+    MaplyCoordinate retCoord;
+    retCoord.x = retPt.x();  retCoord.y = retPt.y();
+    
+    return retCoord;
+}
+
 @end
 
 @implementation MaplyPlateCarree
+
+- (id)initWithBoundingBox:(MaplyBoundingBox)bbox
+{
+    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
+    self = [super initWithCoordSystem:coordSys];
+    ll = bbox.ll;
+    ur = bbox.ur;
+    
+    return self;
+}
 
 - (id)initFullCoverage
 {

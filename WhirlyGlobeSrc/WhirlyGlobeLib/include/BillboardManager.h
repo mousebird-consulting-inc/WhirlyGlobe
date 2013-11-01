@@ -117,6 +117,9 @@ public:
     /// Add billboards for display
     SimpleIdentity addBillboards(NSArray *billboards,NSDictionary *desc,SimpleIdentity billShader,ChangeSet &changes);
     
+    /// Enable/disable active billboards
+    void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
+    
     /// Remove a group of billboards named by the given ID
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 

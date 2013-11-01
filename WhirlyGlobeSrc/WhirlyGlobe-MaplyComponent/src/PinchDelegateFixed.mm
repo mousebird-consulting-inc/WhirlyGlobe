@@ -108,6 +108,7 @@
 		case UIGestureRecognizerStateBegan:
 			// Store the starting Z for comparison
 			startZ = globeView.heightAboveGlobe;
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidStart object:globeView];
 			break;
 		case UIGestureRecognizerStateChanged:
         {
@@ -121,6 +122,10 @@
         }
 			break;
         default:
+            break;
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
             break;
 	}
 }

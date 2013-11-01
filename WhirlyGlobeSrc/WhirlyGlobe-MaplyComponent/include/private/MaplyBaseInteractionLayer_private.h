@@ -25,6 +25,7 @@
 #import "SelectObject_private.h"
 #import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -83,8 +84,14 @@
 // Add stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+// Modify stickers
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 // Add lofted polys
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode;
+
+// Add billboards
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Remove objects associated with the user objects
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
@@ -98,7 +105,7 @@
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
-- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
 
 // Remove the texture associated with an image  or just decrement its reference count
 - (void)removeImage:(UIImage *)image;

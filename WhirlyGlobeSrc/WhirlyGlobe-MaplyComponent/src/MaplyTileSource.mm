@@ -1,8 +1,8 @@
 /*
- *  MaplyShader_private.h
+ *  MaplyTileSource.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 2/7/13.
+ *  Created by Steve Gifford on 10/18/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +18,5 @@
  *
  */
 
-#import "MaplyShader.h"
+#import "MaplyTileSource.h"
 
-@interface MaplyShader()
-
-@property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
-
-/// Internal Shader ID used below the Component level
-- (WhirlyKit::SimpleIdentity)getShaderID;
-
-/// Called by the view controller to clear out the shader program
-- (void)shutdown;
-
-@end

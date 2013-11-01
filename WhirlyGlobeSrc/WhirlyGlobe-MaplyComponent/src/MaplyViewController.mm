@@ -33,10 +33,6 @@ using namespace Maply;
 
 @implementation MaplyViewController
 {
-    // Flat view for 2D mode
-    MaplyFlatView * flatView;
-    // Scroll view for tethered mode
-    UIScrollView * __weak scrollView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
@@ -47,6 +43,8 @@ using namespace Maply;
     self = [super init];
     if (!self)
         return nil;
+    
+    _autoMoveToTap = true;
     
     return self;
 }
@@ -464,6 +462,16 @@ using namespace Maply;
     *height = loc.z();
 }
 
+- (void)setHeading:(float)heading
+{
+    mapView.rotAngle = heading;
+}
+
+- (float)heading
+{
+    return mapView.rotAngle;
+}
+
 /// Return the min and max heights above the globe for zooming
 - (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight
 {
@@ -506,7 +514,8 @@ using namespace Maply;
         {
             [_delegate maplyViewController:self didTapAt:coord];
         }
-        [self animateToPosition:coord time:1.0];
+        if (_autoMoveToTap)
+            [self animateToPosition:coord time:1.0];
     }
 }
 
