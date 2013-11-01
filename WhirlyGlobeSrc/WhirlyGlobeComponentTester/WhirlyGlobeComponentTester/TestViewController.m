@@ -194,7 +194,7 @@ LocationInfo locations[NumLocations] =
     baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
-    baseViewC.clearColor = [UIColor blackColor];
+    baseViewC.clearColor = [UIColor clearColor];
     
     // We'll let the toolkit create a thread per image layer.
     baseViewC.threadPerLayer = true;
