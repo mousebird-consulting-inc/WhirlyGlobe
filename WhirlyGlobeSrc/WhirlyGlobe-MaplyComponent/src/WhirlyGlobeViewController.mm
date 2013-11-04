@@ -602,6 +602,84 @@ using namespace WhirlyGlobe;
     [self handleStopMoving];
 }
 
+// See if the given bounding box is all on sreen
+- (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobeView *)theView height:(float)height
+{
+    [globeView setHeightAboveGlobe:height updateWatchers:false];
+
+    std::vector<Point2f> pts;
+    mbr.asPoints(pts);
+    CGRect frame = self.view.frame;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point2f pt = pts[ii];
+        MaplyCoordinate geoCoord;
+        geoCoord.x = pt.x();  geoCoord.y = pt.y();
+        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
+        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
+            return false;
+    }
+    
+    return true;
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+{
+    float oldHeight = globeView.heightAboveGlobe;
+
+    Eigen::Quaterniond oldRotQuat = globeView.rotQuat;
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
+    [globeView setRotQuat:newRotQuat updateWatchers:false];
+
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    
+    float minHeight = globeView.minHeightAboveGlobe;
+    float maxHeight = globeView.maxHeightAboveGlobe;
+    if (pinchDelegate)
+    {
+        minHeight = std::max(minHeight,pinchDelegate.minHeight);
+        maxHeight = std::min(maxHeight,pinchDelegate.maxHeight);
+    }
+
+    // Check that we can at least see it
+    bool minOnScreen = [self checkCoverage:mbr globeView:globeView height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr globeView:globeView height:maxHeight];
+    if (!minOnScreen && !maxOnScreen)
+    {
+        [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
+        return oldHeight;
+    }
+    
+    // Now for the binary search
+    // Note: I'd rather make a copy of the view first
+    float minRange = 1e-5;
+    do
+    {
+        float midHeight = (minHeight + maxHeight)/2.0;
+        bool midOnScreen = [self checkCoverage:mbr globeView:globeView height:midHeight];
+        
+        if (!minOnScreen && midOnScreen)
+        {
+            maxHeight = midHeight;
+            maxOnScreen = midOnScreen;
+        } else if (!midOnScreen && maxOnScreen)
+        {
+            minHeight = midHeight;
+            minOnScreen = midOnScreen;
+        } else {
+            // Not expecting this
+            break;
+        }
+        
+        if (maxHeight-minHeight < minRange)
+            break;
+    } while (true);
+    
+    [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
+    [globeView setRotQuat:oldRotQuat updateWatchers:false];
+    return maxHeight;
+}
+
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
     Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
