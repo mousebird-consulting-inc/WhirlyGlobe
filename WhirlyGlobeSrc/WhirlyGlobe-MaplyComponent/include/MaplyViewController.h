@@ -189,4 +189,16 @@
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
 
+/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
+    @return Returns the screen point corresponding to a given geo coordinate.
+ */
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Find a height that shows the given bounding box.
+    @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
+    @param The bounding box (in radians) we're trying to view.
+    @param pos Where the view will be looking.
+  */
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+
 @end
