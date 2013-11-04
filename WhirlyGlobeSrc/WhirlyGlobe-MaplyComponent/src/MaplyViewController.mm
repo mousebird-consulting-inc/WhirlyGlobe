@@ -506,6 +506,89 @@ using namespace Maply;
     }
 }
 
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+{
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
+    return [mapView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+// See if the given bounding box is all on sreen
+- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height
+{
+    Point3d loc = mapView.loc;
+    Point3d testLoc = Point3d(loc.x(),loc.y(),height);
+    [mapView setLoc:testLoc runUpdates:false];
+    
+    std::vector<Point2f> pts;
+    mbr.asPoints(pts);
+    CGRect frame = self.view.frame;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point2f pt = pts[ii];
+        MaplyCoordinate geoCoord;
+        geoCoord.x = pt.x();  geoCoord.y = pt.y();
+        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
+        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
+        return false;
+    }
+    
+    return true;
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+{
+    Point3d oldLoc = mapView.loc;
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    
+    float minHeight = mapView.minHeightAboveSurface;
+    float maxHeight = mapView.maxHeightAboveSurface;
+    if (pinchDelegate)
+    {
+        minHeight = std::max(minHeight,pinchDelegate.minZoom);
+        maxHeight = std::min(maxHeight,pinchDelegate.maxZoom);
+    }
+    
+    // Check that we can at least see it
+    bool minOnScreen = [self checkCoverage:mbr mapView:mapView height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr mapView:mapView height:maxHeight];
+    if (!minOnScreen && !maxOnScreen)
+    {
+        [mapView setLoc:oldLoc runUpdates:false];
+        return oldLoc.z();
+    }
+    
+    // Now for the binary search
+    // Note: I'd rather make a copy of the view first
+    float minRange = 1e-5;
+    do
+    {
+        float midHeight = (minHeight + maxHeight)/2.0;
+        bool midOnScreen = [self checkCoverage:mbr mapView:mapView height:midHeight];
+        
+        if (!minOnScreen && midOnScreen)
+        {
+            maxHeight = midHeight;
+            maxOnScreen = midOnScreen;
+        } else if (!midOnScreen && maxOnScreen)
+        {
+            minHeight = midHeight;
+            minOnScreen = midOnScreen;
+        } else {
+            // Not expecting this
+            break;
+        }
+        
+        if (maxHeight-minHeight < minRange)
+        break;
+    } while (true);
+    
+    [mapView setLoc:oldLoc runUpdates:false];
+
+    return maxHeight;
+}
+
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
