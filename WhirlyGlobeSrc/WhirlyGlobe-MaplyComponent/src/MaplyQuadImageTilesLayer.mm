@@ -607,6 +607,11 @@ using namespace WhirlyKit;
         id tileReturn = [tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
+        
+        if (tileData && !loadTile)
+        {
+            NSLog(@"Bad image data for tile: %d: (%d,%d)",level,col,row);
+        }
 
 #ifdef TRASHTEST
         // Mess with some of the images to test corruption

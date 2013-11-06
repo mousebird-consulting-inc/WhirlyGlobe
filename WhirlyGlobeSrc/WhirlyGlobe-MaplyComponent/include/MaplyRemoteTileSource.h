@@ -102,7 +102,7 @@
      image type.  It's typically @"png" or @"jpg", but it
      can be anything that UIImage will recognize.
   */
-@property (nonatomic,readonly) NSString *ext;
+@property (nonatomic) NSString *ext;
 
 /** @brief Number of pixels on a side for any given tile.
     @details This is the number of pixels on any side for a
@@ -111,7 +111,7 @@
      are not required to actually return an image of the size
      you specify here, but it's a good idea.
   */
-@property (nonatomic,readonly) int pixelsPerSide;
+@property (nonatomic) int pixelsPerSide;
 
 /** @brief The coordinate system the image pyramid is in.
     @details This is typically going to be MaplySphericalMercator

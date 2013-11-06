@@ -35,13 +35,32 @@
 
 @class WhirlyKitQuadTileOfflineLoader;
 
+/// The offline renderer passes over images like so
+@interface WhirlyKitQuadTileOfflineImage : NSObject
+{
+@public
+    /// Size of each of the corner pixels in meters
+    CGSize cornerSizes[4];
+}
+
+/// Bounding box for the rendered area
+@property (nonatomic) WhirlyKit::Mbr &mbr;
+
+/// Images produced by the renderer
+@property (nonatomic) NSArray *images;
+
+/// Size of the center pixel in meters
+@property (nonatomic) CGSize centerSize;
+
+@end
+
 /** Fill in this delegate to receive the UIImage this layer
     generates every period seconds.
   */
 @protocol WhirlyKitQuadTileOfflineDelegate <NSObject>
 
 /// Here's the generated image.  Query the loader for extents.
-- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images mbr:(WhirlyKit::Mbr)mbr;
+- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)image;
 
 @end
 
