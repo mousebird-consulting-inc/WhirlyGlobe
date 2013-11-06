@@ -24,6 +24,26 @@
 
 @class MaplyQuadImageOfflineLayer;
 
+/// The offline renderer passes over images like so
+@interface MaplyOfflineImage : NSObject
+{
+@public
+    /// Size of each of the corner pixels in meters
+    CGSize cornerSizes[4];
+}
+
+/// Bounding box for the rendered area
+@property (nonatomic) MaplyBoundingBox bbox;
+
+/// Images produced by the renderer
+@property (nonatomic) NSArray *images;
+
+/// Size of the center pixel in meters
+@property (nonatomic) CGSize centerSize;
+
+@end
+
+
 /** @brief Protocol for receiving an offline rendered image.
     @details This is used by the MaplyQuadImageOfflineLayer to hand over images as they are rendered.
   */
@@ -35,7 +55,7 @@
     @param images One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
     @param bbox The bounding box of the images in the coordinate system of the offline layer.
   */
-- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(NSArray *)images bbox:(MaplyBoundingBox)bbox;
+- (void)offlineLayer:(MaplyQuadImageOfflineLayer *)layer images:(MaplyOfflineImage *)offlineImage;
 
 @end
 

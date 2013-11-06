@@ -29,6 +29,9 @@
 
 using namespace WhirlyKit;
 
+@implementation MaplyOfflineImage
+@end
+
 @interface MaplyQuadImageOfflineLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource,WhirlyKitQuadTileOfflineDelegate>
 @end
 
@@ -260,14 +263,22 @@ using namespace WhirlyKit;
 
 // Here's where we get the generated image back.
 // We're not on the main thread, Dorothy.
-- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(NSArray *)images mbr:(Mbr)mbr
+- (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)inImage
 {
-    if (_delegate && images && [images count])
+    if (_delegate && inImage && [inImage.images count])
     {
         MaplyBoundingBox bbox;
+        Mbr mbr = inImage.mbr;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        [_delegate offlineLayer:self images:images bbox:bbox];
+        MaplyOfflineImage *offlineImage = [[MaplyOfflineImage alloc] init];
+        offlineImage.bbox = bbox;
+        offlineImage.images = inImage.images;
+        offlineImage.centerSize = inImage.centerSize;
+        for (unsigned int ii=0;ii<4;ii++)
+            offlineImage->cornerSizes[ii] = inImage->cornerSizes[ii];
+        
+        [_delegate offlineLayer:self images:offlineImage];
     }
 }
 

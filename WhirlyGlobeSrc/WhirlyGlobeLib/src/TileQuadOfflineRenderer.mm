@@ -19,8 +19,12 @@
  */
 
 #import "TileQuadOfflineRenderer.h"
+#import "FlatMath.h"
 
 using namespace WhirlyKit;
+
+@implementation WhirlyKitQuadTileOfflineImage
+@end
 
 namespace WhirlyKit
 {
@@ -81,6 +85,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     bool renderScheduled;
     CFTimeInterval lastRender;
     bool somethingChanged;
+    int currentMbr;
 }
 
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource
@@ -143,6 +148,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     }
     
     _mbr = mbr;
+    currentMbr++;
     somethingChanged = true;
     [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
 }
@@ -243,6 +249,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     if (_outputDelegate)
     {
         lastRender = CFAbsoluteTimeGetCurrent();
+        int whichMbr = currentMbr;
         
         Mbr mbr = _mbr;
 
@@ -316,6 +323,10 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                     if (imageToDraw)
                         CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
                 }
+                
+                // If this happens, they've changed the MBR while we were working on this one.  Punt.
+                if (whichMbr != currentMbr)
+                    return;
             }
             
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
@@ -327,10 +338,43 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
-        [_outputDelegate loader:self image:images mbr:mbr];
+        WhirlyKitQuadTileOfflineImage *image = [[WhirlyKitQuadTileOfflineImage alloc] init];
+        image.images = images;
+        image.mbr = mbr;
+        image.centerSize = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width/2.0, texSize.height/2.0)];
+        image->cornerSizes[0] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, 0.0)];
+        image->cornerSizes[1] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, 0.0)];
+        image->cornerSizes[2] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width, texSize.height)];
+        image->cornerSizes[3] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, texSize.height)];
+        [_outputDelegate loader:self image:image];
     }
     
     somethingChanged = false;
+}
+
+// Calculate the real world size of a given pixel
+- (CGSize) pixelSizeForMbr:(Mbr)theMbr texSize:(CGSize)texSize texel:(CGPoint)texel
+{
+    Point2f texelSize((theMbr.ur().x()-theMbr.ll().x())/texSize.width,(theMbr.ur().y()-theMbr.ll().y())/texSize.height);
+    
+    // Coordinates in the local space
+    Point2f l[3];
+    l[0] = theMbr.ll() + Point2f(texel.x*texelSize.x(),texel.y*texelSize.y());
+    l[1] = theMbr.ll() + Point2f((texel.x+1)*texelSize.x(),texel.y*texelSize.y());
+    l[2] = theMbr.ll() + Point2f(texel.x*texelSize.x(),(texel.y+1)*texelSize.y());
+    
+    // Project the points into display space
+    CoordSystemDisplayAdapter *coordAdapter = _quadLayer.scene->getCoordAdapter();
+    CoordSystem *localCoordSys = coordAdapter->getCoordSystem();
+    CoordSystem *srcCoordSys = _quadLayer.coordSys;
+    Point3d d[3];
+    for (unsigned int ii=0;ii<3;ii++)
+        d[ii] = coordAdapter->localToDisplay(localCoordSys->geocentricToLocal(srcCoordSys->localToGeocentric(Point3d(l[ii].x(),l[ii].y(),0.0))));
+
+    double da = (d[1] - d[0]).norm() * EarthRadius;
+    double db = (d[2] - d[0]).norm() * EarthRadius;
+    
+    return CGSizeMake(da, db);
 }
 
 #pragma mark - WhirlyKitQuadLoader
