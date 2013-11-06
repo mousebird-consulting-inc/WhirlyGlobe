@@ -307,7 +307,8 @@ using namespace WhirlyKit;
 // Update the texture usage info for the texture atlases
 - (void)updateTexAtlasMapping
 {
-    tileBuilder->updateAtlasMappings();
+    if (tileBuilder)
+        tileBuilder->updateAtlasMappings();
 }
 
 // Dump out some information on resource usage
