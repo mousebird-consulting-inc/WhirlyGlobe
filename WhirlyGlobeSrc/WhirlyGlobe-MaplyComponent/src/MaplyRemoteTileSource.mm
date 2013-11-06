@@ -160,7 +160,8 @@ using namespace WhirlyKit;
             NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
                                      stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
                                     stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
-            NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            [urlReq setTimeoutInterval:15.0];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
@@ -172,6 +173,7 @@ using namespace WhirlyKit;
             // Fetch the traditional way
             NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
             NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            [urlReq setTimeoutInterval:15.0];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;

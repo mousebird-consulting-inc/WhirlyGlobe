@@ -83,7 +83,8 @@ using namespace WhirlyKit;
         loadImage.width = CGImageGetWidth(texImage.CGImage);
         loadImage.height = CGImageGetHeight(texImage.CGImage);
         loadImage.type = WKLoadedImageUIImage;
-    }
+    } else
+        return nil;
     
     return loadImage;
 }

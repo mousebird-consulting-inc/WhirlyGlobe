@@ -202,6 +202,8 @@
             default:
                 break;
         }
+        if (!loadImage)
+            return nil;
         if (_targetHeight > 0 && _targetWidth > 0)
         {
             loadImage.width = _targetWidth;

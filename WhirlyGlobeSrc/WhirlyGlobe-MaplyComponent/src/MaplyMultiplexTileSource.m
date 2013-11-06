@@ -86,14 +86,44 @@
 - (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
 {
     // Hit up each source
-    NSMutableArray *tileDataArray = [NSMutableArray array];
+    NSMutableArray * __block tileDataArray = [NSMutableArray array];
+    for (unsigned int ii=0;ii<[_tileSources count];ii++)
+        [tileDataArray addObject:[NSNull null]];
+    
+    int which = 0;
+    int __block numRemaining = [_tileSources count];
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    // Dispatch each one in parallel
     for (NSObject<MaplyTileSource> *tileSource in _tileSources)
     {
-        id tile = [tileSource imageForTile:tileID];
-        if (!tile)
-            return nil;
-        [tileDataArray addObject:tile];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        ^{
+            id tile = [tileSource imageForTile:tileID];
+            if (!tile)
+            {
+                NSLog(@"Multiplex Source: Failed to load tile %d: (%d,%d) [%d]",tileID.level,tileID.x,tileID.y,which);
+            } else {
+                @synchronized(tileDataArray)
+                {
+                    tileDataArray[which] = tile;
+                }
+            }
+            
+            numRemaining--;
+            dispatch_semaphore_signal(semaphore);
+        });
+        which++;
     }
+
+    while (numRemaining > 0)
+        dispatch_semaphore_wait(semaphore,DISPATCH_TIME_FOREVER);
+
+    // Make sure we got them all
+    for (id tile in tileDataArray)
+        if ([tile isKindOfClass:[NSNull class]])
+            return nil;
+
+//    NSLog(@"Multiplex source: Loaded tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
     return [[MaplyImageTile alloc] initWithRandomData:tileDataArray];
 }
