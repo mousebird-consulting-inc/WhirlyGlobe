@@ -404,11 +404,12 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     } else
                         drawBuild.addPoints(theLinear->pts,false);
                 } else {
-                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
-                    if (thePoints.get())
-                    {
-                        drawBuild.addPoints(thePoints->pts,false);
-                    }
+                    // Note: Points are.. pointless
+//                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
+//                    if (thePoints.get())
+//                    {
+//                        drawBuild.addPoints(thePoints->pts,false);
+//                    }
                 }
             }
         }

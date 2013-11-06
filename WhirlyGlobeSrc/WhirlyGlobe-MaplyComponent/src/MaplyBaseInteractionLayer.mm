@@ -304,6 +304,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.images.insert(marker.image);
         }
+        wgMarker.color = marker.color;
         if (texID != EmptyIdentity)
             wgMarker.texIDs.push_back(texID);
         wgMarker.width = marker.size.width;

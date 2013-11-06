@@ -417,7 +417,7 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull null]])
+    if ([dispSolid isKindOfClass:[NSNull class]])
         return 0.0;
     
     double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];

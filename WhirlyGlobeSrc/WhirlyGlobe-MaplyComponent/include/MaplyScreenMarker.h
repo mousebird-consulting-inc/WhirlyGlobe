@@ -47,6 +47,12 @@
   */
 @property (nonatomic,strong) UIImage *image;
 
+/** @brief Color for this particular marker.
+    @details If set, this the color we'll use for the marker or how we'll tint the image.
+    @details This overrides the color set in the description dictionary.
+  */
+@property (nonatomic,strong) UIColor *color;
+
 /** @brief The layout importance compared to other features. MAXFLOAT (always) by default.
     @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular marker.  By default that importance is infinite (MAXFLOAT) and so the label will always appearing.  Setting this value to 1.0, for example, will mean that this marker competes with other screen objects for space.
  */
