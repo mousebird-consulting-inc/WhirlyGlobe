@@ -117,6 +117,12 @@ using namespace WhirlyKit;
     [self runViewUpdates];
 }
 
+- (Eigen::Matrix4d)calcFullMatrix
+{
+    return [self calcViewMatrix] * [self calcModelMatrix];
+}
+
+
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
 {
     // Back Project the screen point into model space
