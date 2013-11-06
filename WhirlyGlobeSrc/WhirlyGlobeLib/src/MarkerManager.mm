@@ -280,6 +280,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 ScreenSpaceGenerator::SimpleGeometry smGeom;
                 smGeom.texID = subTex.texId;
                 smGeom.color = [markerInfo.color asRGBAColor];
+                if (marker.color)
+                    smGeom.color = [marker.color asRGBAColor];
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));

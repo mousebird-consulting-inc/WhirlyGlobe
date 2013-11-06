@@ -100,6 +100,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 /// The location for the center of the marker.
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Color for this marker
+@property (nonatomic) UIColor *color;
 /// The list of textures to use.  If there's just one
 ///  we show that.  If there's more than one, we switch
 ///  between them over the period.

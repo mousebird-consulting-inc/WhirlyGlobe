@@ -531,7 +531,7 @@ using namespace Maply;
         geoCoord.x = pt.x();  geoCoord.y = pt.y();
         CGPoint screenPt = [self screenPointFromGeo:geoCoord];
         if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
-        return false;
+            return false;
     }
     
     return true;
@@ -539,7 +539,14 @@ using namespace Maply;
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
 {
+    
     Point3d oldLoc = mapView.loc;
+    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    [mapView setLoc:newLoc runUpdates:false];
+
+    // Note: Test
+    CGPoint testPt = [self screenPointFromGeo:pos];
+    
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     
     float minHeight = mapView.minHeightAboveSurface;
@@ -581,7 +588,7 @@ using namespace Maply;
         }
         
         if (maxHeight-minHeight < minRange)
-        break;
+            break;
     } while (true);
     
     [mapView setLoc:oldLoc runUpdates:false];
