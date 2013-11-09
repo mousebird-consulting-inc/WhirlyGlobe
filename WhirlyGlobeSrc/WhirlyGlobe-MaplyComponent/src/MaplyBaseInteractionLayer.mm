@@ -121,9 +121,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
+- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+{
+    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
+}
+
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
     SimpleIdentity texID = EmptyIdentity;
     
@@ -146,6 +151,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     {
         // Add it and download it
         Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
         switch (imageFormat)
         {
             case MaplyImageIntRGBA:
@@ -675,6 +681,19 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
     // Might be a custom shader on these
     [self resolveShader:inDesc];
+    
+    // Look for a texture and add it
+    if (inDesc[kMaplyVecTexture])
+    {
+        UIImage *theImage = inDesc[kMaplyVecTexture];
+        SimpleIdentity texId = EmptyIdentity;
+        if ([theImage isKindOfClass:[UIImage class]])
+            texId = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+        if (texId)
+            inDesc[kMaplyVecTexture] = @(texId);
+        else
+            [inDesc removeObjectForKey:kMaplyVecTexture];
+    }
 
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)

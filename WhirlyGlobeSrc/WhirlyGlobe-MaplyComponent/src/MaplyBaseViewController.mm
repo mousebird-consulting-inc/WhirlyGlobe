@@ -557,9 +557,9 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    [interactLayer addImage:image imageFormat:imageFormat mode:threadMode];
+    [interactLayer addImage:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
 }
 
 - (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode

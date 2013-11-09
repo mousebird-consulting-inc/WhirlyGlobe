@@ -22,6 +22,7 @@
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
 #import "Tesselator.h"
+#import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
 
 using namespace Eigen;
@@ -660,6 +661,32 @@ using namespace WhirlyGlobe;
                 VectorArealRef newAr = VectorAreal::createAreal();
                 newAr->loops.push_back(tri);
                 newVec->_shapes.insert(newAr);
+            }
+        }
+    }
+    
+    return newVec;
+}
+
+- (MaplyVectorObject *) clipToGrid:(CGSize)gridSize
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (int ii=0;ii<ar->loops.size();ii++)
+            {
+                std::vector<VectorRing> newLoops;
+                ClipLoopToGrid(ar->loops[ii], Point2f(0.0,0.0), Point2f(gridSize.width,gridSize.height), newLoops);
+                for (unsigned int jj=0;jj<newLoops.size();jj++)
+                {
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->loops.push_back(newLoops[jj]);
+                    newVec->_shapes.insert(newAr);
+                }
             }
         }
     }

@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
 
 /// Data type for the vector.  Multi means it contains multiple types
@@ -170,10 +171,16 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (void)subdivideToGlobeGreatCircle:(float)epsilon;
 
-/** @brief Teseelate the areal geometry in this vector object and return triangles.
+/** @brief Tesselate the areal geometry in this vector object and return triangles.
     @details This will attempt to tesselate the areals (with holes) and turn them into triangles.  No attribution will be assigned to the new triangles, so be aware.  The tesselator is the GLU based one and does a decent job.  Odds are if there's something wrong it's in the input data.
   */
 - (MaplyVectorObject *) tesselate;
+
+/** @brief Clip the given (presumably areal) feature(s) to a grid in radians of the given size.
+    @details This will run through the loops in the input vectors and clip them against a grid.  The grid size is given in radians.
+    @return New areal features broken up along the grid.
+  */
+- (MaplyVectorObject *) clipToGrid:(CGSize)gridSize;
 
 @end
 
