@@ -39,6 +39,8 @@ using namespace WhirlyKit;
     float                       minVis,maxVis;
     BOOL                        filled;
     float                       sample;
+    SimpleIdentity              texId;
+    Point2f                     texScale;
 }
 
 @property (nonatomic) UIColor *color;
@@ -87,6 +89,9 @@ using namespace WhirlyKit;
     _lineWidth = [dict floatForKey:@"width" default:1.0];
     filled = [dict boolForKey:@"filled" default:false];
     sample = [dict floatForKey:@"sample" default:false];
+    texId = [dict intForKey:@"texture" default:EmptyIdentity];
+    texScale.x() = [dict floatForKey:@"texscalex" default:1.0];
+    texScale.y() = [dict floatForKey:@"texscaley" default:1.0];
 }
 
 @end
@@ -270,10 +275,38 @@ public:
                 drawable->setColor([vecInfo.color asRGBAColor]);
                 drawable->setDrawPriority(vecInfo->priority);
                 drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
+                if (vecInfo->texId != EmptyIdentity)
+                    drawable->setTexId(0, vecInfo->texId);
                 //                drawable->setForceZBufferOn(true);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
+            
+            // Generate the textures coordinates
+            std::vector<TexCoord> texCoords;
+            if (vecInfo->texId != EmptyIdentity)
+            {
+                texCoords.reserve(pts.size());
+                TexCoord minCoord(MAXFLOAT,MAXFLOAT);
+                for (unsigned int jj=0;jj<pts.size();jj++)
+                {
+                    Point2f &geoPt = pts[jj];
+                    TexCoord texCoord(geoPt.x()*vecInfo->texScale.x(),geoPt.y()*vecInfo->texScale.y());
+                    texCoords.push_back(texCoord);
+                    minCoord.x() = std::min(minCoord.x(),texCoord.x());
+                    minCoord.y() = std::min(minCoord.y(),texCoord.y());
+                }
+                // Essentially do a modular, since texture coordinates repeat
+                // Note: Should make sure that's true here
+                int minS = floorf(minCoord.x());
+                int minT = floorf(minCoord.y());
+                for (unsigned int jj=0;jj<pts.size();jj++)
+                {
+                    TexCoord &texCoord = texCoords[jj];
+                    texCoord.x() -= minS;
+                    texCoord.y() -= minT;
+                }
+            }
             
             // Add the points
             for (unsigned int jj=0;jj<pts.size();jj++)
@@ -287,6 +320,10 @@ public:
                 
                 drawable->addPoint(pt);
                 drawable->addNormal(norm);
+                if (vecInfo->texId != EmptyIdentity)
+                {
+                    drawable->addTexCoord(0, texCoords[jj]);
+                }
             }
             
             // Add the triangles
@@ -310,6 +347,7 @@ public:
                     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                     drawable->setFade(curTime,curTime+vecInfo.fade);
                 }
+                
                 changeRequests.push_back(new AddDrawableReq(drawable));
             } else
                 delete drawable;
