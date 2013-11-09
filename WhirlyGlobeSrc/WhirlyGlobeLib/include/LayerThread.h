@@ -65,6 +65,10 @@
 /// Always call this from the main thread before you cancel the layer thread
 - (void)addThingToRelease:(NSObject *)thing;
 
+/// If this is the main thread, we'll ask it to shut down any other layer threads.
+/// Doing it like this avoids any problems we may have with shutdown synchronization
+- (void)addThreadToShutdown:(WhirlyKitLayerThread *)thread;
+
 /// Layers need to send their change requests throgh here.
 /// You can call this from any thread.
 - (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest;

@@ -46,16 +46,15 @@ using namespace WhirlyKit;
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
     
-    // Kill off all the other layers first
-    for (unsigned int ii=1;ii<[layerThreads count];ii++)
-    {
-        WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
-        [layerThread cancel];
-        [baseLayerThread addThingToRelease:layerThread];
-    }
-    
     if (baseLayerThread)
     {
+        // Kill off all the other layers first
+        for (unsigned int ii=1;ii<[layerThreads count];ii++)
+        {
+            WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
+            [baseLayerThread addThreadToShutdown:layerThread];
+        }
+
         [baseLayerThread addThingToDelete:scene];
         [baseLayerThread addThingToRelease:baseLayerThread];
         [baseLayerThread addThingToRelease:visualView];

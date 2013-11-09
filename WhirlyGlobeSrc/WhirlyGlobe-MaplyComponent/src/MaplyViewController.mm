@@ -101,6 +101,8 @@ using namespace Maply;
     [self stopAnimation];
     
     [baseLayerThread addThingToDelete:coordAdapter];
+    if (_coordSys)
+        [baseLayerThread addThingToRelease:_coordSys];
     
     if (scrollView)
     {

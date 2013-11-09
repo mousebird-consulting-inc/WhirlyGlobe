@@ -39,6 +39,9 @@ using namespace WhirlyKit;
     /// Used to keep track of things to release
     NSMutableArray *thingsToRelease;
     
+    /// Threads to shut down
+    NSMutableArray *threadsToShutdown;
+    
     /// Change requests to merge soonish
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     
@@ -69,6 +72,7 @@ using namespace WhirlyKit;
         _glContext = [[EAGLContext alloc] initWithAPI:_renderer.context.API sharegroup:_renderer.context.sharegroup];
 
         thingsToRelease = [NSMutableArray array];
+        threadsToShutdown = [NSMutableArray array];
         
         glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
         glSetupInfo->minZres = [inView calcZbufferRes];
@@ -129,6 +133,11 @@ using namespace WhirlyKit;
 - (void)addThingToRelease:(NSObject *)thing
 {
     [thingsToRelease addObject:thing];
+}
+
+- (void)addThreadToShutdown:(WhirlyKitLayerThread *)thread
+{
+    [threadsToShutdown addObject:thread];
 }
 
 - (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest
@@ -210,6 +219,10 @@ using namespace WhirlyKit;
             [layer log];
 }
 
+- (void)nothingInteresting
+{
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main
@@ -239,6 +252,22 @@ using namespace WhirlyKit;
         }
         
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
+        
+        if ([threadsToShutdown count] > 0)
+        {
+            // We'll ask any other layer threads to shut down first, and wait for them to do it
+            for (WhirlyKitLayerThread *theThread in threadsToShutdown)
+                [theThread cancel];
+            // And wait for them to do it
+            bool finished = true;
+            do {
+                finished = true;
+                for (WhirlyKitLayerThread *theThread in threadsToShutdown)
+                    finished &= [theThread isFinished];
+                if (!finished)
+                    [NSThread sleepForTimeInterval:0.01];
+            } while (!finished);
+        }
 
         // If we're not the main thread, let's clean up our layers before we shut down
         if (!_mainLayerThread)
