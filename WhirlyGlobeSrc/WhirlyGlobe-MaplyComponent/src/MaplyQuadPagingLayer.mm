@@ -132,6 +132,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     tileSource = inTileSource;
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
+    _importance = 512*512;
     
     return self;
 }
@@ -161,7 +162,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Set up tile and and quad layer with us as the data source
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:self renderer:renderer];
     // A tile needs to take up this much screen space
-    quadLayer.minImportance = 512*512;
+    quadLayer.minImportance = _importance;
     quadLayer.maxTiles = 256;
     
     [super.layerThread addLayer:quadLayer];

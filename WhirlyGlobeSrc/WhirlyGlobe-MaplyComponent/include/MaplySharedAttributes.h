@@ -129,6 +129,11 @@
 #define kMaplyFilled @"filled"
 #define kWGFilled kMaplyFilled
 
+/// If set, the texture to apply to the feature
+#define kMaplyVecTexture @"texture"
+#define kMaplyVecTexScaleX @"texscalex"
+#define kMaplyVecTexScaleY @"texscaley"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.

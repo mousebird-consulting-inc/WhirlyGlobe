@@ -68,6 +68,12 @@
   */
 @property (nonatomic,assign) int numSimultaneousFetches;
 
+/** @brief The importance cutoff below which we won't bother to page a tile.
+    @details The paging layer will evaluate tiles based on screen space they take up.  This is the cutoff we use to evaluate when a tile is worth paging in.  It's the number of pixels a given tile would take up on the screen.
+    @details Typical values would be on the order of 256*256.
+  */
+@property (nonatomic,assign) float importance;
+
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
