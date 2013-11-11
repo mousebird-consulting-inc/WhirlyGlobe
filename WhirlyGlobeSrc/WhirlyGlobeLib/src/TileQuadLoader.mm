@@ -771,7 +771,8 @@ using namespace WhirlyKit;
         if (tileBuilder)
         {
             tileBuilder->enabled = _enable;
-            tileBuilder->drawAtlas->setEnableAllDrawables(_enable, theChanges);
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setEnableAllDrawables(_enable, theChanges);
         }
     } else {
         // We'll look through the tiles and change them all accordingly

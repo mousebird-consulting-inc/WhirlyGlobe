@@ -35,14 +35,14 @@
     @param tileSource the remote tile source that loaded the tile.
     @param tileID The ID of the tile we loaded.
   */
-- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidLoad:(MaplyTileID)tileID;
+- (void) remoteTileSource:(id)tileSource tileDidLoad:(MaplyTileID)tileID;
 
 /** The tile failed to load.
     @param tileSource The remote tile source that tried to load the tile.
     @param tileID The tile ID of the tile that failed to load.
     @param error The NSError message, probably from the network routine.
   */
-- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+- (void) remoteTileSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
 
 @end
 
