@@ -145,7 +145,10 @@ using namespace WhirlyKit;
         fileName = [self cacheFileForTile:tileID];
         imgData = [NSData dataWithContentsOfFile:fileName];
         if (imgData)
+        {
+//            NSLog(@"Tile was cached: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
             wasCached = true;
+        }
     }
 
     NSError *error = nil;
@@ -179,6 +182,14 @@ using namespace WhirlyKit;
             NSURLResponse *resp = nil;
             imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
             
+            // Let's look at the response
+            NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)resp;
+            if (urlResp.statusCode != 200)
+            {
+                error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileSource" code:0 userInfo:
+                                  @{NSLocalizedDescriptionKey: [urlResp description]}];
+            }
+            
             if (error || !imgData)
                 imgData = nil;
         }
@@ -195,6 +206,10 @@ using namespace WhirlyKit;
                 [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
         }
     }
+    
+    // Pass the error back up
+    if (error)
+        return error;
     
     // Let's also write it back out for the cache
     if (_cacheDir && !wasCached)

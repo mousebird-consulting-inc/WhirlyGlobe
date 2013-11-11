@@ -144,6 +144,7 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidEnd:) name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationWillEnd:) name:kAnimateViewMomentum object:nil];
 }
 
 - (void)unregisterForEvents
@@ -159,6 +160,7 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kAnimateViewMomentum object:nil];
 }
 
 /// Add a spherical earth layer with the given set of base images
@@ -480,23 +482,23 @@ using namespace WhirlyGlobe;
     }
 }
 
-// Convenience routine to handle the end of moving
-- (void)handleStopMoving
+// Calculate the corners we'll be looking at with the given rotation
+- (void)corners:(MaplyCoordinate *)corners forRot:(Eigen::Quaterniond)theRot viewMat:(Matrix4d)viewMat
 {
-    if (isPanning || isRotating || isZooming || isAnimating)
-        return;
-    
-    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
-        return;
-    
-    MaplyCoordinate corners[4];
     CGPoint screenCorners[4];
     screenCorners[0] = CGPointMake(0.0, 0.0);
     screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
     screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
     screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
     
-    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    Eigen::Matrix4d modelTrans;
+    // Note: Pulled this calculation out of the globe view.
+    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset]));
+    Eigen::Affine3d rot(theRot);
+    Eigen::Matrix4d modelMat = (trans * rot).matrix();
+    
+    modelTrans = viewMat * modelMat;
+
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
@@ -508,7 +510,20 @@ using namespace WhirlyGlobe;
             corners[ii].x = MAXFLOAT;  corners[ii].y = MAXFLOAT;
         }
     }
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving
+{
+    if (isPanning || isRotating || isZooming || isAnimating)
+        return;
     
+    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
+        return;
+    
+    MaplyCoordinate corners[4];
+    [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
+
     [_delegate globeViewController:self didStopMoving:corners];
 }
 
@@ -599,7 +614,31 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Animation ended");
     
     isAnimating = false;
+    knownAnimateEndRot = false;
     [self handleStopMoving];
+}
+
+- (void) animationWillEnd:(NSNotification *)note
+{
+    AnimateViewMomentumMessage *info = note.object;
+    if (![info isKindOfClass:[AnimateViewMomentumMessage class]])
+        return;
+
+    knownAnimateEndRot = true;
+    animateEndRot = info.rot;
+
+    if (!isPanning && !isRotating && !isZooming)
+    {
+        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:)])
+        {
+            MaplyCoordinate corners[4];
+            if (knownAnimateEndRot)
+            {
+                [self corners:corners forRot:animateEndRot viewMat:[globeView calcViewMatrix]];
+                [_delegate globeViewController:self willStopMoving:corners];
+            }
+        }
+    }
 }
 
 // See if the given bounding box is all on sreen

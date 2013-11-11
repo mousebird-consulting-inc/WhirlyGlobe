@@ -74,6 +74,13 @@
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners;
 
+/** @brief Called when an animation that knows where it's going to stop start ups.
+    @details This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.
+    @param viewC The globe view controller.
+    @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners;
+
 @end
 
 /** @brief This view controller implements a 3D interactive globe.
