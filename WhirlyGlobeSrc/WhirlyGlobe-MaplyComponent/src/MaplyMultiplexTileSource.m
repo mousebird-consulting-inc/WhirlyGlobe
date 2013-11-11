@@ -92,6 +92,7 @@
     
     int which = 0;
     int __block numRemaining = [_tileSources count];
+    NSError __block *fetchError = nil;
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     // Dispatch each one in parallel
     for (NSObject<MaplyTileSource> *tileSource in _tileSources)
@@ -99,10 +100,13 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
         ^{
             id tile = [tileSource imageForTile:tileID];
-            if (!tile)
+            if ([tile isKindOfClass:[NSError class]])
             {
-                NSLog(@"Multiplex Source: Failed to load tile %d: (%d,%d) [%d]",tileID.level,tileID.x,tileID.y,which);
-            } else {
+                fetchError = tile;
+                tile = nil;
+            }
+            if (tile)
+            {
                 @synchronized(tileDataArray)
                 {
                     tileDataArray[which] = tile;
@@ -117,6 +121,17 @@
 
     while (numRemaining > 0)
         dispatch_semaphore_wait(semaphore,DISPATCH_TIME_FOREVER);
+    
+    if (fetchError)
+    {
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+            [_delegate remoteTileSource:self tileDidNotLoad:tileID error:fetchError];
+        
+        return nil;
+    } else {
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+            [_delegate remoteTileSource:self tileDidLoad:tileID];
+    }
 
     // Make sure we got them all
     for (id tile in tileDataArray)

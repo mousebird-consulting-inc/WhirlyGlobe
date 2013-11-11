@@ -207,6 +207,13 @@ using namespace WhirlyKit;
     ^{
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = [tileSource imageForTile:tileID];
+        
+        if ([tileReturn isKindOfClass:[NSError class]])
+        {
+            NSLog(@"OfflineLayer: Failed to load tile %d: (%d,%d) because:\n%@",tileID.level,tileID.x,tileID.y,[((NSError *)tileReturn) description]);
+            tileReturn = nil;
+        }
+        
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         

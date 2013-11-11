@@ -209,6 +209,9 @@ static const float MomentumAnimLen = 1.0;
             break;
 		case UIGestureRecognizerStateEnded:
         {
+            if (panType != PanNone)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+
             if (panType == PanFree && runEndMomentum)
             {
                 // We'll use this to get two points in model space
@@ -256,9 +259,6 @@ static const float MomentumAnimLen = 1.0;
                 }
                
             }
-
-            if (panType != PanNone)
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
         }
 			break;
         default:
