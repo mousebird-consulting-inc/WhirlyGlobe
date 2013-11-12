@@ -64,6 +64,8 @@
 #define kMaplyDefaultLineShader @"Default Line;backface=yes"
 /// This point/line shader turns off the backface logic for lines
 #define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+/// The default billboard shader
+#define kMaplyBillboardShader @"Default Billboard"
 
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100

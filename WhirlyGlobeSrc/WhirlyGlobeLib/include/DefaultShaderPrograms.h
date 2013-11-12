@@ -34,6 +34,8 @@ namespace WhirlyKit
 #define kToolkitDefaultLineProgram "Default Line;backface=yes"
 /// Line (and point) shader without backface culling
 #define kToolkitDefaultLineNoBackfaceProgram "Default Line;backface=no"
+/// Billboard shader
+#define kToolkitDefaultBillboardProgram "Default Billboard"
 
 /// Create the default shaders and register them in the appropriate places in the scene
 void SetupDefaultShaders(Scene *);
