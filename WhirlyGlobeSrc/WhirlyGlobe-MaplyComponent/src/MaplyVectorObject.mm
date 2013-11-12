@@ -489,26 +489,9 @@ using namespace WhirlyGlobe;
 
     if (bigLoop)
     {
-        float area = 0.0;
-        for (unsigned int ii=0;ii<bigLoop->size()-1;ii++)
-        {
-            const Point2f p0 = (*bigLoop)[ii];
-            const Point2f p1 = (*bigLoop)[(ii+1)%bigLoop->size()];
-            area += (p0.x()*p1.y()-p1.x()*p0.y());
-        }
-        area /= 2.0;
-        
-        Point2f sum(0,0);
-        for (unsigned int ii=0;ii<bigLoop->size()-1;ii++)
-        {
-            const Point2f p0 = (*bigLoop)[ii];
-            const Point2f p1 = (*bigLoop)[(ii+1)%bigLoop->size()];
-            float b = (p0.x()*p1.y()-p1.x()*p0.y());
-            sum.x() += (p0.x()+p1.x())*b;
-            sum.y() += (p0.y()+p1.y())*b;
-        }
-        centroid->x = sum.x()/(6*area);
-        centroid->y = sum.y()/(6*area);
+        Point2f centroid2f = CalcLoopCentroid(*bigLoop);
+        centroid->x = centroid2f.x();
+        centroid->y = centroid2f.y();
     } else
         return false;
     

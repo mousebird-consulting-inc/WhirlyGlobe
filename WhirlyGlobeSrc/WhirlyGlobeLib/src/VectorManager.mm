@@ -23,9 +23,12 @@
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "Tesselator.h"
+#import "GridClipper.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
 
 // Used to describe the drawable we'll construct for a given vector
 @interface VectorInfo : NSObject
@@ -41,6 +44,9 @@ using namespace WhirlyKit;
     float                       sample;
     SimpleIdentity              texId;
     Point2f                     texScale;
+    float                       subdivEps;
+    BOOL                        gridSubdiv;
+    TextureProjections          texProj;
 }
 
 @property (nonatomic) UIColor *color;
@@ -92,6 +98,13 @@ using namespace WhirlyKit;
     texId = [dict intForKey:@"texture" default:EmptyIdentity];
     texScale.x() = [dict floatForKey:@"texscalex" default:1.0];
     texScale.y() = [dict floatForKey:@"texscaley" default:1.0];
+    subdivEps = [dict floatForKey:@"subdivisionepsilon" default:0.0];
+    NSString *subdivType = [dict stringForKey:@"subdivisiontype" default:nil];
+    gridSubdiv = [subdivType isEqualToString:@"grid"];
+    NSString *texProjStr = [dict stringForKey:@"texprojection" default:nil];
+    texProj = TextureProjectionNone;
+    if ([texProjStr isEqualToString:@"texprojectiontanplane"])
+        texProj = TextureProjectionTanPlane;
 }
 
 @end
@@ -241,15 +254,24 @@ public:
         flush();
     }
     
-    void addPoints(VectorRing &inRing)
+    void addPoints(VectorRing &inRing,NSDictionary *attrs)
     {
         if (inRing.size() < 3)
             return;
         
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+        Point2f centroid = CalcLoopCentroid(inRing);
+        
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            ClipLoopToGrid(inRing, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings.push_back(inRing);
         
         std::vector<VectorRing> rings;
-        TesselateRing(inRing,rings);
+        for (unsigned int ii=0;ii<inRings.size();ii++)
+            TesselateRing(inRings[ii],rings);
         
         for (unsigned int ir=0;ir<rings.size();ir++)
         {
@@ -282,6 +304,19 @@ public:
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
             
+            // Need an origin for this type of texture coordinate projection
+            Point3f planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
+            if (vecInfo->texProj == TextureProjectionTanPlane)
+            {
+                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(centroid.x(),centroid.y()));
+                planeOrg = coordAdapter->localToDisplay(localPt);
+                planeUp = coordAdapter->normalForLocal(localPt);
+                planeX = Point3f(0,0,1).cross(planeUp);
+                planeY = planeUp.cross(planeX);
+                planeX.normalize();
+                planeY.normalize();
+            }
+            
             // Generate the textures coordinates
             std::vector<TexCoord> texCoords;
             if (vecInfo->texId != EmptyIdentity)
@@ -291,12 +326,30 @@ public:
                 for (unsigned int jj=0;jj<pts.size();jj++)
                 {
                     Point2f &geoPt = pts[jj];
-                    TexCoord texCoord(geoPt.x()*vecInfo->texScale.x(),geoPt.y()*vecInfo->texScale.y());
+                    
+                    TexCoord texCoord;
+                    switch (vecInfo->texProj)
+                    {
+                        case TextureProjectionTanPlane:
+                        {
+                            Point3f dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoPt.x(),geoPt.y())));
+                            Point3f dir = dispPt - planeOrg;
+                            Point3f comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
+                            texCoord.x() = comp.x();
+                            texCoord.y() = comp.y();
+                        }
+                            break;
+                        case TextureProjectionNone:
+                        default:
+                            texCoord = TexCoord((geoPt.x()-centroid.x())*vecInfo->texScale.x(),(geoPt.y()-centroid.y())*vecInfo->texScale.y());
+                            break;
+                    }
+
                     texCoords.push_back(texCoord);
                     minCoord.x() = std::min(minCoord.x(),texCoord.x());
                     minCoord.y() = std::min(minCoord.y(),texCoord.y());
                 }
-                // Essentially do a modular, since texture coordinates repeat
+                // Essentially do a mod, since texture coordinates repeat
                 // Note: Should make sure that's true here
                 int minS = floorf(minCoord.x());
                 int minT = floorf(minCoord.y());
@@ -408,7 +461,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             if (vecInfo->filled)
             {
                 // Triangulate the outside
-                drawBuildTri.addPoints(theAreal->loops[0]);
+                drawBuildTri.addPoints(theAreal->loops[0],theAreal->getAttrDict());
             } else {
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
@@ -430,7 +483,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             if (vecInfo->filled)
             {
                 // Triangulate the outside
-                drawBuildTri.addPoints(theLinear->pts);
+                drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
             } else {
                 if (theLinear.get())
                 {

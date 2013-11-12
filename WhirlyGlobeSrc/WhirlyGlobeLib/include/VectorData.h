@@ -85,6 +85,8 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
 float CalcLoopArea(const VectorRing &);
 /// Calculate area of a loop
 double CalcLoopArea(const std::vector<Point2d> &);
+/// Calculate the centroid of a loop
+Point2f CalcLoopCentroid(const VectorRing &loop);
 
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
