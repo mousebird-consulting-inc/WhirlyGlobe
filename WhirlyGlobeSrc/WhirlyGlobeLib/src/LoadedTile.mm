@@ -464,6 +464,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         chunk->setColor(color);
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         chunk->setProgram(programId);
+        chunk->setOnOff(enabled);
         int elevEntry = 0;
         if (includeElev)
             elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
@@ -662,6 +663,7 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 skirtChunk->setType(GL_TRIANGLES);
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
                 skirtChunk->setRequestZBuffer(true);
+                skirtChunk->setOnOff(enabled);
                 skirtChunk->setProgram(programId);
                 
                 // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking

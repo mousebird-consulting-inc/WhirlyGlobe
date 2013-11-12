@@ -531,7 +531,7 @@ using namespace WhirlyKit;
         if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
         {
             // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlases.empty())
+            if (!isPlaceholder && _numImages > 1 && !tileBuilder->texAtlases.empty())
             {
                 tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
             }
