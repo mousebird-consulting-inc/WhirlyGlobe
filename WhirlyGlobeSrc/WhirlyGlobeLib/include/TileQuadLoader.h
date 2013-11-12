@@ -158,11 +158,11 @@
 
 /// Set up the change requests to make the given image layer the active one
 /// The call is thread safe
-- (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)changeRequests;
+- (void)setCurrentImage:(int)newImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
 /// Set up the change requests to make the given images current.
 /// This will also interpolate between the two
-- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)changeRequests;
+- (void)setCurrentImageStart:(int)startImage end:(int)endImage changes:(WhirlyKit::ChangeSet &)changeRequests;
 
 /// By default we're on, but we can be turned off
 - (void)setEnable:(bool)enable;

@@ -885,7 +885,7 @@ LoadedTile::LoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
 }
 
 // Add the geometry and texture to the scene for a given tile
-bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
+bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests)
 {
     // If it's a placeholder, we don't create geometry
     if (!loadImages.empty() && loadImages[0].type == WKLoadedImagePlaceholder)
@@ -1191,7 +1191,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
     //    tree->Print();
 }
     
-void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,ChangeSet &changeRequests)
+void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,ChangeSet &changeRequests)
 {
     std::vector<unsigned int> whichImages;
     if (whichImage0 != EmptyIdentity)

@@ -61,7 +61,7 @@ using namespace WhirlyKit;
     std::set<WhirlyKit::Quadtree::Identifier> networkFetches,localFetches;
     
     // The images we're currently displaying, when we have more than one
-    unsigned int currentImage0,currentImage1;
+    int currentImage0,currentImage1;
     
     NSString *name;
 }
@@ -633,7 +633,7 @@ using namespace WhirlyKit;
 }
 
 // This may be called on any thread
-- (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
+- (void)setCurrentImage:(int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
 {
     if (!_quadLayer)
         return;
@@ -699,15 +699,16 @@ using namespace WhirlyKit;
     // Copy this out to avoid locking too long
     if (tileBuilder->texAtlasMappings.size() > 0)
         baseTexIDs = tileBuilder->texAtlasMappings[0];
-    if (currentImage0 < tileBuilder->texAtlasMappings.size())
+    if (currentImage0 != -1 && currentImage0 < tileBuilder->texAtlasMappings.size())
         startTexIDs = tileBuilder->texAtlasMappings[currentImage0];
-    if (currentImage1 < tileBuilder->texAtlasMappings.size())
+    if (currentImage1 != -1 && currentImage1 < tileBuilder->texAtlasMappings.size())
         endTexIDs = tileBuilder->texAtlasMappings[currentImage1];
     theDrawTexInfo = tileBuilder->drawTexInfo;
     pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
     
     // If these are different something's gone very wrong
-    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
+    // Well, actually this happens if we're setting the start or end image to nothing
+//    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
     {
         // Now for the change requests
         for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
@@ -716,14 +717,14 @@ using namespace WhirlyKit;
             for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
                 if (drawInfo.baseTexId == baseTexIDs[jj])
                 {
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,startTexIDs[jj]));
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,endTexIDs[jj]));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 ? EmptyIdentity : startTexIDs[jj])));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity :endTexIDs[jj])));
                 }
         }
     }
 }
 
-- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
+- (void)setCurrentImageStart:(int)startImage end:(int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
         return;

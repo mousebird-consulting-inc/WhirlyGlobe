@@ -40,8 +40,8 @@ using namespace WhirlyKit;
 @interface ActiveImageUpdater : MaplyActiveObject
 // Tile loader that's got the images we need
 @property (nonatomic,weak) MaplyQuadImageTilesLayer *tileLayer;
-// Number of images layers
-@property unsigned int numImages;
+// The last valid value for currentImage
+@property float maxCurrentImage;
 // The period over which we'll switch them all
 @property float period;
 // Start time, for offset purposes
@@ -63,7 +63,7 @@ using namespace WhirlyKit;
         return;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    float where = fmodf(now-_startTime,_period)/_period * (_numImages-1);
+    float where = fmodf(now-_startTime,_period)/_period * (_maxCurrentImage-1);
     
     [_tileLayer setCurrentImage:where cancelUpdater:false];
 }
@@ -120,6 +120,8 @@ using namespace WhirlyKit;
     _useTargetZoomLevel = true;
     _viewUpdatePeriod = 0.1;
     _enable = true;
+    _animationWrap = true;
+    _maxCurrentImage = -1;
     
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -165,6 +167,9 @@ using namespace WhirlyKit;
     //  and an active object to do the updates
     if (_imageDepth > 1)
     {
+        if (_animationWrap && _maxCurrentImage == -1)
+            _maxCurrentImage = _imageDepth;
+        
         if (!_customShader)
             _customShader = scene->getProgramIDByName(kToolkitDefaultTriangleMultiTex);
 
@@ -250,11 +255,11 @@ using namespace WhirlyKit;
             {
                 imageUpdater = [[ActiveImageUpdater alloc] init];
                 imageUpdater.startTime = CFAbsoluteTimeGetCurrent();
-                if (_imageDepth > 1)
-                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_imageDepth-1)*_animationPeriod;
+                if (_maxCurrentImage > 1)
+                    imageUpdater.startTime = imageUpdater.startTime-_currentImage/(_maxCurrentImage-1)*_animationPeriod;
                 imageUpdater.tileLayer = self;
                 imageUpdater.period = _animationPeriod;
-                imageUpdater.numImages = _imageDepth;
+                imageUpdater.maxCurrentImage = _maxCurrentImage;
                 imageUpdater.programId = _customShader;
                 tileLoader.programId = _customShader;
                 [_viewC addActiveObject:imageUpdater];
@@ -282,10 +287,19 @@ using namespace WhirlyKit;
         return;
 
     unsigned int image0 = floorf(_currentImage);
-    float t = _currentImage-image0;
     unsigned int image1 = ceilf(_currentImage);
-    if (image1 == _imageDepth)
-        image1 = 0;
+    if (_animationWrap)
+    {
+        if (image1 == _imageDepth)
+            image1 = 0;
+    }
+    if (image0 >= _imageDepth)
+        image0 = _imageDepth-1;
+    if (image1 >= _imageDepth)
+        image1 = -1;
+    float t = _currentImage-image0;
+    
+//    NSLog(@"currentImage = %d->%d -> %f",image0,image1,t);
     
     // Change the images to give us start and finish
     ChangeSet changes;
