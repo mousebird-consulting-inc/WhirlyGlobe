@@ -110,7 +110,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
-        newBigDraw->setOnOff(enabled);
+        newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 
         newBigDraw->setModes(draw);

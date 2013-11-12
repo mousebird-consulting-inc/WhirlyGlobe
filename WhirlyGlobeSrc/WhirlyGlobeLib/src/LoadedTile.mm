@@ -239,7 +239,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     scene(NULL),
     lineMode(false),
     activeTextures(-1),
-    enabled(true)
+    enabled(true),
+    texAtlas(NULL)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -251,12 +252,11 @@ TileBuilder::~TileBuilder()
     pthread_mutex_unlock(&texAtlasMappingLock);
     pthread_mutex_destroy(&texAtlasMappingLock);
     
-    for (unsigned int ii=0;ii<texAtlases.size();ii++)
+    if (texAtlas)
     {
-        delete texAtlases[ii];
-        texAtlases[ii] = NULL;
+        delete texAtlas;
+        texAtlas = NULL;
     }
-    texAtlases.clear();
     if (drawAtlas)
     {
         delete drawAtlas;
@@ -285,9 +285,9 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         int ElementBufferSize = 6 * DrawBufferVertices * SingleElementSize;
         int texSortSize = (tileScale == WKTileScaleFixed ? fixedTileSize : texelBinSize);
         
-        for (unsigned int ii=0;ii<numImages;ii++)
-            texAtlases.push_back(new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat));
-        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);        
+        imageDepth = numImages;
+        texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
+        drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
     }
 }
     
@@ -297,12 +297,12 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
     texAtlasMappings.clear();
     pthread_mutex_unlock(&texAtlasMappingLock);
     
-    for (unsigned int ii=0;ii<texAtlases.size();ii++)
+    if (texAtlas)
     {
-        texAtlases[ii]->shutdown(theChangeRequests);
-        delete texAtlases[ii];
+        texAtlas->shutdown(theChangeRequests);
+        delete texAtlas;
+        texAtlas = NULL;
     }
-    texAtlases.clear();
     
     if (drawAtlas)
     {
@@ -464,7 +464,6 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
         chunk->setColor(color);
         chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         chunk->setProgram(programId);
-        chunk->setOnOff(enabled);
         int elevEntry = 0;
         if (includeElev)
             elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
@@ -663,7 +662,6 @@ bool TileBuilder::buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,Ba
                 skirtChunk->setType(GL_TRIANGLES);
                 // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
                 skirtChunk->setRequestZBuffer(true);
-                skirtChunk->setOnOff(enabled);
                 skirtChunk->setProgram(programId);
                 
                 // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
@@ -822,11 +820,14 @@ void TileBuilder::updateAtlasMappings()
     std::vector<std::vector<SimpleIdentity> > newTexAtlasMappings;
     std::vector<DynamicDrawableAtlas::DrawTexInfo> newDrawTexInfo;
     
-    for (unsigned int ii=0;ii<texAtlases.size();ii++)
+    if (texAtlas)
     {
-        std::vector<SimpleIdentity> texIDs;
-        texAtlases[ii]->getTextureIDs(texIDs);
-        newTexAtlasMappings.push_back(texIDs);
+        for (unsigned int ii=0;ii<imageDepth;ii++)
+        {
+            std::vector<SimpleIdentity> texIDs;
+            texAtlas->getTextureIDs(texIDs,ii);
+            newTexAtlasMappings.push_back(texIDs);
+        }
     }
 
     SimpleIDSet newDrawIDs;
@@ -847,14 +848,14 @@ bool TileBuilder::isReady()
     
 void TileBuilder::log(NSString *name)
 {
-    if (!drawAtlas && texAtlases.empty())
+    if (!drawAtlas && !texAtlas)
         return;
     
     NSLog(@"++ Quad Tile Loader %@ ++",(name ? name : @"Unknown"));
     if (drawAtlas)
         drawAtlas->log();
-    for (unsigned int ii=0;ii<texAtlases.size();ii++)
-        texAtlases[ii]->log();
+    if (texAtlas)
+        texAtlas->log();
     NSLog(@"++ ++ ++");
 }
 
@@ -899,7 +900,7 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     BasicDrawable *draw = NULL;
     BasicDrawable *skirtDraw = NULL;
     std::vector<Texture *> texs(loadImages.size(),NULL);
-    if (!tileBuilder->texAtlases.empty())
+    if (tileBuilder->texAtlas)
         subTexs.resize(loadImages.size());
     if (!tileBuilder->buildTile(&nodeInfo, &draw, &skirtDraw, (!loadImages.empty() ? &texs : NULL), Point2f(1.0,1.0), Point2f(0.0,0.0), &loadImages, loadElev))
         return false;
@@ -907,22 +908,27 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
 //        return false;
     drawId = draw->getId();
     skirtDrawId = (skirtDraw ? skirtDraw->getId() : EmptyIdentity);
+
+    if (tileBuilder->texAtlas)
+    {
+        tileBuilder->texAtlas->addTexture(texs, NULL, NULL, subTexs[0], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
+        changeRequests.push_back(NULL);
+    }
     for (unsigned int ii=0;ii<texs.size();ii++)
     {
         Texture *tex = texs[ii];
         if (tex)
         {
-            if (!tileBuilder->texAtlases.empty() )
+            if (tileBuilder->texAtlas)
             {
-                tileBuilder->texAtlases[ii]->addTexture(tex, NULL, NULL, subTexs[ii], tileBuilder->scene->getMemManager(), changeRequests, tileBuilder->borderTexel);
-                changeRequests.push_back(NULL);
                 if (ii == 0)
                 {
                     if (draw)
                         draw->applySubTexture(-1,subTexs[0]);
                     if (skirtDraw)
                         skirtDraw->applySubTexture(-1,subTexs[0]);
-                }
+                }                
+                
                 delete tex;
             } else {
                 texIds.push_back(tex->getId());
@@ -979,14 +985,8 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
     }
     if (tileBuilder)
     {
-        for (unsigned int ii=0;ii<tileBuilder->texAtlases.size();ii++)
-        {
-            if (!subTexs.empty() && subTexs[ii].texId != EmptyIdentity)
-            {
-                tileBuilder->texAtlases[ii]->removeTexture(subTexs[ii], changeRequests);
-                subTexs[ii].texId = EmptyIdentity;
-            }
-        }
+        if (!subTexs.empty() && subTexs[0].texId != EmptyIdentity && tileBuilder->texAtlas)
+            tileBuilder->texAtlas->removeTexture(subTexs[0], changeRequests);
         subTexs.clear();
     }
     for (unsigned int ii=0;ii<texIds.size();ii++)
@@ -1084,7 +1084,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                             if (childSkirtDraw)
                                 childSkirtDraw->setTexId(0,texIds[0]);
                         }
-                        if (!tileBuilder->texAtlases.empty())
+                        if (tileBuilder->texAtlas)
                         {
                             if (childDraw)
                                 childDraw->applySubTexture(-1,subTexs[0]);
@@ -1130,7 +1130,7 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                 if (!texIds.empty())
                     skirtDraw->setTexId(0,texIds[0]);
             }
-            if (!tileBuilder->texAtlases.empty())
+            if (tileBuilder->texAtlas)
             {
                 draw->applySubTexture(-1,subTexs[0]);
                 if (skirtDraw)
@@ -1200,7 +1200,7 @@ void LoadedTile::setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int w
         whichImages.push_back(whichImage0);
     if (whichImage1 != EmptyIdentity)
         whichImages.push_back(whichImage1);
-    if (tileBuilder->texAtlases.empty())
+    if (tileBuilder->texAtlas)
     {
         for (unsigned int ii=0;ii<whichImages.size();ii++)
         {

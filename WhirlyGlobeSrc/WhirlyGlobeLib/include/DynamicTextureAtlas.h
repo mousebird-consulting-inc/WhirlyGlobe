@@ -107,6 +107,14 @@ protected:
     int numRegions;
 };
 
+typedef std::vector<DynamicTexture *> DynamicTextureVec;
+
+// Used to sort dynamic texture vectors
+typedef struct
+{
+    bool operator () (const DynamicTextureVec *a,const DynamicTextureVec *b) { return a->at(0)->getId() < b->at(0)->getId(); }
+} DynamicTextureVecSorter;
+
 /// Copy data into a dynamic texture (on the main thread)
 class DynamicTextureAddRegion : public ChangeRequest
 {
@@ -147,17 +155,17 @@ class DynamicTextureAtlas
 {
 public:
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,GLenum format);
+    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
     ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(Texture *,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
+    bool addTexture(const std::vector<Texture *> &textures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0);
     
     /// Free up the space for a texture from one of the dynamic textures
     void removeTexture(const SubTexture &subTex,ChangeSet &changes);
     
     /// Return the IDs for the dynamic textures we're using
-    void getTextureIDs(std::vector<SimpleIdentity> &texIDs);
+    void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
@@ -178,13 +186,14 @@ protected:
         DynamicTexture::Region region;
     };
 
+    int imageDepth;
     int texSize;
     int cellSize;
     GLenum format;
     
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
-    typedef std::set<DynamicTexture *,IdentifiableSorter> DynamicTextureSet;
+    typedef std::set<DynamicTextureVec *,DynamicTextureVecSorter> DynamicTextureSet;
     DynamicTextureSet textures;
 };
 
