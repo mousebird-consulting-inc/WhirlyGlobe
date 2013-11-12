@@ -536,7 +536,8 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 if (newTex)
                 {
                     pthread_mutex_lock(&atlasLock);
-                    texAtlas->addTexture(newTex, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    std::vector<Texture *> newTexs;
+                    texAtlas->addTexture(newTexs, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
                     delete newTex;
                     pthread_mutex_unlock(&atlasLock);

@@ -510,7 +510,7 @@ using namespace WhirlyKit;
     
     // Create the dynamic texture atlas before we need it
     bool createdAtlases = false;
-    if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
+    if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && !tileBuilder->texAtlas && !loadImages.empty())
     {
         int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
         if (loadElev)
@@ -531,7 +531,7 @@ using namespace WhirlyKit;
         if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
         {
             // If we have more than one image to dispay, make sure we're doing the right one
-            if (!isPlaceholder && _numImages > 1 && !tileBuilder->texAtlases.empty())
+            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
             {
                 tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
             }
@@ -654,9 +654,9 @@ using namespace WhirlyKit;
                 
                 // Copy this out to avoid locking too long
                 pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
-                if (tileBuilder->texAtlases.size() > 0)
+                if (tileBuilder->texAtlas)
                     baseTexIDs = tileBuilder->texAtlasMappings[0];
-                if (newImage < tileBuilder->texAtlases.size())
+                if (newImage < tileBuilder->texAtlasMappings.size())
                     newTexIDs = tileBuilder->texAtlasMappings[newImage];
                 theDrawTexInfo = tileBuilder->drawTexInfo;
                 pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);

@@ -188,7 +188,8 @@ public:
 
     // Number of samples to use for tiles
     int defaultSphereTessX,defaultSphereTessY;
-    std::vector<DynamicTextureAtlas *> texAtlases;
+    int imageDepth;
+    DynamicTextureAtlas *texAtlas;
     
     // The texture atlas mappings keep track of textures we've created
     //  in each of the atlases as well as how the drawable atlas is using
