@@ -123,11 +123,23 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
    */
 @property (nonatomic, assign) float currentImage;
 
+/** @brief If set, we'll use this as the maximum current image value when animating.
+    @details By default this is off (-1).  When it's on, we'll consider this the last valid value for currentImage.  This means, when animating, we'll run from 0 to maxCurrentImage.
+    @details This is helpful when you have an animation you want to taper off at the end past the last frame.
+  */
+@property (nonatomic, assign) float maxCurrentImage;
+
 /** @brief The length of time we'll take to switch through all available images (per tile).
     @details If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
     @details If you want tighter control use the currentImage property and set your own timer.
   */
 @property (nonatomic, assign) float animationPeriod;
+
+/** @brief If set to true, we'll consider the list of images for each tile to be circular when we animate.
+    @details When set we'll loop back to the first image when we go past the last.  This is the default.
+    @details When not set, we'll run from 0 to maxCurrentImage and then restart.
+  */
+@property (nonatomic, assign) bool animationWrap;
 
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
