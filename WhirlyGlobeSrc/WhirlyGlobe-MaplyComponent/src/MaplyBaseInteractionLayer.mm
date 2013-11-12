@@ -1249,9 +1249,13 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
-    
+
     // Might be a custom shader on these
     [self resolveShader:inDesc];
+    
+    SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
+    if (billShaderID == EmptyIdentity)
+        billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
@@ -1281,7 +1285,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             [wkBills addObject:wkBill];
         }
         
-        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, EmptyIdentity, changes);
+        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, billShaderID, changes);
         compObj.billIDs.insert(billId);
         compObj.isSelectable = false;
     }

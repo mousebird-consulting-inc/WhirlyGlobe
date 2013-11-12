@@ -19,6 +19,7 @@
  */
 
 #import "DefaultShaderPrograms.h"
+#import "BillboardDrawable.h"
 
 namespace WhirlyKit
 {
@@ -339,6 +340,14 @@ void SetupDefaultShaders(Scene *scene)
         delete triShaderMultiTex;
     } else {
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);
+    }
+    
+    OpenGLES2Program *billShader = BuildBillboardProgram();
+    if (!billShader)
+    {
+        NSLog(@"SetupDefaultShaders: Billboard shader didn't compiled.");
+    } else {
+        scene->addProgram(kToolkitDefaultBillboardProgram, billShader);
     }
 }
 

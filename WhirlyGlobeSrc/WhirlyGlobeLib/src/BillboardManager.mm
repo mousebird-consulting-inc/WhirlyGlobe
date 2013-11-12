@@ -119,13 +119,13 @@ void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float hei
     Point3f pts[4];
     TexCoord texCoords[4];
     pts[0] = Point3f(-width2,0,0);
-    texCoords[0] = TexCoord(0,0);
+    texCoords[0] = TexCoord(0,1);
     pts[1] = Point3f(width2,0,0);
-    texCoords[1] = TexCoord(1,0);
+    texCoords[1] = TexCoord(1,1);
     pts[2] = Point3f(width2,height,0);
-    texCoords[2] = TexCoord(1,1);
+    texCoords[2] = TexCoord(1,0);
     pts[3] = Point3f(-width2,height,0);
-    texCoords[3] = TexCoord(0,1);
+    texCoords[3] = TexCoord(0,0);
     
     int startPoint = drawable->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
