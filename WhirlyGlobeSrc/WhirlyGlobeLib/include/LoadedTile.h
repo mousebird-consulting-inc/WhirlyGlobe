@@ -229,7 +229,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -239,7 +239,7 @@ public:
     void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Switch to the given images
-    void setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Turn drawables on/off
     void setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges);
