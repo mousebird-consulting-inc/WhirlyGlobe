@@ -704,9 +704,14 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
             NSString *subdivType = inDesc[kMaplySubdivType];
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
+            bool grid = ![subdivType compare:kMaplySubdivGrid];
             MaplyVectorObject *newVecObj = [vecObj deepCopy];
             if (greatCircle)
                 [newVecObj subdivideToGlobeGreatCircle:eps];
+            else if (grid)
+            {
+                // The manager has to handle this one
+            }
             else
                 [newVecObj subdivideToGlobe:eps];
 
