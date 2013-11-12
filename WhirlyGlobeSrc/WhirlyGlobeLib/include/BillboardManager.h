@@ -52,7 +52,7 @@
 @property (nonatomic,assign) WhirlyKit::Point3f center;
 /// Height in display coordinates
 @property (nonatomic,assign) float height;
-/// Width in dispay coordinates
+/// Width in display coordinates
 @property (nonatomic,assign) float width;
 /// Color of geometry
 @property (nonatomic,assign) UIColor *color;
