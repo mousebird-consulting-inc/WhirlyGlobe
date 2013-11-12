@@ -136,15 +136,21 @@
 #define kMaplyVecTexScaleX @"texscalex"
 #define kMaplyVecTexScaleY @"texscaley"
 
+/// The projection to use when generating texture coordinates
+#define kMaplyVecTextureProjection @"texprojection"
+/// Tangent plane projection for texture coordinates
+#define kMaplyProjectionTangentPlane @"texprojectiontanplane"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
-#define kMaplySubdivType @"subdivsiontype"
+#define kMaplySubdivType @"subdivisiontype"
 /// Subdivide the vector edges along a great circle
 #define kMaplySubdivGreatCircle @"greatcircle"
 /// Subdivide the vectors edges along lat/lon
 #define kMaplySubdivSimple @"simple"
-
+/// Clip features along a grid of the given size
+#define kMaplySubdivGrid @"grid"
 
 /// These are used for stickers
 
