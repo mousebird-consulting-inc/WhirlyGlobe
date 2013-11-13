@@ -123,6 +123,7 @@ using namespace WhirlyKit;
     _enable = true;
     _animationWrap = true;
     _maxCurrentImage = -1;
+    _useElevAsZ = true;
     
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
