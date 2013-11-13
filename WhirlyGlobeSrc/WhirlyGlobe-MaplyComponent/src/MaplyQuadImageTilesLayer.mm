@@ -91,6 +91,7 @@ using namespace WhirlyKit;
     WhirlyKitViewState *lastViewState;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
     bool variableSizeTiles;
+    bool canDoValidTiles;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -128,6 +129,9 @@ using namespace WhirlyKit;
     
     // See if the delegate is doing variable sized tiles (kill me)
     variableSizeTiles = [tileSource respondsToSelector:@selector(tileSizeForTile:)];
+    
+    // Can answer questions about tiles
+    canDoValidTiles = [tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     return self;
 }
@@ -486,11 +490,21 @@ using namespace WhirlyKit;
 {
     if (ident.level == 0)
         return MAXFLOAT;
-
+    
     MaplyTileID tileID;
     tileID.level = ident.level;
     tileID.x = ident.x;
     tileID.y = ident.y;
+
+    if (canDoValidTiles)
+    {
+        MaplyBoundingBox bbox;
+        bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+        bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
+        if (![tileSource validTile:tileID bbox:&bbox])
+            return 0.0;
+    }
+
     int thisTileSize = tileSize;
     if (variableSizeTiles)
     {
