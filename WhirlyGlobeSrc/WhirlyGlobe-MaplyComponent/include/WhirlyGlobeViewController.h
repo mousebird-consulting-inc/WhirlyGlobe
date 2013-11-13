@@ -24,6 +24,52 @@
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;
 
+/** @brief Animation State used by the WhirlyGlobeViewControllerAnimationDelegate.
+    @details You fill out one of these when you're implementing the animation delegate.  Return it and the view controller will set the respective values to match.
+  */
+@interface WhirlyGlobeViewControllerAnimationState : NSObject
+
+/// @brief Heading is calculated from due north
+/// @details If not set or set to MAXFLOAT, this is ignored
+@property (nonatomic) float heading;
+
+/// @brief Height above the globe
+@property (nonatomic) float height;
+
+/// @brief Tilt as used in the view controller
+/// @details If not set or set to MAXFLOAT, we calculate tilt the regular way
+@property (nonatomic) float tilt;
+
+/// @brief Position to move to on the globe
+@property (nonatomic) MaplyCoordinate pos;
+
+@end
+
+/** @brief An animation delegate that can be set on a WhirlyGlobeViewController to control the view over time.
+    @details Filling out these methods will get you animation callbacks at the proper time to control position, heading, tilt, and height on a frame basis.
+    @details You pass the resulting object in to
+  */
+@protocol WhirlyGlobeViewControllerAnimationDelegate <NSObject>
+
+/** @brief This method is called when the animation starts.
+    @details At the animation start we collect up the various parameters of the current visual view state and pas them in via the startState.  You probably want to keep track of this for later.
+    @param viewC The view controller doing the animation.
+    @param startState The starting point for the visual view animation.  Cache this somewhere for your own interpolation.
+    @param startTime When the animation starts (e.g. now)
+    @param endTime When the animation ends.  This is an absolute value.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+
+/** @brief This method is called at the beginning of every frame draw to position the viewer.
+    @details This is the method that does all the work.  You need to fill out the returned WhirlyGlobeViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
+    @param viewC The view controller doing the animation.
+    @param currentTime The time for this frame.  Use this rather than calculating the time yourself.
+    @return The WhirlyGlobeViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime;
+
+@end
+
 /** @brief Globe View Controller Delegate protocol for getting back selection and tap events.
     @details Fill out the methods in this protocol and assign yourself as a delegate in the WhirlyGlobeViewController to get selection and tap events.
   */
@@ -177,6 +223,14 @@
     @param howLong How long in seconds to take getting there.
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+
+/** @brief Animate with a delegate over time.
+    @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.
+    @details You'll also be called one at the end of the animation to establish the final position.
+    @param animationDelegate The objects that implements the WhirlyGlobeViewControllerAnimationDelegate protocol.
+    @param howLong How long the animation will run from the present time.
+  */
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)animationDelegate time:(NSTimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.

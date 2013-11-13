@@ -46,6 +46,12 @@
     bool knownAnimateEndRot;
     // The quaternion animation end point
     Eigen::Quaterniond animateEndRot;
+    
+    // Used for the outside animation interface
+    NSObject<WhirlyGlobeViewControllerAnimationDelegate> *animationDelegate;
+    NSTimeInterval animationDelegateEnd;
+    Eigen::Quaterniond startQuat;
+    Eigen::Vector3d startUp;
 }
 
 @end
