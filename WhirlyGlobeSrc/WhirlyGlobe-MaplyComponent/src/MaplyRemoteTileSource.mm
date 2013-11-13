@@ -216,8 +216,11 @@ using namespace WhirlyKit;
             NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)resp;
             if (urlResp.statusCode != 200)
             {
+                NSString *urlRespDesc = [urlResp description];
+                if (!urlRespDesc)
+                    urlRespDesc = @"Unknown";
                 error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileSource" code:0 userInfo:
-                                  @{NSLocalizedDescriptionKey: [urlResp description]}];
+                                  @{NSLocalizedDescriptionKey: urlRespDesc}];
             }
             
             if (error || !imgData)
