@@ -100,6 +100,11 @@
  */
 @property (nonatomic) int maxTiles;
 
+/** @brief Scale the calculated importance by this before using it.
+    @details Number less than 1.0 will make tiles less important to load in.
+  */
+@property (nonatomic) float importanceScale;
+
 /** @brief Size of the image to produce or maximum size if autoRes is on.
     @details This is the size of each of the images passed to the delegate.  If autoRes is on this is the maximum size.
   */
