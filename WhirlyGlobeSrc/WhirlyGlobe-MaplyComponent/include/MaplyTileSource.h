@@ -20,6 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyImageTile.h"
+#import "MaplyCoordinate.h"
 
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
@@ -68,6 +69,15 @@ typedef struct
 - (bool)tileIsLocal:(MaplyTileID)tileID;
 
 @optional
+
+/** @brief Check if we should even try to load a given tile.
+    @details Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
+    @details If this method isn't filled in, everything defaults to true.
+    @details tileID The tile we're asking about.
+    @details bbox The bounding box of the tile we're asking about, for convenience.
+    @return True if the tile is loadable, false if not.
+  */
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
 
 /** @brief For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
     @details If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.

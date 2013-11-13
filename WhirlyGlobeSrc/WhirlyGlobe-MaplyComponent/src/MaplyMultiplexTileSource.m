@@ -24,6 +24,7 @@
 {
     NSArray *_tileSources;
     int _minZoom,_maxZoom;
+    bool canDoValidTiles;
 }
 
 - (id)initWithSources:(NSArray *)tileSources
@@ -39,6 +40,7 @@
     _minZoom = [tileSources[0] minZoom];
     _maxZoom = [tileSources[0] maxZoom];
     _coordSys = [tileSources[0] coordSys];
+    canDoValidTiles = [tileSources[0] respondsToSelector:@selector(validTile:bbox:)];
     
     for (unsigned int ii=1;ii<[tileSources count];ii++)
     {
@@ -64,6 +66,21 @@
 - (int)tileSize
 {
     return [((NSObject<MaplyTileSource> *)_tileSources[0]) tileSize];
+}
+
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!canDoValidTiles)
+        return true;
+    
+    // Just ask the first one
+    if ([_tileSources count] > 0)
+    {
+        NSObject<MaplyTileSource> *tileSource = _tileSources[0];
+        return [tileSource validTile:tileID bbox:bbox];
+    }
+    
+    return true;
 }
 
 // It's local if all the tile sources say so
