@@ -106,6 +106,8 @@ void BillboardDrawableBuilder::addBillboard(Point3f center,float width,float hei
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
         drawable->setDrawPriority(billInfo.drawPriority);
+        drawable->setRequestZBuffer(true);
+        drawable->setWriteZBuffer(true);
         //        drawable->setForceZBufferOn(true);
     }
     
