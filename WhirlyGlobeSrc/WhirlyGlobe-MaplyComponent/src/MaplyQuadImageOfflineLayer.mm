@@ -66,6 +66,7 @@ using namespace WhirlyKit;
     _on = true;
     _textureSize = CGSizeMake(1024, 1024);
     _autoRes = true;
+    _importanceScale = 1.0;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
@@ -205,7 +206,7 @@ using namespace WhirlyKit;
     
     //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
-    return import;
+    return import * _importanceScale;
 }
 
 - (void)quadTileLoader:(WhirlyKitQuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(NSMutableDictionary *)attrs
