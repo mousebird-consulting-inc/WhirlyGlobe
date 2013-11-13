@@ -45,15 +45,19 @@
 	
 	<option value="//api/name/imageForTile:">&nbsp;&nbsp;&nbsp;&nbsp;- imageForTile:</option>
 	
-	<option value="//api/name/imagesForTile:numImages:">&nbsp;&nbsp;&nbsp;&nbsp;- imagesForTile:numImages:</option>
-	
 	<option value="//api/name/maxZoom">&nbsp;&nbsp;&nbsp;&nbsp;- maxZoom</option>
 	
 	<option value="//api/name/minZoom">&nbsp;&nbsp;&nbsp;&nbsp;- minZoom</option>
 	
+	<option value="//api/name/startFetchLayer:tile:">&nbsp;&nbsp;&nbsp;&nbsp;- startFetchLayer:tile:</option>
+	
 	<option value="//api/name/tileIsLocal:">&nbsp;&nbsp;&nbsp;&nbsp;- tileIsLocal:</option>
 	
 	<option value="//api/name/tileSize">&nbsp;&nbsp;&nbsp;&nbsp;- tileSize</option>
+	
+	<option value="//api/name/tileSizeForTile:">&nbsp;&nbsp;&nbsp;&nbsp;- tileSizeForTile:</option>
+	
+	<option value="//api/name/validTile:bbox:">&nbsp;&nbsp;&nbsp;&nbsp;- validTile:bbox:</option>
 	
 	
 	
@@ -85,15 +89,19 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imageForTile:">imageForTile:</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imagesForTile:numImages:">imagesForTile:numImages:</a></span></li>
-	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/maxZoom">maxZoom</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/minZoom">minZoom</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/startFetchLayer:tile:">startFetchLayer:tile:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileIsLocal:">tileIsLocal:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileSize">tileSize</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/tileSizeForTile:">tileSizeForTile:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/validTile:bbox:">validTile:bbox:</a></span></li>
 	
 </ul></li>
 
@@ -171,13 +179,25 @@
 	<span class="task-item-suffix">required method</span>
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/validTile:bbox:">&ndash;&nbsp;validTile:bbox:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/tileSizeForTile:">&ndash;&nbsp;tileSizeForTile:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/imageForTile:">&ndash;&nbsp;imageForTile:</a></code>
 	</span>
 	
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/imagesForTile:numImages:">&ndash;&nbsp;imagesForTile:numImages:</a></code>
+		<code><a href="#//api/name/startFetchLayer:tile:">&ndash;&nbsp;startFetchLayer:tile:</a></code>
 	</span>
 	
 	
@@ -218,7 +238,7 @@
 	
 	<div class="method-subsection return">
 		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>Return a UIImage or an NSData containing raw PNG or JPEG data.</p>
+		<p>Return a UIImage or a <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>.</p>
 	</div>
 	
 	
@@ -227,63 +247,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>You must fill in either imageForTile: or <a href="#//api/name/imagesForTile:numImages:">imagesForTile:numImages:</a>
-    if you&rsquo;re doing more than one image per tile.</p><p>For this method, you can return either a full UIImage or an NSData
-    containing an image that UIImage will recognize.  Typically that&rsquo;s
-    a PNG or JPEG image of the typical size (128 or 256 pixels on a side).</p><p>If you fail to load the image, just return nil.  At that point the paging
-    won&rsquo;t page in tiles below this image, assuming that image pyramid is
-    truncated at that point.</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyTileSource.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-						<div class="section-method">
-	<a name="//api/name/imagesForTile:numImages:" title="imagesForTile:numImages:"></a>
-	<h3 class="subsubtitle method-title">imagesForTile:numImages:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Fetch an array of images for the given tile.</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (NSArray *)imagesForTile:(MaplyTileID)<em>tileID</em> numImages:(unsigned int)<em>numImages</em></code></div>
-
-    
-	
-	
-	
-	<div class="method-subsection return">
-		<h4 class="method-subtitle parameter-title">Return Value</h4>
-		<p>An NSArray of UIImage or NSData objects.</p>
-	</div>
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>You must fill in either <a href="#//api/name/imageForTile:">imageForTile:</a> or imagesForTile:numImages:
-     if you&rsquo;re doing more than one image per tile.</p><p>This method is required if you&rsquo;ve told the <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a> that
-    the depth is greater than 1.  That is, it&rsquo;s expecting more than one image
-    per tile.  You&rsquo;d do this when you want to animate between them, for instance.</p><p>You must return an NSArray, but the array can contain UIImage or NSData
-    entries (or both).  For NSData we&rsquo;re expecting a raw PNG or JPEG data,
-    or anything that UIImage would interpret correctly.</p>
+		<p>For this method, you can return either a full UIImage or a <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>.</p><p>If you fail to load the image, just return nil.  At that point the paging won&rsquo;t page in tiles below this image, assuming that image pyramid is truncated at that point.</p><p>If you don&rsquo;t have an image to load (because there isn&rsquo;t one) and you want the layer to keep paging below that, you should pass in a <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a> set up as a placeholder.  The visual tile will be blank, but you&rsquo;ll have the opportunity to provide higher resolution tiles.</p>
 	</div>
 	
 	
@@ -369,6 +333,62 @@
 	
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/startFetchLayer:tile:" title="startFetchLayer:tile:"></a>
+	<h3 class="subsubtitle method-title">startFetchLayer:tile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Start fetching the given tile, probably with your own threads.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)startFetchLayer:(id)<em>layer</em> tile:(MaplyTileID)<em>tileID</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>layer</em></dt>
+			<dd><p>This is probably a <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a>, but others use this protocol as well.  Your tile source should know.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>tileID</em></dt>
+			<dd><p>The tile you should start fetching.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You&rsquo;ll be called on a random thread here, so act accordingly.</p><p>If you&rsquo;re using a <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a>, when you&rsquo;re done fetching (successful or otherwise) call loadedImagesForTile: with the results.</p>
+	</div>
 	
 	
 	
@@ -478,6 +498,93 @@
 	
 </div>
 						
+						<div class="section-method">
+	<a name="//api/name/tileSizeForTile:" title="tileSizeForTile:"></a>
+	<h3 class="subsubtitle method-title">tileSizeForTile:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>For tiles of variable sizes, return the pixel size we&rsquo;ll use to evaluate this particular tile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (int)tileSizeForTile:(MaplyTileID)<em>tileID</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>If you have tiles with variable sizes&hellip; first of all why?  Seriously, why are you doing that?  Stop it.</p><p>But if you must do variable sized tiles (Why?) fill in this method to give the importance function some clue as to what you&rsquo;re doing.  This will be called per tile to figure out when to load things.</p><p>Variable sized tiles will screw up other things.  SO DON&rsquo;T DO IT.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/validTile:bbox:" title="validTile:bbox:"></a>
+	<h3 class="subsubtitle method-title">validTile:bbox:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Check if we should even try to load a given tile.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)validTile:(MaplyTileID)<em>tileID</em> bbox:(MaplyBoundingBox *)<em>bbox</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>True if the tile is loadable, false if not.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.</p><p>If this method isn&rsquo;t filled in, everything defaults to true.</p><p>tileID The tile we&rsquo;re asking about.</p><p>bbox The bounding box of the tile we&rsquo;re asking about, for convenience.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyTileSource.h</code><br />
+	</div>				
+	
+	
+</div>
+						
 					</div>
 					
 					
@@ -493,7 +600,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

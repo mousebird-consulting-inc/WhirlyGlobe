@@ -71,6 +71,10 @@
 	
 	<option value="//api/name/center">&nbsp;&nbsp;&nbsp;&nbsp;- center</option>
 	
+	<option value="//api/name/centroid:">&nbsp;&nbsp;&nbsp;&nbsp;- centroid:</option>
+	
+	<option value="//api/name/clipToGrid:">&nbsp;&nbsp;&nbsp;&nbsp;- clipToGrid:</option>
+	
 	<option value="//api/name/deepCopy">&nbsp;&nbsp;&nbsp;&nbsp;- deepCopy</option>
 	
 	<option value="//api/name/initWithAreal:numCoords:attributes:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithAreal:numCoords:attributes:</option>
@@ -154,6 +158,10 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/boundingBoxLL:ur:">boundingBoxLL:ur:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/center">center</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/centroid:">centroid:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/clipToGrid:">clipToGrid:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/deepCopy">deepCopy</a></span></li>
 	
@@ -344,6 +352,12 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/centroid:">&ndash;&nbsp;centroid:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/boundingBoxLL:ur:">&ndash;&nbsp;boundingBoxLL:ur:</a></code>
 	</span>
 	
@@ -375,6 +389,12 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/tesselate">&ndash;&nbsp;tesselate</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/clipToGrid:">&ndash;&nbsp;clipToGrid:</a></code>
 	</span>
 	
 	
@@ -854,6 +874,98 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/centroid:" title="centroid:"></a>
+	<h3 class="subsubtitle method-title">centroid:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Calculate the centroid of the largest loop in the areal feature.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)centroid:(MaplyCoordinate *)<em>centroid</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns false if there was no loop (probably wasn&rsquo;t an areal).</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The centroid is a better <a href="#//api/name/center">center</a> for label placement than the middle of the largest loop as calculated by <a href="#//api/name/largestLoopCenter:mbrLL:mbrUR:">largestLoopCenter:mbrLL:mbrUR:</a></p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/clipToGrid:" title="clipToGrid:"></a>
+	<h3 class="subsubtitle method-title">clipToGrid:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Clip the given (presumably areal) feature(s) to a grid in radians of the given size.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyVectorObject *)clipToGrid:(CGSize)<em>gridSize</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>New areal features broken up along the grid.</p>
+	</div>
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This will run through the loops in the input vectors and clip them against a grid.  The grid size is given in radians.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyVectorObject.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/deepCopy" title="deepCopy"></a>
 	<h3 class="subsubtitle method-title">deepCopy</h3>
 	
@@ -1034,6 +1146,11 @@
     
 	
 	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns false if there was no loop (i.e. probably isn&rsquo;t an areal)</p>
+	</div>
 	
 	
 	
@@ -1316,7 +1433,7 @@
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Teseelate the areal geometry in this vector object and return triangles.</p>
+		<p>Tesselate the areal geometry in this vector object and return triangles.</p>
 	</div>		
 	
     
@@ -1438,7 +1555,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

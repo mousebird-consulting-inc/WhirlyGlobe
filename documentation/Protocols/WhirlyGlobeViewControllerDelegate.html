@@ -47,9 +47,15 @@
 	
 	<option value="//api/name/globeViewController:didSelect:atLoc:onScreen:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didSelect:atLoc:onScreen:</option>
 	
+	<option value="//api/name/globeViewController:didStopMoving:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didStopMoving:</option>
+	
 	<option value="//api/name/globeViewController:didTapAt:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:didTapAt:</option>
 	
 	<option value="//api/name/globeViewController:layerDidLoad:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:layerDidLoad:</option>
+	
+	<option value="//api/name/globeViewController:willStopMoving:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewController:willStopMoving:</option>
+	
+	<option value="//api/name/globeViewControllerDidStartMoving:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewControllerDidStartMoving:</option>
 	
 	<option value="//api/name/globeViewControllerDidTapOutside:">&nbsp;&nbsp;&nbsp;&nbsp;- globeViewControllerDidTapOutside:</option>
 	
@@ -85,9 +91,15 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didSelect:atLoc:onScreen:">globeViewController:didSelect:atLoc:onScreen:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didStopMoving:">globeViewController:didStopMoving:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:didTapAt:">globeViewController:didTapAt:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:layerDidLoad:">globeViewController:layerDidLoad:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewController:willStopMoving:">globeViewController:willStopMoving:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewControllerDidStartMoving:">globeViewControllerDidStartMoving:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/globeViewControllerDidTapOutside:">globeViewControllerDidTapOutside:</a></span></li>
 	
@@ -171,6 +183,24 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/globeViewController:layerDidLoad:">&ndash;&nbsp;globeViewController:layerDidLoad:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewControllerDidStartMoving:">&ndash;&nbsp;globeViewControllerDidStartMoving:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:didStopMoving:">&ndash;&nbsp;globeViewController:didStopMoving:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/globeViewController:willStopMoving:">&ndash;&nbsp;globeViewController:willStopMoving:</a></code>
 	</span>
 	
 	
@@ -314,6 +344,62 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/globeViewController:didStopMoving:" title="globeViewController:didStopMoving:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:didStopMoving:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the globe stops moving.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> didStopMoving:(MaplyCoordinate *)<em>corners</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>corners</em></dt>
+			<dd><p>An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when the globe stops moving.  It passes in the corners of the current viewspace.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/globeViewController:didTapAt:" title="globeViewController:didTapAt:"></a>
 	<h3 class="subsubtitle method-title">globeViewController:didTapAt:</h3>
 	
@@ -406,6 +492,103 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/globeViewController:willStopMoving:" title="globeViewController:willStopMoving:"></a>
+	<h3 class="subsubtitle method-title">globeViewController:willStopMoving:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when an animation that knows where it&rsquo;s going to stop start ups.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewController:(WhirlyGlobeViewController *)<em>viewC</em> willStopMoving:(MaplyCoordinate *)<em>corners</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>viewC</em></dt>
+			<dd><p>The globe view controller.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>corners</em></dt>
+			<dd><p>An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/globeViewControllerDidStartMoving:" title="globeViewControllerDidStartMoving:"></a>
+	<h3 class="subsubtitle method-title">globeViewControllerDidStartMoving:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Called when the globe starts moving.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)<em>viewC</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is called when something (probably the user) starts moving the globe.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">WhirlyGlobeViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/globeViewControllerDidTapOutside:" title="globeViewControllerDidTapOutside:"></a>
 	<h3 class="subsubtitle method-title">globeViewControllerDidTapOutside:</h3>
 	
@@ -456,7 +639,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

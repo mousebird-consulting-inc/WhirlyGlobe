@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>MaplyAnimationTestTileSource Class Reference</title>
+		<title>MaplyOfflineImage Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
 		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
@@ -16,7 +16,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">MaplyAnimationTestTileSource Class Reference</h1>
+				<h1 class="hideInXcode">MaplyOfflineImage Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -39,18 +39,15 @@
 	
 	<option value="properties">Properties</option>
 	
-	<option value="//api/name/coordSys">&nbsp;&nbsp;&nbsp;&nbsp;coordSys</option>
+	<option value="//api/name/bbox">&nbsp;&nbsp;&nbsp;&nbsp;bbox</option>
 	
-	<option value="//api/name/pixelsPerSide">&nbsp;&nbsp;&nbsp;&nbsp;pixelsPerSide</option>
+	<option value="//api/name/centerSize">&nbsp;&nbsp;&nbsp;&nbsp;centerSize</option>
 	
-	
-	
-	
+	<option value="//api/name/images">&nbsp;&nbsp;&nbsp;&nbsp;images</option>
 	
 	
-	<option value="instance_methods">Instance Methods</option>
 	
-	<option value="//api/name/initWithCoordSys:minZoom:maxZoom:depth:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithCoordSys:minZoom:maxZoom:depth:</option>
+	
 	
 	
 	
@@ -76,28 +73,24 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coordSys">coordSys</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/bbox">bbox</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/pixelsPerSide">pixelsPerSide</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/centerSize">centerSize</a></span></li>
 	
-</ul></li>
-
-
-
-
-
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
-	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithCoordSys:minZoom:maxZoom:depth:">initWithCoordSys:minZoom:maxZoom:depth:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/images">images</a></span></li>
 	
 </ul></li>
+
+
+
+
 
 
 			</ul>
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="MaplyAnimationTestTileSource Class Reference" name="top"></a>
+				<a title="MaplyOfflineImage Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -106,7 +99,7 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">MaplyAnimationTestTileSource Class Reference</h1>
+						<h1 class="title title-header">MaplyOfflineImage Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
@@ -116,11 +109,8 @@
 	<td class="specification-title">Inherits from</td>
 	<td class="specification-value">NSObject</td>
 </tr><tr>
-	<td class="specification-title">Conforms to</td>
-	<td class="specification-value"><a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a></td>
-</tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">MaplyAnimationTestTileSource.h</td>
+	<td class="specification-value">MaplyQuadImageOfflineLayer.h</td>
 </tr>
 						</tbody></table></div>
 					
@@ -130,9 +120,7 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>The animation test tile source provides fake images to test the
-    animation functionality in the quad image tiles layer.  In general,
-    don&rsquo;t use it for anything.</p>
+						<p>The offline renderer passes over <a href="#//api/name/images">images</a> like so</p>
 					</div>
 					
 					
@@ -150,19 +138,19 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithCoordSys:minZoom:maxZoom:depth:">&ndash;&nbsp;initWithCoordSys:minZoom:maxZoom:depth:</a></code>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/coordSys">&nbsp;&nbsp;coordSys</a></code>
+		<code><a href="#//api/name/bbox">&nbsp;&nbsp;bbox</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/pixelsPerSide">&nbsp;&nbsp;pixelsPerSide</a></code>
+		<code><a href="#//api/name/images">&nbsp;&nbsp;images</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/centerSize">&nbsp;&nbsp;centerSize</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -180,18 +168,18 @@
 						<h2 class="subtitle subtitle-methods">Properties</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/coordSys" title="coordSys"></a>
-	<h3 class="subsubtitle method-title">coordSys</h3>
+	<a name="//api/name/bbox" title="bbox"></a>
+	<h3 class="subsubtitle method-title">bbox</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Coordinate system we&rsquo;re pretending to be in</p>
+		<p>Bounding box for the rendered area</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) MaplyCoordinateSystem *coordSys</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyBoundingBox bbox</code></div>
 
     
 	
@@ -203,7 +191,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>Coordinate system we&rsquo;re pretending to be in</p>
+		<p>Bounding box for the rendered area</p>
 	</div>
 	
 	
@@ -214,25 +202,25 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
 	</div>				
 	
 	
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/pixelsPerSide" title="pixelsPerSide"></a>
-	<h3 class="subsubtitle method-title">pixelsPerSide</h3>
+	<a name="//api/name/centerSize" title="centerSize"></a>
+	<h3 class="subsubtitle method-title">centerSize</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>How big the images we generate are</p>
+		<p>Size of the center pixel in meters</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic) int pixelsPerSide</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) CGSize centerSize</code></div>
 
     
 	
@@ -244,7 +232,7 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>How big the images we generate are</p>
+		<p>Size of the center pixel in meters</p>
 	</div>
 	
 	
@@ -255,7 +243,48 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/images" title="images"></a>
+	<h3 class="subsubtitle method-title">images</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Images produced by the renderer</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSArray *images</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>Images produced by the renderer</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyQuadImageOfflineLayer.h</code><br />
 	</div>				
 	
 	
@@ -266,53 +295,6 @@
 					
 					
 					
-					
-					<div class="section section-methods">
-						<a title="Instance Methods" name="instance_methods"></a>
-						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
-						
-						<div class="section-method">
-	<a name="//api/name/initWithCoordSys:minZoom:maxZoom:depth:" title="initWithCoordSys:minZoom:maxZoom:depth:"></a>
-	<h3 class="subsubtitle method-title">initWithCoordSys:minZoom:maxZoom:depth:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Initialize with the coordinate system, min and max zoom levels, and the number of images to return</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (id)initWithCoordSys:(MaplyCoordinateSystem *)<em>coordSys</em> minZoom:(int)<em>minZoom</em> maxZoom:(int)<em>maxZoom</em> depth:(int)<em>depth</em></code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Initialize with the coordinate system, min and max zoom levels, and the number of images to return</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-					</div>
 					
 					
                     

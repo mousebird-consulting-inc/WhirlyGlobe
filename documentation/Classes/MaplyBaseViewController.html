@@ -60,6 +60,10 @@
 	
 	<option value="//api/name/addActiveObject:">&nbsp;&nbsp;&nbsp;&nbsp;- addActiveObject:</option>
 	
+	<option value="//api/name/addBillboards:desc:mode:">&nbsp;&nbsp;&nbsp;&nbsp;- addBillboards:desc:mode:</option>
+	
+	<option value="//api/name/addImage:imageFormat:wrapFlags:mode:">&nbsp;&nbsp;&nbsp;&nbsp;- addImage:imageFormat:wrapFlags:mode:</option>
+	
 	<option value="//api/name/addLabels:desc:">&nbsp;&nbsp;&nbsp;&nbsp;- addLabels:desc:</option>
 	
 	<option value="//api/name/addLabels:desc:mode:">&nbsp;&nbsp;&nbsp;&nbsp;- addLabels:desc:mode:</option>
@@ -100,6 +104,8 @@
 	
 	<option value="//api/name/addViewTracker:">&nbsp;&nbsp;&nbsp;&nbsp;- addViewTracker:</option>
 	
+	<option value="//api/name/changeSticker:desc:mode:">&nbsp;&nbsp;&nbsp;&nbsp;- changeSticker:desc:mode:</option>
+	
 	<option value="//api/name/changeVector:desc:">&nbsp;&nbsp;&nbsp;&nbsp;- changeVector:desc:</option>
 	
 	<option value="//api/name/clearLights">&nbsp;&nbsp;&nbsp;&nbsp;- clearLights</option>
@@ -118,7 +124,11 @@
 	
 	<option value="//api/name/removeAllLayers">&nbsp;&nbsp;&nbsp;&nbsp;- removeAllLayers</option>
 	
+	<option value="//api/name/removeImage:mode:">&nbsp;&nbsp;&nbsp;&nbsp;- removeImage:mode:</option>
+	
 	<option value="//api/name/removeLayer:">&nbsp;&nbsp;&nbsp;&nbsp;- removeLayer:</option>
+	
+	<option value="//api/name/removeLayers:">&nbsp;&nbsp;&nbsp;&nbsp;- removeLayers:</option>
 	
 	<option value="//api/name/removeLight:">&nbsp;&nbsp;&nbsp;&nbsp;- removeLight:</option>
 	
@@ -184,6 +194,10 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addActiveObject:">addActiveObject:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addBillboards:desc:mode:">addBillboards:desc:mode:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addImage:imageFormat:wrapFlags:mode:">addImage:imageFormat:wrapFlags:mode:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addLabels:desc:">addLabels:desc:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addLabels:desc:mode:">addLabels:desc:mode:</a></span></li>
@@ -224,6 +238,8 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/addViewTracker:">addViewTracker:</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/changeSticker:desc:mode:">changeSticker:desc:mode:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/changeVector:desc:">changeVector:desc:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/clearLights">clearLights</a></span></li>
@@ -242,7 +258,11 @@
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/removeAllLayers">removeAllLayers</a></span></li>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/removeImage:mode:">removeImage:mode:</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/removeLayer:">removeLayer:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/removeLayers:">removeLayers:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/removeLight:">removeLight:</a></span></li>
 	
@@ -455,6 +475,18 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/changeSticker:desc:mode:">&ndash;&nbsp;changeSticker:desc:mode:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/addBillboards:desc:mode:">&ndash;&nbsp;addBillboards:desc:mode:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/addSelectionVectors:">&ndash;&nbsp;addSelectionVectors:</a></code>
 	</span>
 	
@@ -480,6 +512,18 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/removeViewTrackForView:">&ndash;&nbsp;removeViewTrackForView:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/addImage:imageFormat:wrapFlags:mode:">&ndash;&nbsp;addImage:imageFormat:wrapFlags:mode:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/removeImage:mode:">&ndash;&nbsp;removeImage:mode:</a></code>
 	</span>
 	
 	
@@ -546,6 +590,12 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/removeLayer:">&ndash;&nbsp;removeLayer:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/removeLayers:">&ndash;&nbsp;removeLayers:</a></code>
 	</span>
 	
 	
@@ -918,6 +968,213 @@
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
 		<p>Active objects are used for immediate, frame based updates.  They&rsquo;re fairly expensive, so be careful.  After you create one, you add it to the scene here.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBaseViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/addBillboards:desc:mode:" title="addBillboards:desc:mode:"></a>
+	<h3 class="subsubtitle method-title">addBillboards:desc:mode:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add one or more <a href="../Classes/MaplyBillboard.html">MaplyBillboard</a> objects to the current scene.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (MaplyComponentObject *)addBillboards:(NSArray *)<em>billboards</em> desc:(NSDictionary *)<em>desc</em> mode:(MaplyThreadMode)<em>threadMode</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>billboards</em></dt>
+			<dd><p>An NSArray of <a href="../Classes/MaplyBillboard.html">MaplyBillboard</a> objects.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>desc</em></dt>
+			<dd><p>The description dictionary that controls how the billboards will look.  It takes the following entries.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Key</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">kMaplyColor</td>
+<td align="left">UIColor</td>
+<td align="left">Color we&rsquo;ll use for the stickers.</td>
+</tr>
+<tr>
+<td align="left">kMaplyMinVis</td>
+<td align="left">NSNumber</td>
+<td align="left">This is viewer height above the globe or map.  The billboards will only be visible if the user is above this height.  Off by default.</td>
+</tr>
+<tr>
+<td align="left">kMaplyMaxVis</td>
+<td align="left">NSNumber</td>
+<td align="left">This is viewer height above the globe or map.  The billboards will only be visible if the user is below this height.  Off by default.</td>
+</tr>
+<tr>
+<td align="left">kMaplyDrawPriority</td>
+<td align="left">NSNumber</td>
+<td align="left">Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyBillboardDrawPriorityDefault.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>threadMode</em></dt>
+			<dd><p>MaplyThreadAny is preferred and will use another thread, thus not blocking the one you&rsquo;re on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will add the given <a href="../Classes/MaplyBillboard.html">MaplyBillboard</a> objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBaseViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/addImage:imageFormat:wrapFlags:mode:" title="addImage:imageFormat:wrapFlags:mode:"></a>
+	<h3 class="subsubtitle method-title">addImage:imageFormat:wrapFlags:mode:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Add an image as a texture and keep track of it.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)addImage:(UIImage *)<em>image</em> imageFormat:(MaplyQuadImageFormat)<em>imageFormat</em> wrapFlags:(int)<em>wrapFlags</em> mode:(MaplyThreadMode)<em>threadMode</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>image</em></dt>
+			<dd><p>The image we wish to retain the texture for.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>imageFormat</em></dt>
+			<dd><p>If we create this image, this is the texture format we want it to use.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left"> Image Format </th>
+<th align="left"> Description </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"> MaplyImageIntRGBA </td>
+<td align="left"> 32 bit RGBA with 8 bits per channel.  The default. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort565 </td>
+<td align="left"> 16 bits with 5/6/5 for RGB and none for A. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort4444 </td>
+<td align="left"> 16 bits with 4 bits for each channel. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort5551 </td>
+<td align="left"> 16 bits with 5/5/5 bits for RGB and 1 bit for A. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteRed </td>
+<td align="left"> 8 bits, where we choose the R and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteGreen </td>
+<td align="left"> 8 bits, where we choose the G and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteBlue </td>
+<td align="left"> 8 bits, where we choose the B and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteAlpha </td>
+<td align="left"> 8 bits, where we choose the A and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteRGB </td>
+<td align="left"> 8 bits, where we average RGB for the value. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImage4Layer8Bit </td>
+<td align="left"> 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. </td>
+</tr>
+</tbody>
+</table>
+</dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>threadMode</em></dt>
+			<dd><p>For MaplyThreadAny we&rsquo;ll do the add on another thread.  For MaplyThreadCurrent we&rsquo;ll block the current thread to finish the add.  MaplyThreadAny is preferred.</p></dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>We reference count UIImages and turn them into internal textures.  If you know you&rsquo;re going to be using the same image and adding and removing the object its attached to, this is a good way to lock the image down.  Otherwise we&rsquo;ll be constantly recreating the texture.</p><p>You don&rsquo;t have call this before using a UIImage in a <a href="../Classes/MaplyScreenMarker.html">MaplyScreenMarker</a> or other object.  The system takes care of it for you.  This is purely for optimization.</p>
 	</div>
 	
 	
@@ -2496,6 +2753,80 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/changeSticker:desc:mode:" title="changeSticker:desc:mode:"></a>
+	<h3 class="subsubtitle method-title">changeSticker:desc:mode:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Modify an existing sticker.  This only supports changing the active textures.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)changeSticker:(MaplyComponentObject *)<em>compObj</em> desc:(NSDictionary *)<em>desc</em> mode:(MaplyThreadMode)<em>threadMode</em></code></div>
+
+    
+	
+	<div class="method-subsection arguments-section parameters">
+		<h4 class="method-subtitle parameter-title">Parameters</h4>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>compObj</em></dt>
+			<dd><p>The component object representing one or more existing stickers.</p></dd>
+		</dl>
+		
+		<dl class="argument-def parameter-def">
+			<dt><em>desc</em></dt>
+			<dd><p>The description dictionary for changes we&rsquo;re making to the sticker.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Key</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">kMaplyStickerImages</td>
+<td align="left">NSARray</td>
+<td align="left">The array of images to apply to the sticker.  You can reuse old ones or introduce new ones.</td>
+</tr>
+</tbody>
+</table>
+</dd>
+		</dl>
+		
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This method will change attributes of a sticker that&rsquo;s currently in use.  At present that&rsquo;s just the images it&rsquo;s displaying.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBaseViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/changeVector:desc:" title="changeVector:desc:"></a>
 	<h3 class="subsubtitle method-title">changeVector:desc:</h3>
 	
@@ -2890,6 +3221,47 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/removeImage:mode:" title="removeImage:mode:"></a>
+	<h3 class="subsubtitle method-title">removeImage:mode:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Decrement the reference count on an image and possibly remove its associated texture.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)removeImage:(UIImage *)<em>image</em> mode:(MaplyThreadMode)<em>threadMode</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>See addImage:mode: for details on why this is here.  It&rsquo;s the corresponding decrement method for UIImage textures.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBaseViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/removeLayer:" title="removeLayer:"></a>
 	<h3 class="subsubtitle method-title">removeLayer:</h3>
 	
@@ -2902,6 +3274,42 @@
     
 
 	<div class="method-subsection method-declaration"><code>- (void)removeLayer:(MaplyViewControllerLayer *)<em>layer</em></code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBaseViewController.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/removeLayers:" title="removeLayers:"></a>
+	<h3 class="subsubtitle method-title">removeLayers:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Remove zero or more <a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a> objects from the globe or map.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (void)removeLayers:(NSArray *)<em>layers</em></code></div>
 
     
 	
@@ -3332,7 +3740,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

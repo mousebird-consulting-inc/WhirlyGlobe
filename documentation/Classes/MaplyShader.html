@@ -56,6 +56,16 @@
 	
 	<option value="//api/name/initWithName:vertexFile:fragmentFile:viewC:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithName:vertexFile:fragmentFile:viewC:</option>
 	
+	<option value="//api/name/setUniformFloatNamed:val:">&nbsp;&nbsp;&nbsp;&nbsp;- setUniformFloatNamed:val:</option>
+	
+	<option value="//api/name/setUniformIntNamed:val:">&nbsp;&nbsp;&nbsp;&nbsp;- setUniformIntNamed:val:</option>
+	
+	<option value="//api/name/setUniformVector2Named:x:y:">&nbsp;&nbsp;&nbsp;&nbsp;- setUniformVector2Named:x:y:</option>
+	
+	<option value="//api/name/setUniformVector3Named:x:y:z:">&nbsp;&nbsp;&nbsp;&nbsp;- setUniformVector3Named:x:y:z:</option>
+	
+	<option value="//api/name/setUniformVector4Named:x:y:z:w:">&nbsp;&nbsp;&nbsp;&nbsp;- setUniformVector4Named:x:y:z:w:</option>
+	
 	<option value="//api/name/valid">&nbsp;&nbsp;&nbsp;&nbsp;- valid</option>
 	
 	
@@ -99,6 +109,16 @@
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithName:vertex:fragment:viewC:">initWithName:vertex:fragment:viewC:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithName:vertexFile:fragmentFile:viewC:">initWithName:vertexFile:fragmentFile:viewC:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setUniformFloatNamed:val:">setUniformFloatNamed:val:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setUniformIntNamed:val:">setUniformIntNamed:val:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setUniformVector2Named:x:y:">setUniformVector2Named:x:y:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setUniformVector3Named:x:y:z:">setUniformVector3Named:x:y:z:</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/setUniformVector4Named:x:y:z:w:">setUniformVector4Named:x:y:z:w:</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/valid">valid</a></span></li>
 	
@@ -374,6 +394,36 @@
 </li><li>
 	<span class="tooltip">
 		<code><a href="#//api/name/addTextureNamed:image:">&ndash;&nbsp;addTextureNamed:image:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setUniformFloatNamed:val:">&ndash;&nbsp;setUniformFloatNamed:val:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setUniformIntNamed:val:">&ndash;&nbsp;setUniformIntNamed:val:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setUniformVector2Named:x:y:">&ndash;&nbsp;setUniformVector2Named:x:y:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setUniformVector3Named:x:y:z:">&ndash;&nbsp;setUniformVector3Named:x:y:z:</a></code>
+	</span>
+	
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/setUniformVector4Named:x:y:z:w:">&ndash;&nbsp;setUniformVector4Named:x:y:z:w:</a></code>
 	</span>
 	
 	
@@ -693,6 +743,211 @@
 </div>
 						
 						<div class="section-method">
+	<a name="//api/name/setUniformFloatNamed:val:" title="setUniformFloatNamed:val:"></a>
+	<h3 class="subsubtitle method-title">setUniformFloatNamed:val:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set a float uniform in the shader with the given <a href="#//api/name/name">name</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)setUniformFloatNamed:(NSString *)<em>uniName</em> val:(float)<em>val</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true if there was such a uniform, false otherwise.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyShader.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setUniformIntNamed:val:" title="setUniformIntNamed:val:"></a>
+	<h3 class="subsubtitle method-title">setUniformIntNamed:val:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set an integer uniform in the shader with the given <a href="#//api/name/name">name</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)setUniformIntNamed:(NSString *)<em>uniName</em> val:(int)<em>val</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true if there was such a uniform, false otherwise.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyShader.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setUniformVector2Named:x:y:" title="setUniformVector2Named:x:y:"></a>
+	<h3 class="subsubtitle method-title">setUniformVector2Named:x:y:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set a 2 component float uniform in the shader with the given <a href="#//api/name/name">name</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)setUniformVector2Named:(NSString *)<em>uniName</em> x:(float)<em>x</em> y:(float)<em>y</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true if there was such a uniform, false otherwise.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyShader.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setUniformVector3Named:x:y:z:" title="setUniformVector3Named:x:y:z:"></a>
+	<h3 class="subsubtitle method-title">setUniformVector3Named:x:y:z:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set a 3 component float uniform in the shader with the given <a href="#//api/name/name">name</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)setUniformVector3Named:(NSString *)<em>uniName</em> x:(float)<em>x</em> y:(float)<em>y</em> z:(float)<em>z</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true if there was such a uniform, false otherwise.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyShader.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/setUniformVector4Named:x:y:z:w:" title="setUniformVector4Named:x:y:z:w:"></a>
+	<h3 class="subsubtitle method-title">setUniformVector4Named:x:y:z:w:</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set a 4 component float uniform in the shader with the given <a href="#//api/name/name">name</a>.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>- (bool)setUniformVector4Named:(NSString *)<em>uniName</em> x:(float)<em>x</em> y:(float)<em>y</em> z:(float)<em>z</em> w:(float)<em>w</em></code></div>
+
+    
+	
+	
+	
+	<div class="method-subsection return">
+		<h4 class="method-subtitle parameter-title">Return Value</h4>
+		<p>Returns true if there was such a uniform, false otherwise.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyShader.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
 	<a name="//api/name/valid" title="valid"></a>
 	<h3 class="subsubtitle method-title">valid</h3>
 	
@@ -748,7 +1003,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

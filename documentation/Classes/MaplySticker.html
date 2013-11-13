@@ -39,7 +39,13 @@
 	
 	<option value="properties">Properties</option>
 	
+	<option value="//api/name/coordSys">&nbsp;&nbsp;&nbsp;&nbsp;coordSys</option>
+	
 	<option value="//api/name/image">&nbsp;&nbsp;&nbsp;&nbsp;image</option>
+	
+	<option value="//api/name/imageFormat">&nbsp;&nbsp;&nbsp;&nbsp;imageFormat</option>
+	
+	<option value="//api/name/images">&nbsp;&nbsp;&nbsp;&nbsp;images</option>
 	
 	<option value="//api/name/ll">&nbsp;&nbsp;&nbsp;&nbsp;ll</option>
 	
@@ -75,7 +81,13 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
 	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coordSys">coordSys</a></span></li>
+	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/image">image</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/imageFormat">imageFormat</a></span></li>
+	
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/images">images</a></span></li>
 	
 	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/ll">ll</a></span></li>
 	
@@ -160,7 +172,25 @@
 	
 </li><li>
 	<span class="tooltip">
+		<code><a href="#//api/name/coordSys">&nbsp;&nbsp;coordSys</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
 		<code><a href="#//api/name/image">&nbsp;&nbsp;image</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/images">&nbsp;&nbsp;images</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/imageFormat">&nbsp;&nbsp;imageFormat</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -178,18 +208,18 @@
 						<h2 class="subtitle subtitle-methods">Properties</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/image" title="image"></a>
-	<h3 class="subsubtitle method-title">image</h3>
+	<a name="//api/name/coordSys" title="coordSys"></a>
+	<h3 class="subsubtitle method-title">coordSys</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Image to stretch over the sticker.</p>
+		<p>If present, this is the coordinate system the sticker is represented in.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, strong) UIImage *image</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyCoordinateSystem *coordSys</code></div>
 
     
 	
@@ -201,7 +231,182 @@
 	
 	<div class="method-subsection discussion-section">
 		<h4 class="method-subtitle">Discussion</h4>
-		<p>The UIImage is cached in the view controller, so multiple references wi<a href="#//api/name/ll">ll</a> result in the same texture being used.  The view controller also cleans up the images when it&rsquo;s done with it.</p>
+		<p>By default the coordinates are in geographic.  If this is present, the coordinates are in this system.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplySticker.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/image" title="image"></a>
+	<h3 class="subsubtitle method-title">image</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Image to stretch over the sticker.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) UIImage *image</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>The UIImage is cached in the view controller, so multiple references wi<a href="#//api/name/ll">ll</a> result in the same texture being used.  The view controller also cleans up the <a href="#//api/name/images">images</a> when it&rsquo;s done with it.</p>
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplySticker.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/imageFormat" title="imageFormat"></a>
+	<h3 class="subsubtitle method-title">imageFormat</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Set the <a href="#//api/name/image">image</a> format for the created textures.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyQuadImageFormat imageFormat</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>OpenGL ES offers us several <a href="#//api/name/image">image</a> formats that are more efficient than 32 bit RGBA, but they&rsquo;re not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and wi<a href="#//api/name/ll">ll</a> work we<a href="#//api/name/ll">ll</a> for some imagery, most maps, and a lot of weather overlays.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left"> Image Format </th>
+<th align="left"> Description </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"> MaplyImageIntRGBA </td>
+<td align="left"> 32 bit RGBA with 8 bits per channel.  The default. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort565 </td>
+<td align="left"> 16 bits with 5/6/5 for RGB and none for A. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort4444 </td>
+<td align="left"> 16 bits with 4 bits for each channel. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUShort5551 </td>
+<td align="left"> 16 bits with 5/5/5 bits for RGB and 1 bit for A. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteRed </td>
+<td align="left"> 8 bits, where we choose the R and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteGreen </td>
+<td align="left"> 8 bits, where we choose the G and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteBlue </td>
+<td align="left"> 8 bits, where we choose the B and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteAlpha </td>
+<td align="left"> 8 bits, where we choose the A and ignore the rest. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImageUByteRGB </td>
+<td align="left"> 8 bits, where we average RGB for the value. </td>
+</tr>
+<tr>
+<td align="left"> MaplyImage4Layer8Bit </td>
+<td align="left"> 32 bits, fo<a href="#//api/name/ur">ur</a> channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. </td>
+</tr>
+</tbody>
+</table>
+
+	</div>
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplySticker.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/images" title="images"></a>
+	<h3 class="subsubtitle method-title">images</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Images to stretch over the sticker.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) NSArray *images</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection discussion-section">
+		<h4 class="method-subtitle">Discussion</h4>
+		<p>This is an NSArray of UIImages.  The images wi<a href="#//api/name/ll">ll</a> be cached in the view controller, so multiple references wi<a href="#//api/name/ll">ll</a> result in the same texture being used.  The view controller also cleans up the images when it&rsquo;s done with them.</p><p>A<a href="#//api/name/ll">ll</a> the images passed in here wi<a href="#//api/name/ll">ll</a> be presented to the shader program, if it has variables for them.  It' sup to you to do something with them in the shader.</p>
 	</div>
 	
 	
@@ -345,7 +550,7 @@
 				<div id="footer">
 					<hr />
 					<div class="footer-copyright">
-						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-10-04)</span><br />
+						<p><span class="copyright">&copy; 2013 mousebird consulting. All rights reserved. (Last updated: 2013-11-13)</span><br />
 						
 						<span class="generator">Generated by <a href="http://appledoc.gentlebytes.com">appledoc 2.2 (build 961)</a>.</span></p>
 						

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="html/html; charset=utf-8" />
-		<title>MaplyAnimationTestTileSource Class Reference</title>
+		<title>MaplyBillboard Class Reference</title>
 		<meta id="xcode-display" name="xcode-display" content="render"/>
 		<link rel="stylesheet" type="text/css" href="../css/styles.css" media="all" />
 		<link rel="stylesheet" type="text/css" media="print" href="../css/stylesPrint.css" />
@@ -16,7 +16,7 @@
 			</div>
 			
 			<div id="title" role="banner">
-				<h1 class="hideInXcode">MaplyAnimationTestTileSource Class Reference</h1>
+				<h1 class="hideInXcode">MaplyBillboard Class Reference</h1>
 			</div>
 			<ul id="headerButtons" role="toolbar">
 				<li id="toc_button">
@@ -39,18 +39,17 @@
 	
 	<option value="properties">Properties</option>
 	
-	<option value="//api/name/coordSys">&nbsp;&nbsp;&nbsp;&nbsp;coordSys</option>
+	<option value="//api/name/center">&nbsp;&nbsp;&nbsp;&nbsp;center</option>
 	
-	<option value="//api/name/pixelsPerSide">&nbsp;&nbsp;&nbsp;&nbsp;pixelsPerSide</option>
+	<option value="//api/name/color">&nbsp;&nbsp;&nbsp;&nbsp;color</option>
+	
+	<option value="//api/name/image">&nbsp;&nbsp;&nbsp;&nbsp;image</option>
+	
+	<option value="//api/name/size">&nbsp;&nbsp;&nbsp;&nbsp;size</option>
 	
 	
 	
 	
-	
-	
-	<option value="instance_methods">Instance Methods</option>
-	
-	<option value="//api/name/initWithCoordSys:minZoom:maxZoom:depth:">&nbsp;&nbsp;&nbsp;&nbsp;- initWithCoordSys:minZoom:maxZoom:depth:</option>
 	
 	
 	
@@ -76,28 +75,26 @@
 
 <li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#properties">Properties</a></span><ul>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/coordSys">coordSys</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/center">center</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/pixelsPerSide">pixelsPerSide</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/color">color</a></span></li>
 	
-</ul></li>
-
-
-
-
-
-<li role="treeitem" class="children"><span class="disclosure"></span><span class="sectionName"><a href="#instance_methods">Instance Methods</a></span><ul>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/image">image</a></span></li>
 	
-	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/initWithCoordSys:minZoom:maxZoom:depth:">initWithCoordSys:minZoom:maxZoom:depth:</a></span></li>
+	<li><span class="nodisclosure"></span><span class="sectionName"><a href="#//api/name/size">size</a></span></li>
 	
 </ul></li>
+
+
+
+
 
 
 			</ul>
 		</nav>
 		<article>
 			<div id="contents" class="isShowingTOC" role="main">
-				<a title="MaplyAnimationTestTileSource Class Reference" name="top"></a>
+				<a title="MaplyBillboard Class Reference" name="top"></a>
 				<div class="main-navigation navigation-top">
 					<ul>
 	<li><a href="../index.html">Index</a></li>
@@ -106,7 +103,7 @@
 				</div>
 				<div id="header">
 					<div class="section-header">
-						<h1 class="title title-header">MaplyAnimationTestTileSource Class Reference</h1>
+						<h1 class="title title-header">MaplyBillboard Class Reference</h1>
 					</div>		
 				</div>
 				<div id="container">	
@@ -116,11 +113,8 @@
 	<td class="specification-title">Inherits from</td>
 	<td class="specification-value">NSObject</td>
 </tr><tr>
-	<td class="specification-title">Conforms to</td>
-	<td class="specification-value"><a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a></td>
-</tr><tr>
 	<td class="specification-title">Declared in</td>
-	<td class="specification-value">MaplyAnimationTestTileSource.h</td>
+	<td class="specification-value">MaplyBillboard.h</td>
 </tr>
 						</tbody></table></div>
 					
@@ -130,9 +124,7 @@
 					<div class="section section-overview">
 						<a title="Overview" name="overview"></a>
 						<h2 class="subtitle subtitle-overview">Overview</h2>
-						<p>The animation test tile source provides fake images to test the
-    animation functionality in the quad image tiles layer.  In general,
-    don&rsquo;t use it for anything.</p>
+						<p>The billboard object represents a rectangle which is rooted at a specific point, but will rotate to face the user.  These are typically used in 3D, when the globe or map has a tilt.  They make little sense in 2D.</p>
 					</div>
 					
 					
@@ -150,19 +142,25 @@
 						<ul class="task-list">
 							<li>
 	<span class="tooltip">
-		<code><a href="#//api/name/initWithCoordSys:minZoom:maxZoom:depth:">&ndash;&nbsp;initWithCoordSys:minZoom:maxZoom:depth:</a></code>
-	</span>
-	
-	
-</li><li>
-	<span class="tooltip">
-		<code><a href="#//api/name/coordSys">&nbsp;&nbsp;coordSys</a></code>
+		<code><a href="#//api/name/center">&nbsp;&nbsp;center</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
 </li><li>
 	<span class="tooltip">
-		<code><a href="#//api/name/pixelsPerSide">&nbsp;&nbsp;pixelsPerSide</a></code>
+		<code><a href="#//api/name/size">&nbsp;&nbsp;size</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/color">&nbsp;&nbsp;color</a></code>
+	</span>
+	<span class="task-item-suffix">property</span>
+	
+</li><li>
+	<span class="tooltip">
+		<code><a href="#//api/name/image">&nbsp;&nbsp;image</a></code>
 	</span>
 	<span class="task-item-suffix">property</span>
 	
@@ -180,18 +178,18 @@
 						<h2 class="subtitle subtitle-methods">Properties</h2>
 						
 						<div class="section-method">
-	<a name="//api/name/coordSys" title="coordSys"></a>
-	<h3 class="subsubtitle method-title">coordSys</h3>
+	<a name="//api/name/center" title="center"></a>
+	<h3 class="subsubtitle method-title">center</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>Coordinate system we&rsquo;re pretending to be in</p>
+		<p>The point this billboard is rooted at.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic, readonly) MaplyCoordinateSystem *coordSys</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) MaplyCoordinate3d center</code></div>
 
     
 	
@@ -200,11 +198,6 @@
 	
 	
 	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Coordinate system we&rsquo;re pretending to be in</p>
-	</div>
 	
 	
 	
@@ -214,25 +207,25 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
+		<code class="declared-in-ref">MaplyBillboard.h</code><br />
 	</div>				
 	
 	
 </div>
 						
 						<div class="section-method">
-	<a name="//api/name/pixelsPerSide" title="pixelsPerSide"></a>
-	<h3 class="subsubtitle method-title">pixelsPerSide</h3>
+	<a name="//api/name/color" title="color"></a>
+	<h3 class="subsubtitle method-title">color</h3>
 	
 	
 	
 	<div class="method-subsection brief-description">
-		<p>How big the images we generate are</p>
+		<p>Color of the billboard&rsquo;s underlying polygon.</p>
 	</div>		
 	
     
 
-	<div class="method-subsection method-declaration"><code>@property (nonatomic) int pixelsPerSide</code></div>
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) UIColor *color</code></div>
 
     
 	
@@ -241,11 +234,6 @@
 	
 	
 	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>How big the images we generate are</p>
-	</div>
 	
 	
 	
@@ -255,7 +243,79 @@
 	
 	<div class="method-subsection declared-in-section">
 		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
+		<code class="declared-in-ref">MaplyBillboard.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/image" title="image"></a>
+	<h3 class="subsubtitle method-title">image</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>The image to apply to the billboard.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) UIImage *image</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBillboard.h</code><br />
+	</div>				
+	
+	
+</div>
+						
+						<div class="section-method">
+	<a name="//api/name/size" title="size"></a>
+	<h3 class="subsubtitle method-title">size</h3>
+	
+	
+	
+	<div class="method-subsection brief-description">
+		<p>Size of the billboard in display coordinates.</p>
+	</div>		
+	
+    
+
+	<div class="method-subsection method-declaration"><code>@property (nonatomic) CGSize size</code></div>
+
+    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="method-subsection declared-in-section">
+		<h4 class="method-subtitle">Declared In</h4>
+		<code class="declared-in-ref">MaplyBillboard.h</code><br />
 	</div>				
 	
 	
@@ -266,53 +326,6 @@
 					
 					
 					
-					
-					<div class="section section-methods">
-						<a title="Instance Methods" name="instance_methods"></a>
-						<h2 class="subtitle subtitle-methods">Instance Methods</h2>
-						
-						<div class="section-method">
-	<a name="//api/name/initWithCoordSys:minZoom:maxZoom:depth:" title="initWithCoordSys:minZoom:maxZoom:depth:"></a>
-	<h3 class="subsubtitle method-title">initWithCoordSys:minZoom:maxZoom:depth:</h3>
-	
-	
-	
-	<div class="method-subsection brief-description">
-		<p>Initialize with the coordinate system, min and max zoom levels, and the number of images to return</p>
-	</div>		
-	
-    
-
-	<div class="method-subsection method-declaration"><code>- (id)initWithCoordSys:(MaplyCoordinateSystem *)<em>coordSys</em> minZoom:(int)<em>minZoom</em> maxZoom:(int)<em>maxZoom</em> depth:(int)<em>depth</em></code></div>
-
-    
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection discussion-section">
-		<h4 class="method-subtitle">Discussion</h4>
-		<p>Initialize with the coordinate system, min and max zoom levels, and the number of images to return</p>
-	</div>
-	
-	
-	
-	
-	
-	
-	
-	<div class="method-subsection declared-in-section">
-		<h4 class="method-subtitle">Declared In</h4>
-		<code class="declared-in-ref">MaplyAnimationTestTileSource.h</code><br />
-	</div>				
-	
-	
-</div>
-						
-					</div>
 					
 					
                     
