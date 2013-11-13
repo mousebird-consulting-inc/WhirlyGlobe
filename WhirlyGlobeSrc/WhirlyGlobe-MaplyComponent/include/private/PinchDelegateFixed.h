@@ -31,15 +31,6 @@
  accordingly.
  */
 @interface WGPinchDelegateFixed : NSObject <UIGestureRecognizerDelegate>
-{
-    /// If we're in the process of zooming in, where we started
-	float startZ;
-	WhirlyGlobeView *globeView;
-    // If set we're modifying the tilt within a certain height range
-    bool tiltZoom;
-    float minTilt,maxTilt;
-    float minTiltHeight,maxTiltHeight;
-}
 
 /// Min and max height to allow the user to change
 @property (nonatomic,assign) float minHeight,maxHeight;
@@ -54,6 +45,9 @@
 
 /// Returns true if the tilt zoom mode is set and the appropriate values
 - (bool)getMinTilt:(float *)retMinTilt maxTilt:(float *)retMaxTilt minHeight:(float *)retMinHeight maxHeight:(float *)retMaxHeight;
+
+/// If set, we'll zoom around the pinch, rather than the center of the view
+@property (nonatomic,assign) bool zoomAroundPinch;
 
 /// Turn off the tilt controlled by zoom height
 - (void)clearTiltZoom;

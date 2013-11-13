@@ -26,7 +26,22 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate>
+@implementation WhirlyGlobeViewControllerAnimationState
+
+- (id)init
+{
+    self = [super init];
+    _heading = MAXFLOAT;
+    _height = 1.0;
+    _tilt = MAXFLOAT;
+    _pos.x = _pos.y = 0.0;
+    
+    return self;
+}
+
+@end
+
+@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate,WhirlyGlobeAnimationDelegate>
 @end
 
 @implementation WhirlyGlobeViewController
@@ -752,5 +767,105 @@ using namespace WhirlyGlobe;
 {
     
 }
+
+#pragma mark - WhirlyGlobeAnimationDelegate
+
+// Called every frame from within the globe view
+- (void)updateView:(WhirlyGlobeView *)inGlobeView
+{
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (!animationDelegate)
+    {
+        [globeView cancelAnimation];
+        return;
+    }
+    
+    bool lastOne = false;
+    if (now > animationDelegateEnd)
+        lastOne = true;
+    
+    // Ask the delegate where we're supposed to be
+    WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
+
+    // Calculate a 'position' quaternion
+    Eigen::Quaterniond posQuat;
+    {
+        // Put together the quaternion to get us there
+        Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+        
+        // The rotation from where we are to where we tapped
+        Eigen::Quaterniond endRot;
+        endRot = QuatFromTwoVectors(worldLoc,startUp);
+        posQuat = startQuat * endRot;
+        
+        if (panDelegate.northUp)
+        {
+            // We'd like to keep the north pole pointed up
+            // So we look at where the north pole is going
+            Vector3d northPole = (posQuat * Vector3d(0,0,1)).normalized();
+            if (northPole.y() != 0.0)
+            {
+                // Then rotate it back on to the YZ axis
+                // This will keep it upward
+                float ang = atan(northPole.x()/northPole.y());
+                // However, the pole might be down now
+                // If so, rotate it back up
+                if (northPole.y() < 0.0)
+                    ang += M_PI;
+                Eigen::AngleAxisd upRot(ang,worldLoc);
+                posQuat = posQuat * upRot;
+            }
+        }
+    }
+    
+    [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
+    if (animState.tilt == MAXFLOAT)
+        globeView.tilt = [pinchDelegate calcTilt];
+    else
+        globeView.tilt = animState.tilt;
+    [globeView setRotQuat:posQuat updateWatchers:false];
+
+    // Figure out the heading
+    if (animState.heading != MAXFLOAT)
+    {
+        Point3d localPt = [globeView currentUp];
+        Eigen::AngleAxisd rot(animState.heading,localPt);
+        Quaterniond newRotQuat = globeView.rotQuat * rot;
+        [globeView setRotQuat:newRotQuat updateWatchers:false];
+    }
+    
+    [globeView runViewUpdates];
+    
+    if (lastOne)
+    {
+        [globeView cancelAnimation];
+        animationDelegate = nil;
+    }
+}
+
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+{
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    animationDelegate = inAnimationDelegate;
+    animationDelegateEnd = now+howLong;
+
+    // Figure out the current state
+    WhirlyGlobeViewControllerAnimationState *stateStart = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    startQuat = globeView.rotQuat;
+    startUp = [globeView currentUp];
+    stateStart.heading = self.heading;
+    stateStart.tilt = self.tilt;
+    MaplyCoordinate pos;
+    float height;
+    [self getPosition:&pos height:&height];
+    stateStart.pos = pos;
+    stateStart.height = height;
+    
+    // Tell the delegate what we're up to
+    [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
+    
+    globeView.delegate = self;
+}
+
 
 @end
