@@ -136,4 +136,16 @@
   */
 @property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
+/** @brief Add a bounding box tiles are valid within.
+    @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+    @param bbox Bounding box for valid tiles in the local coordinate system.
+  */
+- (void)addBoundingBox:(MaplyBoundingBox *)bbox;
+
+/** @brief Add a bounding box tiles are valid within in geo coordinates.
+    @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+    @param bbox Bounding box for valid tiles in geo coordinates (radians).
+  */
+- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
+
 @end

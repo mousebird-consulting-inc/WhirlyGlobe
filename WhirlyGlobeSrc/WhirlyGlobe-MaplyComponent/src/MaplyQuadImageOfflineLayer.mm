@@ -46,6 +46,7 @@ using namespace WhirlyKit;
     bool sourceSupportsMulti;
     int minZoom,maxZoom;
     int tileSize;
+    bool canDoValidTiles;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -68,6 +69,9 @@ using namespace WhirlyKit;
     
     // Check if the source can handle multiple images
     sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
+
+    // Can answer questions about tiles
+    canDoValidTiles = [tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     return self;
 }
@@ -181,6 +185,20 @@ using namespace WhirlyKit;
 {
     if (ident.level == 0)
         return MAXFLOAT;
+
+    MaplyTileID tileID;
+    tileID.level = ident.level;
+    tileID.x = ident.x;
+    tileID.y = ident.y;
+
+    if (canDoValidTiles)
+    {
+        MaplyBoundingBox bbox;
+        bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+        bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
+        if (![tileSource validTile:tileID bbox:&bbox])
+            return 0.0;
+    }
     
     double import = 0.0;
     import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
