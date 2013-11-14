@@ -601,19 +601,26 @@ using namespace Maply;
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
+    MaplyCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-            [_delegate maplyViewController:self didSelect:selectedObj];
-    } else {
-        MaplyCoordinate coord;
-        coord.x = msg.whereGeo.lon();
-        coord.y = msg.whereGeo.lat();
-        // The user didn't select anything, let the delegate know.
-        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+        if (_delegate)
         {
-            [_delegate maplyViewController:self didTapAt:coord];
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
+                [_delegate maplyViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+                [_delegate maplyViewController:self didSelect:selectedObj];
+        }
+    } else {
+        // The user didn't select anything, let the delegate know.
+        if (_delegate)
+        {
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+                [_delegate maplyViewController:self didTapAt:coord];
         }
         if (_autoMoveToTap)
             [self animateToPosition:coord time:1.0];
