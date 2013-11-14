@@ -36,6 +36,16 @@
   */
 @property (nonatomic,assign) MaplyCoordinate loc;
 
+/** @brief The lowest height at which we'll see the view tracker.
+    @details This value is in display coordinates.
+  */
+@property (nonatomic,assign) float minVis;
+
+/** @brief the maximum height at which we'll see the view being tracked.
+    @details This value is in display coordinates.
+  */
+@property (nonatomic,assign) float maxVis;
+
 @end
 
 typedef MaplyViewTracker WGViewTracker;
