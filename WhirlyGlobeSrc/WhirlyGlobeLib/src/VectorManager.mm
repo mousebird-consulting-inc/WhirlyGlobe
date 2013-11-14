@@ -137,9 +137,13 @@ public:
         flush();
     }
     
-    void addPoints(VectorRing &pts,bool closed)
+    void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+        RGBAColor baseColor = [vecInfo.color asRGBAColor];
+        UIColor *ringColor = attrs[@"color"];
+        if ([ringColor isKindOfClass:[UIColor class]])
+            baseColor = [ringColor asRGBAColor];
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -156,7 +160,7 @@ public:
             // Adjust according to the vector info
             drawable->setOnOff(vecInfo->enable);
             drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor([vecInfo.color asRGBAColor]);
+            drawable->setColor(baseColor);
             drawable->setLineWidth(vecInfo.lineWidth);
             drawable->setDrawPriority(vecInfo->priority);
             drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
@@ -178,12 +182,15 @@ public:
             if (primType == GL_POINTS)
             {
                 drawable->addPoint(pt);
+                drawable->addColor(baseColor);
                 drawable->addNormal(norm);
             } else {
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
                     drawable->addPoint(pt);
+                    drawable->addColor(baseColor);
+                    drawable->addColor(baseColor);
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
                 } else {
@@ -200,6 +207,8 @@ public:
         {
             drawable->addPoint(prevPt);
             drawable->addPoint(firstPt);
+            drawable->addColor(baseColor);
+            drawable->addColor(baseColor);
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
         }
@@ -259,6 +268,11 @@ public:
         if (inRing.size() < 3)
             return;
         
+        RGBAColor baseColor = [vecInfo.color asRGBAColor];
+        UIColor *ringColor = attrs[@"color"];
+        if ([ringColor isKindOfClass:[UIColor class]])
+            baseColor = [ringColor asRGBAColor];
+
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         Point2f centroid = CalcLoopCentroid(inRing);
         
@@ -372,6 +386,7 @@ public:
                 Point3f pt = coordAdapter->localToDisplay(localPt);
                 
                 drawable->addPoint(pt);
+                drawable->addColor(baseColor);
                 drawable->addNormal(norm);
                 if (vecInfo->texId != EmptyIdentity)
                 {
@@ -473,9 +488,9 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     {
                         VectorRing newPts;
                         SubdivideEdges(ring, newPts, false, vecInfo->sample);
-                        drawBuild.addPoints(newPts,true);
+                        drawBuild.addPoints(newPts,true,theAreal->getAttrDict());
                     } else
-                        drawBuild.addPoints(ring,true);
+                        drawBuild.addPoints(ring,true,theAreal->getAttrDict());
                 }
             }
         } else {
@@ -491,9 +506,9 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     {
                         VectorRing newPts;
                         SubdivideEdges(theLinear->pts, newPts, false, vecInfo->sample);
-                        drawBuild.addPoints(newPts,false);
+                        drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
                     } else
-                        drawBuild.addPoints(theLinear->pts,false);
+                        drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 } else {
                     // Note: Points are.. pointless
 //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
