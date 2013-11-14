@@ -250,6 +250,9 @@ using namespace WhirlyGlobe;
 
 - (void)setRotateGesture:(bool)rotateGesture
 {
+    // Note: Testing out the new all in one pinch delegate
+    return;
+    
     if (rotateGesture)
     {
         if (!rotateDelegate)
