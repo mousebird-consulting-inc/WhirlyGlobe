@@ -551,7 +551,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 }
                 texId = EmptyIdentity;
                 if (!chunk.texIDs.empty())
-                    texId = chunk.texIDs[0];
+                    texId = chunk.texIDs.at(0);
             }
             
             // Build the main drawable and possibly skirt
