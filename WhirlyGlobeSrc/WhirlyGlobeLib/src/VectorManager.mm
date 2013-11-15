@@ -458,13 +458,14 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     
     VectorSceneRep *sceneRep = new VectorSceneRep();
     sceneRep->fade = vecInfo.fade;
-    
-    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
-    bool linesOrPoints = (thePoints.get() ? false : true);
+
+    // No longer do anything with points in here
+//    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
+//    bool linesOrPoints = (thePoints.get() ? false : true);
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,linesOrPoints);
+    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true);
     VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo);
         
     for (ShapeSet::iterator it = vecInfo->shapes.begin();

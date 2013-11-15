@@ -1048,7 +1048,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     // If we're already setup, don't do it twice
     if (pointBuffer || sharedBuffer)
         return;
-    
+        
 	// Offset the geometry upward by minZres units along the normals
 	// Only do this once, obviously
     // Note: Probably replace this with a shader program at some point
