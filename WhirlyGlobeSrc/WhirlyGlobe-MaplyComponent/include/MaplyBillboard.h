@@ -38,4 +38,7 @@
 /// @brief The image to apply to the billboard.
 @property (nonatomic) UIImage *image;
 
+/// @brief Set if you want to select these
+@property (nonatomic) bool selectable;
+
 @end
