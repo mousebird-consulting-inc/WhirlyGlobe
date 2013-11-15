@@ -1276,6 +1276,17 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             wkBill.width = bill.size.width;
             wkBill.height = bill.size.height;
             wkBill.color = bill.color;
+            wkBill.isSelectable = bill.selectable;
+            if (wkBill.isSelectable)
+                wkBill.selectID = Identifiable::genId();
+            
+            if (bill.selectable)
+            {
+                pthread_mutex_lock(&selectLock);
+                selectObjectSet.insert(SelectObject(wkBill.selectID,bill));
+                pthread_mutex_unlock(&selectLock);
+                compObj.selectIDs.insert(wkBill.selectID);
+            }
         
             UIImage *image = bill.image;
             if (image)
