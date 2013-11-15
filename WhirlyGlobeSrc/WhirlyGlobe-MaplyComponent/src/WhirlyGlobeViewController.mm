@@ -421,9 +421,25 @@ using namespace WhirlyGlobe;
 
 - (void)setHeading:(float)heading
 {
+    // Undo the current heading
     Point3d localPt = [globeView currentUp];
+    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    Quaterniond posQuat = globeView.rotQuat;
+    if (northPole.y() != 0.0)
+    {
+        // Then rotate it back on to the YZ axis
+        // This will keep it upward
+        float ang = atan(northPole.x()/northPole.y());
+        // However, the pole might be down now
+        // If so, rotate it back up
+        if (northPole.y() < 0.0)
+            ang += M_PI;
+        Eigen::AngleAxisd upRot(ang,localPt);
+        posQuat = posQuat * upRot;
+    }
+
     Eigen::AngleAxisd rot(heading,localPt);
-    Quaterniond newRotQuat = globeView.rotQuat * rot;
+    Quaterniond newRotQuat = posQuat * rot;
     
     globeView.rotQuat = newRotQuat;
 }
