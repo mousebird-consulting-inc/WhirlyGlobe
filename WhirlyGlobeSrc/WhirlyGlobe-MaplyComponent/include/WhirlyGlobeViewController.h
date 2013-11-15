@@ -195,8 +195,6 @@
     @param minTilt The most tilt toward the horizon.  Invoked when the user is at minHeight or below.
     @param maxTilt The tilt at the maximum height and over.  The tilt will never be less than this, so typically 0.
   */
-/// Set the height range over which to modify tilt.  We'll
-///  vary the tilt between the given values over the given height range, if set.
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt;
 
 /// @brief Turn off the varying tilt set up by setTiltMinHeight:maxHeight:minTilt:maxTilt:
