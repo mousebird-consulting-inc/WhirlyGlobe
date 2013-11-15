@@ -497,8 +497,9 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
             if (vecInfo->filled)
             {
-                // Triangulate the outside
-                drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
+                if (theLinear.get())
+                    // Triangulate the outside
+                    drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
             } else {
                 if (theLinear.get())
                 {
