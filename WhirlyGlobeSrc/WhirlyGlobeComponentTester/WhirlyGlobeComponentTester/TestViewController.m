@@ -317,12 +317,33 @@ LocationInfo locations[NumLocations] =
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self performSelector:@selector(changeHeading:) withObject:@(0.0) afterDelay:1.0];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(changeHeading:) object:nil];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
 	return YES;
 }
 
 #pragma mark - Data Display
+
+// Change the heading every so often
+- (void)changeHeading:(NSNumber *)heading
+{
+    if (globeViewC)
+        [globeViewC setHeading:[heading floatValue]];
+    else if (mapViewC)
+        [mapViewC setHeading:[heading floatValue]];
+    
+    [self performSelector:@selector(changeHeading:) withObject:@([heading floatValue]+1.0/180.0*M_PI) afterDelay:1.0];
+}
 
 // Add screen (2D) markers at all our locations
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
