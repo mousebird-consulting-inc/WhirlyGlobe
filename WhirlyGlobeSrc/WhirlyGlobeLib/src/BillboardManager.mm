@@ -48,6 +48,7 @@ using namespace WhirlyKit;
     _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
     _fade = [desc floatForKey:@"fade" default:0.0];
     _drawPriority = [desc intForKey:@"drawPriority" default:0];
+    _enable = [desc boolForKey:@"enable" default:true];
 }
 
 @end
@@ -71,11 +72,13 @@ BillboardSceneRep::~BillboardSceneRep()
 {
 }
 
-void BillboardSceneRep::clearContents(ChangeSet &changes)
+void BillboardSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
         changes.push_back(new RemDrawableReq(*it));
+    if (selectManager && !selectIDs.empty())
+        selectManager->removeSelectables(selectIDs);
 }
 
 BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,WhirlyKitBillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId)
@@ -183,11 +186,14 @@ typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
 /// Add billboards for display
 SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary *desc,SimpleIdentity billShader,ChangeSet &changes)
 {
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     WhirlyKitBillboardInfo *billboardInfo = [[WhirlyKitBillboardInfo alloc] initWithBillboards:billboards desc:desc];
 
     BillboardSceneRep *sceneRep = new BillboardSceneRep(billboardInfo.billboardId);
     sceneRep->fade = billboardInfo.fade;
-        
+    
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
     // One builder per texture
     BuilderMap drawBuilders;
     
@@ -205,6 +211,22 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
             drawBuilder = it->second;
         
         drawBuilder->addBillboard(billboard.center, billboard.width, billboard.height, billboard.color);
+
+        // While we're at it, let's add this to the selection layer
+        if (selectManager && billboard.isSelectable)
+        {
+            // If the marker doesn't already have an ID, it needs one
+            if (!billboard.selectID)
+                billboard.selectID = Identifiable::genId();
+            
+            sceneRep->selectIDs.insert(billboard.selectID);
+            
+            // Normal is straight up
+            Point3f localPt = coordAdapter->displayToLocal(billboard.center);
+            Point3f axisY = coordAdapter->normalForLocal(localPt);
+
+            selectManager->addSelectableBillboard(billboard.selectID, billboard.center, axisY, Point2f(billboard.width,billboard.height), billboardInfo.minVis, billboardInfo.maxVis, billboardInfo.enable);
+        }
     }
     
     // Flush out the changes and tear down the builders
@@ -228,6 +250,8 @@ SimpleIdentity BillboardManager::addBillboards(NSArray *billboards,NSDictionary 
     
 void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
 {
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    
     pthread_mutex_lock(&billLock);
     
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
@@ -240,6 +264,9 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
             for (SimpleIDSet::iterator dit = billRep->drawIDs.begin();
                  dit != billRep->drawIDs.end(); ++dit)
                 changes.push_back(new OnOffChangeRequest((*dit), enable));
+
+            if (selectManager && !billRep->selectIDs.empty())
+                selectManager->enableSelectables(billRep->selectIDs, enable);
         }
     }
     
@@ -249,6 +276,8 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
 /// Remove a group of billboards named by the given ID
 void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
 {
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+
     pthread_mutex_lock(&billLock);
     
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
@@ -280,7 +309,7 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
 
                 sceneRep->fade = 0.0;
             } else {
-                sceneRep->clearContents(changes);
+                sceneRep->clearContents(selectManager,changes);
                 sceneReps.erase(it);
                 delete sceneRep;
             }
