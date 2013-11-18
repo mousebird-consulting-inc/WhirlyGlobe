@@ -477,7 +477,7 @@ using namespace WhirlyKit;
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return minZoom;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -496,7 +496,7 @@ using namespace WhirlyKit;
     tileID.level = ident.level;
     tileID.x = ident.x;
     tileID.y = ident.y;
-
+    
     if (canDoValidTiles)
     {
         MaplyBoundingBox bbox;
@@ -581,6 +581,21 @@ using namespace WhirlyKit;
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
 
+    // If this is lower level than we're representing, just fake it
+    if (tileID.level < minZoom)
+    {
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level)];
+        if (super.layerThread)
+        {
+            if ([NSThread currentThread] == super.layerThread)
+                [self performSelector:@selector(mergeTile:) withObject:args];
+            else
+                [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+        }
+        return;
+    }
+
+    
     // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
     {
