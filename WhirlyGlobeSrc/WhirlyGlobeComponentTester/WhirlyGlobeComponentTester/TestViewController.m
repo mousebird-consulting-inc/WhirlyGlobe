@@ -192,7 +192,6 @@ LocationInfo locations[NumLocations] =
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
 
-    // Note: Debugging
     baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
@@ -319,7 +318,8 @@ LocationInfo locations[NumLocations] =
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self performSelector:@selector(changeHeading:) withObject:@(0.0) afterDelay:1.0];
+    // This tests heading
+//    [self performSelector:@selector(changeHeading:) withObject:@(0.0) afterDelay:1.0];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -704,7 +704,7 @@ static const int NumMegaMarkers = 40000;
         layer.waitLoad = imageWaitLoad;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
-
+        
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];

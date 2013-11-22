@@ -49,6 +49,9 @@
 /// If set, we'll zoom around the pinch, rather than the center of the view
 @property (nonatomic,assign) bool zoomAroundPinch;
 
+/// If set, we'll rotate around the pinch
+@property (nonatomic,assign) bool doRotation;
+
 /// Turn off the tilt controlled by zoom height
 - (void)clearTiltZoom;
 
