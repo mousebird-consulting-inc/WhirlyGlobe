@@ -217,6 +217,10 @@ using namespace WhirlyGlobe;
 - (void)setKeepNorthUp:(bool)keepNorthUp
 {
     panDelegate.northUp = keepNorthUp;
+    pinchDelegate.northUp = keepNorthUp;
+
+    if (keepNorthUp)
+        self.rotateGesture = false;
 }
 
 - (bool)keepNorthUp
@@ -233,6 +237,7 @@ using namespace WhirlyGlobe;
             pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
             pinchDelegate.zoomAroundPinch = true;
             pinchDelegate.doRotation = false;
+            pinchDelegate.northUp = panDelegate.northUp;
         }
     } else {
         if (pinchDelegate)
