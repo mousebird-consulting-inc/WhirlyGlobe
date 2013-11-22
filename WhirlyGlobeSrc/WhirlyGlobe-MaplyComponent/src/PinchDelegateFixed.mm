@@ -52,6 +52,7 @@ using namespace WhirlyKit;
         _maxHeight = globeView.maxHeightAboveGlobe;
         _zoomAroundPinch = true;
         _doRotation = false;
+        _northUp = false;
         tiltZoom = false;
         valid = false;
 	}
@@ -210,6 +211,30 @@ using namespace WhirlyKit;
                     double diffRot = curRot-startRot;
                     Eigen::AngleAxisd rotQuat(-diffRot,axis);
                     newRotQuat = newRotQuat * rotQuat;
+                }
+                
+                // Keep the pole up if necessary
+                if (_northUp)
+                {
+                    // We'd like to keep the north pole pointed up
+                    // So we look at where the north pole is going
+                    Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
+                    if (northPole.y() != 0.0)
+                    {
+                        // We need to know where up (facing the user) will be
+                        //  so we can rotate around that
+                        Vector3d newUp = [WhirlyGlobeView prospectiveUp:newRotQuat];
+                        
+                        // Then rotate it back on to the YZ axis
+                        // This will keep it upward
+                        float ang = atan(northPole.x()/northPole.y());
+                        // However, the pole might be down now
+                        // If so, rotate it back up
+                        if (northPole.y() < 0.0)
+                            ang += M_PI;
+                        Eigen::AngleAxisd upRot(ang,newUp);
+                        newRotQuat = newRotQuat * upRot;
+                    }
                 }
                 
                 [globeView setRotQuat:(newRotQuat) updateWatchers:false];
