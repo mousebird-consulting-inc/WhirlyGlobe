@@ -263,33 +263,42 @@ public:
         flush();
     }
     
-    void addPoints(VectorRing &inRing,NSDictionary *attrs)
+    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    void addPoints(VectorRing &ring,NSDictionary *attrs)
     {
-        if (inRing.size() < 3)
-            return;
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            ClipLoopToGrid(ring, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings.push_back(ring);
+        VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+        for (unsigned int ii=0;ii<inRings.size();ii++)
+            TesselateRing(inRings[ii],mesh);
         
+        addPoints(mesh, attrs);
+    }
+    
+    // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
+    void addPoints(VectorTrianglesRef mesh,NSDictionary *attrs)
+    {
         RGBAColor baseColor = [vecInfo.color asRGBAColor];
         UIColor *ringColor = attrs[@"color"];
         if ([ringColor isKindOfClass:[UIColor class]])
             baseColor = [ringColor asRGBAColor];
 
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        Point2f centroid = CalcLoopCentroid(inRing);
-        
-        // Grid subdivision is done here
-        std::vector<VectorRing> inRings;
-        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
-            ClipLoopToGrid(inRing, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
-        else
-            inRings.push_back(inRing);
-        
-        std::vector<VectorRing> rings;
-        for (unsigned int ii=0;ii<inRings.size();ii++)
-            TesselateRing(inRings[ii],rings);
-        
-        for (unsigned int ir=0;ir<rings.size();ir++)
+        Point2f centroid(0,0);
+        if (attrs[@"veccenterx"] && attrs[@"veccentery"])
         {
-            VectorRing &pts = rings[ir];
+            centroid.x() = [attrs[@"veccenterx"] floatValue];
+            centroid.y() = [attrs[@"veccentery"] floatValue];
+        }
+        
+        for (unsigned int ir=0;ir<mesh->tris.size();ir++)
+        {
+            VectorRing pts;
+            mesh->getTriangle(ir, pts);
             // Decide if we'll appending to an existing drawable or
             //  create a new one
             int ptCount = pts.size();
@@ -496,14 +505,13 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             }
         } else {
             VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
-            if (vecInfo->filled)
+            if (theLinear.get())
             {
-                if (theLinear.get())
+                if (vecInfo->filled)
+                {
                     // Triangulate the outside
                     drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
-            } else {
-                if (theLinear.get())
-                {
+                } else {
                     if (vecInfo->sample > 0.0)
                     {
                         VectorRing newPts;
@@ -511,13 +519,19 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                         drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
                     } else
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
+                }
+            } else {
+                VectorTrianglesRef theMesh = boost::dynamic_pointer_cast<VectorTriangles>(*it);
+                if (theMesh.get())
+                {
+                    drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
                 } else {
                     // Note: Points are.. pointless
-//                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
-//                    if (thePoints.get())
-//                    {
-//                        drawBuild.addPoints(thePoints->pts,false);
-//                    }
+                    //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
+                    //                    if (thePoints.get())
+                    //                    {
+                    //                        drawBuild.addPoints(thePoints->pts,false);
+                    //                    }
                 }
             }
         }

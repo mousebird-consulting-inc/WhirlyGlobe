@@ -141,6 +141,10 @@
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
 
+/// Center of the feature, to use for texture calculations
+#define kMaplyVecCenterX @"veccenterx"
+#define kMaplyVecCenterY @"veccentery"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.

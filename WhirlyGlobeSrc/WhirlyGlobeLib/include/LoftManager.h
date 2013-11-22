@@ -53,7 +53,7 @@ namespace WhirlyKit
 class LoftedPolySceneRep : public WhirlyKit::Identifiable
 {
 public:
-    LoftedPolySceneRep() { }
+    LoftedPolySceneRep() : triMesh(VectorTriangles::createTriangles()) { }
     LoftedPolySceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LoftedPolySceneRep() { }
     
@@ -66,7 +66,7 @@ public:
     std::vector<WhirlyKit::VectorRing>  outlines;  // If we're displaying outlines, the shapes for that
     WhirlyKit::GeoMbr shapeMbr;       // Overall bounding box
     float fade;            // Fade out, used for delete
-    std::vector<WhirlyKit::VectorRing> triMesh;  // The post-clip triangle mesh, pre-loft
+    VectorTrianglesRef triMesh;  // The post-clip triangle mesh, pre-loft
 };
 typedef std::set<LoftedPolySceneRep *,IdentifiableSorter> LoftedPolySceneRepSet;
 

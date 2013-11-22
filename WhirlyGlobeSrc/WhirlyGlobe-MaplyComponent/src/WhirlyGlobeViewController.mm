@@ -807,12 +807,13 @@ using namespace WhirlyGlobe;
     WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
 
     // Calculate a 'position' quaternion
+    Eigen::Quaterniond northPosQuat;
     Eigen::Quaterniond posQuat;
     {
         // Put together the quaternion to get us there
         Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
         
-        // The rotation from where we are to where we tapped
+        // The rotation from where we are to where we're going
         Eigen::Quaterniond endRot;
         endRot = QuatFromTwoVectors(worldLoc,startUp);
         posQuat = startQuat * endRot;
@@ -845,12 +846,9 @@ using namespace WhirlyGlobe;
     [globeView setRotQuat:posQuat updateWatchers:false];
 
     // Figure out the heading
-    if (animState.heading != MAXFLOAT)
+    if ((animState.heading != MAXFLOAT) && !panDelegate.northUp)
     {
-        Point3d localPt = [globeView currentUp];
-        Eigen::AngleAxisd rot(animState.heading,localPt);
-        Quaterniond newRotQuat = globeView.rotQuat * rot;
-        [globeView setRotQuat:newRotQuat updateWatchers:false];
+//        [self setHeading:animState.heading];
     }
     
     [globeView runViewUpdates];

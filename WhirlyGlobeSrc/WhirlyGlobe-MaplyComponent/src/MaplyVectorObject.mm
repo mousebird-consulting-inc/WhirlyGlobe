@@ -108,6 +108,21 @@ using namespace WhirlyGlobe;
     return vecObj;
 }
 
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
+        return nil;
+    
+    return vecObj;
+}
+
+- (bool)writeToFile:(NSString *)fileName
+{
+    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
+}
+
 - (NSDictionary *)attributes
 {
     if (_shapes.empty())
@@ -194,6 +209,11 @@ using namespace WhirlyGlobe;
     }
     
     return self;
+}
+
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
+{
+    _shapes.insert(otherVec.shapes.begin(),otherVec.shapes.end());
 }
 
 /// Add a hole to an existing areal feature
@@ -636,15 +656,10 @@ using namespace WhirlyGlobe;
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            std::vector<WhirlyKit::VectorRing> tris;
-            TesselateLoops(ar->loops, tris);
-            for (unsigned int jj=0;jj<tris.size();jj++)
-            {
-                VectorRing &tri = tris[jj];
-                VectorArealRef newAr = VectorAreal::createAreal();
-                newAr->loops.push_back(tri);
-                newVec->_shapes.insert(newAr);
-            }
+            VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+            TesselateLoops(ar->loops, trisRef);
+            trisRef->setAttrDict(ar->getAttrDict());
+            newVec->_shapes.insert(trisRef);
         }
     }
     
@@ -667,6 +682,7 @@ using namespace WhirlyGlobe;
                 for (unsigned int jj=0;jj<newLoops.size();jj++)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->setAttrDict(ar->getAttrDict());
                     newAr->loops.push_back(newLoops[jj]);
                     newVec->_shapes.insert(newAr);
                 }
