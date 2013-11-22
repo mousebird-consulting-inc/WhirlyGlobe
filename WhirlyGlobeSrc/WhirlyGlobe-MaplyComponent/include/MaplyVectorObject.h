@@ -67,6 +67,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
  */
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
 
+/** @brief Read a vector objects from the given cache file.
+    @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
+    @param fileName Name of the binary vector file.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
+
 /** @brief Parse vector objects from a JSON assembly.
     @details This version can deal with non-compliant assemblies returned by the experimental OSM server
   */
@@ -86,6 +93,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+
+/** @brief Write the vector object to the given file on the device.
+    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
+    @param fileName The file to read the vector data from.
+    @return Returns true on succes, false on failure.
+  */
+- (bool)writeToFile:(NSString *)fileName;
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
@@ -123,6 +137,8 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
 /** @brief Calculate the center of the entire set of vectors in this object.
   */
 - (MaplyCoordinate)center;
+
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec;
 
 /** @brief For a linear feature, calculate the mid oint and rotation at that point.
     @details The vector object contains a number of half baked geometric queries, this being one of them.
