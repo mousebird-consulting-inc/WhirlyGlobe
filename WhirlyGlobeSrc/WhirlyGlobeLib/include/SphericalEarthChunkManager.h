@@ -38,7 +38,7 @@
 /// Bounding box for the chunk to display
 @property (nonatomic,assign) WhirlyKit::Mbr &mbr;
 /// Texture we'll wrap over the top
-@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> texIDs;
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
 /// Format we'll store the textures in
 @property (nonatomic) WhirlyKitTileImageType imageFormat;
 /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
