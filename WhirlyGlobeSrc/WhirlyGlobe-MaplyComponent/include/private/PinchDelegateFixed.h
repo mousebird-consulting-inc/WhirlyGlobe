@@ -52,6 +52,9 @@
 /// If set, we'll rotate around the pinch
 @property (nonatomic,assign) bool doRotation;
 
+/// If set, we'll maintain north as up
+@property (nonatomic,assign) bool northUp;
+
 /// Turn off the tilt controlled by zoom height
 - (void)clearTiltZoom;
 
