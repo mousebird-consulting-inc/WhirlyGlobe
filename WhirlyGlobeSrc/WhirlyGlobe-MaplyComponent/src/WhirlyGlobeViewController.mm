@@ -229,7 +229,11 @@ using namespace WhirlyGlobe;
     if (pinchGesture)
     {
         if (!pinchDelegate)
+        {
             pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate.zoomAroundPinch = true;
+            pinchDelegate.doRotation = false;
+        }
     } else {
         if (pinchDelegate)
         {
@@ -250,14 +254,14 @@ using namespace WhirlyGlobe;
 
 - (void)setRotateGesture:(bool)rotateGesture
 {
-    // Note: Testing out the new all in one pinch delegate
-    return;
-    
     if (rotateGesture)
     {
         if (!rotateDelegate)
+        {
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
-    } else {        
+            rotateDelegate.rotateAroundCenter = true;
+        }
+    } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
