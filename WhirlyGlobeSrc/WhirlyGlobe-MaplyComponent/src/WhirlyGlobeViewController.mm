@@ -814,53 +814,50 @@ using namespace WhirlyGlobe;
     
     // Ask the delegate where we're supposed to be
     WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
-
-    // Calculate a 'position' quaternion
-    Eigen::Quaterniond northPosQuat;
-    Eigen::Quaterniond posQuat;
+    
+    // Start with a rotation from the clean start state to the location
+    Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, Vector3d(0,0,1));
+    
+    // Orient with north up.  Either because we want that or we're about do do a heading
+    Eigen::Quaterniond posRotNorth = posRot;
+    if (panDelegate.northUp || animState.heading != MAXFLOAT)
     {
-        // Put together the quaternion to get us there
-        Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
-        
-        // The rotation from where we are to where we're going
-        Eigen::Quaterniond endRot;
-        endRot = QuatFromTwoVectors(worldLoc,startUp);
-        posQuat = startQuat * endRot;
-        
-        if (panDelegate.northUp)
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (posRot * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
         {
-            // We'd like to keep the north pole pointed up
-            // So we look at where the north pole is going
-            Vector3d northPole = (posQuat * Vector3d(0,0,1)).normalized();
-            if (northPole.y() != 0.0)
-            {
-                // Then rotate it back on to the YZ axis
-                // This will keep it upward
-                float ang = atan(northPole.x()/northPole.y());
-                // However, the pole might be down now
-                // If so, rotate it back up
-                if (northPole.y() < 0.0)
-                    ang += M_PI;
-                Eigen::AngleAxisd upRot(ang,worldLoc);
-                posQuat = posQuat * upRot;
-            }
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,worldLoc);
+            posRotNorth = posRot * upRot;
         }
     }
     
+    // We can't have both northUp and a heading
+    Eigen::Quaterniond finalQuat = posRotNorth;
+    if (!panDelegate.northUp && animState.heading != MAXFLOAT)
+    {
+        Eigen::AngleAxisd headingRot(animState.heading,worldLoc);
+        finalQuat = posRotNorth * headingRot;
+    }
+    
+    // Set the height (easy)
     [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
+    
+    // Set the tilt either directly or as a consequence of the height
     if (animState.tilt == MAXFLOAT)
         globeView.tilt = [pinchDelegate calcTilt];
     else
         globeView.tilt = animState.tilt;
-    [globeView setRotQuat:posQuat updateWatchers:false];
-
-    // Figure out the heading
-    if ((animState.heading != MAXFLOAT) && !panDelegate.northUp)
-    {
-//        [self setHeading:animState.heading];
-    }
     
-    [globeView runViewUpdates];
+    globeView.rotQuat = finalQuat;
     
     if (lastOne)
     {
