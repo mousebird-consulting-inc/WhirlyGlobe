@@ -163,7 +163,7 @@
     resizeFail = false;
     resizeFailRetry = 0;
 
-	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
+//	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 

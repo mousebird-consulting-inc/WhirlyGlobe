@@ -592,7 +592,7 @@ LocationInfo locations[NumLocations] =
                                                                       @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
                                                                             kMaplyFont: [UIFont systemFontOfSize:24.0],
                                                                          kMaplyTextOutlineColor: [UIColor blackColor],
-                                                                          kMaplyTextOutlineSize: @(1.0),
+                                                                          kMaplyTextOutlineSize: @(1.0)
 //                                                                               kMaplyShadowSize: @(1.0)
                                                                       }];
 
@@ -702,8 +702,8 @@ static const int NumMegaMarkers = 40000;
         layer.coverPoles = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
-        [baseViewC addLayer:layer];
         layer.drawPriority = 0;
+        [baseViewC addLayer:layer];
         
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];

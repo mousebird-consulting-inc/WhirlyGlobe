@@ -550,8 +550,6 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
 
 void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
 {
-    VectorInfo *vecInfo = [[VectorInfo alloc] initWithDesc:desc];
-
     pthread_mutex_lock(&vectorLock);
     
     VectorSceneRep dummyRep(vecID);
@@ -564,21 +562,36 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Turned it on or off
-            changes.push_back(new OnOffChangeRequest(*idIt, vecInfo->enable));
+            if ([desc objectForKey:@"enable"])
+                changes.push_back(new OnOffChangeRequest(*idIt, [desc boolForKey:@"enable" default:YES]));
             
             // Changed color
-            RGBAColor newColor = [vecInfo.color asRGBAColor];
-            changes.push_back(new ColorChangeRequest(*idIt, newColor));
+            if ([desc objectForKey:@"color"]) {
+                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
+                changes.push_back(new ColorChangeRequest(*idIt, newColor));
+            }
             
             // Changed visibility
-            changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo->minVis, vecInfo->maxVis));
+            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
+                int minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+                int maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+                changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
+            }
             
             // Changed line width
-            changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo.lineWidth));
+            if ([desc objectForKey:@"width"]) {
+                float lineWidth = [desc floatForKey:@"width" default:1.0];
+                changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
+            }
             
             // Changed draw priority
-            changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo->priority));
-        }        
+            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
+                int priority = [desc intForKey:@"drawPriority" default:0];
+                // This looks like an old bug
+                priority = [desc intForKey:@"priority" default:priority];
+                changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
+            }
+        }
     }
     
     pthread_mutex_unlock(&vectorLock);

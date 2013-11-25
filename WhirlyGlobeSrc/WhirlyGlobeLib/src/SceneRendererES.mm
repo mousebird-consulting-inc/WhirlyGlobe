@@ -291,6 +291,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 	
     if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
+    
+    // If we've resized, we're looking at different content
+    if (_theView)
+        [_theView runViewUpdates];
+    
 	return YES;
 }
 
