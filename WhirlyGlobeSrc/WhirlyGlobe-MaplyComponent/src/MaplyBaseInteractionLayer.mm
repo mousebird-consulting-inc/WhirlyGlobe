@@ -227,6 +227,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         if (it->refCount > 1)
         {
             MaplyImageTexture copyTex(*it);
+            imageTextures.erase(*it);
             copyTex.refCount--;
             imageTextures.insert(copyTex);
         } else {
