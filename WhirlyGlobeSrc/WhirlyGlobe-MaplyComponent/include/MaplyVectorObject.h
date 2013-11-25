@@ -138,6 +138,8 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (MaplyCoordinate)center;
 
+/** @brief Copy the vectors in the given vector object into this one.
+  */
 - (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec;
 
 /** @brief For a linear feature, calculate the mid oint and rotation at that point.

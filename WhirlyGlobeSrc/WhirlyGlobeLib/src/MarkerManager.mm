@@ -155,6 +155,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
     _fade = [desc floatForKey:@"fade" default:0.0];
     _enable = [desc boolForKey:@"enable" default:true];
+    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -279,6 +280,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             {
                 ScreenSpaceGenerator::SimpleGeometry smGeom;
                 smGeom.texID = subTex.texId;
+                smGeom.programID = markerInfo.programId;
                 smGeom.color = [markerInfo.color asRGBAColor];
                 if (marker.color)
                     smGeom.color = [marker.color asRGBAColor];

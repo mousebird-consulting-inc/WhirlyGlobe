@@ -79,6 +79,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) float fade;
 @property (nonatomic) bool enable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
+@property (nonatomic) WhirlyKit::SimpleIdentity programId;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
