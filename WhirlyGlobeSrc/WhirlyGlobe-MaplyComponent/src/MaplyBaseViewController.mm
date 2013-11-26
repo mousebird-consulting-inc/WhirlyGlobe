@@ -272,6 +272,15 @@ using namespace WhirlyKit;
     return YES;
 }
 
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    // We may retain a bit of memory here.  Clear it up.
+    scene->getMemManager()->clearBufferIDs();
+    scene->getMemManager()->clearTextureIDs();
+}
+
 - (void)setFrameInterval:(int)frameInterval
 {
     _frameInterval = frameInterval;
