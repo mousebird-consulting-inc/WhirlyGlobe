@@ -83,7 +83,31 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     }
 }
 
+// We store per thread changes we may be journaling here
+class ThreadChanges
+{
+public:
+    ThreadChanges() : thread(NULL) { }
+    ThreadChanges(NSThread *thread) : thread(thread) { }
+    
+    // Comparison operator for set
+    bool operator < (const ThreadChanges &that) const
+    {
+        return (thread < that.thread);
+    }
+    
+    // Which thread this belongs to
+    NSThread *thread;
+    // Outstanding changes
+    ChangeSet changes;
+};
+typedef std::set<ThreadChanges> ThreadChangeSet;
+
 @implementation MaplyBaseInteractionLayer
+{
+    pthread_mutex_t changeLock;
+    ThreadChangeSet perThreadChanges;
+}
 
 - (id)initWithView:(WhirlyKitView *)inVisualView
 {
@@ -94,6 +118,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     pthread_mutex_init(&selectLock, NULL);
     pthread_mutex_init(&imageLock, NULL);
     pthread_mutex_init(&userLock, NULL);
+    pthread_mutex_init(&changeLock,NULL);
     
     return self;
 }
@@ -103,6 +128,16 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     pthread_mutex_destroy(&selectLock);
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&userLock);
+    pthread_mutex_destroy(&changeLock);
+    
+    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
+         it != perThreadChanges.end();++it)
+    {
+        ThreadChanges threadChanges = *it;
+        for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
+            delete threadChanges.changes[ii];
+    }
+    perThreadChanges.clear();
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
@@ -171,15 +206,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     
     ChangeSet changes;
     changes.push_back(new AddTextureReq(tex));
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            scene->addChangeRequests(changes);
-            break;
-        case MaplyThreadAny:
-            [layerThread addChangeRequests:changes];
-            break;
-    }
+    [self flushChanges:changes mode:threadMode];
     
     return maplyTex;
 }
@@ -263,15 +290,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             
             ChangeSet changes;
             changes.push_back(new AddTextureReq(tex));
-            switch (threadMode)
-            {
-                case MaplyThreadCurrent:
-                    scene->addChangeRequests(changes);
-                    break;
-                case MaplyThreadAny:
-                    [layerThread addChangeRequests:changes];
-                    break;
-            }
+            [self flushChanges:changes mode:threadMode];
             
             // Add to our cache
             MaplyImageTexture newTex(image,tex->getId());
@@ -334,15 +353,70 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 // We flush out changes in different ways depending on the thread mode
 - (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
 {
+    if (changes.empty())
+        return;
+    
     switch (threadMode)
     {
         case MaplyThreadCurrent:
-            scene->addChangeRequests(changes);
+        {
+            pthread_mutex_lock(&changeLock);
+
+            // We might be journaling changes, so let's check
+            NSThread *currentThread = [NSThread currentThread];
+            ThreadChanges threadChanges(currentThread);
+            ThreadChangeSet::iterator it = perThreadChanges.find(threadChanges);
+            if (it != perThreadChanges.end())
+            {
+                // We are, so just toss these changes on to the end
+                ThreadChanges theChanges = *it;
+                theChanges.changes.insert(theChanges.changes.end(), changes.begin(), changes.end());
+                perThreadChanges.erase(it);
+                perThreadChanges.insert(theChanges);
+            } else
+                // We're not, so execute the changes
+                scene->addChangeRequests(changes);
+
+            pthread_mutex_unlock(&changeLock);
+        }
             break;
         case MaplyThreadAny:
             [layerThread addChangeRequests:changes];
             break;
     }
+}
+
+- (void)startChanges
+{
+    pthread_mutex_lock(&changeLock);
+
+    // Look for changes in the current thread
+    NSThread *currentThread = [NSThread currentThread];
+    ThreadChanges changes(currentThread);
+    ThreadChangeSet::iterator it = perThreadChanges.find(changes);
+    // If there isn't one, we add it.  That's how we know we're doing this.
+    if (it == perThreadChanges.end())
+        perThreadChanges.insert(changes);
+
+    pthread_mutex_unlock(&changeLock);
+}
+
+- (void)endChanges
+{
+    pthread_mutex_lock(&changeLock);
+
+    // Look for outstanding changes
+    NSThread *currentThread = [NSThread currentThread];
+    ThreadChanges changes(currentThread);
+    ThreadChangeSet::iterator it = perThreadChanges.find(changes);
+    if (it != perThreadChanges.end())
+    {
+        ThreadChanges theseChanges = *it;
+        scene->addChangeRequests(theseChanges.changes);
+        perThreadChanges.erase(it);
+    }
+
+    pthread_mutex_unlock(&changeLock);
 }
 
 // We can refer to shaders by ID or by name.  Figure that out.

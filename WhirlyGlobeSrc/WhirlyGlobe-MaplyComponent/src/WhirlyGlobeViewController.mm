@@ -670,7 +670,7 @@ using namespace WhirlyGlobe;
     knownAnimateEndRot = true;
     animateEndRot = info.rot;
 
-    if (!isPanning && !isRotating && !isZooming)
+    if (!isRotating && !isZooming)
     {
         if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:)])
         {
