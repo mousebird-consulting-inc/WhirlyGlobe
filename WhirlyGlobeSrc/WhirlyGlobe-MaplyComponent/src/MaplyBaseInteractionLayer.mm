@@ -31,6 +31,7 @@
 #import "ImageTexture_private.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyCoordinateSystem_private.h"
+#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -121,14 +122,81 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
-- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+// Explicitly add a texture
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+    
+    // Add it and download it
+    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+    maplyTex.texID = tex->getId();
+    tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+    switch (imageFormat)
+    {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            tex->setFormat(GL_UNSIGNED_BYTE);
+            break;
+        case MaplyImageUShort565:
+            tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+            break;
+        case MaplyImageUShort4444:
+            tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+            break;
+        case MaplyImageUShort5551:
+            tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+            break;
+        case MaplyImageUByteRed:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleRed);
+            break;
+        case MaplyImageUByteGreen:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleGreen);
+            break;
+        case MaplyImageUByteBlue:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleBlue);
+            break;
+        case MaplyImageUByteAlpha:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleAlpha);
+            break;
+        case MaplyImageUByteRGB:
+            tex->setFormat(GL_ALPHA);
+            tex->setSingleByteSource(WKSingleRGB);
+            break;
+    }
+    
+    ChangeSet changes;
+    changes.push_back(new AddTextureReq(tex));
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            scene->addChangeRequests(changes);
+            break;
+        case MaplyThreadAny:
+            [layerThread addChangeRequests:changes];
+            break;
+    }
+    
+    return maplyTex;
+}
+
+- (void)removeTexture:(MaplyTexture *)texture
+{
+    [texture clear];
+}
+
+- (SimpleIdentity)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
     return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
 }
 
 // Add an image to the cache, or find an existing one
 // Called in the layer thread
-- (SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (SimpleIdentity)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
     SimpleIdentity texID = EmptyIdentity;
     
@@ -149,64 +217,77 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 
     if (texID == EmptyIdentity)
     {
-        // Add it and download it
-        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
-        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
-        switch (imageFormat)
+        if ([image isKindOfClass:[UIImage class]])
         {
-            case MaplyImageIntRGBA:
-            case MaplyImage4Layer8Bit:
-            default:
-                tex->setFormat(GL_UNSIGNED_BYTE);
-                break;
-            case MaplyImageUShort565:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-                break;
-            case MaplyImageUShort4444:
-                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-                break;
-            case MaplyImageUShort5551:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-                break;
-            case MaplyImageUByteRed:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRed);
-                break;
-            case MaplyImageUByteGreen:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleGreen);
-                break;
-            case MaplyImageUByteBlue:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleBlue);
-                break;
-            case MaplyImageUByteAlpha:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleAlpha);
-                break;
-            case MaplyImageUByteRGB:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRGB);
-                break;
-        }
-        
-        ChangeSet changes;
-        changes.push_back(new AddTextureReq(tex));
-        switch (threadMode)
+            UIImage *theImage = image;
+            // Add it and download it
+            Texture *tex = new Texture("MaplyBaseInteraction",theImage,true);
+            tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+            switch (imageFormat)
+            {
+                case MaplyImageIntRGBA:
+                case MaplyImage4Layer8Bit:
+                default:
+                    tex->setFormat(GL_UNSIGNED_BYTE);
+                    break;
+                case MaplyImageUShort565:
+                    tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+                    break;
+                case MaplyImageUShort4444:
+                    tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+                    break;
+                case MaplyImageUShort5551:
+                    tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+                    break;
+                case MaplyImageUByteRed:
+                    tex->setFormat(GL_ALPHA);
+                    tex->setSingleByteSource(WKSingleRed);
+                    break;
+                case MaplyImageUByteGreen:
+                    tex->setFormat(GL_ALPHA);
+                    tex->setSingleByteSource(WKSingleGreen);
+                    break;
+                case MaplyImageUByteBlue:
+                    tex->setFormat(GL_ALPHA);
+                    tex->setSingleByteSource(WKSingleBlue);
+                    break;
+                case MaplyImageUByteAlpha:
+                    tex->setFormat(GL_ALPHA);
+                    tex->setSingleByteSource(WKSingleAlpha);
+                    break;
+                case MaplyImageUByteRGB:
+                    tex->setFormat(GL_ALPHA);
+                    tex->setSingleByteSource(WKSingleRGB);
+                    break;
+            }
+            
+            ChangeSet changes;
+            changes.push_back(new AddTextureReq(tex));
+            switch (threadMode)
+            {
+                case MaplyThreadCurrent:
+                    scene->addChangeRequests(changes);
+                    break;
+                case MaplyThreadAny:
+                    [layerThread addChangeRequests:changes];
+                    break;
+            }
+            
+            // Add to our cache
+            MaplyImageTexture newTex(image,tex->getId());
+            newTex.refCount = 1;
+            imageTextures.insert(newTex);
+            texID = newTex.texID;
+        } else if ([image isKindOfClass:[MaplyTexture class]])
         {
-            case MaplyThreadCurrent:
-                scene->addChangeRequests(changes);
-                break;
-            case MaplyThreadAny:
-                [layerThread addChangeRequests:changes];
-                break;
+            MaplyTexture *maplyTex = image;
+
+            // Add to our cache
+            MaplyImageTexture newTex(image,maplyTex.texID);
+            newTex.refCount = 1;
+            imageTextures.insert(newTex);
+            texID = newTex.texID;
         }
-        
-        // Add to our cache
-        MaplyImageTexture newTex(image,tex->getId());
-        newTex.refCount = 1;
-        imageTextures.insert(newTex);
-        texID = newTex.texID;
     }
 
     pthread_mutex_unlock(&imageLock);
@@ -215,7 +296,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Remove an image for the cache, or just decrement its reference count
-- (void)removeImage:(UIImage *)image
+- (void)removeImage:(id)image
 {
     pthread_mutex_lock(&imageLock);
     
@@ -231,8 +312,11 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
             copyTex.refCount--;
             imageTextures.insert(copyTex);
         } else {
-            // Note: This time is a hack.  Should look at the fade out.
-            [self performSelector:@selector(delayedRemoveTexture:) withObject:@(it->texID) afterDelay:1.0];
+            if ([image isKindOfClass:[UIImage class]])
+            {
+                // Note: This time is a hack.  Should look at the fade out.
+                [self performSelector:@selector(delayedRemoveTexture:) withObject:@(it->texID) afterDelay:1.0];
+            }
             imageTextures.erase(it);
         }
     }
@@ -688,7 +772,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     {
         UIImage *theImage = inDesc[kMaplyVecTexture];
         SimpleIdentity texId = EmptyIdentity;
-        if ([theImage isKindOfClass:[UIImage class]])
+        if ([theImage isKindOfClass:[UIImage class]] || [theImage isKindOfClass:[MaplyTexture class]])
             texId = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
         if (texId)
             inDesc[kMaplyVecTexture] = @(texId);
@@ -1030,7 +1114,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         }
         for (UIImage *image in sticker.images)
         {
-            if ([image isKindOfClass:[UIImage class]])
+            if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
             {
                 SimpleIdentity texId = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
                 if (texId != EmptyIdentity)
@@ -1133,7 +1217,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 // Add in the new images
                 for (UIImage *image in newImages)
                 {
-                    if ([image isKindOfClass:[UIImage class]])
+                    if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
                     {
                         SimpleIdentity texId = [self addImage:image imageFormat:newFormat mode:threadMode];
                         if (texId != EmptyIdentity)

@@ -26,6 +26,7 @@
 #import "MaplyActiveObject_private.h"
 #import "WhirlyGlobe.h"
 #import "MaplyImageTile_private.h"
+#import "MaplyTexture_private.h"
 
 using namespace WhirlyKit;
 
@@ -291,7 +292,7 @@ using namespace WhirlyKit;
 // We're not on the main thread, Dorothy.
 - (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)inImage
 {
-    if (_delegate && inImage && [inImage.images count])
+    if (_delegate && inImage && !inImage.textures.empty())
     {
         MaplyBoundingBox bbox;
         Mbr mbr = inImage.mbr;
@@ -299,7 +300,18 @@ using namespace WhirlyKit;
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
         MaplyOfflineImage *offlineImage = [[MaplyOfflineImage alloc] init];
         offlineImage.bbox = bbox;
-        offlineImage.images = inImage.images;
+        
+        // Convert the textures into MaplyTextures
+        NSMutableArray *maplyTextures = [NSMutableArray array];
+        for (unsigned int ii=0;ii<inImage.textures.size();ii++)
+        {
+            MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+            maplyTex.texID = inImage.textures[ii];
+            maplyTex.viewC = _viewC;
+            [maplyTextures addObject:maplyTex];
+        }
+        
+        offlineImage.textures = maplyTextures;
         offlineImage.centerSize = inImage.centerSize;
         for (unsigned int ii=0;ii<4;ii++)
             offlineImage->cornerSizes[ii] = inImage->cornerSizes[ii];
