@@ -155,6 +155,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)imageRenderImmediate
 {
+    NSLog(@"Render:: Imediate");
+    
     if (_on)
         [self imageRender];
 }
@@ -165,6 +167,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
     if (_on && somethingChanged)
     {
+        NSLog(@"Render:: Periodic");
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
         if (now - lastRender >= _period)
             [self imageRender];
@@ -267,11 +270,12 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         NSMutableArray *images = [NSMutableArray array];
         
         CGSize texSize = [self calculateSize];
-//        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
+        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
         
         // Draw each entry in the image stack individually
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
         CGContextRef theContext = CGBitmapContextCreate(NULL, texSize.width, texSize.height, 8, texSize.width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+        int numRenderedTiles = 0;
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
             CGContextSetRGBFillColor(theContext, 0, 0, 0, 1);
@@ -323,10 +327,14 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                     if (imageToDraw)
                         CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
                 }
+                numRenderedTiles++;
                 
                 // If this happens, they've changed the MBR while we were working on this one.  Punt.
                 if (whichMbr != currentMbr)
+                {
+                    NSLog(@"Aborted render");
                     return;
+                }
             }
             
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
@@ -338,8 +346,22 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
+        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
+        
+        
+        // Convert the images into OpenGL ES textures
+        ChangeSet changes;
+        std::vector<WhirlyKit::SimpleIdentity> texIDs;
+        for (UIImage *image in images)
+        {
+            Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
+            texIDs.push_back(tex->getId());
+            changes.push_back(new AddTextureReq(tex));
+        }
+        [_quadLayer.layerThread addChangeRequests:changes];
+        
         WhirlyKitQuadTileOfflineImage *image = [[WhirlyKitQuadTileOfflineImage alloc] init];
-        image.images = images;
+        image.textures = texIDs;
         image.mbr = mbr;
         image.centerSize = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(texSize.width/2.0, texSize.height/2.0)];
         image->cornerSizes[0] = [self pixelSizeForMbr:mbr texSize:texSize texel:CGPointMake(0.0, 0.0)];

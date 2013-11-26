@@ -35,8 +35,8 @@
 /// @brief Color of the billboard's underlying polygon.
 @property (nonatomic) UIColor *color;
 
-/// @brief The image to apply to the billboard.
-@property (nonatomic) UIImage *image;
+/// @brief The UIImage (or MaplyTexture) to apply to the billboard.
+@property (nonatomic,strong) id image;
 
 /// @brief Set if you want to select these
 @property (nonatomic) bool selectable;

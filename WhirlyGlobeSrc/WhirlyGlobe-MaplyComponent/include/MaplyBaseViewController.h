@@ -31,6 +31,7 @@
 #import "MaplyActiveObject.h"
 #import "MaplyElevationSource.h"
 #import "MaplyQuadImageTilesLayer.h"
+#import "MaplyTexture.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -375,8 +376,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
 
-/** @brief Add an image as a texture and keep track of it.
-    @details We reference count UIImages and turn them into internal textures.  If you know you're going to be using the same image and adding and removing the object its attached to, this is a good way to lock the image down.  Otherwise we'll be constantly recreating the texture.
+/** @brief Add an image as a texture and return a MaplyTexture to track it.
+    @details We reference count UIImages attached to Maply objects, but that has a couple of drawbacks.  First, it retains the UIImage and if that's large, that's a waste of memory.  Second, if you're adding and removing Maply objects you may repeatedly create and delete the same UIImage, which is a waste of CPU.
+    @details This method solves the problem by letting you create the texture associated with the UIImage and use it where you like.  You can assign these in any place a UIImage is accepted on Maply objects.
     @details You don't have call this before using a UIImage in a MaplyScreenMarker or other object.  The system takes care of it for you.  This is purely for optimization.
     @param image The image we wish to retain the texture for.
     @param imageFormat If we create this image, this is the texture format we want it to use.
@@ -395,13 +397,16 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
 
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
-  */
-- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+ 
+    @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the OpenGL ES texture will be deleted.
+ */
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
-/** @brief Decrement the reference count on an image and possibly remove its associated texture.
-    @details See addImage:mode: for details on why this is here.  It's the corresponding decrement method for UIImage textures.
+/** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
+    @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
+    @details Only call this if you're managing the texture explicitly and know you're finished with them.
   */
-- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+- (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
