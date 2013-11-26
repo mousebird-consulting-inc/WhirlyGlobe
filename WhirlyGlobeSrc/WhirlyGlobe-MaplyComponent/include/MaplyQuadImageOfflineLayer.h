@@ -106,6 +106,11 @@
   */
 @property (nonatomic) float importanceScale;
 
+/** @brief Number of levels to consider in tiles when previewing.
+    @details When we chnage the bounds we'll run off a quick preview render if this is set.  If so, we'll consider an tile above or at this level.
+  */
+@property (nonatomic) int previewLevels;
+
 /** @brief Size of the image to produce or maximum size if autoRes is on.
     @details This is the size of each of the images passed to the delegate.  If autoRes is on this is the maximum size.
   */

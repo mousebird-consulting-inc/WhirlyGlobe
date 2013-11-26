@@ -92,6 +92,9 @@
 /// We want the image generate no more often than this
 @property (nonatomic,assign) NSTimeInterval period;
 
+/// When the MBR changes we get a preview render down to this many levels
+@property (nonatomic,assign) int previewLevels;
+
 /// If set, the delegate that receives the image we're generating every period seconds
 @property (nonatomic,weak) NSObject<WhirlyKitQuadTileOfflineDelegate> *outputDelegate;
 
