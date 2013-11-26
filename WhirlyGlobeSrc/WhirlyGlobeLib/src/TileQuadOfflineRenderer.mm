@@ -82,7 +82,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     NSObject<WhirlyKitQuadTileImageDataSource> *_imageSource;
     OfflineTileSet tiles;
     int numFetches;
-    bool renderScheduled;
+    bool renderScheduled,immediateScheduled;
     CFTimeInterval lastRender;
     bool somethingChanged;
     int currentMbr;
@@ -100,6 +100,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     _sizeX = _sizeY = 1024;
     _mbr = Mbr(GeoCoord::CoordFromDegrees(0.0,0.0),GeoCoord::CoordFromDegrees(1.0, 1.0));
     renderScheduled = false;
+    immediateScheduled = false;
     _on = true;
     _autoRes = true;
     _previewLevels = -1;
@@ -154,12 +155,17 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         currentMbr++;
     }
     somethingChanged = true;
-    [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
+    if (!immediateScheduled)
+    {
+        [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
+        immediateScheduled = true;
+    }
 }
 
 - (void)imageRenderImmediate
 {
 //    NSLog(@"Render:: Immediate");
+    immediateScheduled = false;
     
     if (_on)
     {
@@ -167,7 +173,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         if (_previewLevels > 0)
         {
             lastRender = 0;
-            [self performSelector:@selector(imageRenderPeriodic)];
+            if (!renderScheduled)
+            {
+                [self performSelector:@selector(imageRenderPeriodic)];
+                renderScheduled = true;
+            }
         }
     }
 }
@@ -375,14 +385,35 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 //        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
         
         // Convert the images into OpenGL ES textures
+        bool aborted = false;
         ChangeSet changes;
         std::vector<WhirlyKit::SimpleIdentity> texIDs;
         for (UIImage *image in images)
         {
             Texture *tex = new Texture("TileQuadOfflineRenderer",image,true);
             texIDs.push_back(tex->getId());
+            tex->createInGL(_quadLayer.scene->getMemManager());
             changes.push_back(new AddTextureReq(tex));
+            if (whichMbr != currentMbr)
+            {
+                aborted = true;
+                break;
+            }
         }
+        
+        // The texture setup can take a while, so let's be ready to abort here
+        if (aborted)
+        {
+            for (unsigned int ii=0;ii<changes.size();ii++)
+            {
+                AddTextureReq *texReq = (AddTextureReq *)changes[ii];
+                texReq->getTex()->destroyInGL(_quadLayer.scene->getMemManager());
+                delete changes[ii];
+            }
+            changes.clear();
+            return;
+        }
+        
         [_quadLayer.layerThread addChangeRequests:changes];
         [_quadLayer.layerThread flushChangeRequests];
         
