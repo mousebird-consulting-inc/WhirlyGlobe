@@ -102,6 +102,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     renderScheduled = false;
     _on = true;
     _autoRes = true;
+    _previewLevels = -1;
     somethingChanged = true;
     
     return self;
@@ -158,10 +159,17 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)imageRenderImmediate
 {
-    NSLog(@"Render:: Imediate");
+//    NSLog(@"Render:: Immediate");
     
     if (_on)
-        [self imageRender];
+    {
+        [self imageRenderToLevel:_previewLevels];
+        if (_previewLevels > 0)
+        {
+            lastRender = 0;
+            [self performSelector:@selector(imageRenderPeriodic)];
+        }
+    }
 }
 
 - (void)imageRenderPeriodic
@@ -170,10 +178,10 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
     if (_on && somethingChanged)
     {
-        NSLog(@"Render:: Periodic");
+//        NSLog(@"Render:: Periodic");
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
         if (now - lastRender >= _period)
-            [self imageRender];
+            [self imageRenderToLevel:-1];
     }
     
     if (_period > 0.0 && !renderScheduled)
@@ -254,7 +262,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         return CGSizeMake(_sizeX, _sizeY);
 }
 
-- (void)imageRender
+- (void)imageRenderToLevel:(int)deep
 {
     if (_outputDelegate)
     {
@@ -282,7 +290,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         NSMutableArray *images = [NSMutableArray array];
         
         CGSize texSize = [self calculateSize];
-        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
+//        NSLog(@"Tex Size = (%f,%f)",texSize.width,texSize.height);
         
         // Draw each entry in the image stack individually
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -299,6 +307,9 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 OfflineTile *tile = *it;
                 if (tile->isLoading)
                     continue;
+                if (deep > 0 && tile->ident.level > deep)
+                    continue;
+                
                 // Scale the extents to the output image
                 Mbr tileMbr[2];
                 tileMbr[0] = _quadLayer.quadtree->generateMbrForNode(tile->ident);
@@ -347,7 +358,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 {
                     CGContextRelease(theContext);
                     CGColorSpaceRelease(colorSpace);
-                    NSLog(@"Aborted render");
+//                    NSLog(@"Aborted render");
                     return;
                 }
             }
@@ -361,8 +372,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         CGContextRelease(theContext);
         CGColorSpaceRelease(colorSpace);
         
-        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
-        
+//        NSLog(@"Rendered %d tiles of %d",numRenderedTiles,(int)tiles.size());
         
         // Convert the images into OpenGL ES textures
         ChangeSet changes;
@@ -374,6 +384,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
             changes.push_back(new AddTextureReq(tex));
         }
         [_quadLayer.layerThread addChangeRequests:changes];
+        [_quadLayer.layerThread flushChangeRequests];
         
         WhirlyKitQuadTileOfflineImage *image = [[WhirlyKitQuadTileOfflineImage alloc] init];
         image.textures = texIDs;
@@ -386,7 +397,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         [_outputDelegate loader:self image:image];
     }
     
-    somethingChanged = false;
+    // If we did a quick render, we need to go back again
+    if (deep > 0)
+        somethingChanged = true;
+    else
+        somethingChanged = false;
 }
 
 // Calculate the real world size of a given pixel

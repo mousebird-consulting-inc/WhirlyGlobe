@@ -138,6 +138,7 @@ using namespace WhirlyKit;
     tileLoader.sizeX = _textureSize.width;
     tileLoader.sizeY = _textureSize.height;
     tileLoader.autoRes = _autoRes;
+    tileLoader.previewLevels = _previewLevels;
     
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
     quadLayer.maxTiles = _maxTiles;
