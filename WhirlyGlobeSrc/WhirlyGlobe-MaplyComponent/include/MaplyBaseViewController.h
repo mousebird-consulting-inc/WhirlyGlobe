@@ -440,6 +440,17 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode;
 
+/** @brief Call this to start journaling changes for this thread.
+    @details Your can collect up your add/remove/enable changes on the current thread.  Call startChanges to start collecting and endChanges to flush the changes.
+    @details This has no real meaning on the main thread and don't collect too many changes.  They take memory.
+  */
+- (void)startChanges;
+
+/** @brief Call this to flush your journal changes out ot the scene.
+    @details This is the other end of startChanges.
+  */
+- (void)endChanges;
+
 /** @brief Add the given active object to the scene.
     @details Active objects are used for immediate, frame based updates.  They're fairly expensive, so be careful.  After you create one, you add it to the scene here.
   */

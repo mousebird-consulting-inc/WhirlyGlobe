@@ -147,8 +147,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         mbr.ur().x() += 2*M_PI;
     }
     
-    _mbr = mbr;
-    currentMbr++;
+    @synchronized(self)
+    {
+        _mbr = mbr;
+        currentMbr++;
+    }
     somethingChanged = true;
     [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
 }
@@ -186,7 +189,11 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     {
         Point2f imageRes(MAXFLOAT,MAXFLOAT);
         
-        Mbr mbr = _mbr;
+        Mbr mbr;
+        @synchronized(self)
+        {
+            mbr = _mbr;
+        }
 
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
@@ -252,9 +259,14 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     if (_outputDelegate)
     {
         lastRender = CFAbsoluteTimeGetCurrent();
-        int whichMbr = currentMbr;
+        int whichMbr;
         
-        Mbr mbr = _mbr;
+        Mbr mbr;
+        @synchronized(self)
+        {
+            mbr = _mbr;
+            whichMbr = currentMbr;
+        }
 
         // Note: Assuming geographic or spherical mercator
         GeoMbr geoMbr(GeoCoord(mbr.ll().x(), mbr.ll().y()),GeoCoord(mbr.ur().x(),mbr.ur().y()));
@@ -278,7 +290,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         int numRenderedTiles = 0;
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
-            CGContextSetRGBFillColor(theContext, 0, 0, 0, 1);
+            // Note: Debugging
+            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
             CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
             // Work through the tiles, drawing as we go
             for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
@@ -332,6 +345,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 // If this happens, they've changed the MBR while we were working on this one.  Punt.
                 if (whichMbr != currentMbr)
                 {
+                    CGContextRelease(theContext);
+                    CGColorSpaceRelease(colorSpace);
                     NSLog(@"Aborted render");
                     return;
                 }

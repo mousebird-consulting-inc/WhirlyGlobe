@@ -108,6 +108,12 @@
 // Explicitly remove a texture
 - (void)removeTexture:(MaplyTexture *)texture;
 
+// Start collecting changes for this thread
+- (void)startChanges;
+
+// Flush out outstanding changes for this thread
+- (void)endChanges;
+
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache

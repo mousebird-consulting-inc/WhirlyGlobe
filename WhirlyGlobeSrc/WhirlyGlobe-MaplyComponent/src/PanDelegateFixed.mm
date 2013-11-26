@@ -209,8 +209,7 @@ static const float MomentumAnimLen = 1.0;
             break;
 		case UIGestureRecognizerStateEnded:
         {
-            if (panType != PanNone)
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+            bool doNotifyEnd = (panType != PanNone);
 
             if (panType == PanFree && runEndMomentum)
             {
@@ -259,6 +258,9 @@ static const float MomentumAnimLen = 1.0;
                 }
                
             }
+            
+            if (doNotifyEnd)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
         }
 			break;
         default:
