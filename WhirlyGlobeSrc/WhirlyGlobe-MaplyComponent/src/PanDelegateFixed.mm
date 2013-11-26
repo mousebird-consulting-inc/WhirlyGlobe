@@ -253,8 +253,11 @@ static const float MomentumAnimLen = 1.0;
                     float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
                     
                     // Keep going in that direction for a while
-                    viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
-                    view.delegate = viewAnimation;
+                    if (angVel > 0.0)
+                    {
+                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
+                        view.delegate = viewAnimation;
+                    }
                 }
                
             }
