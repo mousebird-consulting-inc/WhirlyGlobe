@@ -21,6 +21,7 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "NSData+Zlib.h"
+#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -556,14 +557,17 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    [interactLayer addImage:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    maplyTex.viewC = self;
+    
+    return maplyTex;
 }
 
-- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
 {
-    [interactLayer removeImage:image];
+    [interactLayer removeTexture:texture];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects

@@ -42,10 +42,10 @@
  */
 @property (nonatomic,assign) float rotation;
 
-/** @brief Image to use for the marker.
-    @details If set we'll stretch this UIImage out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this UIImage and will reuse its texture and dispose of it as needed.
+/** @brief Image or texture to use for the marker.
+    @details If set we'll stretch this UIImage (or MaplyTexture) out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this object and will reuse its texture and dispose of it as needed.
   */
-@property (nonatomic,strong) UIImage *image;
+@property (nonatomic,strong) id image;
 
 /** @brief Color for this particular marker.
     @details If set, this the color we'll use for the marker or how we'll tint the image.

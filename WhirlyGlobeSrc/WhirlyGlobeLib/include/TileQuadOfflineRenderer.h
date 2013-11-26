@@ -46,8 +46,8 @@
 /// Bounding box for the rendered area
 @property (nonatomic) WhirlyKit::Mbr &mbr;
 
-/// Images produced by the renderer
-@property (nonatomic) NSArray *images;
+/// Textures produced by the offline renderer.  Delegate is responsible for cleanup
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &textures;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;

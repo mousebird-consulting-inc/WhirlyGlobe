@@ -21,6 +21,7 @@
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
+#import "MaplyTexture.h"
 
 @class MaplyQuadImageOfflineLayer;
 
@@ -35,8 +36,8 @@
 /// Bounding box for the rendered area
 @property (nonatomic) MaplyBoundingBox bbox;
 
-/// Images produced by the renderer
-@property (nonatomic) NSArray *images;
+/// Images produced by the renderer represented as MaplyTexture objects
+@property (nonatomic) NSArray *textures;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
