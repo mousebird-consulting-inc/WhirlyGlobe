@@ -602,6 +602,16 @@ static const float PerfOutputDelay = 15.0;
     [interactLayer enableObjects:theObjs mode:threadMode];
 }
 
+- (void)startChanges
+{
+    [interactLayer startChanges];
+}
+
+- (void)endChanges
+{
+    [interactLayer endChanges];
+}
+
 - (void)addActiveObject:(MaplyActiveObject *)theObj
 {
     if ([NSThread currentThread] != [NSThread mainThread])
