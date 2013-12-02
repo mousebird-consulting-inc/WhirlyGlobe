@@ -160,76 +160,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 // Explicitly add a texture
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
-    MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
-    
-    // Add it and download it
-    Texture *tex = new Texture("MaplyBaseInteraction",image,true);
-    maplyTex.texID = tex->getId();
-    tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
-    switch (imageFormat)
-    {
-        case MaplyImageIntRGBA:
-        case MaplyImage4Layer8Bit:
-        default:
-            tex->setFormat(GL_UNSIGNED_BYTE);
-            break;
-        case MaplyImageUShort565:
-            tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-            break;
-        case MaplyImageUShort4444:
-            tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-            break;
-        case MaplyImageUShort5551:
-            tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-            break;
-        case MaplyImageUByteRed:
-            tex->setFormat(GL_ALPHA);
-            tex->setSingleByteSource(WKSingleRed);
-            break;
-        case MaplyImageUByteGreen:
-            tex->setFormat(GL_ALPHA);
-            tex->setSingleByteSource(WKSingleGreen);
-            break;
-        case MaplyImageUByteBlue:
-            tex->setFormat(GL_ALPHA);
-            tex->setSingleByteSource(WKSingleBlue);
-            break;
-        case MaplyImageUByteAlpha:
-            tex->setFormat(GL_ALPHA);
-            tex->setSingleByteSource(WKSingleAlpha);
-            break;
-        case MaplyImageUByteRGB:
-            tex->setFormat(GL_ALPHA);
-            tex->setSingleByteSource(WKSingleRGB);
-            break;
-    }
-    
-    ChangeSet changes;
-    changes.push_back(new AddTextureReq(tex));
-    [self flushChanges:changes mode:threadMode];
-    
-    return maplyTex;
-}
-
-- (void)removeTexture:(MaplyTexture *)texture
-{
-    [texture clear];
-}
-
-- (SimpleIdentity)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
-{
-    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
-}
-
-// Add an image to the cache, or find an existing one
-// Called in the layer thread
-- (SimpleIdentity)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
-{
-    SimpleIdentity texID = EmptyIdentity;
-    
     pthread_mutex_lock(&imageLock);
     
     // Look for an existing one
+    MaplyImageTexture maplyImageTex;
     MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
     if (it != imageTextures.end())
     {
@@ -239,88 +173,96 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         imageTextures.erase(it);
         imageTextures.insert(copyTex);
         
-        texID = copyTex.texID;
+        maplyImageTex = copyTex;
     }
-
-    if (texID == EmptyIdentity)
-    {
-        if ([image isKindOfClass:[UIImage class]])
-        {
-            UIImage *theImage = image;
-            // Add it and download it
-            Texture *tex = new Texture("MaplyBaseInteraction",theImage,true);
-            tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
-            switch (imageFormat)
-            {
-                case MaplyImageIntRGBA:
-                case MaplyImage4Layer8Bit:
-                default:
-                    tex->setFormat(GL_UNSIGNED_BYTE);
-                    break;
-                case MaplyImageUShort565:
-                    tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-                    break;
-                case MaplyImageUShort4444:
-                    tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-                    break;
-                case MaplyImageUShort5551:
-                    tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-                    break;
-                case MaplyImageUByteRed:
-                    tex->setFormat(GL_ALPHA);
-                    tex->setSingleByteSource(WKSingleRed);
-                    break;
-                case MaplyImageUByteGreen:
-                    tex->setFormat(GL_ALPHA);
-                    tex->setSingleByteSource(WKSingleGreen);
-                    break;
-                case MaplyImageUByteBlue:
-                    tex->setFormat(GL_ALPHA);
-                    tex->setSingleByteSource(WKSingleBlue);
-                    break;
-                case MaplyImageUByteAlpha:
-                    tex->setFormat(GL_ALPHA);
-                    tex->setSingleByteSource(WKSingleAlpha);
-                    break;
-                case MaplyImageUByteRGB:
-                    tex->setFormat(GL_ALPHA);
-                    tex->setSingleByteSource(WKSingleRGB);
-                    break;
-            }
-            
-            ChangeSet changes;
-            changes.push_back(new AddTextureReq(tex));
-            [self flushChanges:changes mode:threadMode];
-            
-            // Add to our cache
-            MaplyImageTexture newTex(image,tex->getId());
-            newTex.refCount = 1;
-            imageTextures.insert(newTex);
-            texID = newTex.texID;
-        } else if ([image isKindOfClass:[MaplyTexture class]])
-        {
-            MaplyTexture *maplyTex = image;
-
-            // Add to our cache
-            MaplyImageTexture newTex(image,maplyTex.texID);
-            newTex.refCount = 1;
-            imageTextures.insert(newTex);
-            texID = newTex.texID;
-        }
-    }
-
-    pthread_mutex_unlock(&imageLock);
     
-    return texID;
+    ChangeSet changes;
+    if (!maplyImageTex.maplyTex)
+    {
+        MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+        
+        // Add it and download it
+        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+        maplyTex.texID = tex->getId();
+        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+        switch (imageFormat)
+        {
+            case MaplyImageIntRGBA:
+            case MaplyImage4Layer8Bit:
+            default:
+                tex->setFormat(GL_UNSIGNED_BYTE);
+                break;
+            case MaplyImageUShort565:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+                break;
+            case MaplyImageUShort4444:
+                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+                break;
+            case MaplyImageUShort5551:
+                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+                break;
+            case MaplyImageUByteRed:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRed);
+                break;
+            case MaplyImageUByteGreen:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleGreen);
+                break;
+            case MaplyImageUByteBlue:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleBlue);
+                break;
+            case MaplyImageUByteAlpha:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleAlpha);
+                break;
+            case MaplyImageUByteRGB:
+                tex->setFormat(GL_ALPHA);
+                tex->setSingleByteSource(WKSingleRGB);
+                break;
+        }
+        
+        changes.push_back(new AddTextureReq(tex));
+        maplyImageTex = MaplyImageTexture(image, maplyTex);
+        maplyImageTex.refCount = 1;
+        imageTextures.insert(maplyImageTex);
+    }
+    
+    pthread_mutex_unlock(&imageLock);
+
+    if (!changes.empty())
+        [self flushChanges:changes mode:threadMode];
+
+    return maplyImageTex.maplyTex;
+}
+
+- (void)removeTexture:(MaplyTexture *)texture
+{
+    [texture clear];
+}
+
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+{
+    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
+}
+
+// Add an image to the cache, or find an existing one
+// Called in the layer thread
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *maplyTex = [self addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    
+    return maplyTex;
 }
 
 // Remove an image for the cache, or just decrement its reference count
-- (void)removeImage:(id)image
+- (void)removeImageTexture:(MaplyTexture *)tex;
 {
     pthread_mutex_lock(&imageLock);
     
     // Look for an existing one
-    MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
+    MaplyImageTextureSet::iterator it = imageTextures.find(tex);
     if (it != imageTextures.end())
     {
         // Decrement the reference count
@@ -331,11 +273,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             copyTex.refCount--;
             imageTextures.insert(copyTex);
         } else {
-            if ([image isKindOfClass:[UIImage class]])
-            {
-                // Note: This time is a hack.  Should look at the fade out.
-                [self performSelector:@selector(delayedRemoveTexture:) withObject:@(it->texID) afterDelay:1.0];
-            }
+            // Note: This time is a hack.  Should look at the fade out.
+            [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
             imageTextures.erase(it);
         }
     }
@@ -345,9 +284,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 // Remove the given Texture ID after a delay
 // Note: This is a hack to work around fade problems
-- (void)delayedRemoveTexture:(NSNumber *)texID
+- (void)delayedRemoveTexture:(MaplyTexture *)maplyTex
 {
-    [layerThread addChangeRequest:(new RemTextureReq([texID integerValue]))];
+    // Holding the object until there delays the deletion
 }
 
 // We flush out changes in different ways depending on the thread mode
@@ -463,15 +402,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        SimpleIdentity texID = EmptyIdentity;
+        MaplyTexture *tex = nil;
         if (marker.image)
         {
-            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.images.insert(marker.image);
+            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+            compObj.textures.insert(tex);
         }
         wgMarker.color = marker.color;
-        if (texID != EmptyIdentity)
-            wgMarker.texIDs.push_back(texID);
+        if (tex)
+            wgMarker.texIDs.push_back(tex.texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
         if (marker.rotation != 0.0)
@@ -558,14 +497,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        SimpleIdentity texID = EmptyIdentity;
+        MaplyTexture *tex = nil;
         if (marker.image)
         {
-            texID = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.images.insert(marker.image);
+            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+            compObj.textures.insert(tex);
         }
-        if (texID != EmptyIdentity)
-            wgMarker.texIDs.push_back(texID);
+        if (tex)
+            wgMarker.texIDs.push_back(tex.texID);
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
         if (marker.selectable)
@@ -643,12 +582,13 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
-        SimpleIdentity texID = EmptyIdentity;
+        MaplyTexture *tex = nil;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.images.insert(label.iconImage);
+            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+            compObj.textures.insert(tex);
         }
-        wgLabel.iconTexture = texID;
+        if (tex)
+            wgLabel.iconTexture = tex.texID;
         wgLabel.iconSize = label.iconSize;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
@@ -744,12 +684,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.text = label.text;
-        SimpleIdentity texID = EmptyIdentity;
+        MaplyTexture *tex = nil;
         if (label.iconImage) {
-            texID = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.images.insert(label.iconImage);
+            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+            compObj.textures.insert(tex);
         }
-        wgLabel.iconTexture = texID;
+        wgLabel.iconTexture = tex.texID;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
         if (label.size.height > 0.0)
@@ -845,11 +785,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     if (inDesc[kMaplyVecTexture])
     {
         UIImage *theImage = inDesc[kMaplyVecTexture];
-        SimpleIdentity texId = EmptyIdentity;
+        MaplyTexture *tex = nil;
         if ([theImage isKindOfClass:[UIImage class]] || [theImage isKindOfClass:[MaplyTexture class]])
-            texId = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-        if (texId)
-            inDesc[kMaplyVecTexture] = @(texId);
+            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+        if (tex.texID)
+            inDesc[kMaplyVecTexture] = @(tex.texID);
         else
             [inDesc removeObjectForKey:kMaplyVecTexture];
     }
@@ -1181,19 +1121,19 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         std::vector<SimpleIdentity> texIDs;
         if (sticker.image) {
-            SimpleIdentity texId = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
-            if (texId != EmptyIdentity)
-                texIDs.push_back(texId);
-            compObj.images.insert(sticker.image);
+            MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
+            if (tex)
+                texIDs.push_back(tex.texID);
+            compObj.textures.insert(tex);
         }
         for (UIImage *image in sticker.images)
         {
             if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
             {
-                SimpleIdentity texId = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
-                if (texId != EmptyIdentity)
-                    texIDs.push_back(texId);
-                compObj.images.insert(image);
+                MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
+                if (tex)
+                    texIDs.push_back(tex.texID);
+                compObj.textures.insert(tex);
             }
         }
         WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
@@ -1285,24 +1225,24 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
                     newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
                 std::vector<SimpleIdentity> newTexIDs;
-                std::set<UIImage *> oldImages = stickerObj.images;
-                stickerObj.images.clear();
+                std::set<MaplyTexture *> oldTextures = stickerObj.textures;
+                stickerObj.textures.clear();
 
                 // Add in the new images
                 for (UIImage *image in newImages)
                 {
                     if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
                     {
-                        SimpleIdentity texId = [self addImage:image imageFormat:newFormat mode:threadMode];
-                        if (texId != EmptyIdentity)
-                            newTexIDs.push_back(texId);
-                        stickerObj.images.insert(image);
+                        MaplyTexture *tex = [self addImage:image imageFormat:newFormat mode:threadMode];
+                        if (tex)
+                            newTexIDs.push_back(tex.texID);
+                        stickerObj.textures.insert(tex);
                     }
                 }
                 
                 // Clear out the old images
-                for (std::set<UIImage *>::iterator it = oldImages.begin(); it != oldImages.end(); ++it)
-                    [self removeImage:*it];
+                for (std::set<MaplyTexture *>::iterator it = oldTextures.begin(); it != oldTextures.end(); ++it)
+                    [self removeTexture:*it];
                 
                 ChangeSet changes;
                 for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
@@ -1450,11 +1390,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             UIImage *image = bill.image;
             if (image)
             {
-                SimpleIdentity texId = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
-                if (texId != EmptyIdentity)
+                MaplyTexture *tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                if (tex)
                 {
-                    compObj.images.insert(image);
-                    wkBill.texId = texId;
+                    compObj.textures.insert(tex);
+                    wkBill.texId = tex.texID;
                 }
             }
             [wkBills addObject:wkBill];
@@ -1537,8 +1477,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
-                for (std::set<UIImage *>::iterator it = userObj.images.begin(); it != userObj.images.end(); ++it)
-                    [self removeImage:*it];
+                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin(); it != userObj.textures.end(); ++it)
+                    [self removeTexture:*it];
 
                 // And any references to selection objects
                 pthread_mutex_lock(&selectLock);
