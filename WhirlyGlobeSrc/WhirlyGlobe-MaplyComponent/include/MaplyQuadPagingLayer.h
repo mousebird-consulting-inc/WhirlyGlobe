@@ -105,6 +105,16 @@
  */
 - (void)tileDidLoad:(MaplyTileID)tileID;
 
+/** @brief If you're loading a number of parts of a tile from different sources, tell the layer about it.
+    @details Rather than a single tileDidLoad: call, you can break it up into the number of parts you're actually loading.  This is convenient if you're fetching data from multiple sources.
+  */
+- (void)tile:(MaplyTileID)tileID hasNumParts:(int)numParts;
+
+/** @brief If you're loading your tile in parts, let the layer know which part just got loaded.
+    @details If you've set the number of parts with tile:hasNumParts: this is how you let the layer know which parts you've loaded.
+  */
+- (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart;
+
 /** @brief Calculate the bounding box for a single tile in geographic.
     @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).
     @param tileID The ID for the tile we're interested in.
