@@ -37,6 +37,7 @@ public:
         isLoading = false;
         enable = false;
         childrenEnable = false;
+        numParts = 0;
     }
     QuadPagingLoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     {
@@ -45,6 +46,7 @@ public:
         isLoading = false;
         enable = false;
         childrenEnable = false;
+        numParts = 0;
     }
     ~QuadPagingLoadedTile() { }
 
@@ -65,6 +67,9 @@ public:
     
     /// If set, our children our enabled, but not us.
     bool childrenEnable;
+    
+    /// If the source is loading tiles in pieces, they'll set this
+    int numParts;
     
     void addCompObjs(NSArray *newObjs)
     {
@@ -532,6 +537,40 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [self runTileUpdate];
     
     [self performSelector:@selector(loadNotify:) onThread:super.layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
+}
+
+- (void)tile:(MaplyTileID)tileID hasNumParts:(int)numParts
+{
+    Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
+    pthread_mutex_lock(&tileSetLock);
+    QuadPagingLoadedTile dummyTile(tileIdent);
+    QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    if (it != tileSet.end())
+    {
+        QuadPagingLoadedTile *tile = *it;
+        tile->numParts = numParts;
+    }
+    pthread_mutex_unlock(&tileSetLock);
+}
+
+- (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart
+{
+    bool finishedLoad = false;
+    
+    Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
+    pthread_mutex_lock(&tileSetLock);
+    QuadPagingLoadedTile dummyTile(tileIdent);
+    QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    if (it != tileSet.end())
+    {
+        QuadPagingLoadedTile *tile = *it;
+        tile->numParts--;
+        finishedLoad = tile->numParts <= 0;
+    }
+    pthread_mutex_unlock(&tileSetLock);
+    
+    if (finishedLoad)
+        [self tileDidLoad:tileID];
 }
 
 // As long as we're not loading the tile, we can load the children

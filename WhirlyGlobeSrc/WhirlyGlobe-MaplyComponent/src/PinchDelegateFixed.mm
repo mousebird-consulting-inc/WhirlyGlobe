@@ -116,10 +116,9 @@ using namespace WhirlyKit;
 	return pinchDelegate;
 }
 
-// Does not play well with others
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return FALSE;
+    return TRUE;
 }
 
 // Called for pinch actions

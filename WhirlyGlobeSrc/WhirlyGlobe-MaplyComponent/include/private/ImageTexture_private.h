@@ -19,18 +19,25 @@
  */
 
 #import <WhirlyGlobe.h>
+#import "MaplyTexture_private.h"
 
 // Used to map UIImages to Texture IDs
 class MaplyImageTexture
 {
 public:
-    MaplyImageTexture(id image) : image(image), texID(WhirlyKit::EmptyIdentity), refCount(0) { }
-    MaplyImageTexture(id image,WhirlyKit::SimpleIdentity texID) : image(image), texID(texID), refCount(0) { }
-    MaplyImageTexture(const MaplyImageTexture &that) : image(that.image), texID(that.texID), refCount(that.refCount) { }
-    bool operator < (const MaplyImageTexture &that) const { return image < that.image; }
+    MaplyImageTexture() : image(nil), maplyTex(nil), refCount(0) { }
+    MaplyImageTexture(id image) : image(image), maplyTex(nil), refCount(0) { }
+    MaplyImageTexture(id image,MaplyTexture *maplyTex) : image(image), maplyTex(maplyTex), refCount(0) { }
+    MaplyImageTexture(const MaplyImageTexture &that) : image(that.image), maplyTex(that.maplyTex), refCount(that.refCount) { }
+    bool operator < (const MaplyImageTexture &that) const
+    {
+        if (!image && !that.image)
+            return maplyTex < that.maplyTex;
+        return image < that.image;
+    }
 
     id __strong image;
-    WhirlyKit::SimpleIdentity texID;
+    MaplyTexture *maplyTex;
     int refCount;
 };
 typedef std::set<MaplyImageTexture> MaplyImageTextureSet;
