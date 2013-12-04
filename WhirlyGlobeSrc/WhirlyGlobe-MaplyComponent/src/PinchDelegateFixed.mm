@@ -172,7 +172,9 @@ using namespace WhirlyKit;
                 [globeView cancelAnimation];
                 
                 // And adjust the height too
-                [globeView setHeightAboveGlobe:startZ/pinch.scale updateWatchers:false];
+                float newH = startZ/pinch.scale;
+                if (_minHeight <= newH && newH <= _maxHeight)
+                    [globeView setHeightAboveGlobe:newH updateWatchers:false];
 
                 Eigen::Quaterniond newRotQuat = startQuat;
                 Point3d axis = [globeView currentUp];
