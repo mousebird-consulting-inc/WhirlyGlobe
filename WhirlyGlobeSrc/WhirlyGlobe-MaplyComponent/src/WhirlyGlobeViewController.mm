@@ -786,16 +786,6 @@ using namespace WhirlyGlobe;
     return nil;
 }
 
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir
-{
-    
-}
-
-- (void)clearSunDirection
-{
-    
-}
-
 #pragma mark - WhirlyGlobeAnimationDelegate
 
 // Called every frame from within the globe view
