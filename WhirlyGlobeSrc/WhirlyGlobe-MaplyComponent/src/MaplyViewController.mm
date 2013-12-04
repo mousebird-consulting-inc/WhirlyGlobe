@@ -468,7 +468,7 @@ using namespace Maply;
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
-    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
+    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(loc));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
@@ -547,7 +547,7 @@ using namespace Maply;
     [mapView setLoc:newLoc runUpdates:false];
 
     // Note: Test
-    CGPoint testPt = [self screenPointFromGeo:pos];
+//    CGPoint testPt = [self screenPointFromGeo:pos];
     
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     

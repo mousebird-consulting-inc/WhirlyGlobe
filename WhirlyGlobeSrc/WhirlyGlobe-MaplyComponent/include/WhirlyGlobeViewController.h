@@ -264,16 +264,6 @@
   */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
-/** @brief Set the direction the sun is coming from.  
-    @details This turns on lighting independent viewing mode and moves one of the lights to the given sun direction. When you rotate the globe, lighting will now rotate as well.
-    @details You can use this to implement plausible day time/night time lighting.
-    @param sunDir The direction in the display system the sun is coming from.  Up is (0,0,1), the date line is (-1,0,0).
-  */
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir;
-
-/// @brief Turn off sun direction setup by setSunDirection:
-- (void)clearSunDirection;
-
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
     @param bbox The bounding box (in radians) we're trying to view.
