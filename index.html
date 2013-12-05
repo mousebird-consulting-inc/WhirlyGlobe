@@ -25,52 +25,39 @@
 		<hr>
 
         <section id="downloads" class="clearfix">
-          <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-MaplyComponentDistribution_2_1.zip" id="download-zip" class="button"><span>Component .zip</span></a>
-          <a href="https://github.com/mousebird/WhirlyGlobe/zipball/master" id="download-zip" class="button"><span>API 2.1 .zip</span></a>
+          <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-MaplyDistribution_2_2.zip" id="download-zip" class="button"><span>Component .zip</span></a>
+          <a href="https://github.com/mousebird/WhirlyGlobe/zipball/master" id="download-zip" class="button"><span>API 2.2 .zip</span></a>
           <a href="https://github.com/mousebird/WhirlyGlobe" id="view-on-github" class="button"><span>View on GitHub</span></a>
         </section>
 
         <hr>
 
         <section id="main_content">
-<h2>WhirlyGlobe Component</h2>
-<p>The WhirlyGlobe Component is a framework you can use to put an interactive 3D globe in your app.  You can provide base imagery, including networked tile data sets, labels, vectors, or even overlay UIView's.</p>
+<h2>WhirlyGlobe</h2>
+<p>The WhirlyGlobe Component is a framework you can use to put an interactive 3D globe in your app.  You can provide base imagery, including networked tile data sets, labels, vectors, shapes, or even overlay UIView's.</p>
 
-<iframe width="640" height="360" src="http://www.youtube.com/embed/Q4drO9R6gm4?feature=player_embedded" frameborder="0" allowfullscreen></iframe>
+<iframe width="640" height="360" src="http://www.youtube.com/embed/rprzbSwqE2Y?feature=player_embedded" frameborder="0" allowfullscreen></iframe>
 
 <p></p>
 
-<p>The Component is entirely Objective-C and we've precompiled it so you can drop it directly into your app and go.  For instructions on how to use it, please read the <a href="http://mousebirdconsulting.blogspot.com/2012/08/whirlyglobe-component-announcement.html" title="WhirlyGlobe Component Announcement">announcement</a>
+<p>The Component is entirely Objective-C and we've precompiled it so you can drop it directly into your app and go.  For instructions on how to use it, please read the <a href="http://mousebirdconsulting.blogspot.com/2013/12/whirlyglobe-22.html" title="WhirlyGlobe 2.2 Announcement">announcement</a>
 .</p>
 
-<p>To download the current <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-MaplyComponentDistribution_2_1.zip" title="WhirlyGlobe Component Release">release version</a>
+<p>To download the current <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-MaplyDistribution_2_2.zip" title="WhirlyGlobe Component Release">release version</a>
   of the WhirlyGlobe component, click the link above.<p>
 
 <h2>Maply Component</h2>
 <p>The Maply Component is a flat map display framework based on the same technology as WhirlyGlobe.  They share the vast majority of their code and features and are, in fact, distributed as the same toolkit with different entry points.<p>
 
-<iframe width="640" height="360" src="https://www.youtube.com/embed/iQRAIX_qN4U?feature=player_embedded" frameborder="0" allowfullscreen></iframe>
+<iframe width="640" height="360" src="https://www.youtube.com/embed/YTBSl4Cok9A?feature=player_embedded" frameborder="0" allowfullscreen></iframe>
 
-<p>Maply is in the current version (2.1) and you can get it as either source or a binary distribution as below.</p>
+<h2>WhirlyGlobe-Maply 2.2 Component</h2>
 
-
-<h2>WhirlyGlobe-Maply 2.1 Component</h2>
-
-<p>The latest version of WhirlyGlobe-Maply is 2.1 and you can get it either as source from github or as a binary distribution.  The binary version contains the test app, a framework for the toolkit, and enough source data to run the app. <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-MaplyComponentDistribution_2_1.zip"> binary distribution</a></p>
-
-<p>Version 2.1 added quite a bit of functionality at the Component level.  Check out the <a href="http://mousebirdconsulting.blogspot.com/">mousebird consulting blog</a> for details.</p>
-
-<h2>WhirlyGlobe-Maply API</h2>
-
-<p>Where the Component is meant for simplicity, the API exposes it all in glorious detail.  WhirlyGlobe-Maply is built with a combination of C++ and Objective-C.  It pulls in a variety of open source projects, including <a href="http://www.boost.org/" title="Boost Home Page">Boost</a>, <a href="http://www.angusj.com/delphi/clipper.php" title="Clipper Home Page">Clipper</a> and <a href="http://eigen.tuxfamily.org/index.php?title=Main_Page" title="Eigen Home Page">Eigen</a>.  It makes heavy use of the Standard Template Library.  It's tricky if you're not familiar with Objective-C++.</p>
+<p>The latest version of WhirlyGlobe-Maply is 2.2 and you can get it either as source from github or as a binary distribution.  The binary version contains the test app, a framework for the toolkit, and enough source data to run the app.</p>
 
 <p>It's all very powerful.  WhirlyGlobe-Maply is built on a simple rendering engine that lives on the main thread.  You add your content through a variety of data control layers which live in a separate thread.  It's smart about data management and getting smarter all the time.</p>
 
-<p>For a full list of features, check out the WhirlyGlobe 2.0 <a href="http://mousebirdconsulting.blogspot.com/2012/09/whirlyglobe-20-new-features.html" title="WhirlyGlobe 2.0 announcement">announcement</a>
- and look at the <a href="http://itunes.apple.com/us/app/whirlyglobe/id440860199?mt=8" title="WhirlyGlobe App">WhirlyGlobe App</a>
- in the app store.</p>
-
-<p>The only reason to use the low level WhirlyGlobe-Maply API at this point is if you're doing something really specific and complex.  If you are, I strongly suggest subclassing the appropriate view controller (e.g. the Component) and going from there.  A lot of the tricky threading and resource issues are taken care for you.  Most deployed apps are doing this.</p>
+<p>For a general overview of the features, watch the WhirlyGlobe and Maply videos.  For more specific functionality, compile and run the WhirlyGlobeComponentTester app and run through the options.</p>
 
 <h2>Background</h2>
 
