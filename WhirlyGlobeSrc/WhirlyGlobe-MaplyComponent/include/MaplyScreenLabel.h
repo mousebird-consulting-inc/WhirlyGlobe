@@ -68,7 +68,7 @@
 /** @brief An optional offset for the whole screen label.
     @details If set, we'll move the screen label around by this amount before rendering it.  These are screen coordinates, not geographic.
   */
-@property (nonatomic,assign) CGSize offset;
+@property (nonatomic,assign) CGPoint offset;
 
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
