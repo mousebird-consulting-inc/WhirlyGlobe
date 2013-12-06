@@ -29,6 +29,7 @@
         return nil;
     
     _selectable = true;
+    _offset = CGPointMake(0, 0);
     
     return self;
 }
