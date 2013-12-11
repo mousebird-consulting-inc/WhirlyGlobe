@@ -33,7 +33,8 @@ class QuadPagingLoadedTile
 public:
     QuadPagingLoadedTile()
     {
-        compObjs = nil;
+        addCompObjs = nil;
+        replaceCompObjs = nil;
         isLoading = false;
         enable = false;
         childrenEnable = false;
@@ -41,7 +42,8 @@ public:
     }
     QuadPagingLoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     {
-        compObjs = nil;
+        addCompObjs = nil;
+        replaceCompObjs = nil;
         nodeIdent = ident;
         isLoading = false;
         enable = false;
@@ -50,8 +52,10 @@ public:
     }
     ~QuadPagingLoadedTile() { }
 
-    // Objects created by the delegate for this tile
-    NSMutableArray *compObjs;
+    // Component objects that add to geometry above and below
+    NSMutableArray *addCompObjs;
+    // Component objects that replace geometry above
+    NSMutableArray *replaceCompObjs;
 
     // Details of which node we're representing
     WhirlyKit::Quadtree::Identifier nodeIdent;
@@ -71,11 +75,21 @@ public:
     /// If the source is loading tiles in pieces, they'll set this
     int numParts;
     
-    void addCompObjs(NSArray *newObjs)
+    void addToCompObjs(MaplyQuadPagingDataStyle dataStyle,NSArray *newObjs)
     {
-        if (!compObjs)
-            compObjs = [NSMutableArray array];
-        [compObjs addObjectsFromArray:newObjs];
+        switch (dataStyle)
+        {
+            case MaplyDataStyleAdd:
+                if (!addCompObjs)
+                    addCompObjs = [NSMutableArray array];
+                [addCompObjs addObjectsFromArray:newObjs];
+                break;
+            case MaplyDataStyleReplace:
+                if (!replaceCompObjs)
+                    replaceCompObjs = [NSMutableArray array];
+                [replaceCompObjs addObjectsFromArray:newObjs];
+                break;
+        }
     }
 };
     
@@ -354,7 +368,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     QuadPagingLoadedTile *tile = NULL;
-    NSArray *compObjs = nil;
+    NSArray *addCompObjs = nil,*replaceCompObjs = nil;
     
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileInfo.ident);
@@ -362,13 +376,15 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     if (it != tileSet.end())
     {
         tile = *it;
-        compObjs = (*it)->compObjs;
+        addCompObjs = (*it)->addCompObjs;
+        replaceCompObjs = (*it)->replaceCompObjs;
         tileSet.erase(it);
     }
     pthread_mutex_unlock(&tileSetLock);
     delete tile;
 
-    [_viewC removeObjects:compObjs];
+    [_viewC removeObjects:addCompObjs];
+    [_viewC removeObjects:replaceCompObjs];
     
     // Check the parent
     if (tileInfo.ident.level >= minZoom)
@@ -397,7 +413,27 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     QuadPagingLoadedTile *tile = *it;
     
     if (dataObjects)
-        tile->addCompObjs(dataObjects);
+        tile->addToCompObjs(MaplyDataStyleAdd,dataObjects);
+    
+    pthread_mutex_unlock(&tileSetLock);
+}
+
+- (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle
+{
+    pthread_mutex_lock(&tileSetLock);
+    QuadPagingLoadedTile dummyTile(Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    // Didn't find it, so immediately delete the thing
+    if (it == tileSet.end())
+    {
+        [_viewC removeObjects:dataObjects];
+        pthread_mutex_unlock(&tileSetLock);
+        return;
+    }
+    QuadPagingLoadedTile *tile = *it;
+
+    if (dataObjects)
+        tile->addToCompObjs(dataStyle, dataObjects);
     
     pthread_mutex_unlock(&tileSetLock);
 }
@@ -467,7 +503,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             if (tile->enable)
             {
                 tile->enable = false;
-                [toDisable addObjectsFromArray:tile->compObjs];
+                [toDisable addObjectsFromArray:tile->replaceCompObjs];
             }
         } else {
             // Disable the children
@@ -477,7 +513,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             if (!tile->isLoading && !tile->enable)
             {
                 tile->enable = true;
-                [toEnable addObjectsFromArray:tile->compObjs];
+                [toEnable addObjectsFromArray:tile->replaceCompObjs];
             }
         }
     } else {
@@ -488,7 +524,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         if (tile->enable)
         {
             tile->enable = false;
-            [toDisable addObjectsFromArray:tile->compObjs];
+            [toDisable addObjectsFromArray:tile->replaceCompObjs];
         }
     }
 }
@@ -521,6 +557,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)tileDidLoad:(MaplyTileID)tileID
 {
+    NSArray *addCompObjs = nil;
+    
     Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileIdent);
@@ -530,9 +568,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         QuadPagingLoadedTile *tile = *it;
         tile->isLoading = false;
         tile->didLoad = true;
+        addCompObjs = tile->addCompObjs;
     }
     numFetches--;
     pthread_mutex_unlock(&tileSetLock);
+
+    // These are added immediately and stick around till the tile is deleted
+    if ([addCompObjs count] > 0)
+        [_viewC enableObjects:addCompObjs mode:MaplyThreadAny];
     
     [self runTileUpdate];
     
@@ -597,8 +640,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
     {
-        if ((*it)->compObjs)
-            [compObjs addObjectsFromArray:(*it)->compObjs];
+        if ((*it)->replaceCompObjs)
+            [compObjs addObjectsFromArray:(*it)->replaceCompObjs];
+        if ((*it)->addCompObjs)
+            [compObjs addObjectsFromArray:(*it)->addCompObjs];
         delete *it;
     }
     tileSet.clear();

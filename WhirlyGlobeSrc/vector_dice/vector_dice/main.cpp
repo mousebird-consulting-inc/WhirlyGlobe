@@ -57,9 +57,9 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
     
     for (unsigned int ii=0;ii<inLayer->GetFeatureCount();ii++)
     {
-        OGRFeature *inFeature = inLayer->GetFeature(ii);
+        OGRFeature *feature = inLayer->GetFeature(ii);
 //        OGRFeature *feature = inFeature->Clone();
-        OGRGeometry *geom = inFeature->GetGeometryRef();
+        OGRGeometry *geom = feature->GetGeometryRef();
         OGRErr err = geom->transform(transform);
         if (err != OGRERR_NONE)
         {
@@ -69,17 +69,18 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
         OGREnvelope thisEnv;
         geom->getEnvelope(&thisEnv);
         mbr.Merge(thisEnv);
+        int numFields = feature->GetFieldCount();
 
-        OGRFeature *feature = OGRFeature::CreateFeature(inLayer->GetLayerDefn());
-        feature->SetGeometry(geom);
+//        OGRFeature *feature = OGRFeature::CreateFeature(inLayer->GetLayerDefn());
+//        feature->SetGeometry(geom);
         outLayer->CreateFeature(feature);
-        OGRFeature::DestroyFeature(inFeature);
+//        OGRFeature::DestroyFeature(inFeature);
         OGRFeature::DestroyFeature(feature);
     }
 }
 
 // Clip the input layer to the given box
-void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY,OGRSpatialReference *out_srs,OGRLayer *outLayer)
+void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY,OGRSpatialReference *out_srs,std::vector<OGRFeature *> &outFeatures,OGRCoordinateTransformation *tileTransform)
 {
     // Set up the clipping layer
     OGRPolygon poly;
@@ -99,14 +100,17 @@ void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY
         if (mbr.Intersects(layer->mbrs[ii]))
         {
             OGRFeature *inFeature = layer->features[ii];
+            int numFields = inFeature->GetFieldCount();
             OGRGeometry *geom = inFeature->GetGeometryRef();
             OGRGeometry *clipGeom = geom->Intersection(&poly);
             if (clipGeom && !clipGeom->IsEmpty())
             {
-                OGRFeature *feature = OGRFeature::CreateFeature(inFeature->GetDefnRef());
+                if (tileTransform)
+                    clipGeom->transform(tileTransform);
+                OGRFeature *feature = inFeature->Clone();
                 feature->SetGeometryDirectly(clipGeom);
-                outLayer->CreateFeature(feature);
-            } if (clipGeom)
+                outFeatures.push_back(feature);
+            } else if (clipGeom)
                 delete clipGeom;
         }
     }
@@ -141,7 +145,7 @@ char *SanitizeSRS( const char *pszUserInput )
 }
 
 // Merge the given features into an existing shapefile or create a new one
-bool MergeIntoShapeFile(OGRLayer *srcLayer,OGRSpatialReference *out_srs,const char *fileName)
+bool MergeIntoShapeFile(std::vector<OGRFeature *> &features,OGRLayer *srcLayer,OGRSpatialReference *out_srs,const char *fileName)
 {
     // Look for an existing shapefile
     OGRLayer *destLayer = NULL;
@@ -167,10 +171,33 @@ bool MergeIntoShapeFile(OGRLayer *srcLayer,OGRSpatialReference *out_srs,const ch
         }
     }
     
-    for (unsigned int ii=0;ii<srcLayer->GetFeatureCount();ii++)
+    // Add the various fields from one layer into another
+    OGRFeatureDefn *featureDfn = srcLayer->GetLayerDefn();
+    if (featureDfn)
+        for (unsigned int ii=0;ii<featureDfn->GetFieldCount();ii++)
+        {
+            OGRFieldDefn fieldDefn = featureDfn->GetFieldDefn(ii);
+            switch (fieldDefn.GetType())
+            {
+                case OFTInteger:
+                case OFTReal:
+                case OFTString:
+                case OFTWideString:
+                    if (destLayer->GetLayerDefn()->GetFieldIndex(fieldDefn.GetNameRef()) == -1)
+                        destLayer->CreateField(&fieldDefn);
+                    break;
+                default:
+                    break;
+            }
+        }
+    poCDS->SyncToDisk();
+    
+    for (unsigned int ii=0;ii<features.size();ii++)
     {
-        OGRFeature *feature = srcLayer->GetFeature(ii);
-        destLayer->CreateFeature(feature);
+        OGRFeature *feature = features[ii];
+        OGRFeature *newFeature = OGRFeature::CreateFeature(destLayer->GetLayerDefn());
+        newFeature->SetFrom(feature);
+        destLayer->CreateFeature(newFeature);
     }
     
     OGRDataSource::DestroyDataSource(poCDS);
@@ -181,7 +208,8 @@ bool MergeIntoShapeFile(OGRLayer *srcLayer,OGRSpatialReference *out_srs,const ch
 int main(int argc, char * argv[])
 {
     const char *targetDir = NULL;
-    char *destSRS = NULL;
+    char *destSRS = NULL,*tileSRS = NULL;
+    char *layerName = "";
     bool teSet = false;
     double xmin,ymin,xmax,ymax;
     int level = -1;
@@ -207,6 +235,15 @@ int main(int argc, char * argv[])
                 return -1;
             }
             targetDir = argv[ii+1];
+        } else if (EQUAL(argv[ii],"-name"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument for -name\n");
+                return -1;
+            }
+            layerName = argv[ii+1];
         } else if (EQUAL(argv[ii],"-t_srs"))
         {
             numArgs = 2;
@@ -235,10 +272,19 @@ int main(int argc, char * argv[])
             numArgs = 2;
             if (ii+numArgs > argc)
             {
-                fprintf(stderr,"Expecting one argument -level\n");
+                fprintf(stderr,"Expecting one argument for -level\n");
                 return -1;
             }
             level = atoi(argv[ii+1]);
+        } else if (EQUAL(argv[ii],"-tile_srs"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument -tile_srs\n");
+                return -1;
+            }
+            tileSRS = SanitizeSRS(argv[ii+1]);
         } else
         {
             inputFiles.push_back(argv[ii]);
@@ -269,6 +315,12 @@ int main(int argc, char * argv[])
         return -1;
     }
     
+    if (!tileSRS)
+    {
+        fprintf(stderr, "Need a tile SRS\n");
+        return -1;
+    }
+    
     if (inputFiles.empty())
     {
         fprintf(stderr, "Need at least one input file.\n");
@@ -281,11 +333,14 @@ int main(int argc, char * argv[])
 
     // Set up a coordinate transformation
     OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS );
+    OGRSpatialReference *hTileSRS = new OGRSpatialReference ( tileSRS );
     
     // Number of cells at this level
     int numCells = 1<<level;
     double cellSizeX = (xmax-xmin)/numCells;
     double cellSizeY = (ymax-ymin)/numCells;
+    
+    // Transform the tiles into familiar
     
     // Shapefile output driver
     OGRSFDriver *poDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("ESRI Shapefile" );
@@ -324,7 +379,7 @@ int main(int argc, char * argv[])
         for (unsigned int jj=0;jj<poDS->GetLayerCount();jj++)
         {
             // Copy the input layer into memory and reproject it
-            OGRLayer *inLayer = poDS->GetLayer(ii);
+            OGRLayer *inLayer = poDS->GetLayer(jj);
             OGRSpatialReference *this_srs = inLayer->GetSpatialRef();
             fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
             
@@ -336,6 +391,12 @@ int main(int argc, char * argv[])
             if (!transform)
             {
                 fprintf(stderr,"Can't transform from coordinate system to destination for: %s\n",inputFile);
+                return -1;
+            }
+            OGRCoordinateTransformation *tileTransform = OGRCreateCoordinateTransformation(hTrgSRS,hTileSRS);
+            if (!transform)
+            {
+                fprintf(stderr,"Can't transform from coordinate system to tile for: %s\n",inputFile);
                 return -1;
             }
             
@@ -356,10 +417,7 @@ int main(int argc, char * argv[])
             for (unsigned int iy=sy;iy<=ey;iy++)
             {
                 for (unsigned int ix=sx;ix<=ex;ix++)
-                {                    
-                    OGRDataSource *cellDS = memDriver->CreateDataSource("memory");
-                    OGRLayer *cellLayer = cellDS->CreateLayer("layer",this_srs);
-
+                {
                     std::string cellDir = (std::string)targetDir + "/" + std::to_string(iy) + "/";
                     std::string cellFileName = cellDir + std::to_string(ix) + ".shp";
 
@@ -368,12 +426,13 @@ int main(int argc, char * argv[])
                     double llY = iy*cellSizeY+ymin;
                     double urX = (ix+1)*cellSizeX+xmin;
                     double urY = (iy+1)*cellSizeY+ymin;
-                    ClipInputToBox(&layerMBRs,llX,llY,urX,urY,hTrgSRS,cellLayer);
+                    std::vector<OGRFeature *> clippedFeatures;
+                    ClipInputToBox(&layerMBRs,llX,llY,urX,urY,hTrgSRS,clippedFeatures,tileTransform);
                     
-                    fprintf(stdout, "            Cell (%d,%d):  %d features\n",ix,iy,cellLayer->GetFeatureCount());
+//                    fprintf(stdout, "            Cell (%d,%d):  %d features\n",ix,iy,cellLayer->GetFeatureCount());
                 
                     // Clean up and flush output data
-                    int numFeat = cellLayer->GetFeatureCount();
+                    int numFeat = (int)clippedFeatures.size();
                     minFeat = std::min(minFeat,numFeat);
                     maxFeat = std::max(maxFeat,numFeat);
                     numTiles++;
@@ -382,12 +441,13 @@ int main(int argc, char * argv[])
                     {
                         std::string cellDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy) + "/";
                         mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-                        std::string cellFileName = cellDir + std::to_string(ix) + ".shp";
-                        if (!MergeIntoShapeFile(cellLayer,hTrgSRS,cellFileName.c_str()))
+                        std::string cellFileName = cellDir + std::to_string(ix) + layerName + ".shp";
+                        if (!MergeIntoShapeFile(clippedFeatures,inLayer,hTrgSRS,cellFileName.c_str()))
                             return -1;
                     }
                     
-                    OGRDataSource::DestroyDataSource(cellDS);
+                    for (unsigned int ii=0;ii<clippedFeatures.size();ii++)
+                        OGRFeature::DestroyFeature(clippedFeatures[ii]);
                 }
             }
 
