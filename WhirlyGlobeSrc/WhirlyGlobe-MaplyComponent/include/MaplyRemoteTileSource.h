@@ -104,6 +104,11 @@
   */
 @property (nonatomic) NSString *ext;
 
+/** @brief The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
+    @details This is non set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
+  */
+@property (nonatomic,assign) float timeOut;
+
 /** @brief Number of pixels on a side for any given tile.
     @details This is the number of pixels on any side for a
      given tile and it's typically 128 or 256.  This is largely
