@@ -35,9 +35,9 @@ using namespace WhirlyKit;
     bool doingUpdate;
     TileBuilder *tileBuilder;
     int defaultTessX,defaultTessY;
+    bool _enable;
 }
 
-//- (bool)buildTile:(Quadtree::NodeInfo *)nodeInfo draw:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw tex:(std::vector<Texture *> *)texs activeTextures:(int)numActiveTextures texScale:(Point2f)texScale texOffset:(Point2f)texOffset lines:(bool)buildLines layer:(WhirlyKitQuadDisplayLayer *)layer imageData:(std::vector<WhirlyKitLoadedImage *> *)loadImages elevData:(WhirlyKitElevationChunk *)elevData;
 - (LoadedTile *)getTile:(Quadtree::Identifier)ident;
 - (void)flushUpdates:(WhirlyKitLayerThread *)layerThread;
 @end
@@ -61,7 +61,7 @@ using namespace WhirlyKit;
     std::set<WhirlyKit::Quadtree::Identifier> networkFetches,localFetches;
     
     // The images we're currently displaying, when we have more than one
-    unsigned int currentImage0,currentImage1;
+    int currentImage0,currentImage1;
     
     NSString *name;
 }
@@ -93,6 +93,8 @@ using namespace WhirlyKit;
         _fixedTileSize = 256;
         _textureAtlasSize = 2048;
         _activeTextures = -1;
+        _borderTexel = 1;
+        _enable = true;
         defaultTessX = defaultTessY = 10;
         pthread_mutex_init(&tileLock, NULL);
     }
@@ -305,7 +307,8 @@ using namespace WhirlyKit;
 // Update the texture usage info for the texture atlases
 - (void)updateTexAtlasMapping
 {
-    tileBuilder->updateAtlasMappings();
+    if (tileBuilder)
+        tileBuilder->updateAtlasMappings();
 }
 
 // Dump out some information on resource usage
@@ -389,9 +392,33 @@ using namespace WhirlyKit;
     [self dataSource:inDataSource loadedImage:loadImage forLevel:level col:col row:row];
 }
 
+- (bool)tileIsPlaceholder:(id)loadTile
+{
+    if ([loadTile isKindOfClass:[WhirlyKitLoadedImage class]])
+    {
+        WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)loadTile;
+        return loadImage.type == WKLoadedImagePlaceholder;
+    }
+    else if ([loadTile isKindOfClass:[WhirlyKitElevationChunk class]])
+        return false;
+    else if ([loadTile isKindOfClass:[WhirlyKitLoadedTile class]])
+    {
+        WhirlyKitLoadedTile *theTile = (WhirlyKitLoadedTile *)loadTile;
+        if ([theTile.images count] > 0)
+        {
+            WhirlyKitLoadedImage *loadImage = (WhirlyKitLoadedImage *)[theTile.images objectAtIndex:0];
+            return loadImage.type == WKLoadedImagePlaceholder;
+        }
+    }
+    
+    return false;
+}
+
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
-    if (!tileBuilder)
+    bool isPlaceholder = [self tileIsPlaceholder:loadTile];
+    
+    if (!isPlaceholder && !tileBuilder)
     {
         tileBuilder = new TileBuilder(_quadLayer.coordSys,_quadLayer.mbr,_quadLayer.quadtree);
         tileBuilder->tileScale = _tileScale;
@@ -414,6 +441,7 @@ using namespace WhirlyKit;
         tileBuilder->texelBinSize = 64;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
+        tileBuilder->borderTexel = _borderTexel;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -470,19 +498,19 @@ using namespace WhirlyKit;
         loadElev = toLoad.elevChunk;
     }
     
-    if (_numImages != loadImages.size())
+    bool loadingSuccess = true;
+    if (!isPlaceholder && _numImages != loadImages.size())
     {
-        pthread_mutex_unlock(&tileLock);
         // Only print out a message if they bothered to hand in something.  If not, they meant
         //  to tell us it was empty.
         if (loadTile)
-        NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
-        return;
+            NSLog(@"TileQuadLoader: Got %ld images in callback, but was expecting %d.  Punting tile.",loadImages.size(),_numImages);
+        loadingSuccess = false;
     }
     
     // Create the dynamic texture atlas before we need it
     bool createdAtlases = false;
-    if (_useDynamicAtlas && tileBuilder->texAtlases.empty() && !loadImages.empty())
+    if (!isPlaceholder && loadingSuccess && _useDynamicAtlas && !tileBuilder->texAtlas && !loadImages.empty())
     {
         int estTexX = tileBuilder->defaultSphereTessX, estTexY = tileBuilder->defaultSphereTessY;
         if (loadElev)
@@ -497,24 +525,23 @@ using namespace WhirlyKit;
     
     LoadedTile *tile = *it;
     tile->isLoading = false;
-    bool loadingSuccess = true;
-    if (!loadImages.empty() || loadElev)
+    if (loadingSuccess && (isPlaceholder || !loadImages.empty() || loadElev))
     {
         tile->elevData = loadElev;
         if (tile->addToScene(tileBuilder,loadImages,currentImage0,currentImage1,loadElev,changeRequests))
         {
             // If we have more than one image to dispay, make sure we're doing the right one
-            if (_numImages > 1 && tileBuilder->texAtlases.empty())
+            if (!isPlaceholder && _numImages > 1 && tileBuilder->texAtlas)
             {
                 tile->setCurrentImages(tileBuilder, currentImage0, currentImage1, changeRequests);
             }
-            [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
         } else
             loadingSuccess = false;
     }
 
-    if (!loadingSuccess)
-    {
+    if (loadingSuccess)
+        [_quadLayer loader:self tileDidLoad:tile->nodeInfo.ident];
+    else {
         // Shouldn't have a visual representation, so just lose it
         [_quadLayer loader:self tileDidNotLoad:tile->nodeInfo.ident];
         tileSet.erase(it);
@@ -531,7 +558,8 @@ using namespace WhirlyKit;
     if (!doingUpdate)
         [self flushUpdates:_quadLayer.layerThread];
 
-    [self updateTexAtlasMapping];
+    if (!isPlaceholder)
+        [self updateTexAtlasMapping];
 
     // They might have set the current image already
     //  so we need to update things right here
@@ -605,7 +633,7 @@ using namespace WhirlyKit;
 }
 
 // This may be called on any thread
-- (void)setCurrentImage:(unsigned int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
+- (void)setCurrentImage:(int)newImage changes:(WhirlyKit::ChangeSet &)theChanges;
 {
     if (!_quadLayer)
         return;
@@ -626,9 +654,9 @@ using namespace WhirlyKit;
                 
                 // Copy this out to avoid locking too long
                 pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
-                if (tileBuilder->texAtlases.size() > 0)
+                if (tileBuilder->texAtlas)
                     baseTexIDs = tileBuilder->texAtlasMappings[0];
-                if (newImage < tileBuilder->texAtlases.size())
+                if (newImage < tileBuilder->texAtlasMappings.size())
                     newTexIDs = tileBuilder->texAtlasMappings[newImage];
                 theDrawTexInfo = tileBuilder->drawTexInfo;
                 pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
@@ -671,15 +699,16 @@ using namespace WhirlyKit;
     // Copy this out to avoid locking too long
     if (tileBuilder->texAtlasMappings.size() > 0)
         baseTexIDs = tileBuilder->texAtlasMappings[0];
-    if (currentImage0 < tileBuilder->texAtlasMappings.size())
+    if (currentImage0 != -1 && currentImage0 < tileBuilder->texAtlasMappings.size())
         startTexIDs = tileBuilder->texAtlasMappings[currentImage0];
-    if (currentImage1 < tileBuilder->texAtlasMappings.size())
+    if (currentImage1 != -1 && currentImage1 < tileBuilder->texAtlasMappings.size())
         endTexIDs = tileBuilder->texAtlasMappings[currentImage1];
     theDrawTexInfo = tileBuilder->drawTexInfo;
     pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
     
     // If these are different something's gone very wrong
-    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
+    // Well, actually this happens if we're setting the start or end image to nothing
+//    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
     {
         // Now for the change requests
         for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
@@ -688,14 +717,14 @@ using namespace WhirlyKit;
             for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
                 if (drawInfo.baseTexId == baseTexIDs[jj])
                 {
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,startTexIDs[jj]));
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,endTexIDs[jj]));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 ? EmptyIdentity : startTexIDs[jj])));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity :endTexIDs[jj])));
                 }
         }
     }
 }
 
-- (void)setCurrentImageStart:(unsigned int)startImage end:(unsigned int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
+- (void)setCurrentImageStart:(int)startImage end:(int)endImage changes:(WhirlyKit::ChangeSet &)theChanges
 {
     if (!_quadLayer)
         return;
@@ -723,6 +752,57 @@ using namespace WhirlyKit;
 
             pthread_mutex_unlock(&tileLock);
         }
+    }
+}
+
+- (void)runSetEnable:(NSNumber *)newEnableObj
+{
+    bool newEnable = [newEnableObj boolValue];
+    if (newEnable == _enable)
+        return;
+    
+    _enable = newEnable;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->enabled = _enable;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setEnableAllDrawables(_enable, theChanges);
+        }
+    } else {
+        // We'll look through the tiles and change them all accordingly
+        pthread_mutex_lock(&tileLock);
+        
+        // No atlases, so changes tiles individually
+        for (LoadedTileSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+            (*it)->setEnable(tileBuilder, _enable, theChanges);
+        
+        pthread_mutex_unlock(&tileLock);
+    }
+    
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setEnable:(bool)enable
+{
+    if (!_quadLayer)
+    {
+        _enable = enable;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
+    } else {
+        [self runSetEnable:@(enable)];
     }
 }
 

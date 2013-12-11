@@ -42,6 +42,15 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj;
 
+/** @brief User selected a given object and tapped at a given location.
+    @details This is called when the user selects an object.  It differs from maplyViewController:didSelect: in that it passes on the location (in the local coordinate system) and the position on screen.
+    @param viewC View Controller that saw the selection.
+    @param selectedObj The object selected.  Probably one of MaplyVectorObject or MaplyScreenLabel or so on.
+    @param coord Location in the local coordinate system where the user tapped.
+    @param screenPt Location on screen where the user tapped.
+ */
+- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
   */
@@ -87,6 +96,17 @@
 /// @brief If set before startup (after init), we'll turn off all gestures and work only in tethered mode.
 @property(nonatomic,assign) bool tetheredMode;
 
+/// @brief Set the coordinate system to use in display.
+/// @details The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
+/// @details nil is the default and will result in a full web style Spherical Mercator.
+@property(nonatomic) MaplyCoordinateSystem *coordSys;
+
+/** @brief Set the center of the display coordinate system.
+    @details This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.
+    @details The option is useful when displaying small maps (of a city, say) at very high resolution.
+  */
+@property(nonatomic) MaplyCoordinate3d displayCenter;
+
 /** @brief Turn the pinch (zoom) gesture recognizer on and off
     @details On by default.
   */
@@ -96,6 +116,15 @@
     @details On by default.
  */
 @property(nonatomic,assign) bool rotateGesture;
+
+/** @brief The current rotation away from north.
+ */
+@property(nonatomic,assign) float heading;
+
+/** @brief If set, we'll automatically move to wherever the user tapped.
+    @details When on we'll move the current location to wherever the user tapped if they tapped the globe.  That's true for selection as well.  On by default.
+ */
+@property(nonatomic,assign) bool autoMoveToTap;
 
 /** @brief Delegate for selection and location tapping.
     @details Fill in the MaplyViewControllerDelegate and assign it here to get callbacks for object selection and tapping.
@@ -168,5 +197,17 @@
     @param maxHeight The farthest away a viewer is allowed to get from the map surface.
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
+/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
+    @return Returns the screen point corresponding to a given geo coordinate.
+ */
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Find a height that shows the given bounding box.
+    @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
+    @param The bounding box (in radians) we're trying to view.
+    @param pos Where the view will be looking.
+  */
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
 @end

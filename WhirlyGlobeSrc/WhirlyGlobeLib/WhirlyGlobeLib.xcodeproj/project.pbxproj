@@ -92,6 +92,8 @@
 		2B4AE3FE1766610900850F3F /* JSONWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3D917662DA300850F3F /* JSONWriter.cpp */; };
 		2B4AE3FF1766610900850F3F /* libjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AE3DA17662DA300850F3F /* libjson.cpp */; };
 		2B4AE4001766610900850F3F /* NumberToString.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AE3DB17662DA300850F3F /* NumberToString.h */; };
+		2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */; };
+		2B4AFB8A1803153600C3F948 /* TileQuadOfflineRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */; };
 		2B58C6811443C00400EEF3C3 /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */; };
 		2B58C6931445439700EEF3C3 /* Generator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6921445439700EEF3C3 /* Generator.mm */; };
 		2B58C6C41446A37900EEF3C3 /* ParticleGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B58C6C31446A37900EEF3C3 /* ParticleGenerator.mm */; };
@@ -292,6 +294,8 @@
 		2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF9C163760C300C5165F /* OpenGLES2Program.h */; };
 		2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
+		2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BE6AC180872A0001D9454 /* ScreenImportance.h */; };
+		2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */; };
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
 		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
 		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
@@ -505,6 +509,8 @@
 		2B4AE3DB17662DA300850F3F /* NumberToString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NumberToString.h; sourceTree = "<group>"; };
 		2B4AE3DE17662DAB00850F3F /* libbase64++.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "libbase64++.h"; sourceTree = "<group>"; };
 		2B4AE3E017662DAB00850F3F /* mempool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mempool.h; sourceTree = "<group>"; };
+		2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadOfflineRenderer.h; sourceTree = "<group>"; };
+		2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TileQuadOfflineRenderer.mm; sourceTree = "<group>"; };
 		2B58C67F1443C00400EEF3C3 /* ParticleSystemLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemLayer.mm; path = src/ParticleSystemLayer.mm; sourceTree = SOURCE_ROOT; };
 		2B58C6841443C03F00EEF3C3 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
 		2B58C6921445439700EEF3C3 /* Generator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Generator.mm; sourceTree = "<group>"; };
@@ -724,6 +730,8 @@
 		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
 		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2B9BE6AC180872A0001D9454 /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenImportance.h; sourceTree = "<group>"; };
+		2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenImportance.mm; sourceTree = "<group>"; };
 		2BA2322F17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
 		2BA2323017984F510063CC84 /* glues_error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_error.c; path = "../../third-party/glues/source/glues_error.c"; sourceTree = "<group>"; };
 		2BA2323117984F510063CC84 /* glues_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_error.h; path = "../../third-party/glues/source/glues_error.h"; sourceTree = "<group>"; };
@@ -1369,9 +1377,11 @@
 				2B58C6B81445FDAB00EEF3C3 /* ParticleGenerator.h */,
 				2B6B3395147B5DE900771FEF /* MarkerGenerator.h */,
 				2B2A25881559B3C000137807 /* ScreenSpaceGenerator.h */,
+				2B9BE6AC180872A0001D9454 /* ScreenImportance.h */,
 				2B7EF50C1603D76100D4079F /* QuadDisplayLayer.h */,
 				2B08059517EB955C0016C813 /* LoadedTile.h */,
 				2B7EF50D1603D76100D4079F /* TileQuadLoader.h */,
+				2B4AFB871803152300C3F948 /* TileQuadOfflineRenderer.h */,
 				2B7EF5181603E01400D4079F /* SphericalEarthQuadLayer.h */,
 				2BB0717E1676B5EE00DE387D /* SphericalEarthChunkLayer.h */,
 			);
@@ -1407,8 +1417,10 @@
 				2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */,
 				2B40467C15F9B4F400937923 /* GeometryLayer.mm */,
 				2B7EF5101603D77D00D4079F /* QuadDisplayLayer.mm */,
+				2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */,
 				2B08059717EB95A40016C813 /* LoadedTile.mm */,
 				2B7EF5111603D77E00D4079F /* TileQuadLoader.mm */,
+				2B4AFB891803153600C3F948 /* TileQuadOfflineRenderer.mm */,
 				2B7EF51C1603E0AC00D4079F /* MBTileQuadSource.mm */,
 				2B7EF51D1603E0AD00D4079F /* NetworkTileQuadSource.mm */,
 				2B7EF51E1603E0AE00D4079F /* SphericalEarthQuadLayer.mm */,
@@ -1881,6 +1893,7 @@
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
+				2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
@@ -1943,6 +1956,7 @@
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				2B4AFB881803152300C3F948 /* TileQuadOfflineRenderer.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
@@ -2138,6 +2152,7 @@
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
+				2B4AFB8A1803153600C3F948 /* TileQuadOfflineRenderer.mm in Sources */,
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
 				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
@@ -2165,6 +2180,7 @@
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
+				2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */,
 				2B7EF47E16025D8C00D4079F /* pj_latlong.c in Sources */,
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
@@ -2318,6 +2334,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
@@ -2345,6 +2362,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";
 				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = (
 					__USE_SDL_GLES__,

@@ -19,6 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "MaplyImageTile.h"
+#import "MaplyCoordinate.h"
 
 /** @typedef struct MaplyTileID
     @brief This represents the indentifier for a unique tile in the pyramid.
@@ -68,36 +70,36 @@ typedef struct
 
 @optional
 
+/** @brief Check if we should even try to load a given tile.
+    @details Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
+    @details If this method isn't filled in, everything defaults to true.
+    @details tileID The tile we're asking about.
+    @details bbox The bounding box of the tile we're asking about, for convenience.
+    @return True if the tile is loadable, false if not.
+  */
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+
+/** @brief For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
+    @details If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.
+    @details But if you must do variable sized tiles (Why?) fill in this method to give the importance function some clue as to what you're doing.  This will be called per tile to figure out when to load things.
+    @details Variable sized tiles will screw up other things.  SO DON'T DO IT.
+ */
+- (int)tileSizeForTile:(MaplyTileID)tileID;
+
 /** @brief Fetch the image for a given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages:
-    if you're doing more than one image per tile.
- 
-    @details For this method, you can return either a full UIImage or an NSData
-    containing an image that UIImage will recognize.  Typically that's
-    a PNG or JPEG image of the typical size (128 or 256 pixels on a side).
- 
-    @details If you fail to load the image, just return nil.  At that point the paging
-    won't page in tiles below this image, assuming that image pyramid is
-    truncated at that point.
- 
-    @return Return a UIImage or an NSData containing raw PNG or JPEG data.
+    @details For this method, you can return either a full UIImage or a MaplyImageTile.
+    @details If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
+    @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
+    @return Return a UIImage or a MaplyImageTile.
   */
 - (id)imageForTile:(MaplyTileID)tileID;
 
-/** @brief Fetch an array of images for the given tile.
-    @details You must fill in either imageForTile: or imagesForTile:numImages:
-     if you're doing more than one image per tile.
- 
-    @details This method is required if you've told the MaplyQuadImageTilesLayer that
-    the depth is greater than 1.  That is, it's expecting more than one image
-    per tile.  You'd do this when you want to animate between them, for instance.
- 
-    @details You must return an NSArray, but the array can contain UIImage or NSData
-    entries (or both).  For NSData we're expecting a raw PNG or JPEG data,
-    or anything that UIImage would interpret correctly.
- 
-    @return An NSArray of UIImage or NSData objects.
+/** @brief Start fetching the given tile, probably with your own threads.
+    @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
+    @details If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
+    @param tileID The tile you should start fetching.
   */
-- (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages;
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
 
 @end

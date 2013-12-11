@@ -23,25 +23,30 @@
 #import "EAGLView.h"
 #import "SceneRendererES.h"
 
+using namespace Eigen;
+using namespace WhirlyKit;
+
 @implementation WhirlyGlobeRotateDelegate
 {
-    /// What sort of rotation state we're in.  Not used
-    WhirlyGlobe::RotationType rotType;
+    bool valid;
     WhirlyGlobeView *globeView;
+	WhirlyKit::Point3d startOnSphere;
+	/// The view transform when we started
+	Eigen::Matrix4d startTransform;
     /// Starting point for rotation
     Eigen::Quaterniond startQuat;
     /// Axis to rotate around
-    Eigen::Vector3d axis;
+//    Eigen::Vector3d axis;
+    float startRot;
 }
-
-using namespace WhirlyGlobe;
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
 	{
 		globeView = inView;
-        rotType = RotNone;
+        valid = false;
+        _rotateAroundCenter = true;
 	}
 	
 	return self;
@@ -63,14 +68,6 @@ using namespace WhirlyGlobe;
     return TRUE;
 }
 
-// Save the current state as the initial rotation state
-- (void)startRotationMaipulation:(UIRotationGestureRecognizer *)rotate sceneRender:(WhirlyKitSceneRendererES *)sceneRender glView:(WhirlyKitEAGLView  *)glView
-{
-    startQuat = [globeView rotQuat];
-    axis = [globeView currentUp];
-    rotType = RotFree;
-}
-
 // Called for rotate actions
 - (void)rotateGesture:(id)sender
 {
@@ -81,32 +78,90 @@ using namespace WhirlyGlobe;
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)
     {
-        rotType = RotNone;
+        if (valid)
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidEnd object:globeView];
+        valid = false;
         return;
     }
     
 	switch (rotate.state)
 	{
 		case UIGestureRecognizerStateBegan:
+        {
             [globeView cancelAnimation];
 
-            [self startRotationMaipulation:rotate sceneRender:sceneRender glView:glView];
+			startTransform = [globeView calcFullMatrix];
+            startQuat = [globeView rotQuat];
+            valid = true;
+            
+            if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&startTransform
+                                         frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                               hit:&startOnSphere normalized:true])
+                valid = true;
+            else
+                valid = false;
+            
+            CGPoint center = [rotate locationInView:glView];
+            CGPoint touch0 = [rotate locationOfTouch:0 inView:glView];
+            float dx = touch0.x-center.x,dy=touch0.y-center.y;
+            startRot = atan2(dy, dx);
+            
+            if (valid)
+                [globeView cancelAnimation];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+        }
 			break;
 		case UIGestureRecognizerStateChanged:
+        {
             [globeView cancelAnimation];
 
-            if (rotType == RotFree)
+            if (valid)
             {
-                Eigen::AngleAxisd rotQuat(-rotate.rotation,axis);
-                Eigen::Quaterniond newRotQuat = startQuat * rotQuat;
-                [globeView setRotQuat:newRotQuat];
+                Eigen::Quaterniond newRotQuat = startQuat;
+                Point3d axis = [globeView currentUp];
+                if (_rotateAroundCenter)
+                {
+                    // Figure out where we are now
+                    // We have to roll back to the original transform with the current height
+                    //  to get the rotation we want
+                    Point3d hit;
+                    Eigen::Quaterniond oldQuat = globeView.rotQuat;
+                    [globeView setRotQuat:startQuat updateWatchers:false];
+                    Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
+                    if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&curTransform
+                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                       hit:&hit normalized:true])
+                    {
+                        // This gives us a direction to rotate around
+                        // And how far to rotate
+                        Eigen::Quaterniond endRot;
+                        endRot.setFromTwoVectors(startOnSphere,hit);
+                        axis = hit.normalized();
+                        newRotQuat = startQuat * endRot;
+                    } else {
+                        newRotQuat = oldQuat;
+                    }
+                }
+                
+                // And do a rotation around the pinch
+                CGPoint center = [rotate locationInView:glView];
+                CGPoint touch0 = [rotate locationOfTouch:0 inView:glView];
+                float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                double curRot = atan2(dy, dx);
+                double diffRot = curRot-startRot;
+                Eigen::AngleAxisd rotQuat(-diffRot,axis);
+                newRotQuat = newRotQuat * rotQuat;
+                
+                [globeView setRotQuat:(newRotQuat) updateWatchers:false];
             }
-            
+        }
 			break;
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateEnded:
-            rotType = RotNone;
+            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidEnd object:globeView];
+            valid = false;
             break;
         default:
             break;

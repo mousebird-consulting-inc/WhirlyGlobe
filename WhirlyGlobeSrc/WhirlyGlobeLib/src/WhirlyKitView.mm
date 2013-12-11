@@ -60,7 +60,6 @@ using namespace Eigen;
 
 - (void)cancelAnimation
 {
-    
 }
 
 - (void)animate

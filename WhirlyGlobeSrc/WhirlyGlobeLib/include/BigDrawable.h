@@ -65,8 +65,10 @@ public:
     /// Set the shader program.  Empty (default) by default
     virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
 
-    /// Always on for the moment
+    /// Whether it's currently displaying
     bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
+    /// True to turn it on, false to turn it off
+    void setOnOff(bool onOff);
 
     /// Create our buffers in GL
     void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -130,6 +132,7 @@ public:
     void getUtilization(int &vertSize,int &elSize);
     
 protected:
+    bool enable;
     GLuint programId;
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
@@ -268,7 +271,7 @@ class BigDrawableFlush : public ChangeRequest
 public:
     BigDrawableFlush(SimpleIdentity drawId) : drawId(drawId) { }
 
-    /// Run the flush.  The renderer calls this
+    /// Run the command.  The renderer calls this
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
@@ -281,7 +284,7 @@ class BigDrawableTexChangeRequest : public ChangeRequest
 public:
     BigDrawableTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) : drawId(drawId), which(which), texId(newTexId) { }
     
-    /// Run the flush.  The renderer calls this
+    /// Run the command.  The renderer calls this
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
@@ -289,6 +292,19 @@ protected:
     unsigned int which;
     SimpleIdentity texId;
 };
+    
+/// Enable/disable a whole big drawable
+class BigDrawableOnOffChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableOnOffChangeRequest(SimpleIdentity drawId,bool enable) : drawId(drawId), enable(enable) { }
 
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+
+protected:
+    SimpleIdentity drawId;
+    bool enable;
+};
 
 }

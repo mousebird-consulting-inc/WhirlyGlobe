@@ -22,6 +22,7 @@
 #import "MaplyViewController.h"
 #import "MaplyViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -33,10 +34,6 @@ using namespace Maply;
 
 @implementation MaplyViewController
 {
-    // Flat view for 2D mode
-    MaplyFlatView * flatView;
-    // Scroll view for tethered mode
-    UIScrollView * __weak scrollView;
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
@@ -47,6 +44,8 @@ using namespace Maply;
     self = [super init];
     if (!self)
         return nil;
+    
+    _autoMoveToTap = true;
     
     return self;
 }
@@ -102,6 +101,8 @@ using namespace Maply;
     [self stopAnimation];
     
     [baseLayerThread addThingToDelete:coordAdapter];
+    if (_coordSys)
+        [baseLayerThread addThingToRelease:_coordSys];
     
     if (scrollView)
     {
@@ -194,7 +195,15 @@ using namespace Maply;
 
 - (WhirlyKitView *) loadSetup_view
 {
-    coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    if (_coordSys)
+    {
+        MaplyCoordinate ll,ur;
+        [_coordSys getBoundsLL:&ll ur:&ur];
+        Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
+        coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
+    } else
+        coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
     
     if (scrollView)
     {
@@ -459,9 +468,19 @@ using namespace Maply;
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
-    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
+    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(loc));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
+}
+
+- (void)setHeading:(float)heading
+{
+    mapView.rotAngle = heading;
+}
+
+- (float)heading
+{
+    return mapView.rotAngle;
 }
 
 /// Return the min and max heights above the globe for zooming
@@ -489,24 +508,122 @@ using namespace Maply;
     }
 }
 
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+{
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
+    return [mapView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+}
+
+// See if the given bounding box is all on sreen
+- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height
+{
+    Point3d loc = mapView.loc;
+    Point3d testLoc = Point3d(loc.x(),loc.y(),height);
+    [mapView setLoc:testLoc runUpdates:false];
+    
+    std::vector<Point2f> pts;
+    mbr.asPoints(pts);
+    CGRect frame = self.view.frame;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point2f pt = pts[ii];
+        MaplyCoordinate geoCoord;
+        geoCoord.x = pt.x();  geoCoord.y = pt.y();
+        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
+        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
+            return false;
+    }
+    
+    return true;
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+{
+    
+    Point3d oldLoc = mapView.loc;
+    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    [mapView setLoc:newLoc runUpdates:false];
+
+    // Note: Test
+//    CGPoint testPt = [self screenPointFromGeo:pos];
+    
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    
+    float minHeight = mapView.minHeightAboveSurface;
+    float maxHeight = mapView.maxHeightAboveSurface;
+    if (pinchDelegate)
+    {
+        minHeight = std::max(minHeight,pinchDelegate.minZoom);
+        maxHeight = std::min(maxHeight,pinchDelegate.maxZoom);
+    }
+    
+    // Check that we can at least see it
+    bool minOnScreen = [self checkCoverage:mbr mapView:mapView height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr mapView:mapView height:maxHeight];
+    if (!minOnScreen && !maxOnScreen)
+    {
+        [mapView setLoc:oldLoc runUpdates:false];
+        return oldLoc.z();
+    }
+    
+    // Now for the binary search
+    // Note: I'd rather make a copy of the view first
+    float minRange = 1e-5;
+    do
+    {
+        float midHeight = (minHeight + maxHeight)/2.0;
+        bool midOnScreen = [self checkCoverage:mbr mapView:mapView height:midHeight];
+        
+        if (!minOnScreen && midOnScreen)
+        {
+            maxHeight = midHeight;
+            maxOnScreen = midOnScreen;
+        } else if (!midOnScreen && maxOnScreen)
+        {
+            minHeight = midHeight;
+            minOnScreen = midOnScreen;
+        } else {
+            // Not expecting this
+            break;
+        }
+        
+        if (maxHeight-minHeight < minRange)
+            break;
+    } while (true);
+    
+    [mapView setLoc:oldLoc runUpdates:false];
+
+    return maxHeight;
+}
+
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
 {
+    MaplyCoordinate coord;
+    coord.x = msg.whereGeo.lon();
+    coord.y = msg.whereGeo.lat();
+
     if (selectedObj && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-            [_delegate maplyViewController:self didSelect:selectedObj];
-    } else {
-        MaplyCoordinate coord;
-        coord.x = msg.whereGeo.lon();
-        coord.y = msg.whereGeo.lat();
-        // The user didn't select anything, let the delegate know.
-        if (_delegate && [_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+        if (_delegate)
         {
-            [_delegate maplyViewController:self didTapAt:coord];
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
+                [_delegate maplyViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+                [_delegate maplyViewController:self didSelect:selectedObj];
         }
-        [self animateToPosition:coord time:1.0];
+    } else {
+        // The user didn't select anything, let the delegate know.
+        if (_delegate)
+        {
+            if ([_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+                [_delegate maplyViewController:self didTapAt:coord];
+        }
+        if (_autoMoveToTap)
+            [self animateToPosition:coord time:1.0];
     }
 }
 

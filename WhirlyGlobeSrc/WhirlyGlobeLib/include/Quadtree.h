@@ -212,6 +212,6 @@ protected:
 /// Fill in this protocol to return the importance value for a given tile.
 @protocol WhirlyKitQuadTreeImportanceDelegate
 /// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
 @end
 

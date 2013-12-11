@@ -38,7 +38,7 @@ BigDrawable::Buffer::Buffer()
 
 BigDrawable::BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes,int singleElementSize,int numVertexBytes,int numElementBytes)
     : Drawable(name), singleVertexSize(singleVertexSize), vertexAttributes(templateAttributes), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), drawPriority(0), requestZBuffer(false),
-    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0)
+    waitingOnSwap(false), programId(0), elementChunkSize(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisibleFadeBand(0.0), maxVisibleFadeBand(0.0), enable(true)
 {
     activeBuffer = -1;
     
@@ -147,6 +147,9 @@ void BigDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 
 bool BigDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
+    if (!enable)
+        return false;
+    
     if (minVis == DrawVisibleInvalid)
         return true;
     
@@ -154,6 +157,11 @@ bool BigDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     
     return ((minVis <= visVal && visVal <= maxVis) ||
             (minVis <= visVal && visVal <= maxVis));
+}
+    
+void BigDrawable::setOnOff(bool onOff)
+{
+    enable = onOff;
 }
     
 // Used to pass in buffer offsets
@@ -674,6 +682,14 @@ void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES 
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setTexID(which,texId);
+}
+
+void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setOnOff(enable);
 }
 
 }

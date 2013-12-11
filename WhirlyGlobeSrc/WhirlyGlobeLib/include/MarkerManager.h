@@ -57,7 +57,7 @@ public:
     void enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
-    SimpleIdentity selectID;  // ID used for selection
+    SimpleIDSet selectIDs;  // IDs used for selection
     SimpleIDSet markerIDs;  // IDs for markers sent to the generator
     SimpleIDSet screenShapeIDs;  // IDs for screen space objects
     float fade;   // Time to fade away for deletion
@@ -79,6 +79,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) float fade;
 @property (nonatomic) bool enable;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
+@property (nonatomic) WhirlyKit::SimpleIdentity programId;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
@@ -100,6 +101,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 /// The location for the center of the marker.
 @property (nonatomic,assign) WhirlyKit::GeoCoord loc;
+/// Color for this marker
+@property (nonatomic) UIColor *color;
 /// The list of textures to use.  If there's just one
 ///  we show that.  If there's more than one, we switch
 ///  between them over the period.

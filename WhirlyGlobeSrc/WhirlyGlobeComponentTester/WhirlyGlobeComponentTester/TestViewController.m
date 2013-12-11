@@ -112,6 +112,7 @@ LocationInfo locations[NumLocations] =
     int zoomLimit;
     bool requireElev;
     bool imageWaitLoad;
+    int maxLayerTiles;
 }
 
 // Change what we're showing based on the Configuration
@@ -143,6 +144,8 @@ LocationInfo locations[NumLocations] =
         [baseViewC.view removeFromSuperview];
         [baseViewC removeFromParentViewController];
         baseViewC = nil;
+        mapViewC = nil;
+        globeViewC = nil;
     }    
 }
 
@@ -159,6 +162,7 @@ LocationInfo locations[NumLocations] =
     // Create an empty globe or map controller
     zoomLimit = 0;
     requireElev = false;
+    maxLayerTiles = 256;
     switch (startupMapType)
     {
         case MaplyGlobe:
@@ -166,6 +170,7 @@ LocationInfo locations[NumLocations] =
             globeViewC = [[WhirlyGlobeViewController alloc] init];
             globeViewC.delegate = self;
             baseViewC = globeViewC;
+            maxLayerTiles = 128;
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
@@ -187,7 +192,6 @@ LocationInfo locations[NumLocations] =
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
 
-    // Note: Debugging
     baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
@@ -196,7 +200,6 @@ LocationInfo locations[NumLocations] =
     // We'll let the toolkit create a thread per image layer.
     baseViewC.threadPerLayer = true;
     
-    // This will get us taps and such
     if (globeViewC)
     {
         // Start up over San Francisco
@@ -313,12 +316,34 @@ LocationInfo locations[NumLocations] =
     }
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    // This tests heading
+//    [self performSelector:@selector(changeHeading:) withObject:@(0.0) afterDelay:1.0];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(changeHeading:) object:nil];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
 	return YES;
 }
 
 #pragma mark - Data Display
+
+// Change the heading every so often
+- (void)changeHeading:(NSNumber *)heading
+{
+    if (globeViewC)
+        [globeViewC setHeading:[heading floatValue]];
+    else if (mapViewC)
+        [mapViewC setHeading:[heading floatValue]];
+    
+    [self performSelector:@selector(changeHeading:) withObject:@([heading floatValue]+1.0/180.0*M_PI) afterDelay:1.0];
+}
 
 // Add screen (2D) markers at all our locations
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
@@ -335,10 +360,11 @@ LocationInfo locations[NumLocations] =
         marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
         marker.size = size;
         marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+        marker.layoutImportance = MAXFLOAT;
         [markers addObject:marker];
     }
     
-    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:nil];
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0)}];
 }
 
 // Add 3D markers
@@ -538,15 +564,17 @@ LocationInfo locations[NumLocations] =
                              MaplyScreenLabel *screenLabel = [[MaplyScreenLabel alloc] init];
                              // Add a label right in the middle
                              MaplyCoordinate center;
-                             [wgVecObj largestLoopCenter:&center mbrLL:nil mbrUR:nil];
-                             screenLabel.loc = center;
-                             screenLabel.size = CGSizeMake(0, 20);
-                             screenLabel.layoutImportance = 1.0;
-                             screenLabel.text = vecName;
-                             screenLabel.userObject = screenLabel.text;
-                             screenLabel.selectable = true;
-                             if (screenLabel.text)
-                                 [locAutoLabels addObject:screenLabel];
+                             if ([wgVecObj centroid:&center])
+                             {
+                                 screenLabel.loc = center;
+                                 screenLabel.size = CGSizeMake(0, 20);
+                                 screenLabel.layoutImportance = 1.0;
+                                 screenLabel.text = vecName;
+                                 screenLabel.userObject = screenLabel.text;
+                                 screenLabel.selectable = true;
+                                 if (screenLabel.text)
+                                     [locAutoLabels addObject:screenLabel];
+                             }
                              if (compObj)
                                  [locVecObjects addObject:compObj];
                          }
@@ -564,7 +592,7 @@ LocationInfo locations[NumLocations] =
                                                                       @{kMaplyTextColor: [UIColor colorWithRed:0.85 green:0.85 blue:0.85 alpha:1.0],
                                                                             kMaplyFont: [UIFont systemFontOfSize:24.0],
                                                                          kMaplyTextOutlineColor: [UIColor blackColor],
-                                                                          kMaplyTextOutlineSize: @(1.0),
+                                                                          kMaplyTextOutlineSize: @(1.0)
 //                                                                               kMaplyShadowSize: @(1.0)
                                                                       }];
 
@@ -674,9 +702,9 @@ static const int NumMegaMarkers = 40000;
         layer.coverPoles = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
-        [baseViewC addLayer:layer];
         layer.drawPriority = 0;
-
+        [baseViewC addLayer:layer];
+        
         labelColor = [UIColor blackColor];
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
@@ -740,6 +768,7 @@ static const int NumMegaMarkers = 40000;
         layer.handleEdges = true;
         layer.requireElev = requireElev;
         layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
         [baseViewC addLayer:layer];
         layer.drawPriority = 0;
         baseLayer = layer;
@@ -791,7 +820,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:21 depth:1];
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
         layer.requireElev = requireElev;
@@ -808,7 +837,7 @@ static const int NumMegaMarkers = 40000;
         labelBackColor = [UIColor whiteColor];
         vecColor = [UIColor blackColor];
         vecWidth = 4.0;
-        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17];
+        MaplyAnimationTestTileSource *tileSource = [[MaplyAnimationTestTileSource alloc] initWithCoordSys:[[MaplySphericalMercator alloc] initWebStandard] minZoom:0 maxZoom:17 depth:4];
         tileSource.pixelsPerSide = 128;
         MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
         layer.waitLoad = imageWaitLoad;
@@ -839,6 +868,7 @@ static const int NumMegaMarkers = 40000;
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
              layer.requireElev = requireElev;
+             layer.maxTiles = maxLayerTiles;
              [baseViewC addLayer:layer];
              layer.drawPriority = 0;
              baseLayer = layer;
@@ -1256,18 +1286,20 @@ static const int NumMegaMarkers = 40000;
     } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
-        [vecObj largestLoopCenter:&loc mbrLL:nil mbrUR:nil];
-        NSString *name = (NSString *)vecObj.userObject;
-        msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
-        if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
+        if ([vecObj centroid:&loc])
         {
-            // See if there already is one
-            if (!loftPolyDict[name])
+            NSString *name = (NSString *)vecObj.userObject;
+            msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
+            if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
             {
-                MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)}];
-                if (compObj)
+                // See if there already is one
+                if (!loftPolyDict[name])
                 {
-                    loftPolyDict[name] = compObj;
+                    MaplyComponentObject *compObj = [baseViewC addLoftedPolys:@[vecObj] key:nil cache:nil desc:@{kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.25], kMaplyLoftedPolyHeight: @(0.05), kMaplyFade: @(0.5)}];
+                    if (compObj)
+                    {
+                        loftPolyDict[name] = compObj;
+                    }
                 }
             }
         }

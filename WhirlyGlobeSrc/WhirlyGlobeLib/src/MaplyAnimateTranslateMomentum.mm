@@ -109,6 +109,7 @@ using namespace WhirlyKit;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
+        [mapView cancelAnimation];
     }
     
     // Calculate the distance

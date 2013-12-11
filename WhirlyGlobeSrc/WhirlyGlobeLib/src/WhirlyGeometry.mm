@@ -249,11 +249,11 @@ bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
 }
     
 // Inspired by: http://geomalgorithms.com/a01-_area.html
-float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
+double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
 {
     if (poly.size() < 3)
         return 0.0;
-    float area = 0.0;
+    double area = 0.0;
 
     // Decide which coordinate to ignore
     Point3d a(std::abs(norm.x()),std::abs(norm.y()),std::abs(norm.z()));
@@ -279,7 +279,7 @@ float PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
     }
                  
     // Scale to get a 3D area back
-    float an = sqrtf(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
+    double an = sqrt(a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     switch (coord)
     {
         case 1:

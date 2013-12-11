@@ -41,6 +41,17 @@
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
     AnimateViewRotation *animateRotation;    
+
+    // Set when we're animating the view point but we know where it's going
+    bool knownAnimateEndRot;
+    // The quaternion animation end point
+    Eigen::Quaterniond animateEndRot;
+    
+    // Used for the outside animation interface
+    NSObject<WhirlyGlobeViewControllerAnimationDelegate> *animationDelegate;
+    NSTimeInterval animationDelegateEnd;
+    Eigen::Quaterniond startQuat;
+    Eigen::Vector3d startUp;
 }
 
 @end

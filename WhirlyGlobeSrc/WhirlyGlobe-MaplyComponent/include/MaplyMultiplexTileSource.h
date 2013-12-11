@@ -20,6 +20,7 @@
 
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
+#import "MaplyRemoteTileSource.h"
 
 /** @brief The multiplex tile source is for bunging other tile sources together.
     @details The Multiplex Tile source takes a bunch of other tiles source
@@ -45,5 +46,10 @@
     @details The coordinate system is derived from the first tile source passed in.  They'd better all agree or the results will be odd.
   */
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
+
+/** @brief A delegate for tile loads and failures.
+    @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
+ */
+@property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
 @end

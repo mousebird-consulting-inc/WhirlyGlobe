@@ -85,7 +85,7 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 - (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
 
 /// This will extract the pixels out of an image or NSData and store them for later use
-- (bool)convertToRawData;
+- (bool)convertToRawData:(int)borderTexel;
 
 @end
 
@@ -182,10 +182,14 @@ public:
     // Image format for textures
     GLenum glFormat;
     WKSingleByteSource singleByteSource;
+    
+    // Whether we start new drawables enabled or disabled
+    bool enabled;
 
     // Number of samples to use for tiles
     int defaultSphereTessX,defaultSphereTessY;
-    std::vector<DynamicTextureAtlas *> texAtlases;
+    int imageDepth;
+    DynamicTextureAtlas *texAtlas;
     
     // The texture atlas mappings keep track of textures we've created
     //  in each of the atlases as well as how the drawable atlas is using
@@ -194,7 +198,7 @@ public:
     std::vector<std::vector<SimpleIdentity> > texAtlasMappings;
     std::vector<DynamicDrawableAtlas::DrawTexInfo> drawTexInfo;
     int texelBinSize;
-    
+        
     // Drawable atlas to match the texture atlas
     DynamicDrawableAtlas *drawAtlas;
     
@@ -226,7 +230,7 @@ public:
     ~LoadedTile() { }
     
     /// Build the data needed for a scene representation
-    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,unsigned int currentImage0,unsigned int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
@@ -235,8 +239,11 @@ public:
     /// Update what we're displaying based on the quad tree, particulary for children
     void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
-    /// Switch to
-    void setCurrentImages(TileBuilder *tileBuilder,unsigned int whichImage0,unsigned int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    /// Switch to the given images
+    void setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    
+    /// Turn drawables on/off
+    void setEnable(TileBuilder *tileBuilder, bool enable, ChangeSet &theChanges);
     
     /// Dump out to the log
     void Print(TileBuilder *tileBuilder);

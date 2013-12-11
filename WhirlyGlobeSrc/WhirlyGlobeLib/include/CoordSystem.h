@@ -83,7 +83,7 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
 class CoordSystemDisplayAdapter : public DelayedDeletable
 {
 public:
-    CoordSystemDisplayAdapter(CoordSystem *coordSys) : coordSys(coordSys) { }
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0) { }
     virtual ~CoordSystemDisplayAdapter() { }
     
     /// If the subclass can support a bounding box, this returns true
@@ -105,12 +105,52 @@ public:
 
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;
+    
+    /// Return the current center
+    Point3d getCenter() { return center; }
 
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
     virtual bool isFlat() = 0;
     
 protected:
+    Point3d center;
+    CoordSystem *coordSys;
+};
+    
+/** The general coord system display adapter is used by flat maps to encapsulate a general coordinate system.
+    This needs to be one which is flat, but is otherwise unconstrained.  The bounding box is where the coordinate system is valid and the center will be the center of display coordinates.
+  */
+class GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
+{
+public:
+    GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d ll,Point3d ur,Point3d center);
+    ~GeneralCoordSystemDisplayAdapter();
+
+    /// Bounding box where the coordinate system is valid
+    bool getBounds(Point3f &ll,Point3f &ur);
+    
+    /// Convert from the system's local coordinates to display coordinates
+    WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f);
+    WhirlyKit::Point3d localToDisplay(WhirlyKit::Point3d);
+    
+    /// Convert from display coordinates to the local system's coordinates
+    WhirlyKit::Point3f displayToLocal(WhirlyKit::Point3f);
+    WhirlyKit::Point3d displayToLocal(WhirlyKit::Point3d);
+    
+    /// For flat systems the normal is Z up.
+    Point3f normalForLocal(Point3f) { return Point3f(0,0,1); }
+    Point3d normalForLocal(Point3d) { return Point3d(0,0,1); }
+    
+    /// Get a reference to the coordinate system
+    CoordSystem *getCoordSystem() { return coordSys; }
+    
+    /// Return true if this is a projected coordinate system.
+    /// False for others, like geographic.
+    bool isFlat() { return true; }
+    
+protected:
+    Point3d ll,ur,center;
     CoordSystem *coordSys;
 };
 

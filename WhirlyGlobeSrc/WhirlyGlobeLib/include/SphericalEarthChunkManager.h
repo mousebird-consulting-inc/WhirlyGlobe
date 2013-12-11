@@ -36,12 +36,16 @@
 @interface WhirlyKitSphericalChunk : NSObject
 
 /// Bounding box for the chunk to display
-@property (nonatomic,assign) WhirlyKit::GeoMbr &mbr;
+@property (nonatomic,assign) WhirlyKit::Mbr &mbr;
 /// Texture we'll wrap over the top
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
+/// Format we'll store the textures in
+@property (nonatomic) WhirlyKitTileImageType imageFormat;
 /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
 /// The implication here is that we're going to stick these in an atlas.
-@property (nonatomic,strong) WhirlyKitLoadedImage *loadImage;
+@property (nonatomic) WhirlyKitLoadedImage *loadImage;
+/// If set, the shader problem we'll use to draw this
+@property (nonatomic) WhirlyKit::SimpleIdentity programID;
 /// Z offset for the generated geometry
 @property (nonatomic,assign) float drawOffset;
 /// Sorting priority for the generated geometry
@@ -68,6 +72,8 @@
 @property (nonatomic,assign) bool readZBuffer;
 /// This chunk writes itself to the z buffer
 @property (nonatomic,assign) bool writeZBuffer;
+/// The chunks extents are in this coordinate system.  Geographic if not set.
+@property (nonatomic,assign) WhirlyKit::CoordSystem *coordSys;
 
 // Create one or more drawables to represent the chunk.
 // Only call this if you know what you're doing
@@ -126,6 +132,9 @@ public:
     
     /// Add the given chunk (enabled or disabled)
     SimpleIdentity addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes);
+    
+    /// Modify the given chunk (new texture IDs)
+    bool modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes);
     
     /// Enable or disable the given chunk
     void enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes);

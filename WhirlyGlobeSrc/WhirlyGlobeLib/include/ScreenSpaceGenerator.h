@@ -43,7 +43,24 @@ public:
     /// Generate drawables for the current frame
     void generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,std::vector<DrawableRef> &drawables,std::vector<DrawableRef> &screenDrawables);
     
-    typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
+    /// Used to organize the drawable map as we build it
+    class TextureAndProgram
+    {
+    public:
+        TextureAndProgram() : texID(EmptyIdentity), programID(EmptyIdentity) { }
+        TextureAndProgram(SimpleIdentity texID,SimpleIdentity programID) : texID(texID), programID(programID) { }
+        
+        SimpleIdentity texID,programID;
+        
+        bool operator < (const TextureAndProgram &that) const
+        {
+            if (texID == that.texID)
+                return programID < that.programID;
+            return texID < that.texID;
+        }
+    };
+    
+    typedef std::map<TextureAndProgram,BasicDrawable *> DrawableMap;
     
     /// A simple geometric representation used in shapes
     /// We do it this way so we can have multiple 
@@ -51,9 +68,10 @@ public:
     {
     public:
         SimpleGeometry();
-        SimpleGeometry(SimpleIdentity texID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords);
+        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords);
 
         SimpleIdentity texID;
+        SimpleIdentity programID;
         RGBAColor color;
         std::vector<Point2f> coords;
         std::vector<TexCoord> texCoords;

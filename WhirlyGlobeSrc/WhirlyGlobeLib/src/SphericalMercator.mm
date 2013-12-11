@@ -118,7 +118,18 @@ bool SphericalMercatorCoordSystem::isSameAs(CoordSystem *coordSys)
 
 
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR)
-    : CoordSystemDisplayAdapter(&smCoordSys), smCoordSys(originLon)
+    : CoordSystemDisplayAdapter(&smCoordSys,Point3d(0,0,0)), smCoordSys(originLon)
+{
+    Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
+    Point3f ur3d = smCoordSys.geographicToLocal(geoUR);
+    ll.x() = ll3d.x();  ll.y() = ll3d.y();
+    ur.x() = ur3d.x();  ur.y() = ur3d.y();
+    
+    org = (ll+ur)/2.0;
+}
+    
+SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR,Point3d displayOrigin)
+: CoordSystemDisplayAdapter(&smCoordSys,displayOrigin), smCoordSys(originLon)
 {
     Point3f ll3d = smCoordSys.geographicToLocal(geoLL);
     Point3f ur3d = smCoordSys.geographicToLocal(geoUR);

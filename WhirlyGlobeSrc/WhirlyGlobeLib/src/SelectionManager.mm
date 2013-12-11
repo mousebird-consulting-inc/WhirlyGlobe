@@ -46,6 +46,11 @@ bool PolytopeSelectable::operator < (const PolytopeSelectable &that) const
     return selectID < that.selectID;
 }
 
+bool BillboardSelectable::operator < (const BillboardSelectable &that) const
+{
+    return selectID < that.selectID;
+}
+
 SelectionManager::SelectionManager(Scene *scene,float viewScale)
     : scene(scene), scale(viewScale)
 {
@@ -143,6 +148,25 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable)
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    BillboardSelectable newSelect;
+    newSelect.selectID = selectId;
+    newSelect.center = center;
+    newSelect.normal = norm;
+    newSelect.size = size;
+    newSelect.enable = enable;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    
+    pthread_mutex_lock(&mutex);
+    billboardSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
 void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
 {
     pthread_mutex_lock(&mutex);
@@ -175,6 +199,63 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         polytopeSelectables.insert(sel);
     }
     
+    BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
+    if (it4 != billboardSelectables.end())
+    {
+        BillboardSelectable sel = *it4;
+        billboardSelectables.erase(it4);
+        sel.enable = enable;
+        billboardSelectables.insert(sel);
+    }
+    
+    pthread_mutex_unlock(&mutex);
+}
+
+void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enable)
+{
+    pthread_mutex_lock(&mutex);
+    
+    for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
+    {
+        SimpleIdentity selectID = *sit;
+        RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
+        
+        if (it != rect3Dselectables.end())
+        {
+            RectSelectable3D sel = *it;
+            rect3Dselectables.erase(it);
+            sel.enable = enable;
+            rect3Dselectables.insert(sel);
+        }
+        
+        RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+        if (it2 != rect2Dselectables.end())
+        {
+            RectSelectable2D sel = *it2;
+            rect2Dselectables.erase(it2);
+            sel.enable = enable;
+            rect2Dselectables.insert(sel);
+        }
+        
+        PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+        if (it3 != polytopeSelectables.end())
+        {
+            PolytopeSelectable sel = *it3;
+            polytopeSelectables.erase(it3);
+            sel.enable = enable;
+            polytopeSelectables.insert(sel);
+        }
+        
+        BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
+        if (it4 != billboardSelectables.end())
+        {
+            BillboardSelectable sel = *it4;
+            billboardSelectables.erase(it4);
+            sel.enable = enable;
+            billboardSelectables.insert(sel);
+        }
+    }
+    
     pthread_mutex_unlock(&mutex);
 }
 
@@ -195,7 +276,39 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
     if (it3 != polytopeSelectables.end())
         polytopeSelectables.erase(it3);
+    
+    BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
+    if (it4 != billboardSelectables.end())
+        billboardSelectables.erase(it4);
 
+    pthread_mutex_unlock(&mutex);
+}
+
+void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
+{
+    pthread_mutex_lock(&mutex);
+    
+    for (SimpleIDSet::iterator sit = selectIDs.begin(); sit != selectIDs.end(); ++sit)
+    {
+        SimpleIdentity selectID = *sit;
+        RectSelectable3DSet::iterator it = rect3Dselectables.find(RectSelectable3D(selectID));
+        
+        if (it != rect3Dselectables.end())
+            rect3Dselectables.erase(it);
+        
+        RectSelectable2DSet::iterator it2 = rect2Dselectables.find(RectSelectable2D(selectID));
+        if (it2 != rect2Dselectables.end())
+            rect2Dselectables.erase(it2);
+        
+        PolytopeSelectableSet::iterator it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
+        if (it3 != polytopeSelectables.end())
+            polytopeSelectables.erase(it3);
+
+        BillboardSelectableSet::iterator it4 = billboardSelectables.find(BillboardSelectable(selectID));
+        if (it4 != billboardSelectables.end())
+            billboardSelectables.erase(it4);
+    }
+    
     pthread_mutex_unlock(&mutex);
 }
 
@@ -212,7 +325,12 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
     Point2f frameSize(renderer.framebufferWidth/scale,renderer.framebufferHeight/scale);
     Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:frameSize margin:0.0];
-    
+    Eigen::Matrix4d modelTransInv = modelTrans.inverse();
+
+    // And the eye vector for billboards
+    Vector4d eyeVec4 = modelTransInv * Vector4d(0,0,1,0);
+    Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
     
@@ -350,8 +468,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         retId = foundId;
     }
     
-
-    if (retId == EmptyIdentity)
+    if (retId == EmptyIdentity && !rect3Dselectables.empty())
     {
         // Work through the 3D rectangles
         for (RectSelectable3DSet::iterator it = rect3Dselectables.begin();
@@ -397,6 +514,76 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 }
             }
         }
+    }
+    
+    if (retId == EmptyIdentity && !billboardSelectables.empty())
+    {
+        // We'll look for the closest object we can find
+        float distToObj2 = MAXFLOAT;
+        SimpleIdentity foundId = EmptyIdentity;
+        Point3f eyePos;
+        if (globeView)
+            eyePos = Vector3dToVector3f(globeView.eyePos);
+        else
+            NSLog(@"Need to fill in eyePos for mapView");
+
+        // Work through the billboards
+        for (BillboardSelectableSet::iterator it = billboardSelectables.begin();
+             it != billboardSelectables.end(); ++it)
+        {
+            BillboardSelectable sel = *it;
+            if (sel.selectID != EmptyIdentity && sel.enable)
+            {
+                
+                // Come up with a rectangle in display space
+                std::vector<Point3d> poly(4);
+                Vector3d normal3d = Vector3fToVector3d(sel.normal);
+                Point3d axisX = eyeVec.cross(normal3d);
+                Point3d center3d = Vector3fToVector3d(sel.center);
+//                Point3d axisZ = axisX.cross(Vector3fToVector3d(sel.normal));
+                poly[0] = -sel.size.x()/2.0 * axisX + center3d;
+                poly[3] = sel.size.x()/2.0 * axisX + center3d;
+                poly[2] = -sel.size.x()/2.0 * axisX + sel.size.y() * normal3d + center3d;
+                poly[1] = sel.size.x()/2.0 * axisX + sel.size.y() * normal3d + center3d;
+                
+                BillboardSelectable sel = *it;
+
+                std::vector<Point2f> screenPts;
+                ClipAndProjectPolygon(modelTrans,projTrans,frameSize,poly,screenPts);
+                
+                if (screenPts.size() > 3)
+                {
+                    if (PointInPolygon(touchPt, screenPts))
+                    {
+                        float dist2 = (sel.center - eyePos).squaredNorm();
+                        if (dist2 < distToObj2)
+                        {
+                            distToObj2 = dist2;
+                            foundId = sel.selectID;
+                        }
+                        break;
+                    }
+                    
+                    for (unsigned int jj=0;jj<screenPts.size();jj++)
+                    {
+                        Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt);
+                        float dist2 = (closePt-touchPt).squaredNorm();
+                        if (dist2 <= maxDist2)
+                        {
+                            float objDist2 = (sel.center - eyePos).squaredNorm();
+                            if (objDist2 < distToObj2)
+                            {
+                                distToObj2 = objDist2;
+                                foundId = sel.selectID;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        retId = foundId;
     }
     
     pthread_mutex_unlock(&mutex);

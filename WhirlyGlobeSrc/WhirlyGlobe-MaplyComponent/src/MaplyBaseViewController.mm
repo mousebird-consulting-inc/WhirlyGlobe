@@ -21,6 +21,7 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "NSData+Zlib.h"
+#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -46,16 +47,15 @@ using namespace WhirlyKit;
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
     
-    // Kill off all the other layers first
-    for (unsigned int ii=1;ii<[layerThreads count];ii++)
-    {
-        WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
-        [layerThread cancel];
-        [baseLayerThread addThingToRelease:layerThread];
-    }
-    
     if (baseLayerThread)
     {
+        // Kill off all the other layers first
+        for (unsigned int ii=1;ii<[layerThreads count];ii++)
+        {
+            WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
+            [baseLayerThread addThreadToShutdown:layerThread];
+        }
+
         [baseLayerThread addThingToDelete:scene];
         [baseLayerThread addThingToRelease:baseLayerThread];
         [baseLayerThread addThingToRelease:visualView];
@@ -155,6 +155,7 @@ using namespace WhirlyKit;
     }
     
     userLayers = [NSMutableArray array];
+    _threadPerLayer = true;
     
     [self loadSetup_glView];
 
@@ -266,6 +267,15 @@ using namespace WhirlyKit;
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    // We may retain a bit of memory here.  Clear it up.
+    scene->getMemManager()->clearBufferIDs();
+    scene->getMemManager()->clearTextureIDs();
 }
 
 - (void)setFrameInterval:(int)frameInterval
@@ -410,7 +420,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
-    return [interactLayer addScreenMarkers:markers desc:screenMarkerDesc mode:threadMode];
+    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
@@ -458,9 +468,14 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
-    return [interactLayer addSelectionVectors:vectors desc:vectorDesc];
+    return [interactLayer addSelectionVectors:vectors desc:nil];
 }
 
 - (void)changeVector:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -493,6 +508,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addStickers:stickers desc:desc mode:MaplyThreadAny];
 }
 
+- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
@@ -512,7 +532,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
@@ -541,6 +561,19 @@ static const float PerfOutputDelay = 15.0;
             [theTracker.view removeFromSuperview];
         sceneRenderer.triggerDraw = true;
     }
+}
+
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    maplyTex.viewC = self;
+    
+    return maplyTex;
+}
+
+- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer removeTexture:texture];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
@@ -573,6 +606,16 @@ static const float PerfOutputDelay = 15.0;
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
 {
     [interactLayer enableObjects:theObjs mode:threadMode];
+}
+
+- (void)startChanges
+{
+    [interactLayer startChanges];
+}
+
+- (void)endChanges
+{
+    [interactLayer endChanges];
 }
 
 - (void)addActiveObject:(MaplyActiveObject *)theObj
@@ -625,7 +668,8 @@ static const float PerfOutputDelay = 15.0;
     if (newLayer && ![userLayers containsObject:newLayer])
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
-        if (_threadPerLayer)
+        // Only supporting quad image tiles layer for the thread per layer
+        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];
@@ -672,6 +716,12 @@ static const float PerfOutputDelay = 15.0;
             [layerThread cancel];
         }
     }
+}
+
+- (void)removeLayers:(NSArray *)layers
+{
+    for (MaplyViewControllerLayer *layer in layers)
+        [self removeLayer:layer];
 }
 
 - (void)removeAllLayers

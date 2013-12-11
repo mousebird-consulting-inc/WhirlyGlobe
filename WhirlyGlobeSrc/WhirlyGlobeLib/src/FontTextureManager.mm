@@ -30,6 +30,9 @@ namespace WhirlyKit
 {
     
 typedef std::set<CGGlyph> GlyphSet;
+
+// We scale the fonts up so they look better sampled down.
+static const float BogusFontScale = 2.0;
     
 /// Manages the glyphs for a single font
 class FontManager
@@ -337,6 +340,8 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
     
+    pointSize *= BogusFontScale;
+    
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
     {
@@ -358,6 +363,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     fm->pointSize = pointSize;
     fm->outlineColor = outlineColor;
     fm->outlineSize = [outlineSize floatValue];
+//    fm->outlineSize *= BogusFontScale;
     fontManagers.insert(fm);
     if (font)
         CFRelease(font);
@@ -445,7 +451,9 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                         tex->setHeight(texSize.height);
                         SubTexture subTex;
                         Point2f realSize(glyphSize.width+2*textureOffset.x,glyphSize.height+2*textureOffset.y);
-                        if (texAtlas->addTexture(tex, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
+                        std::vector<Texture *> texs;
+                        texs.push_back(tex);
+                        if (texAtlas->addTexture(texs, &realSize, NULL, subTex, scene->getMemManager(), changes, 0))
                             glyphInfo = fm->addGlyph(glyph, subTex, glyphSize, offset, textureOffset);
                         delete tex;
                     }
@@ -456,12 +464,16 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                     // Now we make a rectangle that covers the glyph in its texture atlas
                     DrawableString::Rect rect;
                     CGPoint &offset = offsets[jj];
+                    
+                    float scale = 1.0/BogusFontScale;
+
                     // Note: was -1,-1
-                    rect.pts[0] = Point2f(glyphInfo->offset.x-glyphInfo->textureOffset.x,glyphInfo->offset.y-glyphInfo->textureOffset.y)+Point2f(offset.x,offset.y);
+                    rect.pts[0] = Point2f(glyphInfo->offset.x*scale-glyphInfo->textureOffset.x*scale,glyphInfo->offset.y*scale-glyphInfo->textureOffset.y*scale)+Point2f(offset.x,offset.y);
                     rect.texCoords[0] = TexCoord(0.0,0.0);
                     // Note: was 2,2
-                    rect.pts[1] = Point2f(glyphInfo->size.width+2*glyphInfo->textureOffset.x,glyphInfo->size.height+2*glyphInfo->textureOffset.y)+rect.pts[0];
+                    rect.pts[1] = Point2f(glyphInfo->size.width*scale+2*glyphInfo->textureOffset.x*scale,glyphInfo->size.height*scale+2*glyphInfo->textureOffset.y*scale)+rect.pts[0];
                     rect.texCoords[1] = TexCoord(1.0,1.0);
+                    
                     rect.subTex = glyphInfo->subTex;
                     drawString->glyphPolys.push_back(rect);
                     drawString->mbr.addPoint(rect.pts[0]);

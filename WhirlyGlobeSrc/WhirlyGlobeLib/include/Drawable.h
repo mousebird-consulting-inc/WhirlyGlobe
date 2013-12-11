@@ -391,6 +391,9 @@ public:
 
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
 	void setTexId(unsigned int which,SimpleIdentity inId);
+    
+    /// Set all the textures at once
+    void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
 
     /// Return the default color
     RGBAColor getColor() const;
@@ -649,6 +652,18 @@ public:
 protected:
     unsigned int which;
     SimpleIdentity newTexId;
+};
+    
+/// Change the textures used by a drawable
+class DrawTexturesChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    const std::vector<SimpleIdentity> newTexIDs;
 };
     
 /// Change the transform matrix on a drawable

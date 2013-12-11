@@ -35,14 +35,14 @@
     @param tileSource the remote tile source that loaded the tile.
     @param tileID The ID of the tile we loaded.
   */
-- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidLoad:(MaplyTileID)tileID;
+- (void) remoteTileSource:(id)tileSource tileDidLoad:(MaplyTileID)tileID;
 
 /** The tile failed to load.
     @param tileSource The remote tile source that tried to load the tile.
     @param tileID The tile ID of the tile that failed to load.
     @param error The NSError message, probably from the network routine.
   */
-- (void) remoteTileSource:(MaplyRemoteTileSource *)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+- (void) remoteTileSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
 
 @end
 
@@ -84,6 +84,11 @@
   */
 @property (nonatomic,readonly) NSString *baseURL;
 
+/** @brief The minimum zoom level available.
+     @details This is the lowest level we'll try to fetch.  Any levels below that will be filled in with placeholders.  Those are empty, but they allow us to load tiles beneath.
+ */
+@property (nonatomic) int minZoom;
+
 /** @brief The maximum zoom level available.
     @details This is the highest level (e.g. largest) that we'll
      fetch for a given pyramid tile source.  The source can sparse,
@@ -97,7 +102,7 @@
      image type.  It's typically @"png" or @"jpg", but it
      can be anything that UIImage will recognize.
   */
-@property (nonatomic,readonly) NSString *ext;
+@property (nonatomic) NSString *ext;
 
 /** @brief Number of pixels on a side for any given tile.
     @details This is the number of pixels on any side for a
@@ -106,7 +111,7 @@
      are not required to actually return an image of the size
      you specify here, but it's a good idea.
   */
-@property (nonatomic,readonly) int pixelsPerSide;
+@property (nonatomic) int pixelsPerSide;
 
 /** @brief The coordinate system the image pyramid is in.
     @details This is typically going to be MaplySphericalMercator
@@ -130,5 +135,17 @@
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
   */
 @property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
+
+/** @brief Add a bounding box tiles are valid within.
+    @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+    @param bbox Bounding box for valid tiles in the local coordinate system.
+  */
+- (void)addBoundingBox:(MaplyBoundingBox *)bbox;
+
+/** @brief Add a bounding box tiles are valid within in geo coordinates.
+    @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+    @param bbox Bounding box for valid tiles in geo coordinates (radians).
+  */
+- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
 
 @end

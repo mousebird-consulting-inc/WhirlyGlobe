@@ -24,6 +24,52 @@
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;
 
+/** @brief Animation State used by the WhirlyGlobeViewControllerAnimationDelegate.
+    @details You fill out one of these when you're implementing the animation delegate.  Return it and the view controller will set the respective values to match.
+  */
+@interface WhirlyGlobeViewControllerAnimationState : NSObject
+
+/// @brief Heading is calculated from due north
+/// @details If not set or set to MAXFLOAT, this is ignored
+@property (nonatomic) float heading;
+
+/// @brief Height above the globe
+@property (nonatomic) float height;
+
+/// @brief Tilt as used in the view controller
+/// @details If not set or set to MAXFLOAT, we calculate tilt the regular way
+@property (nonatomic) float tilt;
+
+/// @brief Position to move to on the globe
+@property (nonatomic) MaplyCoordinate pos;
+
+@end
+
+/** @brief An animation delegate that can be set on a WhirlyGlobeViewController to control the view over time.
+    @details Filling out these methods will get you animation callbacks at the proper time to control position, heading, tilt, and height on a frame basis.
+    @details You pass the resulting object in to
+  */
+@protocol WhirlyGlobeViewControllerAnimationDelegate <NSObject>
+
+/** @brief This method is called when the animation starts.
+    @details At the animation start we collect up the various parameters of the current visual view state and pas them in via the startState.  You probably want to keep track of this for later.
+    @param viewC The view controller doing the animation.
+    @param startState The starting point for the visual view animation.  Cache this somewhere for your own interpolation.
+    @param startTime When the animation starts (e.g. now)
+    @param endTime When the animation ends.  This is an absolute value.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+
+/** @brief This method is called at the beginning of every frame draw to position the viewer.
+    @details This is the method that does all the work.  You need to fill out the returned WhirlyGlobeViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
+    @param viewC The view controller doing the animation.
+    @param currentTime The time for this frame.  Use this rather than calculating the time yourself.
+    @return The WhirlyGlobeViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
+  */
+- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime;
+
+@end
+
 /** @brief Globe View Controller Delegate protocol for getting back selection and tap events.
     @details Fill out the methods in this protocol and assign yourself as a delegate in the WhirlyGlobeViewController to get selection and tap events.
   */
@@ -61,6 +107,25 @@
     @details Certain image layers call this method when they finish loading.  More modern layers don't, so don't rely on this.
   */
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer;
+
+/** @brief Called when the globe starts moving.
+    @details This is called when something (probably the user) starts moving the globe.
+  */
+- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC;
+
+/** @brief Called when the globe stops moving.
+    @details This is called when the globe stops moving.  It passes in the corners of the current viewspace.
+    @param viewC The globe view controller.
+    @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+  */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners;
+
+/** @brief Called when an animation that knows where it's going to stop start ups.
+    @details This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.
+    @param viewC The globe view controller.
+    @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners;
 
 @end
 
@@ -130,8 +195,6 @@
     @param minTilt The most tilt toward the horizon.  Invoked when the user is at minHeight or below.
     @param maxTilt The tilt at the maximum height and over.  The tilt will never be less than this, so typically 0.
   */
-/// Set the height range over which to modify tilt.  We'll
-///  vary the tilt between the given values over the given height range, if set.
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt;
 
 /// @brief Turn off the varying tilt set up by setTiltMinHeight:maxHeight:minTilt:maxTilt:
@@ -158,6 +221,14 @@
     @param howLong How long in seconds to take getting there.
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+
+/** @brief Animate with a delegate over time.
+    @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.
+    @details You'll also be called one at the end of the animation to establish the final position.
+    @param animationDelegate The objects that implements the WhirlyGlobeViewControllerAnimationDelegate protocol.
+    @param howLong How long the animation will run from the present time.
+  */
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)animationDelegate time:(NSTimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
@@ -193,14 +264,11 @@
   */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
-/** @brief Set the direction the sun is coming from.  
-    @details This turns on lighting independent viewing mode and moves one of the lights to the given sun direction. When you rotate the globe, lighting will now rotate as well.
-    @details You can use this to implement plausible day time/night time lighting.
-    @param sunDir The direction in the display system the sun is coming from.  Up is (0,0,1), the date line is (-1,0,0).
-  */
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir;
-
-/// @brief Turn off sun direction setup by setSunDirection:
-- (void)clearSunDirection;
+/** @brief Find a height that shows the given bounding box.
+    @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
+    @param bbox The bounding box (in radians) we're trying to view.
+    @param pos The position the viewer will be at.
+ */
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
 @end

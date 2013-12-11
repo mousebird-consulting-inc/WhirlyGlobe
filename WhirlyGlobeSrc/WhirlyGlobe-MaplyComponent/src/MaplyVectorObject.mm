@@ -22,6 +22,7 @@
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
 #import "Tesselator.h"
+#import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
 
 using namespace Eigen;
@@ -105,6 +106,21 @@ using namespace WhirlyGlobe;
         return nil;
     
     return vecObj;
+}
+
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
+        return nil;
+    
+    return vecObj;
+}
+
+- (bool)writeToFile:(NSString *)fileName
+{
+    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
 
 - (NSDictionary *)attributes
@@ -193,6 +209,11 @@ using namespace WhirlyGlobe;
     }
     
     return self;
+}
+
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
+{
+    _shapes.insert(otherVec.shapes.begin(),otherVec.shapes.end());
 }
 
 /// Add a hole to an existing areal feature
@@ -406,7 +427,8 @@ using namespace WhirlyGlobe;
     
     middle->x = pts.back().x();
     middle->y = pts.back().y();
-    *rot = 0.0;
+    if (rot)
+        *rot = 0.0;
     
     return true;
 }
@@ -414,7 +436,7 @@ using namespace WhirlyGlobe;
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
-    // Find the loop with the larest area
+    // Find the loop with the largest area
     float bigArea = -1.0;
     const VectorRing *bigLoop = NULL;
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
@@ -457,6 +479,42 @@ using namespace WhirlyGlobe;
         }
     }
 
+    return true;
+}
+
+- (bool)centroid:(MaplyCoordinate *)centroid
+{
+    // Find the loop with the largest area
+    float bigArea = -1.0;
+    const VectorRing *bigLoop = NULL;
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
+    {
+        VectorArealRef areal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal && areal->loops.size() > 0)
+        {
+            for (unsigned int ii=0;ii<areal->loops.size();ii++)
+            {
+                float area = std::abs(CalcLoopArea(areal->loops[ii]));
+                if (area > bigArea)
+                {
+                    bigLoop = &areal->loops[ii];
+                    bigArea = area;
+                }
+            }
+        }
+    }
+    
+    if (bigArea < 0.0)
+        return false;
+
+    if (bigLoop)
+    {
+        Point2f centroid2f = CalcLoopCentroid(*bigLoop);
+        centroid->x = centroid2f.x();
+        centroid->y = centroid2f.y();
+    } else
+        return false;
+    
     return true;
 }
 
@@ -598,14 +656,36 @@ using namespace WhirlyGlobe;
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            std::vector<WhirlyKit::VectorRing> tris;
-            TesselateLoops(ar->loops, tris);
-            for (unsigned int jj=0;jj<tris.size();jj++)
+            VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+            TesselateLoops(ar->loops, trisRef);
+            trisRef->setAttrDict(ar->getAttrDict());
+            newVec->_shapes.insert(trisRef);
+        }
+    }
+    
+    return newVec;
+}
+
+- (MaplyVectorObject *) clipToGrid:(CGSize)gridSize
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (int ii=0;ii<ar->loops.size();ii++)
             {
-                VectorRing &tri = tris[jj];
-                VectorArealRef newAr = VectorAreal::createAreal();
-                newAr->loops.push_back(tri);
-                newVec->_shapes.insert(newAr);
+                std::vector<VectorRing> newLoops;
+                ClipLoopToGrid(ar->loops[ii], Point2f(0.0,0.0), Point2f(gridSize.width,gridSize.height), newLoops);
+                for (unsigned int jj=0;jj<newLoops.size();jj++)
+                {
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->setAttrDict(ar->getAttrDict());
+                    newAr->loops.push_back(newLoops[jj]);
+                    newVec->_shapes.insert(newAr);
+                }
             }
         }
     }

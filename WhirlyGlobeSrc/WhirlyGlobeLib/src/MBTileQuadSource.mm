@@ -134,13 +134,13 @@ using namespace WhirlyKit;
     return _mbr;
 }
 
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // Everything at the top is loaded in, so be careful
     if (ident.level == _minZoom)
         return MAXFLOAT;
 
-    float import = ScreenImportance(viewState, frameSize, viewState.eyeVec, _pixelsPerTile, _coordSys, viewState.coordAdapter, tileMbr, ident, attrs);
+    double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, _pixelsPerTile, _coordSys, viewState.coordAdapter, tileMbr, ident, attrs);
 //    if (import != 0.0)
 //        NSLog(@"tile = (%d,%d,%d), import = %f",ident.x,ident.y,ident.level,import);
     return import;

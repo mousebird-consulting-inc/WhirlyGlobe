@@ -30,12 +30,12 @@ namespace WhirlyKit
 {
     
 ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry()
-    : texID(EmptyIdentity), color(255,255,255,255)
+    : texID(EmptyIdentity), programID(EmptyIdentity), color(255,255,255,255)
 {
 }
 
-ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords)
-    : texID(texID), color(color), coords(coords), texCoords(texCoords)
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords)
+    : texID(texID), programID(programID), color(color), coords(coords), texCoords(texCoords)
 {    
 }
 
@@ -172,14 +172,15 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
     {
         SimpleGeometry &geom = shape->geom[si];
 
-        DrawableMap::iterator it = drawables.find(geom.texID);
+        DrawableMap::iterator it = drawables.find(TextureAndProgram(geom.texID,geom.programID));
         BasicDrawable *draw = NULL;
         if (it == drawables.end())
         {
             draw = new BasicDrawable("Screen Space Generator");
             draw->setType(GL_TRIANGLES);
             draw->setTexId(0,geom.texID);
-            drawables[geom.texID] = draw;
+            draw->setProgram(geom.programID);
+            drawables[TextureAndProgram(geom.texID,geom.programID)] = draw;
         } else
             draw = it->second;
 

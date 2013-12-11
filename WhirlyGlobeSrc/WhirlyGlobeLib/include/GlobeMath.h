@@ -66,7 +66,7 @@ public:
 class FakeGeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
 {
 public:
-    FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys) { }
+    FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0)) { }
     virtual ~FakeGeocentricDisplayAdapter() { }
 
     /// There are no bounds in fake geocentric since it's not a flat system
@@ -108,7 +108,7 @@ protected:
 class GeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
 {
 public:
-    GeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys) { }
+    GeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0)) { }
 
     /// There are no bounds in fake geocentric since it's not a flat system
     virtual bool getBounds(Point3f &ll,Point3f &ur) { return false; }
