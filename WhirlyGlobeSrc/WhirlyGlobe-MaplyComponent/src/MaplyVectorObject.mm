@@ -108,6 +108,30 @@ using namespace WhirlyGlobe;
     return vecObj;
 }
 
++ (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
+{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]])
+    {
+        fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
+    }
+    if (!fileName)
+        return nil;
+    
+    ShapeReader shapeReader(fileName);
+    if (!shapeReader.isValid())
+        return false;
+    
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    int numObj = shapeReader.getNumObjects();
+    for (unsigned int ii=0;ii<numObj;ii++)
+    {
+        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
+        vecObj.shapes.insert(shape);
+    }
+    
+    return vecObj;
+}
+
 + (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
 {
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
