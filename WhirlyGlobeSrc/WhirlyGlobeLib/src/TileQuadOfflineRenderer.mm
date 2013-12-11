@@ -317,8 +317,9 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 OfflineTile *tile = *it;
                 if (tile->isLoading)
                     continue;
-                if (deep > 0 && tile->ident.level > deep)
-                    continue;
+                // Note: Debugging
+//                if (deep > 0 && tile->ident.level > deep)
+//                    continue;
                 
                 // Scale the extents to the output image
                 Mbr tileMbr[2];
@@ -355,11 +356,21 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                         if ([imageToDraw isKindOfClass:[NSData class]])
                             imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
                         if (![imageToDraw isKindOfClass:[UIImage class]])
+                        {
+                            NSLog(@"Found bad image in offline renderer.");
                             imageToDraw = nil;
+                        }
                     }
                     
                     if (imageToDraw)
+                    {
+                        CGContextBeginPath(theContext);
+                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
+                        CGFloat green[4] = {0,1,0,1};
+                        CGContextSetFillColor(theContext, green);
+                        CGContextDrawPath(theContext, kCGPathFill);
                         CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
+                    }
                 }
                 numRenderedTiles++;
                 
@@ -492,6 +503,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    NSLog(@"Loading tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+    
     OfflineTile *newTile = new OfflineTile(tileInfo.ident);
     newTile->isLoading = true;
     
@@ -514,6 +527,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    NSLog(@"Unload tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+    
     OfflineTile dummyTile(tileInfo.ident);
     OfflineTileSet::iterator it = tiles.find(&dummyTile);
     if (it != tiles.end())
@@ -536,6 +551,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
+    NSLog(@"Tile loaded: %d: (%d,%d)",level,col,row);
+    
     numFetches--;
     Quadtree::Identifier tileIdent(col,row,level);
     OfflineTile *tile = [self getTile:tileIdent];
