@@ -116,6 +116,8 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 /// Set if we want a static rotation.  Only matters in screen space
 /// This is rotation clockwise from north in radians
 @property (nonatomic,assign) float rotation;
+/// Offset in points
+@property (nonatomic,assign) WhirlyKit::Point2f offset;
 /// The period over which we'll switch textures
 @property (nonatomic,assign) NSTimeInterval period;
 /// For markers with more than one texture, this is the offset

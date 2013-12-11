@@ -1,8 +1,8 @@
 /*
- *  WGScreenMarker.h
- *  WhirlyGlobeComponent
+ *  MaplyGDALRetileSource.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 7/21/12.
+ *  Created by Steve Gifford on 12/2/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,20 +18,14 @@
  *
  */
 
-#import "MaplyScreenMarker.h"
+#import "MaplyTileSource.h"
+#import "MaplyCoordinateSystem.h"
 
-@implementation MaplyScreenMarker
+@interface MaplyGDALRetileSource : NSObject<MaplyTileSource>
 
-- (id)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _selectable = true;
-    _offset = CGPointMake(0, 0);
-    
-    return self;
-}
+- (id)initWithURL:(NSString *)baseURL baseName:(NSString *)baseName ext:(NSString *)ext coordSys:(MaplyCoordinateSystem *)coordSys levels:(int)numLevels;
+
+@property (nonatomic) NSString *cacheDir;
 
 @end
+

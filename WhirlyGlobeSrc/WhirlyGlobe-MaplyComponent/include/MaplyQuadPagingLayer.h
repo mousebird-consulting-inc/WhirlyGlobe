@@ -54,6 +54,8 @@
 
 @end
 
+typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
+
 /** @brief The Quad Paging Layer is for loading things like vector tile sets.
     @details The Maply Quad Paging Layer implements a general purpose paging interface for quad tree based data sources.  This is different from the MaplyQuadImageTilesLayer in that it's meant for paging things like vector tiles, or really any other features that are not images.
     @details You set up an object that implements the MaplyPagingDelegate protocol, create the MaplyQuadPagingLayer and respond to the startFetchForTile:forLayer: method.
@@ -94,6 +96,15 @@
     @param tileID The tile ID for the data we're handing over.
   */
 - (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID;
+
+/** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
+    @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
+    @details The call is thread safe.
+    @param dataObjects An NSArray of MaplyComponentObject objects.
+    @param tileID The tile ID for the data we're handing over.
+    @param style If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.
+ */
+- (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle;
 
 /** @brief Called from your MaplyPagingDelegate when a tile fails to load.
     @details If you fail to load your tile data in your MaplyPagingDelegate, you need to let the paging layer know with this call.  Otherwise the paging layer assumes the tile is still loading.
