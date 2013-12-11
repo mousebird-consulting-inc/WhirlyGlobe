@@ -105,11 +105,14 @@ using namespace Eigen;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
-        [globeView cancelAnimation];
     }
     
     Quaterniond newQuat = [self rotForTime:sinceStart];
     [globeView setRotQuat:newQuat];
+    
+    // Make sure to cancel the animation *after* we set the new rotation (duh)
+    if (startDate == 0)
+        [globeView cancelAnimation];
 }
 
 @end
