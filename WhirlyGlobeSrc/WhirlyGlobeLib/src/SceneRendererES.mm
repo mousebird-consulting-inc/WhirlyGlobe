@@ -268,8 +268,8 @@ BOOL SceneRendererES::resizeFromLayer(CAEAGLLayer *layer)
         [EAGLContext setCurrentContext:oldContext];
     
     // If we've resized, we're looking at different content
-    if (_theView)
-        [_theView runViewUpdates];
+    if (theView)
+        [theView runViewUpdates];
     
 	return YES;
 }

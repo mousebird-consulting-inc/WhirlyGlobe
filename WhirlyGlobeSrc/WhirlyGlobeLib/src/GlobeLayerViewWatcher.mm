@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeViewState
 
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKit::SceneRendererES *)renderer
 {
     self = [super initWithView:globeView renderer:renderer];
     if (self)

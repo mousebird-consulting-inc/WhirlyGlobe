@@ -323,7 +323,8 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     
     // Precalculate the model matrix for use below
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    Point2f frameSize(renderer.framebufferWidth/scale,renderer.framebufferHeight/scale);
+    Point2f frameSize = renderer->getFramebufferSize();
+    frameSize /= scale;
     Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:frameSize margin:0.0];
     Eigen::Matrix4d modelTransInv = modelTrans.inverse();
 

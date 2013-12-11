@@ -170,7 +170,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 ///  and unload.
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRendererES *renderer;
 /// If set we'll try to match the frame boundaries for our update
 @property (nonatomic,assign) bool meteredMode;
 /// If set, we'll try to completely load everything (local, at least) before switching
@@ -179,7 +179,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 @property (nonatomic,assign) NSTimeInterval fullLoadTimeout;
 
 /// Construct with a renderer and data source for the tiles
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataSource loader:(NSObject<WhirlyKitQuadLoader> *)loader renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// A loader calls this after successfully loading a tile.
 /// Must be called in the layer thread.

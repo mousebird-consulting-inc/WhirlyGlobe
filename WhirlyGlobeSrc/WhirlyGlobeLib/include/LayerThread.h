@@ -41,7 +41,7 @@
 /// Our own EAGLContext, connected by a share group to the main one
 @property (nonatomic,readonly) EAGLContext *glContext;
 /// The renderer we're working with
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRendererES *renderer;
 /// Turn this off to disable flushes to GL on the layer thread.
 /// The only reason to do this is going to background.  This is a temporary fix
 @property (nonatomic,assign) bool allowFlush;
@@ -49,7 +49,7 @@
 @property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKit::SceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

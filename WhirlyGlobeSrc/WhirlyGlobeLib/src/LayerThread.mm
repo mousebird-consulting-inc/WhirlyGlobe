@@ -53,7 +53,7 @@ using namespace WhirlyKit;
     pthread_mutex_t existenceLock;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKit::SceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{
@@ -69,7 +69,7 @@ using namespace WhirlyKit;
                 _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
         
         // We'll create the context here and set it in the layer thread, always
-        _glContext = [[EAGLContext alloc] initWithAPI:_renderer.context.API sharegroup:_renderer.context.sharegroup];
+        _glContext = [[EAGLContext alloc] initWithAPI:_renderer->getContext().API sharegroup:_renderer->getContext().sharegroup];
 
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];

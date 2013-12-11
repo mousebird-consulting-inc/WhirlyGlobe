@@ -42,9 +42,9 @@
 @property (nonatomic,assign) bool ignoreEdgeMatching;
 
 /// Initialize with name of the plist the defines the image data set
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// Initialize with the plist and the image format for the quad loader
-- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 @end

@@ -76,7 +76,7 @@ using namespace WhirlyKit;
 	UIPinchGestureRecognizer *pinch = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView  *)pinch.view;
 	UIGestureRecognizerState theState = pinch.state;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
     
     if (pinch.numberOfTouches != 2)
         valid = false;
@@ -90,8 +90,9 @@ using namespace WhirlyKit;
 			startZ = globeView.heightAboveGlobe;
             if (_zoomAroundPinch)
             {
+                Point2f frameSize = sceneRender->getFramebufferSize();
                 if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&startTransform
-                                        frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                        frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                                    hit:&startOnSphere normalized:true])
                     valid = true;
                 else
@@ -130,8 +131,9 @@ using namespace WhirlyKit;
                     Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
                     Eigen::Quaterniond newRotQuat;
                     Point3d axis = [globeView currentUp];
+                    Point2f frameSize = sceneRender->getFramebufferSize();
                     if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
-                                        frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                        frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                                        hit:&hit normalized:true])
                     {
                         // This gives us a direction to rotate around

@@ -118,7 +118,7 @@ public:
     ParticleGeneratorAddSystemRequest(SimpleIdentity generatorID,ParticleGenerator::ParticleSystem *partSystem);
     ~ParticleGeneratorAddSystemRequest();
 
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
     
 protected:
     ParticleGenerator::ParticleSystem *system;
@@ -131,7 +131,7 @@ public:
     ParticleGeneratorRemSystemRequest(SimpleIdentity generatorID,SimpleIdentity systemId);
     ~ParticleGeneratorRemSystemRequest() { }
     
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
     
 protected:
     SimpleIdentity systemId;

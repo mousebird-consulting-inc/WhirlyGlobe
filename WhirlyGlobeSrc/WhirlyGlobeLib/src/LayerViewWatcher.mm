@@ -85,7 +85,7 @@ using namespace WhirlyKit;
     [watchers addObject:watch];
     
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
-    if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
+    if (!lastViewState && layerThread.renderer->getFramebufferSize().x() != 0)
     {
         WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
@@ -134,7 +134,7 @@ using namespace WhirlyKit;
     WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
 
     // The view has to be valid first
-    if (layerThread.renderer.framebufferWidth <= 0.0)
+    if (layerThread.renderer->getFramebufferSize().x() <= 0.0)
     {
         // Let's check back every so often
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(viewUpdated:) object:inView];
@@ -291,7 +291,7 @@ public:
 
 @implementation WhirlyKitViewState
 
-- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKit::SceneRendererES *)renderer
 {
     self = [super init];
     if (!self)
@@ -303,7 +303,7 @@ public:
     _invViewMatrix = _viewMatrix.inverse();
     _fullMatrix = [view calcFullMatrix];
     _invFullMatrix = _fullMatrix.inverse();
-    _projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
+    _projMatrix = [view calcProjectionMatrix:renderer->getFramebufferSize() margin:0.0];
     _invProjMatrix = _projMatrix.inverse();
     _fullNormalMatrix = _fullMatrix.inverse().transpose();
     

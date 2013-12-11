@@ -65,7 +65,7 @@ using namespace WhirlyKit;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
 	
 	if (pan.numberOfTouches > 1)
 	{
@@ -83,8 +83,9 @@ using namespace WhirlyKit;
 			startTransform = [view calcFullMatrix];
 			startQuat = [view rotQuat];
 			panning = NO;
+            Point2f frameSize = sceneRender->getFramebufferSize();
             if ([view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
-                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                    frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                             hit:&startOnSphere normalized:true])
 				panning = YES;
 		}
@@ -97,8 +98,9 @@ using namespace WhirlyKit;
 
 				// Figure out where we are now
 				Point3d hit;
+                Point2f frameSize = sceneRender->getFramebufferSize();
                 [view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
-                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                    frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                             hit:&hit normalized:true];
 
 				// This gives us a direction to rotate around

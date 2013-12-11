@@ -60,7 +60,7 @@ using namespace WhirlyKit;
 {
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
     CoordSystemDisplayAdapter *coordAdapter = mapView.coordAdapter;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
@@ -68,7 +68,8 @@ using namespace WhirlyKit;
 	Point3d hit;
     Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    Point2f frameSize = sceneRender->getFramebufferSize();
+    if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&hit clip:true])
     {
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];

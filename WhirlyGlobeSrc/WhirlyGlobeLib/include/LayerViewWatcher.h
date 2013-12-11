@@ -24,8 +24,12 @@
 /// @cond
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
-@class WhirlyKitSceneRendererES;
 /// @endcond
+
+namespace WhirlyKit
+{
+    class SceneRendererES;
+}
 
 /** The layer view watcher is a base class.  We subclass it for specific
     view types, such as globe and map.  Each of the subclasses determines
@@ -69,7 +73,7 @@
 @property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Called by the subclasses
-- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

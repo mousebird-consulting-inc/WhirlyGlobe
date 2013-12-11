@@ -68,7 +68,7 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKit::SceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
@@ -83,10 +83,11 @@ using namespace WhirlyKit;
     corners[3] = CGPointMake(0.0, view.frame.size.height);
     Point3d planePts[4];
     bool isValid = true;
+    Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
         [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
 //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
@@ -101,7 +102,7 @@ using namespace WhirlyKit;
 	UIPinchGestureRecognizer *pinch = sender;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
-	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRenderer = glView.renderer;
 	
 	switch (theState)
 	{

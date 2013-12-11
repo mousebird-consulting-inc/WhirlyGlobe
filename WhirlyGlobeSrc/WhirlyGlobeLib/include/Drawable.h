@@ -32,13 +32,10 @@
 #import "WhirlyVector.h"
 #import "GlobeView.h"
 
-/// @cond
-@class WhirlyKitSceneRendererES;
-/// @endcond
-
 namespace WhirlyKit
 {
     class RendererFrameInfo;
+    class SceneRendererES;
 }
 
 /** This is the configuration info passed to setupGL for each
@@ -130,7 +127,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
+	virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view) = 0;
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
@@ -185,7 +182,7 @@ public:
     virtual bool getWriteZbuffer() const { return true; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
+    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer) = 0;
     
 protected:
     std::string name;
@@ -206,11 +203,11 @@ public:
 	virtual ~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-	virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw) = 0;
+	virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw) = 0;
 	
 protected:
 	SimpleIdentity drawId;
@@ -517,7 +514,7 @@ public:
     void applySubTexture(int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
     NSData *asData(bool dupStart,bool dupEnd);
@@ -599,7 +596,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
 	ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
 	
-	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+	void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
 	
 protected:
 	unsigned char color[4];
@@ -611,7 +608,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
 	OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
 	
-	void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+	void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
 	
 protected:
 	bool newOnOff;
@@ -623,7 +620,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float minVis,maxVis;
@@ -635,7 +632,7 @@ class FadeChangeRequest : public DrawableChangeRequest
 public:
     FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     NSTimeInterval fadeUp,fadeDown;
@@ -647,7 +644,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     unsigned int which;
@@ -660,7 +657,7 @@ class DrawTexturesChangeRequest : public DrawableChangeRequest
 public:
     DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     const std::vector<SimpleIdentity> newTexIDs;
@@ -672,7 +669,7 @@ class TransformChangeRequest : public DrawableChangeRequest
 public:
     TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     Eigen::Matrix4d newMat;
@@ -684,7 +681,7 @@ class DrawPriorityChangeRequest : public DrawableChangeRequest
 public:
     DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     int drawPriority;
@@ -696,7 +693,7 @@ class LineWidthChangeRequest : public DrawableChangeRequest
 public:
     LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float lineWidth;

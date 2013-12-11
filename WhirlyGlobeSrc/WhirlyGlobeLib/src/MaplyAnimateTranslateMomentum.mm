@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 {
     MaplyView *mapView;
     UIView *glView;
-    WhirlyKitSceneRendererES * __weak sceneRenderer;
+    WhirlyKit::SceneRendererES *sceneRenderer;
 
     float velocity,acceleration;
     Eigen::Vector3d dir;
@@ -37,7 +37,7 @@ using namespace WhirlyKit;
     std::vector<WhirlyKit::Point2f> bounds;
 }
 
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
+- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKit::SceneRendererES *)inSceneRenderer
 {
     if ((self = [super init]))
     {
@@ -69,7 +69,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKit::SceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
@@ -84,10 +84,11 @@ using namespace WhirlyKit;
     corners[3] = CGPointMake(0.0, view.frame.size.height);
     Point3d planePts[4];
     bool isValid = true;
+    Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
         [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
         //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));

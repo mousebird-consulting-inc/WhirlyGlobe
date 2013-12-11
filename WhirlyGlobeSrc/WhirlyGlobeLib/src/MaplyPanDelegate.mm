@@ -79,7 +79,7 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKit::SceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
@@ -94,10 +94,11 @@ using namespace WhirlyKit;
     corners[3] = CGPointMake(0.0, view.frame.size.height);
     Point3d planePts[4];
     bool isValid = true;
+    Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
         [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
 //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
@@ -114,7 +115,7 @@ static const float AnimLen = 1.0;
 {
     UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
 
     if (pan.numberOfTouches > 1)
     {
@@ -131,7 +132,7 @@ static const float AnimLen = 1.0;
             // Save where we touched
             startTransform = [mapView calcFullMatrix];
             [mapView pointOnPlaneFromScreen:[pan locationInView:pan.view] transform:&startTransform
-                                  frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
+                                  frameSize:sceneRender->getFramebufferSize()
                                         hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
             panning = YES;
@@ -148,7 +149,7 @@ static const float AnimLen = 1.0;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
-                                       frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
+                                       frameSize:sceneRender->getFramebufferSize()
                                             hit:&hit clip:false];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
@@ -187,8 +188,9 @@ static const float AnimLen = 1.0;
                 Point3d model_p0,model_p1;
 
                 Eigen::Matrix4d modelMat = [mapView calcFullMatrix];
-                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p0 clip:false];
-                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&model_p1 clip:false];
+                Point2f frameSize = sceneRender->getFramebufferSize();
+                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&model_p0 clip:false];
+                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&model_p1 clip:false];
                 
                 // This will give us a direction
                 Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());

@@ -196,12 +196,12 @@ using namespace WhirlyKit;
     quadTileLoader.ignoreEdgeMatching = ignoreEdgeMatching;
 }
 
-- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKitSceneRendererES *)inRenderer
+- (id) initWithInfo:(NSString *)infoName renderer:(WhirlyKit::SceneRendererES *)inRenderer
 {
     return [self initWithInfo:infoName imageType:WKTileIntRGBA renderer:inRenderer];
 }
 
-- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKitSceneRendererES *)inRenderer;
+- (id) initWithInfo:(NSString *)infoName imageType:(WhirlyKitTileImageType)imageType renderer:(WhirlyKit::SceneRendererES *)inRenderer;
 {
     // Data source serves the tiles
     ImageDataSource *theDataSource = [[ImageDataSource alloc] initWithInfo:infoName];

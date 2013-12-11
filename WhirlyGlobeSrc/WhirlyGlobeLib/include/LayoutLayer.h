@@ -38,7 +38,7 @@
 @property (nonatomic,assign) int maxDisplayObjects;
 
 /// Initialize with the renderer (for screen size)
-- (id)initWithRenderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithRenderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// Called in the layer thread
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

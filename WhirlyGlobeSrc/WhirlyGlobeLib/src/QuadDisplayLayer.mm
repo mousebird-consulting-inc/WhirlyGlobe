@@ -58,7 +58,7 @@ using namespace WhirlyKit;
     bool somethingHappened;
 }
 
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKit::SceneRendererES *)inRenderer;
 {
     self = [super init];
     if (self)
@@ -153,7 +153,7 @@ using namespace WhirlyKit;
     WhirlyKitFrameMessage *msg = note.object;
     
     // If it's not coming from our renderer, we can ignore it
-    if (msg.renderer != _renderer)
+    if ((SceneRendererES *)msg.renderer != _renderer)
         return;
     
     frameStart = msg.frameStart;
@@ -291,7 +291,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     bool didSomething = false;
     
     // If the renderer hasn't been set up, punt and try again later
-    if (_renderer.framebufferWidth == 0 || _renderer.framebufferHeight == 0 || viewState == nil)
+    Point2f frameSize = _renderer->getFramebufferSize();
+    if (frameSize.x() == 0 || frameSize.y() == 0 || viewState == nil)
     {
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.1];
         return;
@@ -500,7 +501,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(Mbr)theMbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs
 {
-    return [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:attrs];
+    return [_dataStructure importanceForTile:ident mbr:theMbr viewInfo:viewState frameSize:_renderer->getFramebufferSize() attrs:attrs];
 }
 
 @end

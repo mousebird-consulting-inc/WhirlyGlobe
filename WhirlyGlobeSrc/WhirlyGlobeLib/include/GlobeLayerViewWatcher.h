@@ -22,6 +22,11 @@
 #import "GlobeView.h"
 #import "LayerViewWatcher.h"
 
+namespace WhirlyKit
+{
+    class SceneRendererES;
+}
+
 /** View State related to the Globe view.  This adds
     more parameters relating to the globe.
   */
@@ -34,7 +39,7 @@
 @property (nonatomic,assign) double heightAboveGlobe;
 
 /// Initialize from the globe view and the renderer
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKit::SceneRendererES *)renderer;
 
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3d)currentUp;

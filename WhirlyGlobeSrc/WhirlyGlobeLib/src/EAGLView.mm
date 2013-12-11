@@ -133,7 +133,7 @@
     if (resizeFail)
         [self layoutSubviews];
 
-    [_renderer render:displayLink.duration*displayLink.frameInterval];
+    _renderer->render(displayLink.duration*displayLink.frameInterval);
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -149,7 +149,7 @@
         return;
     
     // Try to resize the renderer, multiple times if necessary
-	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+	if (!_renderer->resizeFromLayer((CAEAGLLayer*)self.layer))
     {
         if (!resizeFail)
         {

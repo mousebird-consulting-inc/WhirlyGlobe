@@ -26,8 +26,6 @@
 #import "WhirlyKitView.h"
 #import "Scene.h"
 
-@class WhirlyKitSceneRendererES;
-
 namespace WhirlyKit
 {
     

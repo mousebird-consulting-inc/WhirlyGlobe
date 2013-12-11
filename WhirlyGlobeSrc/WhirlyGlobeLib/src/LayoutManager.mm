@@ -242,12 +242,10 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
 //    NSLog(@"----Starting Layout----");
     
     // Need to scale for retina displays
-    float resScale = renderer.scale;
+    float resScale = renderer->getScale();
     
     // Set up the overlap sampler
-    Point2f frameBufferSize;
-    frameBufferSize.x() = renderer.framebufferWidth;
-    frameBufferSize.y() = renderer.framebufferHeight;
+    Point2f frameBufferSize = renderer->getFramebufferSize();
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     

@@ -73,7 +73,7 @@ using namespace WhirlyKit;
 {
 	UIRotationGestureRecognizer *rotate = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)rotate.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
     
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)
@@ -94,8 +94,9 @@ using namespace WhirlyKit;
             startQuat = [globeView rotQuat];
             valid = true;
             
+            Point2f frameSize = sceneRender->getFramebufferSize();
             if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&startTransform
-                                         frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                         frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                                hit:&startOnSphere normalized:true])
                 valid = true;
             else
@@ -129,8 +130,9 @@ using namespace WhirlyKit;
                     Eigen::Quaterniond oldQuat = globeView.rotQuat;
                     [globeView setRotQuat:startQuat updateWatchers:false];
                     Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
+                    Point2f frameSize = sceneRender->getFramebufferSize();
                     if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&curTransform
-                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                 frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
                                                        hit:&hit normalized:true])
                     {
                         // This gives us a direction to rotate around

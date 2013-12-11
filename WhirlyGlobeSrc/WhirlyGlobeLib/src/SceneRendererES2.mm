@@ -357,14 +357,14 @@ void SceneRendererES2::renderAsync()
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
-            [activeModel updateForFrame:frameInfo];
+            [activeModel updateForFrame:&frameInfo];
         
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", scene->changeRequests.size());
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
-		scene->processChanges(super.theView,self);
+		scene->processChanges(theView,this);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");
@@ -396,7 +396,7 @@ void SceneRendererES2::renderAsync()
         // Stretch the screen MBR a little for safety
         screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
         screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        findDrawables(cullTree->getTopCullable(),globeView,Point2f(framebufferWidth,framebufferHeight),&modelTrans4d,eyeVec3 ,frameInfo,screenMbr,true,&toDraw,&drawablesConsidered);
+        findDrawables(cullTree->getTopCullable(),globeView,Point2f(framebufferWidth,framebufferHeight),&modelTrans4d,eyeVec3 ,&frameInfo,screenMbr,true,&toDraw,&drawablesConsidered);
         
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;
@@ -434,7 +434,7 @@ void SceneRendererES2::renderAsync()
                 drawList.push_back(theDrawable);
         }
         bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,frameInfo));
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,&frameInfo));
         
         if (perfInterval > 0)
         {
@@ -459,7 +459,7 @@ void SceneRendererES2::renderAsync()
             //  turn off the depth buffer
             if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
             {
-                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                if (depthMaskOn && depthBufferOffForAlpha && drawable->hasAlpha(&frameInfo))
                 {
                     depthMaskOn = false;
                     renderStateOptimizer->setEnableDepthTest(false);
@@ -479,7 +479,7 @@ void SceneRendererES2::renderAsync()
             }
 
             // If we're drawing lines or points we don't want to update the z buffer
-            if (super.zBufferMode != zBufferOff)
+            if (zBufferMode != zBufferOff)
             {
                 if (drawable->getWriteZbuffer())
                     renderStateOptimizer->setDepthMask(GL_TRUE);
@@ -521,7 +521,7 @@ void SceneRendererES2::renderAsync()
                 continue;
             
             // Draw using the given program
-            drawable->draw(frameInfo,scene);
+            drawable->draw(&frameInfo,scene);
             
             // If we had a local matrix, set the frame info back to the general one
             if (localMat)
@@ -565,7 +565,7 @@ void SceneRendererES2::renderAsync()
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,frameInfo));
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,&frameInfo));
 
             // Build an orthographic projection
             // We flip the vertical axis and spread the window out (0,0)->(width,height)
@@ -585,7 +585,7 @@ void SceneRendererES2::renderAsync()
             {
                 Drawable *drawable = drawList[ii];
                 
-                if (drawable->isOn(frameInfo))
+                if (drawable->isOn(&frameInfo))
                 {
                     // Figure out the program to use for drawing
                     SimpleIdentity drawProgramId = drawable->getProgram();
@@ -605,7 +605,7 @@ void SceneRendererES2::renderAsync()
                         }
                     }
 
-                    drawable->draw(frameInfo,scene);
+                    drawable->draw(&frameInfo,scene);
                     numDrawables++;
                 }
             }
@@ -651,16 +651,16 @@ void SceneRendererES2::renderAsync()
         perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
-	if (super.perfInterval > 0 && frameCount > perfInterval)
+	if (perfInterval > 0 && frameCount > perfInterval)
 	{
         CFTimeInterval now = CFAbsoluteTimeGetCurrent();
 		NSTimeInterval howLong =  now - frameCountStart;;
-		super.framesPerSec = frameCount / howLong;
+		framesPerSec = frameCount / howLong;
 		frameCountStart = now;
 		frameCount = 0;
         
         NSLog(@"---Rendering Performance---");
-        NSLog(@" Frames per sec = %.2f",super.framesPerSec);
+        NSLog(@" Frames per sec = %.2f",framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}
@@ -670,5 +670,3 @@ void SceneRendererES2::renderAsync()
     
     renderSetup = true;
 }
-
-@end

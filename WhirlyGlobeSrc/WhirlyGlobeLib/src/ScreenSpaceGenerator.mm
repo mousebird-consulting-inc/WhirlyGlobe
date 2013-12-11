@@ -74,11 +74,11 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
             return;
 
         // Note: Need to move to the view frustum logic
-        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
     } else {
         globeView = nil;
         if ([mapView isKindOfClass:[MaplyView class]])
-            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
         else
             // No idea what this could be
             return;
@@ -89,7 +89,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
         return;
     
-    float resScale = frameInfo->sceneRenderer.scale;
+    float resScale = frameInfo->sceneRenderer->getScale();
 
     screenPt.x += shape->offset.x()*resScale;
     screenPt.y += shape->offset.y()*resScale;
@@ -128,9 +128,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
         CGPoint outScreenPt;
         if (globeView)
-            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
         else
-            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }
@@ -191,7 +191,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
     
         // Set up the point, including snap to make it look better
-        float resScale = frameInfo->sceneRenderer.scale;
+        float resScale = frameInfo->sceneRenderer->getScale();
         std::vector<Point2f> pts;
         pts.resize(geom.coords.size());
         Point2f org(MAXFLOAT,MAXFLOAT);
@@ -311,10 +311,11 @@ void ScreenSpaceGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frame
     
     // Overall extents we'll look at.  Everything else is tossed.
     Mbr frameMbr;
-    float marginX = frameInfo->sceneRenderer.framebufferWidth * margin.x();
-    float marginY = frameInfo->sceneRenderer.framebufferHeight * margin.y();
+    Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+    float marginX = frameSize.x() * margin.x();
+    float marginY = frameSize.y() * margin.y();
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameInfo->sceneRenderer.framebufferWidth + marginX,frameInfo->sceneRenderer.framebufferHeight + marginY);
+    frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
     
     // Keep track of where the shapes wound up
     std::vector<ProjectedPoint> newProjPts;
@@ -394,13 +395,13 @@ ScreenSpaceGeneratorAddRequest::~ScreenSpaceGeneratorAddRequest()
     shapes.clear();
 }
     
-void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void ScreenSpaceGeneratorAddRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     for (unsigned int ii=0;ii<shapes.size();ii++)
     {
-        [renderer setRenderUntil:shapes[ii]->fadeUp];
-        [renderer setRenderUntil:shapes[ii]->fadeDown];
+        renderer->setRenderUntil(shapes[ii]->fadeUp);
+        renderer->setRenderUntil(shapes[ii]->fadeDown);
     }
     screenGen->addConvexShapes(shapes);
     shapes.clear();
@@ -421,7 +422,7 @@ ScreenSpaceGeneratorRemRequest::~ScreenSpaceGeneratorRemRequest()
 {
 }
     
-void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     screenGen->removeConvexShapes(shapeIDs);
@@ -442,7 +443,7 @@ ScreenSpaceGeneratorFadeRequest::~ScreenSpaceGeneratorFadeRequest()
 {        
 }
     
-void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     
@@ -453,8 +454,8 @@ void ScreenSpaceGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRender
         {
             shape->fadeUp = fadeUp;
             shape->fadeDown = fadeDown;
-            [renderer setRenderUntil:fadeUp];
-            [renderer setRenderUntil:fadeDown];
+            renderer->setRenderUntil(fadeUp);
+            renderer->setRenderUntil(fadeDown);
         }
     }    
 }
@@ -464,7 +465,7 @@ ScreenSpaceGeneratorEnableRequest::ScreenSpaceGeneratorEnableRequest(SimpleIdent
 {
 }
     
-void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void ScreenSpaceGeneratorEnableRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     
@@ -488,7 +489,7 @@ ScreenSpaceGeneratorGangChangeRequest::ScreenSpaceGeneratorGangChangeRequest(Sim
 {
 }
     
-void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     ScreenSpaceGenerator *screenGen = (ScreenSpaceGenerator *)gen;
     
@@ -502,8 +503,8 @@ void ScreenSpaceGeneratorGangChangeRequest::execute2(Scene *scene,WhirlyKitScene
             shape->fadeDown = change.fadeDown;
             shape->offset = change.offset;
             screenGen->changeEnable(shape,shape->enable);
-            [renderer setRenderUntil:change.fadeUp];
-            [renderer setRenderUntil:change.fadeDown];
+            renderer->setRenderUntil(change.fadeUp);
+            renderer->setRenderUntil(change.fadeDown);
         }
     }
 }

@@ -29,10 +29,6 @@
 #import "Cullable.h"
 #import "Lighting.h"
 
-/// @cond
-@class WhirlyKitSceneRendererES;
-/// @endcond
-
 namespace WhirlyKit
 {
     
@@ -124,7 +120,7 @@ public:
     /// Renderer version (e.g. OpenGL ES 1 vs 2)
     EAGLRenderingAPI oglVersion;
     /// Renderer itself
-    WhirlyKitSceneRendererES *sceneRenderer;
+    WhirlyKit::SceneRendererES *sceneRenderer;
     /// View
     WhirlyKitView * __weak theView;
     /// Current model matrix from the view
@@ -192,6 +188,18 @@ public:
     
     /// Use this to set the clear color for the screen.  Defaults to black
     void setClearColor(UIColor *inClearColor);
+    
+    /// Get the framebuffer size
+    Point2f getFramebufferSize() { return Point2f(framebufferWidth,framebufferHeight); }
+    
+    /// Return the EAGLContext
+    EAGLContext *getContext() { return context; }
+    
+    /// Return the attached Scene
+    Scene *getScene() { return scene; }
+    
+    /// Return the device scale (e.g. retina vs. not)
+    float getScale() { return scale; }
     
     /// Used by the subclasses for culling
     virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);

@@ -61,7 +61,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere
@@ -69,7 +69,8 @@ using namespace WhirlyKit;
 	Point3d hit;
 	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
     CGPoint touchLoc = [tap locationInView:glView];
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    Point2f frameSize = sceneRender->getFramebufferSize();
+    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&hit normalized:true])
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];

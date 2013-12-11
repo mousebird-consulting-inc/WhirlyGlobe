@@ -74,10 +74,11 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *fra
     // Overall extents we'll look at.  Everything else is tossed.
     // Note: This is too simple
     Mbr frameMbr;
-    float marginX = frameInfo->sceneRenderer.framebufferWidth * 1.1;
-    float marginY = frameInfo->sceneRenderer.framebufferHeight * 1.1;
+    Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+    float marginX = frameSize.x() * 1.1;
+    float marginY = frameSize.y() * 1.1;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameInfo->sceneRenderer.framebufferWidth + marginX,frameInfo->sceneRenderer.framebufferHeight + marginY);
+    frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
     
     for (std::set<ViewInstance>::iterator it = viewInstanceSet.begin();
          it != viewInstanceSet.end(); ++it)
@@ -111,10 +112,11 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *fra
             {
                 // Project the world location to the screen
                 Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
+                Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
                 if (globeView)
-                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:frameSize];
                 else
-                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo->sceneRenderer.framebufferWidth,frameInfo->sceneRenderer.framebufferHeight)];
+                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:frameSize];
                 
                 // Note: This check is too simple
                 if (!hidden &&

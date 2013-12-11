@@ -73,7 +73,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 	
     /// Only use this if you've thought it out
     TextureBase *getTex() { return tex; }
@@ -90,7 +90,7 @@ public:
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -112,7 +112,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawable) drawable->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);	
 	
 protected:
 	Drawable *drawable;
@@ -126,7 +126,7 @@ public:
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -140,7 +140,7 @@ public:
     AddGeneratorReq(Generator *generator) : generator(generator) { }
 
     /// Add to the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     Generator *generator;
@@ -154,7 +154,7 @@ public:
     RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity genId;
@@ -169,7 +169,7 @@ public:
     ~AddProgramReq() { if (program) delete program; program = NULL; }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 
 protected:
     std::string sceneName;
@@ -184,7 +184,7 @@ public:
     RemProgramReq(SimpleIdentity progId) : programId(progId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
 
 protected:
     SimpleIdentity programId;
@@ -198,7 +198,7 @@ public:
     RemBufferReq(GLuint bufID) : bufID(bufID) { }
     
     /// Actually run the remove.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     GLuint bufID;
@@ -215,7 +215,7 @@ public:
     virtual ~NotificationReq();
     
     /// Send out the notification
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     NSString * __strong noteName;
@@ -288,7 +288,7 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
-	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
+	void processChanges(WhirlyKitView *view,WhirlyKit::SceneRendererES *renderer);
     
     /// True if there are pending updates
     bool hasChanges();

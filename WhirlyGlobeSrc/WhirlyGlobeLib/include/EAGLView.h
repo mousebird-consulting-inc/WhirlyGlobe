@@ -30,7 +30,7 @@
 @interface WhirlyKitEAGLView  : UIView 
 
 /// We're only expecting this to be set once
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRendererES *renderer;
 /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 @property (nonatomic) NSInteger frameInterval;
 /// True if we've got a displayLink turned on to animate.

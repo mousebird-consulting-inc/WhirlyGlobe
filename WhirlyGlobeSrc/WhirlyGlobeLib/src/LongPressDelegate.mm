@@ -59,7 +59,7 @@ using namespace WhirlyKit;
 {
 	UILongPressGestureRecognizer *press = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	WhirlyKit::SceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     
     if (press.state == UIGestureRecognizerStateBegan)
@@ -69,7 +69,8 @@ using namespace WhirlyKit;
         Point3d hit;
         Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
         CGPoint touchLoc = [press locationInView:press.view];
-        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+        Point2f frameSize = sceneRender->getFramebufferSize();
+        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&hit normalized:true])
         {
             WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
             msg.view = press.view;

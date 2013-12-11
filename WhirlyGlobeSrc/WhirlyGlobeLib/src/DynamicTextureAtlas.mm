@@ -234,7 +234,7 @@ void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
     }
 }
     
-void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
@@ -244,7 +244,7 @@ void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *r
     }
 }
     
-void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);

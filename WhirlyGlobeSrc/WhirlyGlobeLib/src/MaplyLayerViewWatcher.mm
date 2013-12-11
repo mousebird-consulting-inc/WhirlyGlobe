@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewState
 
-- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer
+- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKit::SceneRendererES *)renderer
 {
     self = [super initWithView:mapView renderer:renderer];
     

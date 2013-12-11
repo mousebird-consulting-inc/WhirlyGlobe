@@ -347,7 +347,7 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
+void Scene::processChanges(WhirlyKitView *view,WhirlyKit::SceneRendererES *renderer)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
@@ -569,7 +569,7 @@ void Scene::removeProgram(SimpleIdentity progId)
     pthread_mutex_unlock(&programLock);
 }
     
-void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
         tex->createInGL(scene->getMemManager());
@@ -577,7 +577,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
     tex = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
@@ -590,7 +590,7 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
     }
 }
 
-void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
@@ -605,7 +605,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     drawable = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     BasicDrawable *dumbDraw = new BasicDrawable("None");
     dumbDraw->setId(drawable);
@@ -619,7 +619,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     }
 }
 
-void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddGeneratorReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     // Add the generator
     scene->generators.insert(generator);
@@ -627,7 +627,7 @@ void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
     generator = NULL;
 }
 
-void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemGeneratorReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     Generator dumbGen;
     dumbGen.setId(genId);
@@ -641,18 +641,18 @@ void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
     }
 }
 
-void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddProgramReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     scene->addProgram(sceneName,program);
     program = NULL;
 }
 
-void RemProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemProgramReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     scene->removeProgram(programId);
 }
     
-void RemBufferReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemBufferReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     scene->getMemManager()->removeBufferID(bufID);
     bufID = 0;
@@ -670,7 +670,7 @@ NotificationReq::~NotificationReq()
     noteObj = nil;
 }
 
-void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void NotificationReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
 {
     NSString *theNoteName = noteName;
     NSObject *theNoteObj = noteObj;

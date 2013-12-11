@@ -233,7 +233,7 @@ MarkerGeneratorAddRequest::~MarkerGeneratorAddRequest()
     markers.clear();
 }
     
-void MarkerGeneratorAddRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void MarkerGeneratorAddRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->addMarkers(markers);
@@ -256,7 +256,7 @@ MarkerGeneratorRemRequest::~MarkerGeneratorRemRequest()
 {    
 }
     
-void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void MarkerGeneratorRemRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->removeMarkers(markerIDs);
@@ -271,7 +271,7 @@ MarkerGeneratorEnableRequest::~MarkerGeneratorEnableRequest()
 {
 }
     
-void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     markerGen->enableMarkers(markerIDs,enable);
@@ -288,7 +288,7 @@ MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,cons
 {    
 }
     
-void MarkerGeneratorFadeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen)
+void MarkerGeneratorFadeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen)
 {    
     MarkerGenerator *markerGen = (MarkerGenerator *)gen;
     

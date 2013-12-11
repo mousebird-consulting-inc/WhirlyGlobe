@@ -161,7 +161,7 @@ public:
     ScreenSpaceGeneratorAddRequest(SimpleIdentity genID,const std::vector<ScreenSpaceGenerator::ConvexShape *> &);
     ~ScreenSpaceGeneratorAddRequest();
     
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
 
 protected:
     std::vector<ScreenSpaceGenerator::ConvexShape *> shapes;
@@ -178,7 +178,7 @@ public:
     ScreenSpaceGeneratorRemRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &);
     ~ScreenSpaceGeneratorRemRequest();
     
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);    
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);    
 
 protected:
     std::vector<SimpleIdentity> shapeIDs;
@@ -196,7 +196,7 @@ public:
     ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     ~ScreenSpaceGeneratorFadeRequest();
     
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
 
 protected:
     NSTimeInterval fadeUp,fadeDown;
@@ -211,7 +211,7 @@ public:
     /// Construct with the generator ID and a list of IDs to turn on/off
     ScreenSpaceGeneratorEnableRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> &shapeIDs,bool enable);
 
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
     
 protected:
     bool enable;
@@ -236,7 +236,7 @@ public:
     /// Construct with a generator ID and a list of shapes to change
     ScreenSpaceGeneratorGangChangeRequest(SimpleIdentity genID,const std::vector<ShapeChange> &changes);
     
-    virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,Generator *gen);
+    virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
     
 protected:
     std::vector<ShapeChange> changes;
