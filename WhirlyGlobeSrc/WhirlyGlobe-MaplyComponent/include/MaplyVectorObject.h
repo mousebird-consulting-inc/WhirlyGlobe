@@ -67,12 +67,19 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
  */
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
 
-/** @brief Read a vector objects from the given cache file.
+/** @brief Read vector objects from the given cache file.
     @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
     @param fileName Name of the binary vector file.
     @return The vector object(s) read from the file or nil on failure.
   */
 + (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
+
+/** @brief Read vector objects from the given shapefile.
+    @details This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.
+    @param fileName The basename of the shape file.  Don't include the extension.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName;
 
 /** @brief Parse vector objects from a JSON assembly.
     @details This version can deal with non-compliant assemblies returned by the experimental OSM server

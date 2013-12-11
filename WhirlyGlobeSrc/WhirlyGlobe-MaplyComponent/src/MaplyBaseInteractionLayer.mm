@@ -424,6 +424,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             wgMarker.selectID = Identifiable::genId();
         }
         wgMarker.layoutImportance = marker.layoutImportance;
+        wgMarker.offset = Point2f(marker.offset.x,marker.offset.y);
         
         [wgMarkers addObject:wgMarker];
         
@@ -602,7 +603,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
             [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
         }
-        wgLabel.screenOffset = label.offset;
+        wgLabel.screenOffset = CGSizeMake(label.offset.x,label.offset.y);
         if (label.selectable)
         {
             wgLabel.isSelectable = true;

@@ -58,6 +58,11 @@
  */
 @property (nonatomic,assign) float layoutImportance;
 
+/** @brief Offset in screen coordinates.
+    @details Set to zero by default, this is the offset we'll apply to a given screen marker before it's drawn.  The values are screen points.
+  */
+@property (nonatomic,assign) CGPoint offset;
+
 /** @brief Screen marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this screen marker will never appear in selection results.
  */
