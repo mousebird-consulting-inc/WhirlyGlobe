@@ -140,6 +140,8 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 {
     if (!_quadLayer)
         return;
+    
+//    NSLog(@"MBR changed");
 
     if (mbr.ll().x() < 0 && mbr.ur().x() > 0 && (mbr.ur().x() - mbr.ll().x() > M_PI))
     {
@@ -169,21 +171,33 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
     
     if (_on)
     {
+        int whichMbr;
+        @synchronized(self)
+        {
+            whichMbr = currentMbr;
+        }
+        
         [self imageRenderToLevel:_previewLevels];
+        
+        if (whichMbr != currentMbr)
+            return;
+        
         if (_previewLevels > 0)
         {
             lastRender = 0;
-            if (!renderScheduled)
-            {
-                [self performSelector:@selector(imageRenderPeriodic)];
-                renderScheduled = true;
-            }
+            renderScheduled = true;
+            [self performSelector:@selector(imageRenderPeriodic)];
+            renderScheduled = false;
         }
     }
 }
 
 - (void)imageRenderPeriodic
 {
+    // This means there was an extra one in the pipeline
+    if (!renderScheduled)
+        return;
+    
     renderScheduled = false;
 
     if (_on && somethingChanged)
@@ -308,18 +322,26 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         int numRenderedTiles = 0;
         for (unsigned int ii=0;ii<_numImages;ii++)
         {
-            // Note: Debugging
-            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
-            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
+            // Note: This draws the background in red.  Useful for seeing what doesn't get filled
+//            CGContextSetRGBFillColor(theContext, 1, 0, 0, 1);
+//            CGContextFillRect(theContext, CGRectMake(0, 0, texSize.width, texSize.height));
             // Work through the tiles, drawing as we go
             for (OfflineTileSet::iterator it = tiles.begin(); it != tiles.end(); ++it)
             {
+                // If this happens, they've changed the MBR while we were working on this one.  Punt.
+                if (whichMbr != currentMbr)
+                {
+                    CGContextRelease(theContext);
+                    CGColorSpaceRelease(colorSpace);
+//                    NSLog(@"Aborted render");
+                    return;
+                }
+
                 OfflineTile *tile = *it;
                 if (tile->isLoading)
                     continue;
-                // Note: Debugging
-//                if (deep > 0 && tile->ident.level > deep)
-//                    continue;
+                if (deep > 0 && tile->ident.level > deep)
+                    continue;
                 
                 // Scale the extents to the output image
                 Mbr tileMbr[2];
@@ -364,24 +386,16 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                     
                     if (imageToDraw)
                     {
-                        CGContextBeginPath(theContext);
-                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
-                        CGFloat green[4] = {0,1,0,1};
-                        CGContextSetFillColor(theContext, green);
-                        CGContextDrawPath(theContext, kCGPathFill);
+                        // Note: This draws a green square for debugging
+//                        CGContextBeginPath(theContext);
+//                        CGContextAddRect(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()));
+//                        CGFloat green[4] = {0,1,0,1};
+//                        CGContextSetFillColor(theContext, green);
+//                        CGContextDrawPath(theContext, kCGPathFill);
                         CGContextDrawImage(theContext, CGRectMake(org.x(),org.y(),span.x(),span.y()), imageToDraw.CGImage);
                     }
                 }
                 numRenderedTiles++;
-                
-                // If this happens, they've changed the MBR while we were working on this one.  Punt.
-                if (whichMbr != currentMbr)
-                {
-                    CGContextRelease(theContext);
-                    CGColorSpaceRelease(colorSpace);
-//                    NSLog(@"Aborted render");
-                    return;
-                }
             }
             
             CGImageRef imageRef = CGBitmapContextCreateImage(theContext);
@@ -422,6 +436,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                 delete changes[ii];
             }
             changes.clear();
+//            NSLog(@"Aborted render (2)");
             return;
         }
         
@@ -503,7 +518,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
-    NSLog(@"Loading tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+//    NSLog(@"Loading tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
     
     OfflineTile *newTile = new OfflineTile(tileInfo.ident);
     newTile->isLoading = true;
@@ -527,7 +542,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
-    NSLog(@"Unload tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+//    NSLog(@"Unload tile: %d: (%d,%d)",tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
     
     OfflineTile dummyTile(tileInfo.ident);
     OfflineTileSet::iterator it = tiles.find(&dummyTile);
@@ -551,7 +566,7 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)dataSource loadedImage:(id)loadTile forLevel:(int)level col:(int)col row:(int)row
 {
-    NSLog(@"Tile loaded: %d: (%d,%d)",level,col,row);
+//    NSLog(@"Tile loaded: %d: (%d,%d)",level,col,row);
     
     numFetches--;
     Quadtree::Identifier tileIdent(col,row,level);
