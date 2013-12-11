@@ -786,8 +786,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         UIImage *theImage = inDesc[kMaplyVecTexture];
         MaplyTexture *tex = nil;
-        if ([theImage isKindOfClass:[UIImage class]] || [theImage isKindOfClass:[MaplyTexture class]])
+        if ([theImage isKindOfClass:[UIImage class]])
             tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+        else if ([theImage isKindOfClass:[MaplyTexture class]])
+            tex = (MaplyTexture *)theImage;
         if (tex.texID)
             inDesc[kMaplyVecTexture] = @(tex.texID);
         else
@@ -1128,11 +1130,16 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
         for (UIImage *image in sticker.images)
         {
-            if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
+            if ([image isKindOfClass:[UIImage class]])
             {
                 MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
                 if (tex)
                     texIDs.push_back(tex.texID);
+                compObj.textures.insert(tex);
+            } else if ([image isKindOfClass:[MaplyTexture class]])
+            {
+                MaplyTexture *tex = (MaplyTexture *)image;
+                texIDs.push_back(tex.texID);
                 compObj.textures.insert(tex);
             }
         }
@@ -1231,18 +1238,22 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 // Add in the new images
                 for (UIImage *image in newImages)
                 {
-                    if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
+                    if ([image isKindOfClass:[UIImage class]])
                     {
                         MaplyTexture *tex = [self addImage:image imageFormat:newFormat mode:threadMode];
                         if (tex)
                             newTexIDs.push_back(tex.texID);
                         stickerObj.textures.insert(tex);
+                    } else if ([image isKindOfClass:[MaplyTexture class]])
+                    {
+                        MaplyTexture *tex = (MaplyTexture *)image;
+                        newTexIDs.push_back(tex.texID);
+                        stickerObj.textures.insert(tex);
                     }
                 }
                 
                 // Clear out the old images
-                for (std::set<MaplyTexture *>::iterator it = oldTextures.begin(); it != oldTextures.end(); ++it)
-                    [self removeTexture:*it];
+                oldTextures.clear();
                 
                 ChangeSet changes;
                 for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
@@ -1477,8 +1488,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
-                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin(); it != userObj.textures.end(); ++it)
-                    [self removeTexture:*it];
+                userObj.textures.clear();
 
                 // And any references to selection objects
                 pthread_mutex_lock(&selectLock);
