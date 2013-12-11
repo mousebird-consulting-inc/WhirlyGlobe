@@ -72,6 +72,7 @@
 #import "GlobeLayerViewWatcher.h"
 #import "MBTileQuadSource.h"
 #import "TileQuadLoader.h"
+#import "TileQuadOfflineRenderer.h"
 #import "NetworkTileQuadSource.h"
 #import "ScreenSpaceGenerator.h"
 #import "SceneGraphManager.h"

@@ -27,8 +27,8 @@
   */
 @interface MaplyAnimationTestTileSource : NSObject<MaplyTileSource>
 
-/// Initialize with the coordinate system, min and max zoom levels
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom;
+/// Initialize with the coordinate system, min and max zoom levels, and the number of images to return
+- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom depth:(int)depth;
 
 /// Coordinate system we're pretending to be in
 @property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;

@@ -37,14 +37,16 @@ public:
         isLoading = false;
         enable = false;
         childrenEnable = false;
+        numParts = 0;
     }
     QuadPagingLoadedTile(const WhirlyKit::Quadtree::Identifier &ident)
     {
         compObjs = nil;
-        nodeInfo.ident = ident;
+        nodeIdent = ident;
         isLoading = false;
         enable = false;
         childrenEnable = false;
+        numParts = 0;
     }
     ~QuadPagingLoadedTile() { }
 
@@ -52,7 +54,7 @@ public:
     NSMutableArray *compObjs;
 
     // Details of which node we're representing
-    WhirlyKit::Quadtree::NodeInfo nodeInfo;
+    WhirlyKit::Quadtree::Identifier nodeIdent;
 
     /// Set if this tile is in the process of loading
     bool isLoading;
@@ -65,6 +67,9 @@ public:
     
     /// If set, our children our enabled, but not us.
     bool childrenEnable;
+    
+    /// If the source is loading tiles in pieces, they'll set this
+    int numParts;
     
     void addCompObjs(NSArray *newObjs)
     {
@@ -81,7 +86,7 @@ typedef struct
     /// Comparison operator based on node identifier
     bool operator() (const QuadPagingLoadedTile *a,const QuadPagingLoadedTile *b)
     {
-        return a->nodeInfo.ident < b->nodeInfo.ident;
+        return a->nodeIdent < b->nodeIdent;
     }
 } QuadPagingLoadedTileSorter;
 
@@ -132,6 +137,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     tileSource = inTileSource;
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
+    _importance = 512*512;
     
     return self;
 }
@@ -142,6 +148,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
         delete *it;
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
     pthread_mutex_destroy(&tileSetLock);
@@ -160,7 +167,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Set up tile and and quad layer with us as the data source
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:self renderer:renderer];
     // A tile needs to take up this much screen space
-    quadLayer.minImportance = 512*512;
+    quadLayer.minImportance = _importance;
+    quadLayer.maxTiles = 256;
     
     [super.layerThread addLayer:quadLayer];
     
@@ -172,14 +180,23 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [inLayerThread removeLayer:quadLayer];
     
     // Note: Need to wait for anything that's been dispatched to finish
+    pthread_mutex_lock(&tileSetLock);
+    for (QuadPagingLoadedTileSet::iterator it = tileSet.begin();
+         it != tileSet.end(); ++it)
+        delete *it;
+    tileSet.clear();
+    pthread_mutex_unlock(&tileSetLock);
 }
 
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+        return;
+    
     Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
     GeoMbr geoMbr;
-    CoordSystem *wkCoordSys = scene->getCoordAdapter()->getCoordSystem();
+    CoordSystem *wkCoordSys = quadLayer.coordSys;
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
@@ -189,6 +206,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ll->y = geoMbr.ll().y();
     ur->x = geoMbr.ur().x();
     ur->y = geoMbr.ur().y();
+}
+
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
+{
+    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    
+    ll->x = mbr.ll().x();
+    ll->y = mbr.ll().y();
+    ur->x = mbr.ur().x();
+    ur->y = mbr.ur().y();
 }
 
 #pragma mark - WhirlyKitQuadDataStructure protocol
@@ -219,7 +246,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
-    return minZoom;
+    return 0;
 }
 
 /// Return the maximum quad tree zoom level.  Must be at least minZoom
@@ -229,7 +256,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 /// Return an importance value for the given tile
-- (float)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level <= 1)
         return MAXFLOAT;
@@ -243,12 +270,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     Mbr parentMbr = quadLayer.quadtree->generateMbrForNode(parentIdent);
 
     // This is how much screen real estate we're covering for this tile
-    float import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+    double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
     
     // Just the importance of this tile.
 //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
-//    NSLog(@"tile (%d,%d,%d) = %f",ident.x,ident.y,ident.level,import);
+//    NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
@@ -283,6 +310,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 // Called on the layer thread
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    MaplyTileID tileID;
+    tileID.x = tileInfo.ident.x;
+    tileID.y = tileInfo.ident.y;
+    tileID.level = tileInfo.ident.level;
+    
     bool isThere = false;
     
     // Look for the existing tile, just in case
@@ -308,11 +340,13 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     // Now let the delegate know we'd like that tile.
-    MaplyTileID tileID;
-    tileID.x = tileInfo.ident.x;
-    tileID.y = tileInfo.ident.y;
-    tileID.level = tileInfo.ident.level;
-    [tileSource startFetchForTile:tileID forLayer:self];
+    if (tileID.level >= minZoom)
+        [tileSource startFetchForTile:tileID forLayer:self];
+    else {
+        [self tileDidLoad:tileID];
+    }
+    
+//    NSLog(@"Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called on the layer thread
@@ -337,7 +371,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [_viewC removeObjects:compObjs];
     
     // Check the parent
-    if (tileInfo.ident.level > 0)
+    if (tileInfo.ident.level >= minZoom)
     {
         MaplyTileID parentID;
         parentID.x = tileInfo.ident.x/2;
@@ -414,9 +448,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         for (unsigned int iy=0;iy<2;iy++)
         {
             MaplyTileID childID;
-            childID.x = 2*tile->nodeInfo.ident.x + ix;
-            childID.y = 2*tile->nodeInfo.ident.y + iy;
-            childID.level = tile->nodeInfo.ident.level + 1;
+            childID.x = 2*tile->nodeIdent.x + ix;
+            childID.y = 2*tile->nodeIdent.y + iy;
+            childID.level = tile->nodeIdent.level + 1;
             QuadPagingLoadedTile childTile(Quadtree::Identifier(childID.x,childID.y,childID.level));
             QuadPagingLoadedTileSet::iterator it = tileSet.find(&childTile);
             if (it != tileSet.end() && (*it)->didLoad)
@@ -505,6 +539,40 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [self performSelector:@selector(loadNotify:) onThread:super.layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
 }
 
+- (void)tile:(MaplyTileID)tileID hasNumParts:(int)numParts
+{
+    Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
+    pthread_mutex_lock(&tileSetLock);
+    QuadPagingLoadedTile dummyTile(tileIdent);
+    QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    if (it != tileSet.end())
+    {
+        QuadPagingLoadedTile *tile = *it;
+        tile->numParts = numParts;
+    }
+    pthread_mutex_unlock(&tileSetLock);
+}
+
+- (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart
+{
+    bool finishedLoad = false;
+    
+    Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
+    pthread_mutex_lock(&tileSetLock);
+    QuadPagingLoadedTile dummyTile(tileIdent);
+    QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);
+    if (it != tileSet.end())
+    {
+        QuadPagingLoadedTile *tile = *it;
+        tile->numParts--;
+        finishedLoad = tile->numParts <= 0;
+    }
+    pthread_mutex_unlock(&tileSetLock);
+    
+    if (finishedLoad)
+        [self tileDidLoad:tileID];
+}
+
 // As long as we're not loading the tile, we can load the children
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
@@ -522,7 +590,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return ret;
 }
 
-- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)clearContents
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     pthread_mutex_lock(&tileSetLock);
@@ -533,9 +601,26 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
             [compObjs addObjectsFromArray:(*it)->compObjs];
         delete *it;
     }
+    tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
     
     [_viewC removeObjects:compObjs];
+}
+
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+{
+    [self clearContents];
+}
+
+- (void)reload
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(reload) onThread:super.layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    [quadLayer refresh];
 }
 
 @end

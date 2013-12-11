@@ -64,6 +64,8 @@
 #define kMaplyDefaultLineShader @"Default Line;backface=yes"
 /// This point/line shader turns off the backface logic for lines
 #define kMaplyNoBackfaceLineShader @"Default Line;backface=no"
+/// The default billboard shader
+#define kMaplyBillboardShader @"Default Billboard"
 
 /// Where we start image layer draw priorities
 #define kMaplyImageLayerDrawPriorityDefault 100
@@ -75,6 +77,7 @@
 #define kMaplyLabelDrawPriorityDefault 60000
 #define kMaplyLoftedPolysDrawPriorityDefault 70000
 #define kMaplyShapeDrawPriorityDefault 80000
+#define kMaplyBillboardDrawPriorityDefault 90000
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
@@ -128,15 +131,30 @@
 #define kMaplyFilled @"filled"
 #define kWGFilled kMaplyFilled
 
+/// If set, the texture to apply to the feature
+#define kMaplyVecTexture @"texture"
+#define kMaplyVecTexScaleX @"texscalex"
+#define kMaplyVecTexScaleY @"texscaley"
+
+/// The projection to use when generating texture coordinates
+#define kMaplyVecTextureProjection @"texprojection"
+/// Tangent plane projection for texture coordinates
+#define kMaplyProjectionTangentPlane @"texprojectiontanplane"
+
+/// Center of the feature, to use for texture calculations
+#define kMaplyVecCenterX @"veccenterx"
+#define kMaplyVecCenterY @"veccentery"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
-#define kMaplySubdivType @"subdivsiontype"
+#define kMaplySubdivType @"subdivisiontype"
 /// Subdivide the vector edges along a great circle
 #define kMaplySubdivGreatCircle @"greatcircle"
 /// Subdivide the vectors edges along lat/lon
 #define kMaplySubdivSimple @"simple"
-
+/// Clip features along a grid of the given size
+#define kMaplySubdivGrid @"grid"
 
 /// These are used for stickers
 
@@ -146,6 +164,10 @@
 /// Sampling size along one dimension
 #define kMaplySampleY @"sampleY"
 #define kWGSampleY kMaplySampleY
+/// Images to use when changing a sticker
+#define kMaplyStickerImages @"images"
+/// Image format to use for the new images
+#define kMaplyStickerImageFormat @"imageformat"
 
 /// These are used for lofted polygons
 

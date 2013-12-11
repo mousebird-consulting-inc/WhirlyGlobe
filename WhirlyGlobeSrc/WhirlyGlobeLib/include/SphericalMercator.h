@@ -66,6 +66,11 @@ public:
     ///  bounding box for the constraints.  The latter are in geographic (WGS84)
     SphericalMercatorDisplayAdapter(float originLon,GeoCoord ll,GeoCoord ur);
     
+    /// Construct with the origin longitude for the projection and the
+    ///  bounding box for the constraints.  The latter are in geographic (WGS84).
+    /// Also pass in a display origin.  We'll offset everything from there.
+    SphericalMercatorDisplayAdapter(float originLon,GeoCoord ll,GeoCoord ur,Point3d displayOrigin);
+    
     /// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
     virtual bool getBounds(Point3f &ll,Point3f &ur);
         

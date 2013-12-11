@@ -44,6 +44,8 @@ using namespace WhirlyKit;
     bool        outline;
     UIColor     *outlineColor;
     float       outlineWidth;
+    bool        readZBuffer;
+    bool        writeZBuffer;
     bool        enable;
     NSObject<WhirlyKitLoftedPolyCache> *cache;
 }
@@ -98,6 +100,8 @@ using namespace WhirlyKit;
     outline = [dict boolForKey:@"outline" default:false];
     outlineColor = [dict objectForKey:@"outlineColor" checkType:[UIColor class] default:[UIColor whiteColor]];
     outlineWidth = [dict floatForKey:@"outlineWidth" default:1.0];
+    readZBuffer = [dict boolForKey:@"zbufferread" default:YES];
+    writeZBuffer = [dict boolForKey:@"zbufferwrite" default:NO];
     enable = [dict boolForKey:@"enable" default:true];
     self.key = inKey;
 }
@@ -115,46 +119,49 @@ bool LoftedPolySceneRep::readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache
     if (!cache)
         return false;
     
-    NSData *data = [cache readLoftedPolyData:key];
-    if (!data)
-        return false;
+    // Note: Cache no longer working
+    return false;
     
-    try {
-        // MBR first
-        float ll_x,ll_y,ur_x,ur_y;
-        unsigned int loc = 0;
-        [data getBytes:&ll_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-        [data getBytes:&ll_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-        [data getBytes:&ur_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-        [data getBytes:&ur_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-        shapeMbr.addGeoCoord(GeoCoord(ll_x,ll_y));
-        shapeMbr.addGeoCoord(GeoCoord(ur_x,ur_y));
-        
-        // Triangle meshes
-        unsigned int numMesh = 0;
-        [data getBytes:&numMesh range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
-        triMesh.resize(numMesh);
-        for (unsigned int ii=0;ii<numMesh;ii++)
-        {
-            VectorRing &ring = triMesh[ii];
-            unsigned int numPt = 0;
-            [data getBytes:&numPt range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
-            ring.resize(numPt);
-            for (unsigned int jj=0;jj<numPt;jj++)
-            {
-                Point2f &pt = ring[jj];
-                float x,y;
-                [data getBytes:&x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-                [data getBytes:&y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-                pt.x() = x;
-                pt.y() = y;
-            }
-        }
-    }
-    catch (...)
-    {
-        return false;
-    }
+//    NSData *data = [cache readLoftedPolyData:key];
+//    if (!data)
+//        return false;
+//    
+//    try {
+//        // MBR first
+//        float ll_x,ll_y,ur_x,ur_y;
+//        unsigned int loc = 0;
+//        [data getBytes:&ll_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//        [data getBytes:&ll_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//        [data getBytes:&ur_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//        [data getBytes:&ur_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//        shapeMbr.addGeoCoord(GeoCoord(ll_x,ll_y));
+//        shapeMbr.addGeoCoord(GeoCoord(ur_x,ur_y));
+//        
+//        // Triangle meshes
+//        unsigned int numMesh = 0;
+//        [data getBytes:&numMesh range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
+//        triMesh.resize(numMesh);
+//        for (unsigned int ii=0;ii<numMesh;ii++)
+//        {
+//            VectorRing &ring = triMesh[ii];
+//            unsigned int numPt = 0;
+//            [data getBytes:&numPt range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
+//            ring.resize(numPt);
+//            for (unsigned int jj=0;jj<numPt;jj++)
+//            {
+//                Point2f &pt = ring[jj];
+//                float x,y;
+//                [data getBytes:&x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//                [data getBytes:&y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
+//                pt.x() = x;
+//                pt.y() = y;
+//            }
+//        }
+//    }
+//    catch (...)
+//    {
+//        return false;
+//    }
     
     return true;
 }
@@ -163,32 +170,35 @@ bool LoftedPolySceneRep::readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache
 // Just the MBR and triangle mesh
 bool LoftedPolySceneRep::writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key)
 {
-    NSMutableData *data = [NSMutableData dataWithCapacity:0];
+    // Note: Cache no longer working
+    return false;
     
-    // MBR first
-    GeoCoord ll = shapeMbr.ll(), ur = shapeMbr.ur();
-    [data appendBytes:&ll.x() length:sizeof(float)];
-    [data appendBytes:&ll.y() length:sizeof(float)];
-    [data appendBytes:&ur.x() length:sizeof(float)];
-    [data appendBytes:&ur.y() length:sizeof(float)];
-    
-    // Triangle meshes
-    unsigned int numMesh = triMesh.size();
-    [data appendBytes:&numMesh length:sizeof(unsigned int)];
-    for (unsigned int ii=0;ii<numMesh;ii++)
-    {
-        VectorRing &ring = triMesh[ii];
-        unsigned int numPt = ring.size();
-        [data appendBytes:&numPt length:sizeof(unsigned int)];
-        for (unsigned int jj=0;jj<numPt;jj++)
-        {
-            Point2f &pt = ring[jj];
-            [data appendBytes:&pt.x() length:sizeof(float)];
-            [data appendBytes:&pt.y() length:sizeof(float)];
-        }
-    }
-    
-    return [cache writeLoftedPolyData:data cacheName:key];
+//    NSMutableData *data = [NSMutableData dataWithCapacity:0];
+//    
+//    // MBR first
+//    GeoCoord ll = shapeMbr.ll(), ur = shapeMbr.ur();
+//    [data appendBytes:&ll.x() length:sizeof(float)];
+//    [data appendBytes:&ll.y() length:sizeof(float)];
+//    [data appendBytes:&ur.x() length:sizeof(float)];
+//    [data appendBytes:&ur.y() length:sizeof(float)];
+//    
+//    // Triangle meshes
+//    unsigned int numMesh = triMesh.size();
+//    [data appendBytes:&numMesh length:sizeof(unsigned int)];
+//    for (unsigned int ii=0;ii<numMesh;ii++)
+//    {
+//        VectorRing &ring = triMesh[ii];
+//        unsigned int numPt = ring.size();
+//        [data appendBytes:&numPt length:sizeof(unsigned int)];
+//        for (unsigned int jj=0;jj<numPt;jj++)
+//        {
+//            Point2f &pt = ring[jj];
+//            [data appendBytes:&pt.x() length:sizeof(float)];
+//            [data appendBytes:&pt.y() length:sizeof(float)];
+//        }
+//    }
+//    
+//    return [cache writeLoftedPolyData:data cacheName:key];
 }
 
 /* Drawable Builder
@@ -227,15 +237,9 @@ public:
             drawable->setColor([((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo->outlineColor) asRGBAColor]);
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
-            if (polyInfo->layered)
-            {
-                drawable->setDrawPriority(polyInfo->priority);
-//                drawable->setAlpha(true);
-            } else {
-//                drawable->setAlpha(true);
-                drawable->setDrawPriority(polyInfo->priority);
-                drawable->setRequestZBuffer(true);
-            }
+            drawable->setDrawPriority(polyInfo->priority);
+            drawable->setRequestZBuffer(polyInfo->readZBuffer);
+            drawable->setWriteZBuffer(polyInfo->writeZBuffer);
             drawable->setVisibleRange(polyInfo->minVis,polyInfo->maxVis);
         }
     }
@@ -270,11 +274,12 @@ public:
     
     // Add a whole mess of triangles, adding
     //  in the height
-    void addPolyGroup(std::vector<VectorRing> &rings)
+    void addPolyGroup(VectorTrianglesRef mesh)
     {
-        for (unsigned int ii=0;ii<rings.size();ii++)
+        for (unsigned int ii=0;ii<mesh->tris.size();ii++)
         {
-            VectorRing &tri = rings[ii];
+            VectorRing tri;
+            mesh->getTriangle(ii, tri);
             if (tri.size() == 3)
             {
                 Point2f verts[3];

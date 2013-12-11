@@ -68,6 +68,12 @@
   */
 @property (nonatomic,assign) int numSimultaneousFetches;
 
+/** @brief The importance cutoff below which we won't bother to page a tile.
+    @details The paging layer will evaluate tiles based on screen space they take up.  This is the cutoff we use to evaluate when a tile is worth paging in.  It's the number of pixels a given tile would take up on the screen.
+    @details Typical values would be on the order of 256*256.
+  */
+@property (nonatomic,assign) float importance;
+
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
@@ -99,12 +105,35 @@
  */
 - (void)tileDidLoad:(MaplyTileID)tileID;
 
-/** @brief Calculate the bounding box for a single tile.
+/** @brief If you're loading a number of parts of a tile from different sources, tell the layer about it.
+    @details Rather than a single tileDidLoad: call, you can break it up into the number of parts you're actually loading.  This is convenient if you're fetching data from multiple sources.
+  */
+- (void)tile:(MaplyTileID)tileID hasNumParts:(int)numParts;
+
+/** @brief If you're loading your tile in parts, let the layer know which part just got loaded.
+    @details If you've set the number of parts with tile:hasNumParts: this is how you let the layer know which parts you've loaded.
+  */
+- (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart;
+
+/** @brief Calculate the bounding box for a single tile in geographic.
     @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).
+    @param tileID The ID for the tile we're interested in.
+    @param ll The lower left corner of the tile in geographic coordinates.
+    @param ur The upper right corner of the tile in geographic coordinates.
+  */
+- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the bounding box for a single tile in the local coordinate system.
+    @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
     @param tileID The ID for the tile we're interested in.
     @param ll The lower left corner of the tile in local coordinates.
     @param ur The upper right corner of the tile in local coordinates.
   */
-- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur ;
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+
+/** @brief Reload the paging layer contents.
+    @details This asks the paging layer to clean out its current data and reload everything from scratch.
+  */
+- (void)reload;
 
 @end

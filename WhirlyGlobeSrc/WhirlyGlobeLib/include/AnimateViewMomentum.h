@@ -21,6 +21,25 @@
 #import <Foundation/Foundation.h>
 #import "GlobeView.h"
 
+/** The animate view momentum message is sent out when the animation starts.
+    You can use this to calculate where it will end.
+  */
+@interface AnimateViewMomentumMessage : NSObject
+
+/// The globe view this related to
+@property (nonatomic,readonly) WhirlyGlobeView *globeView;
+
+/// When this animation will end
+@property (nonatomic,readonly) NSTimeInterval endTime;
+
+/// Rotation at the end of this animation
+@property (nonatomic,readonly) Eigen::Quaterniond rot;
+
+@end
+
+// Sent out when the animation view momentum delegate starts
+#define kAnimateViewMomentum @"WKAnimationViewMomentumStarted"
+
 /** Animate View Momentum is a WhirlyGlobe Animation Delegate
     that will animate from a starting point forward in time with
     an acceleration.  Basically, we use this to simulate momentum.

@@ -33,7 +33,6 @@ namespace WhirlyKit
     
 MarkerSceneRep::MarkerSceneRep()
 {
-    selectID = EmptyIdentity;
 }
     
 void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
@@ -57,10 +56,9 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
             screenIDVec.push_back(*idIt);
         changes.push_back(new ScreenSpaceGeneratorEnableRequest(screenGenId, screenIDVec, enable));
     }
-    screenShapeIDs.clear();
     
-    if (selectManager && selectID != EmptyIdentity)
-        selectManager->enableSelectable(selectID, enable);
+    if (selectManager && !selectIDs.empty())
+        selectManager->enableSelectables(selectIDs, enable);
     
     if (layoutManager)
         layoutManager->enableLayoutObjects(screenShapeIDs, enable);
@@ -94,8 +92,8 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     }
     screenShapeIDs.clear();
     
-    if (selectManager && selectID != EmptyIdentity)
-        selectManager->removeSelectable(selectID);
+    if (selectManager && !selectIDs.empty())
+        selectManager->removeSelectables(selectIDs);
     
     if (layoutManager)
         layoutManager->removeLayoutObjects(screenShapeIDs);
@@ -157,6 +155,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
     _fade = [desc floatForKey:@"fade" default:0.0];
     _enable = [desc boolForKey:@"enable" default:true];
+    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -245,7 +244,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             if (!marker.selectID)
                 marker.selectID = Identifiable::genId();
             
-            markerRep->selectID = marker.selectID;
+            markerRep->selectIDs.insert(marker.selectID);
             if (markerInfo.screenObject)
             {
                 Point2f pts2d[4];
@@ -281,7 +280,10 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             {
                 ScreenSpaceGenerator::SimpleGeometry smGeom;
                 smGeom.texID = subTex.texId;
+                smGeom.programID = markerInfo.programId;
                 smGeom.color = [markerInfo.color asRGBAColor];
+                if (marker.color)
+                    smGeom.color = [marker.color asRGBAColor];
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));

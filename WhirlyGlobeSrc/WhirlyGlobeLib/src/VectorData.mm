@@ -18,6 +18,7 @@
  *
  */
 
+#import <string>
 #import "VectorData.h"
 #import "ShapeReader.h"
 #import "libjson.h"
@@ -40,9 +41,9 @@ float CalcLoopArea(const VectorRing &loop)
     return area;
 }
     
-float CalcLoopArea(const std::vector<Point2d> &loop)
+double CalcLoopArea(const std::vector<Point2d> &loop)
 {
-    float area = 0.0;
+    double area = 0.0;
     for (unsigned int ii=0;ii<loop.size();ii++)
     {
         const Point2d &p1 = loop[ii];
@@ -53,6 +54,34 @@ float CalcLoopArea(const std::vector<Point2d> &loop)
     return area;    
 }
     
+Point2f CalcLoopCentroid(const VectorRing &loop)
+{
+    Point2f centroid(0,0);
+    
+    float area = 0.0;
+    for (unsigned int ii=0;ii<loop.size()-1;ii++)
+    {
+        const Point2f p0 = loop[ii];
+        const Point2f p1 = loop[(ii+1)%loop.size()];
+        area += (p0.x()*p1.y()-p1.x()*p0.y());
+    }
+    area /= 2.0;
+    
+    Point2f sum(0,0);
+    for (unsigned int ii=0;ii<loop.size()-1;ii++)
+    {
+        const Point2f p0 = loop[ii];
+        const Point2f p1 = loop[(ii+1)%loop.size()];
+        float b = (p0.x()*p1.y()-p1.x()*p0.y());
+        sum.x() += (p0.x()+p1.x())*b;
+        sum.y() += (p0.y()+p1.y())*b;
+    }
+    centroid.x() = sum.x()/(6*area);
+    centroid.y() = sum.y()/(6*area);
+    
+    return centroid;
+}
+        
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)
@@ -178,6 +207,44 @@ NSMutableDictionary *VectorShape::getAttrDict()
     return attrDict;
 }
     
+VectorTriangles::VectorTriangles()
+{
+}
+    
+VectorTriangles::~VectorTriangles()
+{
+}
+    
+VectorTrianglesRef VectorTriangles::createTriangles()
+{
+    return VectorTrianglesRef(new VectorTriangles());
+}
+    
+GeoMbr VectorTriangles::calcGeoMbr()
+{
+    return geoMbr;
+}
+    
+void VectorTriangles::getTriangle(int which,VectorRing &ring)
+{
+    if (which < 0 || which >= tris.size())
+        return;
+
+    ring.reserve(3);
+    Triangle &tri = tris[which];
+    for (unsigned int ii=0;ii<3;ii++)
+    {
+        Point3f pt = pts[tri.pts[ii]];
+        ring.push_back(Point2f(pt.x(),pt.y()));
+    }
+}
+    
+void VectorTriangles::initGeoMbr()
+{
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        geoMbr.addGeoCoord(GeoCoord(pts[ii].x(),pts[ii].y()));
+}
+    
 VectorAreal::VectorAreal()
 {
 }
@@ -279,6 +346,238 @@ void VectorPoints::initGeoMbr()
 {
     geoMbr.addGeoCoords(pts);
 }
+    
+typedef enum {FileVecPoints=20,FileVecLinear,FileVecAreal,FileVecMesh} VectorIdentType;
+    
+bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
+{
+    FILE *fp = fopen(fileName.c_str(),"w");
+    if (!fp)
+        return false;
+
+    try {
+        int numFeatures = shapes.size();
+        if (fwrite(&numFeatures,sizeof(int),1, fp) != 1)
+            throw 1;
+
+        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+        {
+            VectorShapeRef shape = *it;
+            
+            // They all have a dictionary
+            NSData *dictData = [NSKeyedArchiver archivedDataWithRootObject:shape->getAttrDict()];
+            int dataLen = [dictData length];
+            if (fwrite(&dataLen,sizeof(int),1,fp) != 1)
+                throw 1;
+            if (dataLen > 0)
+                if (fwrite([dictData bytes],[dictData length],1,fp) != 1)
+                    throw 1;
+            
+            VectorPointsRef pts = boost::dynamic_pointer_cast<VectorPoints>(shape);
+            VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(shape);
+            VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(shape);
+            VectorTrianglesRef mesh = boost::dynamic_pointer_cast<VectorTriangles>(shape);
+            if (pts.get())
+            {
+                unsigned short dataType = FileVecPoints;
+                if (fwrite(&dataType,sizeof(short),1,fp) != 1)
+                    throw 1;
+                
+                unsigned int numPts = pts->pts.size();
+                if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
+                    throw 1;
+                if (fwrite(&pts->pts[0],2*sizeof(float),numPts,fp) != numPts)
+                    throw 1;
+            } else if (lin.get())
+            {
+                unsigned short dataType = FileVecLinear;
+                if (fwrite(&dataType,sizeof(short),1,fp) != 1)
+                    throw 1;
+                
+                unsigned int numPts = lin->pts.size();
+                if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
+                    throw 1;
+                if (fwrite(&lin->pts[0],2*sizeof(float),numPts,fp) != numPts)
+                    throw 1;
+                
+            } else if (ar.get())
+            {
+                unsigned short dataType = FileVecAreal;
+                if (fwrite(&dataType,sizeof(short),1,fp) != 1)
+                    throw 1;
+                
+                unsigned int numLoops = ar->loops.size();
+                if (fwrite(&numLoops,sizeof(int),1,fp) != 1)
+                    throw 1;
+                for (unsigned int ii=0;ii<numLoops;ii++)
+                {
+                    VectorRing &ring = ar->loops[ii];
+                    unsigned int numPts = ring.size();
+                    if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    if (fwrite(&ring[0],2*sizeof(float),numPts,fp) != numPts)
+                        throw 1;
+                }
+                
+            } else if (mesh.get())
+            {
+                unsigned short dataType = FileVecMesh;
+                if (fwrite(&dataType,sizeof(short),1,fp) != 1)
+                    throw 1;
+                
+                unsigned int numPts = mesh->pts.size();
+                if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
+                    throw 1;
+                if (fwrite(&mesh->pts[0],3*sizeof(float),numPts,fp) != numPts)
+                    throw 1;
+                
+                unsigned int numTri = mesh->tris.size();
+                if (fwrite(&numTri,sizeof(unsigned int),1,fp) != 1)
+                    throw 1;
+                if (fwrite(&mesh->tris[0],3*sizeof(unsigned int),numTri,fp) != numTri)
+                    throw 1;
+            } else {
+                NSLog(@"Tried to write unknown object in VectorWriteFile");
+                throw 1;
+            }
+        }
+    }
+    catch (...)
+    {
+        fclose(fp);
+        return false;
+    }
+    
+    fclose(fp);
+    return true;
+}
+
+bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
+{
+    FILE *fp = fopen(fileName.c_str(),"r");
+    if (!fp)
+        return false;
+    
+    try {
+        int numFeatures;
+        if (fread(&numFeatures, sizeof(int), 1, fp) != 1)
+            throw 1;
+        
+        for (unsigned int ii=0;ii<numFeatures;ii++)
+        {
+            // Dictionary first
+            int dataLen;
+            if (fread(&dataLen, sizeof(int), 1, fp) != 1)
+                throw 1;
+            NSMutableDictionary *dict = nil;
+            if (dataLen > 0)
+            {
+                NSMutableData *dictData = [[NSMutableData alloc] initWithLength:dataLen];
+                if (fread([dictData mutableBytes],dataLen,1,fp) != 1)
+                    throw 1;
+                dict = (NSMutableDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:dictData];
+            }
+            
+            // Now for the type
+            unsigned short dataType;
+            if (fread(&dataType,sizeof(unsigned short),1,fp) != 1)
+                throw 1;
+            
+            switch (dataType)
+            {
+                case FileVecPoints:
+                {
+                    VectorPointsRef pts(VectorPoints::createPoints());
+                    pts->setAttrDict(dict);
+
+                    unsigned int numPts;
+                    if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    pts->pts.resize(numPts);
+                    if (fread(&pts->pts[0],2*sizeof(float),numPts,fp) != numPts)
+                        throw 1;
+                    
+                    shapes.insert(pts);
+                }
+                    break;
+                case FileVecLinear:
+                {
+                    VectorLinearRef lin(VectorLinear::createLinear());
+                    lin->setAttrDict(dict);
+
+                    unsigned int numPts;
+                    if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    lin->pts.resize(numPts);
+                    if (fread(&lin->pts[0],2*sizeof(float),numPts,fp) != numPts)
+                        throw 1;
+                    
+                    shapes.insert(lin);
+                }
+                    break;
+                case FileVecAreal:
+                {
+                    VectorArealRef ar(VectorAreal::createAreal());
+                    ar->setAttrDict(dict);
+
+                    unsigned int numLoops;
+                    if (fread(&numLoops,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    ar->loops.resize(numLoops);
+                    
+                    for (unsigned int ii=0;ii<numLoops;ii++)
+                    {
+                        VectorRing &ring = ar->loops[ii];
+                        unsigned int numPts;
+                        if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
+                            throw 1;
+                        ring.resize(numPts);
+                        if (fread(&ring[0],2*sizeof(float),numPts,fp) != numPts)
+                            throw 1;
+                    }
+                    
+                    shapes.insert(ar);
+                }
+                    break;
+                case FileVecMesh:
+                {
+                    VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+                    mesh->setAttrDict(dict);
+                    
+                    unsigned int numPts;
+                    if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    mesh->pts.resize(numPts);
+                    if (fread(&mesh->pts[0],3*sizeof(float),numPts,fp) != numPts)
+                        throw 1;
+                    
+                    unsigned int numTri;
+                    if (fread(&numTri,sizeof(unsigned int),1,fp) != 1)
+                        throw 1;
+                    mesh->tris.resize(numTri);
+                    if (fread(&mesh->tris[0],3*sizeof(unsigned int),numTri,fp) != numTri)
+                        throw 1;
+                    
+                    shapes.insert(mesh);
+                }
+                    break;
+                default:
+                    NSLog(@"Unknown data type in VectorReadFile()");
+                    throw 1;
+                    break;
+            }
+        }
+    }
+    catch (...)
+    {
+        fclose(fp);
+        return false;
+    }
+    
+    fclose(fp);
+    return true;
+}
+
 
 // Parse a single coordinate out of an array
 bool VectorParseCoord(Point2f &coord,NSArray *coords)

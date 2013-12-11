@@ -52,10 +52,7 @@
         
     // General rendering and other display hints
     NSDictionary *hints;
-    
-    // Default description dictionaries for the various data types
-    NSDictionary *screenMarkerDesc,*markerDesc,*screenLabelDesc,*labelDesc,*vectorDesc,*shapeDesc,*stickerDesc,*loftDesc;
-    
+        
     // Clear color we're using
     UIColor *theClearColor;
     

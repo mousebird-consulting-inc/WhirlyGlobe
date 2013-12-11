@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
 
 /// Data type for the vector.  Multi means it contains multiple types
@@ -46,7 +47,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details All vectors should have some set of attribution.  If there's more than one vector feature here, we'll return the attributes on the first one.
     @details The attribution is returned as an NSDictionary and, though you can modify it, you probably shouldn't.
   */
-@property (nonatomic,readonly) NSDictionary *attributes;
+@property (nonatomic,readonly) NSMutableDictionary *attributes;
 
 /** @brief Parse vector data from geoJSON.  
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
@@ -65,6 +66,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details We assume the geoJSON is all in decimal degrees in WGS84.
  */
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
+
+/** @brief Read a vector objects from the given cache file.
+    @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
+    @param fileName Name of the binary vector file.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
 
 /** @brief Parse vector objects from a JSON assembly.
     @details This version can deal with non-compliant assemblies returned by the experimental OSM server
@@ -85,6 +93,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+
+/** @brief Write the vector object to the given file on the device.
+    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
+    @param fileName The file to read the vector data from.
+    @return Returns true on succes, false on failure.
+  */
+- (bool)writeToFile:(NSString *)fileName;
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
@@ -123,6 +138,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (MaplyCoordinate)center;
 
+/** @brief Copy the vectors in the given vector object into this one.
+  */
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec;
+
 /** @brief For a linear feature, calculate the mid oint and rotation at that point.
     @details The vector object contains a number of half baked geometric queries, this being one of them.
     @details This finds the middle (as measured by distance) of a linear feature and then calculations an angle corresponding to the line segment that middle sits in.
@@ -134,8 +153,15 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details The vector object contains a number of half baked geometric queries, this being one of them.
     @details If this vector contains at least one areal feature, we'll determine which loop is the largest and return the center of that loop, as well as its bounding box.
     @details Why?  Think label placement on an areal feature.
+    @return Returns false if there was no loop (i.e. probably isn't an areal)
   */
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
+
+/** @brief Calculate the centroid of the largest loop in the areal feature.
+    @details The centroid is a better center for label placement than the middle of the largest loop as calculated by largestLoopCenter:mbrLL:mbrUR:
+    @return Returns false if there was no loop (probably wasn't an areal).
+  */
+- (bool)centroid:(MaplyCoordinate *)centroid;
 
 /** @brief Calculate the bounding box of all the features in this vector object.
   */
@@ -163,10 +189,16 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (void)subdivideToGlobeGreatCircle:(float)epsilon;
 
-/** @brief Teseelate the areal geometry in this vector object and return triangles.
+/** @brief Tesselate the areal geometry in this vector object and return triangles.
     @details This will attempt to tesselate the areals (with holes) and turn them into triangles.  No attribution will be assigned to the new triangles, so be aware.  The tesselator is the GLU based one and does a decent job.  Odds are if there's something wrong it's in the input data.
   */
 - (MaplyVectorObject *) tesselate;
+
+/** @brief Clip the given (presumably areal) feature(s) to a grid in radians of the given size.
+    @details This will run through the loops in the input vectors and clip them against a grid.  The grid size is given in radians.
+    @return New areal features broken up along the grid.
+  */
+- (MaplyVectorObject *) clipToGrid:(CGSize)gridSize;
 
 @end
 

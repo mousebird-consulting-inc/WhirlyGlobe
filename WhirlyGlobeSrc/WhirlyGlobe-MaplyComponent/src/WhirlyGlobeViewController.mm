@@ -26,11 +26,27 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate>
+@implementation WhirlyGlobeViewControllerAnimationState
+
+- (id)init
+{
+    self = [super init];
+    _heading = MAXFLOAT;
+    _height = 1.0;
+    _tilt = MAXFLOAT;
+    _pos.x = _pos.y = 0.0;
+    
+    return self;
+}
+
+@end
+
+@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate,WhirlyGlobeAnimationDelegate>
 @end
 
 @implementation WhirlyGlobeViewController
-{    
+{
+    bool isPanning,isRotating,isZooming,isAnimating;
 }
 
 - (id) init
@@ -124,9 +140,7 @@ using namespace WhirlyGlobe;
     [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
 }
@@ -137,6 +151,31 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnGlobe:) name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOutsideGlobe:) name:WhirlyGlobeTapOutsideMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sphericalEarthLayerLoaded:) name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kPinchDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidEnd:) name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidStart:) name:kRotateDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidEnd:) name:kRotateDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationWillEnd:) name:kAnimateViewMomentum object:nil];
+}
+
+- (void)unregisterForEvents
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kAnimateViewMomentum object:nil];
 }
 
 /// Add a spherical earth layer with the given set of base images
@@ -178,6 +217,10 @@ using namespace WhirlyGlobe;
 - (void)setKeepNorthUp:(bool)keepNorthUp
 {
     panDelegate.northUp = keepNorthUp;
+    pinchDelegate.northUp = keepNorthUp;
+
+    if (keepNorthUp)
+        self.rotateGesture = false;
 }
 
 - (bool)keepNorthUp
@@ -190,7 +233,12 @@ using namespace WhirlyGlobe;
     if (pinchGesture)
     {
         if (!pinchDelegate)
+        {
             pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate.zoomAroundPinch = true;
+            pinchDelegate.doRotation = false;
+            pinchDelegate.northUp = panDelegate.northUp;
+        }
     } else {
         if (pinchDelegate)
         {
@@ -214,8 +262,11 @@ using namespace WhirlyGlobe;
     if (rotateGesture)
     {
         if (!rotateDelegate)
+        {
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
-    } else {        
+            rotateDelegate.rotateAroundCenter = true;
+        }
+    } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
@@ -379,9 +430,25 @@ using namespace WhirlyGlobe;
 
 - (void)setHeading:(float)heading
 {
+    // Undo the current heading
     Point3d localPt = [globeView currentUp];
+    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    Quaterniond posQuat = globeView.rotQuat;
+    if (northPole.y() != 0.0)
+    {
+        // Then rotate it back on to the YZ axis
+        // This will keep it upward
+        float ang = atan(northPole.x()/northPole.y());
+        // However, the pole might be down now
+        // If so, rotate it back up
+        if (northPole.y() < 0.0)
+            ang += M_PI;
+        Eigen::AngleAxisd upRot(ang,localPt);
+        posQuat = posQuat * upRot;
+    }
+
     Eigen::AngleAxisd rot(heading,localPt);
-    Quaterniond newRotQuat = globeView.rotQuat * rot;
+    Quaterniond newRotQuat = posQuat * rot;
     
     globeView.rotQuat = newRotQuat;
 }
@@ -449,6 +516,252 @@ using namespace WhirlyGlobe;
         [_delegate globeViewControllerDidTapOutside:self];
 }
 
+- (void) handleStartMoving
+{
+    if (!isPanning && !isRotating && !isZooming && !isAnimating)
+    {
+        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:)])
+            [_delegate globeViewControllerDidStartMoving:self];
+    }
+}
+
+// Calculate the corners we'll be looking at with the given rotation
+- (void)corners:(MaplyCoordinate *)corners forRot:(Eigen::Quaterniond)theRot viewMat:(Matrix4d)viewMat
+{
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    Eigen::Matrix4d modelTrans;
+    // Note: Pulled this calculation out of the globe view.
+    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset]));
+    Eigen::Affine3d rot(theRot);
+    Eigen::Matrix4d modelMat = (trans * rot).matrix();
+    
+    modelTrans = viewMat * modelMat;
+
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        Point3d hit;
+        if ([globeView pointOnSphereFromScreen:screenCorners[ii] transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+        {
+            Point3d geoHit = scene->getCoordAdapter()->displayToLocal(hit);
+            corners[ii].x = geoHit.x();  corners[ii].y = geoHit.y();
+        } else {
+            corners[ii].x = MAXFLOAT;  corners[ii].y = MAXFLOAT;
+        }
+    }
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving
+{
+    if (isPanning || isRotating || isZooming || isAnimating)
+        return;
+    
+    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
+        return;
+    
+    MaplyCoordinate corners[4];
+    [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
+
+    [_delegate globeViewController:self didStopMoving:corners];
+}
+
+// Called when the pan delegate starts moving
+- (void) panDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pan started");
+
+    [self handleStartMoving];
+    isPanning = true;
+}
+
+// Called when the pan delegate stops moving
+- (void) panDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pan ended");
+    
+    isPanning = false;
+    [self handleStopMoving];
+}
+
+- (void) pinchDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pinch started");
+    
+    [self handleStartMoving];
+    isZooming = true;
+}
+
+- (void) pinchDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Pinch ended");
+
+    isZooming = false;
+    [self handleStopMoving];
+}
+
+- (void) rotateDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Rotate started");
+    
+    [self handleStartMoving];
+    isRotating = true;
+}
+
+- (void) rotateDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Rotate ended");
+    
+    isRotating = false;
+    [self handleStopMoving];
+}
+
+- (void) animationDidStart:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Animation started");
+
+    [self handleStartMoving];
+    isAnimating = true;
+}
+
+- (void) animationDidEnd:(NSNotification *)note
+{
+    if (note.object != globeView)
+        return;
+    
+//    NSLog(@"Animation ended");
+    
+    isAnimating = false;
+    knownAnimateEndRot = false;
+    [self handleStopMoving];
+}
+
+- (void) animationWillEnd:(NSNotification *)note
+{
+    AnimateViewMomentumMessage *info = note.object;
+    if (![info isKindOfClass:[AnimateViewMomentumMessage class]])
+        return;
+
+    knownAnimateEndRot = true;
+    animateEndRot = info.rot;
+
+    if (!isRotating && !isZooming)
+    {
+        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:)])
+        {
+            MaplyCoordinate corners[4];
+            if (knownAnimateEndRot)
+            {
+                [self corners:corners forRot:animateEndRot viewMat:[globeView calcViewMatrix]];
+                [_delegate globeViewController:self willStopMoving:corners];
+            }
+        }
+    }
+}
+
+// See if the given bounding box is all on sreen
+- (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobeView *)theView height:(float)height
+{
+    [globeView setHeightAboveGlobe:height updateWatchers:false];
+
+    std::vector<Point2f> pts;
+    mbr.asPoints(pts);
+    CGRect frame = self.view.frame;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+    {
+        Point2f pt = pts[ii];
+        MaplyCoordinate geoCoord;
+        geoCoord.x = pt.x();  geoCoord.y = pt.y();
+        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
+        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
+            return false;
+    }
+    
+    return true;
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
+{
+    float oldHeight = globeView.heightAboveGlobe;
+
+    Eigen::Quaterniond oldRotQuat = globeView.rotQuat;
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
+    [globeView setRotQuat:newRotQuat updateWatchers:false];
+
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    
+    float minHeight = globeView.minHeightAboveGlobe;
+    float maxHeight = globeView.maxHeightAboveGlobe;
+    if (pinchDelegate)
+    {
+        minHeight = std::max(minHeight,pinchDelegate.minHeight);
+        maxHeight = std::min(maxHeight,pinchDelegate.maxHeight);
+    }
+
+    // Check that we can at least see it
+    bool minOnScreen = [self checkCoverage:mbr globeView:globeView height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr globeView:globeView height:maxHeight];
+    if (!minOnScreen && !maxOnScreen)
+    {
+        [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
+        return oldHeight;
+    }
+    
+    // Now for the binary search
+    // Note: I'd rather make a copy of the view first
+    float minRange = 1e-5;
+    do
+    {
+        float midHeight = (minHeight + maxHeight)/2.0;
+        bool midOnScreen = [self checkCoverage:mbr globeView:globeView height:midHeight];
+        
+        if (!minOnScreen && midOnScreen)
+        {
+            maxHeight = midHeight;
+            maxOnScreen = midOnScreen;
+        } else if (!midOnScreen && maxOnScreen)
+        {
+            minHeight = midHeight;
+            minOnScreen = midOnScreen;
+        } else {
+            // Not expecting this
+            break;
+        }
+        
+        if (maxHeight-minHeight < minRange)
+            break;
+    } while (true);
+    
+    [globeView setHeightAboveGlobe:oldHeight updateWatchers:false];
+    [globeView setRotQuat:oldRotQuat updateWatchers:false];
+    return maxHeight;
+}
+
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
     Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
@@ -473,14 +786,99 @@ using namespace WhirlyGlobe;
     return nil;
 }
 
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir
+#pragma mark - WhirlyGlobeAnimationDelegate
+
+// Called every frame from within the globe view
+- (void)updateView:(WhirlyGlobeView *)inGlobeView
 {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (!animationDelegate)
+    {
+        [globeView cancelAnimation];
+        return;
+    }
     
+    bool lastOne = false;
+    if (now > animationDelegateEnd)
+        lastOne = true;
+    
+    // Ask the delegate where we're supposed to be
+    WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
+    
+    // Start with a rotation from the clean start state to the location
+    Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, Vector3d(0,0,1));
+    
+    // Orient with north up.  Either because we want that or we're about do do a heading
+    Eigen::Quaterniond posRotNorth = posRot;
+    if (panDelegate.northUp || animState.heading != MAXFLOAT)
+    {
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (posRot * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
+        {
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,worldLoc);
+            posRotNorth = posRot * upRot;
+        }
+    }
+    
+    // We can't have both northUp and a heading
+    Eigen::Quaterniond finalQuat = posRotNorth;
+    if (!panDelegate.northUp && animState.heading != MAXFLOAT)
+    {
+        Eigen::AngleAxisd headingRot(animState.heading,worldLoc);
+        finalQuat = posRotNorth * headingRot;
+    }
+    
+    // Set the height (easy)
+    [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
+    
+    // Set the tilt either directly or as a consequence of the height
+    if (animState.tilt == MAXFLOAT)
+        globeView.tilt = [pinchDelegate calcTilt];
+    else
+        globeView.tilt = animState.tilt;
+    
+    globeView.rotQuat = finalQuat;
+    
+    if (lastOne)
+    {
+        [globeView cancelAnimation];
+        animationDelegate = nil;
+    }
 }
 
-- (void)clearSunDirection
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
 {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    animationDelegate = inAnimationDelegate;
+    animationDelegateEnd = now+howLong;
+
+    // Figure out the current state
+    WhirlyGlobeViewControllerAnimationState *stateStart = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    startQuat = globeView.rotQuat;
+    startUp = [globeView currentUp];
+    stateStart.heading = self.heading;
+    stateStart.tilt = self.tilt;
+    MaplyCoordinate pos;
+    float height;
+    [self getPosition:&pos height:&height];
+    stateStart.pos = pos;
+    stateStart.height = height;
     
+    // Tell the delegate what we're up to
+    [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
+    
+    globeView.delegate = self;
 }
+
 
 @end

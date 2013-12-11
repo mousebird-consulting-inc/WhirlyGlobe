@@ -24,6 +24,11 @@
 namespace WhirlyGlobe
 {
 
+// Sent out when the rotation delegate takes control
+#define kRotateDelegateDidStart @"WKRotateDelegateStarted"
+// Sent out when the rotation delegate finished (but hands off to momentum)
+#define kRotateDelegateDidEnd @"WKRotateDelegateEnded"
+
 /// The state of our rotation
 ///  which is not currently in use.
 typedef enum {RotNone,RotFree} RotationType;
@@ -37,5 +42,8 @@ typedef enum {RotNone,RotFree} RotationType;
 
 /// Create a rotation gesture and a delegate and write them up to the given UIView
 + (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
+
+/// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
+@property (nonatomic) bool rotateAroundCenter;
 
 @end

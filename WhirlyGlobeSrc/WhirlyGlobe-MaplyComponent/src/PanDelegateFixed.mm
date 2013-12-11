@@ -137,6 +137,7 @@ static const float MomentumAnimLen = 1.0;
             runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
 		}
 			break;
 		case UIGestureRecognizerStateChanged:
@@ -202,10 +203,14 @@ static const float MomentumAnimLen = 1.0;
 		}
 			break;
         case UIGestureRecognizerStateFailed:
+            if (panType != PanNone)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
             panType = PanNone;
             break;
 		case UIGestureRecognizerStateEnded:
         {
+            bool doNotifyEnd = (panType != PanNone);
+
             if (panType == PanFree && runEndMomentum)
             {
                 // We'll use this to get two points in model space
@@ -248,11 +253,17 @@ static const float MomentumAnimLen = 1.0;
                     float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
                     
                     // Keep going in that direction for a while
-                    viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
-                    view.delegate = viewAnimation;
+                    if (angVel > 0.0)
+                    {
+                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
+                        view.delegate = viewAnimation;
+                    }
                 }
                
             }
+            
+            if (doNotifyEnd)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
         }
 			break;
         default:

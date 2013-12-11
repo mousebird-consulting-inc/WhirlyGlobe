@@ -55,6 +55,7 @@ protected:
 class VectorAreal;
 class VectorLinear;
 class VectorPoints;
+class VectorTriangles;
 
 /// Reference counted version of the base vector shape
 typedef boost::shared_ptr<VectorShape> VectorShapeRef;
@@ -64,6 +65,8 @@ typedef boost::shared_ptr<VectorAreal> VectorArealRef;
 typedef boost::shared_ptr<VectorLinear> VectorLinearRef;
 /// Reference counted Points
 typedef boost::shared_ptr<VectorPoints> VectorPointsRef;
+/// Reference counted triangle mesh
+typedef boost::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
 typedef std::vector<Point2f> VectorRing;
@@ -84,7 +87,42 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);
 /// Calculate area of a loop
-float CalcLoopArea(const std::vector<Point2d> &);
+double CalcLoopArea(const std::vector<Point2d> &);
+/// Calculate the centroid of a loop
+Point2f CalcLoopCentroid(const VectorRing &loop);
+    
+/// Collection of triangles forming a mesh
+class VectorTriangles : public VectorShape
+{
+public:
+    /// Creation function.  Use this instead of new.
+    static VectorTrianglesRef createTriangles();
+    ~VectorTriangles();
+    
+    /// Simple triangle with three points (obviously)
+    typedef struct
+    {
+    public:
+        int pts[3];
+    } Triangle;
+    
+    virtual GeoMbr calcGeoMbr();
+    void initGeoMbr();
+    
+    // Return the given triangle as a VectorRing
+    void getTriangle(int which,VectorRing &ring);
+    
+    // Bounding box in 2D
+	GeoMbr geoMbr;
+
+    // Shared points
+    std::vector<Point3f> pts;
+    // Triangles
+    std::vector<Triangle> tris;
+    
+protected:
+    VectorTriangles();
+};
 
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
@@ -218,7 +256,10 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
-    bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+    
+bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
+bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
     
 }
 

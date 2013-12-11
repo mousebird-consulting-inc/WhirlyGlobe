@@ -25,6 +25,11 @@
 /// The various image formats we support.  RGBA is the default, and most expensive.
 typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyImageUShort5551,MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,MaplyImageUByteRGB,MaplyImage4Layer8Bit} MaplyQuadImageFormat;
 
+/// Wrap values for certain types of textures
+#define MaplyImageWrapNone (0)
+#define MaplyImageWrapX (1<<0)
+#define MaplyImageWrapY (1<<1)
+
 /** @brief The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.
     @details This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.
     @details This is the main interface for image pyramid paging and so has a lot of knobs you can twiddle.  The defaults should work fine in most cases.
@@ -44,6 +49,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/** @brief Enable/Disable the whole layer.
+    @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
+  */
+@property (nonatomic,assign) bool enable;
+
 /** @brief The number of simultaneous fetches the layer will attempt at once.
     @details The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
   */
@@ -62,10 +72,34 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic,assign) bool coverPoles;
 
+/** @brief Set the minimum viewer height the layer will be visible at.
+    @details This is off by default.  When on the layer will not be visible unless the viewer is above this height.
+  */
+@property (nonatomic,assign) float minVis;
+
+/** @brief Set the maximum viewer height the layer will be visible at.
+    @details This is off by default.  When on the layer will not be visible unless the viewer is below this height.
+  */
+@property (nonatomic,assign) float maxVis;
+
 /** @brief Controls whether the fetching code runs in a single thread or is spawned asyncronously.
     @details If set, we'll kick off the tile fetches in their own dispatched blocks.  If not set, we'll just do it in the layer thread.
   */
 @property (nonatomic,assign) bool asyncFetching;
+
+/** @brief Set the minimum time for an update based on the viewer's location and orientation.
+    @details Paging layers watch the viewer to see what it's up to.  When the viewer moves, the layer updates its contents accordingly.  However, the viewer can be moving constantly so we need a way to keep things under control.
+    @details This value (in seconds) specifies the minimum time between updates.  In other words, we won't recalculate things more often than this.  Default value is 1/10s.
+  */
+@property (nonatomic,assign) NSTimeInterval viewUpdatePeriod;
+
+/** @brief Set the minimum movement for an update based on the viewer's location.
+    @details This is useful for throttling layer updates based on how far a viewer moves.  This will only kick off a view update if the viewer moves the given distance (in display coordinates).
+    @details We do not take orientation into account here, so you'd probably be better looking straight down.  Default is off.
+    @details I suggest not using this unless you've already run into the problem this solves.  Specifically that's where you've moving constantly, but in small increments and are burning too much CPU.
+    @see viewUpdatePeriod
+  */
+@property (nonatomic,assign) float minUpdateDist;
 
 /** @brief Have the layer wait until all local tiles are loaded before updating the renderer.
     @details This will have the layer sit on updates until all the local tiles are in.  You won't see the lower levels loading in.  See waitLoadTimeout.
@@ -89,17 +123,35 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
    */
 @property (nonatomic, assign) float currentImage;
 
+/** @brief If set, we'll use this as the maximum current image value when animating.
+    @details By default this is off (-1).  When it's on, we'll consider this the last valid value for currentImage.  This means, when animating, we'll run from 0 to maxCurrentImage.
+    @details This is helpful when you have an animation you want to taper off at the end past the last frame.
+  */
+@property (nonatomic, assign) float maxCurrentImage;
+
 /** @brief The length of time we'll take to switch through all available images (per tile).
     @details If set to non-zero right after layer creation we'll run through all the available images (in each tile) over the given period.  This only makes sense if you've got more than one image per tile.
     @details If you want tighter control use the currentImage property and set your own timer.
   */
 @property (nonatomic, assign) float animationPeriod;
 
+/** @brief If set to true, we'll consider the list of images for each tile to be circular when we animate.
+    @details When set we'll loop back to the first image when we go past the last.  This is the default.
+    @details When not set, we'll run from 0 to maxCurrentImage and then restart.
+  */
+@property (nonatomic, assign) bool animationWrap;
+
 /** @brief Include the original z values in the tile geometry for a custom shader.
     @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
     @details If set, this adds the z values back as a separate vertex attribute called "a_elev" for your shader to pick up.
   */
 @property (nonatomic, assign) bool includeElevAttrForShader;
+
+/** @brief If true we'll actuall use the elevation values to modify the mesh.
+    @details When this is on we'll modify the mesh to actually use elevation values passed in through the elevation delegate. On is the default, logically enough.
+    @details Why would you ever turn it off?  If you wanted a flat (or curved for the globe) mesh with elevation values in their seperate attribute array.  You might want a shading effect rather than actual geometry.
+  */
+@property (nonatomic, assign) bool useElevAsZ;
 
 /** @brief Requires an elevation chunk for every tile we display.
     @details Elevation data is optional on the globe or map.  If it exists, via the MaplyElevationSource delegate on the view controller, then we'll use it to construct the tile.  This property requires elevation for any tile we display.
@@ -156,10 +208,31 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool flipY;
 
+/** @brief Use the target zoom level shortcut when possible.
+    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
+    @details It's on by default and will activate only when this layer's coordinate system is the same as the display system and there's no view matrix (e.g. tilt) set.
+  */
+@property (nonatomic) bool useTargetZoomLevel;
+
 /** @brief Force a full reload of all tiles.
     @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
     @details This is good for tile sources, like weather, that need to be refreshed every so often.
   */
 - (void)reload;
+
+/** @brief The target zoom level for this layer given the current view settings.
+    @details Calculates the target zoom level for the middle of the screen.
+    @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
+    @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
+  */
+- (int)targetZoomLevel;
+
+/** @brief Pass back the loaded image(s) for a given tile.
+    @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
+    @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
+    @param images Either one of UIImage or MaplyPlaceholderImage.
+    @param tileID The tile we've loaded.
+  */
+- (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
 
 @end

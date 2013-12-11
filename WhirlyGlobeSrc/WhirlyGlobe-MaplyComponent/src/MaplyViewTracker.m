@@ -22,4 +22,14 @@
 
 @implementation MaplyViewTracker
 
+- (id)init
+{
+    self = [super init];
+    // Note: This should be DrawVisibleInvalid
+    _minVis = 1e10;
+    _maxVis = 1e10;
+    
+    return self;
+}
+
 @end

@@ -23,6 +23,20 @@
 
 using namespace Eigen;
 
+@implementation AnimateViewMomentumMessage
+
+- (id)initWithGlobeView:(WhirlyGlobeView *)globeView rot:(Quaterniond &)endRot time:(NSTimeInterval)endTime
+{
+    self = [super init];
+    _globeView = globeView;
+    _rot = endRot;
+    _endTime = endTime;
+    
+    return self;
+}
+
+@end
+
 @implementation AnimateViewMomentum
 {
     Eigen::Quaterniond startQuat;
@@ -54,11 +68,29 @@ using namespace Eigen;
                 startDate = 0;
         } else
             maxTime = MAXFLOAT;
+        
+        // If this is going to end, let people know when
+        if (maxTime != MAXFLOAT)
+        {
+            Quaterniond endRot = [self rotForTime:maxTime];
+            AnimateViewMomentumMessage *msg = [[AnimateViewMomentumMessage alloc] initWithGlobeView:globeView rot:endRot time:startDate+maxTime];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kAnimateViewMomentum object:msg userInfo:nil];
+        }
     }
     
     return self;
 }
 
+- (Quaterniond)rotForTime:(NSTimeInterval)sinceStart
+{
+    // Calculate the offset based on angle
+    float totalAng = (_velocity + 0.5 * _acceleration * sinceStart) * sinceStart;
+    Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
+    Eigen::Quaterniond newQuat;
+    newQuat = startQuat * diffRot;
+    
+    return newQuat;
+}
 
 // Called by the view when it's time to update
 - (void)updateView:(WhirlyGlobeView *)globeView
@@ -73,13 +105,10 @@ using namespace Eigen;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
+        [globeView cancelAnimation];
     }
     
-    // Calculate the offset based on angle
-    float totalAng = (_velocity + 0.5 * _acceleration * sinceStart) * sinceStart;
-    Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
-    Eigen::Quaterniond newQuat;
-    newQuat = startQuat * diffRot;    
+    Quaterniond newQuat = [self rotForTime:sinceStart];
     [globeView setRotQuat:newQuat];
 }
 

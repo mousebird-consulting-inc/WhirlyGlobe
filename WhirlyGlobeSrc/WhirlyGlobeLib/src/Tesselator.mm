@@ -161,7 +161,7 @@ void TesselateRingClipper(const VectorRing &ring,std::vector<VectorRing> &rets)
 static const float PolyScale2 = 1e6;
 
 // New tesselator uses poly2tri
-void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
+void TesselateRing(const VectorRing &ring,VectorTrianglesRef tris)
 {
     if (ring.size() < 3)
         return;
@@ -201,13 +201,19 @@ void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
     
     // Convert to triangles
 //    printf("  ");
+    int startPoint = tris->pts.size();
+    for (unsigned int ii=0;ii<tessInfo.vertIDs.size();ii++)
+    {
+        Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii]];
+        tris->pts.push_back(Point3f(pt.x()/PolyScale2+org.x(),pt.y()/PolyScale2+org.y(),0.0));
+    }
+    
     for (unsigned int ii=0;ii<tessInfo.vertIDs.size()/3;ii++)
     {
-        VectorRing tri(3);
+        VectorTriangles::Triangle tri;
         for (unsigned int jj=0;jj<3;jj++)
         {
-            Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii*3+jj]];
-            tri[jj] = Point2f(pt.x()/PolyScale2+org.x(),pt.y()/PolyScale2+org.y());
+            tri.pts[jj] = ii*3+jj+startPoint;
 //            printf("(%f %f) ",pt.x(),pt.y());
         }
 //        printf("\n");
@@ -215,16 +221,20 @@ void TesselateRing(const VectorRing &ring,std::vector<VectorRing> &rets)
         // Make sure this is pointed up
         Point3f pts[3];
         for (unsigned int jj=0;jj<3;jj++)
-            pts[jj] = Point3f(tri[jj].x(),tri[jj].y(),0.0);
+            pts[jj] = tris->pts[tri.pts[jj]];
         Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
         if (norm.z() >= 0.0)
-            std::reverse(tri.begin(),tri.end());
-        
-        rets.push_back(tri);
-    }            
+        {
+            int tmp = tri.pts[0];
+            tri.pts[0] = tri.pts[2];
+            tri.pts[2] = tmp;
+        }
+
+        tris->tris.push_back(tri);
+    }
 }
     
-void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing> &rets)
+void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris)
 {
     if (loops.size() < 1)
         return;
@@ -233,7 +243,7 @@ void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing>
     
     if (loops.size() == 1)
     {
-        TesselateRing(loops[0], rets);
+        TesselateRing(loops[0], tris);
         return;
     }
 
@@ -278,7 +288,7 @@ void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing>
                 {
                     clipPolys.push_back(poly);
                 } else {
-                    TesselateRing(ring, rets);
+                    TesselateRing(ring, tris);
                 }
             }
         } else {
@@ -337,26 +347,33 @@ void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing>
         gluTessEndPolygon(tess);
         gluDeleteTess(tess);
         
-        // Convert to triangles
+        int startPoint = tris->pts.size();
+        for (unsigned int ii=0;ii<tessInfo.vertIDs.size();ii++)
+        {
+            Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii]];
+            tris->pts.push_back(Point3f(pt.x(),pt.y(),0.0));
+        }
+        
         for (unsigned int ii=0;ii<tessInfo.vertIDs.size()/3;ii++)
         {
-            VectorRing tri(3);
+            VectorTriangles::Triangle tri;
             for (unsigned int jj=0;jj<3;jj++)
-            {
-                Point3f &pt = tessInfo.pts[tessInfo.vertIDs[ii*3+jj]];
-                tri[jj] = Point2f(pt.x(),pt.y());
-            }
+                tri.pts[jj] = ii*3+jj+startPoint;
             
             // Make sure this is pointed up
             Point3f pts[3];
             for (unsigned int jj=0;jj<3;jj++)
-                pts[jj] = Point3f(tri[jj].x(),tri[jj].y(),0.0);
+                pts[jj] = tris->pts[tri.pts[jj]];
             Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
             if (norm.z() >= 0.0)
-                std::reverse(tri.begin(),tri.end());
+            {
+                int tmp = tri.pts[0];
+                tri.pts[0] = tri.pts[2];
+                tri.pts[2] = tmp;
+            }
             
-            rets.push_back(tri);
-        }            
+            tris->tris.push_back(tri);
+        }
     }
 }
     

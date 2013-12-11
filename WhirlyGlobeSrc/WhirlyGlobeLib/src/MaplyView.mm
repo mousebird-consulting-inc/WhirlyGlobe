@@ -31,9 +31,9 @@ using namespace WhirlyKit;
     {
         super.coordAdapter = inCoordAdapter;
         super.fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		super.nearPlane = 0.0001;
+		super.nearPlane = 0.00001;
 		super.imagePlaneSize = super.nearPlane * tanf(super.fieldOfView / 2.0);
-		super.farPlane = 10.0;
+		super.farPlane = 5.0;
         super.lastChangedTime = CFAbsoluteTimeGetCurrent();
         super.continuousZoom = false;
         _loc = Point3d(0,0,4);
@@ -43,10 +43,23 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setDelegate:(NSObject<MaplyAnimationDelegate> *)delegate
+{
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+    }
+    
+    _delegate = delegate;
+}
 
 - (void)cancelAnimation
 {
-    self.delegate = nil;
+    if (_delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    
+    _delegate = nil;
 }
 
 - (void)animate
@@ -103,6 +116,12 @@ using namespace WhirlyKit;
     _rotAngle = newRotAngle;
     [self runViewUpdates];
 }
+
+- (Eigen::Matrix4d)calcFullMatrix
+{
+    return [self calcViewMatrix] * [self calcModelMatrix];
+}
+
 
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
 {

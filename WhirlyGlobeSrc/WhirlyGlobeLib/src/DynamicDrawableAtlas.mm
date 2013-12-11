@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true)
 {
 }
     
@@ -110,6 +110,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
+        newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 
         newBigDraw->setModes(draw);
@@ -165,6 +166,16 @@ void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
     if (bigDraw)
         bigDraw->setEnableRegion(represent.elementChunkId,enabled);
 }
+    
+void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &changes)
+{
+    if (newEnable == enable)
+        return;
+    
+    enable = newEnable;
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
+}
 
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
@@ -206,6 +217,13 @@ void DynamicDrawableAtlas::getDrawableTextures(std::vector<DrawTexInfo> &remaps)
     {
         remaps.push_back(DrawTexInfo(it->bigDraw->getId(),it->baseTexId));
     }
+}
+    
+void DynamicDrawableAtlas::getDrawableIDs(SimpleIDSet &drawIDs)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin();
+         it != bigDrawables.end(); ++it)
+        drawIDs.insert(it->bigDraw->getId());
 }
     
 bool DynamicDrawableAtlas::hasUpdates()

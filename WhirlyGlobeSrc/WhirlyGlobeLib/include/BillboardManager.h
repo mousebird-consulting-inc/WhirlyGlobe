@@ -25,6 +25,7 @@
 #import "Drawable.h"
 #import "BillboardDrawable.h"
 #import "Scene.h"
+#import "SelectionManager.h"
 
 // Used to pass parameters around between threads
 @interface WhirlyKitBillboardInfo : NSObject
@@ -35,6 +36,7 @@
 @property (nonatomic,assign) float fade;
 @property (nonatomic,assign) float minVis,maxVis;
 @property (nonatomic,assign) int drawPriority;
+@property (nonatomic,assign) bool enable;
 
 - (id)initWithBillboards:(NSArray *)billboards desc:(NSDictionary *)desc;
 
@@ -52,12 +54,17 @@
 @property (nonatomic,assign) WhirlyKit::Point3f center;
 /// Height in display coordinates
 @property (nonatomic,assign) float height;
-/// Width in dispay coordinates
+/// Width in display coordinates
 @property (nonatomic,assign) float width;
 /// Color of geometry
 @property (nonatomic,assign) UIColor *color;
 /// Texture to use
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity texId;
+/// If set, this marker should be made selectable
+///  and it will be if the selection layer has been set
+@property (nonatomic,assign) bool isSelectable;
+/// Unique ID for selection
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
 
 @end
 
@@ -73,9 +80,10 @@ public:
     ~BillboardSceneRep();
     
     // Clear the contents out of the scene
-    void clearContents(ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes);
     
     SimpleIDSet drawIDs;  // Drawables created for this
+    SimpleIDSet selectIDs;  // IDs used for selection
     float fade;  // Time to fade away for removal
 };
 
@@ -116,6 +124,9 @@ public:
   
     /// Add billboards for display
     SimpleIdentity addBillboards(NSArray *billboards,NSDictionary *desc,SimpleIdentity billShader,ChangeSet &changes);
+    
+    /// Enable/disable active billboards
+    void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
     
     /// Remove a group of billboards named by the given ID
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);

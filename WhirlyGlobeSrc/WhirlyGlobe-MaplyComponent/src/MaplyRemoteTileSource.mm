@@ -33,6 +33,7 @@ using namespace WhirlyKit;
     NSArray *_tileURLs;
     WhirlyKit::Mbr _mbr;
     bool cacheInit;
+    std::vector<Mbr> mbrs;
 }
 
 - (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
@@ -87,6 +88,22 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)addBoundingBox:(MaplyBoundingBox *)bbox
+{
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    mbrs.push_back(mbr);
+}
+
+- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox
+{
+    Mbr mbr;
+    Point3f pt0 = _coordSys->coordSystem->geographicToLocal(GeoCoord(bbox->ll.x,bbox->ll.y));
+    mbr.addPoint(Point2f(pt0.x(),pt0.y()));
+    Point3f pt1 = _coordSys->coordSystem->geographicToLocal(GeoCoord(bbox->ur.x,bbox->ur.y));
+    mbr.addPoint(Point2f(pt1.x(),pt1.y()));
+    mbrs.push_back(mbr);
+}
+
 - (int)minZoom
 {
     return _minZoom;
@@ -100,6 +117,19 @@ using namespace WhirlyKit;
 - (int)tileSize
 {
     return _pixelsPerSide;
+}
+
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (mbrs.empty())
+        return true;
+    
+    Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
+    for (unsigned int ii=0;ii<mbrs.size();ii++)
+        if (mbr.overlaps(mbrs[ii]))
+            return true;
+    
+    return false;
 }
 
 // Figure out the name for the tile, if it's local
@@ -145,7 +175,10 @@ using namespace WhirlyKit;
         fileName = [self cacheFileForTile:tileID];
         imgData = [NSData dataWithContentsOfFile:fileName];
         if (imgData)
+        {
+//            NSLog(@"Tile was cached: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
             wasCached = true;
+        }
     }
 
     NSError *error = nil;
@@ -160,7 +193,8 @@ using namespace WhirlyKit;
             NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
                                      stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
                                     stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
-            NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            [urlReq setTimeoutInterval:15.0];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
@@ -172,10 +206,22 @@ using namespace WhirlyKit;
             // Fetch the traditional way
             NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
             NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+            [urlReq setTimeoutInterval:15.0];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
             imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+            
+            // Let's look at the response
+            NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)resp;
+            if (urlResp.statusCode != 200)
+            {
+                NSString *urlRespDesc = [urlResp description];
+                if (!urlRespDesc)
+                    urlRespDesc = @"Unknown";
+                error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileSource" code:0 userInfo:
+                                  @{NSLocalizedDescriptionKey: urlRespDesc}];
+            }
             
             if (error || !imgData)
                 imgData = nil;
@@ -193,6 +239,10 @@ using namespace WhirlyKit;
                 [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
         }
     }
+    
+    // Pass the error back up
+    if (error)
+        return error;
     
     // Let's also write it back out for the cache
     if (_cacheDir && !wasCached)

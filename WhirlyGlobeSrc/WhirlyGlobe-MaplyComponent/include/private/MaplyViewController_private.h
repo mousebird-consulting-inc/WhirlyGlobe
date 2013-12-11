@@ -26,12 +26,18 @@
 {
     /// Custom map scene
     Maply::MapScene *mapScene;
+
+@protected
+    /// Coordinate system and display adapter
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     /// Maply view
     MaplyView *mapView;
+    // Flat view for 2D mode
+    MaplyFlatView * flatView;
+    // Scroll view for tethered mode
+    UIScrollView * __weak scrollView;
 
-    /// Coordinate system and display adapter
-    WhirlyKit::SphericalMercatorDisplayAdapter *coordAdapter;
-    
+@private    
     /// Our own interaction layer for adding and removing things
     MaplyInteractionLayer *mapInteractLayer;
     
@@ -47,5 +53,7 @@
     /// Current view animation (kept around so it's not released)
     NSObject *curAnimation;
 }
+
+- (void)setupFlatView;
 
 @end

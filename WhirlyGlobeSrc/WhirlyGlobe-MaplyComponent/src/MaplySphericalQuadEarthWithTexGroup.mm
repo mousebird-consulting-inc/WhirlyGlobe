@@ -43,6 +43,13 @@ using namespace WhirlyGlobe;
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:texGroupName])
+    {
+        texGroupName = [[NSBundle mainBundle] pathForResource:texGroupName ofType:@"plist"];
+        if (!texGroupName)
+            return false;
+    }
+    
     earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
     if (!earthLayer)
         return nil;

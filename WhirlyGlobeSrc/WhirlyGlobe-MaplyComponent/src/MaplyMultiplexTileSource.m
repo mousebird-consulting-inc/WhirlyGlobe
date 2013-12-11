@@ -24,6 +24,7 @@
 {
     NSArray *_tileSources;
     int _minZoom,_maxZoom;
+    bool canDoValidTiles;
 }
 
 - (id)initWithSources:(NSArray *)tileSources
@@ -39,6 +40,7 @@
     _minZoom = [tileSources[0] minZoom];
     _maxZoom = [tileSources[0] maxZoom];
     _coordSys = [tileSources[0] coordSys];
+    canDoValidTiles = [tileSources[0] respondsToSelector:@selector(validTile:bbox:)];
     
     for (unsigned int ii=1;ii<[tileSources count];ii++)
     {
@@ -66,13 +68,31 @@
     return [((NSObject<MaplyTileSource> *)_tileSources[0]) tileSize];
 }
 
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    if (!canDoValidTiles)
+        return true;
+    
+    // Just ask the first one
+    if ([_tileSources count] > 0)
+    {
+        NSObject<MaplyTileSource> *tileSource = _tileSources[0];
+        return [tileSource validTile:tileID bbox:bbox];
+    }
+    
+    return true;
+}
+
 // It's local if all the tile sources say so
 - (bool)tileIsLocal:(MaplyTileID)tileID
 {
     bool tileLocal = true;
     for (NSObject<MaplyTileSource> *tileSource in _tileSources)
     {
-        tileLocal &= [tileSource tileIsLocal:tileID];
+        if ([tileSource respondsToSelector:@selector(tileIsLocal:)])
+            tileLocal &= [tileSource tileIsLocal:tileID];
+        else
+            tileLocal = false;
         if (!tileLocal)
             break;
     }
@@ -80,22 +100,64 @@
     return tileLocal;
 }
 
-- (NSArray *)imagesForTile:(MaplyTileID)tileID numImages:(unsigned int)numImages
+- (MaplyImageTile *)imageForTile:(MaplyTileID)tileID
 {
-    if (numImages != [_tileSources count])
-        return nil;
-    
     // Hit up each source
-    NSMutableArray *tiles = [NSMutableArray array];
-    for (unsigned int ii=0;ii<numImages;ii++)
-    {
-        id tile = [_tileSources[ii] imageForTile:tileID];
-        if (!tile)
-            return nil;
-        [tiles addObject:tile];
-    }
+    NSMutableArray * __block tileDataArray = [NSMutableArray array];
+    for (unsigned int ii=0;ii<[_tileSources count];ii++)
+        [tileDataArray addObject:[NSNull null]];
     
-    return tiles;
+    int which = 0;
+    int __block numRemaining = [_tileSources count];
+    NSError __block *fetchError = nil;
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    // Dispatch each one in parallel
+    for (NSObject<MaplyTileSource> *tileSource in _tileSources)
+    {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+        ^{
+            id tile = [tileSource imageForTile:tileID];
+            if ([tile isKindOfClass:[NSError class]])
+            {
+                fetchError = tile;
+                tile = nil;
+            }
+            if (tile)
+            {
+                @synchronized(tileDataArray)
+                {
+                    tileDataArray[which] = tile;
+                }
+            }
+            
+            numRemaining--;
+            dispatch_semaphore_signal(semaphore);
+        });
+        which++;
+    }
+
+    while (numRemaining > 0)
+        dispatch_semaphore_wait(semaphore,DISPATCH_TIME_FOREVER);
+    
+    if (fetchError)
+    {
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+            [_delegate remoteTileSource:self tileDidNotLoad:tileID error:fetchError];
+        
+        return nil;
+    } else {
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+            [_delegate remoteTileSource:self tileDidLoad:tileID];
+    }
+
+    // Make sure we got them all
+    for (id tile in tileDataArray)
+        if ([tile isKindOfClass:[NSNull class]])
+            return nil;
+
+//    NSLog(@"Multiplex source: Loaded tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    
+    return [[MaplyImageTile alloc] initWithRandomData:tileDataArray];
 }
 
 @end

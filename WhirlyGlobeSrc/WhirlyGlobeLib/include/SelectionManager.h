@@ -92,10 +92,25 @@ public:
     bool operator < (const RectSelectable2D &that) const;
     
     Point2f pts[4];  // Geometry
-    float minVis,maxVis;  // Range over which this is visible
 };
-    
+
 typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
+
+/// Billboard selectable (3D object that turns towards the viewer)
+class BillboardSelectable : public Selectable
+{
+public:
+    BillboardSelectable() : Selectable() { }
+    BillboardSelectable(SimpleIdentity theID) : Selectable(theID) { }
+    // Comparison operator for sorting
+    bool operator < (const BillboardSelectable &that) const;
+    
+    Point3f center;  // Location of the middle of the base in display space
+    Point3f normal;  // The billboard points up in this direction
+    Point2f size;    // Size of the billboard in display space
+};
+  
+typedef std::set<WhirlyKit::BillboardSelectable> BillboardSelectableSet;
     
 #define kWKSelectionManager "WKSelectionManager"
     
@@ -129,11 +144,20 @@ public:
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
     
+    /// Add a billboard for selection.  Pass in the middle of the base and size
+    void addSelectableBillboard(SimpleIdentity selectId,Point3f center,Point3f norm,Point2f size,float minVis,float maxVis,bool enable);
+    
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);
     
+    /// Remove a set of selectables from consideration
+    void removeSelectables(const SimpleIDSet &selectIDs);
+    
     /// Enable/disable selectable
     void enableSelectable(SimpleIdentity selectID,bool enable);
+    
+    /// Enable/disable a set of selectables
+    void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
     SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
@@ -145,7 +169,8 @@ protected:
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
     WhirlyKit::RectSelectable2DSet rect2Dselectables;
-    WhirlyKit::PolytopeSelectableSet polytopeSelectables;    
+    WhirlyKit::PolytopeSelectableSet polytopeSelectables;
+    WhirlyKit::BillboardSelectableSet billboardSelectables;
 };
  
 }
