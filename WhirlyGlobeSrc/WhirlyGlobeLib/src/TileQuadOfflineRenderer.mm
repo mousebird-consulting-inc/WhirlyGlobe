@@ -194,20 +194,20 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
 
 - (void)imageRenderPeriodic
 {
-    // This means there was an extra one in the pipeline
-    if (!renderScheduled)
-        return;
-    
-    renderScheduled = false;
-
-    if (_on && somethingChanged)
+    // If not, this means there was an extra one in the pipeline
+    if (renderScheduled)
     {
-//        NSLog(@"Render:: Periodic");
-        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-        if (now - lastRender >= _period)
-            [self imageRenderToLevel:-1];
+        renderScheduled = false;
+
+        if (_on && somethingChanged)
+        {
+    //        NSLog(@"Render:: Periodic");
+            CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+            if (now - lastRender >= _period)
+                [self imageRenderToLevel:-1];
+        }
     }
-    
+
     if (_period > 0.0 && !renderScheduled)
     {
         renderScheduled = true;
