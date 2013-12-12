@@ -35,6 +35,8 @@ using namespace WhirlyKit;
     if (!scene)
         return;
     
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
@@ -222,6 +224,15 @@ using namespace WhirlyKit;
     [self setHints:newHints];
         
     _selection = true;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
 }
 
 - (void) useGLContext
@@ -251,6 +262,22 @@ using namespace WhirlyKit;
 - (void)stopAnimation
 {
     [glView stopAnimation];
+}
+
+- (void)appBackground:(NSNotification *)note
+{
+    wasAnimating = glView.animating;
+    if (wasAnimating)
+        [self stopAnimation];
+}
+
+- (void)appForeground:(NSNotification *)note
+{
+    if (wasAnimating)
+    {
+        [self startAnimation];
+        wasAnimating = false;
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
