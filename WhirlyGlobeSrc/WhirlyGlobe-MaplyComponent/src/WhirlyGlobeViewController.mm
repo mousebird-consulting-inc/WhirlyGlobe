@@ -667,6 +667,8 @@ using namespace WhirlyGlobe;
     if (![info isKindOfClass:[AnimateViewMomentumMessage class]])
         return;
 
+//    NSLog(@"Animation will end");
+
     knownAnimateEndRot = true;
     animateEndRot = info.rot;
 
