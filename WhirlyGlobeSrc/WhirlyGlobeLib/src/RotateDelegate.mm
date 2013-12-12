@@ -74,7 +74,7 @@ using namespace WhirlyKit;
 
     if (valid)
     {
-        NSLog(@"Rotate updated");
+//        NSLog(@"Rotate updated");
         Eigen::Quaterniond newRotQuat = startQuat;
         Point3d axis = [globeView currentUp];
         if (_rotateAroundCenter)

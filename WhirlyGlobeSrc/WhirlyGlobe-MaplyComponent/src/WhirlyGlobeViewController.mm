@@ -521,12 +521,12 @@ using namespace WhirlyGlobe;
         [_delegate globeViewControllerDidTapOutside:self];
 }
 
-- (void) handleStartMoving
+- (void) handleStartMoving:(bool)userMotion
 {
     if (!isPanning && !isRotating && !isZooming && !isAnimating)
     {
-        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:)])
-            [_delegate globeViewControllerDidStartMoving:self];
+        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
+            [_delegate globeViewControllerDidStartMoving:self userMotion:userMotion];
     }
 }
 
@@ -561,18 +561,18 @@ using namespace WhirlyGlobe;
 }
 
 // Convenience routine to handle the end of moving
-- (void)handleStopMoving
+- (void)handleStopMoving:(bool)userMotion
 {
     if (isPanning || isRotating || isZooming || isAnimating)
         return;
     
-    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
+    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:userMotion:)])
         return;
     
     MaplyCoordinate corners[4];
     [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
 
-    [_delegate globeViewController:self didStopMoving:corners];
+    [_delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
 }
 
 // Called when the pan delegate starts moving
@@ -583,7 +583,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Pan started");
 
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isPanning = true;
 }
 
@@ -596,7 +596,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Pan ended");
     
     isPanning = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) pinchDidStart:(NSNotification *)note
@@ -606,7 +606,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Pinch started");
     
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isZooming = true;
 }
 
@@ -618,7 +618,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Pinch ended");
 
     isZooming = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) rotateDidStart:(NSNotification *)note
@@ -628,7 +628,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Rotate started");
     
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isRotating = true;
 }
 
@@ -640,7 +640,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Rotate ended");
     
     isRotating = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) animationDidStart:(NSNotification *)note
@@ -650,7 +650,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Animation started");
 
-    [self handleStartMoving];
+    [self handleStartMoving:false];
     isAnimating = true;
 }
 
@@ -661,9 +661,14 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Animation ended");
     
+    // Momentum animation is only kicked off by the pan delegate.
+    bool userMotion = false;
+    if ([globeView.delegate isKindOfClass:[AnimateViewMomentum class]])
+        userMotion = true;
+    
     isAnimating = false;
     knownAnimateEndRot = false;
-    [self handleStopMoving];
+    [self handleStopMoving:userMotion];
 }
 
 - (void) animationWillEnd:(NSNotification *)note
@@ -679,13 +684,13 @@ using namespace WhirlyGlobe;
 
     if (!isRotating && !isZooming)
     {
-        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:)])
+        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:userMotion:)])
         {
             MaplyCoordinate corners[4];
             if (knownAnimateEndRot)
             {
                 [self corners:corners forRot:animateEndRot viewMat:[globeView calcViewMatrix]];
-                [_delegate globeViewController:self willStopMoving:corners];
+                [_delegate globeViewController:self willStopMoving:corners userMotion:true];
             }
         }
     }

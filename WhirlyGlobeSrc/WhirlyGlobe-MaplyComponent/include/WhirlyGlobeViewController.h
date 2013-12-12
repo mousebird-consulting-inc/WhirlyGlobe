@@ -109,23 +109,27 @@
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC layerDidLoad:(WGViewControllerLayer *)layer;
 
 /** @brief Called when the globe starts moving.
+    @param viewC The globe view controller.
+    @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
     @details This is called when something (probably the user) starts moving the globe.
   */
-- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC;
+- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC userMotion:(bool)userMotion;
 
 /** @brief Called when the globe stops moving.
     @details This is called when the globe stops moving.  It passes in the corners of the current viewspace.
     @param viewC The globe view controller.
+    @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
     @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners;
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
 /** @brief Called when an animation that knows where it's going to stop start ups.
     @details This is called when we know where the globe will stop.  It passes in the corners of that future viewspace.
     @param viewC The globe view controller.
     @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+    @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  */
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners;
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC willStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
 
 @end
 
