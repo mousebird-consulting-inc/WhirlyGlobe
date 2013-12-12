@@ -405,7 +405,13 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         MaplyTexture *tex = nil;
         if (marker.image)
         {
-            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+            if ([marker.image isKindOfClass:[UIImage class]])
+            {
+                tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+            } else if ([marker.image isKindOfClass:[MaplyTexture class]])
+            {
+                tex = (MaplyTexture *)marker.image;
+            }
             compObj.textures.insert(tex);
         }
         wgMarker.color = marker.color;
@@ -499,11 +505,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
         MaplyTexture *tex = nil;
-        if (marker.image)
+        if ([marker.image isKindOfClass:[UIImage class]])
         {
             tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
+        } else if ([marker.image isKindOfClass:[MaplyTexture class]])
+        {
+            tex = (MaplyTexture *)marker.image;
         }
+        compObj.textures.insert(tex);
         if (tex)
             wgMarker.texIDs.push_back(tex.texID);
         wgMarker.width = marker.size.width;
@@ -1124,10 +1133,18 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     {
         std::vector<SimpleIdentity> texIDs;
         if (sticker.image) {
-            MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
-            if (tex)
+            if ([sticker.image isKindOfClass:[UIImage class]])
+            {
+                MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
+                if (tex)
+                    texIDs.push_back(tex.texID);
+                compObj.textures.insert(tex);
+            } else if ([sticker.image isKindOfClass:[MaplyTexture class]])
+            {
+                MaplyTexture *tex = (MaplyTexture *)sticker.image;
                 texIDs.push_back(tex.texID);
-            compObj.textures.insert(tex);
+                compObj.textures.insert(tex);
+            }
         }
         for (UIImage *image in sticker.images)
         {
@@ -1402,7 +1419,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             UIImage *image = bill.image;
             if (image)
             {
-                MaplyTexture *tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                MaplyTexture *tex = nil;
+                if ([image isKindOfClass:[UIImage class]])
+                {
+                    tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+                } else if ([image isKindOfClass:[MaplyTexture class]])
+                {
+                    tex = (MaplyTexture *)image;
+                }
                 if (tex)
                 {
                     compObj.textures.insert(tex);
