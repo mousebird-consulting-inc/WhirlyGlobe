@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
 
+@class WhirlyGlobeRotateDelegate;
+
 // Sent out when the pinch delegate takes control
 #define kPinchDelegateDidStart @"WKPinchDelegateStarted"
 // Sent out when the pinch delegate finished (but hands off to momentum)
@@ -34,6 +36,9 @@
 
 /// Min and max height to allow the user to change
 @property (nonatomic,assign) float minHeight,maxHeight;
+
+/// If set we're cooperating with the rotation delegate (HACK!)
+@property (nonatomic,weak) WhirlyGlobeRotateDelegate *rotateDelegate;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
@@ -60,5 +65,6 @@
 
 /// Calculate the current tilt based on the tilt zoom values, if they're there
 - (float)calcTilt;
+
 
 @end

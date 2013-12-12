@@ -20,6 +20,7 @@
 
 #import "PinchDelegateFixed.h"
 #import "EAGLView.h"
+#import "RotateDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -135,6 +136,7 @@ using namespace WhirlyKit;
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
+//            NSLog(@"Pinch started");
 			startTransform = [globeView calcFullMatrix];
 			startQuat = [globeView rotQuat];
 			// Store the starting Z and pinch center for comparison
@@ -169,6 +171,7 @@ using namespace WhirlyKit;
 		case UIGestureRecognizerStateChanged:
             if (valid)
             {
+//                NSLog(@"Pinch updated");
                 [globeView cancelAnimation];
                 
                 // And adjust the height too
@@ -242,10 +245,14 @@ using namespace WhirlyKit;
                 float newTilt = [self calcTilt];
                 [globeView setTilt:newTilt];
                 
+                if (_rotateDelegate)
+                    [_rotateDelegate updateWithCenter:[pinch locationInView:glView] touch:[pinch locationOfTouch:0 inView:glView ] glView:glView];
+                
                 [globeView runViewUpdates];
             }
 			break;
         case UIGestureRecognizerStateEnded:
+//            NSLog(@"Pinch ended");
             [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
             valid = false;
             

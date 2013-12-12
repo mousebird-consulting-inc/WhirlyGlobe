@@ -34,3 +34,6 @@
 [submodule "third-party/fmdb"]
 	path = third-party/fmdb
 	url = https://github.com/ccgus/fmdb.git
+[submodule "third-party/SMCalloutView"]
+	path = third-party/SMCalloutView
+	url = https://github.com/nfarina/calloutview.git

@@ -220,7 +220,9 @@ using namespace WhirlyGlobe;
     pinchDelegate.northUp = keepNorthUp;
 
     if (keepNorthUp)
+    {
         self.rotateGesture = false;
+    }
 }
 
 - (bool)keepNorthUp
@@ -238,6 +240,7 @@ using namespace WhirlyGlobe;
             pinchDelegate.zoomAroundPinch = true;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
+            pinchDelegate.rotateDelegate = rotateDelegate;
         }
     } else {
         if (pinchDelegate)
@@ -265,6 +268,7 @@ using namespace WhirlyGlobe;
         {
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
             rotateDelegate.rotateAroundCenter = true;
+            pinchDelegate.rotateDelegate = rotateDelegate;
         }
     } else {
         if (rotateDelegate)
@@ -275,6 +279,7 @@ using namespace WhirlyGlobe;
                     rotRecog = (UIRotationGestureRecognizer *)recog;
             [glView removeGestureRecognizer:rotRecog];
             rotateDelegate = nil;
+            pinchDelegate.rotateDelegate = nil;
         }
     }
 }
@@ -355,7 +360,7 @@ using namespace WhirlyGlobe;
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:panDelegate.northUp];
     
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
