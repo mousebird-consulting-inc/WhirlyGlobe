@@ -47,6 +47,7 @@ using namespace WhirlyKit;
     _minZoom = minZoom;
     _maxZoom = maxZoom;
     _pixelsPerSide = 256;
+    _timeOut = 0.0;
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     
     return self;
@@ -194,7 +195,8 @@ using namespace WhirlyKit;
                                      stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
                                     stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
             NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-            [urlReq setTimeoutInterval:15.0];
+            if (_timeOut != 0.0)
+                [urlReq setTimeoutInterval:_timeOut];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
@@ -206,7 +208,8 @@ using namespace WhirlyKit;
             // Fetch the traditional way
             NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
             NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-            [urlReq setTimeoutInterval:15.0];
+            if (_timeOut != 0.0)
+                [urlReq setTimeoutInterval:_timeOut];
             
             // Fetch the image synchronously
             NSURLResponse *resp = nil;
