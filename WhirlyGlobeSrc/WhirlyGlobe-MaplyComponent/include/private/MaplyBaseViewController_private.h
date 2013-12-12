@@ -76,6 +76,9 @@
     
     /// Set if we're dumping out performance output
     bool _performanceOutput;
+    
+    /// Set while we're trying to track foreground/background
+    bool wasAnimating;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
