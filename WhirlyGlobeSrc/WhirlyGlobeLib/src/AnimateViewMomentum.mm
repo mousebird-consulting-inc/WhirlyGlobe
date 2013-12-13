@@ -45,12 +45,13 @@ using namespace Eigen;
     CFTimeInterval startDate;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
+- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis northUp:(bool)northUp
 {
     if ((self = [super init]))
     {
         _velocity = inVel;
         _acceleration = inAcc;
+        _northUp = northUp;
         axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
         startQuat = [globeView rotQuat];
         
@@ -88,7 +89,30 @@ using namespace Eigen;
     Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
     Eigen::Quaterniond newQuat;
     newQuat = startQuat * diffRot;
-    
+
+    if (_northUp)
+    {
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (newQuat * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
+        {
+            // We need to know where up (facing the user) will be
+            //  so we can rotate around that
+            Vector3d newUp = [WhirlyGlobeView prospectiveUp:newQuat];
+            
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,newUp);
+            newQuat = newQuat * upRot;
+        }
+    }
+
     return newQuat;
 }
 

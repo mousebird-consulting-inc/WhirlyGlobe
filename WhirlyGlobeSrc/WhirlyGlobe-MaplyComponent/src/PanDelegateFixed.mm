@@ -243,11 +243,11 @@ static const float MomentumAnimLen = 1.0;
                     Vector3f upVector = cross.normalized();
 
                     // If we're doing north up, just rotate around the Z axis
-                    if (_northUp) {
-                        Vector3f oldUpVector = upVector;
-                        upVector = Vector3f(0,0,(oldUpVector.z() > 0.0 ? 1 : -1));
-                        angVel *= upVector.dot(oldUpVector);
-                    }
+//                    if (_northUp) {
+//                        Vector3f oldUpVector = upVector;
+//                        upVector = Vector3f(0,0,(oldUpVector.z() > 0.0 ? 1 : -1));
+//                        angVel *= upVector.dot(oldUpVector);
+//                    }
 
                     // Calculate the acceleration based on how far we'd like it to go
                     float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
@@ -255,7 +255,7 @@ static const float MomentumAnimLen = 1.0;
                     // Keep going in that direction for a while
                     if (angVel > 0.0)
                     {
-                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
+                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector northUp:_northUp];
                         view.delegate = viewAnimation;
                     }
                 }
