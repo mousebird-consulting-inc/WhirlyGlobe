@@ -32,6 +32,7 @@
 #import "MaplyElevationSource.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTexture.h"
+#import "MaplyAnnotation.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
