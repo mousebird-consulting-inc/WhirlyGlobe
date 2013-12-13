@@ -23,10 +23,10 @@
 
 @implementation WhirlyGlobeSwipeDelegate
 {
-	WhirlyGlobeView *view;
+    WhirlyGlobe::GlobeView *view;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -36,7 +36,7 @@
 	return self;
 }
 
-+ (WhirlyGlobeSwipeDelegate *)swipeDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeSwipeDelegate *)swipeDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView
 {
 	WhirlyGlobeSwipeDelegate *swipeDelegate = [[WhirlyGlobeSwipeDelegate alloc] initWithGlobeView:globeView];
 	[view addGestureRecognizer:[[UISwipeGestureRecognizer alloc] initWithTarget:swipeDelegate action:@selector(swipeGesture:)]];

@@ -24,38 +24,33 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation WhirlyGlobeViewState
-
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKit::SceneRendererES *)renderer
-{
-    self = [super initWithView:globeView renderer:renderer];
-    if (self)
-    {
-        _heightAboveGlobe = globeView.heightAboveGlobe;
-        _rotQuat = [globeView rotQuat];
-    }
-    
-    return self;
-}
-
-- (void)dealloc
+namespace WhirlyGlobe
 {
     
+GlobeViewState::GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRendererES *renderer)
+    : ViewState(globeView,renderer)
+{
+    heightAboveGlobe = globeView->heightAboveSurface();
+    rotQuat = globeView->getRotQuat();
+}
+    
+GlobeViewState::~GlobeViewState()
+{
 }
 
-- (Vector3d)currentUp
+Eigen::Vector3d GlobeViewState::currentUp()
 {
-	Eigen::Matrix4d modelMat = self.modelMatrix.inverse();
+	Eigen::Matrix4d modelMat = invModelMatrix;
 	
 	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
 	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
 
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
+bool GlobeViewState::pointOnSphereFromScreen(CGPoint pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit)
 {
 	// Back project the point from screen space into model space
-	Point3d screenPt = [self pointUnproject:Point2d(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+	Point3d screenPt = pointUnproject(Point2d(pt.x,pt.y),frameSize.x(),frameSize.y(),true);
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
@@ -82,18 +77,30 @@ using namespace WhirlyKit;
 	return false;
 }
 
-@end
-
+// Produces globe view states from globe views
+class GlobeViewStateFactory : public ViewStateFactory
+{
+public:
+    ViewState *makeViewState(WhirlyKit::View *view,SceneRendererES *renderer)
+    {
+        return new GlobeViewState((GlobeView *)view,renderer);
+    }
+};
+    
+}
 
 @implementation WhirlyGlobeLayerViewWatcher
+{
+    WhirlyGlobe::GlobeViewStateFactory globeViewFactory;
+}
 
-- (id)initWithView:(WhirlyGlobeView *)inView thread:(WhirlyKitLayerThread *)inLayerThread
+- (id)initWithView:(WhirlyGlobe::GlobeView *)inView thread:(WhirlyKitLayerThread *)inLayerThread
 {
     self = [super initWithView:inView thread:inLayerThread];
     if (self)
     {
-        [inView addWatcherDelegate:self];
-        super.viewStateClass = [WhirlyGlobeViewState class];
+        inView->addWatcherDelegate(self);
+        super.viewStateFactory = &globeViewFactory;
     }
     
     return self;

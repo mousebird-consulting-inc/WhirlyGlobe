@@ -29,7 +29,7 @@
 @property (nonatomic,assign) float maxZoom;
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2f *)bounds;

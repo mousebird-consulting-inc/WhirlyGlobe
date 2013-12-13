@@ -209,7 +209,7 @@ static const int OverlapSampleY = 60;
 static const float ScreenBuffer = 0.1;
     
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
+void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
 {
     if (layoutObjects.empty())
         return;
@@ -217,9 +217,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     LayoutSortingSet layoutObjs;
     
     // Turn everything off and sort by importance
-    WhirlyGlobeViewState *globeViewState = nil;
-    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
-        globeViewState = (WhirlyGlobeViewState *)viewState;
+    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
     {
@@ -230,7 +228,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             if (globeViewState)
             {
                 if (obj->obj.minVis == DrawVisibleInvalid || obj->obj.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.maxVis))
+                    (obj->obj.minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->obj.maxVis))
                     use = true;
             } else
                 use = true;
@@ -249,9 +247,9 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
-    Matrix4d modelTrans = viewState.fullMatrix;
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrix);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrix);
+    Matrix4d modelTrans = viewState->fullMatrix;
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrix);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrix);
     int numSoFar = 0;
     for (LayoutSortingSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
@@ -276,7 +274,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         if (isActive)
         {
             // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->obj.dispLoc) transform:&modelTrans frameSize:frameBufferSize];
+            CGPoint objPt = viewState->pointOnScreenFromDisplay(Vector3fToVector3d(layoutObj->obj.dispLoc),&modelTrans,frameBufferSize);
             isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
             
             // Deal with the rotation
@@ -304,7 +302,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 
                 Point3d outPt = rightDir * 1.0 + upDir * 1.0 + Vector3fToVector3d(layoutObj->obj.dispLoc);
                 CGPoint outScreenPt;
-                outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
+                outScreenPt = viewState->pointOnScreenFromDisplay(outPt,&modelTrans,frameBufferSize);
                 screenRot = M_PI/2.0-atan2f(objPt.y-outScreenPt.y,outScreenPt.x-objPt.x);
                 screenRotMat = Eigen::Rotation2Df(screenRot);
             }
@@ -393,7 +391,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
 static float const DisappearFade = 0.1;
 
 // Layout all the objects we're tracking
-void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
+void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &changes)
 {
     pthread_mutex_lock(&layoutLock);
 

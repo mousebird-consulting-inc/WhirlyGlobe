@@ -233,7 +233,7 @@ void SceneRendererES2::renderAsync()
     if (!renderStateOptimizer)
         renderStateOptimizer = new OpenGLStateOptimizer();
 
-	[theView animate];
+	theView->animate();
 
     // Decide if we even need to draw
     if (!scene->hasChanges() && !viewDidChange())
@@ -260,9 +260,7 @@ void SceneRendererES2::renderAsync()
     }
 
     // See if we're dealing with a globe view
-    WhirlyGlobeView *globeView = nil;
-    if ([theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)theView;
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
 
     GLint framebufferWidth = framebufferWidth;
     GLint framebufferHeight = framebufferHeight;
@@ -275,13 +273,13 @@ void SceneRendererES2::renderAsync()
     }
 
     // Get the model and view matrices
-    Eigen::Matrix4d modelTrans4d = [theView calcModelMatrix];
+    Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4d viewTrans4d = [theView calcViewMatrix];
+    Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4d projMat4d = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(Point2f(framebufferWidth,framebufferHeight),0.0);
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
@@ -385,7 +383,7 @@ void SceneRendererES2::renderAsync()
         frameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            frameInfo.heightAboveSurface = globeView.heightAboveSurface;
+            frameInfo.heightAboveSurface = globeView->heightAboveSurface();
 		
         // If we're looking at a globe, run the culling
         std::set<DrawableRef> toDraw;

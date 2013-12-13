@@ -1,5 +1,5 @@
 /*
- *  WhirlyKitView.mm
+ *  WhirlyKit::View.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
@@ -22,84 +22,75 @@
 #import "WhirlyKitView.h"
 #import "WhirlyGeometry.h"
 
-using namespace WhirlyKit;
 using namespace Eigen;
 
-@implementation WhirlyKitView
+namespace WhirlyKit
 {
-    /// Called when positions are updated
-    WhirlyKitViewWatcherDelegateSet watchDelegates;
-}
 
-- (id)init
+View::View()
 {
-	if ((self = [super init]))
-    {
-        _fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		_nearPlane = 0.001;
-		_imagePlaneSize = _nearPlane * tanf(_fieldOfView / 2.0);
-		_farPlane = 4.0;
-        _lastChangedTime = CFAbsoluteTimeGetCurrent();
-        _continuousZoom = false;
-    }
-    
-    return self;
+    fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+    nearPlane = 0.001;
+    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    farPlane = 4.0;
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
+    continuousZoom = false;
 }
 
 
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight ll:(Point2d &)ll ur:(Point2d &)ur near:(double &)near far:(double &)far
+void View::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double & near,double &far)
 {
-	ll.x() = -_imagePlaneSize;
-	ur.x() = _imagePlaneSize;
+	ll.x() = -imagePlaneSize;
+	ur.x() = imagePlaneSize;
 	double ratio =  ((double)frameHeight / (double)frameWidth);
-	ll.y() = -_imagePlaneSize * ratio;
-	ur.y() = _imagePlaneSize * ratio ;
-	near = _nearPlane;
-	far = _farPlane;
+	ll.y() = -imagePlaneSize * ratio;
+	ur.y() = imagePlaneSize * ratio ;
+	near = nearPlane;
+	far = farPlane;
 }
 
-- (void)cancelAnimation
+void View::cancelAnimation()
 {
 }
 
-- (void)animate
+void View::animate()
 {
 }
 
-- (float)calcZbufferRes
+float View::calcZbufferRes()
 {
     return 1.0;
 }
 
 /// Generate the model view matrix for use by OpenGL.
-- (Eigen::Matrix4d)calcModelMatrix
+Eigen::Matrix4d View::calcModelMatrix()
 {
     Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-- (Eigen::Matrix4d)calcViewMatrix
+Eigen::Matrix4d View::calcViewMatrix()
 {
     Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-- (Eigen::Matrix4d)calcFullMatrix
+Eigen::Matrix4d View::calcFullMatrix()
 {
-    return [self calcViewMatrix] * [self calcModelMatrix];
+    return calcViewMatrix() * calcModelMatrix();
 }
 
-- (Eigen::Matrix4d)calcProjectionMatrix:(Point2f)frameBufferSize margin:(float)margin
+Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
 {
 	GLfloat near=0,far=0;
 	Point2d frustLL,frustUR;
-	frustLL.x() = -_imagePlaneSize * (1.0 + margin);
-	frustUR.x() = _imagePlaneSize * (1.0 + margin);
+	frustLL.x() = -imagePlaneSize * (1.0 + margin);
+	frustUR.x() = imagePlaneSize * (1.0 + margin);
 	double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
-	frustLL.y() = -_imagePlaneSize * ratio * (1.0 + margin);
-	frustUR.y() = _imagePlaneSize * ratio * (1.0 + margin);
-	near = _nearPlane;
-	far = _farPlane;
+	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
+	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
+	near = nearPlane;
+	far = farPlane;
     
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
@@ -123,16 +114,16 @@ using namespace Eigen;
     return projMat;
 }
 
-- (double)heightAboveSurface
+double View::heightAboveSurface()
 {
     return 0.0;
 }
 
-- (Point3d)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
+Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip)
 {
 	Point2d ll,ur;
 	double near,far;
-	[self calcFrustumWidth:frameWidth height:frameHeight ll:ll ur:ur near:near far:far];
+	calcFrustumWidth(frameWidth,frameHeight,ll,ur,near,far);
 	
 	// Calculate a parameteric value and flip the y/v
 	double u = screenPt.x() / frameWidth;
@@ -166,22 +157,22 @@ using namespace Eigen;
 //}
 
 /// Add a watcher delegate
-- (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
+void View::addWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> *delegate)
 {
     watchDelegates.insert(delegate);
 }
 
 /// Remove the given watcher delegate
-- (void)removeWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
+void View::removeWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> *delegate)
 {
     watchDelegates.erase(delegate);
 }
 
-- (void)runViewUpdates
+void View::runViewUpdates()
 {
     for (WhirlyKitViewWatcherDelegateSet::iterator it = watchDelegates.begin();
          it != watchDelegates.end(); ++it)
-        [(*it) viewUpdated:self];    
+        [(*it) viewUpdated:this];
 }
 
-@end
+}

@@ -28,9 +28,9 @@
 @interface WhirlyGlobeLongPressDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a long press geture recognizer and a delegate and wire them up to the UIView
-+ (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView;
 
 /// The init requires a globe view
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView;
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView;
 
 @end

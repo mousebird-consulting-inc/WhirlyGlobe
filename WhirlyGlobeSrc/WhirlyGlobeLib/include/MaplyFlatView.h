@@ -20,6 +20,9 @@
 
 #import "MaplyView.h"
 
+namespace Maply
+{
+
 /** The flat view implements a top down orthogonal projection
     which is prefect for doing a straight up 2D map.
     It thinks more like a window in that it's trying to
@@ -28,38 +31,54 @@
     We presume the caller will move that smaller window around, thus
     changing our model and projection matrices.
   */
-@interface MaplyFlatView : MaplyView
+class FlatView : public MapView
+{
+public:
 
-/// Initialize with the coordinate system we'll use
-- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+    FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
 
-/// Generate the model view matrix for use by OpenGL.
-- (Eigen::Matrix4d)calcModelMatrix;
+    /// Generate the model view matrix for use by OpenGL.
+    Eigen::Matrix4d calcModelMatrix();
+    
+    /// Projection matrix
+    virtual Eigen::Matrix4d calcProjectionMatrix(WhirlyKit::Point2f frameBufferSize,float margin);
 
-/// Height above the plane.  Always returns 0.
-- (double)heightAboveSurface;
+    /// Height above the plane.  Always returns 0.
+    double heightAboveSurface();
 
-/// Minimum valid height above plane.  Always returns 0.
-- (double)minHeightAboveSurface;
+    /// Minimum valid height above plane.  Always returns 0.
+    double minHeightAboveSurface();
 
-/// Maximum valid height above plane.  Always returns 0.
-- (double)maxHeightAboveSurface;
+    /// Maximum valid height above plane.  Always returns 0.
+    double maxHeightAboveSurface();
+    
+    /// Return the window size
+    WhirlyKit::Point2f getWindowSize() { return windowSize; }
 
-/// Set where the middle of the displayed region is.  Current disabled.
-- (void)setLoc:(WhirlyKit::Point3d)newLoc;
+    /// Return the content offset
+    WhirlyKit::Point2f getContentOffset() { return contentOffset; }
 
-/// This view tries to display the given extents in display space
-@property (nonatomic,assign) WhirlyKit::Mbr extents;
+    /// Set where the middle of the displayed region is.  Current disabled.
+    void setLoc(WhirlyKit::Point3d newLoc);
+    
+    /// Set the extents
+    void setExtents(WhirlyKit::Mbr inExtents);
 
-/// Size of the overall window we're simulating
-@property (nonatomic,readonly) WhirlyKit::Point2f windowSize;
+    /// Sets the total window size and the region we're looking at within it.
+    /// This just gets converted to model and projection matrix parameters
+    void setWindowSize(WhirlyKit::Point2f inWindowSize,WhirlyKit::Point2f inContentOffset);
+    
+protected:
+    WhirlyKit::Point3d loc;
 
-/// Content offset within the overall window
-@property (nonatomic,readonly) WhirlyKit::Point2f contentOffset;
+    /// This view tries to display the given extents in display space
+    WhirlyKit::Mbr extents;
+    
+    /// Size of the overall window we're simulating
+    WhirlyKit::Point2f windowSize;
+    
+    /// Content offset within the overall window
+    WhirlyKit::Point2f contentOffset;
+};
 
-/// Sets the total window size and the region we're looking at within it.
-/// This just gets converted to model and projection matrix parameters
-- (void)setWindowSize:(WhirlyKit::Point2f)inWindowSize contentOffset:(WhirlyKit::Point2f)inContentOffset;
-
-@end
-
+}

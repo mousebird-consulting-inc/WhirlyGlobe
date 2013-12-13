@@ -30,6 +30,6 @@ namespace Maply
 
 @interface MaplyRotateDelegate : NSObject <UIGestureRecognizerDelegate>
 
-+ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView;
 
 @end

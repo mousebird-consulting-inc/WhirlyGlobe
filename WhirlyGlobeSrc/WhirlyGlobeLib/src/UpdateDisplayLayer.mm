@@ -34,7 +34,7 @@ using namespace WhirlyGlobe;
     WhirlyKit::Scene *scene;
     
     /// Last view state we were given
-    WhirlyGlobeViewState *viewState;
+    WhirlyGlobe::GlobeViewState *viewState;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyGlobeUpdateDataSource> *)inDataSource moveDist:(float)inMoveDist minTime:(float)inMinTime
@@ -70,17 +70,17 @@ using namespace WhirlyGlobe;
     [_dataSource shutdown];
 }
 
-- (void)viewUpdate:(WhirlyGlobeViewState *)inViewState
+- (void)viewUpdate:(WhirlyGlobe::GlobeViewState *)inViewState
 {
-    WhirlyGlobeViewState *lastViewState = viewState;    
-    WhirlyGlobeViewState *newViewState = inViewState;
+    WhirlyGlobe::GlobeViewState *lastViewState = viewState;
+    WhirlyGlobe::GlobeViewState *newViewState = inViewState;
 
     // See how far we've moved
     float dist2 = 0.0;
     if (lastViewState)
     {
-        Vector3d eye0 = [lastViewState eyePos];
-        Vector3d eye1 = [newViewState eyePos];
+        Vector3d eye0 = lastViewState->eyePos;
+        Vector3d eye1 = newViewState->eyePos;
         
         dist2 = (eye0-eye1).squaredNorm();
     }

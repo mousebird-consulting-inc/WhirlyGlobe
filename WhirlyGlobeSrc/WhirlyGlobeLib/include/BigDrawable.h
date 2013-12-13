@@ -247,7 +247,7 @@ public:
     }
 
     /// Run the swap.  Only the renderer calls this.
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 
     /// We'll want a flush on the layer thread side before we swap buffers on the render side
     virtual bool needsFlush() { return true; }
@@ -272,7 +272,7 @@ public:
     BigDrawableFlush(SimpleIdentity drawId) : drawId(drawId) { }
 
     /// Run the command.  The renderer calls this
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
     
 protected:
     SimpleIdentity drawId;
@@ -285,7 +285,7 @@ public:
     BigDrawableTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) : drawId(drawId), which(which), texId(newTexId) { }
     
     /// Run the command.  The renderer calls this
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
     
 protected:
     SimpleIdentity drawId;
@@ -300,7 +300,7 @@ public:
     BigDrawableOnOffChangeRequest(SimpleIdentity drawId,bool enable) : drawId(drawId), enable(enable) { }
 
     /// Run the command.  The renderer calls this
-    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity drawId;

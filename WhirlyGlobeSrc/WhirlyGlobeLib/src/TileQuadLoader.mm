@@ -807,7 +807,7 @@ using namespace WhirlyKit;
 }
 
 // We'll try to skip updates
-- (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial
+- (bool)shouldUpdate:(WhirlyKit::ViewState *)viewState initial:(bool)isInitial
 {
     bool doUpdate = true;;
 
@@ -818,12 +818,12 @@ using namespace WhirlyKit;
     // Test against the visibility range
     if ((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) || (_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid))
     {
-        WhirlyGlobeViewState *globeViewState = (WhirlyGlobeViewState *)viewState;
-        if ([globeViewState isKindOfClass:[WhirlyGlobeViewState class]])
+        WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
+        if (globeViewState)
         {
-            if (((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) && (globeViewState.heightAboveGlobe < _minVis || globeViewState.heightAboveGlobe > _maxVis)))
+            if (((_minVis != DrawVisibleInvalid && _maxVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minVis || globeViewState->heightAboveGlobe > _maxVis)))
                 doUpdate = false;
-            if ((_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid) && (globeViewState.heightAboveGlobe < _minPageVis || globeViewState.heightAboveGlobe > _maxPageVis))
+            if ((_minPageVis != DrawVisibleInvalid && _maxPageVis != DrawVisibleInvalid) && (globeViewState->heightAboveGlobe < _minPageVis || globeViewState->heightAboveGlobe > _maxPageVis))
                 doUpdate = false;
         }
     }

@@ -63,7 +63,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)shutdown;
@@ -71,7 +71,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 @optional
 
 /// Called when the view state changes.  If you're caching info, do it here.
-- (void)newViewState:(WhirlyKitViewState *)viewState;
+- (void)newViewState:(WhirlyKit::ViewState *)viewState;
 
 @end
 
@@ -115,7 +115,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /// Called right before the view update to determine if we should even be paging
 /// You can use this to temporarily suspend paging.
 /// isInitial is set if this is the first time through
-- (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
+- (bool)shouldUpdate:(WhirlyKit::ViewState *)viewState initial:(bool)isInitial;
 
 /// Normally we'd call an endUpdates, but if we're holding that open for a while
 /// (e.g. matching frame boundaries), let's at least get all the work done.

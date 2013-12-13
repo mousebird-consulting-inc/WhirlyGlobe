@@ -28,6 +28,6 @@
 
 /// Creates a pan gesture delegate and wires it up to the given view.
 /// Will modify the globe view.
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView;
 
 @end

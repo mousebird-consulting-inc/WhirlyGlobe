@@ -23,39 +23,32 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyFlatView
+namespace Maply
 {
-    Point3d _loc;
+    
+FlatView::FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+: MapView(coordAdapter)
+{
+    loc = Point3d(0,0,0);
+    nearPlane = 1;
+    farPlane = -1;
+    extents = Mbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
+    windowSize = Point2f(1.0,1.0);
+    contentOffset = Point2f(0,0);
 }
 
-- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
-{
-    self = [super initWithCoordAdapter:inCoordAdapter];
-    if (!self)
-        return nil;
-    
-    _loc = Point3d(0,0,0);
-    super.nearPlane = 1;
-    super.farPlane = -1;
-    _extents = Mbr(Point2f(-M_PI,-M_PI/2.0),Point2f(M_PI,M_PI/2.0));
-    _windowSize = Point2f(1.0,1.0);
-    _contentOffset = Point2f(0,0);
-    
-    return self;
-}
-
-- (Eigen::Matrix4d)calcModelMatrix
+Eigen::Matrix4d FlatView::calcModelMatrix()
 {
 //    Point2d mid((extents.ll().x()+extents.ur().x())/2.0,(extents.ll().y()+extents.ur().y())/2.0);
 //    Eigen::Affine3d trans(Eigen::Translation3d(-mid.x(),-mid.y(),0.0));
 //                          
     
-    Eigen::Affine3d scale(Eigen::AlignedScaling3d(2.0 / (_extents.ur().x() - _extents.ll().x()),2.0 / (_extents.ur().y() - _extents.ll().y()),1.0));
+    Eigen::Affine3d scale(Eigen::AlignedScaling3d(2.0 / (extents.ur().x() - extents.ll().x()),2.0 / (extents.ur().y() - extents.ll().y()),1.0));
 
     return scale.matrix();
 }
 
-- (Eigen::Matrix4d)calcProjectionMatrix:(Point2f)frameBufferSize margin:(float)margin
+Eigen::Matrix4d FlatView::calcProjectionMatrix(Point2f frameBufferSize,float margin)
 {
     // If the framebuffer isn't set up, just return something simple
     if (frameBufferSize.x() == 0.0 || frameBufferSize.y() == 0.0)
@@ -66,13 +59,13 @@ using namespace WhirlyKit;
     }
     
     double left,right,top,bot,near,far;
-    double contentOffsetY = _windowSize.y() - frameBufferSize.y() - _contentOffset.y();
-    left = 2.0 * _contentOffset.x() / (_windowSize.x()) - 1.0;
-    right = 2.0 * (_contentOffset.x() + frameBufferSize.x()) / _windowSize.x() - 1.0;
-    top = 2.0 * (contentOffsetY + frameBufferSize.y()) / _windowSize.y() - 1.0;
-    bot = 2.0 * contentOffsetY / _windowSize.y() - 1.0;
-    near = super.nearPlane;
-    far = super.farPlane;
+    double contentOffsetY = windowSize.y() - frameBufferSize.y() - contentOffset.y();
+    left = 2.0 * contentOffset.x() / (windowSize.x()) - 1.0;
+    right = 2.0 * (contentOffset.x() + frameBufferSize.x()) / windowSize.x() - 1.0;
+    top = 2.0 * (contentOffsetY + frameBufferSize.y()) / windowSize.y() - 1.0;
+    bot = 2.0 * contentOffsetY / windowSize.y() - 1.0;
+    near = nearPlane;
+    far = farPlane;
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
     // Orthogonal matrix
@@ -89,40 +82,40 @@ using namespace WhirlyKit;
     return projMat;
 }
 
-- (double)heightAboveSurface
+double FlatView::heightAboveSurface()
 {
     return 0.0;
 }
 
-- (double)minHeightAboveSurface
+double FlatView::minHeightAboveSurface()
 {
     return 0.0;
 }
 
-- (double)maxHeightAboveSurface
+double FlatView::maxHeightAboveSurface()
 {
     return 0.0;
 }
 
-- (void)setLoc:(WhirlyKit::Point3d)newLoc
+void FlatView::setLoc(WhirlyKit::Point3d newLoc)
 {
-    _loc = newLoc;
-    _loc.z() = 0.0;
+    loc = newLoc;
+    loc.z() = 0.0;
 }
 
-- (void)setExtents:(WhirlyKit::Mbr)inExtents
+void FlatView::setExtents(WhirlyKit::Mbr inExtents)
 {
-    _extents = inExtents;
+    extents = inExtents;
     
-    [self runViewUpdates];
+    runViewUpdates();
 }
 
-- (void)setWindowSize:(WhirlyKit::Point2f)inWindowSize contentOffset:(WhirlyKit::Point2f)inContentOffset
+void FlatView::setWindowSize(WhirlyKit::Point2f inWindowSize,WhirlyKit::Point2f inContentOffset)
 {
-    _windowSize = inWindowSize;
-    _contentOffset = inContentOffset;
+    windowSize = inWindowSize;
+    contentOffset = inContentOffset;
 
-    [self runViewUpdates];    
+    runViewUpdates();
 }
 
-@end
+}

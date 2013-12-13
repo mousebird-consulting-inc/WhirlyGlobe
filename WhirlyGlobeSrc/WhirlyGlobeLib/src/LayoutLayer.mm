@@ -41,7 +41,7 @@ namespace WhirlyKit
     // Set if we haven't moved for a while
     bool stopped;
     // Last view state we've seen
-    WhirlyKitViewState *viewState;
+    WhirlyKit::ViewState *viewState;
     // Used for sizing info
     WhirlyKit::SceneRendererES *renderer;
 }
@@ -83,12 +83,12 @@ namespace WhirlyKit
 static const float DelayPeriod = 0.1;
 
 // We're getting called for absolutely every update here
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(WhirlyKit::ViewState *)inViewState
 {
     if (!scene)
         return;
     
-    if (viewState && [viewState isKindOfClass:[WhirlyKitViewState class]] && [inViewState isSameAs:viewState])
+    if (viewState && inViewState->isSameAs(viewState))
         return;
     viewState = inViewState;
     

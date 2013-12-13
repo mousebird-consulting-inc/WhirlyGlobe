@@ -23,13 +23,13 @@
 @implementation AnimateViewRotation
 
 
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
+- (id)initWithView:(WhirlyGlobe::GlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
 {
     if ((self = [super init]))
     {
         _startDate = CFAbsoluteTimeGetCurrent();
         _endDate = CFAbsoluteTimeGetCurrent() + howLong;
-        _startRot = [globeView rotQuat];
+        _startRot = globeView->getRotQuat();
         _endRot = newRot;
     }
     
@@ -38,7 +38,7 @@
 
 
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyGlobeView *)globeView
+- (void)updateView:(WhirlyGlobe::GlobeView *)globeView
 {
 	if (!self.startDate)
 		return;
@@ -50,14 +50,14 @@
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
-		[globeView setRotQuat:_endRot];
+		globeView->setRotQuat(_endRot);
         _startDate = 0;
         _endDate = 0;
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
 	} else {
 		// Interpolate somewhere along the path
 		float t = (span-remain)/span;
-		[globeView setRotQuat:_startRot.slerp(t,_endRot)];
+		globeView->setRotQuat(_startRot.slerp(t,_endRot));
 	}
 }
 

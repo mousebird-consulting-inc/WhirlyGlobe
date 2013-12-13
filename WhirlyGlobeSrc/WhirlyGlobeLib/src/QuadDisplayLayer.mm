@@ -43,7 +43,7 @@ using namespace WhirlyKit;
     bool greedyMode;
     
     /// State of the view the last time we were called
-    WhirlyKitViewState *viewState;
+    WhirlyKit::ViewState *viewState;
     
     /// Frame times for metered mode
     NSTimeInterval frameStart,frameInterval;
@@ -202,7 +202,7 @@ using namespace WhirlyKit;
 
 // Called every so often by the view watcher
 // It's here that we evaluate what to load
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(WhirlyKit::ViewState *)inViewState
 {
     if (!_scene)
     {

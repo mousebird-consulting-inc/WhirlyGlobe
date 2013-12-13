@@ -269,7 +269,7 @@ BOOL SceneRendererES::resizeFromLayer(CAEAGLLayer *layer)
     
     // If we've resized, we're looking at different content
     if (theView)
-        [theView runViewUpdates];
+        theView->runViewUpdates();
     
 	return YES;
 }
@@ -280,21 +280,21 @@ void SceneRendererES::setClearColor(UIColor *color)
 }
 
 // Calculate an acceptable MBR from world coords
-Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
+Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
 {
     Mbr localScreenMbr;
     
     for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
     {
         Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
-        CGPoint screenPt = [globeView pointOnScreenFromSphere:cornerPt transform:modelTrans frameSize:frameSize];
+        CGPoint screenPt = globeView->pointOnScreenFromSphere(cornerPt,modelTrans,frameSize);
         localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
     }
     
     return localScreenMbr;
 }
 
-void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered)
+void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered)
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -310,7 +310,7 @@ void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRe
     }
 }
 
-void SceneRendererES::findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
+void SceneRendererES::findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -386,9 +386,9 @@ bool SceneRendererES::viewDidChange()
     if (lastDraw < renderUntil)
         return true;
     
-    Matrix4d newModelMat = [theView calcModelMatrix];
-    Matrix4d newViewMat = [theView calcViewMatrix];
-    Matrix4d newProjMat = [theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Matrix4d newModelMat = theView->calcModelMatrix();
+    Matrix4d newViewMat = theView->calcViewMatrix();
+    Matrix4d newProjMat = theView->calcProjectionMatrix(Point2f(framebufferWidth,framebufferHeight),0.0);
     
     // Should be exactly the same
     if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat) && matrixAisSameAsB(newProjMat, projMat))

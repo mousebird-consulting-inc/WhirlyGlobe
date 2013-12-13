@@ -221,7 +221,7 @@ Drawable::~Drawable()
 {
 }
 	
-void DrawableChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
+void DrawableChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
 	DrawableRef theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)
@@ -689,7 +689,7 @@ bool BasicDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     if (minVisible == DrawVisibleInvalid || !on)
         return on;
 
-    double visVal = [frameInfo->theView heightAboveSurface];
+    double visVal = frameInfo->theView->heightAboveSurface();
     
     return ((minVisible <= visVal && visVal <= maxVisible) ||
              (maxVisible <= visVal && visVal <= minVisible));
@@ -733,11 +733,10 @@ bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
         }
     
     // Note: Need to move this elsewhere
-    if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
-        [frameInfo->theView isKindOfClass:[WhirlyGlobeView class]])
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+    if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) && globeView)
     {
-        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
-        float height = globeView.heightAboveGlobe;
+        float height = globeView->heightAboveSurface();
         if (height > minVisible && height < minVisible + minVisibleFadeBand)
         {
             return true;

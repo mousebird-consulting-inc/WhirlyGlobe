@@ -20,6 +20,7 @@
 
 #import "ViewPlacementGenerator.h"
 #import "MaplyView.h"
+#import "GlobeLayerViewWatcher.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -62,12 +63,8 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *fra
     CoordSystemDisplayAdapter *coordAdapter = frameInfo->scene->getCoordAdapter();
     
     // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
-    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = nil;
-    MaplyView *mapView = (MaplyView *)frameInfo->theView;
-    if (![mapView isKindOfClass:[MaplyView class]])
-        mapView = nil;
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
     if (!globeView && !mapView)
         return;
 
@@ -88,7 +85,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *fra
         CGPoint screenPt;
         
         // Height above globe test
-        float visVal = [frameInfo->theView heightAboveSurface];
+        float visVal = frameInfo->theView->heightAboveSurface();
         if (!(viewInst.minVis == DrawVisibleInvalid || viewInst.maxVis == DrawVisibleInvalid ||
               ((viewInst.minVis <= visVal && visVal <= viewInst.maxVis) ||
                (viewInst.maxVis <= visVal && visVal <= viewInst.minVis))))
@@ -114,9 +111,9 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *fra
                 Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
                 Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
                 if (globeView)
-                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:frameSize];
+                    screenPt = globeView->pointOnScreenFromSphere(worldLoc,&modelTrans,frameSize);
                 else
-                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:frameSize];
+                    screenPt = mapView->pointOnScreenFromPlane(worldLoc,&modelTrans,frameSize);
                 
                 // Note: This check is too simple
                 if (!hidden &&

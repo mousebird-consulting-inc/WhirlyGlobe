@@ -37,11 +37,11 @@ using namespace WhirlyKit;
 	/// Rotation when we started
 	Eigen::Quaterniond startQuat;
     bool valid;
-	WhirlyGlobeView *globeView;
+    WhirlyGlobe::GlobeView *globeView;
     double startRot;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView
 {
 	WhirlyGlobePinchDelegate *pinchDelegate = [[WhirlyGlobePinchDelegate alloc] initWithGlobeView:globeView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
@@ -84,22 +84,22 @@ using namespace WhirlyKit;
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
-			startTransform = [globeView calcFullMatrix];
-			startQuat = [globeView rotQuat];
+			startTransform = globeView->calcFullMatrix();
+			startQuat = globeView->getRotQuat();
 			// Store the starting Z and pinch center for comparison
-			startZ = globeView.heightAboveGlobe;
+			startZ = globeView->heightAboveSurface();
             if (_zoomAroundPinch)
             {
                 Point2f frameSize = sceneRender->getFramebufferSize();
-                if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&startTransform
-                                        frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
-                                                   hit:&startOnSphere normalized:true])
+                if (globeView->pointOnSphereFromScreen([pinch locationInView:glView],&startTransform,
+                                        Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
+                                                   &startOnSphere,true))
                     valid = true;
                 else
                     valid = false;
                 
                 if (valid)
-                    [globeView cancelAnimation];
+                    globeView->cancelAnimation();
                 
                 // Calculate a starting rotation
                 if (_doRotation)
@@ -115,10 +115,10 @@ using namespace WhirlyKit;
 		case UIGestureRecognizerStateChanged:
             if (valid)
             {
-                [globeView cancelAnimation];
+                globeView->cancelAnimation();
                 
                 // And adjust the height too
-                [globeView setHeightAboveGlobe:startZ/pinch.scale updateWatchers:false];
+                globeView->setHeightAboveGlobe(startZ/pinch.scale,false);
 
                 if (_zoomAroundPinch)
                 {
@@ -126,15 +126,15 @@ using namespace WhirlyKit;
                     // We have to roll back to the original transform with the current height
                     //  to get the rotation we want
                     Point3d hit;
-                    Eigen::Quaterniond oldQuat = globeView.rotQuat;
-                    [globeView setRotQuat:startQuat updateWatchers:false];
-                    Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
+                    Eigen::Quaterniond oldQuat = globeView->getRotQuat();
+                    globeView->setRotQuat(startQuat,false);
+                    Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
                     Eigen::Quaterniond newRotQuat;
-                    Point3d axis = [globeView currentUp];
+                    Point3d axis = globeView->currentUp();
                     Point2f frameSize = sceneRender->getFramebufferSize();
-                    if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
-                                        frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
-                                                       hit:&hit normalized:true])
+                    if (globeView->pointOnSphereFromScreen([pinch locationInView:glView],&curTransform,
+                                        Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
+                                                       &hit,true))
                     {
                         // This gives us a direction to rotate around
                         // And how far to rotate
@@ -158,10 +158,10 @@ using namespace WhirlyKit;
                         newRotQuat = newRotQuat * rotQuat;
                     }
 
-                    [globeView setRotQuat:(newRotQuat) updateWatchers:false];
+                    globeView->setRotQuat(newRotQuat,false);
                 }
                 
-                [globeView runViewUpdates];
+                globeView->runViewUpdates();
             }
 			break;
         case UIGestureRecognizerStateEnded:

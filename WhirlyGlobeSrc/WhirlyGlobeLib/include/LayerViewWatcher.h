@@ -23,12 +23,13 @@
 
 /// @cond
 @class WhirlyKitLayerThread;
-@class WhirlyKitViewState;
 /// @endcond
 
 namespace WhirlyKit
 {
     class SceneRendererES;
+    class ViewStateFactory;
+    class ViewState;
 }
 
 /** The layer view watcher is a base class.  We subclass it for specific
@@ -37,11 +38,11 @@ namespace WhirlyKit
  */
 @interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
 
-/// The sublcass of WhirlyKitViewState we'll use
-@property (nonatomic) Class viewStateClass;
+/// The sublcass of WhirlyKit::ViewState we'll use
+@property (nonatomic) WhirlyKit::ViewStateFactory *viewStateFactory;
 
 /// Initialize with a view and layer thread
-- (id)initWithView:(WhirlyKitView *)view thread:(WhirlyKitLayerThread *)layerThread;
+- (id)initWithView:(WhirlyKit::View *)view thread:(WhirlyKitLayerThread *)layerThread;
 
 /// Add the given target/selector combo as a watcher.
 /// Will get called at most the given frequency.
@@ -52,45 +53,60 @@ namespace WhirlyKit
 
 @end
 
+namespace WhirlyKit
+{
+    
+/// Generate a view state of the appropriate type
+class ViewStateFactory
+{
+public:
+    ViewStateFactory();
+    virtual ~ViewStateFactory();
+    virtual ViewState *makeViewState(WhirlyKit::View *,SceneRendererES *renderer) = 0;
+};
+
 /** Representation of the view state.  This is the base
  class for specific view state info for the various view
  types.
  */
-@interface WhirlyKitViewState : NSObject
+class ViewState
+{
+public:
+    ViewState(WhirlyKit::View *view,SceneRendererES *renderer);
+    virtual ~ViewState();
 
-@property(nonatomic,assign) Eigen::Matrix4d &modelMatrix,&viewMatrix,&fullMatrix,&projMatrix,&fullNormalMatrix;
-@property(nonatomic,assign) Eigen::Matrix4d &invModelMatrix,&invViewMatrix,&invFullMatrix,&invProjMatrix;
-@property(nonatomic,assign) double fieldOfView;
-@property(nonatomic,assign) double imagePlaneSize;
-@property(nonatomic,assign) double nearPlane;
-@property(nonatomic,assign) double farPlane;
-@property(nonatomic,assign) WhirlyKit::Point3d &eyeVec;
-@property(nonatomic,assign) WhirlyKit::Point3d &eyeVecModel;
-@property(nonatomic,assign) WhirlyKit::Point2d &ll,&ur;
-@property(nonatomic,assign) double near,far;
-@property(nonatomic,assign) WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
-/// Calculate where the eye is in model coordinates
-@property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
+    /// Calculate the viewing frustum (which is also the image plane)
+    /// Need the framebuffer size in pixels as input
+    /// This will cache the values in the view state for later use
+    void calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight);
+    
+    /// From a screen point calculate the corresponding point in 3-space
+    Point3d pointUnproject(Point2d screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
+    
+    /// From a world location (3D), figure out the projection to the screen
+    ///  Returns a point within the frame
+    CGPoint pointOnScreenFromDisplay(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+    
+    /// Compare this view state to the other one.  Returns true if they're identical.
+    bool isSameAs(WhirlyKit::ViewState *other);
+    
+    /// Dump out info about the view state
+    void log();
+    
+    Eigen::Matrix4d modelMatrix,viewMatrix,fullMatrix,projMatrix,fullNormalMatrix;
+    Eigen::Matrix4d invModelMatrix,invViewMatrix,invFullMatrix,invProjMatrix;
+    double fieldOfView;
+    double imagePlaneSize;
+    double nearPlane;
+    double farPlane;
+    WhirlyKit::Point3d eyeVec;
+    WhirlyKit::Point3d eyeVecModel;
+    WhirlyKit::Point2d ll,ur;
+    double near,far;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    
+    /// Calculate where the eye is in model coordinates
+    Point3d eyePos;
+};
 
-/// Called by the subclasses
-- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKit::SceneRendererES *)renderer;
-
-/// Calculate the viewing frustum (which is also the image plane)
-/// Need the framebuffer size in pixels as input
-/// This will cache the values in the view state for later use
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight;
-
-/// From a screen point calculate the corresponding point in 3-space
-- (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
-
-/// From a world location (3D), figure out the projection to the screen
-///  Returns a point within the frame
-- (CGPoint)pointOnScreenFromDisplay:(const WhirlyKit::Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize;
-
-/// Compare this view state to the other one.  Returns true if they're identical.
-- (bool)isSameAs:(WhirlyKitViewState *)other;
-
-/// Dump out info about the view state
-- (void)log;
-
-@end
+}

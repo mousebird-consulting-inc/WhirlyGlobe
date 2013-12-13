@@ -54,7 +54,7 @@ ScreenSpaceGenerator::ConvexShape::ConvexShape()
 // Calculate its position and add this feature to the appropriate drawable
 void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::RendererFrameInfo *frameInfo,ScreenSpaceGenerator::DrawableMap &drawables,Mbr &frameMbr,std::vector<ProjectedPoint> &projPts)
 {
-    float visVal = [frameInfo->theView heightAboveSurface];
+    float visVal = frameInfo->theView->heightAboveSurface();
     if (!shape->enable || !(shape->minVis == DrawVisibleInvalid || shape->maxVis == DrawVisibleInvalid ||
           ((shape->minVis <= visVal && visVal <= shape->maxVis) ||
            (shape->maxVis <= visVal && visVal <= shape->minVis))))
@@ -64,9 +64,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
     CGPoint screenPt;
     Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
 
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo->theView;
-    MaplyView *mapView = (MaplyView *)frameInfo->theView;
-    if ([globeView isKindOfClass:[WhirlyGlobeView class]])
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
+    if (globeView)
     {
         mapView = nil;
         // Make sure this one is facing toward the viewer
@@ -74,14 +74,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
             return;
 
         // Note: Need to move to the view frustum logic
-        screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
+        screenPt = globeView->pointOnScreenFromSphere(Vector3fToVector3d(shape->worldLoc),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
     } else {
-        globeView = nil;
-        if ([mapView isKindOfClass:[MaplyView class]])
-            screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
-        else
-            // No idea what this could be
-            return;
+        screenPt = mapView->pointOnScreenFromPlane(Vector3fToVector3d(shape->worldLoc),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
     }
             
     // Note: This check is too simple
@@ -128,9 +123,9 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
         CGPoint outScreenPt;
         if (globeView)
-            outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
+            outScreenPt = globeView->pointOnScreenFromSphere(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
         else
-            outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelTrans frameSize:frameInfo->sceneRenderer->getFramebufferSize()];
+            outScreenPt = mapView->pointOnScreenFromPlane(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
         screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }

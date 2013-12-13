@@ -28,12 +28,12 @@ using namespace WhirlyKit;
 {
     /// If we're zooming, where we started
     float startZ;
-    MaplyView *mapView;
+    Maply::MapView *mapView;
     /// Boundary quad that we're to stay within
     std::vector<WhirlyKit::Point2f> bounds;
 }
 
-- (id)initWithMapView:(MaplyView *)inView
+- (id)initWithMapView:(Maply::MapView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -45,7 +45,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView
 {
     MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
@@ -68,12 +68,12 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKit::SceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d)loc view:(UIView *)view renderer:(WhirlyKit::SceneRendererES *)sceneRender
 {
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = mapView->calcFullMatrix();
     
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -86,9 +86,9 @@ using namespace WhirlyKit;
     Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
+        mapView->pointOnPlaneFromScreen(corners[ii],&fullMatrix,
+                              Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor),
+                                    &planePts[ii],false);
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
 //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
     }
@@ -108,18 +108,18 @@ using namespace WhirlyKit;
 	{
 		case UIGestureRecognizerStateBegan:
 			// Store the starting Z for comparison
-			startZ = mapView.loc.z();
-            [mapView cancelAnimation];
+			startZ = mapView->getLoc().z();
+            mapView->cancelAnimation();
 			break;
 		case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = mapView.loc;
+            Point3d curLoc = mapView->getLoc();
             double newZ = startZ/pinch.scale;
             if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
             {
-                [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
-                if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
-                    [mapView setLoc:curLoc];
+                mapView->setLoc(Point3d(curLoc.x(),curLoc.y(),newZ));
+                if (![self withinBounds:mapView->getLoc() view:glView renderer:sceneRenderer])
+                    mapView->setLoc(curLoc);
             }
         }
 			break;

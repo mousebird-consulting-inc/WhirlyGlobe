@@ -27,7 +27,7 @@
 @interface AnimateViewMomentumMessage : NSObject
 
 /// The globe view this related to
-@property (nonatomic,readonly) WhirlyGlobeView *globeView;
+@property (nonatomic,readonly) WhirlyGlobe::GlobeView *globeView;
 
 /// When this animation will end
 @property (nonatomic,readonly) NSTimeInterval endTime;
@@ -51,6 +51,6 @@
 @property (nonatomic,assign) float acceleration;
 
 /// Initialize with an angular velocity and a negative acceleration (to slow down)
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis;
+- (id)initWithView:(WhirlyGlobe::GlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis;
 
 @end

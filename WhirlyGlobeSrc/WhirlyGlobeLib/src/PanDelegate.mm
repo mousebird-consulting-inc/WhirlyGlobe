@@ -22,11 +22,12 @@
 #import "SceneRendererES.h"
 #import "PanDelegate.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 @implementation WhirlyGlobePanDelegate
 {
-	WhirlyGlobeView * __weak view;
+    WhirlyGlobe::GlobeView *view;
     /// Set if we're in the process of panning
 	BOOL panning;
 	/// The view transform when we started
@@ -37,7 +38,7 @@ using namespace WhirlyKit;
 	Eigen::Quaterniond startQuat;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -47,7 +48,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView
 {
 	WhirlyGlobePanDelegate *panDelegate = [[WhirlyGlobePanDelegate alloc] initWithGlobeView:globeView];
 	[view addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)]];
@@ -77,16 +78,16 @@ using namespace WhirlyKit;
 	{
 		case UIGestureRecognizerStateBegan:
 		{
-			[view cancelAnimation];
+			view->cancelAnimation();
 
 			// Save the first place we touched
-			startTransform = [view calcFullMatrix];
-			startQuat = [view rotQuat];
+			startTransform = view->calcFullMatrix();
+			startQuat = view->getRotQuat();
 			panning = NO;
             Point2f frameSize = sceneRender->getFramebufferSize();
-            if ([view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
-                                    frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
-                                            hit:&startOnSphere normalized:true])
+            if (view->pointOnSphereFromScreen([pan locationInView:glView],&startTransform,
+                                    Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
+                                            &startOnSphere,true))
 				panning = YES;
 		}
 			break;
@@ -94,14 +95,14 @@ using namespace WhirlyKit;
 		{
 			if (panning)
 			{
-				[view cancelAnimation];
+				view->cancelAnimation();
 
 				// Figure out where we are now
 				Point3d hit;
                 Point2f frameSize = sceneRender->getFramebufferSize();
-                [view pointOnSphereFromScreen:[pan locationInView:glView] transform:&startTransform
-                                    frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor)
-                                            hit:&hit normalized:true];
+                view->pointOnSphereFromScreen([pan locationInView:glView],&startTransform,
+                                    Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),
+                                            &hit,true);
 
 				// This gives us a direction to rotate around
 				// And how far to rotate
@@ -109,7 +110,7 @@ using namespace WhirlyKit;
 				endRot.setFromTwoVectors(startOnSphere,hit);
                 Eigen::Quaterniond newRotQuat = startQuat * endRot;
 
-                [view setRotQuat:(newRotQuat)];
+                view->setRotQuat(newRotQuat);
 			}
 		}
 			break;

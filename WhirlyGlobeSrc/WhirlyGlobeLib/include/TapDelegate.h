@@ -28,6 +28,6 @@
 @interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView;
 
 @end

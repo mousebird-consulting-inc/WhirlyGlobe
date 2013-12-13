@@ -27,10 +27,10 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeLongPressDelegate
 {
-    WhirlyGlobeView *globeView;
+    WhirlyGlobe::GlobeView *globeView;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
 {
     if ((self = [super init]))
     {
@@ -40,7 +40,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-+ (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeLongPressDelegate *)longPressDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView
 {
     WhirlyGlobeLongPressDelegate *pressDelegate = [[WhirlyGlobeLongPressDelegate alloc] initWithGlobeView:globeView];
     [view addGestureRecognizer:[[UILongPressGestureRecognizer alloc]
@@ -67,10 +67,10 @@ using namespace WhirlyKit;
         // Translate that to the sphere
         // If we hit, then we'll generate a message
         Point3d hit;
-        Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+        Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
         CGPoint touchLoc = [press locationInView:press.view];
         Point2f frameSize = sceneRender->getFramebufferSize();
-        if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&hit normalized:true])
+        if (globeView->pointOnSphereFromScreen(touchLoc,&theTransform,Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),&hit,true))
         {
             WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
             msg.view = press.view;
@@ -78,7 +78,7 @@ using namespace WhirlyKit;
             [msg setWorldLocD:hit];
             Point3d geoHit = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
             [msg setWhereGeo:GeoCoord(geoHit.x(),geoHit.y())];
-            msg.heightAboveSurface = globeView.heightAboveGlobe;
+            msg.heightAboveSurface = globeView->heightAboveSurface();
             
             [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeLongPressMsg object:msg]];
         }

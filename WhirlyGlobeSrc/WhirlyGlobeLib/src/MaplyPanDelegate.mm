@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 
 @interface MaplyPanDelegate()
 {
-    MaplyView *mapView;
+    Maply::MapView *mapView;
     /// Set if we're panning
     BOOL panning;
     /// View transform when we started
@@ -46,7 +46,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyPanDelegate
 
-- (id)initWithMapView:(MaplyView *)inView
+- (id)initWithMapView:(Maply::MapView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -56,7 +56,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView
 {
 	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
   	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
@@ -84,7 +84,7 @@ using namespace WhirlyKit;
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = mapView->calcFullMatrix();
 
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -97,9 +97,9 @@ using namespace WhirlyKit;
     Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
+        mapView->pointOnPlaneFromScreen(corners[ii],&fullMatrix,
+                              Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor),
+                                    &planePts[ii],false);
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
 //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
     }
@@ -127,14 +127,14 @@ static const float AnimLen = 1.0;
     {
         case UIGestureRecognizerStateBegan:
         {
-            [mapView cancelAnimation];
+            mapView->cancelAnimation();
             
             // Save where we touched
-            startTransform = [mapView calcFullMatrix];
-            [mapView pointOnPlaneFromScreen:[pan locationInView:pan.view] transform:&startTransform
-                                  frameSize:sceneRender->getFramebufferSize()
-                                        hit:&startOnPlane clip:false];
-            startLoc = [mapView loc];
+            startTransform = mapView->calcFullMatrix();
+            mapView->pointOnPlaneFromScreen([pan locationInView:pan.view],&startTransform,
+                                  sceneRender->getFramebufferSize(),
+                                        &startOnPlane,false);
+            startLoc = mapView->getLoc();
             panning = YES;
         }
             break;
@@ -142,20 +142,20 @@ static const float AnimLen = 1.0;
         {
             if (panning)
             {
-                [mapView cancelAnimation];
+                mapView->cancelAnimation();
                 
                 // Figure out where we are now
                 Point3d hit;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
-                [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
-                                       frameSize:sceneRender->getFramebufferSize()
-                                            hit:&hit clip:false];
+                mapView->pointOnPlaneFromScreen(touchPt,&startTransform,
+                                       sceneRender->getFramebufferSize(),
+                                            &hit,false);
 
                 // Note: Just doing a translation for now.  Won't take angle into account
-                Point3d oldLoc = mapView.loc;
+                Point3d oldLoc = mapView->getLoc();
                 Point3d newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc runUpdates:false];
+                mapView->setLoc(newLoc,false);
                 
                 // We'll do a hard stop if we're not within the bounds
                 // Note: We're trying this location out, then backing off if it failed.
@@ -163,18 +163,18 @@ static const float AnimLen = 1.0;
                 {
                     // How about if we leave the x alone?
                     Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-                    [mapView setLoc:testLoc runUpdates:false];
+                    mapView->setLoc(testLoc,false);
                     if (![self withinBounds:testLoc view:glView renderer:sceneRender])
                     {
                         // How about leaving y alone?
                         testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-                        [mapView setLoc:testLoc runUpdates:false];
+                        mapView->setLoc(testLoc,false);
                         if (![self withinBounds:testLoc view:glView renderer:sceneRender])
-                            [mapView setLoc:oldLoc runUpdates:false];
+                            mapView->setLoc(oldLoc,false);
                     }
                 }
                 
-                [mapView runViewUpdates];
+                mapView->runViewUpdates();
             }
         }
             break;
@@ -187,10 +187,10 @@ static const float AnimLen = 1.0;
                 CGPoint touch1 = touch0;  touch1.x += AnimLen*vel.x; touch1.y += AnimLen*vel.y;
                 Point3d model_p0,model_p1;
 
-                Eigen::Matrix4d modelMat = [mapView calcFullMatrix];
+                Eigen::Matrix4d modelMat = mapView->calcFullMatrix();
                 Point2f frameSize = sceneRender->getFramebufferSize();
-                [mapView pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&model_p0 clip:false];
-                [mapView pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&model_p1 clip:false];
+                mapView->pointOnPlaneFromScreen(touch0,&modelMat,Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),&model_p0,false);
+                mapView->pointOnPlaneFromScreen(touch1,&modelMat,Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),&model_p1,false);
                 
                 // This will give us a direction
                 Point2f dir(model_p1.x()-model_p0.x(),model_p1.y()-model_p0.y());
@@ -204,7 +204,7 @@ static const float AnimLen = 1.0;
 
                 // Kick off a little movement at the end
                 translateDelegate = [[MaplyAnimateTranslateMomentum alloc] initWithView:mapView velocity:modelVel accel:accel dir:Point3f(dir.x(),dir.y(),0.0) bounds:bounds view:glView renderer:sceneRender];
-                mapView.delegate = translateDelegate;
+                mapView->setDelegate(translateDelegate);
                 
                 panning = NO;
             }

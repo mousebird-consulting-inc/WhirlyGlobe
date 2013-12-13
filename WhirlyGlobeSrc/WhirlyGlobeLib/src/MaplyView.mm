@@ -23,52 +23,50 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyView
-
-- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
+namespace Maply
 {
-    if (self = [super init])
-    {
-        super.coordAdapter = inCoordAdapter;
-        super.fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		super.nearPlane = 0.00001;
-		super.imagePlaneSize = super.nearPlane * tanf(super.fieldOfView / 2.0);
-		super.farPlane = 5.0;
-        super.lastChangedTime = CFAbsoluteTimeGetCurrent();
-        super.continuousZoom = false;
-        _loc = Point3d(0,0,4);
-        _rotAngle = 0.0;
-    }
+
+MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
+{
+    coordAdapter = inCoordAdapter;
+    fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+    nearPlane = 0.00001;
+    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    farPlane = 5.0;
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
+    continuousZoom = false;
+    loc = Point3d(0,0,4);
+    rotAngle = 0.0;
+}
+
+void MapView::setDelegate(NSObject<MaplyAnimationDelegate> *inDelegate)
+{
+    // Note: Porting
+//    if (!delegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+//    else {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+//    }
     
-    return self;
+    delegate = inDelegate;
 }
 
-- (void)setDelegate:(NSObject<MaplyAnimationDelegate> *)delegate
+void MapView::cancelAnimation()
 {
-    if (!delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-    else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
-    }
+    // Note: Porting
+//    if (_delegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
     
-    _delegate = delegate;
+    delegate = nil;
 }
 
-- (void)cancelAnimation
+void MapView::animate()
 {
-    if (_delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-    
-    _delegate = nil;
+    if (delegate)
+        [delegate updateView:this];
 }
 
-- (void)animate
-{
-    if (_delegate)
-        [_delegate updateView:self];
-}
-
-- (float)calcZbufferRes
+float MapView::calcZbufferRes()
 {
     // Note: Not right
     double delta = 0.0001;
@@ -76,57 +74,56 @@ using namespace WhirlyKit;
     return delta;
 }
 
-- (Eigen::Matrix4d)calcModelMatrix
+Eigen::Matrix4d MapView::calcModelMatrix()
 {
-    Eigen::Affine3d trans(Eigen::Translation3d(-_loc.x(),-_loc.y(),-_loc.z()));
-    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
+    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x(),-loc.y(),-loc.z()));
+    Eigen::Affine3d rot(Eigen::AngleAxisd(-rotAngle, Vector3d::UnitZ()).toRotationMatrix());
     
     return (rot * trans).matrix();
 }
 
-- (double)heightAboveSurface
+double MapView::heightAboveSurface()
 {
-    return _loc.z();
+    return loc.z();
 }
 
-- (double)minHeightAboveSurface
+double MapView::minHeightAboveSurface()
 {
-    return super.nearPlane;
+    return nearPlane;
 }
 
-- (double)maxHeightAboveSurface
+double MapView::maxHeightAboveSurface()
 {
-    return super.farPlane;
+    return farPlane;
 }
 
-- (void)setLoc:(WhirlyKit::Point3d)newLoc
+void MapView::setLoc(WhirlyKit::Point3d newLoc)
 {
-    [self setLoc:newLoc runUpdates:true];
+    setLoc(newLoc,true);
 }
 
-- (void)setLoc:(WhirlyKit::Point3d &)newLoc runUpdates:(bool)runUpdates
+void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
-    _loc = newLoc;
+    loc = newLoc;
     if (runUpdates)
-        [self runViewUpdates];
+        runViewUpdates();
 }
 
-- (void)setRotAngle:(double)newRotAngle
+void MapView::setRotAngle(double newRotAngle)
 {
-    _rotAngle = newRotAngle;
-    [self runViewUpdates];
+    rotAngle = newRotAngle;
+    runViewUpdates();
 }
 
-- (Eigen::Matrix4d)calcFullMatrix
+Eigen::Matrix4d MapView::calcFullMatrix()
 {
-    return [self calcViewMatrix] * [self calcModelMatrix];
+    return calcViewMatrix() * calcModelMatrix();
 }
 
-
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
+bool MapView::pointOnPlaneFromScreen(CGPoint pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool clip)
 {
     // Back Project the screen point into model space
-    Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
+    Point3d screenPt = pointUnproject(Point2f(pt.x,pt.y),frameSize.x(),frameSize.y(),clip);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
@@ -150,7 +147,7 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const Point3d &)inWorldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
+CGPoint MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
@@ -163,12 +160,12 @@ using namespace WhirlyKit;
     // Intersection with near gives us the same plane as the screen 
     Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -super.nearPlane/ray.z();
+    ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
-    [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
+    calcFrustumWidth(frameSize.x(),frameSize.y(),ll,ur,near,far);
     double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
     double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
@@ -180,4 +177,4 @@ using namespace WhirlyKit;
     return retPt;    
 }
 
-@end
+}

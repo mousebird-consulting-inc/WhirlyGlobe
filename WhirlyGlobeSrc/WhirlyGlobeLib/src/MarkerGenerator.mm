@@ -29,7 +29,7 @@ void MarkerGenerator::Marker::addToDrawables(WhirlyKit::RendererFrameInfo *frame
 {
     if (!enable)
         return;
-    float visVal = [frameInfo->theView heightAboveSurface];
+    float visVal = frameInfo->theView->heightAboveSurface();
     if (!(minVis == DrawVisibleInvalid || maxVis == DrawVisibleInvalid ||
          ((minVis <= visVal && visVal <= maxVis) ||
           (maxVis <= visVal && visVal <= minVis))))
@@ -191,7 +191,7 @@ void MarkerGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,
     if (markers.empty())
         return;
 
-    float minZres = [frameInfo->theView calcZbufferRes];
+    float minZres = frameInfo->theView->calcZbufferRes();
     
     // Keep drawables sorted by destination texture ID
     DrawableMap drawables;

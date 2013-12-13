@@ -27,39 +27,41 @@ namespace WhirlyKit
     class SceneRendererES;
 }
 
+namespace WhirlyGlobe
+{
 /** View State related to the Globe view.  This adds
     more parameters relating to the globe.
   */
-@interface WhirlyGlobeViewState : WhirlyKitViewState
+class GlobeViewState : public WhirlyKit::ViewState
+{
+public:
+    GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
+    virtual ~GlobeViewState();
 
-/// Rotation, etc, at this view state
-@property (nonatomic,assign) Eigen::Quaterniond &rotQuat;
+    /// Rotation, etc, at this view state
+    Eigen::Quaterniond rotQuat;
 
-/// Height above globe at this view state
-@property (nonatomic,assign) double heightAboveGlobe;
+    /// Height above globe at this view state
+    double heightAboveGlobe;
 
-/// Initialize from the globe view and the renderer
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKit::SceneRendererES *)renderer;
+    /// Return where up (0,0,1) is after model rotation
+    Eigen::Vector3d currentUp();
 
-/// Return where up (0,0,1) is after model rotation
-- (Eigen::Vector3d)currentUp;
+    /** Given a location on the screen and the screen size, figure out where we touched the sphere
+     Returns true if we hit and where
+     Returns false if not and the closest point on the sphere
+     */
+    bool pointOnSphereFromScreen(CGPoint pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit);
+};
 
-/** Given a location on the screen and the screen size, figure out where we touched the sphere
- Returns true if we hit and where
- Returns false if not and the closest point on the sphere
- */
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit;
-
-@end
+}
 
 /** The Globe Layer View watcher is a subclass of the layer view
     watcher that takes globe specific parameters into account.
   */
 @interface WhirlyGlobeLayerViewWatcher : WhirlyKitLayerViewWatcher
-{
-}
 
 /// Initialize with the globe view to watch and the layer thread
-- (id)initWithView:(WhirlyGlobeView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
+- (id)initWithView:(WhirlyGlobe::GlobeView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
 
 @end

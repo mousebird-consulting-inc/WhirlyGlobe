@@ -30,6 +30,6 @@
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
 
 /// Initialize with a velocity and negative acceleration (to slow down)
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKit::SceneRendererES *)inSceneRenderer;
+- (id)initWithView:(Maply::MapView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKit::SceneRendererES *)inSceneRenderer;
 
 @end

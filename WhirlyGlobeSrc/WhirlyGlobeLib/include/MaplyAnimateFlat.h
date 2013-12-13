@@ -28,6 +28,6 @@
 
 /// Kick off the translate/scale to the new extents
 /// Assign this to the flat view's delegate and it'll do the rest
-- (id)initWithView:(MaplyFlatView *)flatView destWindow:(WhirlyKit::Point2f)window destContentOffset:(WhirlyKit::Point2f)contentOffset howLong:(float)howLong;
+- (id)initWithView:(Maply::FlatView *)flatView destWindow:(WhirlyKit::Point2f)window destContentOffset:(WhirlyKit::Point2f)contentOffset howLong:(float)howLong;
 
 @end

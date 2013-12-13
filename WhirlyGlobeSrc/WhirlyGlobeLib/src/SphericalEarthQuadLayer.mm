@@ -80,12 +80,12 @@ using namespace WhirlyKit;
 }
 
 /// Return an importance value for the given tile
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)tileMbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == [self minZoom])
         return MAXFLOAT;
     
-    return ScreenImportance(viewState, frameSize, viewState.eyeVec, pixelsSquare, &coordSystem, viewState.coordAdapter, tileMbr, ident, attrs);
+    return ScreenImportance(viewState, frameSize, viewState->eyeVec, pixelsSquare, &coordSystem, viewState->coordAdapter, tileMbr, ident, attrs);
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.

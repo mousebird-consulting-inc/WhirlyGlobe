@@ -28,6 +28,6 @@
 
 /// Construct a swipe gesture delegate and wire it up to the given view.
 /// Will modify the globe view given
-+ (WhirlyGlobeSwipeDelegate *)swipeDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeSwipeDelegate *)swipeDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView;
 
 @end

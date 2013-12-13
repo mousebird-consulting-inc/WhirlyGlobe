@@ -127,7 +127,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view) = 0;
+	virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view) = 0;
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
@@ -203,7 +203,7 @@ public:
 	virtual ~DrawableChangeRequest() { }
 	
 	/// This will look for the drawable by ID and then call execute2()
-	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 	
 	/// This is called by execute if there's a drawable to modify.
     /// This is the one you override.

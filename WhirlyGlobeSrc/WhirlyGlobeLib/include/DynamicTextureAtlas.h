@@ -123,7 +123,7 @@ public:
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
 
     /// Add the region.  Never call this.
-	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
     
 protected:
     SimpleIdentity texId;
@@ -139,7 +139,7 @@ public:
     DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region) : texId(texId), region(region) { }
 
     /// Clear the region from the given dynamic texture.  Never call this.
-	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity texId;

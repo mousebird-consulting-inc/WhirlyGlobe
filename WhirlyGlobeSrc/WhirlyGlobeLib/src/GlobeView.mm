@@ -26,189 +26,173 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
-@interface WhirlyGlobeView()
+namespace WhirlyGlobe
 {
-    // These are all for continuous zoom mode
-    double absoluteMinHeight;
-    double heightInflection;
-    double defaultNearPlane;
-    double absoluteMinNearPlane;
-    double defaultFarPlane;
-    double absoluteMinFarPlane;
+
+GlobeView::GlobeView()
+{
+    rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
+    coordAdapter = new FakeGeocentricDisplayAdapter();
+    defaultNearPlane = nearPlane;
+    defaultFarPlane = farPlane;
+    // This will get you down to r17 in the usual tile sets
+    absoluteMinNearPlane = 0.00001;
+    absoluteMinFarPlane = 0.001;
+    absoluteMinHeight = 0.00005;
+    heightInflection = 0.011;
+    heightAboveGlobe = 1.1;
+    tilt = 0.0;
 }
-@end
-
-@implementation WhirlyGlobeView
-
-- (id)init
+    
+GlobeView::~GlobeView()
 {
-	if ((self = [super init]))
-	{
-		_rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
-       	super.coordAdapter = new FakeGeocentricDisplayAdapter();
-       	defaultNearPlane = super.nearPlane;
-       	defaultFarPlane = super.farPlane;
-       	// This will get you down to r17 in the usual tile sets
-       	absoluteMinNearPlane = 0.00001;
-       	absoluteMinFarPlane = 0.001;
-       	absoluteMinHeight = 0.00005;
-       	heightInflection = 0.011;
-		self.heightAboveGlobe = 1.1;
-       	_tilt = 0.0;
-	}
-	
-	return self;
+    if (coordAdapter)
+        delete coordAdapter;
+    coordAdapter = NULL;
 }
 
-- (void)dealloc
+void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat)
 {
-    super.coordAdapter = nil;
-}
-
-- (void)setRotQuat:(Eigen::Quaterniond)newRotQuat
-{
-    [self setRotQuat:newRotQuat updateWatchers:true];
+    setRotQuat(newRotQuat,true);
 }
 
 // Set the new rotation, but also keep track of when we did it
-- (void)setRotQuat:(Eigen::Quaterniond)newRotQuat updateWatchers:(bool)updateWatchers
+void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat,bool updateWatchers)
 {
-    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
-    _rotQuat = newRotQuat;
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
+    rotQuat = newRotQuat;
     if (updateWatchers)
-       [self runViewUpdates];
+        runViewUpdates();
 }
 
-- (void)setTilt:(double)newTilt
+void GlobeView::setTilt(double newTilt)
 {
-    _tilt = newTilt;
+    tilt = newTilt;
 }
 	
-- (double)minHeightAboveGlobe
+double GlobeView::minHeightAboveGlobe()
 {
-    if (super.continuousZoom)
+    if (continuousZoom)
         return absoluteMinHeight;
     else
-        return 1.01*super.nearPlane;
+        return 1.01*nearPlane;
 }
 
-- (double)heightAboveSurface
+double GlobeView::heightAboveSurface()
 {
-    return self.heightAboveGlobe;
+    return heightAboveGlobe;
 }
 	
-- (double)maxHeightAboveGlobe
+double GlobeView::maxHeightAboveGlobe()
 {
-    return (super.farPlane - 1.0);
+    return (farPlane - 1.0);
 }
 	
-- (double)calcEarthZOffset
+double GlobeView::calcEarthZOffset()
 {
-	float minH = [self minHeightAboveGlobe];
-	if (_heightAboveGlobe < minH)
+	float minH = minHeightAboveGlobe();
+	if (heightAboveGlobe < minH)
 		return 1.0+minH;
 	
-	float maxH = [self maxHeightAboveGlobe];
-	if (_heightAboveGlobe > maxH)
+	float maxH = maxHeightAboveGlobe();
+	if (heightAboveGlobe > maxH)
 		return 1.0+maxH;
 	
-	return 1.0 + _heightAboveGlobe;
+	return 1.0 + heightAboveGlobe;
 }
 
-- (void)setHeightAboveGlobe:(double)newH
+void GlobeView::setHeightAboveGlobe(double newH)
 {
-    [self privateSetHeightAboveGlobe:newH updateWatchers:true];
+    privateSetHeightAboveGlobe(newH,true);
 }
 
-- (void)setHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers
+void GlobeView::setHeightAboveGlobe(double newH,bool updateWatchers)
 {
-    [self privateSetHeightAboveGlobe:newH updateWatchers:updateWatchers];
+    privateSetHeightAboveGlobe(newH,updateWatchers);
 }
 
-- (void)setHeightAboveGlobeNoLimits:(double)newH updateWatchers:(bool)updateWatchers
+void GlobeView::setHeightAboveGlobeNoLimits(double newH,bool updateWatchers)
 {
-	_heightAboveGlobe = newH;
+	heightAboveGlobe = newH;
     
     // If we get down below the inflection point we'll start messing
     //  with the field of view.  Not ideal, but simple.
-    if (super.continuousZoom)
+    if (continuousZoom)
     {
-        if (_heightAboveGlobe < heightInflection)
+        if (heightAboveGlobe < heightInflection)
         {
-            double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
-            super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
             //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
-            super.nearPlane = defaultNearPlane;
+            nearPlane = defaultNearPlane;
             //            farPlane = defaultFarPlane;
         }
-		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
+		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
     
-    
-    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
     
     if (updateWatchers)
-        [self runViewUpdates];    
+        runViewUpdates();
 }
 
 // Set the height above the globe, but constrain it
 // Also keep track of when we did it
-- (void)privateSetHeightAboveGlobe:(double)newH updateWatchers:(bool)updateWatchers;
+void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
 {
-	double minH = [self minHeightAboveGlobe];
-	_heightAboveGlobe = std::max(newH,minH);
+	double minH = minHeightAboveGlobe();
+	heightAboveGlobe = std::max(newH,minH);
     
-	double maxH = [self maxHeightAboveGlobe];
-	_heightAboveGlobe = std::min(_heightAboveGlobe,maxH);
+	double maxH = maxHeightAboveGlobe();
+	heightAboveGlobe = std::min(heightAboveGlobe,maxH);
 
     // If we get down below the inflection point we'll start messing
     //  with the field of view.  Not ideal, but simple.
-    if (super.continuousZoom)
+    if (continuousZoom)
     {
-        if (_heightAboveGlobe < heightInflection)
+        if (heightAboveGlobe < heightInflection)
         {
-            double t = 1.0 - (heightInflection - _heightAboveGlobe) / (heightInflection - absoluteMinHeight);
-            super.nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
+            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
 //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
-            super.nearPlane = defaultNearPlane;
+            nearPlane = defaultNearPlane;
 //            farPlane = defaultFarPlane;
         }
-		super.imagePlaneSize = super.nearPlane * tan(super.fieldOfView / 2.0);
+		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
-        
-
-    super.lastChangedTime = CFAbsoluteTimeGetCurrent();
+    
+    lastChangedTime = CFAbsoluteTimeGetCurrent();
     
     if (updateWatchers)
-       [self runViewUpdates];
+       runViewUpdates();
 }
 	
-- (Eigen::Matrix4d)calcModelMatrix
+Eigen::Matrix4d GlobeView::calcModelMatrix()
 {
-	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[self calcEarthZOffset]));
-	Eigen::Affine3d rot(_rotQuat);
+	Eigen::Affine3d trans(Eigen::Translation3d(0,0,-calcEarthZOffset()));
+	Eigen::Affine3d rot(rotQuat);
 	
 	return (trans * rot).matrix();
 }
 
-- (Eigen::Matrix4d)calcViewMatrix
+Eigen::Matrix4d GlobeView::calcViewMatrix()
 {
-    Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
+    Eigen::Quaterniond selfRotPitch(AngleAxisd(-tilt, Vector3d::UnitX()));
     
     return ((Affine3d)selfRotPitch).matrix();
 }
 
-- (Vector3d)currentUp
+Vector3d GlobeView::currentUp()
 {
-	Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
+	Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
 	
 	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
 	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
-+ (Vector3d)prospectiveUp:(Eigen::Quaterniond &)prospectiveRot
+Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
 {
     Eigen::Affine3d rot(prospectiveRot);
     Eigen::Matrix4d modelMat = rot.inverse().matrix();
@@ -216,10 +200,10 @@ using namespace Eigen;
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 	
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit normalized:(bool)normalized
+bool GlobeView::pointOnSphereFromScreen(CGPoint pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized)
 {
 	// Back project the point from screen space into model space
-	Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+	Point3d screenPt = pointUnproject(Point2f(pt.x,pt.y),frameSize.x(),frameSize.y(),true);
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
@@ -256,7 +240,7 @@ using namespace Eigen;
 	return false;
 }
 
-- (CGPoint)pointOnScreenFromSphere:(const Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
+CGPoint GlobeView::pointOnScreenFromSphere(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     // Run the model point through the model transform (presumably what they passed in)
     Eigen::Matrix4d modelTrans = *transform;
@@ -267,12 +251,12 @@ using namespace Eigen;
     // Intersection with near gives us the same plane as the screen 
     Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -super.nearPlane/ray.z();
+    ray *= -nearPlane/ray.z();
 
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
-    [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
+    calcFrustumWidth(frameSize.x(),frameSize.y(),ll,ur,near,far);
     double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
     double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
@@ -284,34 +268,36 @@ using namespace Eigen;
     return retPt;
 }
 
-- (void)setDelegate:(NSObject<WhirlyGlobeAnimationDelegate> *)delegate
+void GlobeView::setDelegate(NSObject<WhirlyGlobeAnimationDelegate> *inDelegate)
 {
-    if (!delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-    else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
-    }
+    // Note: Porting.  Need to wrap 'this' in an object
+//    if (!inDelegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+//    else {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+//    }
     
-    _delegate = delegate;
+    delegate = inDelegate;
 }
 
-- (void)cancelAnimation
+void GlobeView::cancelAnimation()
 {
-    if (_delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+    // Note: Porting.  Need to wrap 'this' in an object
+//    if (delegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
 
-    _delegate = nil;
+    delegate = nil;
 }
 
 // Run the rotation animation
-- (void)animate
+void GlobeView::animate()
 {
-    if (_delegate)
-        [_delegate updateView:self];
+    if (delegate)
+        [delegate updateView:this];
 }
 
 // Calculate the Z buffer resolution
-- (float)calcZbufferRes
+float GlobeView::calcZbufferRes()
 {
     float delta;
 //    int numBits = 16;
@@ -326,17 +312,17 @@ using namespace Eigen;
 
 // Construct a rotation to the given location
 //  and return it.  Doesn't actually do anything yet.
-- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const GeoCoord &worldCoord,BOOL northUp)
 {
-    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
-    Vector3d curUp = [self currentUp];
+    Vector3d curUp = currentUp();
     
     // The rotation from where we are to where we tapped
     Eigen::Quaterniond endRot;
     endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaterniond curRotQuat = _rotQuat;
+    Eigen::Quaterniond curRotQuat = rotQuat;
     Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
     
     if (northUp)
@@ -361,47 +347,12 @@ using namespace Eigen;
     return newRotQuat;
 }
 
-- (Eigen::Quaterniond) makeRotationToGeoCoordd:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
+Eigen::Vector3d GlobeView::eyePos()
 {
-    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
-    
-    // Let's rotate to where they tapped over a 1sec period
-    Vector3d curUp = [self currentUp];
-    
-    // The rotation from where we are to where we tapped
-    Eigen::Quaterniond endRot;
-    endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaterniond curRotQuat = _rotQuat;
-    Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
-    
-    if (northUp)
-    {
-        // We'd like to keep the north pole pointed up
-        // So we look at where the north pole is going
-        Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
-        if (northPole.y() != 0.0)
-        {
-            // Then rotate it back on to the YZ axis
-            // This will keep it upward
-            float ang = atan(northPole.x()/northPole.y());
-            // However, the pole might be down now
-            // If so, rotate it back up
-            if (northPole.y() < 0.0)
-                ang += M_PI;
-            Eigen::AngleAxisd upRot(ang,worldLoc);
-            newRotQuat = newRotQuat * upRot;
-        }
-    }
-    
-    return newRotQuat;
-}
-
-- (Eigen::Vector3d)eyePos
-{
-	Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
+	Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
 	
 	Vector4d newUp = modelMat * Vector4d(0,0,1,1);
 	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
-@end
+}

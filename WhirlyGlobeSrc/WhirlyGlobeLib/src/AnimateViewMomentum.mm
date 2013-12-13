@@ -25,7 +25,7 @@ using namespace Eigen;
 
 @implementation AnimateViewMomentumMessage
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)globeView rot:(Quaterniond &)endRot time:(NSTimeInterval)endTime
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)globeView rot:(Quaterniond &)endRot time:(NSTimeInterval)endTime
 {
     self = [super init];
     _globeView = globeView;
@@ -45,14 +45,14 @@ using namespace Eigen;
     CFTimeInterval startDate;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
+- (id)initWithView:(WhirlyGlobe::GlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis
 {
     if ((self = [super init]))
     {
         _velocity = inVel;
         _acceleration = inAcc;
         axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
-        startQuat = [globeView rotQuat];
+        startQuat = globeView->getRotQuat();
         
         startDate = CFAbsoluteTimeGetCurrent();
         
@@ -93,7 +93,7 @@ using namespace Eigen;
 }
 
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyGlobeView *)globeView
+- (void)updateView:(WhirlyGlobe::GlobeView *)globeView
 {
     if (startDate == 0.0)
         return;
@@ -105,11 +105,11 @@ using namespace Eigen;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
     }
     
     Quaterniond newQuat = [self rotForTime:sinceStart];
-    [globeView setRotQuat:newQuat];
+    globeView->setRotQuat(newQuat);
 }
 
 @end

@@ -232,7 +232,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     return dispSolid;
 }
 
-double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     double origArea = PolygonArea(poly,norm);
     origArea = std::abs(origArea);
@@ -243,9 +243,9 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     {
         const Point3d &pt = poly[ii];
         // Run through the model transform
-        Vector4d modPt = viewState.fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+        Vector4d modPt = viewState->fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
         // And then the projection matrix.  Now we're in clip space
-        Vector4d projPt = viewState.projMatrix * modPt;
+        Vector4d projPt = viewState->projMatrix * modPt;
         pts.push_back(projPt);
     }
     
@@ -279,8 +279,8 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     backPts.reserve(screenPts.size());
     for (unsigned int ii=0;ii<screenPts.size();ii++)
     {
-        Vector4d modelPt = viewState.invProjMatrix * clipSpacePts[ii];
-        Vector4d backPt = viewState.invFullMatrix * modelPt;
+        Vector4d modelPt = viewState->invProjMatrix * clipSpacePts[ii];
+        Vector4d backPt = viewState->invFullMatrix * modelPt;
         backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
     }
     // Then calculate the area
@@ -309,11 +309,11 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return true;
 }
 
-- (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+- (double)importanceForViewState:(WhirlyKit::ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
-    Point3d eyePos = viewState.eyePos;
+    Point3d eyePos = viewState->eyePos;
     
-    if (!viewState.coordAdapter->isFlat())
+    if (!viewState->coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
         if ([self isInside:eyePos])
@@ -345,7 +345,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return totalImport/2.0;
 }
 
-- (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+- (bool)isOnScreenForViewState:(WhirlyKit::ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
     for (unsigned int ii=0;ii<_polys.size();ii++)
     {
@@ -359,9 +359,9 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         {
             const Point3d &pt = poly[ii];
             // Run through the model transform
-            Vector4d modPt = viewState.fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            Vector4d modPt = viewState->fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             // And then the projection matrix.  Now we're in clip space
-            Vector4d projPt = viewState.projMatrix * modPt;
+            Vector4d projPt = viewState->projMatrix * modPt;
             pts.push_back(projPt);
         }
         
@@ -383,7 +383,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 namespace WhirlyKit
 {
     
-bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -404,7 +404,7 @@ bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,W
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -430,7 +430,7 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
 }
 
 // This version is for volumes with height
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)

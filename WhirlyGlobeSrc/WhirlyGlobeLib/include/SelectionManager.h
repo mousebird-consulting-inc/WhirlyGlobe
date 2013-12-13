@@ -158,7 +158,7 @@ public:
     void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
-    SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
+    SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKit::View *theView);
     
 protected:
     pthread_mutex_t mutex;

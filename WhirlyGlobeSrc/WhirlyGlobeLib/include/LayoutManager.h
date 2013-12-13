@@ -129,13 +129,13 @@ public:
     void enableLayoutObjects(const SimpleIDSet &layoutObjects,bool enable);
     
     /// Run the layout logic for everything we're aware of (thread safe)
-    void updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes);
+    void updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &changes);
     
     /// True if we've got changes since the last update
     bool hasChanges();
         
 protected:
-    void runLayoutRules(WhirlyKitViewState *viewState);
+    void runLayoutRules(WhirlyKit::ViewState *viewState);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once

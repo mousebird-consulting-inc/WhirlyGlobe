@@ -165,9 +165,9 @@ void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeR
 }
 
 
-void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
+void SceneGraphManager::update(WhirlyKit::ViewState *viewState,ChangeSet &changes)
 {
-    Point3f localPt = Vector3dToVector3f([viewState eyePos]);
+    Point3f localPt = Vector3dToVector3f(viewState->eyePos);
     
     if (drawAtlas)
     {

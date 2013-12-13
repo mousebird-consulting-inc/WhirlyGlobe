@@ -23,14 +23,18 @@
 #import "LayerViewWatcher.h"
 #import "MaplyView.h"
 
+namespace Maply
+{
+    
 /** View State related to the map view.
   */
-@interface MaplyViewState : WhirlyKitViewState
-
-/// Initialize with the maply view and renderer
-- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKit::SceneRendererES *)renderer;
-
-@end
+class MapViewState : public WhirlyKit::ViewState
+{
+public:
+    MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
+};
+                   
+}
 
 /// The Map Layer View Watcher is a subclass of the layer view
 ///  that handles map specific parameters.
@@ -39,6 +43,6 @@
 }
 
 /// Initialize with the globe view to watch and the layer thread
-- (id)initWithView:(MaplyView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
+- (id)initWithView:(Maply::MapView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
 
 @end

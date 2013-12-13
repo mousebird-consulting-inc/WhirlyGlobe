@@ -153,7 +153,7 @@ bool BigDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
     if (minVis == DrawVisibleInvalid)
         return true;
     
-    float visVal = [frameInfo->theView heightAboveSurface];
+    float visVal = frameInfo->theView->heightAboveSurface();
     
     return ((minVis <= visVal && visVal <= maxVis) ||
             (minVis <= visVal && visVal <= maxVis));
@@ -643,7 +643,7 @@ void BigDrawable::swapBuffers(int whichBuffer)
 }
 
 // Called in the renderer
-void BigDrawableSwap::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
+void BigDrawableSwap::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     for (unsigned int ii=0;ii<swaps.size();ii++)
     {
@@ -665,7 +665,7 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,
     }
 }
     
-void BigDrawableFlush::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
+void BigDrawableFlush::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
@@ -676,7 +676,7 @@ void BigDrawableFlush::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer
     }
 }
     
-void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
+void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
@@ -684,7 +684,7 @@ void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererE
         bigDraw->setTexID(which,texId);
 }
 
-void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKitView *view)
+void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
     BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);

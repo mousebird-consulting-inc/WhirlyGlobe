@@ -23,27 +23,38 @@
 
 using namespace WhirlyKit;
 
-@implementation MaplyViewState
-
-- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKit::SceneRendererES *)renderer
+namespace Maply
 {
-    self = [super initWithView:mapView renderer:renderer];
-    
-    return self;
+
+MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer)
+    : ViewState(mapView,renderer)
+{
 }
 
-@end
-
+// Generate MapViewState objects as required
+class MapViewStateFactory : public ViewStateFactory
+{
+public:
+    virtual ViewState *makeViewState(WhirlyKit::View *view,SceneRendererES *renderer)
+    {
+        return new Maply::MapViewState((Maply::MapView *)view,renderer);
+    }
+};
+    
+}
 
 @implementation MaplyLayerViewWatcher
+{
+    Maply::MapViewStateFactory mapViewStateFactory;
+}
 
-- (id)initWithView:(MaplyView *)inView thread:(WhirlyKitLayerThread *)inLayerThread;
+- (id)initWithView:(Maply::MapView *)inView thread:(WhirlyKitLayerThread *)inLayerThread;
 {
     self = [super initWithView:inView thread:inLayerThread];
     if (self)
     {
-        [inView addWatcherDelegate:self];
-        super.viewStateClass = [MaplyViewState class];
+        inView->addWatcherDelegate(self);
+        super.viewStateFactory = &mapViewStateFactory;
     }
     
     return self;

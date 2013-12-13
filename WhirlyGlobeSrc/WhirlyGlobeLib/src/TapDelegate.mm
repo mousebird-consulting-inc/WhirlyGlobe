@@ -27,10 +27,10 @@ using namespace WhirlyKit;
 
 @implementation WhirlyGlobeTapDelegate
 {
-	WhirlyGlobeView *globeView;
+	WhirlyGlobe::GlobeView *globeView;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -40,7 +40,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView *)globeView
 {
 	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
     
@@ -67,10 +67,10 @@ using namespace WhirlyKit;
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
 	Point3d hit;
-	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:glView];
     Point2f frameSize = sceneRender->getFramebufferSize();
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor) hit:&hit normalized:true])
+    if (globeView->pointOnSphereFromScreen(touchLoc,&theTransform,Point2f(frameSize.x()/glView.contentScaleFactor,frameSize.y()/glView.contentScaleFactor),&hit,true))
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
@@ -78,7 +78,7 @@ using namespace WhirlyKit;
 		[msg setWorldLocD:hit];
         Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
-        msg.heightAboveSurface = globeView.heightAboveGlobe;
+        msg.heightAboveSurface = globeView->heightAboveSurface();
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
 	} else

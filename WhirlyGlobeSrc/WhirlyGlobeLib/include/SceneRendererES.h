@@ -122,7 +122,7 @@ public:
     /// Renderer itself
     WhirlyKit::SceneRendererES *sceneRenderer;
     /// View
-    WhirlyKitView * __weak theView;
+    WhirlyKit::View *theView;
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans,viewTrans;
     /// Current projection matrix
@@ -202,7 +202,7 @@ public:
     float getScale() { return scale; }
     
     /// Used by the subclasses for culling
-    virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
+    virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
     
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
@@ -214,15 +214,15 @@ public:
     virtual void setScene(WhirlyKit::Scene *newScene);
 
 protected:
-    Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
-    void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
+    Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
+    void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
     
     /// Rendering context
     EAGLContext *context;
     /// Scene we're drawing.  This is set from outside
     WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
-    WhirlyKitView * __weak theView;
+    WhirlyKit::View *theView;
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
     /// Set this to turn culling on or off.

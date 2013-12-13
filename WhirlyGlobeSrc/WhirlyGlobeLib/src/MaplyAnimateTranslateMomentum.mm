@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyAnimateTranslateMomentum
 {
-    MaplyView *mapView;
+    Maply::MapView *mapView;
     UIView *glView;
     WhirlyKit::SceneRendererES *sceneRenderer;
 
@@ -37,7 +37,7 @@ using namespace WhirlyKit;
     std::vector<WhirlyKit::Point2f> bounds;
 }
 
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKit::SceneRendererES *)inSceneRenderer
+- (id)initWithView:(Maply::MapView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKit::SceneRendererES *)inSceneRenderer
 {
     if ((self = [super init]))
     {
@@ -46,7 +46,7 @@ using namespace WhirlyKit;
         dir = Vector3fToVector3d(inDir.normalized());
         startDate = CFAbsoluteTimeGetCurrent();
         mapView = inMapView;
-        org = mapView.loc;
+        org = mapView->getLoc();
         glView = inView;
         sceneRenderer = inSceneRenderer;
         
@@ -74,7 +74,7 @@ using namespace WhirlyKit;
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = mapView->calcFullMatrix();
     
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -87,9 +87,9 @@ using namespace WhirlyKit;
     Point2f frameSize = sceneRender->getFramebufferSize();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
+        mapView->pointOnPlaneFromScreen(corners[ii],&fullMatrix,
+                              Point2f(frameSize.x()/view.contentScaleFactor,frameSize.y()/view.contentScaleFactor),
+                                    &planePts[ii],false);
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
         //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
     }
@@ -98,7 +98,7 @@ using namespace WhirlyKit;
 }
 
 // Called by the view when it's time to update
-- (void)updateView:(MaplyView *)theMapView
+- (void)updateView:(Maply::MapView *)theMapView
 {
     if (startDate == 0.0)
         return;
@@ -110,14 +110,14 @@ using namespace WhirlyKit;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
-        [mapView cancelAnimation];
+        mapView->cancelAnimation();
     }
     
     // Calculate the distance
-    Point3d oldLoc = mapView.loc;
+    Point3d oldLoc = mapView->getLoc();
     double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3d newLoc = org + dir * dist;
-    [theMapView setLoc:newLoc runUpdates:false];
+    theMapView->setLoc(newLoc,false);
 
     // We'll do a hard stop if we're not within the bounds
     // Note: We're trying this location out, then backing off if it failed.
@@ -125,21 +125,21 @@ using namespace WhirlyKit;
     {
         // How about if we leave the x alone?
         Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-        [mapView setLoc:testLoc runUpdates:false];
+        mapView->setLoc(testLoc,false);
         if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
         {
             // How about leaving y alone?
             testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-            [mapView setLoc:testLoc runUpdates:false];
+            mapView->setLoc(testLoc,false);
             if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
-                [mapView setLoc:oldLoc runUpdates:false];
+                mapView->setLoc(oldLoc,false);
         }
     }
     
     if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
-        [theMapView setLoc:oldLoc runUpdates:false];
+        theMapView->setLoc(oldLoc,false);
     
-    [theMapView runViewUpdates];
+    theMapView->runViewUpdates();
 }
 
 

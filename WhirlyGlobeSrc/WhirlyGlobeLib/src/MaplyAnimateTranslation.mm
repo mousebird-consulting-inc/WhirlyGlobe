@@ -25,7 +25,7 @@ using namespace Eigen;
 
 @implementation MaplyAnimateViewTranslation
 
-- (id)initWithView:(MaplyView *)globeView translate:(Point3f &)newLoc howLong:(float)howLong
+- (id)initWithView:(Maply::MapView *)mapView translate:(Point3f &)newLoc howLong:(float)howLong
 {
     self = [super init];
     
@@ -33,7 +33,7 @@ using namespace Eigen;
     {
         _startDate = CFAbsoluteTimeGetCurrent();
         _endDate = _startDate + howLong;
-        _startLoc = globeView.loc;
+        _startLoc = mapView->getLoc();
         _endLoc = Point3d(newLoc.x(),newLoc.y(),newLoc.z());
     }
     
@@ -41,7 +41,7 @@ using namespace Eigen;
 }
 
 
-- (void)updateView:(MaplyView *)mapView
+- (void)updateView:(Maply::MapView *)mapView
 {
     if (_startDate == 0.0)
         return;
@@ -53,15 +53,15 @@ using namespace Eigen;
     // All done, snap to end
     if (remain < 0)
     {
-        [mapView setLoc:_endLoc];
+        mapView->setLoc(_endLoc);
         _startDate = 0;
         _endDate = 0;
-        [mapView cancelAnimation];
+        mapView->cancelAnimation();
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;
         Point3d midLoc = _startLoc + (_endLoc-_startLoc)*t;
-        [mapView setLoc:midLoc];
+        mapView->setLoc(midLoc);
     }
 }
 

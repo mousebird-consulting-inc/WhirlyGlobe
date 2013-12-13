@@ -314,7 +314,7 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
 // Note: Should switch to a view state, rather than a view
-SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView)
+SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKit::View *theView)
 {
     if (!renderer)
         return EmptyIdentity;
@@ -322,10 +322,10 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     float maxDist2 = maxDist * maxDist;
     
     // Precalculate the model matrix for use below
-    Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
     Point2f frameSize = renderer->getFramebufferSize();
     frameSize /= scale;
-    Eigen::Matrix4d projTrans = [theView calcProjectionMatrix:frameSize margin:0.0];
+    Eigen::Matrix4d projTrans = theView->calcProjectionMatrix(frameSize,0.0);
     Eigen::Matrix4d modelTransInv = modelTrans.inverse();
 
     // And the eye vector for billboards
@@ -335,12 +335,8 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     SimpleIdentity retId = EmptyIdentity;
     float closeDist2 = MAXFLOAT;
     
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)theView;
-    if (![theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = nil;
-    MaplyView *mapView = (MaplyView *)theView;
-    if (![theView isKindOfClass:[MaplyView class]])
-        mapView = nil;
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
     
     if (!globeView && !mapView)
         return EmptyIdentity;
@@ -367,7 +363,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
             if (sel.selectID != EmptyIdentity)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
                     std::vector<Point2f> screenPts;
                     for (unsigned int jj=0;jj<4;jj++)
@@ -403,7 +399,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         SimpleIdentity foundId = EmptyIdentity;
         Point3f eyePos;
         if (globeView)
-            eyePos = Vector3dToVector3f(globeView.eyePos);
+            eyePos = Vector3dToVector3f(globeView->eyePos());
         else
             NSLog(@"Need to fill in eyePos for mapView");
         
@@ -415,7 +411,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
@@ -479,7 +475,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
                     std::vector<Point2f> screenPts;
                     
@@ -488,9 +484,9 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                         CGPoint screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (globeView)
-                            screenPt = [globeView pointOnScreenFromSphere:pt3d transform:&modelTrans frameSize:frameSize];
+                            screenPt = globeView->pointOnScreenFromSphere(pt3d,&modelTrans,frameSize);
                         else
-                            screenPt = [mapView pointOnScreenFromPlane:pt3d transform:&modelTrans frameSize:frameSize];
+                            screenPt = mapView->pointOnScreenFromPlane(pt3d,&modelTrans,frameSize);
                         screenPts.push_back(Point2f(screenPt.x,screenPt.y));
                     }
                     
@@ -524,7 +520,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         SimpleIdentity foundId = EmptyIdentity;
         Point3f eyePos;
         if (globeView)
-            eyePos = Vector3dToVector3f(globeView.eyePos);
+            eyePos = Vector3dToVector3f(globeView->eyePos());
         else
             NSLog(@"Need to fill in eyePos for mapView");
 

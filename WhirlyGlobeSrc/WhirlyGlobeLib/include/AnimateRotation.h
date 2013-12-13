@@ -40,6 +40,6 @@
 
 /// Kick off a rotate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
+- (id)initWithView:(WhirlyGlobe::GlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
 
 @end

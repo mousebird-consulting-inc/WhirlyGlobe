@@ -22,12 +22,13 @@
 #import <set>
 
 /// @cond
-@class WhirlyKitViewState;
 @protocol WhirlyKitQuadTreeImportanceDelegate;
 /// @endcond
 
 namespace WhirlyKit
 {
+    
+class ViewState;
     
 /** The Quadtree is used to represented the quad tree spatial subdivision
     algorithm.  This version tracks abstract representations of quad tree

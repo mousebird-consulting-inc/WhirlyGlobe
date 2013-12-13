@@ -35,7 +35,7 @@
 @protocol WhirlyGlobeUpdateDataSource <NSObject>
 
 /// The update display layer will call this when the viewer has moved sufficiently
-- (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
+- (void)viewerDidUpdate:(WhirlyGlobe::GlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
 
 /// Called when the layer needs to shutdown.  Clean up your objects.
 - (void)shutdown;

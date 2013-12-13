@@ -53,7 +53,7 @@ using namespace WhirlyKit;
     pthread_mutex_t existenceLock;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKit::SceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKit::View *)inView renderer:(WhirlyKit::SceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{
@@ -63,10 +63,10 @@ using namespace WhirlyKit;
 		layers = [NSMutableArray array];
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
-            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
+            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobe::GlobeView *)inView thread:self];
         else
             if (dynamic_cast<Maply::MapScene *>(_scene))
-                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
+                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(Maply::MapView *)inView thread:self];
         
         // We'll create the context here and set it in the layer thread, always
         _glContext = [[EAGLContext alloc] initWithAPI:_renderer->getContext().API sharegroup:_renderer->getContext().sharegroup];
@@ -75,7 +75,7 @@ using namespace WhirlyKit;
         threadsToShutdown = [NSMutableArray array];
         
         glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        glSetupInfo->minZres = [inView calcZbufferRes];
+        glSetupInfo->minZres = inView->calcZbufferRes();
         _allowFlush = true;
         
         pthread_mutex_init(&changeLock,NULL);

@@ -28,10 +28,10 @@ using namespace WhirlyKit;
     CFTimeInterval startDate,endDate;
     Point2f windowSize,destWindowSize;
     Point2f contentOffset,destContentOffset;
-    MaplyFlatView __weak *flatView;
+    Maply::FlatView *flatView;
 }
 
-- (id)initWithView:(MaplyFlatView *)inFlatView destWindow:(WhirlyKit::Point2f)inWindowSize destContentOffset:(WhirlyKit::Point2f)inContentOffset howLong:(float)howLong
+- (id)initWithView:(Maply::FlatView *)inFlatView destWindow:(WhirlyKit::Point2f)inWindowSize destContentOffset:(WhirlyKit::Point2f)inContentOffset howLong:(float)howLong
 {
     self = [super init];
     if (!self)
@@ -40,15 +40,15 @@ using namespace WhirlyKit;
     flatView = inFlatView;
     startDate = CFAbsoluteTimeGetCurrent();
     endDate = startDate + howLong;
-    windowSize = flatView.windowSize;
+    windowSize = flatView->getWindowSize();
     destWindowSize = inWindowSize;
-    contentOffset = flatView.contentOffset;
+    contentOffset = flatView->getContentOffset();
     destContentOffset = inContentOffset;
     
     return self;
 }
 
-- (void)updateView:(MaplyView *)mapView
+- (void)updateView:(Maply::MapView *)mapView
 {
     if (startDate == 0.0)
         return;
@@ -60,17 +60,17 @@ using namespace WhirlyKit;
     // All done, snap to end
     if (remain < 0)
     {
-        [flatView setWindowSize:destWindowSize contentOffset:destContentOffset];
+        flatView->setWindowSize(destWindowSize,destContentOffset);
         startDate = 0;
         endDate = 0;
-        [mapView cancelAnimation];
+        mapView->cancelAnimation();
     } else {
         // Interpolate in the middle
         float t = (span-remain)/span;
         Point2f curWindowSize,curContentOffset;
         curWindowSize = windowSize + (destWindowSize-windowSize)*t;
         curContentOffset = contentOffset + (destContentOffset-contentOffset)*t;
-        [flatView setWindowSize:curWindowSize contentOffset:curContentOffset];
+        flatView->setWindowSize(curWindowSize,curContentOffset);
     }
 }
 

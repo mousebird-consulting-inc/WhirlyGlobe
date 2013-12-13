@@ -49,7 +49,7 @@
 @property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKit::SceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKit::View *)inView renderer:(WhirlyKit::SceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;
