@@ -22,6 +22,7 @@
 #import "MaplyBaseViewController_private.h"
 #import "NSData+Zlib.h"
 #import "MaplyTexture_private.h"
+#import "MaplyAnnotation_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -87,6 +88,7 @@ using namespace WhirlyKit;
     userLayers = nil;
 
     viewTrackers = nil;
+    annotations = nil;
     
     theClearColor = nil;
 }
@@ -213,6 +215,7 @@ using namespace WhirlyKit;
 	sceneRenderer.theView = visualView;
 	    
     viewTrackers = [NSMutableArray array];
+    annotations = [NSMutableArray array];
 	
 	// Kick off the layer thread
 	// This will start loading things
@@ -591,6 +594,77 @@ static const float PerfOutputDelay = 15.0;
             [theTracker.view removeFromSuperview];
         sceneRenderer.triggerDraw = true;
     }
+}
+
+// Overridden by the subclasses
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
+{
+    return CGPointZero;
+}
+
+// Overridden by the subclasses
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+{
+    return false;
+}
+
+- (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset
+{
+    // Let's put it in the right place so the callout can do its layout logic
+    CGPoint pt = [self screenPointFromGeo:coord];
+    CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
+    annotate.calloutView.delegate = self;
+    annotate.loc = coord;
+    [annotations addObject:annotate];
+    [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    
+    // But then we move it back because we're controlling its positioning
+    CGRect frame = annotate.calloutView.frame;
+    annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x, frame.origin.y-pt.y, frame.size.width, frame.size.height);
+    
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
+    sceneRenderer.triggerDraw = true;
+}
+
+// Delegate callback for annotation placement
+// Note: Not doing anything with this yet
+- (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
+{
+    NSTimeInterval delay = 0.0;
+    
+    // Need to find the annotation this belongs to
+    for (MaplyAnnotation *annotation in annotations)
+    {
+        if (annotation.calloutView == calloutView)
+        {
+            CGPoint pt = [self screenPointFromGeo:annotation.loc];
+            CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
+            delay = 0.25;
+            if (![self animateToPosition:annotation.loc onScreen:newPt time:delay])
+                delay = 0.0;
+            break;
+        }
+    }
+    
+    return 0.0;
+}
+
+- (void)removeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    vpGen->removeView(annotate.calloutView);
+    
+    [annotations removeObject:annotate];
+    
+    [annotate.calloutView dismissCalloutAnimated:YES];
+}
+
+- (void)clearAnnotations
+{
+    NSArray *allAnnotations = [NSArray arrayWithArray:annotations];
+    for (MaplyAnnotation *annotation in allAnnotations)
+        [self removeAnnotation:annotation];
 }
 
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode

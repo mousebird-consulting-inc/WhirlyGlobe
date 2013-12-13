@@ -96,7 +96,7 @@ using namespace WhirlyGlobe;
             
             // Keep going in that direction
             Vector3f upVector(0,0,1);
-            autoSpinner = [[AnimateViewMomentum alloc] initWithView:globeView velocity:anglePerSec accel:0.0 axis:upVector];
+            autoSpinner = [[AnimateViewMomentum alloc] initWithView:globeView velocity:anglePerSec accel:0.0 axis:upVector northUp:false];
             globeView.delegate = autoSpinner;
         }
     }

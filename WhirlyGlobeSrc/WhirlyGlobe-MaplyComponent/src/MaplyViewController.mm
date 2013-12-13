@@ -371,10 +371,10 @@ using namespace Maply;
 }
 
 // Note: This may not work with a tilt
-- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     if (_tetheredMode)
-        return;
+        return false;
     
     // Figure out where the point lands on the map
     Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
@@ -387,7 +387,9 @@ using namespace Maply;
         loc.y() -= diffLoc.y();
         loc.z() = mapView.loc.z();
         [self animateToPoint:loc time:howLong];
-    }
+        return true;
+    } else
+        return false;
 }
 
 // This version takes a height as well
