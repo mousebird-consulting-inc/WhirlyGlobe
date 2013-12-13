@@ -374,8 +374,39 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
 
+/** @brief Add a single annotation which will track the given point.
+    @details This adds a MaplyAnnotation that will follow the given geo coordinate, applying the screen offset as given.
+    @param annotate The annotation we want to track a given point.
+    @param coord The location on the map (or globe) we'd like to track.
+    @param offset The screen offset for the annotation UIView.  You use this to put the annotation above or below objects.
+  */
+- (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset;
+
+/** @brief Remove the given annotation from the UIView.
+    @details This will dismiss the given annotation with its animation.
+  */
+- (void)removeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Calls removeAnnotation: on all outstanding annotations.
+  */
+- (void)clearAnnotations;
+
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
+
+/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
+    @return Returns the screen point corresponding to a given geo coordinate.
+ */
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Animate the given position to the screen position over time.
+ @details This is similar to animateToPosition:time: except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you're looking at.
+ @details If it's impossible to move newPos to loc, then nothing happens.
+ @param newPos The geographic position (lon/lat in radians) to move to.
+ @param loc The location on the screen where we'd like it to go.
+ @param howLong How long in seconds to take getting there.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
 /** @brief Add an image as a texture and return a MaplyTexture to track it.
     @details We reference count UIImages attached to Maply objects, but that has a couple of drawbacks.  First, it retains the UIImage and if that's large, that's a waste of memory.  Second, if you're adding and removing Maply objects you may repeatedly create and delete the same UIImage, which is a waste of CPU.

@@ -30,8 +30,9 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "SMCalloutView.h"
 
-@interface MaplyBaseViewController()
+@interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
 @public
     WhirlyKitEAGLView *glView;
@@ -49,6 +50,9 @@
     
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
+    
+    // List of annotations we're tracking for location
+    NSMutableArray *annotations;
         
     // General rendering and other display hints
     NSDictionary *hints;

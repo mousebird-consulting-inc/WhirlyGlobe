@@ -374,7 +374,7 @@ using namespace WhirlyGlobe;
 }
 
 // Figure out how to get the geolocation to the given point on the screen
-- (void)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     [globeView cancelAnimation];
     
@@ -412,7 +412,10 @@ using namespace WhirlyGlobe;
         // Rotate to the given position over time
         animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
         globeView.delegate = animateRotation;
-    }
+        
+        return true;
+    } else
+        return false;
 }
 
 // External facing set position

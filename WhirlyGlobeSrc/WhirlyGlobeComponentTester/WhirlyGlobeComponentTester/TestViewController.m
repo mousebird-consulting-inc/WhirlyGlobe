@@ -104,7 +104,7 @@ LocationInfo locations[NumLocations] =
     NSObject<MaplyElevationSourceDelegate> *elevSource;
     
     // The view we're using to track a selected object
-    MaplyViewTracker *selectedViewTrack;
+//    MaplyViewTracker *selectedViewTrack;
     
     NSDictionary *screenLabelDesc,*labelDesc,*vectorDesc;
     
@@ -1254,42 +1254,51 @@ static const int NumMegaMarkers = 40000;
 - (void)handleSelection:(NSObject *)selectedObj
 {
     // If we've currently got a selected view, get rid of it
-    if (selectedViewTrack)
-    {
-        [baseViewC removeViewTrackForView:selectedViewTrack.view];
-        selectedViewTrack = nil;
-    }
+//    if (selectedViewTrack)
+//    {
+//        [baseViewC removeViewTrackForView:selectedViewTrack.view];
+//        selectedViewTrack = nil;
+//    }
+    [baseViewC clearAnnotations];
     
     MaplyCoordinate loc;
-    NSString *msg = nil;
+    NSString *title = nil,*subTitle = nil;
+    CGPoint offset = CGPointZero;
     
     if ([selectedObj isKindOfClass:[MaplyMarker class]])
     {
         MaplyMarker *marker = (MaplyMarker *)selectedObj;
         loc = marker.loc;
-        msg = [NSString stringWithFormat:@"Marker: %@",marker.userObject];
+        title = (NSString *)marker.userObject;
+        subTitle = @"Marker";
     } else if ([selectedObj isKindOfClass:[MaplyScreenMarker class]])
     {
         MaplyScreenMarker *screenMarker = (MaplyScreenMarker *)selectedObj;
         loc = screenMarker.loc;
-        msg = [NSString stringWithFormat:@"Screen Marker: %@",screenMarker.userObject];
+        title = (NSString *)screenMarker.userObject;
+        subTitle = @"Screen Marker";
+        offset = CGPointMake(0.0, -16.0);
     } else if ([selectedObj isKindOfClass:[MaplyLabel class]])
     {
         MaplyLabel *label = (MaplyLabel *)selectedObj;
         loc = label.loc;
-        msg = [NSString stringWithFormat:@"Label: %@",label.userObject];
+        title = (NSString *)label.userObject;
+        subTitle = @"Label";
     } else if ([selectedObj isKindOfClass:[MaplyScreenLabel class]])
     {
         MaplyScreenLabel *screenLabel = (MaplyScreenLabel *)selectedObj;
         loc = screenLabel.loc;
-        msg = [NSString stringWithFormat:@"Screen Label: %@",screenLabel.userObject];
+        title = (NSString *)screenLabel.userObject;
+        subTitle = @"Screen Label";
+        offset = CGPointMake(0.0, -18.0);
     } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
     {
         MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
         if ([vecObj centroid:&loc])
         {
             NSString *name = (NSString *)vecObj.userObject;
-            msg = [NSString stringWithFormat:@"Vector: %@",vecObj.userObject];
+            title = (NSString *)vecObj.userObject;
+            subTitle = @"Vector";
             if ([configViewC valueForSection:kMaplyTestCategoryObjects row:kMaplyTestLoftedPoly])
             {
                 // See if there already is one
@@ -1307,21 +1316,31 @@ static const int NumMegaMarkers = 40000;
     {
         MaplyShapeSphere *sphere = (MaplyShapeSphere *)selectedObj;
         loc = sphere.center;
-        msg = @"Sphere";
+        title = @"Shape";
+        subTitle = @"Sphere";
     } else if ([selectedObj isKindOfClass:[MaplyShapeCylinder class]])
     {
         MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)selectedObj;
         loc = cyl.baseCenter;
-        msg = @"Cylinder";
+        title = @"Shape";
+        subTitle = @"Cylinder";
     } else
         // Don't know what it is
         return;
     
     // Build the selection view and hand it over to the globe to track
-    selectedViewTrack = [[MaplyViewTracker alloc] init];
-    selectedViewTrack.loc = loc;
-    selectedViewTrack.view = [self makeSelectionView:msg];
-    [baseViewC addViewTracker:selectedViewTrack];    
+//    selectedViewTrack = [[MaplyViewTracker alloc] init];
+//    selectedViewTrack.loc = loc;
+//    selectedViewTrack.view = [self makeSelectionView:msg];
+//    [baseViewC addViewTracker:selectedViewTrack];
+    if (title)
+    {
+        MaplyAnnotation *annotate = [[MaplyAnnotation alloc] init];
+        annotate.title = title;
+        annotate.subTitle = subTitle;
+        [baseViewC clearAnnotations];
+        [baseViewC addAnnotation:annotate forPoint:loc offset:offset];
+    }
 }
 
 // User selected something
@@ -1334,11 +1353,12 @@ static const int NumMegaMarkers = 40000;
 - (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
     // Just clear the selection
-    if (selectedViewTrack)
-    {
-        [baseViewC removeViewTrackForView:selectedViewTrack.view];
-        selectedViewTrack = nil;        
-    }
+    [baseViewC clearAnnotations];
+//    if (selectedViewTrack)
+//    {
+//        [baseViewC removeViewTrackForView:selectedViewTrack.view];
+//        selectedViewTrack = nil;
+//    }
 }
 
 // Bring up the config view when the user taps outside
@@ -1362,11 +1382,12 @@ static const int NumMegaMarkers = 40000;
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
     // Just clear the selection
-    if (selectedViewTrack)
-    {
-        [baseViewC removeViewTrackForView:selectedViewTrack.view];
-        selectedViewTrack = nil;
-    }    
+    [baseViewC clearAnnotations];
+//    if (selectedViewTrack)
+//    {
+//        [baseViewC removeViewTrackForView:selectedViewTrack.view];
+//        selectedViewTrack = nil;
+//    }    
 }
 
 #pragma mark - Popover Delegate

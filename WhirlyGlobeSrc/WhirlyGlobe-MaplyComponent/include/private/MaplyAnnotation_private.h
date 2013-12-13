@@ -19,6 +19,12 @@
  */
 
 #import "MaplyAnnotation.h"
+#import "SMCalloutView.h"
+#import "MaplyCoordinate.h"
 
 @interface MaplyAnnotation()
+
+@property (nonatomic) SMCalloutView *calloutView;
+@property (nonatomic) MaplyCoordinate loc;
+
 @end

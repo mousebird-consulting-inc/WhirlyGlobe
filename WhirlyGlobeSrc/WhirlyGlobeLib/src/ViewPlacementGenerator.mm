@@ -46,6 +46,8 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     ViewInstance viewInst(loc,view);
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
+    CGRect frame = view.frame;
+    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
 }
     

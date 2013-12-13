@@ -49,8 +49,9 @@
 
 @property (nonatomic,assign) float velocity;
 @property (nonatomic,assign) float acceleration;
+@property (nonatomic,assign) bool northUp;
 
 /// Initialize with an angular velocity and a negative acceleration (to slow down)
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis;
+- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis northUp:(bool)northUp;
 
 @end
