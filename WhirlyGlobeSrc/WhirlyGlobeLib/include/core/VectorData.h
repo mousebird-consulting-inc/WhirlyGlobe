@@ -28,6 +28,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "CoordSystem.h"
+#import "Dictionary.h"
 
 namespace WhirlyKit
 {
@@ -38,10 +39,10 @@ class VectorShape : public Identifiable
 {
 public:	
 	/// Set the attribute dictionary
-	void setAttrDict(NSMutableDictionary *newDict);
+	void setAttrDict(const Dictionary &newDict);
 	
 	/// Return the attr dict
-	NSMutableDictionary *getAttrDict();    
+	Dictionary *getAttrDict();
     /// Return the geoMbr
     virtual GeoMbr calcGeoMbr() = 0;
 	
@@ -49,7 +50,7 @@ protected:
 	VectorShape();
 	virtual ~VectorShape();
 
-	__strong NSMutableDictionary *attrDict;
+	Dictionary attrDict;
 };
 
 class VectorAreal;
@@ -244,19 +245,22 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+// Note: Porting
+//bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
+// Note: Porting
+//bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
     
 /** Helper routine to parse a GeoJSON assembly into an array of
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
-bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+    // Note: Porting
+//bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
     
 bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);

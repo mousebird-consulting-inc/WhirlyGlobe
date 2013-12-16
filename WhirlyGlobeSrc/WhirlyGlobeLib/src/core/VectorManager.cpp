@@ -20,97 +20,50 @@
 
 #import "VectorManager.h"
 #import "WhirlyGeometry.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "Tesselator.h"
 #import "GridClipper.h"
+#import "SharedAttributes.h"
+#import "Platform.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-typedef enum {TextureProjectionNone,TextureProjectionTanPlane} TextureProjections;
-
-// Used to describe the drawable we'll construct for a given vector
-@interface VectorInfo : NSObject
-{
-@public
-    // For creation request, the shapes
-    ShapeSet                    shapes;
-    BOOL                        enable;
-    float                         drawOffset;
-    int                         priority;
-    float                       minVis,maxVis;
-    BOOL                        filled;
-    float                       sample;
-    SimpleIdentity              texId;
-    Point2f                     texScale;
-    float                       subdivEps;
-    BOOL                        gridSubdiv;
-    TextureProjections          texProj;
-}
-
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float fade;
-@property (nonatomic,assign) float lineWidth;
-
-- (void)parseDict:(NSDictionary *)dict;
-
-@end
-
-@implementation VectorInfo
-
-- (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)dict
-{
-    if ((self = [super init]))
-    {
-        if (inShapes)
-            shapes = *inShapes;
-        [self parseDict:dict];
-    }
-    
-    return self;
-}
-
-- (id)initWithDesc:(NSDictionary *)dict
-{
-    if ((self = [super init]))
-    {
-        [self parseDict:dict];
-    }
-    
-    return self;
-}
-
-- (void)parseDict:(NSDictionary *)dict
-{
-    enable = [dict boolForKey:@"enable" default:YES];
-    drawOffset = [dict floatForKey:@"drawOffset" default:0];
-    self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    priority = [dict intForKey:@"drawPriority" default:0];
-    // This looks like an old bug
-    priority = [dict intForKey:@"priority" default:priority];
-    minVis = [dict floatForKey:@"minVis" default:DrawVisibleInvalid];
-    maxVis = [dict floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _fade = [dict floatForKey:@"fade" default:0.0];
-    _lineWidth = [dict floatForKey:@"width" default:1.0];
-    filled = [dict boolForKey:@"filled" default:false];
-    sample = [dict floatForKey:@"sample" default:false];
-    texId = [dict intForKey:@"texture" default:EmptyIdentity];
-    texScale.x() = [dict floatForKey:@"texscalex" default:1.0];
-    texScale.y() = [dict floatForKey:@"texscaley" default:1.0];
-    subdivEps = [dict floatForKey:@"subdivisionepsilon" default:0.0];
-    NSString *subdivType = [dict stringForKey:@"subdivisiontype" default:nil];
-    gridSubdiv = [subdivType isEqualToString:@"grid"];
-    NSString *texProjStr = [dict stringForKey:@"texprojection" default:nil];
-    texProj = TextureProjectionNone;
-    if ([texProjStr isEqualToString:@"texprojectiontanplane"])
-        texProj = TextureProjectionTanPlane;
-}
-
-@end
 
 namespace WhirlyKit
 {
+    
+VectorInfo::VectorInfo() :
+    enable(true), drawOffset(0.0), priority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
+    texProj(TextureProjectionNone), color(255,255,255,255), fade(0.0), lineWidth(1.0)
+{
+}
+
+void VectorInfo::parseDict(const Dictionary &dict)
+{
+    enable = dict.getBool(MaplyEnable,true);
+    drawOffset = dict.getInt(MaplyDrawOffset,0);
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    priority = dict.getInt(MaplyDrawPriority,0);
+    // This looks like an old bug
+    priority = dict.getInt(MaplyDrawPriority,priority);
+    minVis = dict.getDouble(MaplyMinVis,DrawVisibleInvalid);
+    maxVis = dict.getDouble(MaplyMaxVis,DrawVisibleInvalid);
+    fade = dict.getDouble(MaplyFade,0.0);
+    lineWidth = dict.getDouble(MaplyVecWidth,1.0);
+    filled = dict.getBool(MaplyFilled,false);
+    sample = dict.getBool("sample",false);
+    texId = dict.getInt(MaplyVecTexture,EmptyIdentity);
+    texScale.x() = dict.getDouble(MaplyVecTexScaleX,1.0);
+    texScale.y() = dict.getDouble(MaplyVecTexScaleY,1.0);
+    subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
+    std::string subdivType = dict.getString(MaplySubdivType);
+    gridSubdiv = !subdivType.compare(MaplySubdivGrid);
+    std::string texProjStr = dict.getString(MaplyVecTextureProjection,"");
+    texProj = TextureProjectionNone;
+    if (!texProjStr.compare(MaplyProjectionTangentPlane))
+        texProj = TextureProjectionTanPlane;
+}
     
 void VectorSceneRep::clear(ChangeSet &changes)
 {
@@ -126,7 +79,7 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          VectorInfo *vecInfo,bool linesOrPoints)
+                          const VectorInfo *vecInfo,bool linesOrPoints)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
@@ -137,13 +90,10 @@ public:
         flush();
     }
     
-    void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
+    void addPoints(VectorRing &pts,bool closed,Dictionary *attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        RGBAColor baseColor = [vecInfo.color asRGBAColor];
-        UIColor *ringColor = attrs[@"color"];
-        if ([ringColor isKindOfClass:[UIColor class]])
-            baseColor = [ringColor asRGBAColor];
+        RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -160,8 +110,8 @@ public:
             // Adjust according to the vector info
             drawable->setOnOff(vecInfo->enable);
             drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor(baseColor);
-            drawable->setLineWidth(vecInfo.lineWidth);
+            drawable->setColor(ringColor);
+            drawable->setLineWidth(vecInfo->lineWidth);
             drawable->setDrawPriority(vecInfo->priority);
             drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
         }
@@ -182,15 +132,15 @@ public:
             if (primType == GL_POINTS)
             {
                 drawable->addPoint(pt);
-                drawable->addColor(baseColor);
+                drawable->addColor(ringColor);
                 drawable->addNormal(norm);
             } else {
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
                     drawable->addPoint(pt);
-                    drawable->addColor(baseColor);
-                    drawable->addColor(baseColor);
+                    drawable->addColor(ringColor);
+                    drawable->addColor(ringColor);
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
                 } else {
@@ -207,8 +157,8 @@ public:
         {
             drawable->addPoint(prevPt);
             drawable->addPoint(firstPt);
-            drawable->addColor(baseColor);
-            drawable->addColor(baseColor);
+            drawable->addColor(ringColor);
+            drawable->addColor(ringColor);
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
         }
@@ -223,10 +173,10 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
                 
-                if (vecInfo.fade > 0.0)
+                if (vecInfo->fade > 0.0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                    drawable->setFade(curTime,curTime+vecInfo.fade);
+                    TimeInterval curTime = TimeGetCurrent();
+                    drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 changeRequests.push_back(new AddDrawableReq(drawable));
             } else
@@ -241,7 +191,7 @@ protected:
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
-    VectorInfo *vecInfo;
+    const VectorInfo *vecInfo;
     GLenum primType;
 };
 
@@ -253,7 +203,7 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             VectorInfo *vecInfo)
+                             const VectorInfo *vecInfo)
     : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
     {
     }
@@ -264,7 +214,7 @@ public:
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing &ring,NSDictionary *attrs)
+    void addPoints(VectorRing &ring,Dictionary *attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -280,19 +230,16 @@ public:
     }
     
     // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
-    void addPoints(VectorTrianglesRef mesh,NSDictionary *attrs)
+    void addPoints(VectorTrianglesRef mesh,Dictionary *attrs)
     {
-        RGBAColor baseColor = [vecInfo.color asRGBAColor];
-        UIColor *ringColor = attrs[@"color"];
-        if ([ringColor isKindOfClass:[UIColor class]])
-            baseColor = [ringColor asRGBAColor];
+        RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
 
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         Point2f centroid(0,0);
-        if (attrs[@"veccenterx"] && attrs[@"veccentery"])
+        if (attrs->hasField(MaplyVecCenterX) && attrs->hasField(MaplyVecCenterY))
         {
-            centroid.x() = [attrs[@"veccenterx"] floatValue];
-            centroid.y() = [attrs[@"veccentery"] floatValue];
+            centroid.x() = attrs->getDouble(MaplyVecCenterX);
+            centroid.y() = attrs->getDouble(MaplyVecCenterY);
         }
         
         for (unsigned int ir=0;ir<mesh->tris.size();ir++)
@@ -317,7 +264,7 @@ public:
                 // Adjust according to the vector info
                 drawable->setOnOff(vecInfo->enable);
                 drawable->setDrawOffset(vecInfo->drawOffset);
-                drawable->setColor([vecInfo.color asRGBAColor]);
+                drawable->setColor(ringColor);
                 drawable->setDrawPriority(vecInfo->priority);
                 drawable->setVisibleRange(vecInfo->minVis,vecInfo->maxVis);
                 if (vecInfo->texId != EmptyIdentity)
@@ -395,7 +342,7 @@ public:
                 Point3f pt = coordAdapter->localToDisplay(localPt);
                 
                 drawable->addPoint(pt);
-                drawable->addColor(baseColor);
+                drawable->addColor(ringColor);
                 drawable->addNormal(norm);
                 if (vecInfo->texId != EmptyIdentity)
                 {
@@ -419,10 +366,10 @@ public:
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
                 
-                if (vecInfo.fade > 0.0)
+                if (vecInfo->fade > 0.0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                    drawable->setFade(curTime,curTime+vecInfo.fade);
+                    TimeInterval curTime = TimeGetCurrent();
+                    drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 
                 changeRequests.push_back(new AddDrawableReq(drawable));
@@ -438,7 +385,7 @@ protected:
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
-    VectorInfo *vecInfo;
+    const VectorInfo *vecInfo;
 };
 
 VectorManager::VectorManager()
@@ -456,13 +403,9 @@ VectorManager::~VectorManager()
     pthread_mutex_destroy(&vectorLock);
 }
 
-SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, ChangeSet &changes)
+SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
-    VectorInfo *vecInfo = [[VectorInfo alloc] initWithShapes:shapes desc:desc];
-
-    // All the shape types should be the same
-    ShapeSet::iterator first = vecInfo->shapes.begin();
-    if (first == vecInfo->shapes.end())
+    if (shapes->empty())
         return EmptyIdentity;
     
     VectorSceneRep *sceneRep = new VectorSceneRep();
@@ -474,16 +417,16 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true);
-    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo);
+    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,&vecInfo,true);
+    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,&vecInfo);
         
-    for (ShapeSet::iterator it = vecInfo->shapes.begin();
-         it != vecInfo->shapes.end(); ++it)
+    for (ShapeSet::iterator it = shapes->begin();
+         it != shapes->end(); ++it)
     {
         VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
-            if (vecInfo->filled)
+            if (vecInfo.filled)
             {
                 // Triangulate the outside
                 drawBuildTri.addPoints(theAreal->loops[0],theAreal->getAttrDict());
@@ -494,10 +437,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     VectorRing &ring = theAreal->loops[ri];
                     
                     // Break the edges around the globe (presumably)
-                    if (vecInfo->sample > 0.0)
+                    if (vecInfo.sample > 0.0)
                     {
                         VectorRing newPts;
-                        SubdivideEdges(ring, newPts, false, vecInfo->sample);
+                        SubdivideEdges(ring, newPts, false, vecInfo.sample);
                         drawBuild.addPoints(newPts,true,theAreal->getAttrDict());
                     } else
                         drawBuild.addPoints(ring,true,theAreal->getAttrDict());
@@ -507,15 +450,15 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
             if (theLinear.get())
             {
-                if (vecInfo->filled)
+                if (vecInfo.filled)
                 {
                     // Triangulate the outside
                     drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
                 } else {
-                    if (vecInfo->sample > 0.0)
+                    if (vecInfo.sample > 0.0)
                     {
                         VectorRing newPts;
-                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo->sample);
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo.sample);
                         drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
                     } else
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
@@ -548,7 +491,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     return vecID;
 }
 
-void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+void VectorManager::changeVectors(SimpleIdentity vecID,const Dictionary *desc,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
@@ -562,33 +505,38 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
              idIt != sceneRep->drawIDs.end(); ++idIt)
         {
             // Turned it on or off
-            if ([desc objectForKey:@"enable"])
-                changes.push_back(new OnOffChangeRequest(*idIt, [desc boolForKey:@"enable" default:YES]));
+            if (desc->hasField(MaplyEnable))
+                changes.push_back(new OnOffChangeRequest(*idIt, desc->getBool(MaplyEnable)));
             
             // Changed color
-            if ([desc objectForKey:@"color"]) {
-                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
+            DictionaryType type = desc->getType(MaplyColor);
+            if (type == DictTypeInt || type == DictTypeString)
+            {
+                RGBAColor newColor = desc->getColor(MaplyColor, RGBAColor(255,255,255,255));
                 changes.push_back(new ColorChangeRequest(*idIt, newColor));
             }
             
             // Changed visibility
-            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
-                int minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-                int maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+            if (desc->hasField(MaplyMinVis) || desc->hasField(MaplyMaxVis))
+            {
+                float minVis = desc->getDouble(MaplyMinVis, DrawVisibleInvalid);
+                float maxVis = desc->getDouble(MaplyMaxVis, DrawVisibleInvalid);
                 changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
             }
             
             // Changed line width
-            if ([desc objectForKey:@"width"]) {
-                float lineWidth = [desc floatForKey:@"width" default:1.0];
+            if (desc->hasField(MaplyVecWidth))
+            {
+                float lineWidth = desc->getDouble(MaplyVecWidth,1.0);
                 changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
             }
             
             // Changed draw priority
-            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
-                int priority = [desc intForKey:@"drawPriority" default:0];
+            if (desc->hasField(MaplyDrawPriority) || desc->hasField("priority"))
+            {
+                int priority = desc->getInt(MaplyDrawPriority,0);
                 // This looks like an old bug
-                priority = [desc intForKey:@"priority" default:priority];
+                priority = desc->getInt("priority",priority);
                 changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
             }
         }
@@ -606,36 +554,37 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         VectorSceneRep dummyRep(*vit);
         VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
         
-        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+//        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (it != vectorReps.end())
         {
             VectorSceneRep *sceneRep = *it;
             
-            if (sceneRep->fade > 0.0)
-            {
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   SimpleIDSet theIDs;
-                                   theIDs.insert(sceneRep->getId());
-                                   ChangeSet delChanges;
-                                   removeVectors(theIDs, delChanges);
-                                   scene->addChangeRequests(delChanges);
-                               }
-                               );
-                sceneRep->fade = 0.0;
-            } else {
+            // Note: Porting
+//            if (sceneRep->fade > 0.0)
+//            {
+//                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+//                     idIt != sceneRep->drawIDs.end(); ++idIt)
+//                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
+//                
+//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
+//                               scene->getDispatchQueue(),
+//                               ^{
+//                                   SimpleIDSet theIDs;
+//                                   theIDs.insert(sceneRep->getId());
+//                                   ChangeSet delChanges;
+//                                   removeVectors(theIDs, delChanges);
+//                                   scene->addChangeRequests(delChanges);
+//                               }
+//                               );
+//                sceneRep->fade = 0.0;
+//            } else {
                 for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                      idIt != sceneRep->drawIDs.end(); ++idIt)
                     changes.push_back(new RemDrawableReq(*idIt));
                 vectorReps.erase(it);
                 
                 delete sceneRep;
-            }
+//            }
         }
     }
     

@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B009C78185F6F62001E2EE8 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C77185F6F62001E2EE8 /* Dictionary.h */; };
+		2B009C7A185F6F6A001E2EE8 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */; };
+		2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C7B185F7924001E2EE8 /* ShapeReader.h */; };
+		2B009C7E185F7933001E2EE8 /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */; };
+		2B009C80185F7F96001E2EE8 /* GridClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */; };
+		2B009C82185F7F9B001E2EE8 /* GridClipper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C81185F7F9B001E2EE8 /* GridClipper.h */; };
+		2B009C88185F7FFA001E2EE8 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */; };
+		2B009C8A185F8001001E2EE8 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C89185F8001001E2EE8 /* VectorManager.h */; };
+		2B009C8C185F8130001E2EE8 /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8B185F8130001E2EE8 /* SharedAttributes.h */; };
+		2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8F185F9065001E2EE8 /* Tesselator.h */; };
+		2B009C92185F906D001E2EE8 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C91185F906D001E2EE8 /* Tesselator.mm */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
 		2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F84185BD3460028E027 /* CoordSystem.h */; };
 		2B789F8C185BD3460028E027 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F85185BD3460028E027 /* FlatMath.h */; };
@@ -266,6 +277,17 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2B009C77185F6F62001E2EE8 /* Dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dictionary.h; path = core/Dictionary.h; sourceTree = "<group>"; };
+		2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = core/Dictionary.cpp; sourceTree = "<group>"; };
+		2B009C7B185F7924001E2EE8 /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShapeReader.h; path = core/ShapeReader.h; sourceTree = "<group>"; };
+		2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeReader.cpp; path = core/ShapeReader.cpp; sourceTree = "<group>"; };
+		2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridClipper.cpp; path = core/GridClipper.cpp; sourceTree = "<group>"; };
+		2B009C81185F7F9B001E2EE8 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridClipper.h; path = core/GridClipper.h; sourceTree = "<group>"; };
+		2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorManager.cpp; path = core/VectorManager.cpp; sourceTree = "<group>"; };
+		2B009C89185F8001001E2EE8 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorManager.h; path = core/VectorManager.h; sourceTree = "<group>"; };
+		2B009C8B185F8130001E2EE8 /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = core/SharedAttributes.h; sourceTree = "<group>"; };
+		2B009C8F185F9065001E2EE8 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tesselator.h; path = core/Tesselator.h; sourceTree = "<group>"; };
+		2B009C91185F906D001E2EE8 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Tesselator.mm; path = core/Tesselator.mm; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B789F84185BD3460028E027 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoordSystem.h; path = core/CoordSystem.h; sourceTree = "<group>"; };
@@ -616,6 +638,12 @@
 		2B789F82185BD2CB0028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2B009C8F185F9065001E2EE8 /* Tesselator.h */,
+				2B009C8B185F8130001E2EE8 /* SharedAttributes.h */,
+				2B009C89185F8001001E2EE8 /* VectorManager.h */,
+				2B009C81185F7F9B001E2EE8 /* GridClipper.h */,
+				2B009C7B185F7924001E2EE8 /* ShapeReader.h */,
+				2B009C77185F6F62001E2EE8 /* Dictionary.h */,
 				2B78A006185BEA300028E027 /* VectorData.h */,
 				2B78A002185BE9F80028E027 /* MaplyFlatView.h */,
 				2B789FF4185BE59F0028E027 /* SceneRendererES2.h */,
@@ -653,6 +681,11 @@
 		2B789F83185BD2D00028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2B009C91185F906D001E2EE8 /* Tesselator.mm */,
+				2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */,
+				2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */,
+				2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */,
+				2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */,
 				2B78A004185BEA150028E027 /* VectorData.cpp */,
 				2B78A000185BE9ED0028E027 /* MaplyFlatView.cpp */,
 				2B789FFC185BE8660028E027 /* SceneRendererES2.cpp */,
@@ -997,19 +1030,23 @@
 			files = (
 				2B789F8D185BD3460028E027 /* GlobeMath.h in Headers */,
 				2B789FDD185BE2890028E027 /* WhirlyKitView.h in Headers */,
+				2B009C82185F7F9B001E2EE8 /* GridClipper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B789FB7185BDA360028E027 /* MaplyView.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
 				2B789FB5185BDA220028E027 /* GlobeView.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
+				2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
 				2B78A003185BE9F80028E027 /* MaplyFlatView.h in Headers */,
+				2B009C8C185F8130001E2EE8 /* SharedAttributes.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B789F8C185BD3460028E027 /* FlatMath.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B789F8E185BD3460028E027 /* Identifiable.h in Headers */,
+				2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */,
 				2B789F8F185BD3460028E027 /* OpenGLES2Program.h in Headers */,
 				2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */,
 				2B789F91185BD3460028E027 /* WhirlyVector.h in Headers */,
@@ -1031,12 +1068,14 @@
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2B789FA3185BD5690028E027 /* GLUtils.h in Headers */,
 				2B789FA1185BD4F70028E027 /* WhirlyTypes.h in Headers */,
+				2B009C78185F6F62001E2EE8 /* Dictionary.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2B789FE7185BE3710028E027 /* GlobeLayerViewWatcher.h in Headers */,
 				2B789FF5185BE59F0028E027 /* SceneRendererES2.h in Headers */,
+				2B009C8A185F8001001E2EE8 /* VectorManager.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
@@ -1113,6 +1152,7 @@
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
+				2B009C7E185F7933001E2EE8 /* ShapeReader.cpp in Sources */,
 				2B789F93185BD36A0028E027 /* CoordSystem.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
@@ -1180,6 +1220,7 @@
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
 				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
+				2B009C7A185F6F6A001E2EE8 /* Dictionary.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
@@ -1244,6 +1285,7 @@
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
+				2B009C92185F906D001E2EE8 /* Tesselator.mm in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
 				2B789F99185BD3AC0028E027 /* Identifiable.cpp in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
@@ -1255,6 +1297,7 @@
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
 				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
+				2B009C88185F7FFA001E2EE8 /* VectorManager.cpp in Sources */,
 				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
 				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
 				2B789FCB185BDD9C0028E027 /* PerformanceTimer.cpp in Sources */,
@@ -1272,6 +1315,7 @@
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
+				2B009C80185F7F96001E2EE8 /* GridClipper.cpp in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,

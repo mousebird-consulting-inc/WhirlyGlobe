@@ -32,7 +32,7 @@ class ShapeReader : public VectorReader
 {
 public:
     /// Construct with a file name
-	ShapeReader(NSString *fileName);
+	ShapeReader(const std::string &fileName);
 	virtual ~ShapeReader();
 	
 	/// Return true if we managed to load the file
