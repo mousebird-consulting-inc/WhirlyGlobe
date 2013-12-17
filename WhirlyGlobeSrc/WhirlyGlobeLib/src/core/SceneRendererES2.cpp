@@ -126,9 +126,6 @@ SceneRendererES2::SceneRendererES2()
 //    contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
     
     renderSetup = false;
-
-    // Note: Try to turn this back on at some point
-    _dispatchRendering = false;
 }
 
 SceneRendererES2::~SceneRendererES2()
@@ -194,12 +191,11 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 //    triggerDraw = true;
 //}
 
-// Note: Porting
-//void SceneRendererES2::setClearColor(UIColor *color)
-//{
-//    _clearColor = [color asRGBAColor];
-//    renderSetup = false;
-//}
+void SceneRendererES2::setClearColor(const RGBAColor &color)
+{
+    clearColor = color;
+    renderSetup = false;
+}
 
 // Note: Porting
 //BOOL SceneRendererES2::resizeFromLayer(CAEAGLLayer *layer)
@@ -213,32 +209,7 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
-void SceneRendererES2::render(TimeInterval duration)
-{
-    // Note: Porting
-    // Let anyone who cares know the frame draw is starting
-//    WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
-//    frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
-//    frameMsg.frameInterval = duration;
-//    frameMsg.renderer = this;
-//    [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
-
-    // Note: Porting
-//    if (_dispatchRendering)
-//    {
-//        if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
-//            return;
-//        
-//        dispatch_async(contextQueue,
-//                       ^{
-//                           renderAsync();
-//                           dispatch_semaphore_signal(frameRenderingSemaphore);
-//                       });
-//    } else
-        renderAsync();
-}
-
-void SceneRendererES2::renderAsync()
+void SceneRendererES2::render()
 {
     if (!scene)
         return;
@@ -264,12 +235,6 @@ void SceneRendererES2::renderAsync()
     	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
-    
-    // Note: Porting
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:context];
-    CheckGLError("SceneRendererES2: setCurrentContext");
     
     if (!renderSetup)
     {
@@ -326,7 +291,7 @@ void SceneRendererES2::renderAsync()
     if (!renderSetup)
     {
         // Note: What happens if they change this?
-        glClearColor(_clearColor.r / 255.0, _clearColor.g / 255.0, _clearColor.b / 255.0, _clearColor.a / 255.0);
+        glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
         CheckGLError("SceneRendererES2: glClearColor");
     }
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -671,10 +636,6 @@ void SceneRendererES2::renderAsync()
         CheckGLError("SceneRendererES2: glBindRenderbuffer");
     }
 
-    // Note: Porting
-//    [context presentRenderbuffer:GL_RENDERBUFFER];
-    CheckGLError("SceneRendererES2: presentRenderbuffer");
-
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
     
@@ -696,10 +657,6 @@ void SceneRendererES2::renderAsync()
         perfTimer.log();
         perfTimer.clear();
 	}
-    
-    // Note: Porting
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:oldContext];
-    
+        
     renderSetup = true;
 }

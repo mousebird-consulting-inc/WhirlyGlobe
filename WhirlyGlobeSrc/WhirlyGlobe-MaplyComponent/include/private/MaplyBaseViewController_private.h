@@ -21,24 +21,29 @@
 #import <UIKit/UIKit.h>
 
 #import "MaplyBaseViewController.h"
-#import "MaplyViewControllerLayer_private.h"
+// Note: Porting
+//#import "MaplyViewControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
-#import "WGInteractionLayer_private.h"
-#import "PanDelegateFixed.h"
-#import "PinchDelegateFixed.h"
+#import "MaplyInteractionLayer_private.h"
+// Note: Porting
+//#import "PanDelegateFixed.h"
+//#import "PinchDelegateFixed.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
-#import "MaplyActiveObject_private.h"
+#import "EAGLView.h"
+// Note: Porting
+//#import "MaplyActiveObject_private.h"
 
 @interface MaplyBaseViewController()
 {
 @public
     WhirlyKitEAGLView *glView;
-    WhirlyKit::SceneRendererES2 *sceneRenderer;
+    WhirlyKit::MaplySceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *baseLayerThread;
-    WhirlyKitLayoutLayer *layoutLayer;
+    // Note: Porting
+//    WhirlyKitLayoutLayer *layoutLayer;
     NSMutableArray *layerThreads;
 
     // Our own interaction layer does most of the work
@@ -60,7 +65,7 @@
     WhirlyKit::Scene *scene;
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
-    WhirlyKitView *visualView;
+    WhirlyKit::View *visualView;
     
     /// Active lights
     NSMutableArray *lights;
@@ -89,7 +94,7 @@
 - (void) loadSetup_glView;
 
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
-- (WhirlyKitView *) loadSetup_view;
+- (WhirlyKit::View *) loadSetup_view;
 
 /// For loading the Maply or Globe view.  The subclasses call this, but you shouldn't
 - (WhirlyKit::Scene *) loadSetup_scene;

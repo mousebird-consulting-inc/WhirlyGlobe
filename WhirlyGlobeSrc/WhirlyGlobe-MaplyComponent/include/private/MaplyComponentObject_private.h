@@ -22,7 +22,8 @@
 #import <WhirlyGlobe.h>
 #import "MaplyVectorObject.h"
 #import "MaplyComponentObject.h"
-#import "MaplyTexture_private.h"
+// Note: Porting
+//#import "MaplyTexture_private.h"
 
 /** The Component Object is used to track all the resources a user created
     to represent something.  We pass this back to them so they can remove
@@ -38,7 +39,8 @@
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &loftIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &billIDs;
 @property (nonatomic,assign) WhirlyKit::SimpleIDSet &selectIDs;
-@property (nonatomic,assign) std::set<MaplyTexture *> &textures;
+// Note: Porting
+//@property (nonatomic,assign) std::set<MaplyTexture *> &textures;
 @property (nonatomic,strong) NSArray *vectors;
 @property (nonatomic,assign) bool isSelectable;
 @property (nonatomic,assign) bool underConstruction;

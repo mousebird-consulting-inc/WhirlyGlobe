@@ -51,7 +51,7 @@ namespace WhirlyKit
     used in WhirlyGlobe and Maply.  It contains the general purpose
     methods and parameters related to the model and view matrices used for display.
  */
-class View : DelayedDeletable
+class View : public DelayedDeletable
 {
 public:
     View();

@@ -21,7 +21,10 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "NSData+Zlib.h"
-#import "MaplyTexture_private.h"
+#import "UIColor+Stuff.h"
+#import "NSDictionary+Stuff.h"
+// Note: Porting
+//#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -40,12 +43,11 @@ using namespace WhirlyKit;
     [glView stopAnimation];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [sceneRenderer useContext];
+    sceneRenderer->useContext();
     for (MaplyShader *shader in shaders)
         [shader shutdown];
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
-    sceneRenderer.scene = nil;
     
     if (baseLayerThread)
     {
@@ -57,10 +59,10 @@ using namespace WhirlyKit;
         }
 
         [baseLayerThread addThingToDelete:scene];
+        [baseLayerThread addThingToDelete:visualView];
+        [baseLayerThread addThingToDelete:sceneRenderer];
         [baseLayerThread addThingToRelease:baseLayerThread];
-        [baseLayerThread addThingToRelease:visualView];
         [baseLayerThread addThingToRelease:glView];
-        [baseLayerThread addThingToRelease:sceneRenderer];
         [baseLayerThread cancel];
     }
     layerThreads = nil;
@@ -71,17 +73,19 @@ using namespace WhirlyKit;
     glView = nil;
     sceneRenderer = nil;
     baseLayerThread = nil;
-    layoutLayer = nil;
+    // Note: Porting
+//    layoutLayer = nil;
     
     activeObjects = nil;
     
     interactLayer = nil;
     
-    while ([userLayers count] > 0)
-    {
-        MaplyViewControllerLayer *layer = [userLayers objectAtIndex:0];
-        [userLayers removeObject:layer];
-    }
+    // Note: Porting
+//    while ([userLayers count] > 0)
+//    {
+//        MaplyViewControllerLayer *layer = [userLayers objectAtIndex:0];
+//        [userLayers removeObject:layer];
+//    }
     userLayers = nil;
 
     viewTrackers = nil;
@@ -95,7 +99,7 @@ using namespace WhirlyKit;
         [self clear];
 }
 
-- (WhirlyKitView *) loadSetup_view
+- (WhirlyKit::View *) loadSetup_view
 {
     return nil;
 }
@@ -127,13 +131,14 @@ using namespace WhirlyKit;
         if (triNoLighting != EmptyIdentity)
             scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
     } else {
-        // Add a default light
-        MaplyLight *light = [[MaplyLight alloc] init];
-        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
-        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
-        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
-        light.viewDependent = false;
-        [self addLight:light];
+        // Note: Porting
+//        // Add a default light
+//        MaplyLight *light = [[MaplyLight alloc] init];
+//        light.pos = MaplyCoordinate3dMake(0.75, 0.5, -1.0);
+//        light.ambient = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+//        light.diffuse = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+//        light.viewDependent = false;
+//        [self addLight:light];
     }
 }
 
@@ -160,14 +165,14 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
 
 	// Set up the OpenGL ES renderer
-    sceneRenderer = new SceneRendererES2();
+    sceneRenderer = new MaplySceneRendererES2();
     sceneRenderer->setZBufferMode(zBufferOffDefault);
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
     sceneRenderer->useContext();
 
     theClearColor = [UIColor blackColor];
-    sceneRenderer->setClearColor(theClearColor);
+    sceneRenderer->setClearColor([theClearColor asRGBAColor]);
 
     // Set up the GL View to display it in
 	glView = [[WhirlyKitEAGLView alloc] init];
@@ -181,12 +186,12 @@ using namespace WhirlyKit;
     glView.backgroundColor = [UIColor blackColor];
     
     // Turn on the model matrix optimization for drawing
-    sceneRenderer.useViewChanged = true;
+    sceneRenderer->setUseViewChanged(true);
     
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
     scene = [self loadSetup_scene];
-    sceneRenderer.scene = scene;
+    sceneRenderer->setScene(scene);
     [self loadSetup_lighting];
     
     layerThreads = [NSMutableArray array];
@@ -195,9 +200,10 @@ using namespace WhirlyKit;
 	baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:true];
     [layerThreads addObject:baseLayerThread];
     
+    // Note: Porting
     // Layout still needs a layer to kick it off
-    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
-    [baseLayerThread addLayer:layoutLayer];
+//    layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer];
+//    [baseLayerThread addLayer:layoutLayer];
     
     // Lastly, an interaction layer of our own
     interactLayer = [self loadSetup_interactionLayer];
@@ -205,7 +211,7 @@ using namespace WhirlyKit;
     [baseLayerThread addLayer:interactLayer];
     
 	// Give the renderer what it needs
-	sceneRenderer.theView = visualView;
+	sceneRenderer->setView(visualView);
 	    
     viewTrackers = [NSMutableArray array];
 	
@@ -223,7 +229,7 @@ using namespace WhirlyKit;
 
 - (void) useGLContext
 {
-    [sceneRenderer useContext];
+    sceneRenderer->useContext();
 }
 
 - (void)viewDidLoad
@@ -294,10 +300,10 @@ static const float PerfOutputDelay = 15.0;
     _performanceOutput = performanceOutput;
     if (_performanceOutput)
     {
-        sceneRenderer.perfInterval = 100;
+        sceneRenderer->setPerfInterval(100);
         [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];
     } else {
-        sceneRenderer.perfInterval = 0;
+        sceneRenderer->setPerfInterval(0);
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
     }
 }
@@ -318,47 +324,49 @@ static const float PerfOutputDelay = 15.0;
     return _performanceOutput;
 }
 
-// Build an array of lights and send them down all at once
-- (void)updateLights
-{
-    NSMutableArray *theLights = [NSMutableArray array];
-    for (MaplyLight *light in lights)
-    {
-        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
-        theLight.pos = Vector3f(light.pos.x,light.pos.y,light.pos.z);
-        theLight.ambient = [light.ambient asVec4];
-        theLight.diffuse = [light.diffuse asVec4];
-        theLight.viewDependent = light.viewDependent;
-        [theLights addObject:theLight];
-    }
-    if ([theLights count] == 0)
-        theLights = nil;
-    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
-    {
-        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
-        [rendererES2 replaceLights:theLights];
-    }
-}
+// Note: Pending
+//// Build an array of lights and send them down all at once
+//- (void)updateLights
+//{
+//    NSMutableArray *theLights = [NSMutableArray array];
+//    for (MaplyLight *light in lights)
+//    {
+//        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
+//        theLight.pos = Vector3f(light.pos.x,light.pos.y,light.pos.z);
+//        theLight.ambient = [light.ambient asVec4];
+//        theLight.diffuse = [light.diffuse asVec4];
+//        theLight.viewDependent = light.viewDependent;
+//        [theLights addObject:theLight];
+//    }
+//    if ([theLights count] == 0)
+//        theLights = nil;
+//    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+//    {
+//        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
+//        [rendererES2 replaceLights:theLights];
+//    }
+//}
+//
+//- (void)clearLights
+//{
+//    lights = nil;
+//    [self updateLights];
+//}
 
-- (void)clearLights
-{
-    lights = nil;
-    [self updateLights];
-}
-
-- (void)addLight:(MaplyLight *)light
-{
-    if (!lights)
-        lights = [NSMutableArray array];
-    [lights addObject:light];
-    [self updateLights];
-}
-
-- (void)removeLight:(MaplyLight *)light
-{
-    [lights removeObject:light];
-    [self updateLights];
-}
+// Note: Porting
+//- (void)addLight:(MaplyLight *)light
+//{
+//    if (!lights)
+//        lights = [NSMutableArray array];
+//    [lights addObject:light];
+//    [self updateLights];
+//}
+//
+//- (void)removeLight:(MaplyLight *)light
+//{
+//    [lights removeObject:light];
+//    [self updateLights];
+//}
 
 - (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName
 {
@@ -411,52 +419,53 @@ static const float PerfOutputDelay = 15.0;
     
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
+    sceneRenderer->setZBufferMode((zBuffer ? zBufferOn : zBufferOffDefault));
     BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
-    sceneRenderer.doCulling = culling;
+    sceneRenderer->setDoCulling(culling);
 }
 
 #pragma mark - Geometry related methods
 
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
-{
-    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
-}
-
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
-{
-    return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
-}
-
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
-}
-
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
-{
-    return [self addMarkers:markers desc:desc mode:MaplyThreadAny];
-}
-
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
-}
-
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
-{
-    return [self addScreenLabels:labels desc:desc mode:MaplyThreadAny];
-}
-
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addLabels:labels desc:desc mode:threadMode];
-}
-
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
-{
-    return [self addLabels:labels desc:desc mode:MaplyThreadAny];
-}
+// Note: Pending
+//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+//{
+//    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+//{
+//    return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
+//}
+//
+//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+//{
+//    return [self addMarkers:markers desc:desc mode:MaplyThreadAny];
+//}
+//
+//- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc
+//{
+//    return [self addScreenLabels:labels desc:desc mode:MaplyThreadAny];
+//}
+//
+//- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addLabels:labels desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc
+//{
+//    return [self addLabels:labels desc:desc mode:MaplyThreadAny];
+//}
 
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
@@ -468,10 +477,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
-- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
-}
+// Note: Pending
+//- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
+//}
 
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors
 {
@@ -488,100 +498,105 @@ static const float PerfOutputDelay = 15.0;
     [self changeVector:compObj desc:desc mode:MaplyThreadAny];
 }
 
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addShapes:shapes desc:desc mode:threadMode];
-}
+// Note: Pending
+//- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addShapes:shapes desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
+//{
+//    return [self addShapes:shapes desc:desc mode:MaplyThreadAny];
+//}
+//
+//- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addStickers:stickers desc:desc mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
+//{
+//    return [self addStickers:stickers desc:desc mode:MaplyThreadAny];
+//}
+//
+//- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
+//}
 
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
-{
-    return [self addShapes:shapes desc:desc mode:MaplyThreadAny];
-}
+// Note: Porting
+//- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
+//}
+//
+//- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
+//{
+//    return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
+//}
 
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addStickers:stickers desc:desc mode:threadMode];
-}
+// Note: Porting
+///// Add a view to track to a particular location
+//- (void)addViewTracker:(MaplyViewTracker *)viewTrack
+//{
+//    // Make sure we're not duplicating and add the object
+//    [self removeViewTrackForView:viewTrack.view];
+//    [viewTrackers addObject:viewTrack];
+//    
+//    // Hook it into the renderer
+//    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+//    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+//    sceneRenderer.triggerDraw = true;
+//    
+//    // And add it to the view hierarchy
+//    if ([viewTrack.view superview] == nil)
+//        [glView addSubview:viewTrack.view];
+//}
+//
+///// Remove the view tracker associated with the given UIView
+//- (void)removeViewTrackForView:(UIView *)view
+//{
+//    // Look for the entry
+//    WGViewTracker *theTracker = nil;
+//    for (WGViewTracker *viewTrack in viewTrackers)
+//        if (viewTrack.view == view)
+//        {
+//            theTracker = viewTrack;
+//            break;
+//        }
+//    
+//    if (theTracker)
+//    {
+//        [viewTrackers removeObject:theTracker];
+//        ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+//        vpGen->removeView(theTracker.view);
+//        if ([theTracker.view superview] == glView)
+//            [theTracker.view removeFromSuperview];
+//        sceneRenderer.triggerDraw = true;
+//    }
+//}
 
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc
-{
-    return [self addStickers:stickers desc:desc mode:MaplyThreadAny];
-}
+// Note: Porting
+//- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+//    maplyTex.viewC = self;
+//    
+//    return maplyTex;
+//}
+//
+//- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
+//{
+//    [interactLayer removeTexture:texture];
+//}
 
-- (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer changeSticker:compObj desc:desc mode:threadMode];
-}
-
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
-}
-
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
-{
-    return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
-}
-
-/// Add a view to track to a particular location
-- (void)addViewTracker:(WGViewTracker *)viewTrack
-{
-    // Make sure we're not duplicating and add the object
-    [self removeViewTrackForView:viewTrack.view];
-    [viewTrackers addObject:viewTrack];
-    
-    // Hook it into the renderer
-    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
-    sceneRenderer.triggerDraw = true;
-    
-    // And add it to the view hierarchy
-    if ([viewTrack.view superview] == nil)
-        [glView addSubview:viewTrack.view];
-}
-
-/// Remove the view tracker associated with the given UIView
-- (void)removeViewTrackForView:(UIView *)view
-{
-    // Look for the entry
-    WGViewTracker *theTracker = nil;
-    for (WGViewTracker *viewTrack in viewTrackers)
-        if (viewTrack.view == view)
-        {
-            theTracker = viewTrack;
-            break;
-        }
-    
-    if (theTracker)
-    {
-        [viewTrackers removeObject:theTracker];
-        ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-        vpGen->removeView(theTracker.view);
-        if ([theTracker.view superview] == glView)
-            [theTracker.view removeFromSuperview];
-        sceneRenderer.triggerDraw = true;
-    }
-}
-
-- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
-{
-    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
-    maplyTex.viewC = self;
-    
-    return maplyTex;
-}
-
-- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
-{
-    [interactLayer removeTexture:texture];
-}
-
-- (void)setMaxLayoutObjects:(int)maxLayoutObjects
-{
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    if (layoutManager)
-        layoutManager->setMaxDisplayObjects(maxLayoutObjects);
-}
+// Note: Pending
+//- (void)setMaxLayoutObjects:(int)maxLayoutObjects
+//{
+//    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+//    if (layoutManager)
+//        layoutManager->setMaxDisplayObjects(maxLayoutObjects);
+//}
 
 - (void)removeObject:(MaplyComponentObject *)theObj
 {
@@ -618,119 +633,122 @@ static const float PerfOutputDelay = 15.0;
     [interactLayer endChanges];
 }
 
-- (void)addActiveObject:(MaplyActiveObject *)theObj
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call addActiveObject: on the main thread.");
-        return;
-    }
-    
-    if (!activeObjects)
-        activeObjects = [NSMutableArray array];
+// Note: Porting
+//- (void)addActiveObject:(MaplyActiveObject *)theObj
+//{
+//    if ([NSThread currentThread] != [NSThread mainThread])
+//    {
+//        NSLog(@"Must call addActiveObject: on the main thread.");
+//        return;
+//    }
+//    
+//    if (!activeObjects)
+//        activeObjects = [NSMutableArray array];
+//
+//    if (![activeObjects containsObject:theObj])
+//    {
+//        scene->addActiveModel(theObj);
+//        [activeObjects addObject:theObj];
+//    }
+//}
+//
+//- (void)removeActiveObject:(MaplyActiveObject *)theObj
+//{
+//    if ([NSThread currentThread] != [NSThread mainThread])
+//    {
+//        NSLog(@"Must call removeActiveObject: on the main thread.");
+//        return;
+//    }
+//    
+//    if ([activeObjects containsObject:theObj])
+//    {
+//        scene->removeActiveModel(theObj);
+//        [activeObjects removeObject:theObj];
+//    }
+//}
+//
+//- (void)removeActiveObjects:(NSArray *)theObjs
+//{
+//    if ([NSThread currentThread] != [NSThread mainThread])
+//    {
+//        NSLog(@"Must call removeActiveObject: on the main thread.");
+//        return;
+//    }
+//
+//    for (MaplyActiveObject *theObj in theObjs)
+//        [self removeActiveObject:theObj];
+//}
 
-    if (![activeObjects containsObject:theObj])
-    {
-        scene->addActiveModel(theObj);
-        [activeObjects addObject:theObj];
-    }
-}
+// Note: Porting
+//- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
+//{
+//    if (newLayer && ![userLayers containsObject:newLayer])
+//    {
+//        WhirlyKitLayerThread *layerThread = baseLayerThread;
+//        // Only supporting quad image tiles layer for the thread per layer
+//        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
+//        {
+//            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
+//            [layerThreads addObject:layerThread];
+//            [layerThread start];
+//        }
+//        
+//        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
+//        {
+//            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+//            [userLayers addObject:newLayer];
+//            return true;
+//        }
+//    }
+//    
+//    return false;
+//}
+//
+//- (void)removeLayer:(MaplyViewControllerLayer *)layer
+//{
+//    bool found = false;
+//    MaplyViewControllerLayer *theLayer = nil;
+//    for (theLayer in userLayers)
+//    {
+//        if (theLayer == layer)
+//        {
+//            found = true;
+//            break;
+//        }
+//    }
+//    if (!found)
+//        return;
+//    
+//    WhirlyKitLayerThread *layerThread = layer.layerThread;
+//    [layer cleanupLayers:layerThread scene:scene];
+//    [userLayers removeObject:layer];
+//    
+//    // Need to shut down the layer thread too
+//    if (layerThread != baseLayerThread)
+//    {
+//        if ([layerThreads containsObject:layerThread])
+//        {
+//            [layerThreads removeObject:layerThread];
+//            [layerThread addThingToRelease:theLayer];
+//            [layerThread cancel];
+//        }
+//    }
+//}
 
-- (void)removeActiveObject:(MaplyActiveObject *)theObj
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call removeActiveObject: on the main thread.");
-        return;
-    }
-    
-    if ([activeObjects containsObject:theObj])
-    {
-        scene->removeActiveModel(theObj);
-        [activeObjects removeObject:theObj];
-    }
-}
-
-- (void)removeActiveObjects:(NSArray *)theObjs
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Must call removeActiveObject: on the main thread.");
-        return;
-    }
-
-    for (MaplyActiveObject *theObj in theObjs)
-        [self removeActiveObject:theObj];
-}
-
-- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
-{
-    if (newLayer && ![userLayers containsObject:newLayer])
-    {
-        WhirlyKitLayerThread *layerThread = baseLayerThread;
-        // Only supporting quad image tiles layer for the thread per layer
-        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
-        {
-            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
-            [layerThreads addObject:layerThread];
-            [layerThread start];
-        }
-        
-        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
-        {
-            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
-            [userLayers addObject:newLayer];
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-- (void)removeLayer:(MaplyViewControllerLayer *)layer
-{
-    bool found = false;
-    MaplyViewControllerLayer *theLayer = nil;
-    for (theLayer in userLayers)
-    {
-        if (theLayer == layer)
-        {
-            found = true;
-            break;
-        }
-    }
-    if (!found)
-        return;
-    
-    WhirlyKitLayerThread *layerThread = layer.layerThread;
-    [layer cleanupLayers:layerThread scene:scene];
-    [userLayers removeObject:layer];
-    
-    // Need to shut down the layer thread too
-    if (layerThread != baseLayerThread)
-    {
-        if ([layerThreads containsObject:layerThread])
-        {
-            [layerThreads removeObject:layerThread];
-            [layerThread addThingToRelease:theLayer];
-            [layerThread cancel];
-        }
-    }
-}
-
-- (void)removeLayers:(NSArray *)layers
-{
-    for (MaplyViewControllerLayer *layer in layers)
-        [self removeLayer:layer];
-}
-
-- (void)removeAllLayers
-{
-    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
-    
-    for (MaplyViewControllerLayer *theLayer in allLayers)
-        [self removeLayer:theLayer];
-}
+// Note: Porting
+//- (void)removeLayers:(NSArray *)layers
+//{
+//    for (MaplyViewControllerLayer *layer in layers)
+//        [self removeLayer:layer];
+//}
+//
+//- (void)removeAllLayers
+//{
+//    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
+//    
+//    for (MaplyViewControllerLayer *theLayer in allLayers)
+//        [self removeLayer:theLayer];
+//}
 
 #pragma mark - Properties
 
@@ -742,7 +760,7 @@ static const float PerfOutputDelay = 15.0;
 - (void)setClearColor:(UIColor *)clearColor
 {
     theClearColor = clearColor;
-    [sceneRenderer setClearColor:clearColor];
+    sceneRenderer->setClearColor([clearColor asRGBAColor]);
     
     // This is a hack for clear color
     RGBAColor theColor = [clearColor asRGBAColor];
@@ -756,7 +774,7 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
 {
     MaplyCoordinate3d displayCoord;
-    Point3f pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3f pt = visualView->coordAdapter->localToDisplay(visualView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;

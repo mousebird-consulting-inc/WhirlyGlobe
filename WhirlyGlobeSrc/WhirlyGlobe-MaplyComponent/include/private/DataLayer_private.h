@@ -20,7 +20,7 @@
 
 #import <math.h>
 #import <Foundation/Foundation.h>
-#import "Scene.h"
+#import <WhirlyGlobe.h>
 
 /// @cond
 @class WhirlyKitLayerThread;

@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "SceneRendererES.h"
+#import "SceneRenderer_private.h"
 
 /** OpenGL View is a
 	base class for implementing an open GL rendering view.
@@ -30,7 +30,7 @@
 @interface WhirlyKitEAGLView  : UIView 
 
 /// We're only expecting this to be set once
-@property (nonatomic) WhirlyKit::SceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::MaplySceneRendererES2 *renderer;
 /// This is in units of 60/frameRate.  Set it to 4 to get 15 frames/sec (at most)
 @property (nonatomic) NSInteger frameInterval;
 /// True if we've got a displayLink turned on to animate.

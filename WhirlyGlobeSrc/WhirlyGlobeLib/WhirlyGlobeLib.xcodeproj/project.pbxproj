@@ -18,6 +18,7 @@
 		2B009C8C185F8130001E2EE8 /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8B185F8130001E2EE8 /* SharedAttributes.h */; };
 		2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8F185F9065001E2EE8 /* Tesselator.h */; };
 		2B009C92185F906D001E2EE8 /* Tesselator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C91185F906D001E2EE8 /* Tesselator.mm */; };
+		2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
 		2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F84185BD3460028E027 /* CoordSystem.h */; };
 		2B789F8C185BD3460028E027 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F85185BD3460028E027 /* FlatMath.h */; };
@@ -288,6 +289,7 @@
 		2B009C8B185F8130001E2EE8 /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = core/SharedAttributes.h; sourceTree = "<group>"; };
 		2B009C8F185F9065001E2EE8 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tesselator.h; path = core/Tesselator.h; sourceTree = "<group>"; };
 		2B009C91185F906D001E2EE8 /* Tesselator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Tesselator.mm; path = core/Tesselator.mm; sourceTree = "<group>"; };
+		2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B789F84185BD3460028E027 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoordSystem.h; path = core/CoordSystem.h; sourceTree = "<group>"; };
@@ -952,6 +954,7 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */,
 				2B789F82185BD2CB0028E027 /* Core */,
 			);
 			path = include;
@@ -1081,6 +1084,7 @@
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
 				2B789FED185BE4580028E027 /* MaplyLayerViewWatcher.h in Headers */,
+				2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
 				2B789FAF185BD7E00028E027 /* Cullable.h in Headers */,
 				2B789FB1185BD7E50028E027 /* Drawable.h in Headers */,

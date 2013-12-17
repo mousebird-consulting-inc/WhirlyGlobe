@@ -138,7 +138,7 @@ SceneRendererES::SceneRendererES(int apiVersion)
     frameCountStart = 0.0;
     zBufferMode = zBufferOn;
     doCulling = true;
-    _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
+    clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
     // Note: Porting
     scale = 1.0;
@@ -286,11 +286,10 @@ void SceneRendererES::useContext()
 //	return YES;
 //}
 
-// Note: Porting
-//void SceneRendererES::setClearColor(UIColor *color)
-//{
-//    _clearColor = [color asRGBAColor];
-//}
+void SceneRendererES::setClearColor(const RGBAColor &color)
+{
+    clearColor = color;
+}
 
 // Calculate an acceptable MBR from world coords
 Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
@@ -416,11 +415,6 @@ bool SceneRendererES::viewDidChange()
 void SceneRendererES::forceDrawNextFrame()
 {
     lastDraw = 0;
-}
-
-void SceneRendererES::render(TimeInterval duration)
-{
-    return;
 }
 
 }

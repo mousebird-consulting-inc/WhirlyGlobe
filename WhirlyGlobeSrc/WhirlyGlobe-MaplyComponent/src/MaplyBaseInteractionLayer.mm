@@ -18,20 +18,26 @@
  *
  */
 
+#import <WhirlyGlobe.h>
 #import "MaplyBaseInteractionLayer_private.h"
-#import "MaplyScreenMarker.h"
-#import "MaplyMarker.h"
-#import "MaplyScreenLabel.h"
-#import "MaplyLabel.h"
+// Note: Porting
+//#import "MaplyScreenMarker.h"
+//#import "MaplyMarker.h"
+//#import "MaplyScreenLabel.h"
+//#import "MaplyLabel.h"
 #import "MaplyVectorObject_private.h"
-#import "MaplyShape.h"
-#import "MaplySticker.h"
-#import "MaplyBillboard.h"
+// Note: Porting
+//#import "MaplyShape.h"
+//#import "MaplySticker.h"
+//#import "MaplyBillboard.h"
 #import "MaplyCoordinate.h"
-#import "ImageTexture_private.h"
+// Note: Porting
+//#import "ImageTexture_private.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyCoordinateSystem_private.h"
-#import "MaplyTexture_private.h"
+#import "DictionaryWrapper_private.h"
+// Note: Porting
+//#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -109,7 +115,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     ThreadChangeSet perThreadChanges;
 }
 
-- (id)initWithView:(WhirlyKitView *)inVisualView
+- (id)initWithView:(WhirlyKit::View *)inVisualView
 {
     self = [super init];
     if (!self)
@@ -153,141 +159,143 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     layerThread = nil;
     scene = NULL;
-    imageTextures.clear();
+    // Note: Pending
+//    imageTextures.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
+// Note: Porting
 // Explicitly add a texture
-- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
-{
-    pthread_mutex_lock(&imageLock);
-    
-    // Look for an existing one
-    MaplyImageTexture maplyImageTex;
-    MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
-    if (it != imageTextures.end())
-    {
-        // Increment the reference count
-        MaplyImageTexture copyTex(*it);
-        copyTex.refCount++;
-        imageTextures.erase(it);
-        imageTextures.insert(copyTex);
-        
-        maplyImageTex = copyTex;
-    }
-    
-    ChangeSet changes;
-    if (!maplyImageTex.maplyTex)
-    {
-        MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
-        
-        // Add it and download it
-        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
-        maplyTex.texID = tex->getId();
-        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
-        switch (imageFormat)
-        {
-            case MaplyImageIntRGBA:
-            case MaplyImage4Layer8Bit:
-            default:
-                tex->setFormat(GL_UNSIGNED_BYTE);
-                break;
-            case MaplyImageUShort565:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
-                break;
-            case MaplyImageUShort4444:
-                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
-                break;
-            case MaplyImageUShort5551:
-                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
-                break;
-            case MaplyImageUByteRed:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRed);
-                break;
-            case MaplyImageUByteGreen:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleGreen);
-                break;
-            case MaplyImageUByteBlue:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleBlue);
-                break;
-            case MaplyImageUByteAlpha:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleAlpha);
-                break;
-            case MaplyImageUByteRGB:
-                tex->setFormat(GL_ALPHA);
-                tex->setSingleByteSource(WKSingleRGB);
-                break;
-        }
-        
-        changes.push_back(new AddTextureReq(tex));
-        maplyImageTex = MaplyImageTexture(image, maplyTex);
-        maplyImageTex.refCount = 1;
-        imageTextures.insert(maplyImageTex);
-    }
-    
-    pthread_mutex_unlock(&imageLock);
-
-    if (!changes.empty())
-        [self flushChanges:changes mode:threadMode];
-
-    return maplyImageTex.maplyTex;
-}
-
-- (void)removeTexture:(MaplyTexture *)texture
-{
-    [texture clear];
-}
-
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
-{
-    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
-}
-
-// Add an image to the cache, or find an existing one
-// Called in the layer thread
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
-{
-    MaplyTexture *maplyTex = [self addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
-    
-    return maplyTex;
-}
-
-// Remove an image for the cache, or just decrement its reference count
-- (void)removeImageTexture:(MaplyTexture *)tex;
-{
-    pthread_mutex_lock(&imageLock);
-    
-    // Look for an existing one
-    MaplyImageTextureSet::iterator it = imageTextures.find(tex);
-    if (it != imageTextures.end())
-    {
-        // Decrement the reference count
-        if (it->refCount > 1)
-        {
-            MaplyImageTexture copyTex(*it);
-            imageTextures.erase(*it);
-            copyTex.refCount--;
-            imageTextures.insert(copyTex);
-        } else {
-            // Note: This time is a hack.  Should look at the fade out.
-            [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
-            imageTextures.erase(it);
-        }
-    }
-    
-    pthread_mutex_unlock(&imageLock);
-}
-
-// Remove the given Texture ID after a delay
-// Note: This is a hack to work around fade problems
-- (void)delayedRemoveTexture:(MaplyTexture *)maplyTex
-{
-    // Holding the object until there delays the deletion
-}
+//- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+//{
+//    pthread_mutex_lock(&imageLock);
+//    
+//    // Look for an existing one
+//    MaplyImageTexture maplyImageTex;
+//    MaplyImageTextureSet::iterator it = imageTextures.find(MaplyImageTexture(image));
+//    if (it != imageTextures.end())
+//    {
+//        // Increment the reference count
+//        MaplyImageTexture copyTex(*it);
+//        copyTex.refCount++;
+//        imageTextures.erase(it);
+//        imageTextures.insert(copyTex);
+//        
+//        maplyImageTex = copyTex;
+//    }
+//    
+//    ChangeSet changes;
+//    if (!maplyImageTex.maplyTex)
+//    {
+//        MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+//        
+//        // Add it and download it
+//        Texture *tex = new Texture("MaplyBaseInteraction",image,true);
+//        maplyTex.texID = tex->getId();
+//        tex->setWrap(wrapFlags & MaplyImageWrapX, wrapFlags & MaplyImageWrapY);
+//        switch (imageFormat)
+//        {
+//            case MaplyImageIntRGBA:
+//            case MaplyImage4Layer8Bit:
+//            default:
+//                tex->setFormat(GL_UNSIGNED_BYTE);
+//                break;
+//            case MaplyImageUShort565:
+//                tex->setFormat(GL_UNSIGNED_SHORT_5_6_5);
+//                break;
+//            case MaplyImageUShort4444:
+//                tex->setFormat(GL_UNSIGNED_SHORT_4_4_4_4);
+//                break;
+//            case MaplyImageUShort5551:
+//                tex->setFormat(GL_UNSIGNED_SHORT_5_5_5_1);
+//                break;
+//            case MaplyImageUByteRed:
+//                tex->setFormat(GL_ALPHA);
+//                tex->setSingleByteSource(WKSingleRed);
+//                break;
+//            case MaplyImageUByteGreen:
+//                tex->setFormat(GL_ALPHA);
+//                tex->setSingleByteSource(WKSingleGreen);
+//                break;
+//            case MaplyImageUByteBlue:
+//                tex->setFormat(GL_ALPHA);
+//                tex->setSingleByteSource(WKSingleBlue);
+//                break;
+//            case MaplyImageUByteAlpha:
+//                tex->setFormat(GL_ALPHA);
+//                tex->setSingleByteSource(WKSingleAlpha);
+//                break;
+//            case MaplyImageUByteRGB:
+//                tex->setFormat(GL_ALPHA);
+//                tex->setSingleByteSource(WKSingleRGB);
+//                break;
+//        }
+//        
+//        changes.push_back(new AddTextureReq(tex));
+//        maplyImageTex = MaplyImageTexture(image, maplyTex);
+//        maplyImageTex.refCount = 1;
+//        imageTextures.insert(maplyImageTex);
+//    }
+//    
+//    pthread_mutex_unlock(&imageLock);
+//
+//    if (!changes.empty())
+//        [self flushChanges:changes mode:threadMode];
+//
+//    return maplyImageTex.maplyTex;
+//}
+//
+//- (void)removeTexture:(MaplyTexture *)texture
+//{
+//    [texture clear];
+//}
+//
+//- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
+//{
+//    return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone mode:threadMode];
+//}
+//
+//// Add an image to the cache, or find an existing one
+//// Called in the layer thread
+//- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyTexture *maplyTex = [self addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+//    
+//    return maplyTex;
+//}
+//
+//// Remove an image for the cache, or just decrement its reference count
+//- (void)removeImageTexture:(MaplyTexture *)tex;
+//{
+//    pthread_mutex_lock(&imageLock);
+//    
+//    // Look for an existing one
+//    MaplyImageTextureSet::iterator it = imageTextures.find(tex);
+//    if (it != imageTextures.end())
+//    {
+//        // Decrement the reference count
+//        if (it->refCount > 1)
+//        {
+//            MaplyImageTexture copyTex(*it);
+//            imageTextures.erase(*it);
+//            copyTex.refCount--;
+//            imageTextures.insert(copyTex);
+//        } else {
+//            // Note: This time is a hack.  Should look at the fade out.
+//            [self performSelector:@selector(delayedRemoveTexture:) withObject:it->maplyTex afterDelay:2.0];
+//            imageTextures.erase(it);
+//        }
+//    }
+//    
+//    pthread_mutex_unlock(&imageLock);
+//}
+//
+//// Remove the given Texture ID after a delay
+//// Note: This is a hack to work around fade problems
+//- (void)delayedRemoveTexture:(MaplyTexture *)maplyTex
+//{
+//    // Holding the object until there delays the deletion
+//}
 
 // We flush out changes in different ways depending on the thread mode
 - (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
@@ -384,387 +392,388 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         dict[key] = val;
 }
 
-// Actually add the markers.
-// Called in an unknown thread
-- (void)addScreenMarkersRun:(NSArray *)argArray
-{
-    NSArray *markers = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-    
-    // Convert to WG markers
-    NSMutableArray *wgMarkers = [NSMutableArray array];
-    for (MaplyScreenMarker *marker in markers)
-    {
-        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
-        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        MaplyTexture *tex = nil;
-        if (marker.image)
-        {
-            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
-        }
-        wgMarker.color = marker.color;
-        if (tex)
-            wgMarker.texIDs.push_back(tex.texID);
-        wgMarker.width = marker.size.width;
-        wgMarker.height = marker.size.height;
-        if (marker.rotation != 0.0)
-        {
-            wgMarker.rotation = marker.rotation;
-            wgMarker.lockRotation = true;
-        }
-        if (marker.selectable)
-        {
-            wgMarker.isSelectable = true;
-            wgMarker.selectID = Identifiable::genId();
-        }
-        wgMarker.layoutImportance = marker.layoutImportance;
-        wgMarker.offset = Point2f(marker.offset.x,marker.offset.y);
-        
-        [wgMarkers addObject:wgMarker];
-        
-        if (marker.selectable)
-        {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
-            pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgMarker.selectID);
-        }
-    }
-    
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    
-    if (markerManager)
-    {
-        // Set up a description and create the markers in the marker layer
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-        ChangeSet changes;
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, desc, changes);
-        if (markerID != EmptyIdentity)
-            compObj.markerIDs.insert(markerID);
-        [self flushChanges:changes mode:threadMode];
-    }
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Called in the main thread.
-- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-    
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addScreenMarkersRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addScreenMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
-
-// Actually add the markers.
-// Called in an unknown thread.
-- (void)addMarkersRun:(NSArray *)argArray
-{
-    NSArray *markers = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-    
-    // Convert to WG markers
-    NSMutableArray *wgMarkers = [NSMutableArray array];
-    for (MaplyMarker *marker in markers)
-    {
-        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
-        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        MaplyTexture *tex = nil;
-        if (marker.image)
-        {
-            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
-        }
-        if (tex)
-            wgMarker.texIDs.push_back(tex.texID);
-        wgMarker.width = marker.size.width;
-        wgMarker.height = marker.size.height;
-        if (marker.selectable)
-        {
-            wgMarker.isSelectable = true;
-            wgMarker.selectID = Identifiable::genId();
-        }
-        
-        [wgMarkers addObject:wgMarker];
-        
-        if (marker.selectable)
-        {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
-            pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgMarker.selectID);
-        }
-    }
-    
-    // Set up a description and create the markers in the marker layer
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    if (markerManager)
-    {
-        ChangeSet changes;
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, inDesc, changes);
-        if (markerID != EmptyIdentity)
-            compObj.markerIDs.insert(markerID);
-        [self flushChanges:changes mode:threadMode];
-    }
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Add 3D markers
-- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addMarkersRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
-
-// Actually add the labels.
-// Called in an unknown thread.
-- (void)addScreenLabelsRun:(NSArray *)argArray
-{
-    NSArray *labels = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-
-    // Convert to WG screen labels
-    NSMutableArray *wgLabels = [NSMutableArray array];
-    for (MaplyScreenLabel *label in labels)
-    {
-        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
-        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
-        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
-        wgLabel.rotation = label.rotation;
-        wgLabel.text = label.text;
-        MaplyTexture *tex = nil;
-        if (label.iconImage) {
-            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
-        }
-        if (tex)
-            wgLabel.iconTexture = tex.texID;
-        wgLabel.iconSize = label.iconSize;
-        if (label.size.width > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
-        if (label.size.height > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
-        if (label.color)
-            [desc setObject:label.color forKey:@"textColor"];
-        if (label.layoutImportance != MAXFLOAT)
-        {
-            [desc setObject:@(YES) forKey:@"layout"];
-            [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
-            [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
-        }
-        wgLabel.screenOffset = CGSizeMake(label.offset.x,label.offset.y);
-        if (label.selectable)
-        {
-            wgLabel.isSelectable = true;
-            wgLabel.selectID = Identifiable::genId();
-        }
-        if ([desc count] > 0)
-            wgLabel.desc = desc;
-        
-        [wgLabels addObject:wgLabel];
-        
-        if (label.selectable)
-        {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
-            pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgLabel.selectID);
-        }
-    }
-    
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    if (labelManager)
-    {
-        // Set up a description and create the markers in the marker layer
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
-        ChangeSet changes;
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, desc, changes);
-        [self flushChanges:changes mode:threadMode];
-        if (labelID != EmptyIdentity)
-            compObj.labelIDs.insert(labelID);
-    }
-
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Add screen space (2D) labels
-- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addScreenLabelsRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addScreenLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
-
-// Actually add the labels.
-// Called in an unknown thread.
-- (void)addLabelsRun:(NSArray *)argArray
-{
-    NSArray *labels = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-
-    // Convert to WG labels
-    NSMutableArray *wgLabels = [NSMutableArray array];
-    for (MaplyLabel *label in labels)
-    {
-        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
-        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
-        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
-        wgLabel.text = label.text;
-        MaplyTexture *tex = nil;
-        if (label.iconImage) {
-            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
-            compObj.textures.insert(tex);
-        }
-        wgLabel.iconTexture = tex.texID;
-        if (label.size.width > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
-        if (label.size.height > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
-        if (label.color)
-            [desc setObject:label.color forKey:@"textColor"];
-        if (label.selectable)
-        {
-            wgLabel.isSelectable = true;
-            wgLabel.selectID = Identifiable::genId();
-        }
-        switch (label.justify)
-        {
-            case MaplyLabelJustifyLeft:
-                [desc setObject:@"left" forKey:@"justify"];
-                break;
-            case MaplyLabelJustiyMiddle:
-                [desc setObject:@"middle" forKey:@"justify"];
-                break;
-            case MaplyLabelJustifyRight:
-                [desc setObject:@"right" forKey:@"justify"];
-                break;
-        }
-        wgLabel.desc = desc;
-        
-        [wgLabels addObject:wgLabel];
-        
-        if (label.selectable)
-        {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
-            pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgLabel.selectID);
-        }
-    }
-    
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    
-    if (labelManager)
-    {
-        ChangeSet changes;
-        // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, inDesc, changes);
-        [self flushChanges:changes mode:threadMode];
-        if (labelID != EmptyIdentity)
-            compObj.labelIDs.insert(labelID);
-    }
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Add 3D labels
-- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addLabelsRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
+// Note: Porting
+//// Actually add the markers.
+//// Called in an unknown thread
+//- (void)addScreenMarkersRun:(NSArray *)argArray
+//{
+//    NSArray *markers = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//    
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//    
+//    // Convert to WG markers
+//    NSMutableArray *wgMarkers = [NSMutableArray array];
+//    for (MaplyScreenMarker *marker in markers)
+//    {
+//        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
+//        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
+//        MaplyTexture *tex = nil;
+//        if (marker.image)
+//        {
+//            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+//            compObj.textures.insert(tex);
+//        }
+//        wgMarker.color = marker.color;
+//        if (tex)
+//            wgMarker.texIDs.push_back(tex.texID);
+//        wgMarker.width = marker.size.width;
+//        wgMarker.height = marker.size.height;
+//        if (marker.rotation != 0.0)
+//        {
+//            wgMarker.rotation = marker.rotation;
+//            wgMarker.lockRotation = true;
+//        }
+//        if (marker.selectable)
+//        {
+//            wgMarker.isSelectable = true;
+//            wgMarker.selectID = Identifiable::genId();
+//        }
+//        wgMarker.layoutImportance = marker.layoutImportance;
+//        wgMarker.offset = Point2f(marker.offset.x,marker.offset.y);
+//        
+//        [wgMarkers addObject:wgMarker];
+//        
+//        if (marker.selectable)
+//        {
+//            pthread_mutex_lock(&selectLock);
+//            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+//            pthread_mutex_unlock(&selectLock);
+//            compObj.selectIDs.insert(wgMarker.selectID);
+//        }
+//    }
+//    
+//    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+//    
+//    if (markerManager)
+//    {
+//        // Set up a description and create the markers in the marker layer
+//        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+//        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
+//        ChangeSet changes;
+//        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, desc, changes);
+//        if (markerID != EmptyIdentity)
+//            compObj.markerIDs.insert(markerID);
+//        [self flushChanges:changes mode:threadMode];
+//    }
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Called in the main thread.
+//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//    
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addScreenMarkersRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addScreenMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
+//
+//// Actually add the markers.
+//// Called in an unknown thread.
+//- (void)addMarkersRun:(NSArray *)argArray
+//{
+//    NSArray *markers = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
+//    
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//    
+//    // Convert to WG markers
+//    NSMutableArray *wgMarkers = [NSMutableArray array];
+//    for (MaplyMarker *marker in markers)
+//    {
+//        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
+//        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
+//        MaplyTexture *tex = nil;
+//        if (marker.image)
+//        {
+//            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
+//            compObj.textures.insert(tex);
+//        }
+//        if (tex)
+//            wgMarker.texIDs.push_back(tex.texID);
+//        wgMarker.width = marker.size.width;
+//        wgMarker.height = marker.size.height;
+//        if (marker.selectable)
+//        {
+//            wgMarker.isSelectable = true;
+//            wgMarker.selectID = Identifiable::genId();
+//        }
+//        
+//        [wgMarkers addObject:wgMarker];
+//        
+//        if (marker.selectable)
+//        {
+//            pthread_mutex_lock(&selectLock);
+//            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+//            pthread_mutex_unlock(&selectLock);
+//            compObj.selectIDs.insert(wgMarker.selectID);
+//        }
+//    }
+//    
+//    // Set up a description and create the markers in the marker layer
+//    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+//    if (markerManager)
+//    {
+//        ChangeSet changes;
+//        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, inDesc, changes);
+//        if (markerID != EmptyIdentity)
+//            compObj.markerIDs.insert(markerID);
+//        [self flushChanges:changes mode:threadMode];
+//    }
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add 3D markers
+//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addMarkersRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addMarkersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
+//
+//// Actually add the labels.
+//// Called in an unknown thread.
+//- (void)addScreenLabelsRun:(NSArray *)argArray
+//{
+//    NSArray *labels = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//    
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//
+//    // Convert to WG screen labels
+//    NSMutableArray *wgLabels = [NSMutableArray array];
+//    for (MaplyScreenLabel *label in labels)
+//    {
+//        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+//        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
+//        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
+//        wgLabel.rotation = label.rotation;
+//        wgLabel.text = label.text;
+//        MaplyTexture *tex = nil;
+//        if (label.iconImage) {
+//            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+//            compObj.textures.insert(tex);
+//        }
+//        if (tex)
+//            wgLabel.iconTexture = tex.texID;
+//        wgLabel.iconSize = label.iconSize;
+//        if (label.size.width > 0.0)
+//            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
+//        if (label.size.height > 0.0)
+//            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
+//        if (label.color)
+//            [desc setObject:label.color forKey:@"textColor"];
+//        if (label.layoutImportance != MAXFLOAT)
+//        {
+//            [desc setObject:@(YES) forKey:@"layout"];
+//            [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
+//            [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
+//        }
+//        wgLabel.screenOffset = CGSizeMake(label.offset.x,label.offset.y);
+//        if (label.selectable)
+//        {
+//            wgLabel.isSelectable = true;
+//            wgLabel.selectID = Identifiable::genId();
+//        }
+//        if ([desc count] > 0)
+//            wgLabel.desc = desc;
+//        
+//        [wgLabels addObject:wgLabel];
+//        
+//        if (label.selectable)
+//        {
+//            pthread_mutex_lock(&selectLock);
+//            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+//            pthread_mutex_unlock(&selectLock);
+//            compObj.selectIDs.insert(wgLabel.selectID);
+//        }
+//    }
+//    
+//    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+//    if (labelManager)
+//    {
+//        // Set up a description and create the markers in the marker layer
+//        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+//        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
+//        ChangeSet changes;
+//        SimpleIdentity labelID = labelManager->addLabels(wgLabels, desc, changes);
+//        [self flushChanges:changes mode:threadMode];
+//        if (labelID != EmptyIdentity)
+//            compObj.labelIDs.insert(labelID);
+//    }
+//
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add screen space (2D) labels
+//- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addScreenLabelsRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addScreenLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
+//
+//// Actually add the labels.
+//// Called in an unknown thread.
+//- (void)addLabelsRun:(NSArray *)argArray
+//{
+//    NSArray *labels = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
+//
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//
+//    // Convert to WG labels
+//    NSMutableArray *wgLabels = [NSMutableArray array];
+//    for (MaplyLabel *label in labels)
+//    {
+//        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+//        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
+//        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
+//        wgLabel.text = label.text;
+//        MaplyTexture *tex = nil;
+//        if (label.iconImage) {
+//            tex = [self addImage:label.iconImage imageFormat:MaplyImageIntRGBA mode:threadMode];
+//            compObj.textures.insert(tex);
+//        }
+//        wgLabel.iconTexture = tex.texID;
+//        if (label.size.width > 0.0)
+//            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
+//        if (label.size.height > 0.0)
+//            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
+//        if (label.color)
+//            [desc setObject:label.color forKey:@"textColor"];
+//        if (label.selectable)
+//        {
+//            wgLabel.isSelectable = true;
+//            wgLabel.selectID = Identifiable::genId();
+//        }
+//        switch (label.justify)
+//        {
+//            case MaplyLabelJustifyLeft:
+//                [desc setObject:@"left" forKey:@"justify"];
+//                break;
+//            case MaplyLabelJustiyMiddle:
+//                [desc setObject:@"middle" forKey:@"justify"];
+//                break;
+//            case MaplyLabelJustifyRight:
+//                [desc setObject:@"right" forKey:@"justify"];
+//                break;
+//        }
+//        wgLabel.desc = desc;
+//        
+//        [wgLabels addObject:wgLabel];
+//        
+//        if (label.selectable)
+//        {
+//            pthread_mutex_lock(&selectLock);
+//            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+//            pthread_mutex_unlock(&selectLock);
+//            compObj.selectIDs.insert(wgLabel.selectID);
+//        }
+//    }
+//    
+//    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+//    
+//    if (labelManager)
+//    {
+//        ChangeSet changes;
+//        // Set up a description and create the markers in the marker layer
+//        SimpleIdentity labelID = labelManager->addLabels(wgLabels, inDesc, changes);
+//        [self flushChanges:changes mode:threadMode];
+//        if (labelID != EmptyIdentity)
+//            compObj.labelIDs.insert(labelID);
+//    }
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add 3D labels
+//- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addLabelsRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addLabelsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
 
 // Actually add the vectors.
 // Called in an unknown.
@@ -783,17 +792,18 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     [self resolveShader:inDesc];
     
     // Look for a texture and add it
-    if (inDesc[kMaplyVecTexture])
-    {
-        UIImage *theImage = inDesc[kMaplyVecTexture];
-        MaplyTexture *tex = nil;
-        if ([theImage isKindOfClass:[UIImage class]] || [theImage isKindOfClass:[MaplyTexture class]])
-            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-        if (tex.texID)
-            inDesc[kMaplyVecTexture] = @(tex.texID);
-        else
-            [inDesc removeObjectForKey:kMaplyVecTexture];
-    }
+    // Note: Porting
+//    if (inDesc[kMaplyVecTexture])
+//    {
+//        UIImage *theImage = inDesc[kMaplyVecTexture];
+//        MaplyTexture *tex = nil;
+//        if ([theImage isKindOfClass:[UIImage class]] || [theImage isKindOfClass:[MaplyTexture class]])
+//            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+//        if (tex.texID)
+//            inDesc[kMaplyVecTexture] = @(tex.texID);
+//        else
+//            [inDesc removeObjectForKey:kMaplyVecTexture];
+//    }
 
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -828,7 +838,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (vectorManager)
         {
             ChangeSet changes;
-            SimpleIdentity vecID = vectorManager->addVectors(&shapes, inDesc, changes);
+            WhirlyKit::Dictionary mDict;
+            [inDesc copyToMaplyDictionary:&mDict];
+            VectorInfo vecInfo;
+            vecInfo.parseDict(mDict);
+            SimpleIdentity vecID = vectorManager->addVectors(&shapes, vecInfo, changes);
             [self flushChanges:changes mode:threadMode];
             if (vecID != EmptyIdentity)
                 compObj.vectorIDs.insert(vecID);
@@ -895,9 +909,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (vectorManager)
         {
             ChangeSet changes;
+            WhirlyKit::Dictionary mDict;
+            [desc copyToMaplyDictionary:&mDict];
             for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
                  it != vecObj.vectorIDs.end(); ++it)
-                vectorManager->changeVectors(*it, desc, changes);
+                vectorManager->changeVectors(*it, &mDict, changes);
             [self flushChanges:changes mode:threadMode];
         }
     }
@@ -928,510 +944,515 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     }
 }
 
-// Called in the layer thread
-- (void)addShapesRun:(NSArray *)argArray
-{
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    NSArray *shapes = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+// Note: Pending
+//// Called in the layer thread
+//- (void)addShapesRun:(NSArray *)argArray
+//{
+//    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+//    NSArray *shapes = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//    
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
+//
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//
+//    // Need to convert shapes to the form the API is expecting
+//    NSMutableArray *ourShapes = [NSMutableArray array];
+//    NSMutableArray *specialShapes = [NSMutableArray array];
+//    for (NSObject *shape in shapes)
+//    {
+//        if ([shape isKindOfClass:[MaplyShapeCircle class]])
+//        {
+//            MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
+//            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];
+//            newCircle.loc.lon() = circle.center.x;
+//            newCircle.loc.lat() = circle.center.y;
+//            newCircle.radius = circle.radius;
+//            newCircle.height = circle.height;
+//            if (circle.color)
+//            {
+//                newCircle.useColor = true;
+//                RGBAColor color = [circle.color asRGBAColor];
+//                newCircle.color = color;
+//            }
+//            [ourShapes addObject:newCircle];
+//        } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
+//        {
+//            MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
+//            WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
+//            newSphere.loc.lon() = sphere.center.x;
+//            newSphere.loc.lat() = sphere.center.y;
+//            newSphere.radius = sphere.radius;
+//            newSphere.height = sphere.height;
+//            if (sphere.color)
+//            {
+//                newSphere.useColor = true;
+//                RGBAColor color = [sphere.color asRGBAColor];
+//                newSphere.color = color;
+//            }
+//            if (sphere.selectable)
+//            {
+//                newSphere.isSelectable = true;
+//                newSphere.selectID = Identifiable::genId();
+//                pthread_mutex_lock(&selectLock);
+//                selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
+//                pthread_mutex_unlock(&selectLock);
+//                compObj.selectIDs.insert(newSphere.selectID);
+//            }
+//            [ourShapes addObject:newSphere];
+//        } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
+//        {
+//            MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
+//            WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
+//            newCyl.loc.lon() = cyl.baseCenter.x;
+//            newCyl.loc.lat() = cyl.baseCenter.y;
+//            newCyl.baseHeight = cyl.baseHeight;
+//            newCyl.radius = cyl.radius;
+//            newCyl.height = cyl.height;
+//            if (cyl.color)
+//            {
+//                newCyl.useColor = true;
+//                RGBAColor color = [cyl.color asRGBAColor];
+//                newCyl.color = color;
+//            }
+//            if (cyl.selectable)
+//            {
+//                newCyl.isSelectable = true;
+//                newCyl.selectID = Identifiable::genId();
+//                pthread_mutex_lock(&selectLock);
+//                selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
+//                pthread_mutex_unlock(&selectLock);
+//                compObj.selectIDs.insert(newCyl.selectID);
+//            }
+//            [ourShapes addObject:newCyl];
+//        } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
+//        {
+//            MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
+//            WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
+//            SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter);
+//            lin.lineWidth = gc.lineWidth;
+//            if (gc.color)
+//            {
+//                lin.useColor = true;
+//                RGBAColor color = [gc.color asRGBAColor];
+//                lin.color = color;
+//            }
+//            [specialShapes addObject:lin];
+//        } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
+//        {
+//            MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
+//            WhirlyKitShapeLinear *newLin = [[WhirlyKitShapeLinear alloc] init];
+//            MaplyCoordinate3d *coords = NULL;
+//            int numCoords = [lin getCoords:&coords];
+//            for (unsigned int ii=0;ii<numCoords;ii++)
+//            {
+//                MaplyCoordinate3d &coord = coords[ii];
+//                Point3f pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(coord.x,coord.y)));
+//                if (coordAdapter->isFlat())
+//                    pt.z() = coord.z;
+//                else
+//                    pt *= (1.0+coord.z);
+//                newLin.pts.push_back(pt);
+//            }
+//            newLin.lineWidth = lin.lineWidth;
+//            if (lin.color)
+//            {
+//                newLin.useColor = true;
+//                RGBAColor color = [lin.color asRGBAColor];
+//                newLin.color = color;
+//            }
+//            [ourShapes addObject:newLin];
+//        }
+//    }
+//    
+//    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+//    if (shapeManager)
+//    {
+//        ChangeSet changes;
+//        if ([ourShapes count] > 0)
+//        {
+//            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
+//            if (shapeID != EmptyIdentity)
+//                compObj.shapeIDs.insert(shapeID);
+//        }
+//        if ([specialShapes count] > 0)
+//        {
+//            // If they haven't override the shader already, we need the non-backface one for these objects
+//            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+//            if (!newDesc[kMaplyShader])
+//            {
+//                SimpleIdentity shaderID = scene->getProgramIDBySceneName(kToolkitDefaultLineNoBackfaceProgram);
+//                newDesc[kMaplyShader] = @(shaderID);
+//            }
+//            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, newDesc, changes);
+//            if (shapeID != EmptyIdentity)
+//                compObj.shapeIDs.insert(shapeID);
+//        }
+//        [self flushChanges:changes mode:threadMode];
+//    }
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add shapes
+//- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addShapesRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addShapesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
 
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
+// Note: Pending
+//// Called in the layer thread
+//- (void)addStickersRun:(NSArray *)argArray
+//{
+//    NSArray *stickers = argArray[0];
+//    MaplyComponentObject *compObj = argArray[1];
+//    NSMutableDictionary *inDesc = argArray[2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//    
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
+//
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//
+//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+//    
+//    for (MaplySticker *sticker in stickers)
+//    {
+//        std::vector<SimpleIdentity> texIDs;
+//        if (sticker.image) {
+//            MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
+//            if (tex)
+//                texIDs.push_back(tex.texID);
+//            compObj.textures.insert(tex);
+//        }
+//        for (UIImage *image in sticker.images)
+//        {
+//            if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
+//            {
+//                MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
+//                if (tex)
+//                    texIDs.push_back(tex.texID);
+//                compObj.textures.insert(tex);
+//            }
+//        }
+//        WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
+//        Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
+//        chunk.mbr = mbr;
+//        chunk.texIDs = texIDs;
+//        chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
+//        chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
+//        chunk.sampleX = [inDesc[@"sampleX"] intValue];
+//        chunk.sampleY = [inDesc[@"sampleY"] intValue];
+//        chunk.programID = [inDesc[kMaplyShader] intValue];
+//        if (inDesc[kMaplySubdivEpsilon] != nil)
+//            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+//        if (sticker.coordSys)
+//            chunk.coordSys = [sticker.coordSys getCoordSystem];
+//        if (inDesc[kMaplyMinVis] != nil)
+//            chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
+//        if (inDesc[kMaplyMaxVis] != nil)
+//            chunk.maxVis = [inDesc[kMaplyMaxVis] floatValue];
+//        NSNumber *bufRead = inDesc[kMaplyZBufferRead];
+//        if (bufRead)
+//            chunk.readZBuffer = [bufRead boolValue];
+//        NSNumber *bufWrite = inDesc[kMaplyZBufferWrite];
+//        if (bufWrite)
+//            chunk.writeZBuffer = [bufWrite boolValue];
+//        chunk.rotation = sticker.rotation;
+//        if (chunkManager)
+//        {
+//            ChangeSet changes;
+//            SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
+//            if (chunkID != EmptyIdentity)
+//                compObj.chunkIDs.insert(chunkID);
+//            [self flushChanges:changes mode:threadMode];
+//        }
+//    }
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add stickers
+//- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addStickersRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addStickersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
+//
+//// Actually do the sticker change
+//- (void)changeStickerRun:(NSArray *)argArray
+//{
+//    MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
+//    NSDictionary *desc = [argArray objectAtIndex:1];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+//    
+//    @synchronized(stickerObj)
+//    {
+//        bool isHere = false;
+//        pthread_mutex_lock(&userLock);
+//        isHere = [userObjects containsObject:stickerObj];
+//        pthread_mutex_unlock(&userLock);
+//        
+//        if (!isHere)
+//            return;
+//        
+//        SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+//        
+//        if (chunkManager)
+//        {
+//            // Change the images being displayed
+//            NSArray *newImages = desc[kMaplyStickerImages];
+//            if ([newImages isKindOfClass:[NSArray class]])
+//            {
+//                MaplyQuadImageFormat newFormat = MaplyImageIntRGBA;
+//                if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
+//                    newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
+//                std::vector<SimpleIdentity> newTexIDs;
+//                std::set<MaplyTexture *> oldTextures = stickerObj.textures;
+//                stickerObj.textures.clear();
+//
+//                // Add in the new images
+//                for (UIImage *image in newImages)
+//                {
+//                    if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
+//                    {
+//                        MaplyTexture *tex = [self addImage:image imageFormat:newFormat mode:threadMode];
+//                        if (tex)
+//                            newTexIDs.push_back(tex.texID);
+//                        stickerObj.textures.insert(tex);
+//                    }
+//                }
+//                
+//                // Clear out the old images
+//                for (std::set<MaplyTexture *>::iterator it = oldTextures.begin(); it != oldTextures.end(); ++it)
+//                    [self removeTexture:*it];
+//                
+//                ChangeSet changes;
+//                for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
+//                     it != stickerObj.chunkIDs.end(); ++it)
+//                    chunkManager->modifyChunkTextures(*it, newTexIDs, changes);
+//                [self flushChanges:changes mode:threadMode];
+//            }
+//        }
+//    }
+//}
+//
+//// Change stickers
+//- (void)changeSticker:(MaplyComponentObject *)stickerObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    if (!stickerObj)
+//        return;
+//    
+//    if (!desc)
+//        desc = [NSDictionary dictionary];
+//    NSArray *argArray = @[stickerObj, desc, @(threadMode)];
+//    
+//    // If the object is under construction, toss this over to the layer thread
+//    if (stickerObj.underConstruction)
+//        threadMode = MaplyThreadAny;
+//    
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self changeStickerRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(changeStickerRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//}
 
-    // Need to convert shapes to the form the API is expecting
-    NSMutableArray *ourShapes = [NSMutableArray array];
-    NSMutableArray *specialShapes = [NSMutableArray array];
-    for (NSObject *shape in shapes)
-    {
-        if ([shape isKindOfClass:[MaplyShapeCircle class]])
-        {
-            MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];
-            newCircle.loc.lon() = circle.center.x;
-            newCircle.loc.lat() = circle.center.y;
-            newCircle.radius = circle.radius;
-            newCircle.height = circle.height;
-            if (circle.color)
-            {
-                newCircle.useColor = true;
-                RGBAColor color = [circle.color asRGBAColor];
-                newCircle.color = color;
-            }
-            [ourShapes addObject:newCircle];
-        } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
-        {
-            MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
-            WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
-            newSphere.loc.lon() = sphere.center.x;
-            newSphere.loc.lat() = sphere.center.y;
-            newSphere.radius = sphere.radius;
-            newSphere.height = sphere.height;
-            if (sphere.color)
-            {
-                newSphere.useColor = true;
-                RGBAColor color = [sphere.color asRGBAColor];
-                newSphere.color = color;
-            }
-            if (sphere.selectable)
-            {
-                newSphere.isSelectable = true;
-                newSphere.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newSphere.selectID);
-            }
-            [ourShapes addObject:newSphere];
-        } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
-        {
-            MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
-            WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
-            newCyl.loc.lon() = cyl.baseCenter.x;
-            newCyl.loc.lat() = cyl.baseCenter.y;
-            newCyl.baseHeight = cyl.baseHeight;
-            newCyl.radius = cyl.radius;
-            newCyl.height = cyl.height;
-            if (cyl.color)
-            {
-                newCyl.useColor = true;
-                RGBAColor color = [cyl.color asRGBAColor];
-                newCyl.color = color;
-            }
-            if (cyl.selectable)
-            {
-                newCyl.isSelectable = true;
-                newCyl.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newCyl.selectID);
-            }
-            [ourShapes addObject:newCyl];
-        } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
-        {
-            MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
-            WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
-            SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter);
-            lin.lineWidth = gc.lineWidth;
-            if (gc.color)
-            {
-                lin.useColor = true;
-                RGBAColor color = [gc.color asRGBAColor];
-                lin.color = color;
-            }
-            [specialShapes addObject:lin];
-        } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
-        {
-            MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
-            WhirlyKitShapeLinear *newLin = [[WhirlyKitShapeLinear alloc] init];
-            MaplyCoordinate3d *coords = NULL;
-            int numCoords = [lin getCoords:&coords];
-            for (unsigned int ii=0;ii<numCoords;ii++)
-            {
-                MaplyCoordinate3d &coord = coords[ii];
-                Point3f pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(coord.x,coord.y)));
-                if (coordAdapter->isFlat())
-                    pt.z() = coord.z;
-                else
-                    pt *= (1.0+coord.z);
-                newLin.pts.push_back(pt);
-            }
-            newLin.lineWidth = lin.lineWidth;
-            if (lin.color)
-            {
-                newLin.useColor = true;
-                RGBAColor color = [lin.color asRGBAColor];
-                newLin.color = color;
-            }
-            [ourShapes addObject:newLin];
-        }
-    }
-    
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    if (shapeManager)
-    {
-        ChangeSet changes;
-        if ([ourShapes count] > 0)
-        {
-            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
-            if (shapeID != EmptyIdentity)
-                compObj.shapeIDs.insert(shapeID);
-        }
-        if ([specialShapes count] > 0)
-        {
-            // If they haven't override the shader already, we need the non-backface one for these objects
-            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-            if (!newDesc[kMaplyShader])
-            {
-                SimpleIdentity shaderID = scene->getProgramIDBySceneName(kToolkitDefaultLineNoBackfaceProgram);
-                newDesc[kMaplyShader] = @(shaderID);
-            }
-            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, newDesc, changes);
-            if (shapeID != EmptyIdentity)
-                compObj.shapeIDs.insert(shapeID);
-        }
-        [self flushChanges:changes mode:threadMode];
-    }
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
+// Note: Pending
+//// Actually add the lofted polys.
+//- (void)addLoftedPolysRun:(NSArray *)argArray
+//{
+//    NSArray *vectors = [argArray objectAtIndex:0];
+//    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+//    compObj.vectors = vectors;
+//    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+//    NSString *key = argArray[3];
+//    if ([key isKindOfClass:[NSNull class]])
+//        key = nil;
+//    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:5] intValue];
+//    
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
+//    
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//    
+//    ShapeSet shapes;
+//    for (MaplyVectorObject *vecObj in vectors)
+//        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+//
+//    ChangeSet changes;
+//    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+//    if (loftManager)
+//    {
+//        // 10 degress by default
+//        float gridSize = 10.0 / 180.0 * M_PI;
+//        if (inDesc[kMaplyLoftedPolyGridSize])
+//            gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
+//        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, inDesc, key, cache, gridSize, changes);
+//        compObj.loftIDs.insert(loftID);
+//        compObj.isSelectable = false;
+//    }
+//    [self flushChanges:changes mode:threadMode];
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
 
-// Add shapes
-- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addShapesRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addShapesRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
-
-// Called in the layer thread
-- (void)addStickersRun:(NSArray *)argArray
-{
-    NSArray *stickers = argArray[0];
-    MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    
-    for (MaplySticker *sticker in stickers)
-    {
-        std::vector<SimpleIdentity> texIDs;
-        if (sticker.image) {
-            MaplyTexture *tex = [self addImage:sticker.image imageFormat:sticker.imageFormat mode:threadMode];
-            if (tex)
-                texIDs.push_back(tex.texID);
-            compObj.textures.insert(tex);
-        }
-        for (UIImage *image in sticker.images)
-        {
-            if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
-            {
-                MaplyTexture *tex = [self addImage:image imageFormat:sticker.imageFormat mode:threadMode];
-                if (tex)
-                    texIDs.push_back(tex.texID);
-                compObj.textures.insert(tex);
-            }
-        }
-        WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
-        Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
-        chunk.mbr = mbr;
-        chunk.texIDs = texIDs;
-        chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
-        chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
-        chunk.sampleX = [inDesc[@"sampleX"] intValue];
-        chunk.sampleY = [inDesc[@"sampleY"] intValue];
-        chunk.programID = [inDesc[kMaplyShader] intValue];
-        if (inDesc[kMaplySubdivEpsilon] != nil)
-            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
-        if (sticker.coordSys)
-            chunk.coordSys = [sticker.coordSys getCoordSystem];
-        if (inDesc[kMaplyMinVis] != nil)
-            chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
-        if (inDesc[kMaplyMaxVis] != nil)
-            chunk.maxVis = [inDesc[kMaplyMaxVis] floatValue];
-        NSNumber *bufRead = inDesc[kMaplyZBufferRead];
-        if (bufRead)
-            chunk.readZBuffer = [bufRead boolValue];
-        NSNumber *bufWrite = inDesc[kMaplyZBufferWrite];
-        if (bufWrite)
-            chunk.writeZBuffer = [bufWrite boolValue];
-        chunk.rotation = sticker.rotation;
-        if (chunkManager)
-        {
-            ChangeSet changes;
-            SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
-            if (chunkID != EmptyIdentity)
-                compObj.chunkIDs.insert(chunkID);
-            [self flushChanges:changes mode:threadMode];
-        }
-    }
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Add stickers
-- (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addStickersRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addStickersRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
-
-// Actually do the sticker change
-- (void)changeStickerRun:(NSArray *)argArray
-{
-    MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
-    NSDictionary *desc = [argArray objectAtIndex:1];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
-    
-    @synchronized(stickerObj)
-    {
-        bool isHere = false;
-        pthread_mutex_lock(&userLock);
-        isHere = [userObjects containsObject:stickerObj];
-        pthread_mutex_unlock(&userLock);
-        
-        if (!isHere)
-            return;
-        
-        SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-        
-        if (chunkManager)
-        {
-            // Change the images being displayed
-            NSArray *newImages = desc[kMaplyStickerImages];
-            if ([newImages isKindOfClass:[NSArray class]])
-            {
-                MaplyQuadImageFormat newFormat = MaplyImageIntRGBA;
-                if ([desc[kMaplyStickerImageFormat] isKindOfClass:[NSNumber class]])
-                    newFormat = (MaplyQuadImageFormat)[desc[kMaplyStickerImageFormat] integerValue];
-                std::vector<SimpleIdentity> newTexIDs;
-                std::set<MaplyTexture *> oldTextures = stickerObj.textures;
-                stickerObj.textures.clear();
-
-                // Add in the new images
-                for (UIImage *image in newImages)
-                {
-                    if ([image isKindOfClass:[UIImage class]] || [image isKindOfClass:[MaplyTexture class]])
-                    {
-                        MaplyTexture *tex = [self addImage:image imageFormat:newFormat mode:threadMode];
-                        if (tex)
-                            newTexIDs.push_back(tex.texID);
-                        stickerObj.textures.insert(tex);
-                    }
-                }
-                
-                // Clear out the old images
-                for (std::set<MaplyTexture *>::iterator it = oldTextures.begin(); it != oldTextures.end(); ++it)
-                    [self removeTexture:*it];
-                
-                ChangeSet changes;
-                for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
-                     it != stickerObj.chunkIDs.end(); ++it)
-                    chunkManager->modifyChunkTextures(*it, newTexIDs, changes);
-                [self flushChanges:changes mode:threadMode];
-            }
-        }
-    }
-}
-
-// Change stickers
-- (void)changeSticker:(MaplyComponentObject *)stickerObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    if (!stickerObj)
-        return;
-    
-    if (!desc)
-        desc = [NSDictionary dictionary];
-    NSArray *argArray = @[stickerObj, desc, @(threadMode)];
-    
-    // If the object is under construction, toss this over to the layer thread
-    if (stickerObj.underConstruction)
-        threadMode = MaplyThreadAny;
-    
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self changeStickerRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(changeStickerRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-}
-
-// Actually add the lofted polys.
-- (void)addLoftedPolysRun:(NSArray *)argArray
-{
-    NSArray *vectors = [argArray objectAtIndex:0];
-    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = vectors;
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    NSString *key = argArray[3];
-    if ([key isKindOfClass:[NSNull class]])
-        key = nil;
-    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:5] intValue];
-    
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-    
-    ShapeSet shapes;
-    for (MaplyVectorObject *vecObj in vectors)
-        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
-
-    ChangeSet changes;
-    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
-    if (loftManager)
-    {
-        // 10 degress by default
-        float gridSize = 10.0 / 180.0 * M_PI;
-        if (inDesc[kMaplyLoftedPolyGridSize])
-            gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, inDesc, key, cache, gridSize, changes);
-        compObj.loftIDs.insert(loftID);
-        compObj.isSelectable = false;
-    }
-    [self flushChanges:changes mode:threadMode];
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
+// Note: Pending
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addLoftedPolysRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addLoftedPolysRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
+//- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addLoftedPolysRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addLoftedPolysRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
 
-// Actually add the lofted polys.
-- (void)addBillboardsRun:(NSArray *)argArray
-{
-    NSArray *bills = argArray[0];
-    MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    CoordSystemDisplayAdapter *coordAdapter = visualView.coordAdapter;
-    CoordSystem *coordSys = coordAdapter->getCoordSystem();
-    
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc];
-    
-    SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
-    if (billShaderID == EmptyIdentity)
-        billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
-    
-    ChangeSet changes;
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    if (billManager)
-    {
-        NSMutableArray *wkBills = [NSMutableArray array];
-        for (MaplyBillboard *bill in bills)
-        {
-            WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
-            Point3f localPt = coordSys->geographicToLocal(GeoCoord(bill.center.x,bill.center.y));
-            Point3f dispPt = coordAdapter->localToDisplay(Point3f(localPt.x(),localPt.y(),bill.center.z));
-            wkBill.center = dispPt;
-            wkBill.width = bill.size.width;
-            wkBill.height = bill.size.height;
-            wkBill.color = bill.color;
-            wkBill.isSelectable = bill.selectable;
-            if (wkBill.isSelectable)
-                wkBill.selectID = Identifiable::genId();
-            
-            if (bill.selectable)
-            {
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(wkBill.selectID,bill));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(wkBill.selectID);
-            }
-        
-            UIImage *image = bill.image;
-            if (image)
-            {
-                MaplyTexture *tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
-                if (tex)
-                {
-                    compObj.textures.insert(tex);
-                    wkBill.texId = tex.texID;
-                }
-            }
-            [wkBills addObject:wkBill];
-        }
-        
-        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, billShaderID, changes);
-        compObj.billIDs.insert(billId);
-        compObj.isSelectable = false;
-    }
-    [self flushChanges:changes mode:threadMode];
-    
-    pthread_mutex_lock(&userLock);
-    [userObjects addObject:compObj];
-    compObj.underConstruction = false;
-    pthread_mutex_unlock(&userLock);
-}
-
-// Add lofted polys
-- (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-{
-    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
-    compObj.underConstruction = true;
-    
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
-    switch (threadMode)
-    {
-        case MaplyThreadCurrent:
-            [self addBillboardsRun:argArray];
-            break;
-        case MaplyThreadAny:
-            [self performSelector:@selector(addBillboardsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
-            break;
-    }
-    
-    return compObj;
-}
+// Note: Pending
+//// Actually add the lofted polys.
+//- (void)addBillboardsRun:(NSArray *)argArray
+//{
+//    NSArray *bills = argArray[0];
+//    MaplyComponentObject *compObj = argArray[1];
+//    NSMutableDictionary *inDesc = argArray[2];
+//    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
+//    
+//    CoordSystemDisplayAdapter *coordAdapter = visualView.coordAdapter;
+//    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+//    
+//    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
+//
+//    // Might be a custom shader on these
+//    [self resolveShader:inDesc];
+//    
+//    SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
+//    if (billShaderID == EmptyIdentity)
+//        billShaderID = scene->getProgramIDBySceneName([kMaplyBillboardShader cStringUsingEncoding:NSASCIIStringEncoding]);
+//    
+//    ChangeSet changes;
+//    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+//    if (billManager)
+//    {
+//        NSMutableArray *wkBills = [NSMutableArray array];
+//        for (MaplyBillboard *bill in bills)
+//        {
+//            WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
+//            Point3f localPt = coordSys->geographicToLocal(GeoCoord(bill.center.x,bill.center.y));
+//            Point3f dispPt = coordAdapter->localToDisplay(Point3f(localPt.x(),localPt.y(),bill.center.z));
+//            wkBill.center = dispPt;
+//            wkBill.width = bill.size.width;
+//            wkBill.height = bill.size.height;
+//            wkBill.color = bill.color;
+//            wkBill.isSelectable = bill.selectable;
+//            if (wkBill.isSelectable)
+//                wkBill.selectID = Identifiable::genId();
+//            
+//            if (bill.selectable)
+//            {
+//                pthread_mutex_lock(&selectLock);
+//                selectObjectSet.insert(SelectObject(wkBill.selectID,bill));
+//                pthread_mutex_unlock(&selectLock);
+//                compObj.selectIDs.insert(wkBill.selectID);
+//            }
+//        
+//            UIImage *image = bill.image;
+//            if (image)
+//            {
+//                MaplyTexture *tex = [self addImage:image imageFormat:MaplyImageIntRGBA mode:threadMode];
+//                if (tex)
+//                {
+//                    compObj.textures.insert(tex);
+//                    wkBill.texId = tex.texID;
+//                }
+//            }
+//            [wkBills addObject:wkBill];
+//        }
+//        
+//        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, billShaderID, changes);
+//        compObj.billIDs.insert(billId);
+//        compObj.isSelectable = false;
+//    }
+//    [self flushChanges:changes mode:threadMode];
+//    
+//    pthread_mutex_lock(&userLock);
+//    [userObjects addObject:compObj];
+//    compObj.underConstruction = false;
+//    pthread_mutex_unlock(&userLock);
+//}
+//
+//// Add lofted polys
+//- (MaplyComponentObject *)addBillboards:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+//{
+//    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+//    compObj.underConstruction = true;
+//    
+//    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+//    switch (threadMode)
+//    {
+//        case MaplyThreadCurrent:
+//            [self addBillboardsRun:argArray];
+//            break;
+//        case MaplyThreadAny:
+//            [self performSelector:@selector(addBillboardsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+//            break;
+//    }
+//    
+//    return compObj;
+//}
 
 
 // Remove the object, but do it on the layer thread
@@ -1440,13 +1461,15 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     NSArray *userObjs = argArray[0];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
     
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+    // Note: Pending
+//    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+//    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    // Note: Pending
+//    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+//    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
+//    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
         
@@ -1462,24 +1485,27 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             @synchronized(userObj)
             {
                 // Get rid of the various layer objects
-                if (markerManager)
-                    markerManager->removeMarkers(userObj.markerIDs, changes);
-                if (labelManager)
-                    labelManager->removeLabels(userObj.labelIDs, changes);
+                // Note: Pending
+//                if (markerManager)
+//                    markerManager->removeMarkers(userObj.markerIDs, changes);
+//                if (labelManager)
+//                    labelManager->removeLabels(userObj.labelIDs, changes);
                 if (vectorManager)
                     vectorManager->removeVectors(userObj.vectorIDs, changes);
-                if (shapeManager)
-                    shapeManager->removeShapes(userObj.shapeIDs, changes);
-                if (loftManager)
-                    loftManager->removeLoftedPolys(userObj.loftIDs, changes);
-                if (chunkManager)
-                    chunkManager->removeChunks(userObj.chunkIDs, changes);
-                if (billManager)
-                    billManager->removeBillboards(userObj.billIDs, changes);
+                // Note: Pending
+//                if (shapeManager)
+//                    shapeManager->removeShapes(userObj.shapeIDs, changes);
+//                if (loftManager)
+//                    loftManager->removeLoftedPolys(userObj.loftIDs, changes);
+//                if (chunkManager)
+//                    chunkManager->removeChunks(userObj.chunkIDs, changes);
+//                if (billManager)
+//                    billManager->removeBillboards(userObj.billIDs, changes);
                 
                 // And associated textures
-                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin(); it != userObj.textures.end(); ++it)
-                    [self removeTexture:*it];
+                // Note: Pending
+//                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin(); it != userObj.textures.end(); ++it)
+//                    [self removeTexture:*it];
 
                 // And any references to selection objects
                 pthread_mutex_lock(&selectLock);
@@ -1539,11 +1565,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
 
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
+    // Note: Pending
+//    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
+//    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
+//    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
+//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+//    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
 
     ChangeSet changes;
     for (MaplyComponentObject *compObj in theObjs)
@@ -1557,20 +1584,21 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         {
             if (vectorManager && !compObj.vectorIDs.empty())
                 vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
-            if (markerManager && !compObj.markerIDs.empty())
-                markerManager->enableMarkers(compObj.markerIDs, enable, changes);
-            if (labelManager && !compObj.labelIDs.empty())
-                labelManager->enableLabels(compObj.labelIDs, enable, changes);
-            if (shapeManager && !compObj.shapeIDs.empty())
-                shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
-            if (billManager && !compObj.billIDs.empty())
-                billManager->enableBillboards(compObj.billIDs, enable, changes);
-            if (chunkManager && !compObj.chunkIDs.empty())
-            {
-                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
-                     it != compObj.chunkIDs.end(); ++it)
-                    chunkManager->enableChunk(*it, enable, changes);
-            }
+            // Note: Pending
+//            if (markerManager && !compObj.markerIDs.empty())
+//                markerManager->enableMarkers(compObj.markerIDs, enable, changes);
+//            if (labelManager && !compObj.labelIDs.empty())
+//                labelManager->enableLabels(compObj.labelIDs, enable, changes);
+//            if (shapeManager && !compObj.shapeIDs.empty())
+//                shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
+//            if (billManager && !compObj.billIDs.empty())
+//                billManager->enableBillboards(compObj.billIDs, enable, changes);
+//            if (chunkManager && !compObj.chunkIDs.empty())
+//            {
+//                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
+//                     it != compObj.chunkIDs.end(); ++it)
+//                    chunkManager->enableChunk(*it, enable, changes);
+//            }
         }
     }
 

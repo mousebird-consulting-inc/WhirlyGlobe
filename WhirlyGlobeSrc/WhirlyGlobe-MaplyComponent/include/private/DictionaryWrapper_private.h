@@ -1,9 +1,9 @@
 /*
- *  WGVectorObject_private.h
- *  WhirlyGlobeComponent
+ *  DictionaryWrapper_private.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012 mousebird consulting
+ *  Created by Steve Gifford on 12/16/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@
  *
  */
 
-#import "MaplyVectorObject.h"
 #import <WhirlyGlobe.h>
 
-@interface MaplyVectorObject()
+@interface NSMutableDictionary(Dictionary)
 
-@property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
+/// Create an NSMutableDictionary from a Maply Dictionary source
++ (NSMutableDictionary *)DictionaryWithMaplyDictionary:(WhirlyKit::Dictionary *)dict;
 
 @end
 
-// Note: Porting
-//@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
-//@interface MaplyVectorDatabase()
-//
-//@end
+@interface NSDictionary(Dictionary)
+
+/// Fill in a Maply Dictionary from an NSSDictionary
+- (void)copyToMaplyDictionary:(WhirlyKit::Dictionary *)dict;
+
+@end

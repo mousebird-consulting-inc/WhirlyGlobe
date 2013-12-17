@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 @implementation MaplyShader
 {
     WhirlyKit::Scene *scene;
-    WhirlyKitSceneRendererES * __weak renderer;
+    WhirlyKit::SceneRendererES *renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -111,37 +111,38 @@ using namespace WhirlyKit;
     return _program->getId();
 }
 
-- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
-{
-    if ([NSThread currentThread] != [NSThread mainThread])
-    {
-        NSLog(@"Tried to add texture, but not on main thread");
-        return;
-    }
-    
-    if (!scene || !renderer)
-        return;
-
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
-    
-    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
-    SimpleIdentity auxTexId = auxTex->getId();
-    auxTex->createInGL(scene->getMemManager());
-    GLuint glTexId = auxTex->getGLId();
-    scene->addChangeRequest(new AddTextureReq(auxTex));
-    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (prog)
-    {
-        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
-    }
-    
-    texIDs.insert(auxTexId);
-    
-    if (oldContext != [EAGLContext currentContext])
-        [EAGLContext setCurrentContext:oldContext];
-}
+// Note: Porting
+//- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+//{
+//    if ([NSThread currentThread] != [NSThread mainThread])
+//    {
+//        NSLog(@"Tried to add texture, but not on main thread");
+//        return;
+//    }
+//    
+//    if (!scene || !renderer)
+//        return;
+//
+//    EAGLContext *oldContext = [EAGLContext currentContext];
+//    [renderer useContext];
+//    [renderer forceDrawNextFrame];
+//    
+//    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+//    SimpleIdentity auxTexId = auxTex->getId();
+//    auxTex->createInGL(scene->getMemManager());
+//    GLuint glTexId = auxTex->getGLId();
+//    scene->addChangeRequest(new AddTextureReq(auxTex));
+//    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
+//    if (prog)
+//    {
+//        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
+//    }
+//    
+//    texIDs.insert(auxTexId);
+//    
+//    if (oldContext != [EAGLContext currentContext])
+//        [EAGLContext setCurrentContext:oldContext];
+//}
 
 - (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
 {
@@ -149,8 +150,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -168,8 +169,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -187,8 +188,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -207,8 +208,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -227,7 +228,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -254,8 +256,9 @@ using namespace WhirlyKit;
     if (scene)
     {
         ChangeSet changes;
-        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
-            changes.push_back(new RemTextureReq(*it));
+        // Note: Porting
+//        for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
+//            changes.push_back(new RemTextureReq(*it));
         scene->addChangeRequests(changes);
     }
 }

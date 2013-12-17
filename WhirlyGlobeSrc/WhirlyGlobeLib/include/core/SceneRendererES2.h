@@ -31,26 +31,6 @@ namespace WhirlyKit
 class SceneRendererES2;
 }
 
-
-// Note: Porting
-//#define kWKFrameMessage @"WhirlyKitFrameMessage"
-///** This message is sent out by the renderer right
-//    before it does its thing.  We use it to loosely
-//    sync other threads to the render.
-//  */
-//@interface WhirlyKitFrameMessage : NSObject
-//
-///// When the message is sent, basically
-//@property (nonatomic) NSTimeInterval frameStart;
-//
-///// The interval between frames
-//@property (nonatomic) NSTimeInterval frameInterval;
-//
-///// The message is coming from this renderer
-//@property (nonatomic) WhirlyKit::SceneRendererES2 *renderer;
-//
-//@end
-
 namespace WhirlyKit
 {
 /** Scene Renderer for OpenGL ES2.
@@ -58,7 +38,7 @@ namespace WhirlyKit
      somewhat composable, but in reality not all that much.
      Just set this up as in the examples and let it run.
  */
-class SceneRendererES2 : SceneRendererES
+class SceneRendererES2 : public SceneRendererES
 {
 public:
     SceneRendererES2();
@@ -82,32 +62,19 @@ public:
     
     void setScene(WhirlyKit::Scene *inScene);
     
-    // Note: Porting
-//    void setClearColor(UIColor *color);
-    
-    // Note: Porting
-//    BOOL resizeFromLayer(CAEAGLLayer *layer);
-    
-    void render(TimeInterval duration);
-protected:
-    
-    void renderAsync();
-    
-    /// If set, we'll let the render run on a dispatch queue.
-    /// This lets the UI run in the main thread without interference,
-    ///  but it does mean you can't mess with the rendering context.
-    bool _dispatchRendering;
+    void setClearColor(const RGBAColor &color);
 
+    void render();
+    
+protected:
+    bool renderSetup;
+    OpenGLStateOptimizer *renderStateOptimizer;
+    
     // Note: Porting
 //    NSMutableArray *lights;
     TimeInterval lightsLastUpdated;
     // Note: Porting
 //    WhirlyKitMaterial *defaultMat;
-    // Note: Porting
-//    dispatch_queue_t contextQueue;
-//    dispatch_semaphore_t frameRenderingSemaphore;
-    bool renderSetup;
-    WhirlyKit::OpenGLStateOptimizer *renderStateOptimizer;
 };
         
 }

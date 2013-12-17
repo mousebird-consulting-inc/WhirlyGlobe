@@ -21,9 +21,8 @@
 #import "MaplyVectorObject.h"
 #import "MaplyVectorObject_private.h"
 #import <WhirlyGlobe.h>
-#import "Tesselator.h"
-#import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
+#import "DictionaryWrapper_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -31,82 +30,83 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyVectorObject
 
-+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
-{
-    if ([geoJSON length] > 0)
-    {
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-        
-        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
-            return nil;
-        
-        return vecObj;
-    }
-    
-    return nil;
-}
-
-+ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
-{
-    if ([geoJSON length] > 0)
-    {
-        std::map<std::string,ShapeSet> shapes;
-        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
-            return nil;
-        
-        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-        for (std::map<std::string,ShapeSet>::iterator it = shapes.begin();
-             it != shapes.end(); ++it)
-        {
-            NSString *str = [NSString stringWithFormat:@"%s",it->first.c_str()];
-            if (str)
-            {
-                MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-                vecObj.shapes = it->second;
-                dict[str] = vecObj;
-            }
-        }
-        
-        return dict;
-    }
-    
-    return nil;
-}
-
-/// Parse vector data from geoJSON.  Returns one object to represent
-//   the whole thing, which might include multiple different vectors.
-+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
-{
-    if([geoJSON length] > 0)
-    {
-        NSError *error = nil;
-        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
-        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
-            return nil;
-        
-        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-
-        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-            return nil;
-
-      return vecObj;
-    }
-    
-    return nil;
-}
-
-+ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
-{
-    if (![jsonDict isKindOfClass:[NSDictionary class]])
-        return nil;
-    
-    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
-    
-    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
-        return nil;
-    
-    return vecObj;
-}
+// Note: Porting
+//+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
+//{
+//    if ([geoJSON length] > 0)
+//    {
+//        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//        
+//        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
+//            return nil;
+//        
+//        return vecObj;
+//    }
+//    
+//    return nil;
+//}
+//
+//+ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
+//{
+//    if ([geoJSON length] > 0)
+//    {
+//        std::map<std::string,ShapeSet> shapes;
+//        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
+//            return nil;
+//        
+//        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+//        for (std::map<std::string,ShapeSet>::iterator it = shapes.begin();
+//             it != shapes.end(); ++it)
+//        {
+//            NSString *str = [NSString stringWithFormat:@"%s",it->first.c_str()];
+//            if (str)
+//            {
+//                MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//                vecObj.shapes = it->second;
+//                dict[str] = vecObj;
+//            }
+//        }
+//        
+//        return dict;
+//    }
+//    
+//    return nil;
+//}
+//
+///// Parse vector data from geoJSON.  Returns one object to represent
+////   the whole thing, which might include multiple different vectors.
+//+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
+//{
+//    if([geoJSON length] > 0)
+//    {
+//        NSError *error = nil;
+//        NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:geoJSON options:NULL error:&error];
+//        if (error || ![jsonDict isKindOfClass:[NSDictionary class]])
+//            return nil;
+//        
+//        WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+//
+//        if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
+//            return nil;
+//
+//      return vecObj;
+//    }
+//    
+//    return nil;
+//}
+//
+//+ (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)jsonDict
+//{
+//    if (![jsonDict isKindOfClass:[NSDictionary class]])
+//        return nil;
+//    
+//    WGVectorObject *vecObj = [[WGVectorObject alloc] init];
+//    
+//    if (!VectorParseGeoJSON(vecObj->_shapes,jsonDict))
+//        return nil;
+//    
+//    return vecObj;
+//}
 
 + (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
 {
@@ -116,8 +116,11 @@ using namespace WhirlyGlobe;
     }
     if (!fileName)
         return nil;
-    
-    ShapeReader shapeReader(fileName);
+
+    const char *cFileName = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+    if (!cFileName)
+        return nil;
+    ShapeReader shapeReader(cFileName);
     if (!shapeReader.isValid())
         return false;
     
@@ -153,14 +156,18 @@ using namespace WhirlyGlobe;
         return nil;
     
     VectorShapeRef vec = *(_shapes.begin());
-    return vec->getAttrDict();
+    return [NSMutableDictionary DictionaryWithMaplyDictionary:vec->getAttrDict()];
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
     for (ShapeSet::iterator it = _shapes.begin();
          it != _shapes.end(); ++it)
-        (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
+    {
+        WhirlyKit::Dictionary *dict = (*it)->getAttrDict();
+        dict->clear();
+        [attributes copyToMaplyDictionary:dict];
+    }
 }
 
 - (id)init
@@ -183,7 +190,7 @@ using namespace WhirlyGlobe;
     {
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
-        pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        [attr copyToMaplyDictionary:pts->getAttrDict()];
         pts->initGeoMbr();
         _shapes.insert(pts);
         
@@ -203,7 +210,7 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
-        lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        [attr copyToMaplyDictionary:lin->getAttrDict()];
         lin->initGeoMbr();
         _shapes.insert(lin);
         
@@ -225,7 +232,7 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<numCoords;ii++)
             pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         areal->loops.push_back(pts);
-        areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        [attr copyToMaplyDictionary:areal->getAttrDict()];
         areal->initGeoMbr();
         _shapes.insert(areal);
         
@@ -351,7 +358,7 @@ using namespace WhirlyGlobe;
         if (points)
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
-            [newPts->getAttrDict() addEntriesFromDictionary:points->getAttrDict()];
+            newPts->setAttrDict(*points->getAttrDict());
             newPts->pts = points->pts;
             newVecObj.shapes.insert(newPts);
         } else {
@@ -359,7 +366,7 @@ using namespace WhirlyGlobe;
             if (lin)
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
-                [newLin->getAttrDict() addEntriesFromDictionary:lin->getAttrDict()];
+                newLin->setAttrDict(*lin->getAttrDict());
                 newLin->pts = lin->pts;
                 newVecObj.shapes.insert(newLin);
             } else {
@@ -367,7 +374,7 @@ using namespace WhirlyGlobe;
                 if (ar)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
-                    [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
+                    newAr->setAttrDict(*ar->getAttrDict());
                     newAr->loops = ar->loops;
                     newVecObj.shapes.insert(newAr);
                 }
@@ -682,7 +689,7 @@ using namespace WhirlyGlobe;
         {
             VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
             TesselateLoops(ar->loops, trisRef);
-            trisRef->setAttrDict(ar->getAttrDict());
+            trisRef->setAttrDict(*ar->getAttrDict());
             newVec->_shapes.insert(trisRef);
         }
     }
@@ -706,7 +713,7 @@ using namespace WhirlyGlobe;
                 for (unsigned int jj=0;jj<newLoops.size();jj++)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
-                    newAr->setAttrDict(ar->getAttrDict());
+                    newAr->setAttrDict(*ar->getAttrDict());
                     newAr->loops.push_back(newLoops[jj]);
                     newVec->_shapes.insert(newAr);
                 }
@@ -719,108 +726,109 @@ using namespace WhirlyGlobe;
 
 @end
 
-@implementation MaplyVectorDatabase
-{
-    VectorDatabase *vectorDb;
-    NSString *baseName;
-}
-
-- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    vectorDb = inVectorDb;
-    
-    return self;
-}
-
-/// Construct from a shapefile in the bundle
-+ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
-{
-    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
-    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
-    
-    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
-    mVecDb->baseName = shapeName;
-    return mVecDb;
-}
-
-/// Return vectors that match the given SQL query
-- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery
-{
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    vectorDb->getMatchingVectors(sqlQuery, vecObj.shapes);
-    
-    if (vecObj.shapes.empty())
-        return nil;
-    
-    return vecObj;
-}
-
-/// Search for all the areals that surround the given point (in geographic)
-- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord
-{
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    vectorDb->findArealsForPoint(GeoCoord(coord.x,coord.y), vecObj.shapes);
-    
-    if (vecObj.shapes.empty())
-        return nil;
-    
-    return vecObj;
-}
-
-- (MaplyVectorObject *)fetchAllVectors
-{
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    int numVecs = vectorDb->numVectors();
-    for (unsigned int ii=0;ii<numVecs;ii++)
-    {
-        VectorShapeRef shapeRef = vectorDb->getVector(ii);
-        vecObj.shapes.insert(shapeRef);
-    }
-    
-    if (vecObj.shapes.empty())
-        return nil;
-    
-    return vecObj;
-}
-
-#pragma mark - WhirlyKitLoftedPolyCache delegate
-
-// We'll look for the lofted poly data in the bundle first, then the cache dir
-- (NSData *)readLoftedPolyData:(NSString *)key
-{
-    // Look for cache files in the doc and bundle dirs
-    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
-
-    NSString *cache0 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",bundleDir,baseName,key];
-    NSString *cache1 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
-    
-    // Look for an existing file
-    NSString *cacheFile = nil;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:cache0])
-        cacheFile = cache0;
-    else
-        if ([fileManager fileExistsAtPath:cache1])
-            cacheFile = cache1;
-
-    if (!cacheFile)
-        return nil;
-    
-    return [NSData dataWithContentsOfFile:cacheFile];
-}
-
-// We'll write the lofted poly data to the cache dir with the base name and key
-- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)key
-{
-    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *cacheFile = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
-    
-    return [data writeToFile:cacheFile atomically:YES];
-}
-
-@end
+// Note: Porting
+//@implementation MaplyVectorDatabase
+//{
+//    VectorDatabase *vectorDb;
+//    NSString *baseName;
+//}
+//
+//- (id)initWithVectorDatabase:(VectorDatabase *)inVectorDb
+//{
+//    self = [super init];
+//    if (!self)
+//        return nil;
+//    
+//    vectorDb = inVectorDb;
+//    
+//    return self;
+//}
+//
+///// Construct from a shapefile in the bundle
+//+ (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName
+//{
+//    NSString *fileName = [[NSBundle mainBundle] pathForResource:shapeName ofType:@"shp"];
+//    VectorDatabase *vecDb = new VectorDatabase([[NSBundle mainBundle] resourcePath],[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject],shapeName,new ShapeReader(fileName),NULL);
+//    
+//    MaplyVectorDatabase *mVecDb = [[MaplyVectorDatabase alloc] initWithVectorDatabase:vecDb];
+//    mVecDb->baseName = shapeName;
+//    return mVecDb;
+//}
+//
+///// Return vectors that match the given SQL query
+//- (MaplyVectorObject *)fetchMatchingVectors:(NSString *)sqlQuery
+//{
+//    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//    vectorDb->getMatchingVectors(sqlQuery, vecObj.shapes);
+//    
+//    if (vecObj.shapes.empty())
+//        return nil;
+//    
+//    return vecObj;
+//}
+//
+///// Search for all the areals that surround the given point (in geographic)
+//- (MaplyVectorObject *)fetchArealsForPoint:(MaplyCoordinate)coord
+//{
+//    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//    vectorDb->findArealsForPoint(GeoCoord(coord.x,coord.y), vecObj.shapes);
+//    
+//    if (vecObj.shapes.empty())
+//        return nil;
+//    
+//    return vecObj;
+//}
+//
+//- (MaplyVectorObject *)fetchAllVectors
+//{
+//    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//    int numVecs = vectorDb->numVectors();
+//    for (unsigned int ii=0;ii<numVecs;ii++)
+//    {
+//        VectorShapeRef shapeRef = vectorDb->getVector(ii);
+//        vecObj.shapes.insert(shapeRef);
+//    }
+//    
+//    if (vecObj.shapes.empty())
+//        return nil;
+//    
+//    return vecObj;
+//}
+//
+//#pragma mark - WhirlyKitLoftedPolyCache delegate
+//
+//// We'll look for the lofted poly data in the bundle first, then the cache dir
+//- (NSData *)readLoftedPolyData:(NSString *)key
+//{
+//    // Look for cache files in the doc and bundle dirs
+//    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+//    NSString *bundleDir = [[NSBundle mainBundle] resourcePath];
+//
+//    NSString *cache0 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",bundleDir,baseName,key];
+//    NSString *cache1 = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+//    
+//    // Look for an existing file
+//    NSString *cacheFile = nil;
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    if ([fileManager fileExistsAtPath:cache0])
+//        cacheFile = cache0;
+//    else
+//        if ([fileManager fileExistsAtPath:cache1])
+//            cacheFile = cache1;
+//
+//    if (!cacheFile)
+//        return nil;
+//    
+//    return [NSData dataWithContentsOfFile:cacheFile];
+//}
+//
+//// We'll write the lofted poly data to the cache dir with the base name and key
+//- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)key
+//{
+//    NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
+//    NSString *cacheFile = [NSString stringWithFormat:@"%@/%@_%@.loftcache",docDir,baseName,key];
+//    
+//    return [data writeToFile:cacheFile atomically:YES];
+//}
+//
+//@end

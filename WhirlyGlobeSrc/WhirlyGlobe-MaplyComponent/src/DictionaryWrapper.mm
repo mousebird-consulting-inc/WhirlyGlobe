@@ -1,8 +1,8 @@
 /*
- *  UIColor+Stuff.h
- *  WhirlyGlobeLib
+ *  DictionaryWrapper.mm
+ *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 3/15/11.
+ *  Created by Steve Gifford on 12/16/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,24 +18,5 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "WhirlyVector.h"
+#import "DictionaryWrapper_private.h"
 
-@interface UIColor(Stuff)
-
-/// Build a UIColor from a hex value
-+ (UIColor *) colorFromHexRGB:(int)hexColor;
-
-/// Convert a UIColor to the RBGA color we use internally
-- (WhirlyKit::RGBAColor) asRGBAColor;
-
-/// Convert a UIColor to Vector4, which we also use internally
-- (Eigen::Vector4f) asVec4;
-
-@end
-
-// A function we can call to force the linker to bring in categories
-#ifdef __cplusplus
-extern "C"
-#endif
-void UIColorDummyFunc();

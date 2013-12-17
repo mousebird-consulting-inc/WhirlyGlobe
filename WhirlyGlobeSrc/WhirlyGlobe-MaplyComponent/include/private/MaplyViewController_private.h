@@ -31,9 +31,9 @@
     /// Coordinate system and display adapter
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     /// Maply view
-    MaplyView *mapView;
+    Maply::MapView *mapView;
     // Flat view for 2D mode
-    MaplyFlatView * flatView;
+    Maply::FlatView * flatView;
     // Scroll view for tethered mode
     UIScrollView * __weak scrollView;
 
@@ -42,10 +42,11 @@
     MaplyInteractionLayer *mapInteractLayer;
     
     /// Gesture recognizers
-    MaplyTapDelegate *tapDelegate;
-    MaplyPanDelegate *panDelegate;
-    MaplyPinchDelegate *pinchDelegate;
-    MaplyRotateDelegate *rotateDelegate;
+    // Note: Porting
+//    MaplyTapDelegate *tapDelegate;
+//    MaplyPanDelegate *panDelegate;
+//    MaplyPinchDelegate *pinchDelegate;
+//    MaplyRotateDelegate *rotateDelegate;
 
     /// Bounding box for the viewer
     MaplyCoordinate boundLL,boundUR;

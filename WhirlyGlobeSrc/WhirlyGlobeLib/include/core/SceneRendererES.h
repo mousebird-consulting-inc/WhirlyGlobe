@@ -161,20 +161,12 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
-class SceneRendererES
+class SceneRendererES : public DelayedDeletable
 {
 public:
     SceneRendererES(int apiVersion);
     virtual ~SceneRendererES();
-    
-    /// Render to the screen, ideally within the given duration.
-    /// The subclasses fill this in
-    virtual void render(TimeInterval duration);
-    
-    /// Called when the layer gets resized.  Need to resize ourselves
-    // Note: Porting
-//    virtual BOOL resizeFromLayer(CAEAGLLayer *layer);
-    
+        
     /// Call this before defining things within the OpenGL context
     virtual void useContext();
     
@@ -187,15 +179,10 @@ public:
     void forceDrawNextFrame();
     
     /// Use this to set the clear color for the screen.  Defaults to black
-    // Note: Porting
-//    void setClearColor(UIColor *inClearColor);
+    void setClearColor(const RGBAColor &color);
     
     /// Get the framebuffer size
     Point2f getFramebufferSize() { return Point2f(framebufferWidth,framebufferHeight); }
-    
-    /// Return the EAGLContext
-    // Note: Porting
-//    EAGLContext *getContext() { return context; }
     
     /// Return the attached Scene
     Scene *getScene() { return scene; }
@@ -212,16 +199,28 @@ public:
     /// Force a draw at the next opportunity
     virtual void setTriggerDraw();
     
+    /// Set the current z buffer mode
+    virtual void setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode) { zBufferMode = inZBufferMode; }
+    
     /// Assign a new scene.  Just at startup
     virtual void setScene(WhirlyKit::Scene *newScene);
+    
+    /// To cull or not to cull (generally not)
+    virtual void setDoCulling(bool newCull) { doCulling = newCull; }
+    
+    /// Set the performance counting interval (0 is off)
+    virtual void setPerfInterval(int howLong) { perfInterval = howLong; }
+    
+    /// If set, we'll use the view changes to trigger rendering
+    virtual void setUseViewChanged(bool newVal) { useViewChanged = newVal; }
+    
+    /// Current view (opengl view) we're tied to
+    virtual void setView(WhirlyKit::View *newView) { theView = newView; }
 
 protected:
     Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
     void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
     
-    /// Rendering context
-    // Note: Porting
-//    EAGLContext *context;
     /// Scene we're drawing.  This is set from outside
     WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
@@ -278,7 +277,7 @@ protected:
     /// Something wants to make sure we render until at least this point.
     TimeInterval renderUntil;
     
-    WhirlyKit::RGBAColor _clearColor;
+    WhirlyKit::RGBAColor clearColor;
 
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;

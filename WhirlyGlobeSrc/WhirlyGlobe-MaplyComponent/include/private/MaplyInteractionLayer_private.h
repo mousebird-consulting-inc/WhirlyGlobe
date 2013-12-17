@@ -21,10 +21,11 @@
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
 
-// The view controller fills this in
+//// The view controller fills this in
 @protocol MaplyInteractionLayerDelegate <NSObject>
 // Called back on the main thread for selection
-- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj;
+// Note: Porting
+//- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj;
 @end
 
 /** The Interaction Layer runs in the layer thread (mostly) and manages
@@ -32,14 +33,17 @@
  */
 @interface MaplyInteractionLayer : MaplyBaseInteractionLayer
 
+// Note: Porting
 /// The view controller, for various callbacks
-@property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
+//@property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
+@property (nonatomic,weak) NSObject* viewController;
 
 // Create with the map view
-- (id)initWithMapView:(MaplyView *)inMapView;
+- (id)initWithMapView:(Maply::MapView *)inMapView;
 
-// Call this to process a tap with the selection layer
-// It will call the given selector if there was no selection
-- (void) userDidTap:(MaplyTapMessage *)msg;
+// Note: Porting
+//// Call this to process a tap with the selection layer
+//// It will call the given selector if there was no selection
+//- (void) userDidTap:(MaplyTapMessage *)msg;
 
 @end

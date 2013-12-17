@@ -20,9 +20,12 @@
 
 #import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
-#import "MaplyScreenMarker.h"
+// Note: Porting
+//#import "MaplyScreenMarker.h"
 #import "MaplyVectorObject.h"
-#import "MaplyViewTracker.h"
+#import "MaplyCoordinateSystem.h"
+// Note: Porting
+//#import "MaplyViewTracker.h"
 #import "MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyBaseViewController.h"
@@ -49,7 +52,7 @@
     @param coord Location in the local coordinate system where the user tapped.
     @param screenPt Location on screen where the user tapped.
  */
-- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
