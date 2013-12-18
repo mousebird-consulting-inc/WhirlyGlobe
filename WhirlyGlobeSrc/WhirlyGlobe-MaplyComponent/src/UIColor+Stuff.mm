@@ -60,6 +60,12 @@ using namespace Eigen;
     return color;
 }
 
+- (int) asInt
+{
+    RGBAColor cColor = [self asRGBAColor];
+    return cColor.a << 24 | cColor.r << 16 | cColor.g << 8 | cColor.b;
+}
+
 - (Vector4f) asVec4
 {
     Vector4f color;

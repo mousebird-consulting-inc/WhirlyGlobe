@@ -199,7 +199,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///// @brief This calls addLabels:desc:mode: with mode set to MaplyThreadAny
 //- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
-// Note: Porting
 ///** @brief Add one or more 3D labels to the current scene.
 //    @details This method will add the given MaplyLabel objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 //    @param labels An NSArray of MaplyLabel objects.
@@ -228,9 +227,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
 // */
 //- (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
-//
-///// @brief This calls addVectors:desc:mode: with mode set to MaplyThreadAny
-//- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
+
+/// @brief This calls addVectors:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
 
 /** @brief Add one or more vectors to the current scene.
    @details This method will add the given MaplyVectorObject objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.

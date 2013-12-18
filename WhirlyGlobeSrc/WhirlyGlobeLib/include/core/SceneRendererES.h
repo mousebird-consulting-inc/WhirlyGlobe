@@ -166,10 +166,10 @@ class SceneRendererES : public DelayedDeletable
 public:
     SceneRendererES(int apiVersion);
     virtual ~SceneRendererES();
-        
-    /// Call this before defining things within the OpenGL context
-    virtual void useContext();
     
+    /// Called right after the constructor
+    virtual void setup();
+            
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     void setRenderUntil(TimeInterval newTime);

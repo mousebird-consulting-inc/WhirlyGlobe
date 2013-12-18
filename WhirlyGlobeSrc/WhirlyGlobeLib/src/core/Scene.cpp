@@ -31,7 +31,7 @@
 //#import "ShapeManager.h"
 //#import "MarkerManager.h"
 //#import "LabelManager.h"
-//#import "VectorManager.h"
+#import "VectorManager.h"
 //#import "SphericalEarthChunkManager.h"
 //#import "LoftManager.h"
 //#import "ParticleSystemManager.h"
@@ -73,8 +73,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 //    addManager(kWKMarkerManager, new MarkerManager());
 //    // Label manager handes 2D and 3D labels
 //    addManager(kWKLabelManager, new LabelManager());
-//    // Vector manager handes vector features
-//    addManager(kWKVectorManager, new VectorManager());
+    // Vector manager handes vector features
+    addManager(kWKVectorManager, new VectorManager());
 //    // Chunk manager handles geographic chunks that cover a large chunk of the globe
 //    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
 //    // Loft manager handles lofted polygon geometry
@@ -608,35 +608,35 @@ void Scene::removeProgram(SimpleIdentity progId)
 //        delete tex;
 //    }
 //}
-//
-//void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
-//{
-//    DrawableRef drawRef(drawable);
-//    scene->addDrawable(drawRef);
-//        
-//    // Initialize any OpenGL foo
-//    WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-//    setupInfo->minZres = view->calcZbufferRes();
-//    drawable->setupGL(setupInfo,scene->getMemManager());
-//    
-//    drawable->updateRenderer(renderer);
-//        
-//    drawable = NULL;
-//}
-//
-//void RemDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
-//{
-//    BasicDrawable *dumbDraw = new BasicDrawable("None");
-//    dumbDraw->setId(drawable);
-//    DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
-//    if (it != scene->drawables.end())
-//    {
-//        // Teardown OpenGL foo
-//        (*it)->teardownGL(scene->getMemManager());
-//
-//        scene->remDrawable(*it);        
-//    }
-//}
+
+void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    DrawableRef drawRef(drawable);
+    scene->addDrawable(drawRef);
+        
+    // Initialize any OpenGL foo
+    WhirlyKitGLSetupInfo setupInfo;
+    setupInfo.minZres = view->calcZbufferRes();
+    drawable->setupGL(&setupInfo,scene->getMemManager());
+    
+    drawable->updateRenderer(renderer);
+        
+    drawable = NULL;
+}
+
+void RemDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    BasicDrawable *dumbDraw = new BasicDrawable("None");
+    dumbDraw->setId(drawable);
+    DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
+    if (it != scene->drawables.end())
+    {
+        // Teardown OpenGL foo
+        (*it)->teardownGL(scene->getMemManager());
+
+        scene->remDrawable(*it);        
+    }
+}
 
 void AddGeneratorReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {

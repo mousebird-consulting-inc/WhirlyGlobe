@@ -56,8 +56,6 @@ using namespace Maply;
     if (!self)
         return nil;
 
-    // Turn off lighting
-    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     _flatMode = true;
     
     return self;
@@ -261,6 +259,9 @@ using namespace Maply;
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
+
+    // Turn off lighting
+    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
 }
 
 - (void)viewWillAppear:(BOOL)animated

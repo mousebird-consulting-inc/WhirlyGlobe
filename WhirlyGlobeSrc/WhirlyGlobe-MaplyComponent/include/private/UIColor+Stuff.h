@@ -29,6 +29,9 @@
 /// Convert a UIColor to the RBGA color we use internally
 - (WhirlyKit::RGBAColor) asRGBAColor;
 
+/// Pack into an int
+- (int) asInt;
+
 /// Convert a UIColor to Vector4, which we also use internally
 - (Eigen::Vector4f) asVec4;
 

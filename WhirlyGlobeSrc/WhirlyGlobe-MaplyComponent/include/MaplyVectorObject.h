@@ -49,13 +49,12 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 @property (nonatomic,readonly) NSMutableDictionary *attributes;
 
-// Note: Porting
-///** @brief Parse vector data from geoJSON.  
-//    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
-//    @details We assume the geoJSON is all in decimal degrees in WGS84.
-//  */
-//+ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
-//
+/** @brief Parse vector data from geoJSON.  
+    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.
+    @details We assume the geoJSON is all in decimal degrees in WGS84.
+  */
++ (MaplyVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON;
+
 ///** @brief Parse vector data from geoJSON.
 //    @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses slower JSON parser.
 //    @details We assume the geoJSON is all in decimal degrees in WGS84.
@@ -82,11 +81,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 + (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName;
 
-// Note: Pending
-///** @brief Parse vector objects from a JSON assembly.
-//    @details This version can deal with non-compliant assemblies returned by the experimental OSM server
-//  */
-//+ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON;
+/** @brief Parse vector objects from a JSON assembly.
+    @details This version can deal with non-compliant assemblies returned by the experimental OSM server
+  */
++ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON;
 
 /** @brief Initialize with a single data point and attribution.
     @details This version takes a single coordinate and the attributes to go with it.
@@ -103,12 +101,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
 
-/** @brief Write the vector object to the given file on the device.
-    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
-    @param fileName The file to read the vector data from.
-    @return Returns true on succes, false on failure.
-  */
-- (bool)writeToFile:(NSString *)fileName;
+// Note: Porting
+///** @brief Write the vector object to the given file on the device.
+//    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
+//    @param fileName The file to read the vector data from.
+//    @return Returns true on succes, false on failure.
+//  */
+//- (bool)writeToFile:(NSString *)fileName;
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.

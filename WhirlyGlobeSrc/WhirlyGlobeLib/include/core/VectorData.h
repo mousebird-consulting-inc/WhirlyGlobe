@@ -245,8 +245,7 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-// Note: Porting
-//bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData);
+bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str);
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go
@@ -259,11 +258,11 @@ public:
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
-    // Note: Porting
-//bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
     
-bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
-bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
+    // Note: Porting
+//bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
+//bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
     
 }
 

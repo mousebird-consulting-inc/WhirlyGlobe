@@ -19,13 +19,110 @@
  */
 
 #import "SceneRenderer_private.h"
+#import "UIColor+Stuff.h"
+#import "NSDictionary+Stuff.h"
+#import "DictionaryWrapper_private.h"
+
+@implementation WhirlyKitFrameMessage
+@end
 
 namespace WhirlyKit
 {
     
 MaplySceneRendererES2::MaplySceneRendererES2()
-    : _dispatchRendering(false)
+    : _dispatchRendering(false), SceneRendererES2()
 {
+    // We do this to pull in the categories without the -ObjC flag.
+    // It's dumb, but it works
+    static bool dummyInit = false;
+    if (!dummyInit)
+    {
+//        UIImageDummyFunc();
+        NSDictionaryDummyFunc();
+        NSDictionaryDummyFunc2();
+        UIColorDummyFunc();
+//        NSStringDummyFunc();
+        dummyInit = true;
+    }
+
+    scale = [[UIScreen mainScreen] scale];
+    
+    context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
+
+    // This creates the buffers and such
+    setup();
+    
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
+}
+    
+MaplySceneRendererES2::~MaplySceneRendererES2()
+{
+}
+    
+void MaplySceneRendererES2::useContext()
+{
+    if (context && [EAGLContext currentContext] != context)
+        [EAGLContext setCurrentContext:context];
+}
+    
+BOOL MaplySceneRendererES2::resizeFromLayer(CAEAGLLayer *layer)
+{
+    renderSetup = false;
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
+
+	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
+	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
+	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
+
+	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    CheckGLError("SceneRendererES: glBindRenderbuffer");
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, framebufferWidth, framebufferHeight);
+    CheckGLError("SceneRendererES: glRenderbufferStorage");
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        if (oldContext != context)
+            [EAGLContext setCurrentContext:oldContext];
+		return NO;
+	}
+
+    lastDraw = 0;
+
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
+
+    // If we've resized, we're looking at different content
+    if (theView)
+        theView->runViewUpdates();
+    
+	return YES;
+}
+
+// When the scene is set, we'll compile our shaders
+void MaplySceneRendererES2::setScene(WhirlyKit::Scene *inScene)
+{
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:context];
+
+    SceneRendererES2::setScene(inScene);
+    
+    if (oldContext != context)
+        [EAGLContext setCurrentContext:oldContext];
 }
 
 void MaplySceneRendererES2::render(NSTimeInterval duration)
@@ -61,6 +158,9 @@ void MaplySceneRendererES2::renderAsync()
     // C++ side rendering
     // Note: Porting.  The timing is wrong here for the performance timer
     SceneRendererES2::render();
+    
+    [context presentRenderbuffer:GL_RENDERBUFFER];
+    CheckGLError("SceneRendererES2: presentRenderbuffer");
     
     // Note: Porting
     //    [context presentRenderbuffer:GL_RENDERBUFFER];

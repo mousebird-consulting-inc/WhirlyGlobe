@@ -140,19 +140,20 @@ SceneRendererES::SceneRendererES(int apiVersion)
     doCulling = true;
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
-    // Note: Porting
     scale = 1.0;
-//    scale = [[UIScreen mainScreen] scale];
     
-    // Note: Porting.  Need to create the context here
-//    context = [[EAGLContext alloc] initWithAPI:apiVersion];
-//    
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (!context || ![EAGLContext setCurrentContext:context])
-//    {
-//        return nil;
-//    }
+    // All the animations should work now, except for particle systems
+    useViewChanged = true;
+
+    // No longer really ncessary
+    sortAlphaToEnd = false;
     
+    // Off by default.  Because duh.
+    depthBufferOffForAlpha = false;
+}
+    
+void SceneRendererES::setup()
+{
     // Create default framebuffer object.
     glGenFramebuffers(1, &defaultFramebuffer);
     CheckGLError("SceneRendererES: glGenFramebuffers");
@@ -172,18 +173,6 @@ SceneRendererES::SceneRendererES(int apiVersion)
     CheckGLError("SceneRendererES: glGenRenderbuffers");
     glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-    
-    // All the animations should work now, except for particle systems
-    useViewChanged = true;
-
-    // No longer really ncessary
-    sortAlphaToEnd = false;
-    
-    // Off by default.  Because duh.
-    depthBufferOffForAlpha = false;
-    
-    // Note: Porting
-//    [EAGLContext setCurrentContext:oldContext];        
 }
 
 SceneRendererES::~SceneRendererES()
@@ -236,55 +225,6 @@ void SceneRendererES::setScene(WhirlyKit::Scene *newScene)
         scene->setRenderer(this);
     }
 }
-
-void SceneRendererES::useContext()
-{
-    // Note: Porting
-//	if (context && [EAGLContext currentContext] != context)
-//		[EAGLContext setCurrentContext:context];
-}
-
-// Note: Porting
-//BOOL SceneRendererES::resizeFromLayer(CAEAGLLayer *layer)
-//{
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:context];
-//    
-//	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-//    CheckGLError("SceneRendererES: glBindRenderbuffer");
-//	[context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
-//    CheckGLError("SceneRendererES: glBindRenderbuffer");
-//	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &framebufferWidth);
-//	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &framebufferHeight);
-//    
-//	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-//	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-//    CheckGLError("SceneRendererES: glBindRenderbuffer");
-//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, framebufferWidth, framebufferHeight);
-//    CheckGLError("SceneRendererES: glRenderbufferStorage");
-//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
-//    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
-//	
-//	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-//	{
-//		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-//        if (oldContext != context)
-//            [EAGLContext setCurrentContext:oldContext];
-//		return NO;
-//	}
-//		
-//    lastDraw = 0;
-//	
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:oldContext];
-//    
-//    // If we've resized, we're looking at different content
-//    if (theView)
-//        theView->runViewUpdates();
-//    
-//	return YES;
-//}
 
 void SceneRendererES::setClearColor(const RGBAColor &color)
 {

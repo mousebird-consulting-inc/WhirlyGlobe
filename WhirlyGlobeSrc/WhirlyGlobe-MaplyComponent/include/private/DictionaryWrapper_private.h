@@ -33,3 +33,9 @@
 - (void)copyToMaplyDictionary:(WhirlyKit::Dictionary *)dict;
 
 @end
+
+// A function we can call to force the linker to bring in categories
+#ifdef __cplusplus
+extern "C"
+#endif
+void NSDictionaryDummyFunc2();

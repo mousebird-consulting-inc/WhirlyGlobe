@@ -60,7 +60,7 @@ public:
     /// We might need this if the view has switched away and then back.
     void forceRenderSetup();
     
-    void setScene(WhirlyKit::Scene *inScene);
+    virtual void setScene(WhirlyKit::Scene *inScene);
     
     void setClearColor(const RGBAColor &color);
 

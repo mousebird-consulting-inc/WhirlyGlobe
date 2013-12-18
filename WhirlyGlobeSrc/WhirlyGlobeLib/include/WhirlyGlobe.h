@@ -92,4 +92,5 @@
 #import "core/DefaultShaderPrograms.h"
 #import "core/Tesselator.h"
 #import "core/GridClipper.h"
+#import "core/GLUtils.h"
 

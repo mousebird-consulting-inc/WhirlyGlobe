@@ -49,9 +49,16 @@ class MaplySceneRendererES2 : public SceneRendererES2
 {
 public:
     MaplySceneRendererES2();
+    virtual ~MaplySceneRendererES2();
     
     /// Called when the layer gets resized.  Need to resize ourselves
     virtual BOOL resizeFromLayer(CAEAGLLayer *layer);
+    
+    /// Set the context as active
+    void useContext();
+    
+    /// Set the Scene, once it exists
+    virtual void setScene(WhirlyKit::Scene *scene);
     
     /// Return the EAGLContext
     EAGLContext *getContext() { return context; }

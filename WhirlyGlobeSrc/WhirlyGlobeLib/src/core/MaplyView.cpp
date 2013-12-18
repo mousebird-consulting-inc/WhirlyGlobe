@@ -39,6 +39,10 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     loc = Point3d(0,0,4);
     rotAngle = 0.0;
 }
+    
+MapView::~MapView()
+{    
+}
 
 // Note: Porting
 //void MapView::setDelegate(NSObject<MaplyAnimationDelegate> *inDelegate)

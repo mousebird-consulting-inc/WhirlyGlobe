@@ -81,28 +81,11 @@ public:
     
 }
 
-// Note: Porting
-//@implementation WhirlyKitFrameMessage
-//@end
-
 SceneRendererES2::SceneRendererES2()
 //: SceneRendererES(kEAGLRenderingAPIOpenGLES2), renderStateOptimizer(NULL), renderSetup(false)
 // Note: Porting
 : SceneRendererES(2), renderStateOptimizer(NULL), renderSetup(false)
 {
-    // Note: Porting
-    // We do this to pull in the categories without the -ObjC flag.
-    // It's dumb, but it works
-//    static bool dummyInit = false;
-//    if (!dummyInit)
-//    {
-//        UIImageDummyFunc();
-//        NSDictionaryDummyFunc();
-//        UIColorDummyFunc();
-//        NSStringDummyFunc();
-//        dummyInit = true;
-//    }
-
     // Note: Porting
 //    lights = [NSMutableArray array];
 //    
@@ -149,18 +132,9 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
     SceneRendererES::setScene(inScene);
     scene = inScene;
     
-    // Note: Porting
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:context];
-    
     SetupDefaultShaders(scene);
     
     lightsLastUpdated = TimeGetCurrent();
-
-    // Note: Porting
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:oldContext];
 }
 
 // Note: Porting
@@ -196,15 +170,6 @@ void SceneRendererES2::setClearColor(const RGBAColor &color)
     clearColor = color;
     renderSetup = false;
 }
-
-// Note: Porting
-//BOOL SceneRendererES2::resizeFromLayer(CAEAGLLayer *layer)
-//{
-//    renderSetup = false;
-//    bool ret = SceneRendererES::resizeFromLayer(layer);
-//    
-//    return ret;
-//}
 
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
@@ -246,8 +211,6 @@ void SceneRendererES2::render()
     // See if we're dealing with a globe view
     WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
 
-    GLint framebufferWidth = framebufferWidth;
-    GLint framebufferHeight = framebufferHeight;
     if (!renderSetup)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);

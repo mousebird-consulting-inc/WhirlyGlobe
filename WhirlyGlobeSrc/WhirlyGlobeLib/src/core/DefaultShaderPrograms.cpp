@@ -301,7 +301,7 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *lineShader = new OpenGLES2Program("Default line shader with backface culling",vertexShaderLine,fragmentShaderLine);
     if (!triShader->isValid() || !lineShader->isValid())
     {
-        fprintf(stderr,"SetupDefaultShaders: Default triangle and line shaders didn't compile.  Nothing will work.");
+        fprintf(stderr,"SetupDefaultShaders: Default triangle and line shaders didn't compile.  Nothing will work.\n");
         delete triShader;
         delete lineShader;
     } else {
@@ -317,7 +317,7 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *lineNoBackShader = new OpenGLES2Program("Default line shader without backface culling",vertexShaderLineNoBack,fragmentShaderLineNoBack);
     if (!lineNoBackShader->isValid())
     {
-        fprintf(stderr,"SetupDefaultShaders: Line shader without backface checking didn't compile.");
+        fprintf(stderr,"SetupDefaultShaders: Line shader without backface checking didn't compile.\n");
         delete lineNoBackShader;
     } else {
         scene->addProgram(kToolkitDefaultLineNoBackfaceProgram, lineNoBackShader);
@@ -327,7 +327,7 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *triShaderNoLight = new OpenGLES2Program("Default triangle shader without lighting",vertexShaderNoLightTri,fragmentShaderNoLightTri);
     if (!triShaderNoLight->isValid())
     {
-        fprintf(stderr,"SetupDefaultShaders: Triangle shader without lighting didn't compile.");
+        fprintf(stderr,"SetupDefaultShaders: Triangle shader without lighting didn't compile.\n");
         delete triShaderNoLight;
     } else {
         scene->addProgram(kToolkitDefaultTriangleNoLightingProgram, triShaderNoLight);
@@ -337,7 +337,7 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *triShaderMultiTex = new OpenGLES2Program("Triangle shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
     if (!triShaderMultiTex->isValid())
     {
-        fprintf(stderr,"SetupDefaultShaders: Triangle shader with multi texture support didn't compile.");
+        fprintf(stderr,"SetupDefaultShaders: Triangle shader with multi texture support didn't compile.\n");
         delete triShaderMultiTex;
     } else {
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);

@@ -291,13 +291,13 @@ void GlobeView::cancelAnimation()
 //    delegate = nil;
 }
 
-// Note: Porting
-//// Run the rotation animation
-//void GlobeView::animate()
-//{
+// Run the rotation animation
+void GlobeView::animate()
+{
+    // Note: Porting
 //    if (delegate)
 //        [delegate updateView:this];
-//}
+}
 
 // Calculate the Z buffer resolution
 float GlobeView::calcZbufferRes()

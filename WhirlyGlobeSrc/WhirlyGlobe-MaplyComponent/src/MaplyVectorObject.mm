@@ -30,49 +30,54 @@ using namespace WhirlyGlobe;
 
 @implementation MaplyVectorObject
 
-// Note: Porting
-//+ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
-//{
-//    if ([geoJSON length] > 0)
-//    {
-//        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-//        
-//        if (!VectorParseGeoJSON(vecObj->_shapes, geoJSON))
-//            return nil;
-//        
-//        return vecObj;
-//    }
-//    
-//    return nil;
-//}
-//
-//+ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
-//{
-//    if ([geoJSON length] > 0)
-//    {
-//        std::map<std::string,ShapeSet> shapes;
-//        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
-//            return nil;
-//        
-//        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-//        for (std::map<std::string,ShapeSet>::iterator it = shapes.begin();
-//             it != shapes.end(); ++it)
-//        {
-//            NSString *str = [NSString stringWithFormat:@"%s",it->first.c_str()];
-//            if (str)
-//            {
-//                MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-//                vecObj.shapes = it->second;
-//                dict[str] = vecObj;
-//            }
-//        }
-//        
-//        return dict;
-//    }
-//    
-//    return nil;
-//}
-//
++ (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
+{
+    if ([geoJSON length] > 0)
+    {
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+        
+        // Note: Kind of an extra step here
+        NSString *str = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
+        std::string cStr = [str UTF8String];
+        if (!VectorParseGeoJSON(vecObj->_shapes, cStr))
+            return nil;
+        
+        return vecObj;
+    }
+    
+    return nil;
+}
+
++ (NSDictionary *)VectorObjectsFromGeoJSONAssembly:(NSData *)geoJSON
+{
+    if ([geoJSON length] > 0)
+    {
+        std::map<std::string,ShapeSet> shapes;
+        // Note: Kind of an extra step here
+        NSString *str = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
+        std::string cStr = [str UTF8String];
+        if (!VectorParseGeoJSONAssembly(cStr, shapes))
+            return nil;
+        
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        for (std::map<std::string,ShapeSet>::iterator it = shapes.begin();
+             it != shapes.end(); ++it)
+        {
+            NSString *str = [NSString stringWithFormat:@"%s",it->first.c_str()];
+            if (str)
+            {
+                MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+                vecObj.shapes = it->second;
+                dict[str] = vecObj;
+            }
+        }
+        
+        return dict;
+    }
+    
+    return nil;
+}
+
 ///// Parse vector data from geoJSON.  Returns one object to represent
 ////   the whole thing, which might include multiple different vectors.
 //+ (WGVectorObject *)VectorObjectFromGeoJSONApple:(NSData *)geoJSON
@@ -135,21 +140,23 @@ using namespace WhirlyGlobe;
     return vecObj;
 }
 
-+ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
-{
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    
-    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
-        return nil;
-    
-    return vecObj;
-}
+// Note: Porting
+//+ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
+//{
+//    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+//    
+//    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
+//        return nil;
+//    
+//    return vecObj;
+//}
+//
+//- (bool)writeToFile:(NSString *)fileName
+//{
+//    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
+//}
 
-- (bool)writeToFile:(NSString *)fileName
-{
-    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
-}
-
+// Note: Porting.  This is horribly inefficient
 - (NSDictionary *)attributes
 {
     if (_shapes.empty())

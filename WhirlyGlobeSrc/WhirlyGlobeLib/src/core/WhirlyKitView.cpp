@@ -37,7 +37,10 @@ View::View()
     lastChangedTime = TimeGetCurrent();
     continuousZoom = false;
 }
-
+    
+View::~View()
+{
+}
 
 void View::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double & near,double &far)
 {
