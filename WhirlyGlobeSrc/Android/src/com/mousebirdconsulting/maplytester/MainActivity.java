@@ -21,14 +21,17 @@ public class MainActivity extends Activity {
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) 
-    {
-    	// Wait for the debugger to catch up
+    {    	
+		// Wait for the debugger to catch up
     	try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+    	// Note: This is a little dumb
+    	MaplyInitialize.Init();
     	
     	// Load a vector file
     	String canJSON = readGeoJSON("USA.geojson");
