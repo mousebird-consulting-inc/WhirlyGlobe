@@ -44,6 +44,20 @@ double Dictionary::StringValue::asDouble()
     return res;
 }
     
+void Dictionary::IntValue::asString(std::string &retStr)
+{
+    std::ostringstream stream;
+    stream << val;
+    retStr = stream.str();
+}
+    
+void Dictionary::DoubleValue::asString(std::string &retStr)
+{
+    std::ostringstream stream;
+    stream << val;
+    retStr = stream.str();
+}
+    
 Dictionary::Dictionary()
 {
 }

@@ -1088,7 +1088,15 @@ bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str)
 {
     json_string json = str;
     
-    JSONNode topNode = libjson::parse(json);
+    JSONNode topNode;
+    try
+    {
+    	topNode = libjson::parse(json);
+    }
+    catch (...)
+    {
+    	return false;
+    }
 
     if (!VectorParseTopNode(topNode,shapes))
     {

@@ -93,4 +93,5 @@
 #import "core/Tesselator.h"
 #import "core/GridClipper.h"
 #import "core/GLUtils.h"
+#import "core/VectorObject.h"
 

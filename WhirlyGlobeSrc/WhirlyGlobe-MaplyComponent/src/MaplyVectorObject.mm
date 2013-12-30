@@ -156,6 +156,17 @@ using namespace WhirlyGlobe;
 //    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 //}
 
+- (id)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _selectable = true;
+    
+    return self;
+}
+
 // Note: Porting.  This is horribly inefficient
 - (NSDictionary *)attributes
 {
@@ -175,17 +186,6 @@ using namespace WhirlyGlobe;
         dict->clear();
         [attributes copyToMaplyDictionary:dict];
     }
-}
-
-- (id)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _selectable = true;
-    
-    return self;
 }
 
 /// Construct with a single point

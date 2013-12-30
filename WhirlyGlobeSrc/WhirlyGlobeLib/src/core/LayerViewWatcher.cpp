@@ -328,6 +328,10 @@ ViewState::ViewState(WhirlyKit::View *view,SceneRendererES *renderer)
     
     coordAdapter = view->coordAdapter;
 }
+    
+ViewState::~ViewState()
+{
+}
 
 void ViewState::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight)
 {

@@ -23,8 +23,7 @@
 //#import "Lighting.h"
 #import "WhirlyTypes.h"
 
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
+#import "glwrapper.h"
 
 namespace WhirlyKit
 {

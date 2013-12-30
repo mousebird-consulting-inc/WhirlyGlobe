@@ -20,6 +20,7 @@
 
 #import <math.h>
 #import <vector>
+#import <algorithm>
 #import "PerformanceTimer.h"
 #import "Platform.h"
 

@@ -109,7 +109,7 @@ protected:
         virtual DictionaryType type() { return DictTypeInt; }
         virtual Value *copy() { return new IntValue(val); }
         virtual int asInt() { return val; }
-        virtual void asString(std::string &retStr) { retStr = std::to_string(val); }
+        virtual void asString(std::string &retStr);
         virtual double asDouble() { return (double)val; }
         
         int val;
@@ -124,7 +124,7 @@ protected:
         virtual DictionaryType type() { return DictTypeDouble; }
         virtual Value *copy() { return new DoubleValue(val); }
         virtual int asInt() { return (int)val; }
-        virtual void asString(std::string &retStr) { retStr = std::to_string(val); }
+        virtual void asString(std::string &retStr);
         virtual double asDouble() { return val; }
         
         double val;

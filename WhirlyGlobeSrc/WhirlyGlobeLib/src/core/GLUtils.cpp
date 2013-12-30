@@ -22,7 +22,7 @@
 #import "GLUtils.h"
 
 // Turn this off for a little performance gain
-#ifdef DEBUG
+#ifdef DEBUG || __ANDROID__
 static bool ErrorsOn = true;
 #else
 static bool ErrorsOn = false;

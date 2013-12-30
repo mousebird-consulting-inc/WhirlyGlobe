@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Bahrain", "SOV_A3": "BHR", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Bahrain", "ADM0_A3": "BHR", "GEOU_DIF": 0.0, "GEOUNIT": "Bahrain", "GU_A3": "BHR", "SU_DIF": 0.0, "SUBUNIT": "Bahrain", "SU_A3": "BHR", "NAME": "Bahrain", "ABBREV": "Bahr.", "POSTAL": "BH", "NAME_FORMA": "State of Bahrain", "TERR_": "", "NAME_SORT": "Bahrain", "MAP_COLOR": 9.0, "POP_EST": 727785.0, "GDP_MD_EST": 26820.0, "FIPS_10_": "BA", "ISO_A2": "BH", "ISO_A3": "BHR", "ISO_N3": 48.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 50.607278, 25.883123 ], [ 50.574929, 25.806797 ], [ 50.544026, 25.833514 ], [ 50.465892, 25.965547 ], [ 50.489456, 26.058461 ], [ 50.452456, 26.190805 ], [ 50.469922, 26.228942 ], [ 50.564077, 26.246434 ], [ 50.585884, 26.240724 ], [ 50.557772, 26.198298 ], [ 50.609759, 26.124452 ], [ 50.61751, 26.002341 ], [ 50.607278, 25.883123 ] ] ] } }
+
+]
+}

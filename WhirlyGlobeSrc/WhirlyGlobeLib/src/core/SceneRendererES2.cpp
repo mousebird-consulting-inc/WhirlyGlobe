@@ -113,8 +113,10 @@ SceneRendererES2::SceneRendererES2()
 
 SceneRendererES2::~SceneRendererES2()
 {
+#if !__ANDROID__
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
     dispatch_release(contextQueue);
+#endif
 #endif
     if (renderStateOptimizer)
         delete renderStateOptimizer;
@@ -176,7 +178,7 @@ static const float ScreenOverlap = 0.1;
 
 void SceneRendererES2::render()
 {
-    if (!scene)
+    if (!scene || !theView)
         return;
     
     frameCount++;
@@ -190,8 +192,9 @@ void SceneRendererES2::render()
 	theView->animate();
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && !viewDidChange())
-        return;
+	// Note: Porting
+////    if (!scene->hasChanges() && !viewDidChange())
+//        return;
         
     lastDraw = TimeGetCurrent();
         
@@ -213,8 +216,11 @@ void SceneRendererES2::render()
 
     if (!renderSetup)
     {
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-        CheckGLError("SceneRendererES2: glBindFramebuffer");
+        if (defaultFramebuffer)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
+            CheckGLError("SceneRendererES2: glBindFramebuffer");
+        }
         glViewport(0, 0, framebufferWidth,framebufferHeight);
         CheckGLError("SceneRendererES2: glViewport");
     }
@@ -257,8 +263,11 @@ void SceneRendererES2::render()
         glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
         CheckGLError("SceneRendererES2: glClearColor");
     }
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    CheckGLError("SceneRendererES2: glClear");
+//    if (defaultFramebuffer)
+//    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CheckGLError("SceneRendererES2: glClear");
+//    }
 
     if (!renderSetup)
     {
@@ -374,7 +383,7 @@ void SceneRendererES2::render()
         //       And we should reuse these Drawables
         std::vector<DrawableRef> generatedDrawables,screenDrawables;
         const GeneratorSet *generators = scene->getGenerators();
-        for (GeneratorSet::iterator it = generators->begin();
+        for (GeneratorSet::const_iterator it = generators->begin();
              it != generators->end(); ++it)
             (*it)->generateDrawables(&frameInfo, generatedDrawables, screenDrawables);
         
@@ -589,14 +598,18 @@ void SceneRendererES2::render()
         perfTimer.startTiming("Present Renderbuffer");
     
     // Explicitly discard the depth buffer
-    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
-    CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
+    // Note: Porting
+//    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
+//    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
+//    CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
     if (!renderSetup)
     {
-        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES2: glBindRenderbuffer");
+        if (colorRenderbuffer)
+        {
+            glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+            CheckGLError("SceneRendererES2: glBindRenderbuffer");
+        }
     }
 
     if (perfInterval > 0)

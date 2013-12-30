@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Netherlands", "SOV_A3": "NL1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Curaao", "ADM0_A3": "CUW", "GEOU_DIF": 0.0, "GEOUNIT": "Curaao", "GU_A3": "CUW", "SU_DIF": 0.0, "SUBUNIT": "Curaao", "SU_A3": "CUW", "NAME": "Curaao", "ABBREV": "Cur.", "POSTAL": "CW", "NAME_FORMA": "", "TERR_": "Neth.", "NAME_SORT": "Curaao", "MAP_COLOR": 9.0, "POP_EST": 141766.0, "GDP_MD_EST": 2.91, "FIPS_10_": "NT", "ISO_A2": "CW", "ISO_A3": "CUW", "ISO_N3": 531.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -68.751095, 12.059781 ], [ -68.803314, 12.045467 ], [ -68.995137, 12.141843 ], [ -69.153835, 12.298423 ], [ -69.158874, 12.380278 ], [ -69.118437, 12.37325 ], [ -69.076786, 12.342038 ], [ -69.013146, 12.231347 ], [ -68.827395, 12.158535 ], [ -68.751095, 12.059781 ] ] ] } }
+
+]
+}

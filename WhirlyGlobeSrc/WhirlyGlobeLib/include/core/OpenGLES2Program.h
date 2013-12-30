@@ -19,8 +19,7 @@
  */
 
 #import <vector>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
+#import "glwrapper.h"
 #import "WhirlyTypes.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -63,7 +62,7 @@ public:
 // Used for sorting
 typedef struct
 {
-    bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b)
+    bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b) const
     {
         return a->name < b->name;
     }
@@ -95,7 +94,7 @@ public:
 // Used for sorting
 typedef struct
 {
-    bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b)
+    bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b) const
     {
         return a->name < b->name;
     }

@@ -1083,20 +1083,38 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
-    void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
-    for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr,ii);
+    if (hasMapBufferSupport)
+    {
+        void *glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+        unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
+        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr,ii);
 
-    // And copy in the element buffer
-	if (tris.size())
-	{
-        triBuffer = vertexSize*numVerts;
-        unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+        // And copy in the element buffer
+        if (tris.size())
+        {
+            triBuffer = vertexSize*numVerts;
+            unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+            for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
+                memcpy(basePtr, &tris[ii], sizeof(Triangle));
+        }
+        glUnmapBufferOES(GL_ARRAY_BUFFER);
+    } else {
+        int bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
+        
+        // Gotta do this the hard way
+        unsigned char *glMem = (unsigned char *)malloc(bufferSize);
+        unsigned char *basePtr = glMem;
+        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr, ii);
+        
+        // Now the element buffer
         for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
             memcpy(basePtr, &tris[ii], sizeof(Triangle));
-	}
-    glUnmapBufferOES(GL_ARRAY_BUFFER);
+        
+        glBufferData(GL_ARRAY_BUFFER, numVerts*vertexSize, glMem, GL_STATIC_DRAW);
+    }
+
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
@@ -1543,8 +1561,53 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     }
     
     // If necessary, set up the VAO (once)
-    if (vertArrayObj == 0 && sharedBuffer != 0)
-        setupVAO(prog);
+    bool boundElements = false;
+    if (hasVertexArraySupport)
+    {
+        if (vertArrayObj == 0 && sharedBuffer != 0)
+            setupVAO(prog);
+    } else {
+        // Note: Porting.  Move this into a shared function
+        const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+
+        // We're using a single buffer for all of our vertex attributes
+        if (sharedBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+        }
+        
+        // Vertex array
+        if (vertAttr)
+        {
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
+            glEnableVertexAttribArray ( vertAttr->index );
+        }
+        
+        // All the rest of the attributes
+        const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        {
+            progAttrs[ii] = NULL;
+            VertexAttribute *attr = vertexAttributes[ii];
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->name);
+            if (thisAttr && (attr->buffer != 0 || attr->numElements() != 0))
+            {
+                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+                glEnableVertexAttribArray(thisAttr->index);
+                progAttrs[ii] = thisAttr;
+            }
+        }
+        
+        // Bind the element array
+        bool boundElements = false;
+        if (type == GL_TRIANGLES && triBuffer)
+        {
+            boundElements = true;
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+        }
+    }
 
     // Figure out what we're using
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
@@ -1667,6 +1730,20 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         if (progAttrs[ii])
             glDisableVertexAttribArray(progAttrs[ii]->index);
+    
+    if (!hasVertexArraySupport)
+    {
+        // Now tear down all that state
+        if (vertAttr)
+            glDisableVertexAttribArray(vertAttr->index);
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (progAttrs[ii])
+                glDisableVertexAttribArray(progAttrs[ii]->index);
+        if (boundElements)
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        if (sharedBuffer)
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     // Let a subclass clean up any remaining state
     postDrawCallback(frameInfo,scene);
