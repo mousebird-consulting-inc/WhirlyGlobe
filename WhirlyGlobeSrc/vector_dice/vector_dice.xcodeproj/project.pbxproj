@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B3836B7187491FF00467ABD /* tinyxml2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836B6187491FF00467ABD /* tinyxml2.cpp */; };
+		2B3836BA1874937100467ABD /* MapnikConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836B81874937100467ABD /* MapnikConfig.cpp */; };
 		2BAD0ED01852876900FFB126 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAD0ECF1852876900FFB126 /* main.cpp */; };
 		2BAD0ED21852876900FFB126 /* vector_dice.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2BAD0ED11852876900FFB126 /* vector_dice.1 */; };
 /* End PBXBuildFile section */
@@ -25,6 +27,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2B3836B5187491FF00467ABD /* tinyxml2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tinyxml2.h; path = "../../third-party/tinyxml2/tinyxml2.h"; sourceTree = "<group>"; };
+		2B3836B6187491FF00467ABD /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = "../../third-party/tinyxml2/tinyxml2.cpp"; sourceTree = "<group>"; };
+		2B3836B81874937100467ABD /* MapnikConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapnikConfig.cpp; sourceTree = "<group>"; };
+		2B3836B91874937100467ABD /* MapnikConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapnikConfig.h; sourceTree = "<group>"; };
 		2BAD0ECC1852876900FFB126 /* vector_dice */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vector_dice; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BAD0ECF1852876900FFB126 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2BAD0ED11852876900FFB126 /* vector_dice.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = vector_dice.1; sourceTree = "<group>"; };
@@ -41,9 +47,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B3836B41874917600467ABD /* tinyxml2 */ = {
+			isa = PBXGroup;
+			children = (
+				2B3836B5187491FF00467ABD /* tinyxml2.h */,
+				2B3836B6187491FF00467ABD /* tinyxml2.cpp */,
+			);
+			name = tinyxml2;
+			sourceTree = "<group>";
+		};
 		2BAD0EC31852876900FFB126 = {
 			isa = PBXGroup;
 			children = (
+				2B3836B41874917600467ABD /* tinyxml2 */,
 				2BAD0ECE1852876900FFB126 /* vector_dice */,
 				2BAD0ECD1852876900FFB126 /* Products */,
 			);
@@ -60,6 +76,8 @@
 		2BAD0ECE1852876900FFB126 /* vector_dice */ = {
 			isa = PBXGroup;
 			children = (
+				2B3836B91874937100467ABD /* MapnikConfig.h */,
+				2B3836B81874937100467ABD /* MapnikConfig.cpp */,
 				2BAD0ECF1852876900FFB126 /* main.cpp */,
 				2BAD0ED11852876900FFB126 /* vector_dice.1 */,
 			);
@@ -117,7 +135,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B3836B7187491FF00467ABD /* tinyxml2.cpp in Sources */,
 				2BAD0ED01852876900FFB126 /* main.cpp in Sources */,
+				2B3836BA1874937100467ABD /* MapnikConfig.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,7 +221,10 @@
 					/usr/local/include/,
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				OTHER_LDFLAGS = "-lGDAL";
+				OTHER_LDFLAGS = (
+					"-lGDAL",
+					"-lboost_regex-mt",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -215,7 +238,10 @@
 					/usr/local/include/,
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
-				OTHER_LDFLAGS = "-lGDAL";
+				OTHER_LDFLAGS = (
+					"-lGDAL",
+					"-lboost_regex-mt",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
