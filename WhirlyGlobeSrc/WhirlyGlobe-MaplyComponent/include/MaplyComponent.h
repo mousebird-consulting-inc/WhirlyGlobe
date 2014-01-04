@@ -43,3 +43,4 @@
 #import <MaplyAnimationTestTileSource.h>
 #import <MaplyElevationSource.h>
 #import <MaplyElevationDatabase.h>
+#import <MaplyVectorTiles.h>
