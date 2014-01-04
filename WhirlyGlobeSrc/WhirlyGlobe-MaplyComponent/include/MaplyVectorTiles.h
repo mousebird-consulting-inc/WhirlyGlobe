@@ -34,3 +34,27 @@
 @property (nonatomic,readonly) NSArray *styles;
 
 @end
+
+@interface MaplyVectorTileStyle : NSObject
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+
+@end
+
+@interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+
+@end
+
+@interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+
+@end
+
+@interface MaplyVectorTileStyleText : MaplyVectorTileStyle
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+
+@end
