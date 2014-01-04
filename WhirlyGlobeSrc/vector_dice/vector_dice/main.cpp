@@ -725,6 +725,8 @@ int main(int argc, char * argv[])
         
         // Write the symbolizers out as JSON
         std::string styleJson;
+        mapnikConfig->symbolizerTable.minLevel = minLevel;
+        mapnikConfig->symbolizerTable.maxLevel = maxLevel;
         if (!mapnikConfig->symbolizerTable.writeJSON(styleJson))
         {
             fprintf(stderr, "Failed to convert styles to JSON");

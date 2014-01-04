@@ -15,6 +15,11 @@ bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
 {
     json += "{\n";
     
+    json += "\t\"parameters\": {\n";
+    json += (std::string)"\t\t\"minLevel\": " + std::to_string(minLevel) + ",\n";
+    json += (std::string)"\t\t\"maxLevel\": " + std::to_string(maxLevel) + "\n";
+    json += "\t},\n";
+    
     json += "\t\"layers\": [";
     for (std::set<std::string>::iterator it = layerNames.begin();it != layerNames.end();++it)
     {

@@ -32,6 +32,9 @@ public:
         // Layer names (we write these out for convenience in the styles file)
         std::set<std::string> layerNames;
         
+        // Zoom level range
+        int minLevel,maxLevel;
+        
         // Write the symbolizers out as a JSON style table
         bool writeJSON(std::string &json);
     };
