@@ -482,6 +482,17 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     somethingHappened = true;
 }
 
+- (void)poke
+{
+    if ([NSThread currentThread] != _layerThread)
+    {
+        [self performSelector:@selector(poke) onThread:_layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+
+    [self viewUpdate:viewState];
+}
+
 - (void)wakeUp
 {
     if ([NSThread currentThread] != _layerThread)
