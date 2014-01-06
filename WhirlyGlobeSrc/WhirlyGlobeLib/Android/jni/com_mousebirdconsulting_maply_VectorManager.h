@@ -9,11 +9,19 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager
- * Method:    addVector
- * Signature: (Lcom/mousebirdconsulting/maply/VectorObject;)J
+ * Method:    addVectors
+ * Signature: ([Lcom/mousebirdconsulting/maply/VectorObject;Lcom/mousebirdconsulting/maply/VectorInfo;Lcom/mousebirdconsulting/maply/ChangeSet;)J
  */
-JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVector
-  (JNIEnv *, jobject, jobject);
+JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVectors
+  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorManager
+ * Method:    removeVectors
+ * Signature: ([JLcom/mousebirdconsulting/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVectors
+  (JNIEnv *, jobject, jlongArray, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager

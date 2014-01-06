@@ -40,13 +40,20 @@ static bool glSetup = false;
 void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
   (JNIEnv *env, jobject obj)
 {
-	MaplySceneRenderer *renderer = new MaplySceneRenderer();
-	setHandle(env,obj,renderer);
-
-	if (!glSetup)
+	try
 	{
-		SetupGLESExtensions();
-		glSetup = true;
+		MaplySceneRenderer *renderer = new MaplySceneRenderer();
+		setHandle(env,obj,renderer);
+
+		if (!glSetup)
+		{
+			SetupGLESExtensions();
+			glSetup = true;
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::initialise()");
 	}
 
 //	renderer->setup();
@@ -60,35 +67,56 @@ void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_dispose
   (JNIEnv *env, jobject obj)
 {
-	MaplySceneRenderer *inst = getHandle<MaplySceneRenderer>(env,obj);
-	if (!inst)
-		return;
-	delete inst;
-	inst = NULL;
+	try
+	{
+		MaplySceneRenderer *inst = getHandle<MaplySceneRenderer>(env,obj);
+		if (!inst)
+			return;
+		delete inst;
+		inst = NULL;
 
-	setHandle(env,obj,inst);
+		setHandle(env,obj,inst);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::dispose()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setScene
   (JNIEnv *env, jobject obj, jobject sceneObj)
 {
-	SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
-	Maply::MapScene *scene = getHandle<Maply::MapScene>(env,sceneObj);
-	if (!renderer || !scene)
-		return;
+	try
+	{
+		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
+		Maply::MapScene *scene = getHandle<Maply::MapScene>(env,sceneObj);
+		if (!renderer || !scene)
+			return;
 
-	renderer->setScene(scene);
+		renderer->setScene(scene);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::setScene()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setView
   (JNIEnv *env, jobject obj, jobject objView)
 {
-	SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
-	Maply::MapView *view = getHandle<Maply::MapView>(env,objView);
-	if (!renderer || !view)
-		return;
+	try
+	{
+		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
+		Maply::MapView *view = getHandle<Maply::MapView>(env,objView);
+		if (!renderer || !view)
+			return;
 
-	renderer->setView(view);
+		renderer->setView(view);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::setView()");
+	}
 }
 
 /*
@@ -110,25 +138,39 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_tear
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_resize
   (JNIEnv *env, jobject obj, jint width, jint height)
 {
-	MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
-	if (!renderer)
-		return false;
+	try
+	{
+		MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
+		if (!renderer)
+			return false;
 
-	renderer->resize(width,height);
+		renderer->resize(width,height);
 
-	// Note: Porting.
-//    if (theView)
-//        theView->runViewUpdates();
+		// Note: Porting.
+	//    if (theView)
+	//        theView->runViewUpdates();
 
-	return true;
+		return true;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::resize()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_render
   (JNIEnv *env, jobject obj)
 {
-	MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
-	if (!renderer)
-		return;
+	try
+	{
+		MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
+		if (!renderer)
+			return;
 
-	renderer->render();
+		renderer->render();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::render()");
+	}
 }

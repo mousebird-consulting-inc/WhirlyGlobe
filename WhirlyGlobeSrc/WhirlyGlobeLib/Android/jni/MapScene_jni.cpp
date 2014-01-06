@@ -15,24 +15,51 @@
 using namespace WhirlyKit;
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_initialise
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject coordAdapterObj)
 {
-	// Note: Porting.  This will leak
-	CoordSystemDisplayAdapter *coordAdapter = coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
-	Maply::MapScene *inst = new Maply::MapScene(coordAdapter);
-	setHandle(env,obj,inst);
+	try
+	{
+		CoordSystemDisplayAdapter *coordAdapter = getHandle<CoordSystemDisplayAdapter>(env,coordAdapterObj);
+		Maply::MapScene *inst = new Maply::MapScene(coordAdapter);
+		setHandle(env,obj,inst);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapScene::initialise()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_dispose
   (JNIEnv *env, jobject obj)
 {
-	Maply::MapScene *inst = getHandle<Maply::MapScene>(env,obj);
-	if (!inst)
-		return;
-	delete inst;
-	inst = NULL;
+	try
+	{
+		Maply::MapScene *inst = getHandle<Maply::MapScene>(env,obj);
+		if (!inst)
+			return;
+		delete inst;
+		inst = NULL;
 
-	// Note: Porting.  Should tear down coord adapter
+		setHandle(env,obj,inst);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapScene::dispose()");
+	}
+}
 
-	setHandle(env,obj,inst);
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_addChanges
+  (JNIEnv *env, jobject obj, jobject changesObj)
+{
+	try
+	{
+		Maply::MapScene *scene = getHandle<Maply::MapScene>(env,obj);
+		ChangeSet *changes = getHandle<ChangeSet>(env,changesObj);
+		scene->addChangeRequests(*changes);
+		changes->clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapScene::addChanges()");
+	}
 }

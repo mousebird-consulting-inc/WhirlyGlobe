@@ -16,42 +16,90 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-// Note: Bogus!
-static MapScene *mapScene = NULL;
+static const char *SceneHandleName = "nativeSceneHandle";
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_initialise
   (JNIEnv *env, jobject obj, jobject sceneObj)
 {
-	MapScene *scene = getHandle<MapScene>(env,sceneObj);
-	mapScene = scene;
-	VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
-	setHandle(env,obj,vecManager);
+	try
+	{
+		MapScene *scene = getHandle<MapScene>(env,sceneObj);
+		setHandleNamed(env,obj,scene,SceneHandleName);
+		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
+		setHandle(env,obj,vecManager);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::initialise()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_dispose
   (JNIEnv *env, jobject obj)
 {
-	VectorManager *inst = NULL;
-	setHandle(env,obj,inst);
+	try
+	{
+		VectorManager *inst = NULL;
+		setHandle(env,obj,inst);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::dispose()");
+	}
 }
 
-JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVector
-  (JNIEnv *env, jobject obj, jobject vecObj)
+JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVectors
+  (JNIEnv *env, jobject obj, jobjectArray vecObjArray, jobject vecInfoObj, jobject changeSetObj)
 {
-	VectorManager *vecManager = getHandle<VectorManager>(env,obj);
-	VectorObject *vector = getHandle<VectorObject>(env,vecObj);
-	if (!vecManager || !vector)
-		return EmptyIdentity;
+	try
+	{
+		VectorManager *vecManager = getHandle<VectorManager>(env,obj);
+		VectorInfo *vecInfo = getHandle<VectorInfo>(env,vecInfoObj);
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
+		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
 
-	// Note: This needs to come from outside
-	VectorInfo desc;
+		ShapeSet shapes;
+		int vecObjCount = env->GetArrayLength(vecObjArray);
+		for (int ii=0;ii<vecObjCount;ii++)
+		{
+			jobject javaVecObj = (jobject) env->GetObjectArrayElement(vecObjArray, ii);
+			VectorObject *vecObj = getHandle<VectorObject>(env,javaVecObj);
+			shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+		}
 
-	// Note: Need to hand these back
-	ChangeSet changes;
-	SimpleIdentity vecId = vecManager->addVectors(&vector->shapes,desc,changes);
+		SimpleIdentity vecId = vecManager->addVectors(&shapes,*vecInfo,*changeSet);
 
-	// Note: Shouldn't do this here
-	mapScene->addChangeRequests(changes);
-
-	return vecId;
+		return vecId;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::addVectors()");
+	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVectors
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
+{
+	try
+	{
+		VectorManager *vecManager = getHandle<VectorManager>(env,obj);
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
+		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+
+		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+		int idCount = env->GetArrayLength(idArrayObj);
+		if (idCount == 0)
+			return;
+
+		SimpleIDSet idSet;
+		for (int ii=0;ii<idCount;ii++)
+			idSet.insert(idCount);
+
+		vecManager->removeVectors(idSet,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::removeVectors()");
+	}
+}
+

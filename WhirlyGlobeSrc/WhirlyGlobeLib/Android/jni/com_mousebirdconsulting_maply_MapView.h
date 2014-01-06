@@ -18,10 +18,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_setLoc
 /*
  * Class:     com_mousebirdconsulting_maply_MapView
  * Method:    initialise
- * Signature: ()V
+ * Signature: (Lcom/mousebirdconsulting/maply/CoordSystemDisplayAdapter;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_MapView

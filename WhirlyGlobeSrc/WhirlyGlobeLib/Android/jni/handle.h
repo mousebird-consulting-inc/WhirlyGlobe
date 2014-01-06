@@ -12,7 +12,7 @@
 #define HANDLE_H_
 
 // Note: Porting.  This is bogus.  Move it into a cpp file
-static jfieldID getHandleField(JNIEnv *env, jobject obj)
+static jfieldID getHandleField(JNIEnv *env, jobject obj,const char *name)
 {
     jclass c = env->GetObjectClass(obj);
     // J is the type signature for long:
@@ -24,17 +24,43 @@ T *getHandle(JNIEnv *env, jobject obj)
 {
 	if (!obj)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Got null object handle.");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null object handle in getHandle().");
 	}
-    jlong handle = env->GetLongField(obj, getHandleField(env, obj));
+    jlong handle = env->GetLongField(obj, getHandleField(env, obj, "nativeHandle"));
+    return reinterpret_cast<T *>(handle);
+}
+
+template <typename T>
+T *getHandleNamed(JNIEnv *env, jobject obj,const char *handleName)
+{
+	if (!obj)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null object handle in getHandleNamed().");
+	}
+    jlong handle = env->GetLongField(obj, getHandleField(env, obj, handleName));
     return reinterpret_cast<T *>(handle);
 }
 
 template <typename T>
 void setHandle(JNIEnv *env, jobject obj, T *t)
 {
+	if (!t)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null handle in setHandle()");
+	}
     jlong handle = reinterpret_cast<jlong>(t);
-    env->SetLongField(obj, getHandleField(env, obj), handle);
+    env->SetLongField(obj, getHandleField(env, obj, "nativeHandle"), handle);
+}
+
+template <typename T>
+void setHandleNamed(JNIEnv *env, jobject obj, T *t,const char *handleName)
+{
+	if (!t)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null handle in setHandle()");
+	}
+    jlong handle = reinterpret_cast<jlong>(t);
+    env->SetLongField(obj, getHandleField(env, obj, handleName), handle);
 }
 
 #endif /* HANDLE_H_ */
