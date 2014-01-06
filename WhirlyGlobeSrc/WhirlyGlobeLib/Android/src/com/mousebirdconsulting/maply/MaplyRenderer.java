@@ -1,6 +1,6 @@
 package com.mousebirdconsulting.maply;
 
-public class MaplyRenderer 
+class MaplyRenderer 
 {
 	MaplyRenderer()
 	{
@@ -40,6 +40,6 @@ public class MaplyRenderer
 	
 	static
 	{
-		System.loadLibrary("Maply");
+//		System.loadLibrary("Maply");
 	}
 }

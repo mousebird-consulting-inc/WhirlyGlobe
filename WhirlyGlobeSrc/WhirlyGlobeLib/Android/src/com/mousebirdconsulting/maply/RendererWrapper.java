@@ -5,18 +5,14 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView.*;
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class RendererWrapper implements Renderer
+class RendererWrapper implements Renderer
 {
 	public MaplyRenderer maplyRender;
 	public MapScene mapScene;
 	public MapView mapView;
-	public VectorManager vecManager;
 	
 	public RendererWrapper()
 	{
-		mapScene = new MapScene();
-		mapView = new MapView();		
-		vecManager = new VectorManager(mapScene);
 	}
 	
 	@Override

@@ -1,23 +1,19 @@
 package com.mousebirdconsulting.maplytester;
 
 import java.io.*;
+import java.util.*;
 
 import android.os.*;
 import android.app.*;
-import android.content.Context;
-import android.content.pm.*;
 import android.content.res.AssetManager;
 import android.view.Menu;
 import android.widget.Toast;
-import android.opengl.*;
 import com.mousebirdconsulting.maply.*;
 
-public class MainActivity extends Activity {
-
-	private GLSurfaceView glSurfaceView;
-	private RendererWrapper rendererWrapper;
-	private Handler mHandler = new Handler();
-	VectorObject vecObj = null;
+public class MainActivity extends Activity 
+{
+	// Handles drawing, interaction, and so forth for Maply
+	MaplyController mapControl;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) 
@@ -29,57 +25,63 @@ public class MainActivity extends Activity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-    	// Note: This is a little dumb
-    	MaplyInitialize.Init();
     	
-    	// Load a vector file
-    	String canJSON = readGeoJSON("USA.geojson");
-    	if (canJSON != null)
+    	// Create the Maply Controller
+    	mapControl = new MaplyController(this);
+    	mapControl.setPosition(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
+    	
+    	// Go load vector files (on another thread, please)
+    	Thread thread = new Thread()
     	{
-        	// Create a vector object
-        	vecObj = new VectorObject();
-        	vecObj.fromGeoJSON(canJSON);
-    	}
+        	String[] countries = {"ABW", "AFG", "AGO", "AIA", "ALA", "ALB", "AND", "ARE", "ARG", "ARM", "ASM", "ATA", "ATF", "ATG", "AUS", "AUT",
+       	         "AZE", "BDI", "BEL", "BEN", "BES", "BFA", "BGD", "BGR", "BHR", "BHS", "BIH", "BLM", "BLR", "BLZ", "BMU", "BOL",
+       	         "BRA", "BRB", "BRN", "BTN", "BVT", "BWA", "CAF", "CAN", "CCK", "CHE", "CHL", "CHN", "CIV", "CMR", "COD", "COG",
+       	         "COK", "COL", "COM", "CPV", "CRI", "CUB", "CUW", "CXR", "CYM", "CYP", "CZE", "DEU", "DJI", "DMA", "DNK", "DOM",
+       	         "DZA", "ECU", "EGY", "ERI", "ESH", "ESP", "EST", "ETH", "FIN", "FJI", "FLK", "FRA", "FRO", "FSM", "GAB", "GBR",
+       	         "GEO", "GGY", "GHA", "GIB", "GIN", "GLP", "GMB", "GNB", "GNQ", "GRC", "GRD", "GRL", "GTM", "GUF", "GUM", "GUY",
+       	         "HKG", "HMD", "HND", "HRV", "HTI", "HUN", "IDN", "IMN", "IND", "IOT", "IRL", "IRN", "IRQ", "ISL", "ISR", "ITA",
+       	         "JAM", "JEY", "JOR", "JPN", "KAZ", "KEN", "KGZ", "KHM", "KIR", "KNA", "KOR", "KWT", "LAO", "LBN", "LBR", "LBY",
+       	         "LCA", "LIE", "LKA", "LSO", "LTU", "LUX", "LVA", "MAC", "MAF", "MAR", "MCO", "MDA", "MDG", "MDV", "MEX", "MHL",
+       	         "MKD", "MLI", "MLT", "MMR", "MNE", "MNG", "MNP", "MOZ", "MRT", "MSR", "MTQ", "MUS", "MWI", "MYS", "MYT", "NAM",
+       	         "NCL", "NER", "NFK", "NGA", "NIC", "NIU", "NLD", "NOR", "NPL", "NRU", "NZL", "OMN", "PAK", "PAN", "PCN", "PER",
+       	         "PHL", "PLW", "PNG", "POL", "PRI", "PRK", "PRT", "PRY", "PSE", "PYF", "QAT", "REU", "ROU", "RUS", "RWA", "SAU",
+       	         "SDN", "SEN", "SGP", "SGS", "SHN", "SJM", "SLB", "SLE", "SLV", "SMR", "SOM", "SPM", "SRB", "SSD", "STP", "SUR",
+       	         "SVK", "SVN", "SWE", "SWZ", "SXM", "SYC", "SYR", "TCA", "TCD", "TGO", "THA", "TJK", "TKL", "TKM", "TLS", "TON",
+       	         "TTO", "TUN", "TUR", "TUV", "TWN", "TZA", "UGA", "UKR", "UMI", "URY", "USA", "UZB", "VAT", "VCT", "VEN", "VGB",
+       	         "VIR", "VNM", "VUT", "WLF", "WSM", "YEM", "ZAF", "ZMB", "ZWE"};
+
+        	@Override
+    	    public void run() 
+        	{
+    	        try 
+    	        {
+    	        	ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+
+    	        	// Load each of the country files
+    	        	for (String country: countries)
+    	            {
+    	            	String fileName = country.concat(".geojons");
+    	            	String json = readGeoJSON(fileName);
+    	            	if (json != null)
+    	            	{
+    	                	// Create a vector object
+    	                	VectorObject vecObj = new VectorObject();
+    	                	vecObj.fromGeoJSON(json);
+    	                	vecObjs.add(vecObj);
+    	            	}
+    	            }
+    	        	
+    	        	// Add the vectors all at once
+    	        	mapControl.addVectors((VectorObject[]) vecObjs.toArray());
+    	        } catch (Exception e) 
+    	        {
+    	            e.printStackTrace();
+    	        }
+    	    }
+    	};
+    	thread.start();
     	
         super.onCreate(savedInstanceState);
-        
-        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-        
-        final boolean supportsEs2 = configurationInfo.reqGlEsVersion > 0x20000 || isProbablyEmulator();
-        if (supportsEs2)
-        {
-        	glSurfaceView = new GLSurfaceView(this);
-        	
-        	if (isProbablyEmulator())
-        	{
-        		glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-        	}
-        	
-        	glSurfaceView.setEGLContextClientVersion(2);
-        	rendererWrapper = new RendererWrapper();
-        	glSurfaceView.setRenderer(rendererWrapper);
-        	setContentView(glSurfaceView);        
-        	
-        	// Wait for everything to be set up before we kick off the vector add
-        	mHandler.postDelayed(new Runnable() 
-        		{
-        			public void run() {
-        	        	// Add the vector file
-        	        	if (vecObj != null)
-        	        	{
-        	        		rendererWrapper.vecManager.addVector(vecObj);
-        	        		
-        	        		rendererWrapper.mapView.setLoc(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
-        	        	}
-        			}
-        		},1000);
-        
-        } else {
-        	Toast.makeText(this,  "This devices does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
-        	return;
-        }
     }
     
     // Read a GeoJSON file.  Return the string or null.
@@ -120,14 +122,5 @@ public class MainActivity extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
- 
-    private boolean isProbablyEmulator() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
-                && (Build.FINGERPRINT.startsWith("generic")
-                        || Build.FINGERPRINT.startsWith("unknown")
-                        || Build.MODEL.contains("google_sdk")
-                        || Build.MODEL.contains("Emulator")
-                        || Build.MODEL.contains("Android SDK built for x86"));
-    }        
+    } 
 }

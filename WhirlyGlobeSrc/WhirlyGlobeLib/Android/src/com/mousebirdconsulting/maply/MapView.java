@@ -1,6 +1,6 @@
 package com.mousebirdconsulting.maply;
 
-public class MapView 
+class MapView 
 {
 	MapView()
 	{

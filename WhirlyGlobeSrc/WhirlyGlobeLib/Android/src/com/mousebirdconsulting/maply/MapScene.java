@@ -1,6 +1,6 @@
 package com.mousebirdconsulting.maply;
 
-public class MapScene 
+class MapScene 
 {
 	MapScene()
 	{

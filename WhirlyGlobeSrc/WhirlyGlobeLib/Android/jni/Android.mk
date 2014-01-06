@@ -5,6 +5,7 @@ include $(CLEAR_VARS)
 BASE_DIR := /Users/sjg/iPhone/WhirlyGlobe-Maply3/
 SRC_DIR := $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/src/
 INCLUDE_DIR := $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/include/
+LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/include/
 
 THIRD_PARTY := $(BASE_DIR)/third-party/
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
@@ -81,8 +82,8 @@ MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp
 MAPLY_PLATFORM_SRC_DIR := $(SRC_DIR)/android
 LOCAL_SRC_FILES += $(MAPLY_PLATFORM_FILES:%=$(MAPLY_PLATFORM_SRC_DIR)/%)
 
-NDK_DEBUG := 1
-
 LOCAL_LDLIBS := -llog -lGLESv2 -lGLESv1_CM -landroid -lEGL
+
+NDK_DEBUG=1
 
 include $(BUILD_SHARED_LIBRARY)
