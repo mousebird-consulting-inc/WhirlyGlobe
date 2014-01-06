@@ -192,6 +192,9 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
 
+/// Call this to have the layer re-evaluate its currently displayed data
+- (void)poke;
+
 /// Call this to nudge the quad display layer awake.
 - (void)wakeUp;
 
