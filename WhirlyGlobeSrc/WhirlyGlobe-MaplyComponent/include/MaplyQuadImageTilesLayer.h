@@ -171,6 +171,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) int maxTiles;
 
+/** @brief Tinker with the importance for tiles.  This will cause more or fewer tiles to load
+    @details The system calculates an importance for each tile based on its size and location on the screen.  You can mess with those values here.
+    @details Any value less than 1.0 will make the tiles less important.  Any value greater than 1.0 will make tiles more important.
+  */
+@property (nonatomic) float importanceScale;
+
 /** @brief Set the shader name to use for generated tiles.
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.

@@ -124,6 +124,7 @@ using namespace WhirlyKit;
     _animationWrap = true;
     _maxCurrentImage = -1;
     _useElevAsZ = true;
+    _importanceScale = 1.0;
     
     // See if we're letting the source do the async calls r what
     sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
@@ -374,6 +375,13 @@ using namespace WhirlyKit;
     [inLayerThread removeLayer:quadLayer];
 }
 
+- (void)setImportanceScale:(float)importanceScale
+{
+    _importanceScale = importanceScale;
+    // Have the layer re-evaluate its tiles
+    [quadLayer poke];
+}
+
 /// Return the coordinate system we're working in
 - (WhirlyKit::CoordSystem *)coordSystem
 {
@@ -530,7 +538,7 @@ using namespace WhirlyKit;
 
 //    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
-    return import;
+    return import * _importanceScale;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
