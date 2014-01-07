@@ -78,6 +78,12 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setImportanceScale:(float)importanceScale
+{
+    _importanceScale = importanceScale;
+    [quadLayer poke];
+}
+
 - (void)setBbox:(MaplyBoundingBox)bbox
 {
     _bbox = bbox;
