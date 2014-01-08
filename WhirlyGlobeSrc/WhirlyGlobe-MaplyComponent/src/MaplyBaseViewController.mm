@@ -445,7 +445,7 @@ static const float PerfOutputDelay = 15.0;
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
     sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
-    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
+    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:false];
     sceneRenderer.doCulling = culling;
 }
 

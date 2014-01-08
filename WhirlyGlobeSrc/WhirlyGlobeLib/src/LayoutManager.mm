@@ -445,7 +445,8 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         }
     }
     
-    changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
+    if (!shapeChanges.empty())
+        changes.push_back(new ScreenSpaceGeneratorGangChangeRequest(scene->getScreenSpaceGeneratorID(),shapeChanges));
     hasUpdates = false;
     
     pthread_mutex_unlock(&layoutLock);

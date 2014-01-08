@@ -216,6 +216,9 @@ public:
     
     // Number of textures we're feeding drawables at once
     int activeTextures;
+    
+    // Set when we create new drawables
+    bool newDrawables;
 };
     
 /** The Loaded Tile is used to track tiles that have been
