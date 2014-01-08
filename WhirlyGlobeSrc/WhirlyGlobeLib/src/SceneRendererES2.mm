@@ -404,29 +404,43 @@ static const float ScreenOverlap = 0.1;
         if (globeView)
             frameInfo.heightAboveSurface = globeView.heightAboveSurface;
 		
-        // If we're looking at a globe, run the culling
-        std::set<DrawableRef> toDraw;
-        int drawablesConsidered = 0;
-        CullTree *cullTree = scene->getCullTree();
-        // Recursively search for the drawables that overlap the screen
-        Mbr screenMbr;
-        // Stretch the screen MBR a little for safety
-        screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-        screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-        [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
-        
         // Turn these drawables in to a vector
 		std::vector<Drawable *> drawList;
-        //		drawList.reserve(toDraw.size());
-		for (std::set<DrawableRef>::iterator it = toDraw.begin();
-			 it != toDraw.end(); ++it)
+
+        // If we're looking at a globe, run the culling
+        int drawablesConsidered = 0;
+        int cullTreeCount = 0;
+        if (self.doCulling)
         {
-            Drawable *theDrawable = it->get();
-            if (theDrawable)
-                drawList.push_back(theDrawable);
-            else
-                NSLog(@"Bad drawable coming from cull tree.");
+            std::set<DrawableRef> toDraw;
+            CullTree *cullTree = scene->getCullTree();
+            // Recursively search for the drawables that overlap the screen
+            Mbr screenMbr;
+            // Stretch the screen MBR a little for safety
+            screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+            screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+            [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+
+            //		drawList.reserve(toDraw.size());
+            for (std::set<DrawableRef>::iterator it = toDraw.begin();
+                 it != toDraw.end(); ++it)
+            {
+                Drawable *theDrawable = it->get();
+                if (theDrawable)
+                    drawList.push_back(theDrawable);
+                else
+                    NSLog(@"Bad drawable coming from cull tree.");
+            }
+            cullTreeCount = cullTree->getCount();
+        } else {
+            DrawableRefSet rawDrawables = scene->getDrawables();
+            for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
+            {
+                if ((*it)->isOn(frameInfo))
+                    drawList.push_back(it->get());
+            }
         }
+        
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Culling");
@@ -456,7 +470,7 @@ static const float ScreenOverlap = 0.1;
         if (perfInterval > 0)
         {
             perfTimer.addCount("Drawables considered", drawablesConsidered);
-            perfTimer.addCount("Cullables", cullTree->getCount());
+            perfTimer.addCount("Cullables", cullTreeCount);
         }
         
         if (perfInterval > 0)

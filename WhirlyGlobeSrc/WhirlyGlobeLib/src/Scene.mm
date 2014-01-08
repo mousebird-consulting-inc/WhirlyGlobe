@@ -344,6 +344,11 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     
     return retTex;
 }
+    
+const DrawableRefSet &Scene::getDrawables()
+{
+    return drawables;
+}
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
