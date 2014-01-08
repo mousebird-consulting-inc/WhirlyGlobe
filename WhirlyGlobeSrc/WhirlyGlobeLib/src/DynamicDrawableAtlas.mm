@@ -37,8 +37,11 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable)
 {
+    if (addedNewBigDrawable)
+        *addedNewBigDrawable = false;
+
     // See if we're already representing it
     {
         DrawRepresent represent(draw->getId());
@@ -110,6 +113,8 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
+        if (addedNewBigDrawable)
+            *addedNewBigDrawable = true;
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 

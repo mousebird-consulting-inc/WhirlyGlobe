@@ -240,7 +240,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     lineMode(false),
     activeTextures(-1),
     enabled(true),
-    texAtlas(NULL)
+    texAtlas(NULL),
+    newDrawables(false)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -288,6 +289,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
+        newDrawables = true;
     }
 }
     
@@ -941,11 +943,14 @@ bool LoadedTile::addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoaded
     // Now for the changes to the scene
     if (tileBuilder->drawAtlas)
     {
-        tileBuilder->drawAtlas->addDrawable(draw,changeRequests);
+        bool addedBigDraw = false;
+        tileBuilder->drawAtlas->addDrawable(draw,changeRequests,true,EmptyIdentity,&addedBigDraw);
+        tileBuilder->newDrawables |= addedBigDraw;
         delete draw;
         if (skirtDraw)
         {
-            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests);
+            tileBuilder->drawAtlas->addDrawable(skirtDraw,changeRequests,true,EmptyIdentity,&addedBigDraw);
+            tileBuilder->newDrawables |= addedBigDraw;
             delete skirtDraw;
         }
     } else {
@@ -1093,11 +1098,14 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
                         }
                         if (tileBuilder->drawAtlas)
                         {
-                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests);
+                            bool addedBigDrawable = false;
+                            tileBuilder->drawAtlas->addDrawable(childDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                            tileBuilder->newDrawables |= addedBigDrawable;
                             delete childDraw;
                             if (childSkirtDraw)
                             {
-                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests);
+                                tileBuilder->drawAtlas->addDrawable(childSkirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                                tileBuilder->newDrawables |= addedBigDrawable;
                                 delete childSkirtDraw;
                             }
                         } else {
@@ -1138,11 +1146,14 @@ void LoadedTile::updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[
             }
             if (tileBuilder->drawAtlas)
             {
-                tileBuilder->drawAtlas->addDrawable(draw, changeRequests);
+                bool addedBigDrawable = false;
+                tileBuilder->drawAtlas->addDrawable(draw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                tileBuilder->newDrawables |= addedBigDrawable;
                 delete draw;
                 if (skirtDraw)
                 {
-                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests);
+                    tileBuilder->drawAtlas->addDrawable(skirtDraw, changeRequests,true,EmptyIdentity,&addedBigDrawable);
+                    tileBuilder->newDrawables |= addedBigDrawable;
                     delete skirtDraw;
                 }
             } else {

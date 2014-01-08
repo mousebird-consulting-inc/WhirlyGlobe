@@ -291,9 +291,10 @@ using namespace WhirlyKit;
     }
 
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder)
+    if (tileBuilder && tileBuilder->newDrawables)
     {
         [self runSetCurrentImage:changeRequests];
+        tileBuilder->newDrawables = false;
     }
     
     if (!changeRequests.empty())

@@ -348,6 +348,9 @@ public:
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
     dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
+    
+    // Return all the drawables in a list.  Only call this on the main thread.
+    const DrawableRefSet &getDrawables();
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
