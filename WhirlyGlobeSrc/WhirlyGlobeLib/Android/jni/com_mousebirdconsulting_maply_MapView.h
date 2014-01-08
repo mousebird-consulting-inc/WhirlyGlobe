@@ -9,11 +9,75 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    minHeightAboveSurface
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_minHeightAboveSurface
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    maxHeightAboveSurface
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_maxHeightAboveSurface
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
  * Method:    setLoc
  * Signature: (DDD)V
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_setLoc
   (JNIEnv *, jobject, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    getLoc
+ * Signature: ()Lcom/mousebirdconsulting/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_getLoc
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    setRot
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_setRot
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    getRot
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_getRot
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    runViewUpdates
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_runViewUpdates
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    calcModelViewMatrix
+ * Signature: ()Lcom/mousebirdconsulting/maply/Matrix4d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_calcModelViewMatrix
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    pointOnPlaneFromScreen
+ * Signature: (Lcom/mousebirdconsulting/maply/Point2d;Lcom/mousebirdconsulting/maply/Matrix4d;Lcom/mousebirdconsulting/maply/Point2d;Z)Lcom/mousebirdconsulting/maply/Point3d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_pointOnPlaneFromScreen
+  (JNIEnv *, jobject, jobject, jobject, jobject, jboolean);
 
 /*
  * Class:     com_mousebirdconsulting_maply_MapView

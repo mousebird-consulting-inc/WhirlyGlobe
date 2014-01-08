@@ -28,8 +28,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_dispose
 		if (!vecInfo)
 			return;
 		delete vecInfo;
-		vecInfo = NULL;
-		setHandle(env,obj,vecInfo);
+
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{

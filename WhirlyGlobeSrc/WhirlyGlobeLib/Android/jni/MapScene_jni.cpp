@@ -38,9 +38,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_dispose
 		if (!inst)
 			return;
 		delete inst;
-		inst = NULL;
 
-		setHandle(env,obj,inst);
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{

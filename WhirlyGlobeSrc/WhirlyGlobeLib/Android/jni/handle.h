@@ -52,6 +52,11 @@ void setHandle(JNIEnv *env, jobject obj, T *t)
     env->SetLongField(obj, getHandleField(env, obj, "nativeHandle"), handle);
 }
 
+static void clearHandle(JNIEnv *env, jobject obj)
+{
+    env->SetLongField(obj, getHandleField(env, obj, "nativeHandle"), 0);
+}
+
 template <typename T>
 void setHandleNamed(JNIEnv *env, jobject obj, T *t,const char *handleName)
 {
@@ -61,6 +66,11 @@ void setHandleNamed(JNIEnv *env, jobject obj, T *t,const char *handleName)
 	}
     jlong handle = reinterpret_cast<jlong>(t);
     env->SetLongField(obj, getHandleField(env, obj, handleName), handle);
+}
+
+static void clearHandleNamed(JNIEnv *env, jobject obj,const char *handleName)
+{
+    env->SetLongField(obj, getHandleField(env, obj, handleName), 0);
 }
 
 #endif /* HANDLE_H_ */

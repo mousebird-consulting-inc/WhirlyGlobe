@@ -59,11 +59,6 @@ void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
 //	renderer->setup();
 }
 
-/*
- * Class:     com_mousebirdconsulting_maply_MaplyRenderer
- * Method:    dispose
- * Signature: ()V
- */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -73,9 +68,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_dispose
 		if (!inst)
 			return;
 		delete inst;
-		inst = NULL;
 
-		setHandle(env,obj,inst);
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{

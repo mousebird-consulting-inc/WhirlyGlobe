@@ -2,6 +2,8 @@ package com.mousebirdconsulting.maply;
 
 class MaplyRenderer 
 {
+	public Point2d frameSize = new Point2d();
+	
 	MaplyRenderer()
 	{
 		initialise();		
@@ -20,6 +22,7 @@ class MaplyRenderer
 	
 	public boolean surfaceChanged(int width,int height)
 	{
+		frameSize.setValue(width, height);
 		return resize(width,height);
 	}
 	

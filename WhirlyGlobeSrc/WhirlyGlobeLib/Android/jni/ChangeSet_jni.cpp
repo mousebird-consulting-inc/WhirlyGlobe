@@ -27,10 +27,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_dispose
 		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
 		if (!changeSet)
 			return;
-		delete changeSet;
-		changeSet = NULL;
 
-		setHandle(env,obj,changeSet);
+		// Be sure to delete the contents
+		for (unsigned int ii=0;ii<changeSet->size();ii++)
+			delete changeSet->at(ii);
+
+		delete changeSet;
+
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{

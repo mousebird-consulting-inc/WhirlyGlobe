@@ -39,8 +39,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_dispose
 {
 	try
 	{
-		VectorManager *inst = NULL;
-		setHandle(env,obj,inst);
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{
