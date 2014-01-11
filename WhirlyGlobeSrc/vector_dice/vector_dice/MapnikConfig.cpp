@@ -11,6 +11,60 @@
 
 using namespace tinyxml2;
 
+MapnikConfig::Symbolizer::Symbolizer()
+    : xmlEl(NULL), geomType(TileGeomReplace)
+{
+}
+
+void MapnikConfig::Symbolizer::toString(std::string &json)
+{
+    XMLElement *symEl = xmlEl;
+    
+    json += "\t\t{\n";
+    json += (std::string)"\t\t\t\"type\": " + "\"" + symEl->Name() + "\"";
+    json += ",\n";
+    
+    json += (std::string)"\t\t\t\"tilegeom\": " + "\"" + (geomType == Symbolizer::TileGeomAdd ? "add" : "replace") + "\"";
+    if (symEl->FirstAttribute())
+        json += ",";
+    json += "\n";
+    
+    const char *bodyStr = symEl->GetText();
+    
+    // Convert the attributes
+    for (const XMLAttribute *attr = symEl->FirstAttribute();attr;attr = attr->Next())
+    {
+        const char *valStr = attr->Value();
+        bool isNumber = true;
+        try
+        {
+            double x = boost::lexical_cast<double>(valStr);
+            x = 0.0;
+        }
+        catch(...)
+        {
+            isNumber = false;
+        }
+        
+        json += (std::string)"\t\t\t\"" + attr->Name() + "\": ";
+        if (isNumber)
+            json += attr->Value();
+        else
+            json += (std::string)"\"" + attr->Value() + "\"";
+        if (attr->Next() || bodyStr)
+            json += ",";
+        json += "\n";
+    }
+    
+    // Some of these have a body as well
+    if (bodyStr)
+    {
+        json += (std::string)"\t\t\t\"" + "attribute" + "\": " + "\"" + bodyStr + "\"";
+    }
+    
+    json += "\t\t}";
+}
+
 bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
 {
     json += "{\n";
@@ -32,51 +86,13 @@ bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
     json += "\t\"styles\": [\n";
     
     // Work through the individual symbolizers
-    for (unsigned int ii=0;ii<symbolizerElements.size();ii++)
+    for (unsigned int ii=0;ii<symbolizers.size();ii++)
     {
-        XMLElement *symEl = symbolizerElements[ii];
+        std::string symJson;
+        symbolizers[ii].toString(symJson);
+        json += symJson;
         
-        json += "\t\t{\n";
-        json += (std::string)"\t\t\t\"type\": " + "\"" + symEl->Name() + "\"";
-        if (symEl->FirstAttribute())
-            json += ",";
-        json += "\n";
-        
-        const char *bodyStr = symEl->GetText();
-
-        // Convert the attributes
-        for (const XMLAttribute *attr = symEl->FirstAttribute();attr;attr = attr->Next())
-        {
-            const char *valStr = attr->Value();
-            bool isNumber = true;
-            try
-            {
-                double x = boost::lexical_cast<double>(valStr);
-                x = 0.0;
-            }
-            catch(...)
-            {
-                isNumber = false;
-            }
-            
-            json += (std::string)"\t\t\t\"" + attr->Name() + "\": ";
-            if (isNumber)
-                json += attr->Value();
-            else
-                json += (std::string)"\"" + attr->Value() + "\"";
-            if (attr->Next() || bodyStr)
-                json += ",";
-            json += "\n";
-        }
-        
-        // Some of these have a body as well
-        if (bodyStr)
-        {
-            json += (std::string)"\t\t\t\"" + "attribute" + "\": " + "\"" + bodyStr + "\"";
-        }
-        
-        json += "\t\t}";
-        if (ii != symbolizerElements.size()-1)
+        if (ii != symbolizers.size()-1)
             json += ",";
         json += "\n";
     }
@@ -112,7 +128,7 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
     filter = filterText;
     
     try {
-        exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|&gt|&lt|&lt&gt)\\s\'(\\w+)\'\\)"));
+        exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|&gt|&lt|&lt&gt|!=)\\s(\'?\\w*\'?)\\)"));
         boost::smatch what;
         if (boost::regex_match(filterText, what, *exp, boost::match_default))
         {
@@ -120,12 +136,12 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
                 throw 1;
 
             attrName = what[1];
-            attrVal = what[3];
+            std::string strVal = what[3];
             std::string attrComp = what[2];
             if (!attrComp.compare("="))
             {
                 compareType = CompareEqual;
-            } else if (!attrComp.compare("&lt&gt") || !attrComp.compare("&gt&lt"))
+            } else if (!attrComp.compare("&lt&gt") || !attrComp.compare("&gt&lt") || !attrComp.compare("!="))
             {
                 compareType = CompareNotEqual;
             } else if (!attrComp.compare("&lt"))
@@ -137,6 +153,19 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
             } else {
                 // Unknown comparison type
                 throw 1;
+            }
+            
+            if (strVal.empty())
+            {
+                throw 1;
+            }
+            if (strVal[0] == '\'')
+            {
+                if (strVal.back() != '\'')
+                    throw 1;
+                attrValStr = strVal.substr(1,strVal.length()-2);
+            } else {
+                attrValReal = boost::lexical_cast<double>(strVal);
             }
         } else {
             throw 1;
@@ -240,6 +269,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
         }
         
         // Now for the rules
+        int ruleCount = 0;
         for (XMLElement *ruleEl = styleEl->FirstChildElement("Rule");
              ruleEl; ruleEl = ruleEl->NextSiblingElement("Rule"))
         {
@@ -267,6 +297,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
             }
 
             // Work through the symbolizers
+            int symCount = 0;
             for (XMLElement *symEl = ruleEl->FirstChildElement();
                  symEl; symEl = symEl->NextSiblingElement())
             {
@@ -274,8 +305,17 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                 if (!name.compare("MarkersSymbolizer") || !name.compare("LineSymbolizer") ||
                     !name.compare("TextSymbolizer") || !name.compare("PolygonSymbolizer"))
                 {
-                    int whichSym = (int)symbolizerTable.symbolizerElements.size();
-                    symbolizerTable.symbolizerElements.push_back(symEl);
+                    int whichSym = (int)symbolizerTable.symbolizers.size();
+                    // Set up the symbolizer
+                    Symbolizer sym;
+                    sym.name = style.name + "_rule" + std::to_string(ruleCount) + "_" + std::to_string(symCount);
+                    sym.xmlEl = symEl;
+                    // If the min scale isn't set for this rule, then the geometry sticks around
+                    if (rule.minScale == -1)
+                        sym.geomType = Symbolizer::TileGeomAdd;
+                    else
+                        sym.geomType = Symbolizer::TileGeomReplace;
+                    symbolizerTable.symbolizers.push_back(sym);
                     rule.symbolizers.push_back(whichSym);
                     
                     // Look for attributes we'll want to keep
@@ -299,6 +339,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                             return false;
                         }
                     }
+                    symCount++;
                 } else if (strstr(name.c_str(),"Symbolizer"))
                 {
                     error = "Unknown symbolizer type " + name + " in rule in style " + style.name;
@@ -306,6 +347,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                 }
             }
             
+            ruleCount++;
             style.rules.push_back(rule);
         }
         
@@ -351,8 +393,9 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                 {
                     dataType = paramEl->GetText();
                 } else {
-                    error = "Unknown name " + name + " for data source paramater in layer " + layer.name;
-                    return false;
+                    // Note: Tolerant of fields we don't know here
+//                    error = "Unknown name " + name + " for data source paramater in layer " + layer.name;
+//                    return false;
                 }
             }
             if (dataType.compare("shape"))
