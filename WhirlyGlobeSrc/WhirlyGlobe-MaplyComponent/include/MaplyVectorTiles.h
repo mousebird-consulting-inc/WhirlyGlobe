@@ -61,3 +61,9 @@
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
 
 @end
+
+@interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+
+@end
