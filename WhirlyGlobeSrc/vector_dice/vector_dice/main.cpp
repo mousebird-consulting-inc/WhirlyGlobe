@@ -55,8 +55,77 @@ public:
     std::vector<OGREnvelope> mbrs;
 };
 
+// Convert the given feature to the given data type
+OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataType dataType)
+{
+    switch (inGeom->getGeometryType())
+    {
+        case wkbPoint:
+        {
+            OGRPoint *pt = (OGRPoint *)inGeom;
+            if (dataType != MapnikConfig::SymbolDataPoint)
+                return NULL;
+            return pt->clone();
+        }
+            break;
+        case wkbLineString:
+        {
+            OGRLineString *lin = (OGRLineString *)inGeom;
+            if (dataType != MapnikConfig::SymbolDataLinear)
+                return NULL;
+            return lin->clone();
+        }
+            break;
+        case wkbPolygon:
+            switch (dataType)
+        {
+            case MapnikConfig::SymbolDataPoint:
+            {
+                // Note: This isn't guaranteed to be inside the area
+                OGREnvelope env;
+                inGeom->getEnvelope(&env);
+                return new OGRPoint((env.MinX+env.MaxX)/2.0,(env.MinY+env.MaxY)/2.0);
+            }
+                break;
+            case MapnikConfig::SymbolDataLinear:
+            {
+                return inGeom->Boundary();
+            }
+                break;
+            default:
+                return inGeom->clone();
+                break;
+        }
+            break;
+        case wkbMultiPoint:
+        case wkbMultiLineString:
+        case wkbMultiPolygon:
+        {
+            OGRGeometryCollection *inColl = (OGRGeometryCollection *)inGeom;
+            OGRGeometryCollection *outColl = new OGRGeometryCollection();
+            for (unsigned int ii=0;ii<inColl->getNumGeometries();ii++)
+            {
+                OGRGeometry *outGeom = ConvertGeometryType(inColl->getGeometryRef(ii), dataType);
+                if (outGeom)
+                    outColl->addGeometry(outGeom);
+            }
+            if (outColl->getNumGeometries() == 0)
+            {
+                delete outColl;
+                outColl = NULL;
+            }
+            return outColl;
+        }
+            break;
+        default:
+            break;
+    }
+    
+    return NULL;
+}
+
 // Transform all the geometry in the given layer into the new coordinate system
-void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::Style> *styles,OGREnvelope &mbr)
+void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::Style> *styles,MapnikConfig::SymbolDataType dataType,OGREnvelope &mbr)
 {
     OGREnvelope blank;
     mbr = blank;
@@ -135,7 +204,11 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
         if (approved)
         {
             // Copy to the output
-            OGRGeometry *geom = feature->GetGeometryRef();
+            // Convert the geometry type, if needed
+            OGRGeometry *geom = ConvertGeometryType(feature->GetGeometryRef(), dataType);
+            if (!geom)
+                continue;
+            
             OGRErr err = geom->transform(transform);
             if (err != OGRERR_NONE)
             {
@@ -355,7 +428,7 @@ public:
 };
 
 // Chop up a shapefile into little bits
-void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::Style> *styles,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv)
+void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::Style> *styles, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv)
 {
     // Number of cells at this level
     int numCells = 1<<level;
@@ -414,7 +487,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         OGRDataSource *memDS = memDriver->CreateDataSource("memory");
         OGRLayer *layer = memDS->CreateLayer("layer",this_srs);
         // We'll also apply any rules and attribute changes at this point
-        TransformLayer(inLayer,layer,transform,styles,psExtent);
+        TransformLayer(inLayer,layer,transform,styles,dataType,psExtent);
         totalEnv.Merge(psExtent);
         LayerMBRs layerMBRs(layer);
         
@@ -454,7 +527,8 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                 {
                     std::string cellDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy) + "/";
                     mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-                    std::string cellFileName = cellDir + std::to_string(ix) + layerName + ".shp";
+                    const char *typeName = (dataType == MapnikConfig::SymbolDataPoint ? "_p" : ((dataType == MapnikConfig::SymbolDataLinear) ? "_l" : ((dataType == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
+                    std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
                     if (!MergeIntoShapeFile(clippedFeatures,layer,hTrgSRS,cellFileName.c_str()))
                         exit(-1);
                 }
@@ -481,7 +555,7 @@ void MergeDataIntoLayer(OGRLayer *destLayer,OGRLayer *srcLayer)
 int ScaleForLevel(int level)
 {
     int exp = 22-level;
-    return (1<<exp) * 300;
+    return (1<<exp) * 150;
 }
 
 int main(int argc, char * argv[])
@@ -666,6 +740,9 @@ int main(int argc, char * argv[])
         }
     }
     
+    // Clear out the target directory
+    system(((std::string) "rm -rf " + targetDir).c_str() );
+    
     // Create the output directory
     mkdir(targetDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     for (int level = minLevel;level<=maxLevel;level++)
@@ -696,18 +773,24 @@ int main(int argc, char * argv[])
                     MapnikConfig::Layer &layer = mapnikConfig->layers[ii];
                     
                     // We need a list of all the rules that apply, sorted by styles
-                    std::vector<MapnikConfig::Style> outStyles;
+                    //  and sorted by required data type
+                    std::vector<MapnikConfig::Style> outStyles[MapnikConfig::SymbolDataUnknown];
                     std::vector<std::string> styleNames;
                     layerNames.insert(layer.name);
                     for (unsigned int si=0;si<layer.styleNames.size();si++)
                     {
                         const MapnikConfig::Style *style = mapnikConfig->findStyle(layer.styleNames[si]);
-                        MapnikConfig::Style outStyle = *style;
-                        outStyle.rules.clear();
                         if (!style)
                         {
                             fprintf(stderr, "Dangling style name %s in layer %s",layer.styleNames[si].c_str(),layer.name.c_str());
                             return -1;
+                        }
+                        MapnikConfig::Style outStyle[MapnikConfig::SymbolDataUnknown];
+                        for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
+                        {
+                            outStyle[ssi] = *style;
+                            for (unsigned int ri=0;ri<outStyle[ssi].rules.size();ri++)
+                                outStyle[ssi].rules[ri].symbolizers.clear();
                         }
                         
                         // Look through the rules that might apply to this level
@@ -738,29 +821,65 @@ int main(int argc, char * argv[])
                                     
                                 if (approved)
                                 {
-                                    outStyle.rules.push_back(rule);
+                                    // Sort into the appropriate bucket based on the data type of the symbolizers
+                                    for (unsigned symi=0;symi<rule.symbolizers.size();symi++)
+                                    {
+                                        int symID = rule.symbolizers[symi];
+                                        MapnikConfig::Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[symID];
+                                        outStyle[sym.dataType].rules[ri].symbolizers.push_back(symID);
+                                    }
                                     styleNames.push_back(style->name);
                                 }
                             }
                         }
                         
-                        // This style had applicable rules
-                        if (!outStyle.rules.empty())
-                            outStyles.push_back(outStyle);
+                        // See if any of the rules matched and save them if they did.
+                        // Sorted by data type
+                        for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
+                        {
+                            MapnikConfig::Style &testStyle = outStyle[ssi];
+                            for (unsigned int ri=0;ri<testStyle.rules.size();ri++)
+                            {
+                                if (!testStyle.rules[ri].symbolizers.empty())
+                                {
+                                    outStyles[ssi].push_back(testStyle);
+                                    break;
+                                }
+                            }
+                        }
                     }
                     
                     // Some of the rules apply here, so let's work through the data files
-                    if (!outStyles.empty())
+                    for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
                     {
-                        int numRules = 0;
-                        for (unsigned int si=0;si<outStyles.size();si++)
-                            numRules += outStyles[si].rules.size();
-                        printf(" %d styles, %d rules: %s\n",(int)outStyles.size(),numRules,layer.dataSources[0].c_str());
-                        
-                        std::string thisLayerName = layer.name;
-                        mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
+                        // Filter out the styles that didn't get any symbolizer rules
+                        std::vector<MapnikConfig::Style> &testStyle = outStyles[di];
+                        std::vector<MapnikConfig::Style> outStyle;
+                        for (unsigned int ti=0;ti<testStyle.size();ti++)
+                        {
+                            MapnikConfig::Style &inStyle = testStyle[ti];
+                            MapnikConfig::Style style = inStyle;
+                            style.rules.clear();
+                            for (unsigned int ri=0;ri<inStyle.rules.size();ri++)
+                                if (!inStyle.rules[ri].symbolizers.empty())
+                                    style.rules.push_back(inStyle.rules[ri]);
+                            if (!style.rules.empty())
+                                outStyle.push_back(style);
+                        }
+
+                        if (!outStyle.empty())
+                        {
+                            int numRules = 0;
+                            for (unsigned int si=0;si<outStyle.size();si++)
+                                for (unsigned int ri=0;ri<outStyle[si].rules.size();ri++)
+                                    numRules += outStyle[si].rules[ri].symbolizers.size();
+                            printf(" %d styles, %d symbilizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
                             
-                        ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyles, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents);
+                            std::string thisLayerName = layer.name;
+                            mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
+                                
+                            ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents);
+                        }
                     }
                 }
             }
@@ -786,7 +905,7 @@ int main(int argc, char * argv[])
             // Work through the input files
             for (unsigned int ii=0;ii<inputFiles.size();ii++)
                 for (int level=minLevel;level<=maxLevel;level++)
-                    ChopShapefile(layerName,inputFiles[ii], NULL, targetDir,xmin,ymin,xmax,ymax,level,hTrgSRS,hTileSRS,buildStats,fullExtents);
+                    ChopShapefile(layerName,inputFiles[ii], NULL, MapnikConfig::SymbolDataUnknown, targetDir, xmin,ymin,xmax,ymax,level,hTrgSRS,hTileSRS,buildStats,fullExtents);
         }
     }
     
@@ -886,32 +1005,44 @@ int main(int argc, char * argv[])
                         // Work through the layers at this level
                         for (unsigned int li=0;li<layerNames.size();li++)
                         {
+                            // Load all the data types together into memory at once
                             std::string &layerName = localLayerNames[li];
                             std::string cellDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy) + "/";
-                            std::string cellFileName = cellDir + std::to_string(ix) + layerName + ".shp";
-                            
-                            // Open the shapefile
-                            OGRDataSource *poCDS = OGRSFDriverRegistrar::Open( cellFileName.c_str(), true );
-                            if (poCDS)
+
+                            std::vector<OGRDataSource *> dataSources;
+                            std::vector<OGRFeature *> layerFeatures;
+                            for (int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
                             {
-                                OGRLayer *srcLayer = poCDS->GetLayer(0);
-                                
-                                try {
-                                    std::vector<unsigned char> vecData;
-                                    vectorDb->vectorToDBFormat(srcLayer, vecData);
-                                    if (!vecData.empty())
-                                        vectorDb->addVectorTile(ix, iy, level, layerIDs[li], (const char *)&vecData[0], (int)vecData.size());
-                                }
-                                catch (std::string &errorStr)
+                                const char *typeName = (di == MapnikConfig::SymbolDataPoint ? "_p" : ((di == MapnikConfig::SymbolDataLinear) ? "_l" : ((di == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
+                                std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
+
+                                // Open the shapefile and get pointers to the features
+                                OGRDataSource *poCDS = OGRSFDriverRegistrar::Open( cellFileName.c_str(), true );
+                                if (poCDS)
                                 {
-                                    fprintf(stderr,"Unable to write tile %d: (%d,%d)\nBecause: %s\n",level,ix,iy,errorStr.c_str());
-                                    return -1;
+                                    OGRLayer *srcLayer = poCDS->GetLayer(0);
+                                    for (unsigned int fi=0;fi<srcLayer->GetFeatureCount();fi++)
+                                        layerFeatures.push_back(srcLayer->GetFeature(fi));
+                                    dataSources.push_back(poCDS);
                                 }
-                                
-//                                MergeDataIntoLayer(memLayer,srcLayer);
-                                
-                                delete poCDS;
                             }
+                            
+                            // Write the data out in our custom format
+                            try {
+                                std::vector<unsigned char> vecData;
+                                vectorDb->vectorToDBFormat(layerFeatures, vecData);
+                                if (!vecData.empty())
+                                    vectorDb->addVectorTile(ix, iy, level, layerIDs[li], (const char *)&vecData[0], (int)vecData.size());
+                            }
+                            catch (std::string &errorStr)
+                            {
+                                fprintf(stderr,"Unable to write tile %d: (%d,%d)\nBecause: %s\n",level,ix,iy,errorStr.c_str());
+                                return -1;
+                            }
+                            
+                            // Clean up the data sources
+                            for (unsigned int si=0;si<dataSources.size();si++)
+                                OGRDataSource::DestroyDataSource(dataSources[si]);
                         }
                         
                         cellsProcessed++;

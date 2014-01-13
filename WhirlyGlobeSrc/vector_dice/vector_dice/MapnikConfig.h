@@ -22,6 +22,12 @@ public:
     MapnikConfig();
     ~MapnikConfig();
     
+    // Data type expected by a given symbolizer
+    typedef enum {SymbolDataPoint=0,SymbolDataLinear,SymbolDataAreal,SymbolDataUnknown} SymbolDataType;
+    
+    // The symbolizer type itself
+    typedef enum {MarkersSymbolizer,LineSymbolizer,TextSymbolizer,PolygonSymbolizer,UnknownSymbolizer} SymbolizerType;
+
     class Symbolizer
     {
     public:
@@ -35,11 +41,15 @@ public:
         
         // XML for the symbolizers
         tinyxml2::XMLElement *xmlEl;
-        // Whend displaying we may add the geometry or replace it per level
+        // The data type this symbolizer is expecting
+        SymbolDataType dataType;
+        // When displaying we may add the geometry or replace it per level
         typedef enum {TileGeomAdd,TileGeomReplace} TileGeometryType;
         TileGeometryType geomType;
+        // Symbolizer type
+        SymbolizerType symType;
     };
-
+    
     // Collection of all the symbolizers in one place
     class SymbolizerTable
     {
