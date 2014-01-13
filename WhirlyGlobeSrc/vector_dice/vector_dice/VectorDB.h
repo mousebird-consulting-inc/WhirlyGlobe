@@ -62,7 +62,7 @@ public:
     Attribute addAttribute(const char *name,VectorAttributeType type);
     
     // Convert OGR vector data to our raw format
-    void vectorToDBFormat(OGRLayer *srcLayer,std::vector<unsigned char> &vecData);
+    void vectorToDBFormat(std::vector<OGRFeature *> &features,std::vector<unsigned char> &vecData);
     
     // Add the data for a vector tile
     bool addVectorTile(int x,int y,int level,int layerID,const char *data,unsigned int dataLen);

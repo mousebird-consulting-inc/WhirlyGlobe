@@ -282,6 +282,8 @@
 				OTHER_LDFLAGS = (
 					"-lGDAL",
 					"-lboost_regex-mt",
+					"-lboost_filesystem-mt",
+					"-lboost_system-mt",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -299,6 +301,8 @@
 				OTHER_LDFLAGS = (
 					"-lGDAL",
 					"-lboost_regex-mt",
+					"-lboost_filesystem-mt",
+					"-lboost_system-mt",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
