@@ -24,6 +24,7 @@
 #import "NSData+Zlib.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyScreenLabel.h"
+#import "MaplyIconManager.h"
 #import <string>
 #import <map>
 #import <vector>
@@ -63,6 +64,9 @@ UIColor *ParseColor(NSString *colorStr)
     } else if ([typeStr isEqualToString:@"TextSymbolizer"])
     {
         tileStyle = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:styleEntry index:index];
+    } else if ([typeStr isEqualToString:@"MarkersSymbolizer"])
+    {
+        tileStyle = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:styleEntry index:index];
     } else {
         // Set up one that doesn't do anything
         NSLog(@"Unknown symbolizer type %@",typeStr);
@@ -178,7 +182,16 @@ static const float StrokeFactor = 2.0;
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
-    MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc];
+    // Tesselate everything here, rather than tying up the layer thread
+    NSMutableArray *tessObjs = [NSMutableArray array];
+    for (MaplyVectorObject *vec in vecObjs)
+    {
+        MaplyVectorObject *tessVec = [vec tesselate];
+        if (tessVec)
+            [tessObjs addObject:tessVec];
+    }
+        
+    MaplyComponentObject *compObj = [viewC addVectors:tessObjs desc:desc];
     if (compObj)
         return @[compObj];
     
@@ -187,7 +200,7 @@ static const float StrokeFactor = 2.0;
 
 @end
 
-// Test placement styles
+// Text placement styles
 @implementation MaplyVectorTileStyleText
 {
     NSMutableDictionary *desc;
@@ -262,6 +275,71 @@ static const float StrokeFactor = 2.0;
 }
 
 @end
+
+// Marker placement style
+@implementation MaplyVectorTileStyleMarker
+{
+    NSMutableDictionary *desc;
+    UIImage *markerImage;
+    float width;
+    bool allowOverlap;
+}
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+{
+    self = [super init];
+    
+    UIColor *fillColor = [UIColor whiteColor];
+    if (styleEntry[@"fill"])
+        fillColor = ParseColor(styleEntry[@"fill"]);
+    UIColor *strokeColor = [UIColor blackColor];
+    if (styleEntry[@"stroke"])
+        strokeColor = ParseColor(styleEntry[@"stroke"]);
+    width = 10.0;
+    if (styleEntry[@"width"])
+        width = [styleEntry[@"width"] floatValue];
+    allowOverlap = false;
+    if (styleEntry[@"allow-overlap"])
+        allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
+    float strokeWidth = 1.0;
+    
+    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
+        self.geomAdditive = true;
+    
+    desc = [NSMutableDictionary dictionary];
+    
+    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(StrokeFactor*width, StrokeFactor*width) color:fillColor strokeSize:StrokeFactor*strokeWidth strokeColor:strokeColor];
+    
+    return self;
+}
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+{
+    // One marker per object
+    NSMutableArray *markers = [NSMutableArray array];
+    for (MaplyVectorObject *vec in vecObjs)
+    {
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.selectable = false;
+        marker.image = markerImage;
+        marker.loc = [vec center];
+        if (allowOverlap)
+            marker.layoutImportance = MAXFLOAT;
+        else
+            marker.layoutImportance = 1.0;
+        marker.size = CGSizeMake(StrokeFactor*width, StrokeFactor*width);
+        [markers addObject:marker];
+    }
+    
+    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:desc];
+    if (compObj)
+        return @[compObj];
+    
+    return nil;
+}
+
+@end
+
 
 
 @implementation MaplyVectorTiles
