@@ -416,13 +416,13 @@ void AddToData(std::vector<unsigned char> &vecData,std::vector<const VectorDatab
     
 }
     
-void VectorDatabase::vectorToDBFormat(OGRLayer *srcLayer,std::vector<unsigned char> &vecData)
+void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::vector<unsigned char> &vecData)
 {
     VectorChunkSet vectorChunks;
 
-    for (unsigned int ii=0;ii<srcLayer->GetFeatureCount();ii++)
+    for (unsigned int ii=0;ii<features.size();ii++)
     {
-        OGRFeature *feature = srcLayer->GetFeature(ii);
+        OGRFeature *feature = features[ii];
         
         // Look for a match
         VectorChunk testChunk;

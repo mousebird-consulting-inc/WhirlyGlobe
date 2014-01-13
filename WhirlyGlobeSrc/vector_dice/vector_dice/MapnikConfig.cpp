@@ -302,12 +302,33 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                  symEl; symEl = symEl->NextSiblingElement())
             {
                 std::string name = symEl->Name();
-                if (!name.compare("MarkersSymbolizer") || !name.compare("LineSymbolizer") ||
-                    !name.compare("TextSymbolizer") || !name.compare("PolygonSymbolizer"))
+                SymbolDataType dataType = SymbolDataUnknown;
+                SymbolizerType symType = UnknownSymbolizer;
+                if (!name.compare("MarkersSymbolizer"))
+                {
+                    dataType = SymbolDataPoint;
+                    symType = MarkersSymbolizer;
+                } else if (!name.compare("LineSymbolizer"))
+                {
+                    dataType = SymbolDataLinear;
+                    symType = LineSymbolizer;
+                } else if (!name.compare("TextSymbolizer"))
+                {
+                    dataType = SymbolDataPoint;
+                    symType = TextSymbolizer;
+                } else if (!name.compare("PolygonSymbolizer"))
+                {
+                    dataType = SymbolDataAreal;
+                    symType = PolygonSymbolizer;
+                }
+                
+                if (symType != UnknownSymbolizer)
                 {
                     int whichSym = (int)symbolizerTable.symbolizers.size();
                     // Set up the symbolizer
                     Symbolizer sym;
+                    sym.dataType = dataType;
+                    sym.symType = symType;
                     sym.name = style.name + "_rule" + std::to_string(ruleCount) + "_" + std::to_string(symCount);
                     sym.xmlEl = symEl;
                     // If the min scale isn't set for this rule, then the geometry sticks around
