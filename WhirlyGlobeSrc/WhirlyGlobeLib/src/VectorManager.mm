@@ -524,7 +524,16 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                 VectorTrianglesRef theMesh = boost::dynamic_pointer_cast<VectorTriangles>(*it);
                 if (theMesh.get())
                 {
-                    drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                    if (vecInfo->filled)
+                        drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                    else {
+                        for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                        {
+                            VectorRing ring;
+                            theMesh->getTriangle(ti, ring);
+                            drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                        }
+                    }
                 } else {
                     // Note: Points are.. pointless
                     //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);

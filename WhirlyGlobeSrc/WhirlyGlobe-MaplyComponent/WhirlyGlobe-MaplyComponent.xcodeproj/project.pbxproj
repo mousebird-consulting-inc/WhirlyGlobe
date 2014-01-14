@@ -54,6 +54,8 @@
 		2B61D7BF1607939C007888CF /* WGCoordinate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D7BD1607939C007888CF /* WGCoordinate.mm */; };
 		2B61D7C41607ACC3007888CF /* WGViewControllerLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B61D7C21607ACC3007888CF /* WGViewControllerLayer_private.h */; };
 		2B61D7C51607ACC3007888CF /* WGViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B61D7C31607ACC3007888CF /* WGViewControllerLayer.mm */; };
+		2B760C9E1881D68C006FE98B /* MaplyIconManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B760C9D1881D68C006FE98B /* MaplyIconManager.h */; };
+		2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B760CA01881D696006FE98B /* MaplyIconManager.mm */; };
 		2B789F75185B8C950028E027 /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F73185B8C950028E027 /* SMCalloutView.h */; };
 		2B789F76185B8C950028E027 /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F74185B8C950028E027 /* SMCalloutView.m */; };
 		2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F77185B91F90028E027 /* MaplyAnnotation.h */; };
@@ -206,6 +208,8 @@
 		2B61D7BD1607939C007888CF /* WGCoordinate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGCoordinate.mm; path = src/WGCoordinate.mm; sourceTree = "<group>"; };
 		2B61D7C21607ACC3007888CF /* WGViewControllerLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WGViewControllerLayer_private.h; path = include/private/WGViewControllerLayer_private.h; sourceTree = "<group>"; };
 		2B61D7C31607ACC3007888CF /* WGViewControllerLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGViewControllerLayer.mm; path = src/WGViewControllerLayer.mm; sourceTree = "<group>"; };
+		2B760C9D1881D68C006FE98B /* MaplyIconManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyIconManager.h; path = include/MaplyIconManager.h; sourceTree = "<group>"; };
+		2B760CA01881D696006FE98B /* MaplyIconManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyIconManager.mm; path = src/MaplyIconManager.mm; sourceTree = "<group>"; };
 		2B789F73185B8C950028E027 /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SMCalloutView.h; path = "../../third-party/SMCalloutView/SMCalloutView.h"; sourceTree = "<group>"; };
 		2B789F74185B8C950028E027 /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SMCalloutView.m; path = "../../third-party/SMCalloutView/SMCalloutView.m"; sourceTree = "<group>"; };
 		2B789F77185B91F90028E027 /* MaplyAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnnotation.h; path = include/MaplyAnnotation.h; sourceTree = "<group>"; };
@@ -521,6 +525,8 @@
 		2B3836BF1877876A00467ABD /* Vector Tiles */ = {
 			isa = PBXGroup;
 			children = (
+				2B760C9D1881D68C006FE98B /* MaplyIconManager.h */,
+				2B760CA01881D696006FE98B /* MaplyIconManager.mm */,
 				2B3836C11877877D00467ABD /* MaplyVectorTiles.h */,
 				2B3836C31877878400467ABD /* MaplyVectorTiles.mm */,
 			);
@@ -711,6 +717,7 @@
 				2B0A4DC0167BFA7A000D5786 /* MaplyViewController_private.h in Headers */,
 				2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */,
 				2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */,
+				2B760C9E1881D68C006FE98B /* MaplyIconManager.h in Headers */,
 				2B789F75185B8C950028E027 /* SMCalloutView.h in Headers */,
 				2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */,
 				2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */,
@@ -873,6 +880,7 @@
 				2BC988EC17D794010071DA9E /* MaplyAnimationTestTileSource.m in Sources */,
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
+				2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */,
 				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */,
 				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
 				2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */,
