@@ -22,12 +22,39 @@ public:
     MapnikConfig();
     ~MapnikConfig();
     
+    // Data type expected by a given symbolizer
+    typedef enum {SymbolDataPoint=0,SymbolDataLinear,SymbolDataAreal,SymbolDataUnknown} SymbolDataType;
+    
+    // The symbolizer type itself
+    typedef enum {MarkersSymbolizer,LineSymbolizer,TextSymbolizer,PolygonSymbolizer,UnknownSymbolizer} SymbolizerType;
+
+    class Symbolizer
+    {
+    public:
+        Symbolizer();
+        
+        // Convert to a string
+        void toString(std::string &str);
+        
+        // Name (made up)
+        std::string name;
+        
+        // XML for the symbolizers
+        tinyxml2::XMLElement *xmlEl;
+        // The data type this symbolizer is expecting
+        SymbolDataType dataType;
+        // When displaying we may add the geometry or replace it per level
+        typedef enum {TileGeomAdd,TileGeomReplace} TileGeometryType;
+        TileGeometryType geomType;
+        // Symbolizer type
+        SymbolizerType symType;
+    };
+    
     // Collection of all the symbolizers in one place
     class SymbolizerTable
     {
     public:
-        // XML for the symbolizers
-        std::vector<tinyxml2::XMLElement *> symbolizerElements;
+        std::vector<Symbolizer> symbolizers;
         
         // Layer names (we write these out for convenience in the styles file)
         std::set<std::string> layerNames;
@@ -61,7 +88,11 @@ public:
         // Filters are very simple right now.  Just basic comparison.
         typedef enum {CompareEqual,CompareLess,CompareMore,CompareNotEqual} ComparisonType;
         ComparisonType compareType;
-        std::string attrName,attrVal;
+        // Data types
+        typedef enum {CompareString,CompareReal} ComparisonValueType;
+        ComparisonValueType compareValueType;
+        std::string attrName,attrValStr;
+        double attrValReal;
     };
     
     // Rules within a style

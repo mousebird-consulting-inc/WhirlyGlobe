@@ -24,6 +24,7 @@
 @interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
 
 - (id)initWithDirectory:(NSString *)tilesDir;
+- (id)initWithDatabase:(NSString *)tilesDB;
 
 @property (nonatomic,readonly) NSString *tilesDir;
 @property (nonatomic,readonly) int minLevel;
@@ -38,6 +39,8 @@
 @interface MaplyVectorTileStyle : NSObject
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+
+@property (nonatomic) bool geomAdditive;
 
 @end
 
@@ -54,6 +57,12 @@
 @end
 
 @interface MaplyVectorTileStyleText : MaplyVectorTileStyle
+
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+
+@end
+
+@interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
 

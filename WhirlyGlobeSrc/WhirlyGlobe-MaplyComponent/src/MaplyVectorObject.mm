@@ -29,6 +29,71 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
+namespace Maply
+{
+class DataReader
+{
+public:
+    DataReader(NSData *data)
+    : pos(0)
+    {
+        len = [data length];
+        bytes = (unsigned char *)[data bytes];
+    }
+    
+    int getInt()
+    {
+        int size = sizeof(int);
+        if (pos+size > len)
+            throw 1;
+        int iVal = *((int *)&bytes[pos]);
+        pos += size;
+        
+        return iVal;
+    }
+    
+    void rangeCheck(int iVal,int minVal,int maxVal)
+    {
+        if (iVal < minVal || iVal >= maxVal)
+            throw 1;
+    }
+    
+    float getFloat()
+    {
+        int size = sizeof(float);
+        if (pos+size > len)
+            throw 1;
+        float fVal = *((float *)&bytes[pos]);
+        pos += size;
+        return fVal;
+    }
+    
+    NSString *getString()
+    {
+        int strLen = getInt();
+        if (strLen == 0)
+            return @"";
+        const char *str = (const char *)str;
+        if (pos+strLen > len)
+            throw 1;
+        char *simpleStr = (char *)malloc(strLen+1);
+        bcopy(&bytes[pos],simpleStr,strLen);
+        simpleStr[strLen] = 0;
+        
+        NSString *retStr = [NSString stringWithFormat:@"%s",simpleStr];
+        free(simpleStr);
+        
+        pos += strLen;
+        return retStr;
+    }
+    
+    unsigned char *bytes;
+    int pos;
+    int len;
+};
+            
+}
+
 @implementation MaplyVectorObject
 
 + (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
@@ -715,6 +780,145 @@ using namespace WhirlyGlobe;
     }
     
     return newVec;
+}
+
+// Read from the raw vector format in the Vector DB
+// Note: Put this somewhere else.
+// Note: Bullet proof this if we start getting these over the network
++ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data attrs:(std::vector<Maply::VectorAttribute> *)attrs
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    try
+    {
+        // Wrap a reader around the NSData
+        Maply::DataReader dataReader(data);
+        
+        // Each chunk has a group of shared attributes
+        int numChunks = dataReader.getInt();
+        dataReader.rangeCheck(numChunks, 0, 1000000);
+        for (int ii=0;ii<numChunks;ii++)
+        {
+            // Attributes we'll find on each feature
+            int numAttrsPresent = dataReader.getInt();
+            dataReader.rangeCheck(numAttrsPresent, 0, 10000);
+            std::vector<int> attrsPresent;
+            for (int ai=0;ai<numAttrsPresent;ai++)
+                attrsPresent.push_back(dataReader.getInt());
+            
+            // Geometry type and number of features in chunk
+            int geomType = dataReader.getInt();
+            int numFeat = dataReader.getInt();
+            dataReader.rangeCheck(numFeat, 0, 1000000);
+            
+            // Work through the features
+            for (int jj=0;jj<numFeat;jj++)
+            {
+                NSMutableDictionary *attrDict = [NSMutableDictionary dictionary];
+                
+                // The attributes we'll find on each point
+                for (int ai=0;ai<attrsPresent.size();ai++)
+                {
+                    int whichAttr = attrsPresent[ai];
+                    if (whichAttr < 0 || whichAttr >= attrs->size())
+                        throw 1;
+                    const Maply::VectorAttribute &rawVecAttr = attrs->at(whichAttr);
+                    switch (rawVecAttr.type)
+                    {
+                        case Maply::VectorAttrInt:
+                            attrDict[rawVecAttr.name] = @(dataReader.getInt());
+                            break;
+                        case Maply::VectorAttrReal:
+                            attrDict[rawVecAttr.name] = @(dataReader.getFloat());
+                            break;
+                        case Maply::VectorAttrString:
+                            attrDict[rawVecAttr.name] = dataReader.getString();
+                            break;
+                        default:
+                            throw 1;
+                            break;
+                    }
+                }
+                
+                VectorShapeRef shape;
+                switch (geomType)
+                {
+                        // Point
+                    case 1:
+                    {
+                        VectorPointsRef pts = VectorPoints::createPoints();
+                        shape = pts;
+                        Point2f pt;
+                        pt.x() = dataReader.getFloat();
+                        pt.y() = dataReader.getFloat();
+                        pts->pts.push_back(pt);
+                        pts->initGeoMbr();
+                    }
+                        break;
+                        // Line string
+                    case 2:
+                    {
+                        int numPts = dataReader.getInt();
+                        dataReader.rangeCheck(numPts, 0, 100000);
+                        VectorLinearRef lin = VectorLinear::createLinear();
+                        shape = lin;
+                        lin->pts.reserve(numPts);
+                        for (int pi=0;pi<numPts;pi++)
+                        {
+                            Point2f pt;
+                            pt.x() = dataReader.getFloat();
+                            pt.y() = dataReader.getFloat();
+                            lin->pts.push_back(pt);
+                        }
+                        lin->initGeoMbr();
+                    }
+                        break;
+                        // Polygon
+                    case 3:
+                    {
+                        int numLoops = dataReader.getInt();
+                        dataReader.rangeCheck(numLoops, 0, 100000);
+                        VectorArealRef ar = VectorAreal::createAreal();
+                        shape = ar;
+                        ar->loops.resize(numLoops);
+                        for (int li=0;li<numLoops;li++)
+                        {
+                            VectorRing &ring = ar->loops[li];
+                            int numPts = dataReader.getInt();
+                            dataReader.rangeCheck(numPts, 0, 100000);
+                            ring.reserve(numPts);
+                            for (int pi=0;pi<numPts;pi++)
+                            {
+                                Point2f pt;
+                                pt.x() = dataReader.getFloat();
+                                pt.y() = dataReader.getFloat();
+                                ring.push_back(pt);
+                            }
+                        }
+                        ar->initGeoMbr();
+                    }
+                        break;
+                    default:
+                        throw 1;
+                        break;
+                }
+                
+                // Note: Might want to copy this if we're going to mess with it later
+                shape->setAttrDict(attrDict);
+                vecObj.shapes.insert(shape);
+            }
+        }
+
+        if (dataReader.pos < dataReader.len-1)
+            NSLog(@"Failed to read full tile.");
+    }
+    catch (...)
+    {
+        NSLog(@"Failed to read VectorDB tile.");
+        return nil;
+    }
+    
+    return vecObj;
 }
 
 @end
