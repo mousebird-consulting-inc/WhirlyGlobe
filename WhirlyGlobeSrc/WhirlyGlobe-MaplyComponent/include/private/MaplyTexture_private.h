@@ -35,3 +35,22 @@
 - (void)clear;
 
 @end
+
+namespace WhirlyKit
+{
+    
+// This wrapper class adds iOS specific functionality
+class MaplyTextureWrapper : public Texture
+{
+public:
+	/// Construct with a file name and extension
+	MaplyTextureWrapper(const std::string &name,NSString *baseName,NSString *ext);
+    // Construct with a UIImage.  Expecting this to be a power of 2 on each side.
+    // If it's not we'll round up or down, depending on the flag
+	MaplyTextureWrapper(const std::string &name,UIImage *inImage, bool roundUp=true);
+    
+protected:
+    NSData *texNSData;
+};
+    
+}

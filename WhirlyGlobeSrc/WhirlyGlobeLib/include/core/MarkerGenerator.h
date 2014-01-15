@@ -59,9 +59,9 @@ public:
         Point3f pts[4];
         std::vector<std::vector<TexCoord> > texCoords;
         std::vector<SimpleIdentity> texIDs;
-        NSTimeInterval start;
-        NSTimeInterval period;
-        NSTimeInterval fadeUp,fadeDown;
+        TimeInterval start;
+        TimeInterval period;
+        TimeInterval fadeUp,fadeDown;
         int drawOffset;
         int drawPriority;
         float minVis,maxVis;
@@ -151,14 +151,14 @@ class MarkerGeneratorFadeRequest : public GeneratorChangeRequest
 {
 public:
     /// Construct with the IDs for the generator, the marker, and the fade up/down absolute times
-    MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,TimeInterval fadeUp,TimeInterval fadeDown);
     /// Construct with the ID for the generator, a list of IDs for markers and the fade up/down absolute times
-    MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,TimeInterval fadeUp,TimeInterval fadeDown);
     
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
 
 protected:
-    NSTimeInterval fadeUp,fadeDown;
+    TimeInterval fadeUp,fadeDown;
     std::vector<SimpleIdentity> markerIDs;
 };
     

@@ -19,8 +19,6 @@
  */
 
 #import "SelectionManager.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
 #import "MaplyView.h"
@@ -400,8 +398,10 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         Point3f eyePos;
         if (globeView)
             eyePos = Vector3dToVector3f(globeView->eyePos());
-        else
-            NSLog(@"Need to fill in eyePos for mapView");
+        else {
+            // Note: Porting
+//            NSLog(@"Need to fill in eyePos for mapView");
+        }
         
         // Work through the axis aligned rectangular solids
         for (PolytopeSelectableSet::iterator it = polytopeSelectables.begin();
@@ -481,13 +481,13 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                     
                     for (unsigned int ii=0;ii<4;ii++)
                     {
-                        CGPoint screenPt;
+                        Point2f screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
                         if (globeView)
                             screenPt = globeView->pointOnScreenFromSphere(pt3d,&modelTrans,frameSize);
                         else
                             screenPt = mapView->pointOnScreenFromPlane(pt3d,&modelTrans,frameSize);
-                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+                        screenPts.push_back(screenPt);
                     }
                     
                     // See if we fall within that polygon
@@ -521,8 +521,10 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
         Point3f eyePos;
         if (globeView)
             eyePos = Vector3dToVector3f(globeView->eyePos());
-        else
-            NSLog(@"Need to fill in eyePos for mapView");
+        else {
+            // Note: Porting
+//            NSLog(@"Need to fill in eyePos for mapView");
+        }
 
         // Work through the billboards
         for (BillboardSelectableSet::iterator it = billboardSelectables.begin();

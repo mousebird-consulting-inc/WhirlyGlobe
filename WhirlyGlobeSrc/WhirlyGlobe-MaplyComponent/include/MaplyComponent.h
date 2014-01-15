@@ -20,12 +20,11 @@
 
 #import <MaplyCoordinate.h>
 #import <MaplyCoordinateSystem.h>
-// Note: Porting
-//#import <MaplyTexture.h>
+#import <MaplyTexture.h>
 //#import <MaplyLabel.h>
 //#import <MaplyScreenLabel.h>
-//#import <MaplyMarker.h>
-//#import <MaplyScreenMarker.h>
+#import <MaplyMarker.h>
+#import <MaplyScreenMarker.h>
 //#import <MaplyShape.h>
 //#import <MaplySticker.h>
 //#import <MaplyBillboard.h>

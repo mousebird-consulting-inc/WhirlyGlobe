@@ -74,6 +74,18 @@
 		2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA68A5174195A800696BA8 /* MaplyCoordinateSystem.h */; };
 		2BE43866160930B200A81959 /* MaplyComponentObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE43865160930B200A81959 /* MaplyComponentObject.h */; };
 		2BE88486160A437D00E92A0A /* MaplySharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE88485160A437D00E92A0A /* MaplySharedAttributes.h */; };
+		2BF76A421886FCA300465603 /* ImageTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE88491160A59F900E92A0A /* ImageTexture_private.h */; };
+		2BF76A441886FCAD00465603 /* MaplyCoordinateSystem_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA68AB174197C500696BA8 /* MaplyCoordinateSystem_private.h */; };
+		2BF76A451886FCB400465603 /* MaplyTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEB21F318441AF30048DDE3 /* MaplyTexture.h */; };
+		2BF76A461886FCB600465603 /* MaplyTexture_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BEB21F418441AF30048DDE3 /* MaplyTexture_private.h */; };
+		2BF76A471886FCB900465603 /* MaplyTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEB21F818441B020048DDE3 /* MaplyTexture.mm */; };
+		2BF76A481886FCE000465603 /* MaplyMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB9E01515BF9EE300F1DDD8 /* MaplyMarker.h */; };
+		2BF76A491886FCE000465603 /* MaplyMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01D15BF9EF200F1DDD8 /* MaplyMarker.m */; };
+		2BF76A4A1886FCE000465603 /* MaplyScreenMarker.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B897A6815BB59F300250F23 /* MaplyScreenMarker.h */; };
+		2BF76A4B1886FCE000465603 /* MaplyScreenMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A8A15BC698800250F23 /* MaplyScreenMarker.m */; };
+		2BF76A4C1886FD5500465603 /* MaplyQuadImageTilesLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA68A6174195A800696BA8 /* MaplyQuadImageTilesLayer.h */; };
+		2BF76A4E1887040200465603 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A4D1887040200465603 /* UIImage+Stuff.h */; };
+		2BF76A501887040E00465603 /* UIImage+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A4F1887040E00465603 /* UIImage+Stuff.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -234,6 +246,8 @@
 		2BEBABA91811F65700A9419C /* MaplyTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTileSource.mm; path = src/MaplyTileSource.mm; sourceTree = "<group>"; };
 		2BECC1BC15E548EF00FBD805 /* PinchDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PinchDelegateFixed.h; path = include/private/PinchDelegateFixed.h; sourceTree = SOURCE_ROOT; };
 		2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PinchDelegateFixed.mm; path = src/PinchDelegateFixed.mm; sourceTree = SOURCE_ROOT; };
+		2BF76A4D1887040200465603 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Stuff.h"; path = "include/UIImage+Stuff.h"; sourceTree = "<group>"; };
+		2BF76A4F1887040E00465603 /* UIImage+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "UIImage+Stuff.mm"; path = "src/UIImage+Stuff.mm"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -492,6 +506,7 @@
 		2B8C813817EA6033000794EF /* categories */ = {
 			isa = PBXGroup;
 			children = (
+				2BF76A4D1887040200465603 /* UIImage+Stuff.h */,
 				2B009CB7185FC41A001E2EE8 /* NSDictionary+Stuff.h */,
 				2B009CB9185FC424001E2EE8 /* NSDictionary+Stuff.m */,
 				2B009CB3185FC306001E2EE8 /* UIColor+Stuff.h */,
@@ -567,6 +582,7 @@
 		2BE88490160A59DE00E92A0A /* utility */ = {
 			isa = PBXGroup;
 			children = (
+				2BF76A4F1887040E00465603 /* UIImage+Stuff.mm */,
 				2B897A7015BB5A2F00250F23 /* MaplyCoordinate.h */,
 				2B897A8815BC664A00250F23 /* MaplyCoordinate.mm */,
 				2BE88491160A59F900E92A0A /* ImageTexture_private.h */,
@@ -594,6 +610,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BF76A441886FCAD00465603 /* MaplyCoordinateSystem_private.h in Headers */,
 				2B897A6515BB59E400250F23 /* WhirlyGlobeComponent-Prefix.h in Headers */,
 				2B009C9E185FA78F001E2EE8 /* MaplyInteractionLayer_private.h in Headers */,
 				2B009C9B185FA786001E2EE8 /* MaplyBaseViewController_private.h in Headers */,
@@ -607,6 +624,7 @@
 				2B009CA2185FA9BC001E2EE8 /* LayerThread_private.h in Headers */,
 				2B009CA8185FADDE001E2EE8 /* DictionaryWrapper_private.h in Headers */,
 				2B61D7AF16078A3B007888CF /* MaplyViewController.h in Headers */,
+				2BF76A481886FCE000465603 /* MaplyMarker.h in Headers */,
 				2B009CA0185FA7CF001E2EE8 /* SelectObject_private.h in Headers */,
 				2B61D7BE1607939C007888CF /* WGCoordinate.h in Headers */,
 				2BE43866160930B200A81959 /* MaplyComponentObject.h in Headers */,
@@ -615,6 +633,7 @@
 				2BCA689217416A7000696BA8 /* MaplyViewControllerLayer.h in Headers */,
 				2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */,
 				2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */,
+				2BF76A461886FCB600465603 /* MaplyTexture_private.h in Headers */,
 				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
 				2B009CAC185FBC31001E2EE8 /* SceneRenderer_private.h in Headers */,
 				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
@@ -622,12 +641,17 @@
 				2B009CB0185FC23B001E2EE8 /* EAGLView.h in Headers */,
 				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
 				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
+				2BF76A4E1887040200465603 /* UIImage+Stuff.h in Headers */,
 				2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */,
 				2BC989C117DC1F130071DA9E /* NSData+Zlib.h in Headers */,
 				2BC989D417DC23310071DA9E /* FMDatabase.h in Headers */,
+				2BF76A451886FCB400465603 /* MaplyTexture.h in Headers */,
+				2BF76A4C1886FD5500465603 /* MaplyQuadImageTilesLayer.h in Headers */,
+				2BF76A4A1886FCE000465603 /* MaplyScreenMarker.h in Headers */,
 				2B009CA4185FAA5D001E2EE8 /* DataLayer_private.h in Headers */,
 				2BC989D617DC23310071DA9E /* FMDatabaseAdditions.h in Headers */,
 				2BC989D817DC23310071DA9E /* FMDatabasePool.h in Headers */,
+				2BF76A421886FCA300465603 /* ImageTexture_private.h in Headers */,
 				2B009C99185FA4F0001E2EE8 /* MaplyViewController_private.h in Headers */,
 				2BC989DA17DC23310071DA9E /* FMDatabaseQueue.h in Headers */,
 				2BC989DD17DC23310071DA9E /* FMResultSet.h in Headers */,
@@ -700,7 +724,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2BF76A4B1886FCE000465603 /* MaplyScreenMarker.m in Sources */,
 				2B897A8915BC664A00250F23 /* MaplyCoordinate.mm in Sources */,
+				2BF76A491886FCE000465603 /* MaplyMarker.m in Sources */,
 				2B11057217E237CD00735C46 /* FMDatabase.m in Sources */,
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
 				2B97AFED17E3D6CE00D4B33D /* FMDatabaseAdditions.m in Sources */,
@@ -710,11 +736,13 @@
 				2B97AFEF17E3D6D200D4B33D /* FMDatabasePool.m in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
 				2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */,
+				2BF76A501887040E00465603 /* UIImage+Stuff.mm in Sources */,
 				2B009CB6185FC311001E2EE8 /* UIColor+Stuff.mm in Sources */,
 				2BCA68A31741957700696BA8 /* MaplyCoordinateSystem.mm in Sources */,
 				2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */,
 				2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */,
 				2B97AFF017E3D6D400D4B33D /* FMDatabaseQueue.m in Sources */,
+				2BF76A471886FCB900465603 /* MaplyTexture.mm in Sources */,
 				2B009C9D185FA786001E2EE8 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B009CB2185FC24E001E2EE8 /* EAGLView.mm in Sources */,
 				2B009CBA185FC424001E2EE8 /* NSDictionary+Stuff.m in Sources */,

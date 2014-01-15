@@ -24,11 +24,9 @@
 #import "MaplyComponentObject_private.h"
 #import "SelectObject_private.h"
 #import "LayerThread_private.h"
-// Note: Porting
-//#import "ImageTexture_private.h"
+#import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"
-// Note: Porting
-//#import "MaplyQuadImageTilesLayer.h"
+#import "MaplyQuadImageTilesLayer.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -47,8 +45,7 @@
     
     pthread_mutex_t imageLock;
     // Used to track textures
-    // Note: Porting
-//    MaplyImageTextureSet imageTextures;
+    MaplyImageTextureSet imageTextures;
 
     pthread_mutex_t userLock;
     // Component objects created for the user
@@ -61,13 +58,11 @@
 // Initialize with the view we'll be using
 - (id)initWithView:(WhirlyKit::View *)visualView;
 
-// Note: Porting
 // Add screen space (2D) markers
-//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
-// Note: Porting
 // Add 3D markers
-//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Note: Porting
 // Add screen space (2D) labels
@@ -115,13 +110,11 @@
 // Disable objects
 - (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
-// Note: Porting
 // Explicitly add a texture
-//- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
-// Note: Porting
 // Explicitly remove a texture
-//- (void)removeTexture:(MaplyTexture *)texture;
+- (void)removeTexture:(MaplyTexture *)texture;
 
 // Start collecting changes for this thread
 - (void)startChanges;
@@ -131,13 +124,11 @@
 
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
-// Note: Porting
 // An internal routine to add an image to our local UIImage/ID cache
-//- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
-// Note: Porting
 // Remove the texture associated with an image  or just decrement its reference count
-//- (void)removeImageTexture:(MaplyTexture *)tex;
+- (void)removeImageTexture:(MaplyTexture *)tex;
 
 // Do a point in poly check for vectors we're representing
 - (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;

@@ -19,11 +19,11 @@
  */
 
 #import "MarkerManager.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "MarkerGenerator.h"
 #import "ScreenSpaceGenerator.h"
 #import "LayoutManager.h"
+#import "SharedAttributes.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -98,67 +98,40 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     if (layoutManager)
         layoutManager->removeLayoutObjects(screenShapeIDs);
 }
-    
-}
 
-@implementation WhirlyKitMarker
-
-- (id)init
+Marker::Marker()
+    : isSelectable(false), selectID(EmptyIdentity), loc(0,0), color(255,255,255,255), colorSet(false),
+    lockRotation(false), height(0), width(0), rotation(0), offset(0,0), period(0),
+    timeOffset(0), layoutImportance(MAXFLOAT)
 {
-    self = [super init];
-    
-    if (self)
-    {
-        _isSelectable = false;
-        _selectID = EmptyIdentity;
-        _layoutImportance = MAXFLOAT;
-    }
-    
-    return self;
 }
 
-
-- (void)addTexID:(SimpleIdentity)texID
+void Marker::addTexID(SimpleIdentity texID)
 {
-    _texIDs.push_back(texID);
+    texIDs.push_back(texID);
 }
 
-@end
-
-@implementation WhirlyKitMarkerInfo
-
-// Initialize with an array of makers and parse out parameters
-- (id)initWithMarkers:(NSArray *)inMarkers desc:(NSDictionary *)desc
+MarkerInfo::MarkerInfo()
+    : color(255,255,255,255), drawOffset(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    screenObject(false), width(0.001), height(0.001), drawPriority(MarkerDrawPriority),
+    fade(0.0), enable(true), programId(EmptyIdentity), markerId(EmptyIdentity)
 {
-    self = [super init];
-    
-    if (self)
-    {
-        _markers = inMarkers;
-        [self parseDesc:desc];
-        
-        _markerId = Identifiable::genId();
-    }
-    
-    return self;
 }
 
-- (void)parseDesc:(NSDictionary *)desc
+void MarkerInfo::parseDict(const Dictionary &dict)
 {
-    self.color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _drawOffset = [desc intForKey:@"drawOffset" default:0];
-    _minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-    _maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-    _drawPriority = [desc intForKey:@"drawPriority" default:MarkerDrawPriority];
-    _screenObject = [desc boolForKey:@"screen" default:false];
-    _width = [desc floatForKey:@"width" default:(_screenObject ? 16.0 : 0.001)];
-    _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
-    _fade = [desc floatForKey:@"fade" default:0.0];
-    _enable = [desc boolForKey:@"enable" default:true];
-    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
+    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
+    drawOffset = dict.getDouble(MaplyDrawOffset,0);
+    minVis = dict.getDouble(MaplyMinVis,DrawVisibleInvalid);
+    maxVis = dict.getDouble(MaplyMaxVis,DrawVisibleInvalid);
+    drawPriority = dict.getInt(MaplyDrawPriority,MarkerDrawPriority);
+    screenObject = dict.getBool("screen",false);
+    width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
+    height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
+    fade = dict.getDouble(MaplyFade,0.0);
+    enable = dict.getBool(MaplyEnable,true);
+    programId = dict.getInt(MaplyShader,EmptyIdentity);
 }
-
-@end
 
 MarkerManager::MarkerManager()
 {
@@ -177,13 +150,14 @@ MarkerManager::~MarkerManager()
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
-SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,Dictionary *desc,ChangeSet &changes)
 {
-    WhirlyKitMarkerInfo *markerInfo = [[WhirlyKitMarkerInfo alloc] initWithMarkers:markers desc:desc];
+    MarkerInfo markerInfo;
+    markerInfo.parseDict(*desc);
 
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval curTime = TimeGetCurrent();
     
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
@@ -200,15 +174,16 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     // Objects to be controlled by the layout layer
     std::vector<LayoutObject> layoutObjects;
     
-    for (WhirlyKitMarker *marker in markerInfo.markers)
+    for (unsigned int ii=0;ii<markers.size();ii++)
     {
+        Marker *marker = markers[ii];
         // Build the rectangle for this one
         Point3f pts[4];
         Vector3f norm;
-        float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
-        float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
+        float width2 = (marker->width == 0.0 ? markerInfo.width : marker->width)/2.0;
+        float height2 = (marker->height == 0.0 ? markerInfo.height : marker->height)/2.0;
         
-        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
+        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(marker->loc);
         norm = coordAdapter->normalForLocal(localPt);
         
         if (markerInfo.screenObject)
@@ -238,33 +213,33 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
         }
         
         // While we're at it, let's add this to the selection layer
-        if (selectManager && marker.isSelectable)
+        if (selectManager && marker->isSelectable)
         {
             // If the marker doesn't already have an ID, it needs one
-            if (!marker.selectID)
-                marker.selectID = Identifiable::genId();
+            if (!marker->selectID)
+                marker->selectID = Identifiable::genId();
             
-            markerRep->selectIDs.insert(marker.selectID);
+            markerRep->selectIDs.insert(marker->selectID);
             if (markerInfo.screenObject)
             {
                 Point2f pts2d[4];
                 for (unsigned int jj=0;jj<4;jj++)
                     pts2d[jj] = Point2f(pts[jj].x(),pts[jj].y());
-                selectManager->addSelectableScreenRect(marker.selectID,pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                selectManager->addSelectableScreenRect(marker->selectID,pts2d,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
                 if (!markerInfo.enable)
-                    selectManager->enableSelectable(marker.selectID, false);
+                    selectManager->enableSelectable(marker->selectID, false);
             } else {
-                selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
+                selectManager->addSelectableRect(marker->selectID,pts,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
                 if (!markerInfo.enable)
-                    selectManager->enableSelectable(marker.selectID, false);
+                    selectManager->enableSelectable(marker->selectID, false);
             }
         }
         
         // If the marker has just one texture, we can treat it as static
-        if (marker.texIDs.size() <= 1)
+        if (marker->texIDs.size() <= 1)
         {
             // Look for a texture sub mapping
-            SimpleIdentity texID = (marker.texIDs.empty() ? EmptyIdentity : marker.texIDs.at(0));
+            SimpleIdentity texID = (marker->texIDs.empty() ? EmptyIdentity : marker->texIDs.at(0));
             SubTexture subTex = scene->getSubTexture(texID);
             
             // Build one set of texture coordinates
@@ -281,22 +256,22 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 ScreenSpaceGenerator::SimpleGeometry smGeom;
                 smGeom.texID = subTex.texId;
                 smGeom.programID = markerInfo.programId;
-                smGeom.color = [markerInfo.color asRGBAColor];
-                if (marker.color)
-                    smGeom.color = [marker.color asRGBAColor];
+                smGeom.color = markerInfo.color;
+                if (marker->colorSet)
+                    smGeom.color = marker->color;
                 for (unsigned int ii=0;ii<4;ii++)
                 {
                     smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
                     smGeom.texCoords.push_back(texCoord[ii]);
                 }
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
-                if (marker.isSelectable && marker.selectID != EmptyIdentity)
-                    shape->setId(marker.selectID);
+                if (marker->isSelectable && marker->selectID != EmptyIdentity)
+                    shape->setId(marker->selectID);
                     shape->worldLoc = coordAdapter->localToDisplay(localPt);
-                    if (marker.lockRotation)
+                    if (marker->lockRotation)
                     {
                         shape->useRotation = true;
-                        shape->rotation = marker.rotation;
+                        shape->rotation = marker->rotation;
                     }
                 if (markerInfo.fade > 0.0)
                 {
@@ -312,14 +287,14 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 markerRep->screenShapeIDs.insert(shape->getId());
                 
                 // Set up for the layout layer
-                if (layoutManager && marker.layoutImportance != MAXFLOAT)
+                if (layoutManager && marker->layoutImportance != MAXFLOAT)
                 {
                     WhirlyKit::LayoutObject layoutObj(shape->getId());
                     layoutObj.dispLoc = shape->worldLoc;
                     // Note: This means they won't take up space
                     layoutObj.size = Point2f(0.0,0.0);
                     layoutObj.iconSize = Point2f(0.0,0.0);
-                    layoutObj.importance = marker.layoutImportance;
+                    layoutObj.importance = marker->layoutImportance;
                     layoutObj.minVis = markerInfo.minVis;
                     layoutObj.maxVis = markerInfo.maxVis;
                     // No moving it around
@@ -331,7 +306,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     shape->enable = markerInfo.enable;
                     shape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                 } else
-                    shape->offset = marker.offset;
+                    shape->offset = marker->offset;
                 
             } else {
                 // We're sorting the static drawables by texture, so look for that
@@ -343,7 +318,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                         draw = new BasicDrawable("Marker Layer");
                         draw->setType(GL_TRIANGLES);
                         draw->setDrawOffset(markerInfo.drawOffset);
-                        draw->setColor([markerInfo.color asRGBAColor]);
+                        draw->setColor(markerInfo.color);
                         draw->setDrawPriority(markerInfo.drawPriority);
                         draw->setVisibleRange(markerInfo.minVis, markerInfo.maxVis);
                         draw->setTexId(0,subTex.texId);
@@ -361,7 +336,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     draw->addNormal(norm);
                     draw->addTexCoord(0,texCoord[ii]);
                     Mbr localMbr = draw->getLocalMbr();
-                    Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
+                    Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker->loc);
                     localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
                     draw->setLocalMbr(localMbr);
                 }
@@ -374,13 +349,13 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             MarkerGenerator::Marker *newMarker = new MarkerGenerator::Marker();
             newMarker->enable = true;
             newMarker->color = RGBAColor(255,255,255,255);
-            newMarker->loc = marker.loc;
+            newMarker->loc = marker->loc;
             newMarker->enable = markerInfo.enable;
             for (unsigned int ii=0;ii<4;ii++)
                 newMarker->pts[ii] = pts[ii];
                 newMarker->norm = norm;
-                newMarker->period = marker.period;
-                newMarker->start = marker.timeOffset;
+                newMarker->period = marker->period;
+                newMarker->start = marker->timeOffset;
                 newMarker->drawOffset = markerInfo.drawOffset;
                 newMarker->minVis = markerInfo.minVis;
                 newMarker->maxVis = markerInfo.maxVis;
@@ -400,9 +375,9 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             texCoord[1].u() = 1.0;  texCoord[1].v() = 0.0;
             texCoord[2].u() = 1.0;  texCoord[2].v() = 1.0;
             texCoord[3].u() = 0.0;  texCoord[3].v() = 1.0;
-            for (unsigned int ii=0;ii<marker.texIDs.size();ii++)
+            for (unsigned int ii=0;ii<marker->texIDs.size();ii++)
             {
-                SubTexture subTex = scene->getSubTexture(marker.texIDs.at(ii));
+                SubTexture subTex = scene->getSubTexture(marker->texIDs.at(ii));
                 std::vector<TexCoord> theseTexCoord = texCoord;
                 subTex.processTexCoords(theseTexCoord);
                 newMarker->texCoords.push_back(theseTexCoord);
@@ -425,7 +400,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     {
         if (markerInfo.fade > 0.0)
         {
-            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+            TimeInterval curTime = TimeGetCurrent();
             it->second->setFade(curTime,curTime+markerInfo.fade);
         }
         changes.push_back(new AddDrawableReq(it->second));
@@ -481,55 +456,56 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
     {
         SimpleIdentity markerID = *mit;
         MarkerSceneRep dummyRep;
-        dummyRep.setId(*mit);
+        dummyRep.setId(markerID);
         MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);
         if (it != markerReps.end())
         {
             MarkerSceneRep *markerRep = *it;
             
-            if (markerRep->fade > 0.0)
-            {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
-                     idIt != markerRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));
-                
-                if (!markerRep->markerIDs.empty())
-                {
-                    std::vector<SimpleIdentity> markerIDs;
-                    for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
-                         idIt != markerRep->markerIDs.end(); ++idIt)
-                        markerIDs.push_back(*idIt);
-                    changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));
-                }
-                
-                if (!markerRep->screenShapeIDs.empty())
-                {
-                    std::vector<SimpleIdentity> screenIDs;
-                    for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
-                         idIt != markerRep->screenShapeIDs.end(); ++idIt)
-                        screenIDs.push_back(*idIt);
-                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
-                }
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   SimpleIDSet theseMarkerIDs;
-                                   theseMarkerIDs.insert(markerID);
-                                   ChangeSet delChanges;
-                                   removeMarkers(theseMarkerIDs,delChanges);
-                                   scene->addChangeRequests(delChanges);
-                               }
-                               );
-
-                markerRep->fade = 0.0;
-            } else {
+            // Note: Porting
+//            if (markerRep->fade > 0.0)
+//            {
+//                TimeInterval curTime = CFAbsoluteTimeGetCurrent();
+//                for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
+//                     idIt != markerRep->drawIDs.end(); ++idIt)
+//                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fade));
+//                
+//                if (!markerRep->markerIDs.empty())
+//                {
+//                    std::vector<SimpleIdentity> markerIDs;
+//                    for (SimpleIDSet::iterator idIt = markerRep->markerIDs.begin();
+//                         idIt != markerRep->markerIDs.end(); ++idIt)
+//                        markerIDs.push_back(*idIt);
+//                    changes.push_back(new MarkerGeneratorFadeRequest(generatorId,markerIDs,curTime,curTime+markerRep->fade));
+//                }
+//                
+//                if (!markerRep->screenShapeIDs.empty())
+//                {
+//                    std::vector<SimpleIdentity> screenIDs;
+//                    for (SimpleIDSet::iterator idIt = markerRep->screenShapeIDs.begin();
+//                         idIt != markerRep->screenShapeIDs.end(); ++idIt)
+//                        screenIDs.push_back(*idIt);
+//                    changes.push_back(new ScreenSpaceGeneratorFadeRequest(screenGenId,screenIDs,curTime, curTime+markerRep->fade));
+//                }
+//                
+//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fade * NSEC_PER_SEC),
+//                               scene->getDispatchQueue(),
+//                               ^{
+//                                   SimpleIDSet theseMarkerIDs;
+//                                   theseMarkerIDs.insert(markerID);
+//                                   ChangeSet delChanges;
+//                                   removeMarkers(theseMarkerIDs,delChanges);
+//                                   scene->addChangeRequests(delChanges);
+//                               }
+//                               );
+//
+//                markerRep->fade = 0.0;
+//            } else {
                 markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes);
                 
                 markerReps.erase(it);
                 delete markerRep;
-            }
+//            }
         }
     }
     
@@ -546,4 +522,6 @@ void MarkerManager::setScene(Scene *inScene)
     MarkerGenerator *gen = new MarkerGenerator();
     generatorId = gen->getId();
     scene->addChangeRequest(new AddGeneratorReq(gen));
+}
+
 }

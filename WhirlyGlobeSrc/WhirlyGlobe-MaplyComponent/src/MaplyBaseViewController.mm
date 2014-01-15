@@ -324,7 +324,7 @@ static const float PerfOutputDelay = 15.0;
     return _performanceOutput;
 }
 
-// Note: Pending
+// Note: Porting
 //// Build an array of lights and send them down all at once
 //- (void)updateLights
 //{
@@ -426,27 +426,27 @@ static const float PerfOutputDelay = 15.0;
 
 #pragma mark - Geometry related methods
 
-// Note: Pending
-//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
-//{
-//    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
-//}
-//
-//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
-//{
-//    return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
-//}
-//
-//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
-//{
-//    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
-//}
-//
-//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
-//{
-//    return [self addMarkers:markers desc:desc mode:MaplyThreadAny];
-//}
-//
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+{
+    return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
+}
+
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+{
+    return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
+}
+
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer addMarkers:markers desc:desc mode:threadMode];
+}
+
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc
+{
+    return [self addMarkers:markers desc:desc mode:MaplyThreadAny];
+}
+
+// Note: Porting
 //- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 //{
 //    return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
@@ -477,7 +477,7 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
-// Note: Pending
+// Note: Porting
 //- (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 //{
 //    return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
@@ -498,7 +498,7 @@ static const float PerfOutputDelay = 15.0;
     [self changeVector:compObj desc:desc mode:MaplyThreadAny];
 }
 
-// Note: Pending
+// Note: Porting
 //- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 //{
 //    return [interactLayer addShapes:shapes desc:desc mode:threadMode];
@@ -576,21 +576,20 @@ static const float PerfOutputDelay = 15.0;
 //    }
 //}
 
-// Note: Porting
-//- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
-//{
-//    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
-//    maplyTex.viewC = self;
-//    
-//    return maplyTex;
-//}
-//
-//- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
-//{
-//    [interactLayer removeTexture:texture];
-//}
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    maplyTex.viewC = self;
+    
+    return maplyTex;
+}
 
-// Note: Pending
+- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer removeTexture:texture];
+}
+
+// Note: Porting
 //- (void)setMaxLayoutObjects:(int)maxLayoutObjects
 //{
 //    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

@@ -31,11 +31,11 @@
 //#import "MaplyViewControllerLayer.h"
 //#import "MaplyLight.h"
 #import "MaplyShader.h"
+#import "MaplyQuadImageTilesLayer.h"
+#import "MaplyTexture.h"
 // Note: Porting
 //#import "MaplyActiveObject.h"
 //#import "MaplyElevationSource.h"
-//#import "MaplyQuadImageTilesLayer.h"
-//#import "MaplyTexture.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -113,11 +113,9 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)setHints:(NSDictionary *)hintsDict;
 
-// Note: Porting
-///// @brief This calls addScreenMarkers:desc:mode: with mode set to MaplyThreadAny
-//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+/// @brief This calls addScreenMarkers:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 
-// Note: Porting
 ///** @brief Add one or more screen markers to the current scene.
 //    @details This method will add the given MaplyScreenMaker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 //    @param markers An NSArray of MaplyScreenMarker objects.
@@ -136,12 +134,11 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // 
 //    @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
 //  */
-//- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
-//
-///// @brief This calls addMarkers:desc:mode: with mode set to MaplyThreadAny
-//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+- (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
-// Note: Porting
+/// @brief This calls addMarkers:desc:mode: with mode set to MaplyThreadAny
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
+
 ///** @brief Add one or more 3D markers to the current scene.
 //    @details This method will add the given MaplyMarker objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 //    @param markers An NSArray of MaplyMarker objects.
@@ -162,8 +159,8 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // 
 // @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
 // */
-//- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
-//
+- (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 ///// @brief This calls addScreenLabels:desc:mode: with mode set to MaplyThreadAny
 //- (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc;
 
@@ -261,7 +258,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
-// Note: Pending
+// Note: Porting
 ///// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 //- (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
@@ -393,7 +390,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///// @brief Remove an existing view tracker.
 //- (void)removeViewTrackForView:(UIView *)view;
 
-// Note: Porting
 ///** @brief Add an image as a texture and return a MaplyTexture to track it.
 //    @details We reference count UIImages attached to Maply objects, but that has a couple of drawbacks.  First, it retains the UIImage and if that's large, that's a waste of memory.  Second, if you're adding and removing Maply objects you may repeatedly create and delete the same UIImage, which is a waste of CPU.
 //    @details This method solves the problem by letting you create the texture associated with the UIImage and use it where you like.  You can assign these in any place a UIImage is accepted on Maply objects.
@@ -418,15 +414,15 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 // 
 //    @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the OpenGL ES texture will be deleted.
 // */
-//- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
-//
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+
 ///** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
 //    @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
 //    @details Only call this if you're managing the texture explicitly and know you're finished with them.
 //  */
-//- (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
+- (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
 
-// Note: Pending
+// Note: Porting
 ///** @brief Set the max number of objects for the layout engine to display.
 //    @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
 //  */
@@ -491,7 +487,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///// @brief Remove a MaplyViewControllerLayer from the globe or map.
 //- (void)removeLayer:(MaplyViewControllerLayer *)layer;
 
-// Note: Pending
+// Note: Porting
 ///// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
 //- (void)removeLayers:(NSArray *)layers;
 //

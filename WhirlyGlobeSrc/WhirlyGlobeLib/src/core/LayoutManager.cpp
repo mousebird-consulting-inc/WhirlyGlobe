@@ -18,10 +18,12 @@
  *
  */
 
+#import "Platform.h"
 #import "LayoutManager.h"
 #import "SceneRendererES2.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "ScreenSpaceGenerator.h"
 // Note: Porting
 //#import "ScreenSpaceGenerator.h"
 

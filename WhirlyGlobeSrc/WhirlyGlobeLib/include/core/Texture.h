@@ -18,12 +18,12 @@
  *
  */
 
-#import <UIKit/UIKit.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
+#import "Platform.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Drawable.h"
@@ -76,19 +76,14 @@ public:
     /// Construct emty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
-	Texture(const std::string &name,NSData *texData,bool isPVRTC);
-	/// Construct with a file name and extension
-	Texture(const std::string &name,NSString *baseName,NSString *ext);
-	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
-    /// If it's not we'll round up or down, depending on the flag
-	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
+	Texture(const std::string &name,RawData *,bool isPVRTC);
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
 	virtual ~Texture();
 	    
     /// Process the data for display based on the format.
-    NSData *processData();
+    RawData *processData();
 	
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -115,7 +110,7 @@ public:
 	
 protected:
 	/// Raw texture data
-	NSData * __strong texData;
+	RawData *texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
     /// If not PVRTC, the format we'll use for the texture

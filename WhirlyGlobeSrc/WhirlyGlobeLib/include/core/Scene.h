@@ -24,8 +24,7 @@
 #import <vector>
 #import <set>
 #import "WhirlyVector.h"
-// Note: Porting
-//#import "Texture.h"
+#import "Texture.h"
 #import "Cullable.h"
 #import "Drawable.h"
 #import "Generator.h"
@@ -51,52 +50,50 @@ namespace WhirlyKit
 {
     
 class Scene;
-// Note: Porting
-//class SubTexture;
+class SubTexture;
 class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 
-// Note: Porting
-///// Request that the renderer add the given texture.
-///// This will make it available for use, referenced by ID.
-//class AddTextureReq : public ChangeRequest
-//{
-//public:
-//    /// Construct with a texture.
-//    /// You are not responsible for deleting the texture after this.
-//	AddTextureReq(TextureBase *tex) : tex(tex) { }
-//    /// If the texture hasn't been added to the renderer, clean it up.
-//	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
-//
-//    /// Texture creation generally wants a flush
-//    virtual bool needsFlush() { return true; }
-//    
-//    /// Create the texture on its native thread
-//    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
-//
-//	/// Add to the renderer.  Never call this.
-//	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
-//	
-//    /// Only use this if you've thought it out
-//    TextureBase *getTex() { return tex; }
-//
-//protected:
-//	TextureBase *tex;
-//};
-//
-///// Remove a texture referred to by ID
-//class RemTextureReq : public ChangeRequest
-//{
-//public:
-//    /// Construct with the ID
-//	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
-//
-//    /// Remove from the renderer.  Never call this.
-//	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
-//	
-//protected:
-//	SimpleIdentity texture;
-//};
+/// Request that the renderer add the given texture.
+/// This will make it available for use, referenced by ID.
+class AddTextureReq : public ChangeRequest
+{
+public:
+    /// Construct with a texture.
+    /// You are not responsible for deleting the texture after this.
+	AddTextureReq(TextureBase *tex) : tex(tex) { }
+    /// If the texture hasn't been added to the renderer, clean it up.
+	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
+
+    /// Texture creation generally wants a flush
+    virtual bool needsFlush() { return true; }
+    
+    /// Create the texture on its native thread
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
+
+	/// Add to the renderer.  Never call this.
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+	
+    /// Only use this if you've thought it out
+    TextureBase *getTex() { return tex; }
+
+protected:
+	TextureBase *tex;
+};
+
+/// Remove a texture referred to by ID
+class RemTextureReq : public ChangeRequest
+{
+public:
+    /// Construct with the ID
+	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
+
+    /// Remove from the renderer.  Never call this.
+	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+	
+protected:
+	SimpleIdentity texture;
+};
 
 /// Ask the renderer to add the drawable to the scene
 class AddDrawableReq : public ChangeRequest
@@ -301,14 +298,12 @@ public:
     /// These are mappings from images to parts of texture atlases.
     /// They're here so we can use SimpleIdentity's to point into larger
     ///  textures.  Layer side only.  The rendering engine doesn't use them.
-    // Note: Porting
-//    void addSubTexture(const SubTexture &);
-//    void addSubTextures(const std::vector<SubTexture> &);
+    void addSubTexture(const SubTexture &);
+    void addSubTextures(const std::vector<SubTexture> &);
     
     /// Return a sub texture by ID.  The idea being we can use these
     ///  the same way we use full texture IDs.
-    // Note: Porting
-//    SubTexture getSubTexture(SimpleIdentity subTexId);
+    SubTexture getSubTexture(SimpleIdentity subTexId);
     
     /// Add a drawable to the scene.
     /// A subclass can override this to control how this interacts with cullabes.
@@ -380,8 +375,7 @@ public:
 	DrawableRef getDrawable(SimpleIdentity drawId);
 	
 	/// Look for a Texture by ID
-    // Note: Porting
-//	TextureBase *getTexture(SimpleIdentity texId);
+	TextureBase *getTexture(SimpleIdentity texId);
     
     /// All the active models
     // Note: Porting
@@ -396,10 +390,9 @@ public:
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
-    // Note: Porting
-//	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
+	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
 	/// Textures, sorted by ID
-//	TextureSet textures;
+	TextureSet textures;
     
     /// Mutex for accessing textures
     pthread_mutex_t textureLock;
@@ -410,10 +403,9 @@ public:
 	ChangeSet changeRequests;
     
     pthread_mutex_t subTexLock;
-    // Note: Porting
-//    typedef std::set<SubTexture> SubTextureSet;
+    typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
-//    SubTextureSet subTextureMap;
+    SubTextureSet subTextureMap;
     
     /// ID for screen space generator
     SimpleIdentity screenSpaceGeneratorID;

@@ -42,7 +42,7 @@ VectorInfo::VectorInfo() :
 void VectorInfo::parseDict(const Dictionary &dict)
 {
     enable = dict.getBool(MaplyEnable,true);
-    drawOffset = dict.getInt(MaplyDrawOffset,0);
+    drawOffset = dict.getDouble(MaplyDrawOffset,0);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     priority = dict.getInt(MaplyDrawPriority,0);
     // This looks like an old bug

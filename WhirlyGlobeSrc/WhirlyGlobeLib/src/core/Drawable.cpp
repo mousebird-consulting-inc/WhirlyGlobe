@@ -1600,7 +1600,6 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         }
         
         // Bind the element array
-        bool boundElements = false;
         if (type == GL_TRIANGLES && triBuffer)
         {
             boundElements = true;
@@ -1689,11 +1688,17 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
             {
                 if (triBuffer)
                 {
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
-                    CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                    if (!boundElements)
+                    {
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                    }
                     glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                    if (!boundElements)
+                    {
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                    }
                 } else {
                     glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");

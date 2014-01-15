@@ -23,6 +23,7 @@
 #import "GlobeView.h"
 #import "MaplyView.h"
 #import "GlobeMath.h"
+#import "Platform.h"
 
 using namespace Eigen;
 
@@ -61,14 +62,14 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         return;
         
     // Project the world location to the screen
-    CGPoint screenPt;
+    Point2f screenPt;
     Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo->viewAndModelMat);
 
     WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
     Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
     if (globeView)
     {
-        mapView = nil;
+        mapView = NULL;
         // Make sure this one is facing toward the viewer
         if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
             return;
@@ -80,19 +81,19 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
     }
             
     // Note: This check is too simple
-    if (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
-        screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y())
+    if (screenPt.x() < frameMbr.ll().x() || screenPt.y() < frameMbr.ll().y() ||
+        screenPt.x() > frameMbr.ur().x() || screenPt.y() > frameMbr.ur().y())
         return;
     
     float resScale = frameInfo->sceneRenderer->getScale();
 
-    screenPt.x += shape->offset.x()*resScale;
-    screenPt.y += shape->offset.y()*resScale;
+    screenPt.x() += shape->offset.x()*resScale;
+    screenPt.y() += shape->offset.y()*resScale;
     
     // It survived, so add it to the list if someone else needs to know where they wound up
     ProjectedPoint projPt;
     projPt.shapeID = shape->getId();
-    projPt.screenLoc = Point2f(screenPt.x,screenPt.y);
+    projPt.screenLoc = Point2f(screenPt.x(),screenPt.y());
     projPts.push_back(projPt);
 
     // If we need to do a rotation, throw out a point along the vector and see where it goes
@@ -121,12 +122,12 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
         Point3f upDir = up * cosf(shape->rotation);
         
         Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
-        CGPoint outScreenPt;
+        Point2f outScreenPt;
         if (globeView)
             outScreenPt = globeView->pointOnScreenFromSphere(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
         else
             outScreenPt = mapView->pointOnScreenFromPlane(Vector3fToVector3d(outPt),&modelTrans,frameInfo->sceneRenderer->getFramebufferSize());
-        screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
+        screenRot = M_PI/2.0-atan2f(screenPt.y()-outScreenPt.y(),outScreenPt.x()-screenPt.x());
         screenRotMat = Eigen::Rotation2Df(screenRot);
     }
 
@@ -180,7 +181,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
             draw = it->second;
 
         // Now build the points, texture coordinates and colors
-        Point2f center(screenPt.x,screenPt.y);
+        Point2f center = screenPt;
         int vOff = draw->getNumPoints();
 
         RGBAColor color(scale*geom.color.r,scale*geom.color.g,scale*geom.color.b,scale*geom.color.a);
@@ -365,8 +366,9 @@ void ScreenSpaceGenerator::changeEnable(ConvexShape *shape,bool enable)
 void ScreenSpaceGenerator::dumpStats()
 {
     pthread_mutex_lock(&projectedPtsLock);
-    NSLog(@"ScreenSpace Generator: %ld shapes, %ld active",convexShapes.size(),activeShapes.size());
-    NSLog(@"ScreenSpace Generator: %ld projected points",projectedPoints.size());
+    // Note: Porting
+//    NSLog(@"ScreenSpace Generator: %ld shapes, %ld active",convexShapes.size(),activeShapes.size());
+//    NSLog(@"ScreenSpace Generator: %ld projected points",projectedPoints.size());
     pthread_mutex_unlock(&projectedPtsLock);
 }
 
@@ -423,13 +425,13 @@ void ScreenSpaceGeneratorRemRequest::execute2(Scene *scene,WhirlyKit::SceneRende
     screenGen->removeConvexShapes(shapeIDs);
 }
     
-ScreenSpaceGeneratorFadeRequest::ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity shapeID,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+ScreenSpaceGeneratorFadeRequest::ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity shapeID,TimeInterval fadeUp,TimeInterval fadeDown)
     : GeneratorChangeRequest(genID), fadeUp(fadeUp), fadeDown(fadeDown)
 {
     shapeIDs.push_back(shapeID);
 }
 
-ScreenSpaceGeneratorFadeRequest::ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+ScreenSpaceGeneratorFadeRequest::ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,TimeInterval fadeUp,TimeInterval fadeDown)
     : GeneratorChangeRequest(genID), fadeUp(fadeUp), fadeDown(fadeDown), shapeIDs(shapeIDs)
 {
 }

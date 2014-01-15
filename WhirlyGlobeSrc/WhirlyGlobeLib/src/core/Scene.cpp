@@ -21,15 +21,15 @@
 #import "Scene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"
-// Note: Porting
-//#import "TextureAtlas.h"
-//#import "ScreenSpaceGenerator.h"
+#import "TextureAtlas.h"
+#import "ScreenSpaceGenerator.h"
+#import "Platform.h"
 //#import "ViewPlacementGenerator.h"
 //#import "FontTextureManager.h"
-//#import "SelectionManager.h"
+#import "SelectionManager.h"
 //#import "LayoutManager.h"
 //#import "ShapeManager.h"
-//#import "MarkerManager.h"
+#import "MarkerManager.h"
 //#import "LabelManager.h"
 #import "VectorManager.h"
 //#import "SphericalEarthChunkManager.h"
@@ -51,10 +51,9 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     cullTree = new CullTree(adapter,localMbr,depth);
     
     // Also toss in a screen space generator to share amongst the layers
-    // Note: Porting
-//    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
-//    screenSpaceGeneratorID = ssGen->getId();
-//    generators.insert(ssGen);
+    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
+    screenSpaceGeneratorID = ssGen->getId();
+    generators.insert(ssGen);
 //    // And put in a UIView placement generator for use in the main thread
 //    vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
 //    generators.insert(vpGen);
@@ -62,15 +61,14 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 //    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
     pthread_mutex_init(&managerLock,NULL);
-    // Note: Porting
-//    // Selection manager is used for object selection from any thread
-//    addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    // Selection manager is used for object selection from any thread
+    addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
 //    // Layout manager handles text and icon layout
 //    addManager(kWKLayoutManager, new LayoutManager());
 //    // Shape manager handles circles, spheres and such
 //    addManager(kWKShapeManager, new ShapeManager());
-//    // Marker manager handles 2D and 3D markers
-//    addManager(kWKMarkerManager, new MarkerManager());
+    // Marker manager handles 2D and 3D markers
+    addManager(kWKMarkerManager, new MarkerManager());
 //    // Label manager handes 2D and 3D labels
 //    addManager(kWKLabelManager, new LabelManager());
     // Vector manager handes vector features
@@ -112,9 +110,8 @@ Scene::~Scene()
         delete cullTree;
         cullTree = NULL;
     }
-    // Note: Porting
-//    for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
-//        delete *it;
+    for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
+        delete *it;
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
     
@@ -143,8 +140,7 @@ Scene::~Scene()
     // Note: Porting
 //    activeModels = nil;
     
-    // Note: Porting
-//    subTextureMap.clear();
+    subTextureMap.clear();
 
     // Note: Should be clearing program out of context somewhere
     for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
@@ -214,16 +210,15 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     
     GLuint ret = 0;
     
-    // Note: Porting
-//    pthread_mutex_lock(&textureLock);
-//    TextureBase dumbTex(texIdent);
-//    TextureSet::iterator it = textures.find(&dumbTex);
-//    if (it != textures.end())
-//    {
-//        ret = (*it)->getGLId();
-//    }
-//    
-//    pthread_mutex_unlock(&textureLock);
+    pthread_mutex_lock(&textureLock);
+    TextureBase dumbTex(texIdent);
+    TextureSet::iterator it = textures.find(&dumbTex);
+    if (it != textures.end())
+    {
+        ret = (*it)->getGLId();
+    }
+    
+    pthread_mutex_unlock(&textureLock);
     
     return ret;
 }
@@ -328,35 +323,33 @@ void Scene::teardownGL()
         cullTree = NULL;
     }
     drawables.clear();
-    // Note: Porting
-//    for (TextureSet::iterator it = textures.begin();
-//         it != textures.end(); ++it)
-//    {
-//        TextureBase *texture = *it;
-//        texture->destroyInGL(&memManager);
-//        delete texture;
-//    }
-//    textures.clear();
+    for (TextureSet::iterator it = textures.begin();
+         it != textures.end(); ++it)
+    {
+        TextureBase *texture = *it;
+        texture->destroyInGL(&memManager);
+        delete texture;
+    }
+    textures.clear();
     
     memManager.clearBufferIDs();
     memManager.clearTextureIDs();
 }
 
-// Note: Porting
-//TextureBase *Scene::getTexture(SimpleIdentity texId)
-//{
-//    pthread_mutex_lock(&textureLock);
-//    
-//    TextureBase *retTex = NULL;
-//    TextureBase dumbTex(texId);
-//    Scene::TextureSet::iterator it = textures.find(&dumbTex);
-//    if (it != textures.end())
-//        retTex = *it;
-//    
-//    pthread_mutex_unlock(&textureLock);
-//    
-//    return retTex;
-//}
+TextureBase *Scene::getTexture(SimpleIdentity texId)
+{
+    pthread_mutex_lock(&textureLock);
+    
+    TextureBase *retTex = NULL;
+    TextureBase dumbTex(texId);
+    Scene::TextureSet::iterator it = textures.find(&dumbTex);
+    if (it != textures.end())
+        retTex = *it;
+    
+    pthread_mutex_unlock(&textureLock);
+    
+    return retTex;
+}
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
@@ -400,44 +393,41 @@ bool Scene::hasChanges()
     return changes;
 }
 
-// Note: Porting
 // Add a single sub texture map
-//void Scene::addSubTexture(const SubTexture &subTex)
-//{
-//    pthread_mutex_lock(&subTexLock);
-//    subTextureMap.insert(subTex);
-//    pthread_mutex_unlock(&subTexLock);
-//}
+void Scene::addSubTexture(const SubTexture &subTex)
+{
+    pthread_mutex_lock(&subTexLock);
+    subTextureMap.insert(subTex);
+    pthread_mutex_unlock(&subTexLock);
+}
 
-// Note: Porting
 // Add a whole group of sub textures maps
-//void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
-//{
-//    pthread_mutex_lock(&subTexLock);
-//    subTextureMap.insert(subTexes.begin(),subTexes.end());
-//    pthread_mutex_unlock(&subTexLock);
-//}
+void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
+{
+    pthread_mutex_lock(&subTexLock);
+    subTextureMap.insert(subTexes.begin(),subTexes.end());
+    pthread_mutex_unlock(&subTexLock);
+}
 
-// Note: Porting
-//// Look for a sub texture by ID
-//SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
-//{
-//    pthread_mutex_lock(&subTexLock);
-//    SubTexture dumbTex;
-//    dumbTex.setId(subTexId);
-//    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
-//    if (it == subTextureMap.end())
-//    {
-//        SubTexture passTex;
-//        passTex.trans = passTex.trans.Identity();
-//        passTex.texId = subTexId;
-//        pthread_mutex_unlock(&subTexLock);
-//        return passTex;
-//    }
-//    
-//    pthread_mutex_unlock(&subTexLock);
-//    return *it;
-//}
+// Look for a sub texture by ID
+SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
+{
+    pthread_mutex_lock(&subTexLock);
+    SubTexture dumbTex;
+    dumbTex.setId(subTexId);
+    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+    if (it == subTextureMap.end())
+    {
+        SubTexture passTex;
+        passTex.trans = passTex.trans.Identity();
+        passTex.texId = subTexId;
+        pthread_mutex_unlock(&subTexLock);
+        return passTex;
+    }
+    
+    pthread_mutex_unlock(&subTexLock);
+    return *it;
+}
     
 SimpleIdentity Scene::getScreenSpaceGeneratorID()
 {
@@ -587,27 +577,26 @@ void Scene::removeProgram(SimpleIdentity progId)
     pthread_mutex_unlock(&programLock);
 }
     
-// Note: Porting
-//void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
-//{
-//    if (!tex->getGLId())
-//        tex->createInGL(scene->getMemManager());
-//    scene->textures.insert(tex);
-//    tex = NULL;
-//}
-//
-//void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
-//{
-//    TextureBase dumbTex(texture);
-//    Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
-//    if (it != scene->textures.end())
-//    {
-//        TextureBase *tex = *it;
-//        tex->destroyInGL(scene->getMemManager());
-//        scene->textures.erase(it);
-//        delete tex;
-//    }
-//}
+void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    if (!tex->getGLId())
+        tex->createInGL(scene->getMemManager());
+    scene->textures.insert(tex);
+    tex = NULL;
+}
+
+void RemTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    TextureBase dumbTex(texture);
+    Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
+    if (it != scene->textures.end())
+    {
+        TextureBase *tex = *it;
+        tex->destroyInGL(scene->getMemManager());
+        scene->textures.erase(it);
+        delete tex;
+    }
+}
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {

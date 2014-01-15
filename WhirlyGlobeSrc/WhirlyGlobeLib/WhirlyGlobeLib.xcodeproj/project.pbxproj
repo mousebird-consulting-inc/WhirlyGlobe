@@ -321,6 +321,19 @@
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
 		2BDC4AC5133404CA00E25283 /* safileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951DF012F0AC50005003AE /* safileio.c */; };
+		2BF76A2C1886030800465603 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A271886030800465603 /* MarkerManager.h */; };
+		2BF76A2D1886030800465603 /* ScreenSpaceGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A281886030800465603 /* ScreenSpaceGenerator.h */; };
+		2BF76A2E1886030800465603 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A291886030800465603 /* SelectionManager.h */; };
+		2BF76A2F1886030800465603 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A2A1886030800465603 /* Texture.h */; };
+		2BF76A311886034B00465603 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A301886034B00465603 /* MarkerGenerator.h */; };
+		2BF76A381886038700465603 /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A321886038700465603 /* LayoutManager.cpp */; };
+		2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A331886038700465603 /* MarkerGenerator.cpp */; };
+		2BF76A3A1886038700465603 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A341886038700465603 /* MarkerManager.cpp */; };
+		2BF76A3B1886038700465603 /* ScreenSpaceGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */; };
+		2BF76A3C1886038700465603 /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A361886038700465603 /* SelectionManager.cpp */; };
+		2BF76A3D1886038700465603 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A371886038700465603 /* Texture.cpp */; };
+		2BF76A3F1886F90400465603 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A3E1886F90400465603 /* TextureAtlas.h */; };
+		2BF76A411886F91800465603 /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A401886F91800465603 /* TextureAtlas.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -645,6 +658,19 @@
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
+		2BF76A271886030800465603 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerManager.h; path = core/MarkerManager.h; sourceTree = "<group>"; };
+		2BF76A281886030800465603 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceGenerator.h; path = core/ScreenSpaceGenerator.h; sourceTree = "<group>"; };
+		2BF76A291886030800465603 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SelectionManager.h; path = core/SelectionManager.h; sourceTree = "<group>"; };
+		2BF76A2A1886030800465603 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = core/Texture.h; sourceTree = "<group>"; };
+		2BF76A301886034B00465603 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerGenerator.h; path = core/MarkerGenerator.h; sourceTree = "<group>"; };
+		2BF76A321886038700465603 /* LayoutManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LayoutManager.cpp; path = core/LayoutManager.cpp; sourceTree = "<group>"; };
+		2BF76A331886038700465603 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerGenerator.cpp; path = core/MarkerGenerator.cpp; sourceTree = "<group>"; };
+		2BF76A341886038700465603 /* MarkerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerManager.cpp; path = core/MarkerManager.cpp; sourceTree = "<group>"; };
+		2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceGenerator.cpp; path = core/ScreenSpaceGenerator.cpp; sourceTree = "<group>"; };
+		2BF76A361886038700465603 /* SelectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SelectionManager.cpp; path = core/SelectionManager.cpp; sourceTree = "<group>"; };
+		2BF76A371886038700465603 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = core/Texture.cpp; sourceTree = "<group>"; };
+		2BF76A3E1886F90400465603 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureAtlas.h; path = core/TextureAtlas.h; sourceTree = "<group>"; };
+		2BF76A401886F91800465603 /* TextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureAtlas.cpp; path = core/TextureAtlas.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -832,6 +858,12 @@
 		2B789F82185BD2CB0028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2BF76A3E1886F90400465603 /* TextureAtlas.h */,
+				2BF76A271886030800465603 /* MarkerManager.h */,
+				2BF76A301886034B00465603 /* MarkerGenerator.h */,
+				2BF76A281886030800465603 /* ScreenSpaceGenerator.h */,
+				2BF76A291886030800465603 /* SelectionManager.h */,
+				2BF76A2A1886030800465603 /* Texture.h */,
 				2B3836AC18635CB200467ABD /* VectorObject.h */,
 				2B009C8F185F9065001E2EE8 /* Tesselator.h */,
 				2B009C8B185F8130001E2EE8 /* SharedAttributes.h */,
@@ -876,6 +908,13 @@
 		2B789F83185BD2D00028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2BF76A401886F91800465603 /* TextureAtlas.cpp */,
+				2BF76A341886038700465603 /* MarkerManager.cpp */,
+				2BF76A371886038700465603 /* Texture.cpp */,
+				2BF76A331886038700465603 /* MarkerGenerator.cpp */,
+				2BF76A361886038700465603 /* SelectionManager.cpp */,
+				2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */,
+				2BF76A321886038700465603 /* LayoutManager.cpp */,
 				2B3836AE18635CBC00467ABD /* VectorObject.cpp */,
 				2B009C91185F906D001E2EE8 /* Tesselator.cpp */,
 				2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */,
@@ -1229,6 +1268,7 @@
 			files = (
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
 				2B789F8D185BD3460028E027 /* GlobeMath.h in Headers */,
+				2BF76A2C1886030800465603 /* MarkerManager.h in Headers */,
 				2B789FDD185BE2890028E027 /* WhirlyKitView.h in Headers */,
 				2B009C82185F7F9B001E2EE8 /* GridClipper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
@@ -1237,6 +1277,7 @@
 				2B009D0E186102E4001E2EE8 /* JSONWorker.h in Headers */,
 				2B3836AD18635CB200467ABD /* VectorObject.h in Headers */,
 				2B789FB5185BDA220028E027 /* GlobeView.h in Headers */,
+				2BF76A2D1886030800465603 /* ScreenSpaceGenerator.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
 				2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
@@ -1275,6 +1316,7 @@
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
+				2BF76A2F1886030800465603 /* Texture.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
 				2B789FA3185BD5690028E027 /* GLUtils.h in Headers */,
 				2B009D181861093A001E2EE8 /* clipper.hpp in Headers */,
@@ -1287,8 +1329,10 @@
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2B789FE7185BE3710028E027 /* GlobeLayerViewWatcher.h in Headers */,
+				2BF76A311886034B00465603 /* MarkerGenerator.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
+				2BF76A3F1886F90400465603 /* TextureAtlas.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
 				2B789FF5185BE59F0028E027 /* SceneRendererES2.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
@@ -1299,6 +1343,7 @@
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
 				2B009CF9186102E4001E2EE8 /* Unknown_C.h in Headers */,
+				2BF76A2E1886030800465603 /* SelectionManager.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
 				2B789FED185BE4580028E027 /* MaplyLayerViewWatcher.h in Headers */,
@@ -1378,6 +1423,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
+				2BF76A411886F91800465603 /* TextureAtlas.cpp in Sources */,
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
@@ -1428,6 +1474,7 @@
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
+				2BF76A381886038700465603 /* LayoutManager.cpp in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
 				2B789FDF185BE3420028E027 /* SphericalMercator.cpp in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
@@ -1453,6 +1500,7 @@
 				2B789F95185BD37E0028E027 /* FlatMath.cpp in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
+				2BF76A3A1886038700465603 /* MarkerManager.cpp in Sources */,
 				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B009C7A185F6F6A001E2EE8 /* Dictionary.cpp in Sources */,
@@ -1464,6 +1512,7 @@
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B789FEB185BE4430028E027 /* MaplyLayerViewWatcher.cpp in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
+				2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
@@ -1477,6 +1526,7 @@
 				2B7EF47616025D8C00D4079F /* pj_inv.c in Sources */,
 				2B7EF47716025D8C00D4079F /* PJ_isea.c in Sources */,
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
+				2BF76A3B1886038700465603 /* ScreenSpaceGenerator.cpp in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
@@ -1497,6 +1547,7 @@
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
 				2B789FC6185BDBC40028E027 /* GlobeView.cpp in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
+				2BF76A3C1886038700465603 /* SelectionManager.cpp in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
@@ -1578,6 +1629,7 @@
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
 				2B7EF4CA16025D8C00D4079F /* vector1.c in Sources */,
 				2B789F9D185BD3EE0028E027 /* WhirlyGeometry.cpp in Sources */,
+				2BF76A3D1886038700465603 /* Texture.cpp in Sources */,
 				2BA2325717984F510063CC84 /* glues_error.c in Sources */,
 				2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */,
 				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,

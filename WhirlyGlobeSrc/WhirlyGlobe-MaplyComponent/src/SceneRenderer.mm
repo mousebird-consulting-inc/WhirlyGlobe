@@ -22,6 +22,7 @@
 #import "UIColor+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "DictionaryWrapper_private.h"
+#import "UIImage+Stuff.h"
 
 @implementation WhirlyKitFrameMessage
 @end
@@ -37,7 +38,7 @@ MaplySceneRendererES2::MaplySceneRendererES2()
     static bool dummyInit = false;
     if (!dummyInit)
     {
-//        UIImageDummyFunc();
+        UIImageDummyFunc();
         NSDictionaryDummyFunc();
         NSDictionaryDummyFunc2();
         UIColorDummyFunc();

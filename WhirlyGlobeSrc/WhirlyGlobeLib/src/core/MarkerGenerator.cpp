@@ -212,7 +212,8 @@ void MarkerGenerator::generateDrawables(WhirlyKit::RendererFrameInfo *frameInfo,
 
 void MarkerGenerator::dumpStats()
 {
-    NSLog(@"Marker Generator: %ld markers",markers.size());
+    // Note: Porting
+//    NSLog(@"Marker Generator: %ld markers",markers.size());
 }
 
 MarkerGeneratorAddRequest::MarkerGeneratorAddRequest(SimpleIdentity genId,MarkerGenerator::Marker *marker)
@@ -277,13 +278,13 @@ void MarkerGeneratorEnableRequest::execute2(Scene *scene,WhirlyKit::SceneRendere
     markerGen->enableMarkers(markerIDs,enable);
 }
     
-MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity markerID,TimeInterval fadeUp,TimeInterval fadeDown)
     : GeneratorChangeRequest(genID), fadeUp(fadeUp), fadeDown(fadeDown)
 {    
     markerIDs.push_back(markerID);
 }
 
-MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+MarkerGeneratorFadeRequest::MarkerGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> markerIDs,TimeInterval fadeUp,TimeInterval fadeDown)
     : GeneratorChangeRequest(genID), fadeUp(fadeUp), fadeDown(fadeDown), markerIDs(markerIDs)
 {    
 }

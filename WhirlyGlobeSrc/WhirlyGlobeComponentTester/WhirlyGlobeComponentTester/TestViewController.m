@@ -213,7 +213,7 @@ LocationInfo locations[NumLocations] =
 //        globeViewC.height = 0.8;
 //        [globeViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
 //    } else {
-        mapViewC.height = 1.0;
+        mapViewC.height = 3.0;
         [mapViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:1.0];
 //    }
 
@@ -361,46 +361,44 @@ LocationInfo locations[NumLocations] =
 // Add screen (2D) markers at all our locations
 - (void)addScreenMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    // Note: Porting
-//    CGSize size = CGSizeMake(40, 40);
-//    UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
-//    
-//    NSMutableArray *markers = [NSMutableArray array];
-//    for (unsigned int ii=offset;ii<len;ii+=stride)
-//    {
-//        LocationInfo *location = &locations[ii];
-//        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-//        marker.image = pinImage;
-//        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-//        marker.size = size;
-//        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
-//        marker.layoutImportance = MAXFLOAT;
-//        [markers addObject:marker];
-//    }
-//    
-//    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(1.0)}];
+    CGSize size = CGSizeMake(40, 40);
+    UIImage *pinImage = [UIImage imageNamed:@"map_pin"];
+    
+    NSMutableArray *markers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.image = pinImage;
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.size = size;
+        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+        marker.layoutImportance = MAXFLOAT;
+        [markers addObject:marker];
+    }
+    
+    screenMarkersObj = [baseViewC addScreenMarkers:markers desc:@{kMaplyFade: @(1.0)}];
 }
 
 // Add 3D markers
 - (void)addMarkers:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    // Note: Porting
-//    CGSize size = CGSizeMake(0.05, 0.05);
-//    UIImage *startImage = [UIImage imageNamed:@"Star"];
-//    
-//    NSMutableArray *markers = [NSMutableArray array];
-//    for (unsigned int ii=offset;ii<len;ii+=stride)
-//    {
-//        LocationInfo *location = &locations[ii];
-//        MaplyMarker *marker = [[MaplyMarker alloc] init];
-//        marker.image = startImage;
-//        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-//        marker.size = size;
-//        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
-//        [markers addObject:marker];
-//    }
-//    
-//    markersObj = [baseViewC addMarkers:markers desc:nil];
+    CGSize size = CGSizeMake(0.05, 0.05);
+    UIImage *startImage = [UIImage imageNamed:@"Star"];
+    
+    NSMutableArray *markers = [NSMutableArray array];
+    for (unsigned int ii=offset;ii<len;ii+=stride)
+    {
+        LocationInfo *location = &locations[ii];
+        MaplyMarker *marker = [[MaplyMarker alloc] init];
+        marker.image = startImage;
+        marker.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
+        marker.size = size;
+        marker.userObject = [NSString stringWithFormat:@"%s",location->name];
+        [markers addObject:marker];
+    }
+    
+    markersObj = [baseViewC addMarkers:markers desc:nil];
 }
 
 // Add screen (2D) labels

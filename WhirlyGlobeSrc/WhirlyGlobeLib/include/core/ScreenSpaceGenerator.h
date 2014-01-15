@@ -93,7 +93,7 @@ public:
         /// Rotation clockwise from north
         float rotation;
         /// If we're fading in or out, these are used
-        NSTimeInterval fadeUp,fadeDown;
+        TimeInterval fadeUp,fadeDown;
         /// Sort by draw priority
         int drawPriority;
         /// Visual range
@@ -191,15 +191,15 @@ class ScreenSpaceGeneratorFadeRequest : public GeneratorChangeRequest
 {
 public:
     /// Construct with the IDs for the generator and shape and the fade up/down absolute times
-    ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity shapeID,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,SimpleIdentity shapeID,TimeInterval fadeUp,TimeInterval fadeDown);
     /// Construct with the ID for the generator, a list of IDs for shapes and the fade up/down absolute times
-    ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    ScreenSpaceGeneratorFadeRequest(SimpleIdentity genID,const std::vector<SimpleIdentity> shapeIDs,TimeInterval fadeUp,TimeInterval fadeDown);
     ~ScreenSpaceGeneratorFadeRequest();
     
     virtual void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,Generator *gen);
 
 protected:
-    NSTimeInterval fadeUp,fadeDown;
+    TimeInterval fadeUp,fadeDown;
     std::vector<SimpleIdentity> shapeIDs;
 };
 
@@ -229,7 +229,7 @@ public:
     public:
         ShapeChange();
         SimpleIdentity shapeID;
-        NSTimeInterval fadeUp,fadeDown;
+        TimeInterval fadeUp,fadeDown;
         Point2f offset;
     };
     
