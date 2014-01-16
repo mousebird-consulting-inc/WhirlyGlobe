@@ -150,10 +150,8 @@ MarkerManager::~MarkerManager()
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
 
-SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,Dictionary *desc,ChangeSet &changes)
+SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
-    MarkerInfo markerInfo;
-    markerInfo.parseDict(*desc);
 
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

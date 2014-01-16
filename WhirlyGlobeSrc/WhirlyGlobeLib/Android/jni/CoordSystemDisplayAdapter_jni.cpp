@@ -34,9 +34,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystemDisplayAdap
 		if (!coordAdapter)
 			return;
 		delete coordAdapter;
-		coordAdapter = NULL;
 
-		setHandle(env,obj,coordAdapter);
+		clearHandle(env,obj);
 	}
 	catch (...)
 	{

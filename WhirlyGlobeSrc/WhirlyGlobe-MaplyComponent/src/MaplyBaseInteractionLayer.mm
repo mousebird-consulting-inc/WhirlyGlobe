@@ -451,7 +451,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         ChangeSet changes;
         Dictionary dict;
         [desc copyToMaplyDictionary:&dict];
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, &dict, changes);
+        MarkerInfo markerInfo;
+        markerInfo.parseDict(dict);
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
@@ -540,7 +542,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         ChangeSet changes;
         Dictionary dict;
         [inDesc copyToMaplyDictionary:&dict];
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, &dict, changes);
+        MarkerInfo markerInfo;
+        markerInfo.parseDict(dict);
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];

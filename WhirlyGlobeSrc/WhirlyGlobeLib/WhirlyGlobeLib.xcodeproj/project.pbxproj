@@ -317,6 +317,8 @@
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
 		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
+		2BBDFE741887480D00AE4CEB /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFE731887480D00AE4CEB /* RawData.h */; };
+		2BBDFE761887482800AE4CEB /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFE751887482800AE4CEB /* RawData.cpp */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
@@ -654,6 +656,8 @@
 		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
 		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
 		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
+		2BBDFE731887480D00AE4CEB /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawData.h; path = core/RawData.h; sourceTree = "<group>"; };
+		2BBDFE751887482800AE4CEB /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = core/RawData.cpp; sourceTree = "<group>"; };
 		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -858,6 +862,7 @@
 		2B789F82185BD2CB0028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2BBDFE731887480D00AE4CEB /* RawData.h */,
 				2BF76A3E1886F90400465603 /* TextureAtlas.h */,
 				2BF76A271886030800465603 /* MarkerManager.h */,
 				2BF76A301886034B00465603 /* MarkerGenerator.h */,
@@ -908,6 +913,7 @@
 		2B789F83185BD2D00028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2BBDFE751887482800AE4CEB /* RawData.cpp */,
 				2BF76A401886F91800465603 /* TextureAtlas.cpp */,
 				2BF76A341886038700465603 /* MarkerManager.cpp */,
 				2BF76A371886038700465603 /* Texture.cpp */,
@@ -1291,6 +1297,7 @@
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				2B789F8E185BD3460028E027 /* Identifiable.h in Headers */,
+				2BBDFE741887480D00AE4CEB /* RawData.h in Headers */,
 				2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */,
 				2B789F8F185BD3460028E027 /* OpenGLES2Program.h in Headers */,
 				2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */,
@@ -1513,6 +1520,7 @@
 				2B789FEB185BE4430028E027 /* MaplyLayerViewWatcher.cpp in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
 				2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */,
+				2BBDFE761887482800AE4CEB /* RawData.cpp in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,

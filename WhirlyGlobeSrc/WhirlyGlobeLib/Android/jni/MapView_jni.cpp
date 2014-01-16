@@ -11,6 +11,7 @@
 #import "com_mousebirdconsulting_maply_MapView.h"
 #import "com_mousebirdconsulting_maply_Point3d.h"
 #import "com_mousebirdconsulting_maply_Matrix4d.h"
+#import "Maply_utils_jni.h"
 #import "WhirlyGlobe.h"
 
 using namespace Eigen;

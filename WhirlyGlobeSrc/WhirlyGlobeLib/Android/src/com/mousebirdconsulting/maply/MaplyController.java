@@ -1,0 +1,313 @@
+package com.mousebirdconsulting.maply;
+
+import java.util.List;
+
+import android.app.*;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
+import android.opengl.GLSurfaceView;
+import android.os.Build;
+import android.view.*;
+import android.widget.Toast;
+
+public class MaplyController implements View.OnTouchListener
+{	
+	private GLSurfaceView glSurfaceView;
+	
+	// Represents an ID that doesn't have data associated with it
+	static long EmptyIdentity = 0;
+	
+	// Implements the GL renderer protocol
+	RendererWrapper renderWrapper;
+	
+	// Coordinate system to display conversion
+	CoordSystemDisplayAdapter coordAdapter;
+	
+	// Scene stores the objects
+	MapScene mapScene;
+	
+	// MapView defines how we're looking at the data
+	MapView mapView;
+
+	// Managers are thread safe objects for handling adding and removing types of data
+	VectorManager vecManager;
+	MarkerManager markerManager;
+	
+	public MaplyController(Activity mainActivity) 
+	{
+//		System.loadLibrary("Maply");
+		
+		// Need a coordinate system to display conversion.
+		// For now this just sets up spherical mercator
+		coordAdapter = new CoordSystemDisplayAdapter();
+
+		// Create the scene and map view 
+		mapScene = new MapScene(coordAdapter);
+		mapView = new MapView(coordAdapter);		
+		
+		// Fire up the managers.  Can't do anything without these.
+		vecManager = new VectorManager(mapScene);
+		markerManager = new MarkerManager(mapScene);
+
+		// Now for the object that kicks off the rendering
+		renderWrapper = new RendererWrapper();
+		renderWrapper.mapScene = mapScene;
+		renderWrapper.mapView = mapView;
+		
+        ActivityManager activityManager = (ActivityManager) mainActivity.getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
+        
+        final boolean supportsEs2 = configurationInfo.reqGlEsVersion > 0x20000 || isProbablyEmulator();
+        if (supportsEs2)
+        {
+        	glSurfaceView = new GLSurfaceView(mainActivity);
+        	glSurfaceView.setOnTouchListener(this);
+        	setupGestures(glSurfaceView);
+        	
+        	if (isProbablyEmulator())
+        	{
+        		glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        	}
+        	
+        	glSurfaceView.setEGLContextClientVersion(2);
+        	glSurfaceView.setRenderer(renderWrapper);
+        	mainActivity.setContentView(glSurfaceView);        
+        	        
+        } else {
+        	Toast.makeText(mainActivity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
+        	return;
+        }
+	}
+	
+	// Tie in the gestures we want
+	ScaleGestureDetector sgd;
+	GestureDetector gd;
+	private void setupGestures(View view)
+	{
+		sgd = new ScaleGestureDetector(view.getContext(),new ScaleListener(this));
+		gd = new GestureDetector(view.getContext(),new GestureListener(this));
+	}
+	
+	// Listening for a pinch scale event
+	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
+	{
+		MaplyController maplyControl;
+		double startZ;
+		float startDist;
+		
+		ScaleListener(MaplyController inMaplyControl)
+		{
+			maplyControl = inMaplyControl;
+		}
+		
+		@Override
+		public boolean onScaleBegin(ScaleGestureDetector detector)
+		{
+			startZ = maplyControl.mapView.getLoc().getZ();
+			startDist = detector.getCurrentSpan();
+			return true;
+		}
+		
+		@Override
+		public boolean onScale(ScaleGestureDetector detector)
+		{
+			float curDist = detector.getCurrentSpan();
+			if (curDist > 0.0 && startDist > 0.0)
+			{
+				float scale = startDist/curDist;
+				Point3d pos = maplyControl.mapView.getLoc();
+				maplyControl.mapView.setLoc(pos.getX(),pos.getY(),startZ*scale);
+//				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
+				return true;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public void onScaleEnd(ScaleGestureDetector detector)
+		{
+		}
+	}
+	
+	// Listening for the rest of the interesting events
+	private class GestureListener implements GestureDetector.OnGestureListener
+	{
+		MaplyController maplyControl;
+		
+		GestureListener(MaplyController inMaplyControl)
+		{
+			maplyControl = inMaplyControl;
+		}
+		
+		Point2d startScreenPos;
+		Point3d startPos;
+		Point3d startOnPlane;
+		Matrix4d startTransform;
+		@Override
+		public boolean onDown(MotionEvent e) 
+		{
+			// Starting state for pan
+			startScreenPos = new Point2d(e.getX(),e.getY());
+			startTransform = maplyControl.mapView.calcModelViewMatrix();
+			startPos = maplyControl.mapView.getLoc();
+			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+
+			return false;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+				float distanceY) 
+		{
+			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
+			
+			// New state for pan
+			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			if (hit != null)
+			{
+				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startPos.getX(),
+						startOnPlane.getY()-hit.getY()+startPos.getY(),
+						maplyControl.mapView.getLoc().getZ());
+				maplyControl.mapView.setLoc(newPos);
+//				Log.d("Maply","New Pos = (" + newPos.getX() + "," + newPos.getY() + "," + newPos.getZ() + ")");
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) 
+		{
+//			Log.d("Maply","Fling");
+			return false;
+		}
+
+		@Override
+		public void onLongPress(MotionEvent e) 
+		{
+//			Log.d("Maply","Long Press");
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e) 
+		{
+//			Log.d("Maply","ShowPress");
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) 
+		{
+//			Log.d("Maply","Single Tap Up");
+			return false;
+		}		
+	}
+	
+	// Where we receive events from the gl view
+	@Override
+	public boolean onTouch(View v, MotionEvent event) 
+	{
+		// Try for a pinch or another gesture
+		return gd.onTouchEvent(event) ||
+				sgd.onTouchEvent(event);
+	}      
+			
+	public void dispose()
+	{
+		vecManager.dispose();
+		vecManager = null;
+		
+		mapScene.dispose();
+		mapScene = null;
+		mapView.dispose();
+		mapView = null;
+		
+		renderWrapper = null;
+	}
+	
+	/**
+	 * Add zero or more vectors to the MaplyController.
+	 * @param vecs The list of vectors to display.
+	 */
+	public ComponentObject addVectors(List<VectorObject> vecs,VectorInfo vecInfo)
+	{
+		// Vectors are simple enough to just add
+		ChangeSet changes = new ChangeSet();
+		long vecId = vecManager.addVectors(vecs.toArray(new VectorObject [vecs.size()]),vecInfo,changes);
+		mapScene.addChanges(changes);
+		
+		// Return a component object to represent the group
+		if (vecId != EmptyIdentity)
+		{
+			ComponentObject compObj = new ComponentObject();
+			compObj.addVectorID(vecId);
+
+			return compObj;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Add zero or more markers to the MaplyController
+	 * @param markers The list of markers to display.
+	 * @param markerInfo
+	 */
+	public ComponentObject addScreenMarkers(List<ScreenMarker> markers,MarkerInfo markerInfo)
+	{		
+		// Convert to the internal representation of the engine
+		InternalMarker intMarkers[] = new InternalMarker[markers.size()];
+		int which = 0;
+		for (ScreenMarker marker : markers)
+		{
+			intMarkers[which] = new InternalMarker(marker,markerInfo);
+			which++;
+		}
+		
+		ChangeSet changes = new ChangeSet();
+		long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+		mapScene.addChanges(changes);
+		
+		if (markerId != EmptyIdentity)
+		{
+			ComponentObject compObj = new ComponentObject();
+			compObj.addMarkerID(markerId);
+			
+			return compObj;
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Remove all data associated with the given component object.
+	 * @param compObj Component object to remove.
+	 */
+	public void removeObject(ComponentObject compObj)
+	{
+		ChangeSet changes = new ChangeSet();
+		compObj.clear(this, changes);
+		mapScene.addChanges(changes);
+	}
+	
+	/**
+	 * Set the current view position.
+	 * @param x Horizontal location of the center of the screen in radians (not degrees).
+	 * @param y Vertical location of the center of the screen in radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPosition(double x,double y,double z)
+	{
+		mapView.setLoc(x, y, z);
+	}
+	
+    private boolean isProbablyEmulator() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+                && (Build.FINGERPRINT.startsWith("generic")
+                        || Build.FINGERPRINT.startsWith("unknown")
+                        || Build.MODEL.contains("google_sdk")
+                        || Build.MODEL.contains("Emulator")
+                        || Build.MODEL.contains("Android SDK built for x86"));
+    }
+}

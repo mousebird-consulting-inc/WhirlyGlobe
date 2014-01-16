@@ -33,56 +33,5 @@ float DeviceScreenScale()
 {
     return [UIScreen mainScreen].scale;
 }
-    
-RawData::RawData()
-{
-}
-    
-RawData::~RawData()
-{
-}
-    
-RawDataWrapper::RawDataWrapper(const void *inData,unsigned long dataLen,bool freeWhenDone)
-    : len(dataLen), freeWhenDone(freeWhenDone)
-{
-    data = (const unsigned char *)inData;
-}
-    
-RawDataWrapper::~RawDataWrapper()
-{
-    if (freeWhenDone)
-        delete data;
-    data = NULL;
-}
-    
-const unsigned char *RawDataWrapper::getRawData() const
-{
-    return data;
-}
-    
-unsigned long RawDataWrapper::getLen() const
-{
-    return len;
-}
-    
-MutableRawData::MutableRawData()
-{
-}
-    
-MutableRawData::~MutableRawData()
-{
-}
-    
-const unsigned char *MutableRawData::getRawData() const
-{
-    if (data.empty())
-        return NULL;
-    return &data[0];
-}
-    
-unsigned long MutableRawData::getLen() const
-{
-    return data.size();
-}
 
 }

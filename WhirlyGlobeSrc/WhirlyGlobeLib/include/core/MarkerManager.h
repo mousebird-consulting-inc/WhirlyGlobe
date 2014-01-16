@@ -138,7 +138,7 @@ public:
     virtual ~MarkerManager();
     
     /// Add an array of markers, returning the identity that corresponds
-    SimpleIdentity addMarkers(const std::vector<Marker *> &markers,Dictionary *desc,ChangeSet &changes);
+    SimpleIdentity addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes);
     
     /// Remove the given set of markers
     void removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes);

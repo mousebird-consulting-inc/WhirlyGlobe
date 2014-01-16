@@ -1,8 +1,8 @@
 /*
- *  Platform.h
+ *  platform.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 12/13/13.
+ *  Created by Steve Gifford on 12/18/13.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,25 @@
  *
  */
 
-#import <ctime>
-#import <vector>
-#import "WhirlyTypes.h"
+#import "platform.h"
 
 namespace WhirlyKit
 {
 
-// Wrapper for platform specific time function
-extern TimeInterval TimeGetCurrent();
+// Return current time in seconds as a double
+TimeInterval TimeGetCurrent()
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_REALTIME, &tp);
     
-// Retina vs. not on iOS.  Always 1.0 on Android
-extern float DeviceScreenScale();
+    return (double)tp.tv_sec + tp.tv_nsec * (double)1e-9;
     
+}
+
+// No retina on Android to mess with scale
+float DeviceScreenScale()
+{
+	return 1.0;
+}
+
 }

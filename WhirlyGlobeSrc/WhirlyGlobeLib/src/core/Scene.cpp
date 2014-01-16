@@ -49,6 +49,12 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
+
+    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
     
     // Also toss in a screen space generator to share amongst the layers
     ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
@@ -86,12 +92,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 //    fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
 //    
 //    activeModels = [NSMutableArray array];
-    
-    pthread_mutex_init(&changeRequestLock,NULL);        
-    pthread_mutex_init(&subTexLock, NULL);
-    pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&generatorLock,NULL);
-    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()
