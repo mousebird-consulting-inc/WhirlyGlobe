@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_Texture
+ * Method:    setBitmap
+ * Signature: (Landroid/graphics/Bitmap;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_Texture_setBitmap
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_Texture
+ * Method:    getID
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_Texture_getID
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_Texture
  * Method:    initialise
  * Signature: ()V
  */

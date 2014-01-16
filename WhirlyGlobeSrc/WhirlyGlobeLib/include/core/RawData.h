@@ -62,6 +62,8 @@ class MutableRawData : public RawData
 {
 public:
     MutableRawData();
+    // Make a copy of the data and store it
+    MutableRawData(void *data,unsigned int size);
     virtual ~MutableRawData();
     // Return a pointer to the raw data we're keeping
     virtual const unsigned char *getRawData() const;

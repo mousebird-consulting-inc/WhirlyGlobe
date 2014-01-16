@@ -78,6 +78,9 @@ public:
     Texture(const std::string &name,FILE *fp);
 	
 	virtual ~Texture();
+    
+    /// Set the raw data directly
+    void setRawData(RawData *rawData,int width,int height);
 	    
     /// Process the data for display based on the format.
     RawData *processData();

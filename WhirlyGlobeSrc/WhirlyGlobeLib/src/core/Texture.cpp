@@ -146,6 +146,15 @@ Texture::~Texture()
         delete texData;
 	texData = NULL;
 }
+    
+void Texture::setRawData(RawData *inRawData,int inWidth,int inHeight)
+{
+    if (texData)
+        delete texData;
+    texData = inRawData;
+    width = inWidth;
+    height = inHeight;
+}
 
 RawData *Texture::processData()
 {

@@ -6,6 +6,8 @@ import java.util.*;
 import android.os.*;
 import android.app.*;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.view.Menu;
 //import android.widget.Toast;
@@ -80,17 +82,26 @@ public class MainActivity extends Activity
     	        	// Add the vectors all at once
     	        	mapControl.addVectors(vecObjs,vecInfo);
     	        	
-    	        	// And a marker
-    	        	ScreenMarker testMarker = new ScreenMarker();
-    	        	testMarker.loc = Point2d.FromDegrees(-122, 37);
-    	        	testMarker.color = Color.argb(255, 255, 0, 255);
-    	        	testMarker.size = new Point2d(24,24);
-    	        	ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
-    	        	markers.add(testMarker);
-    	        	
-    	        	MarkerInfo markerInfo = new MarkerInfo();
-    	        	
-    	        	mapControl.addScreenMarkers(markers,markerInfo);
+    	        	// Image for a marker
+    	        	String bitmapName = "Star.png";
+    	        	Bitmap bitmap = readBitmap(bitmapName);
+    	        	if (bitmap != null)
+    	        	{
+    	        		NamedBitmap namedBitmap = new NamedBitmap(bitmapName,bitmap);
+    	        		
+        	        	// And a marker
+        	        	ScreenMarker testMarker = new ScreenMarker();
+        	        	testMarker.loc = Point2d.FromDegrees(-122, 37);
+        	        	testMarker.color = Color.argb(255, 255, 0, 255);
+        	        	testMarker.size = new Point2d(24,24);
+        	        	testMarker.image = namedBitmap;
+        	        	ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+        	        	markers.add(testMarker);
+        	        	
+        	        	MarkerInfo markerInfo = new MarkerInfo();
+        	        	
+        	        	mapControl.addScreenMarkers(markers,markerInfo);
+    	        	}    	        	
     	        } catch (Exception e) 
     	        {
     	            e.printStackTrace();
@@ -100,6 +111,23 @@ public class MainActivity extends Activity
     	thread.start();
     	
         super.onCreate(savedInstanceState);
+    }
+    
+    // Read a Bitmap from a file
+    public Bitmap readBitmap(String fileName)
+    {
+    	// Load a geoJSON file
+    	AssetManager am = getAssets();
+    	try {
+			InputStream is = am.open(fileName);
+			if (is != null)
+				return BitmapFactory.decodeStream(is);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			return null;
+		}    	
+    	
+    	return null;
     }
     
     // Read a GeoJSON file.  Return the string or null.
@@ -124,7 +152,6 @@ public class MainActivity extends Activity
 				str = buf.toString();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			return null;
 		}
     	

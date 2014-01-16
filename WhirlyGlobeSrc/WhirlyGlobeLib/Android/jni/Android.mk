@@ -87,7 +87,7 @@ MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp
 MAPLY_PLATFORM_SRC_DIR := $(SRC_DIR)/android
 LOCAL_SRC_FILES += $(MAPLY_PLATFORM_FILES:%=$(MAPLY_PLATFORM_SRC_DIR)/%)
 
-LOCAL_LDLIBS := -llog -lGLESv2 -lGLESv1_CM -landroid -lEGL
+LOCAL_LDLIBS := -llog -lGLESv2 -lGLESv1_CM -landroid -lEGL -ljnigraphics
 
 NDK_DEBUG=1
 

@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_ChangeSet
+ * Method:    addTexture
+ * Signature: (Lcom/mousebirdconsulting/maply/Texture;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_addTexture
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ChangeSet
+ * Method:    removeTexture
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_removeTexture
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ChangeSet
  * Method:    initialise
  * Signature: ()V
  */

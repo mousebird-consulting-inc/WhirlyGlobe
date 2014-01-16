@@ -38,6 +38,48 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_dispose
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::dispose()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::dispose()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_addTexture
+  (JNIEnv *env, jobject obj, jobject texObj)
+{
+	try
+	{
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
+		Texture *texture = getHandle<Texture>(env,texObj);
+		if (!changeSet || !texture)
+			return;
+
+		// We take control of the Texture * as soon as it goes into the change set
+		clearHandle(env,texObj);
+		changeSet->push_back(new AddTextureReq(texture));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::addTexture()");
+	}
+}
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ChangeSet
+ * Method:    removeTexture
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_removeTexture
+  (JNIEnv *env, jobject obj, jlong texID)
+{
+	try
+	{
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
+		if (!changeSet)
+			return;
+
+		changeSet->push_back(new RemTextureReq(texID));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::removeTexture()");
 	}
 }

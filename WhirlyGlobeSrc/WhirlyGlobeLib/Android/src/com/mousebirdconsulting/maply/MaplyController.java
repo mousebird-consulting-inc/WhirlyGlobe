@@ -33,11 +33,14 @@ public class MaplyController implements View.OnTouchListener
 	VectorManager vecManager;
 	MarkerManager markerManager;
 	
+	// Manage bitmaps and their conversion to textures
+	TextureManager texManager = new TextureManager();
+	
 	public MaplyController(Activity mainActivity) 
 	{
 //		System.loadLibrary("Maply");
 		
-		// Need a coordinate system to display conversion.
+		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
 		coordAdapter = new CoordSystemDisplayAdapter();
 
@@ -256,16 +259,26 @@ public class MaplyController implements View.OnTouchListener
 	 */
 	public ComponentObject addScreenMarkers(List<ScreenMarker> markers,MarkerInfo markerInfo)
 	{		
+		ChangeSet changes = new ChangeSet();
+
 		// Convert to the internal representation of the engine
 		InternalMarker intMarkers[] = new InternalMarker[markers.size()];
 		int which = 0;
 		for (ScreenMarker marker : markers)
 		{
-			intMarkers[which] = new InternalMarker(marker,markerInfo);
+			InternalMarker intMarker = new InternalMarker(marker,markerInfo);
+			// Map the bitmap to a texture ID
+			long texID = EmptyIdentity;
+			if (marker.image != null)
+				texID = texManager.addTexture(marker.image, changes);
+			if (texID != EmptyIdentity)
+				intMarker.addTexID(texID);
+			
+			intMarkers[which] = intMarker;
 			which++;
 		}
-		
-		ChangeSet changes = new ChangeSet();
+				
+		// Add the markers and flush the changes
 		long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
 		mapScene.addChanges(changes);
 		

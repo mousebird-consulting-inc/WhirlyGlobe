@@ -18,6 +18,7 @@
  *
  */
 
+#include <unistd.h>
 #import "rawData.h"
 
 namespace WhirlyKit
@@ -56,6 +57,13 @@ unsigned long RawDataWrapper::getLen() const
 
 MutableRawData::MutableRawData()
 {
+}
+    
+MutableRawData::MutableRawData(void *inData,unsigned int size)
+{
+    data.resize(size);
+    
+    memcpy(&data[0], inData, size);
 }
 
 MutableRawData::~MutableRawData()

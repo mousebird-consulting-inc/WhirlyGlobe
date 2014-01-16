@@ -10,19 +10,19 @@ class Texture
 	}
 	Texture(Bitmap inBitmap)
 	{
-		bitmap = inBitmap;
+		setBitmap(inBitmap);
 	}
-	
 	public void finalize()
 	{
 		dispose();
 	}
-
-	// Textures need to be created with bitmaps
-	public Bitmap bitmap = null;
-
+	
+	// This scoops out the bytes and creates an actual Maply Texture.
+	// Returns false if it can't figure it out
+	public native boolean setBitmap(Bitmap inBitmap);
+	
 	// Once created, this is how we identify it to the rendering engine
-	long textureID = 0;
+	public native long getID();
 	
 	public native void initialise();
 	public native void dispose();

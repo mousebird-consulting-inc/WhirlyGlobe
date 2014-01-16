@@ -52,6 +52,9 @@ public class ComponentObject
 			control.markerManager.removeMarkers(convertIDs(markerIDs), changes);
 			markerIDs.clear();
 		}
+		if (texIDs != null && texIDs.size() > 0)
+			for (long texID: texIDs)
+				control.texManager.removeTexture(texID, changes);
 	}
 	
 	// Textures in use by this object
