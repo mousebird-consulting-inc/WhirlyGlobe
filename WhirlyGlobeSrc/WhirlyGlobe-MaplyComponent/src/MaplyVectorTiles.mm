@@ -301,14 +301,14 @@ static const float StrokeFactor = 2.0;
     allowOverlap = false;
     if (styleEntry[@"allow-overlap"])
         allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
-    float strokeWidth = 1.0;
+    float strokeWidth = 2.0;
     
     if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
         self.geomAdditive = true;
     
     desc = [NSMutableDictionary dictionary];
     
-    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(StrokeFactor*width, StrokeFactor*width) color:fillColor strokeSize:StrokeFactor*strokeWidth strokeColor:strokeColor];
+    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*StrokeFactor*width, 4*StrokeFactor*width) color:fillColor strokeSize:2*StrokeFactor*strokeWidth strokeColor:strokeColor];
     
     return self;
 }
