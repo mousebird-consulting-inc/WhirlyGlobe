@@ -220,9 +220,9 @@ using namespace WhirlyGlobe;
     pinchDelegate.northUp = keepNorthUp;
 
     if (keepNorthUp)
-    {
         self.rotateGesture = false;
-    }
+    else
+        self.rotateGesture = true;
 }
 
 - (bool)keepNorthUp
