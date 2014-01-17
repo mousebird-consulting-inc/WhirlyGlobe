@@ -78,7 +78,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
-    NSObject<MaplyTileSource> *tileSource;
+    NSObject<MaplyTileSource> *_tileSource;
     int minZoom,maxZoom;
     int tileSize;
     bool sourceWantsAsync;
@@ -99,7 +99,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     coordSys = inCoordSys;
-    tileSource = inTileSource;
+    _tileSource = inTileSource;
     _coverPoles = true;
     _numSimultaneousFetches = 8;
     _imageDepth = 1;
@@ -127,13 +127,13 @@ using namespace WhirlyKit;
     _importanceScale = 1.0;
     
     // See if we're letting the source do the async calls r what
-    sourceWantsAsync = [tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
+    sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
     
     // See if the delegate is doing variable sized tiles (kill me)
-    variableSizeTiles = [tileSource respondsToSelector:@selector(tileSizeForTile:)];
+    variableSizeTiles = [_tileSource respondsToSelector:@selector(tileSizeForTile:)];
     
     // Can answer questions about tiles
-    canDoValidTiles = [tileSource respondsToSelector:@selector(validTile:bbox:)];
+    canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     return self;
 }
@@ -146,9 +146,9 @@ using namespace WhirlyKit;
     _renderer = renderer;
 
     // Cache min and max zoom.  Tile sources might do a lookup for these
-    minZoom = [tileSource minZoom];
-    maxZoom = [tileSource maxZoom];
-    tileSize = [tileSource tileSize];
+    minZoom = [_tileSource minZoom];
+    maxZoom = [_tileSource maxZoom];
+    tileSize = [_tileSource tileSize];
     
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
@@ -191,6 +191,20 @@ using namespace WhirlyKit;
     [super.layerThread addLayer:quadLayer];
 
     return true;
+}
+
+- (void)setTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(setTileSource:) onThread:super.layerThread withObject:tileSource waitUntilDone:NO];
+        return;
+    }
+    
+    _tileSource = tileSource;
+    
+    [self setupTileLoader];
+    [quadLayer refresh];
 }
 
 - (void)setupTileLoader
@@ -510,14 +524,14 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:&bbox])
             return 0.0;
     }
 
     int thisTileSize = tileSize;
     if (variableSizeTiles)
     {
-        thisTileSize = [tileSource tileSizeForTile:tileID];
+        thisTileSize = [_tileSource tileSizeForTile:tileID];
     }
 
     double import = 0.0;
@@ -566,9 +580,9 @@ using namespace WhirlyKit;
     }
 
     // Check with the tile source
-    bool isLocal = [tileSource respondsToSelector:@selector(tileIsLocal:)];
+    bool isLocal = [_tileSource respondsToSelector:@selector(tileIsLocal:)];
     if (isLocal)
-        isLocal = [tileSource tileIsLocal:tileID];
+        isLocal = [_tileSource tileIsLocal:tileID];
     // And the elevation delegate, if there is one
     if (isLocal && elevDelegate)
     {
@@ -621,11 +635,11 @@ using namespace WhirlyKit;
         {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                            ^{                               
-                               [tileSource startFetchLayer:self tile:tileID];
+                               [_tileSource startFetchLayer:self tile:tileID];
                            }
                            );
         } else {
-            [tileSource startFetchLayer:self tile:tileID];
+            [_tileSource startFetchLayer:self tile:tileID];
         }
         return;
     }
@@ -656,7 +670,7 @@ using namespace WhirlyKit;
         }
 
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [tileSource imageForTile:tileID];
+        id tileReturn = [_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
         
