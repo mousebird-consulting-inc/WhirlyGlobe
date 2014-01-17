@@ -73,6 +73,11 @@
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/** @brief Set the active tile source.
+    @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
+ */
+@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  When off, the layer will stop working and calling its delegate.
  */

@@ -42,7 +42,6 @@ using namespace WhirlyKit;
     MaplyCoordinateSystem *coordSys;
     WhirlyKitQuadTileOfflineLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
-    NSObject<MaplyTileSource> *tileSource;
     Scene *scene;
     bool sourceSupportsMulti;
     int minZoom,maxZoom;
@@ -55,7 +54,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     coordSys = inCoordSys;
-    tileSource = inTileSource;
+    _tileSource = inTileSource;
     _maxTiles = 256;
     _numSimultaneousFetches = 8;
     _flipY = true;
@@ -70,12 +69,26 @@ using namespace WhirlyKit;
     _importanceScale = 1.0;
     
     // Check if the source can handle multiple images
-    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
+    sourceSupportsMulti = [_tileSource respondsToSelector:@selector(imageForTile:numImages:)];
 
     // Can answer questions about tiles
-    canDoValidTiles = [tileSource respondsToSelector:@selector(validTile:bbox:)];
+    canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     return self;
+}
+
+- (void)setTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(setTileSource:) onThread:super.layerThread withObject:tileSource waitUntilDone:NO];
+        return;
+    }
+    
+    _tileSource = tileSource;
+    
+    [self setupTileLoader];
+    [quadLayer refresh];
 }
 
 - (void)setImportanceScale:(float)importanceScale
@@ -129,12 +142,24 @@ using namespace WhirlyKit;
     super.layerThread = inLayerThread;
     scene = inScene;
     
-    minZoom = [tileSource minZoom];
-    maxZoom = [tileSource maxZoom];
-    tileSize = [tileSource tileSize];
+    minZoom = [_tileSource minZoom];
+    maxZoom = [_tileSource maxZoom];
+    tileSize = [_tileSource tileSize];
 
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileOfflineLoader alloc] initWithName:@"Offline" dataSource:self];
+    [self setupTileLoader];
+    
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.maxTiles = _maxTiles;
+    
+    [super.layerThread addLayer:quadLayer];
+    
+    return true;
+}
+
+- (void)setupTileLoader
+{
     tileLoader.outputDelegate = self;
     tileLoader.period = _period;
     Mbr mbr = Mbr(Point2f(_bbox.ll.x,_bbox.ll.y),Point2f(_bbox.ur.x,_bbox.ur.y));
@@ -145,13 +170,6 @@ using namespace WhirlyKit;
     tileLoader.sizeY = _textureSize.height;
     tileLoader.autoRes = _autoRes;
     tileLoader.previewLevels = _previewLevels;
-    
-    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-    quadLayer.maxTiles = _maxTiles;
-    
-    [super.layerThread addLayer:quadLayer];
-    
-    return true;
 }
 
 /// Return the coordinate system we're working in
@@ -205,7 +223,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:&bbox])
             return 0.0;
     }
     
@@ -222,7 +240,7 @@ using namespace WhirlyKit;
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
     
-    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
     {
         int y = (1<<level)-tileID.y-1;
@@ -233,7 +251,7 @@ using namespace WhirlyKit;
     void (^workBlock)() =
     ^{
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [tileSource imageForTile:tileID];
+        id tileReturn = [_tileSource imageForTile:tileID];
         
         if ([tileReturn isKindOfClass:[NSError class]])
         {
@@ -244,7 +262,7 @@ using namespace WhirlyKit;
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -277,6 +295,11 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
+    id oldTileSource = args[4];
+    
+    // This might happen if we change tile sources while we're waiting for a network call
+    if (_tileSource != oldTileSource)
+        return;
     
     [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
 }
