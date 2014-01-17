@@ -140,9 +140,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2BAD0ECB1852876900FFB126 /* vector_dice */ = {
+		2BAD0ECB1852876900FFB126 /* carto_vector_dice */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BAD0ED51852876900FFB126 /* Build configuration list for PBXNativeTarget "vector_dice" */;
+			buildConfigurationList = 2BAD0ED51852876900FFB126 /* Build configuration list for PBXNativeTarget "carto_vector_dice" */;
 			buildPhases = (
 				2BAD0EC81852876900FFB126 /* Sources */,
 				2BAD0EC91852876900FFB126 /* Frameworks */,
@@ -152,7 +152,7 @@
 			);
 			dependencies = (
 			);
-			name = vector_dice;
+			name = carto_vector_dice;
 			productName = vector_dice;
 			productReference = 2BAD0ECC1852876900FFB126 /* vector_dice */;
 			productType = "com.apple.product-type.tool";
@@ -166,7 +166,7 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "mousebird consulting";
 			};
-			buildConfigurationList = 2BAD0EC71852876900FFB126 /* Build configuration list for PBXProject "vector_dice" */;
+			buildConfigurationList = 2BAD0EC71852876900FFB126 /* Build configuration list for PBXProject "carto_vector_dice" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -178,7 +178,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2BAD0ECB1852876900FFB126 /* vector_dice */,
+				2BAD0ECB1852876900FFB126 /* carto_vector_dice */,
 			);
 		};
 /* End PBXProject section */
@@ -285,7 +285,7 @@
 					"-lboost_filesystem-mt",
 					"-lboost_system-mt",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = carto_vector_dice;
 			};
 			name = Debug;
 		};
@@ -304,14 +304,14 @@
 					"-lboost_filesystem-mt",
 					"-lboost_system-mt",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = carto_vector_dice;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2BAD0EC71852876900FFB126 /* Build configuration list for PBXProject "vector_dice" */ = {
+		2BAD0EC71852876900FFB126 /* Build configuration list for PBXProject "carto_vector_dice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BAD0ED31852876900FFB126 /* Debug */,
@@ -320,7 +320,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BAD0ED51852876900FFB126 /* Build configuration list for PBXNativeTarget "vector_dice" */ = {
+		2BAD0ED51852876900FFB126 /* Build configuration list for PBXNativeTarget "carto_vector_dice" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BAD0ED61852876900FFB126 /* Debug */,
