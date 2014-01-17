@@ -5,6 +5,11 @@ import java.util.List;
 import android.app.*;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.view.*;
@@ -291,6 +296,68 @@ public class MaplyController implements View.OnTouchListener
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Add zero or more screen labels to the MaplyController.
+	 * @param labels
+	 * @param labelInfo
+	 * @return
+	 */
+	public ComponentObject addScreenLabels(List<ScreenLabel> labels,LabelInfo labelInfo)
+	{
+		ChangeSet changes = new ChangeSet();
+		
+		// Note: Porting
+		// We'll just turn these into markers for now
+		InternalMarker intMarkers[] = new InternalMarker[labels.size()];		
+		ComponentObject compObj = new ComponentObject();
+		int which = 0;
+		for (ScreenLabel label: labels)
+		{
+			// Render the text into a bitmap
+			if (label.text != null && label.text.length() > 0)
+			{
+				Paint p = new Paint();
+				p.setTextSize(labelInfo.fontSize);
+				p.setColor(Color.WHITE);
+				Rect bounds = new Rect();
+				p.getTextBounds(label.text, 0, label.text.length(), bounds);
+				int textLen = bounds.right;
+				int textHeight = -bounds.top;
+
+				// Draw into a bitmap
+				Bitmap bitmap = Bitmap.createBitmap(textLen, textHeight, Bitmap.Config.ARGB_8888);
+				Canvas c = new Canvas(bitmap);
+				c.drawColor(0x00000000);
+				c.drawText(label.text, bounds.left, -bounds.top, p);
+				
+				InternalMarker intMarker = new InternalMarker();
+				intMarker.setLoc(label.loc);
+				intMarker.setHeight(textHeight);
+				intMarker.setWidth(textLen);
+				
+				NamedBitmap nameBitmap = new NamedBitmap(label.text,bitmap);
+				long texID = texManager.addTexture(nameBitmap, changes);
+				if (texID != EmptyIdentity)
+				{
+					intMarker.addTexID(texID);
+					compObj.addTexID(texID);
+				}
+				intMarkers[which] = intMarker;
+			}
+			which++;
+		}
+
+		MarkerInfo markerInfo = new MarkerInfo();
+		long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+		if (markerId != EmptyIdentity)
+			compObj.addMarkerID(markerId);
+
+		// Flush the text changes
+		mapScene.addChanges(changes);
+		
+		return compObj;
 	}
 
 	/**

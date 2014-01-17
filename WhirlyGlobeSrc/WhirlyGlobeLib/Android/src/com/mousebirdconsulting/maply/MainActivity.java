@@ -102,6 +102,17 @@ public class MainActivity extends Activity
         	        	
         	        	mapControl.addScreenMarkers(markers,markerInfo);
     	        	}    	        	
+    	        	
+    	        	// Draw some text
+    	        	ScreenLabel testLabel = new ScreenLabel();
+    	        	testLabel.loc = Point2d.FromDegrees(-118, 35);
+    	        	testLabel.text = "Test Text";
+    	        	ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+    	        	labels.add(testLabel);
+    	        	LabelInfo labelInfo = new LabelInfo();
+    	        	labelInfo.fontSize = 24.f;
+    	        	mapControl.addScreenLabels(labels,labelInfo);
+    	        	
     	        } catch (Exception e) 
     	        {
     	            e.printStackTrace();
