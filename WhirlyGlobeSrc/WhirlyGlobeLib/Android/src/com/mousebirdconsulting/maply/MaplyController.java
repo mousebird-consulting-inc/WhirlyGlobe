@@ -92,8 +92,11 @@ public class MaplyController implements View.OnTouchListener
 	GestureDetector gd;
 	private void setupGestures(View view)
 	{
-		sgd = new ScaleGestureDetector(view.getContext(),new ScaleListener(this));
-		gd = new GestureDetector(view.getContext(),new GestureListener(this));
+		ScaleListener sl = new ScaleListener(this);
+		sgd = new ScaleGestureDetector(view.getContext(),sl);
+		GestureListener gl = new GestureListener(this);
+		gd = new GestureDetector(view.getContext(),gl);
+		sl.gl = gl;
 	}
 	
 	// Listening for a pinch scale event
@@ -102,6 +105,7 @@ public class MaplyController implements View.OnTouchListener
 		MaplyController maplyControl;
 		double startZ;
 		float startDist;
+		GestureListener gl = null;
 		
 		ScaleListener(MaplyController inMaplyControl)
 		{
@@ -113,6 +117,9 @@ public class MaplyController implements View.OnTouchListener
 		{
 			startZ = maplyControl.mapView.getLoc().getZ();
 			startDist = detector.getCurrentSpan();
+			// Cancel the panning
+			if (gl != null)
+				gl.valid = false;
 			return true;
 		}
 		
@@ -142,6 +149,7 @@ public class MaplyController implements View.OnTouchListener
 	private class GestureListener implements GestureDetector.OnGestureListener
 	{
 		MaplyController maplyControl;
+		public boolean valid = false;
 		
 		GestureListener(MaplyController inMaplyControl)
 		{
@@ -160,6 +168,7 @@ public class MaplyController implements View.OnTouchListener
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
 			startPos = maplyControl.mapView.getLoc();
 			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			valid = true;
 
 			return false;
 		}
@@ -168,6 +177,9 @@ public class MaplyController implements View.OnTouchListener
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
 				float distanceY) 
 		{
+			if (!valid)
+				return false;
+			
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
 			
 			// New state for pan
