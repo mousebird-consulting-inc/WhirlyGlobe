@@ -16,7 +16,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-static float PolyScale = 1e14;
+//static float PolyScale = 1e14;
     
 typedef struct
 {
