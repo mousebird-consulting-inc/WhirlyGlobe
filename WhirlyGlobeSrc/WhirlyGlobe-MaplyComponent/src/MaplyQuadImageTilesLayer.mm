@@ -713,7 +713,7 @@ using namespace WhirlyKit;
             loadTile.elevChunk = wkChunk;
         }
             
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -803,6 +803,11 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
+    id oldTileSource = args[4];
+    
+    // This might happen if we change tile sources while we're waiting for a network call
+    if (_tileSource != oldTileSource)
+        return;
     
     [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
 }
