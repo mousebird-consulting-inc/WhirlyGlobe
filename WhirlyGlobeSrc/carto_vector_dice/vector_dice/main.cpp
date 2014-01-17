@@ -563,13 +563,10 @@ int main(int argc, char * argv[])
     const char *targetDir = NULL;
     const char *targetDb = NULL;
     char *destSRS = NULL,*tileSRS = NULL;
-    char *layerName = NULL;
     bool teSet = false;
     char *xmlConfig = NULL;
-    double xmin,ymin,xmax,ymax;
+    double xmin=-20037508.34,ymin=-20037508.34,xmax=20037508.34,ymax=20037508.3;
     int minLevel = -1,maxLevel = -1;
-    bool skipDice = false;
-    std::vector<const char *> inputFiles;
     
     GDALAllRegister();
     OGRRegisterAll();
@@ -600,15 +597,6 @@ int main(int argc, char * argv[])
                 return -1;
             }
             targetDb = argv[ii+1];
-        } else if (EQUAL(argv[ii],"-name"))
-        {
-            numArgs = 2;
-            if (ii+numArgs > argc)
-            {
-                fprintf(stderr,"Expecting one argument for -name\n");
-                return -1;
-            }
-            layerName = argv[ii+1];
         } else if (EQUAL(argv[ii],"-t_srs"))
         {
             numArgs = 2;
@@ -632,15 +620,6 @@ int main(int argc, char * argv[])
             xmax = atof(argv[ii+3]);
             ymax = atof(argv[ii+4]);
             teSet = true;
-        } else if (EQUAL(argv[ii],"-level"))
-        {
-            numArgs = 2;
-            if (ii+numArgs > argc)
-            {
-                fprintf(stderr,"Expecting one argument for -level\n");
-                return -1;
-            }
-            minLevel = maxLevel = atoi(argv[ii+1]);
         } else if (EQUAL(argv[ii],"-levels"))
         {
             numArgs = 3;
@@ -669,15 +648,7 @@ int main(int argc, char * argv[])
                 return -1;
             }
             xmlConfig = argv[ii+1];
-        } else if (EQUAL(argv[ii],"-skipdice"))
-        {
-            numArgs = 1;
-            skipDice = true;
-        } else
-        {
-            inputFiles.push_back(argv[ii]);
-        }
-    }
+        }    }
 
     if (!targetDir)
     {
@@ -686,16 +657,10 @@ int main(int argc, char * argv[])
     }
     
     if (!destSRS)
-    {
-        fprintf(stderr, "Need a target SRS.\n");
-        return -1;
-    }
+        fprintf(stdout,"Missing target SRS.  Defaulting to EPSG:3857.\n");
     
     if (!teSet)
-    {
-        fprintf(stderr, "Need a target bounding box.\n");
-        return -1;
-    }
+        fprintf(stdout,"Missing bounding box.  Defaulting to full extent of web mercator.\n");
     
     if (minLevel < 0 || maxLevel < 0)
     {
@@ -704,20 +669,11 @@ int main(int argc, char * argv[])
     }
     
     if (!tileSRS)
-    {
-        fprintf(stderr, "Need a tile SRS\n");
-        return -1;
-    }
+        fprintf(stdout,"Missing tile SRS.  Defaulting to EPSG:4326.\n");
     
-    if (inputFiles.empty() && !xmlConfig)
+    if (!xmlConfig)
     {
-        fprintf(stderr, "Need at least one input file.\n");
-        return -1;
-    }
-    
-    if (!inputFiles.empty() && xmlConfig)
-    {
-        fprintf(stderr, "Expecting XML config or input files, but not both.\n");
+        fprintf(stderr, "Need a mapnik config file.\n");
         return -1;
     }
     
@@ -749,163 +705,155 @@ int main(int argc, char * argv[])
         mkdir(((std::string)targetDir+"/"+std::to_string(level)).c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     // Set up a coordinate transformation
-    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS );
-    OGRSpatialReference *hTileSRS = new OGRSpatialReference ( tileSRS );
+    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:3857") );
+    OGRSpatialReference *hTileSRS = new OGRSpatialReference ( tileSRS ? tileSRS : SanitizeSRS("EPSG:4326") );
     
     // Keep track of what we've built
     BuildStats buildStats;
     std::set<std::string> layerNames;
     OGREnvelope fullExtents;
     
-    if (!skipDice)
+    if (mapnikConfig)
     {
-        if (mapnikConfig)
+        // Work through the levels
+        for (int li=minLevel;li<=maxLevel;li++)
         {
-            // Work through the levels
-            for (int li=minLevel;li<=maxLevel;li++)
+            printf("==== Level %d ====\n",li);
+            int scale = ScaleForLevel(li);
+            
+            // Work through the layers, looking for rules that match this level
+            for (unsigned int ii=0;ii<mapnikConfig->layers.size();ii++)
             {
-                printf("==== Level %d ====\n",li);
-                int scale = ScaleForLevel(li);
+                MapnikConfig::Layer &layer = mapnikConfig->layers[ii];
                 
-                // Work through the layers, looking for rules that match this level
-                for (unsigned int ii=0;ii<mapnikConfig->layers.size();ii++)
+                // We need a list of all the rules that apply, sorted by styles
+                //  and sorted by required data type
+                std::vector<MapnikConfig::Style> outStyles[MapnikConfig::SymbolDataUnknown];
+                std::vector<std::string> styleNames;
+                layerNames.insert(layer.name);
+                for (unsigned int si=0;si<layer.styleNames.size();si++)
                 {
-                    MapnikConfig::Layer &layer = mapnikConfig->layers[ii];
-                    
-                    // We need a list of all the rules that apply, sorted by styles
-                    //  and sorted by required data type
-                    std::vector<MapnikConfig::Style> outStyles[MapnikConfig::SymbolDataUnknown];
-                    std::vector<std::string> styleNames;
-                    layerNames.insert(layer.name);
-                    for (unsigned int si=0;si<layer.styleNames.size();si++)
+                    const MapnikConfig::Style *style = mapnikConfig->findStyle(layer.styleNames[si]);
+                    if (!style)
                     {
-                        const MapnikConfig::Style *style = mapnikConfig->findStyle(layer.styleNames[si]);
-                        if (!style)
-                        {
-                            fprintf(stderr, "Dangling style name %s in layer %s",layer.styleNames[si].c_str(),layer.name.c_str());
-                            return -1;
-                        }
-                        MapnikConfig::Style outStyle[MapnikConfig::SymbolDataUnknown];
-                        for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
-                        {
-                            outStyle[ssi] = *style;
-                            for (unsigned int ri=0;ri<outStyle[ssi].rules.size();ri++)
-                                outStyle[ssi].rules[ri].symbolizers.clear();
-                        }
-                        
-                        // Look through the rules that might apply to this level
-                        for (unsigned int ri=0;ri<style->rules.size();ri++)
-                        {
-                            const MapnikConfig::Rule &rule = style->rules[ri];
-                            int maxScale = 1e20;
-                            if (rule.maxScale > -1)
-                                maxScale = rule.maxScale;
-                            int minScale = 0;
-                            if (rule.minScale > -1)
-                                minScale = rule.minScale;
+                        fprintf(stderr, "Dangling style name %s in layer %s",layer.styleNames[si].c_str(),layer.name.c_str());
+                        return -1;
+                    }
+                    MapnikConfig::Style outStyle[MapnikConfig::SymbolDataUnknown];
+                    for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
+                    {
+                        outStyle[ssi] = *style;
+                        for (unsigned int ri=0;ri<outStyle[ssi].rules.size();ri++)
+                            outStyle[ssi].rules[ri].symbolizers.clear();
+                    }
+                    
+                    // Look through the rules that might apply to this level
+                    for (unsigned int ri=0;ri<style->rules.size();ri++)
+                    {
+                        const MapnikConfig::Rule &rule = style->rules[ri];
+                        int maxScale = 1e20;
+                        if (rule.maxScale > -1)
+                            maxScale = rule.maxScale;
+                        int minScale = 0;
+                        if (rule.minScale > -1)
+                            minScale = rule.minScale;
 
-                            // Should be in this level
-                            if (minScale < scale && scale < maxScale)
+                        // Should be in this level
+                        if (minScale < scale && scale < maxScale)
+                        {
+                            bool approved = true;
+                            // However, there are rules that apply at low levels that would be redundant higher up
+                            if (rule.minScale == -1)
                             {
-                                bool approved = true;
-                                // However, there are rules that apply at low levels that would be redundant higher up
-                                if (rule.minScale == -1)
+                                if (li!=minLevel)
                                 {
-                                    if (li!=minLevel)
-                                    {
-                                        int lastScale = ScaleForLevel(li-1);
-                                        if (minScale < lastScale && lastScale < maxScale)
-                                            approved = false;
-                                    }
-                                }
-                                    
-                                if (approved)
-                                {
-                                    // Sort into the appropriate bucket based on the data type of the symbolizers
-                                    for (unsigned symi=0;symi<rule.symbolizers.size();symi++)
-                                    {
-                                        int symID = rule.symbolizers[symi];
-                                        MapnikConfig::Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[symID];
-                                        outStyle[sym.dataType].rules[ri].symbolizers.push_back(symID);
-                                    }
-                                    styleNames.push_back(style->name);
+                                    int lastScale = ScaleForLevel(li-1);
+                                    if (minScale < lastScale && lastScale < maxScale)
+                                        approved = false;
                                 }
                             }
-                        }
-                        
-                        // See if any of the rules matched and save them if they did.
-                        // Sorted by data type
-                        for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
-                        {
-                            MapnikConfig::Style &testStyle = outStyle[ssi];
-                            for (unsigned int ri=0;ri<testStyle.rules.size();ri++)
+                                
+                            if (approved)
                             {
-                                if (!testStyle.rules[ri].symbolizers.empty())
+                                // Sort into the appropriate bucket based on the data type of the symbolizers
+                                for (unsigned symi=0;symi<rule.symbolizers.size();symi++)
                                 {
-                                    outStyles[ssi].push_back(testStyle);
-                                    break;
+                                    int symID = rule.symbolizers[symi];
+                                    MapnikConfig::Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[symID];
+                                    outStyle[sym.dataType].rules[ri].symbolizers.push_back(symID);
                                 }
+                                styleNames.push_back(style->name);
                             }
                         }
                     }
                     
-                    // Some of the rules apply here, so let's work through the data files
-                    for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
+                    // See if any of the rules matched and save them if they did.
+                    // Sorted by data type
+                    for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
                     {
-                        // Filter out the styles that didn't get any symbolizer rules
-                        std::vector<MapnikConfig::Style> &testStyle = outStyles[di];
-                        std::vector<MapnikConfig::Style> outStyle;
-                        for (unsigned int ti=0;ti<testStyle.size();ti++)
+                        MapnikConfig::Style &testStyle = outStyle[ssi];
+                        for (unsigned int ri=0;ri<testStyle.rules.size();ri++)
                         {
-                            MapnikConfig::Style &inStyle = testStyle[ti];
-                            MapnikConfig::Style style = inStyle;
-                            style.rules.clear();
-                            for (unsigned int ri=0;ri<inStyle.rules.size();ri++)
-                                if (!inStyle.rules[ri].symbolizers.empty())
-                                    style.rules.push_back(inStyle.rules[ri]);
-                            if (!style.rules.empty())
-                                outStyle.push_back(style);
-                        }
-
-                        if (!outStyle.empty())
-                        {
-                            int numRules = 0;
-                            for (unsigned int si=0;si<outStyle.size();si++)
-                                for (unsigned int ri=0;ri<outStyle[si].rules.size();ri++)
-                                    numRules += outStyle[si].rules[ri].symbolizers.size();
-                            printf(" %d styles, %d symbilizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
-                            
-                            std::string thisLayerName = layer.name;
-                            mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
-                                
-                            ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents);
+                            if (!testStyle.rules[ri].symbolizers.empty())
+                            {
+                                outStyles[ssi].push_back(testStyle);
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            
-            // Write the symbolizers out as JSON
-            std::string styleJson;
-            mapnikConfig->symbolizerTable.minLevel = minLevel;
-            mapnikConfig->symbolizerTable.maxLevel = maxLevel;
-            if (!mapnikConfig->symbolizerTable.writeJSON(styleJson))
-            {
-                fprintf(stderr, "Failed to convert styles to JSON");
-                return -1;
-            }
-            try {
-                std::ofstream outStream((std::string)targetDir+"/styles.json");
-                outStream << styleJson;
                 
-            } catch (...) {
-                fprintf(stderr,"Could not write styles.json file");
-                return -1;
+                // Some of the rules apply here, so let's work through the data files
+                for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
+                {
+                    // Filter out the styles that didn't get any symbolizer rules
+                    std::vector<MapnikConfig::Style> &testStyle = outStyles[di];
+                    std::vector<MapnikConfig::Style> outStyle;
+                    for (unsigned int ti=0;ti<testStyle.size();ti++)
+                    {
+                        MapnikConfig::Style &inStyle = testStyle[ti];
+                        MapnikConfig::Style style = inStyle;
+                        style.rules.clear();
+                        for (unsigned int ri=0;ri<inStyle.rules.size();ri++)
+                            if (!inStyle.rules[ri].symbolizers.empty())
+                                style.rules.push_back(inStyle.rules[ri]);
+                        if (!style.rules.empty())
+                            outStyle.push_back(style);
+                    }
+
+                    if (!outStyle.empty())
+                    {
+                        int numRules = 0;
+                        for (unsigned int si=0;si<outStyle.size();si++)
+                            for (unsigned int ri=0;ri<outStyle[si].rules.size();ri++)
+                                numRules += outStyle[si].rules[ri].symbolizers.size();
+                        printf(" %d styles, %d symbilizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
+                        
+                        std::string thisLayerName = layer.name;
+                        mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
+                            
+                        ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents);
+                    }
+                }
             }
-        } else {
-            // Work through the input files
-            for (unsigned int ii=0;ii<inputFiles.size();ii++)
-                for (int level=minLevel;level<=maxLevel;level++)
-                    ChopShapefile(layerName,inputFiles[ii], NULL, MapnikConfig::SymbolDataUnknown, targetDir, xmin,ymin,xmax,ymax,level,hTrgSRS,hTileSRS,buildStats,fullExtents);
+        }
+        
+        // Write the symbolizers out as JSON
+        std::string styleJson;
+        mapnikConfig->symbolizerTable.minLevel = minLevel;
+        mapnikConfig->symbolizerTable.maxLevel = maxLevel;
+        if (!mapnikConfig->symbolizerTable.writeJSON(styleJson))
+        {
+            fprintf(stderr, "Failed to convert styles to JSON");
+            return -1;
+        }
+        try {
+            std::ofstream outStream((std::string)targetDir+"/styles.json");
+            outStream << styleJson;
+            
+        } catch (...) {
+            fprintf(stderr,"Could not write styles.json file");
+            return -1;
         }
     }
     
