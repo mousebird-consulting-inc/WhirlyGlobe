@@ -71,7 +71,7 @@
     CGContextDrawPath(ctx, kCGPathFill);
     
     CGContextBeginPath(ctx);
-    CGContextAddEllipseInRect(ctx, CGRectMake(2,2,size.width-2-2*strokeSize,size.height-2-2*strokeSize));
+    CGContextAddEllipseInRect(ctx, CGRectMake(1+strokeSize,1+strokeSize,size.width-2-2*strokeSize,size.height-2-2*strokeSize));
     [color setFill];
     CGContextDrawPath(ctx, kCGPathFill);
     
