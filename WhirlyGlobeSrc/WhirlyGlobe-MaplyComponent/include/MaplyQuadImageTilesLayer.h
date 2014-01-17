@@ -49,6 +49,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/** @brief Set the active tile source.
+    @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
+  */
+@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
   */
