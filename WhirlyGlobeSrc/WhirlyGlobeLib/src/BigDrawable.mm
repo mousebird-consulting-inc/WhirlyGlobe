@@ -700,4 +700,12 @@ void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKitSceneRe
         bigDraw->setDrawPriority(drawPriority);
 }
 
+void BigDrawableProgramIDChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setProgram(programID);
+}
+    
 }

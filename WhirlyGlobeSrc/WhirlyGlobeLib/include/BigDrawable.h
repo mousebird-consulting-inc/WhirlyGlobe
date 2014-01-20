@@ -320,5 +320,19 @@ protected:
     SimpleIdentity drawId;
     int drawPriority;
 };
+
+/// Change the draw priority of a big drawable
+class BigDrawableProgramIDChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableProgramIDChangeRequest(SimpleIdentity drawId,int programID) : drawId(drawId), programID(programID) { }
+    
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity drawId;
+    int programID;
+};
     
 }

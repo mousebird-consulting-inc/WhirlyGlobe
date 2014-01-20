@@ -188,6 +188,12 @@ void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSe
         changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
 }
     
+void DynamicDrawableAtlas::setProgramIDAllDrawables(int programID,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
+}
+    
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation
