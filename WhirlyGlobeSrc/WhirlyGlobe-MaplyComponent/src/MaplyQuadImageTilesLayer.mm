@@ -195,12 +195,20 @@ using namespace WhirlyKit;
 
 - (void)setShaderProgramName:(NSString *)shaderProgramName
 {
+    if ([NSThread currentThread] != super.layerThread && super.layerThread)
+    {
+        [self performSelector:@selector(setShaderProgramName:) onThread:super.layerThread withObject:shaderProgramName waitUntilDone:NO];
+        return;
+    }
+
     _shaderProgramName = shaderProgramName;
     if (scene)
     {
         _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-        if (tileLoader)
-            tileLoader.programId = _customShader;
+
+        [self setupTileLoader];
+        tileLoader.programId = _customShader;
+        [quadLayer reset];
     }
 }
 
