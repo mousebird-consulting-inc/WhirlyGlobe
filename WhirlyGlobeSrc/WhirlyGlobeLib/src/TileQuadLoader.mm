@@ -874,6 +874,7 @@ using namespace WhirlyKit;
             // Note: We can't change the color of existing drawables.  The color is in the data itself.
         }
     }
+    [_quadLayer.layerThread addChangeRequests:theChanges];
 }
 
 - (void)setColor:(WhirlyKit::RGBAColor)color
@@ -890,6 +891,46 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runSetColor:) onThread:_quadLayer.layerThread withObject:newColor waitUntilDone:NO];
     } else {
         [self runSetColor:newColor];
+    }
+}
+
+- (void)runSetProgramId:(NSNumber *)programIDObj
+{
+    int newProgramID = [programIDObj integerValue];
+    if (newProgramID == _programId)
+        return;
+    
+    _programId = newProgramID;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->programId = _programId;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setProgramIDAllDrawables(_programId, theChanges);
+        }
+    }
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setProgramId:(WhirlyKit::SimpleIdentity)programId
+{
+    if (!_quadLayer)
+    {
+        _programId = programId;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(_programId) waitUntilDone:NO];
+    } else {
+        [self runSetProgramId:@(_programId)];
     }
 }
 
