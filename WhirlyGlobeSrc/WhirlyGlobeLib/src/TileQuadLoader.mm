@@ -928,9 +928,9 @@ using namespace WhirlyKit;
     
     if ([NSThread currentThread] != _quadLayer.layerThread)
     {
-        [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(_programId) waitUntilDone:NO];
+        [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(programId) waitUntilDone:NO];
     } else {
-        [self runSetProgramId:@(_programId)];
+        [self runSetProgramId:@(programId)];
     }
 }
 
