@@ -638,7 +638,7 @@ using namespace WhirlyKit;
     // If this is lower level than we're representing, just fake it
     if (tileID.level < minZoom)
     {
-        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level)];
+        NSArray *args = @[[WhirlyKitLoadedImage PlaceholderImage],@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -689,7 +689,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(col),@(row),@(level)];
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -786,7 +786,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level)];
+            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -813,7 +813,7 @@ using namespace WhirlyKit;
         loadTile.elevChunk = wkChunk;
     }
     
-    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level)];
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)

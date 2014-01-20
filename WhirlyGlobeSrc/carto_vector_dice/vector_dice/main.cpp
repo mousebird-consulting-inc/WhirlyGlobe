@@ -428,7 +428,7 @@ public:
 };
 
 // Chop up a shapefile into little bits
-void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::Style> *styles, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv)
+void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::Style> *styles, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv,OGREnvelope *clipEnv)
 {
     // Number of cells at this level
     int numCells = 1<<level;
@@ -478,7 +478,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
             exit(-1);
         }
         OGRCoordinateTransformation *tileTransform = OGRCreateCoordinateTransformation(hTrgSRS,hTileSRS);
-        if (!transform)
+        if (!tileTransform)
         {
             fprintf(stderr,"Can't transform from coordinate system to tile for: %s\n",inputFile);
             exit(-1);
@@ -488,7 +488,6 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         OGRLayer *layer = memDS->CreateLayer("layer",this_srs);
         // We'll also apply any rules and attribute changes at this point
         TransformLayer(inLayer,layer,transform,styles,dataType,psExtent);
-        totalEnv.Merge(psExtent);
         LayerMBRs layerMBRs(layer);
         
         // Which cells might we be covering
@@ -508,12 +507,20 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                 std::string cellFileName = cellDir + std::to_string(ix) + ".shp";
                 
                 // Clip the input geometry to this cell
-                double llX = ix*cellSizeX+xmin;
-                double llY = iy*cellSizeY+ymin;
-                double urX = (ix+1)*cellSizeX+xmin;
-                double urY = (iy+1)*cellSizeY+ymin;
+                OGREnvelope cellEnv;
+                cellEnv.MinX = ix*cellSizeX+xmin;
+                cellEnv.MinY = iy*cellSizeY+ymin;
+                cellEnv.MaxX = (ix+1)*cellSizeX+xmin;
+                cellEnv.MaxY = (iy+1)*cellSizeY+ymin;
+                
+                // Check against clip bounds
+                if (clipEnv && !(clipEnv->Intersects(cellEnv) || clipEnv->Contains(cellEnv)))
+                    continue;
+                
+                totalEnv.Merge(cellEnv);
+                
                 std::vector<OGRFeature *> clippedFeatures;
-                ClipInputToBox(&layerMBRs,llX,llY,urX,urY,hTrgSRS,clippedFeatures,tileTransform);
+                ClipInputToBox(&layerMBRs,cellEnv.MinX,cellEnv.MinY,cellEnv.MaxX,cellEnv.MaxY,hTrgSRS,clippedFeatures,tileTransform);
                 
                 //                    fprintf(stdout, "            Cell (%d,%d):  %d features\n",ix,iy,cellLayer->GetFeatureCount());
                 
@@ -566,6 +573,8 @@ int main(int argc, char * argv[])
     bool teSet = false;
     char *xmlConfig = NULL;
     double xmin=-20037508.34,ymin=-20037508.34,xmax=20037508.34,ymax=20037508.3;
+    bool clipBoundsSet = false;
+    double clipXmin,clipYmin,clipXmax,clipYmax;
     int minLevel = -1,maxLevel = -1;
     
     GDALAllRegister();
@@ -648,7 +657,21 @@ int main(int argc, char * argv[])
                 return -1;
             }
             xmlConfig = argv[ii+1];
-        }    }
+        } else if (EQUAL(argv[ii],"-clip"))
+        {
+            numArgs = 5;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument for -clip");
+                return -1;
+            }
+            clipBoundsSet = true;
+            clipXmin = atof(argv[ii+1]);
+            clipYmin = atof(argv[ii+2]);
+            clipXmax = atof(argv[ii+3]);
+            clipYmax = atof(argv[ii+4]);
+        }
+    }
 
     if (!targetDir)
     {
@@ -694,6 +717,16 @@ int main(int argc, char * argv[])
             fprintf(stderr,"Failed to parse Mapnik config file because:\n%s\n",errorStr.c_str());
             return -1;
         }
+    }
+    
+    // We won't bother with anything outside this boundary
+    OGREnvelope clipBounds;
+    if (clipBoundsSet)
+    {
+        clipBounds.MinX = clipXmin;
+        clipBounds.MinY = clipYmin;
+        clipBounds.MaxX = clipXmax;
+        clipBounds.MaxY = clipYmax;
     }
     
     // Clear out the target directory
@@ -832,7 +865,7 @@ int main(int argc, char * argv[])
                         std::string thisLayerName = layer.name;
                         mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
                             
-                        ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents);
+                        ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents, (clipBoundsSet ? &clipBounds : NULL));
                     }
                 }
             }
