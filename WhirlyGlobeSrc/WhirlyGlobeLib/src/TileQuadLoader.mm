@@ -25,6 +25,7 @@
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
+#import "UIColor+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -138,7 +139,7 @@ using namespace WhirlyKit;
     _quadLayer = layer;
 }
 
-- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)reset:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
     // Flush out any existing change requests
     if (!changeRequests.empty())
@@ -148,7 +149,7 @@ using namespace WhirlyKit;
     }
     
     ChangeSet theChangeRequests;
-
+    
     pthread_mutex_lock(&tileLock);
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
@@ -157,13 +158,18 @@ using namespace WhirlyKit;
         tile->clearContents(tileBuilder,theChangeRequests);
     }
     pthread_mutex_unlock(&tileLock);
-
-    if (tileBuilder)
-       tileBuilder->clearAtlases(theChangeRequests);
     
-    [layer.layerThread addChangeRequests:(theChangeRequests)];
+    if (tileBuilder)
+        tileBuilder->clearAtlases(theChangeRequests);
+    
+    [layer.layerThread addChangeRequests:theChangeRequests];
     
     [self clear];
+}
+
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+{
+    [self reset:layer scene:scene];
 }
 
 - (void)setTesselationSizeX:(int)x y:(int)y
@@ -719,7 +725,7 @@ using namespace WhirlyKit;
                 if (drawInfo.baseTexId == baseTexIDs[jj])
                 {
                     theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 ? EmptyIdentity : startTexIDs[jj])));
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity :endTexIDs[jj])));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity : endTexIDs[jj])));
                 }
         }
     }
@@ -804,6 +810,86 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
     } else {
         [self runSetEnable:@(enable)];
+    }
+}
+
+- (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj
+{
+    int newDrawPriority = [newDrawPriorityObj integerValue];
+    if (newDrawPriority == _drawPriority)
+        return;
+    
+    _drawPriority = newDrawPriority;
+
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->drawPriority = _drawPriority;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
+        }
+    }
+
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setDrawPriority:(int)drawPriority
+{
+    if (!_quadLayer)
+    {
+        _drawPriority = drawPriority;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetDrawPriority:) onThread:_quadLayer.layerThread withObject:@(drawPriority) waitUntilDone:NO];
+    } else {
+        [self runSetDrawPriority:@(drawPriority)];
+    }
+}
+
+- (void)runSetColor:(UIColor *)newColorObj
+{
+    RGBAColor newColor = [newColorObj asRGBAColor];
+    if (newColor == _color)
+        return;
+    
+    _color = newColor;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->color = _color;
+            // Note: We can't change the color of existing drawables.  The color is in the data itself.
+        }
+    }
+}
+
+- (void)setColor:(WhirlyKit::RGBAColor)color
+{
+    if (!_quadLayer)
+    {
+        _color = color;
+        return;
+    }
+    
+    UIColor *newColor = [UIColor colorWithRed:color.r/255.0 green:color.g/255.0 blue:color.b/255.0 alpha:color.a/255.0];
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetColor:) onThread:_quadLayer.layerThread withObject:newColor waitUntilDone:NO];
+    } else {
+        [self runSetColor:newColor];
     }
 }
 
