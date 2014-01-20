@@ -196,9 +196,12 @@ using namespace WhirlyKit;
 - (void)setShaderProgramName:(NSString *)shaderProgramName
 {
     _shaderProgramName = shaderProgramName;
-    _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (tileLoader)
-        tileLoader.programId = _customShader;
+    if (scene)
+    {
+        _customShader = scene->getProgramIDBySceneName([_shaderProgramName cStringUsingEncoding:NSASCIIStringEncoding]);
+        if (tileLoader)
+            tileLoader.programId = _customShader;
+    }
 }
 
 - (void)setTileSource:(NSObject<MaplyTileSource> *)tileSource
