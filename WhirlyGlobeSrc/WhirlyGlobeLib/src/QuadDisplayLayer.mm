@@ -482,6 +482,37 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     somethingHappened = true;
 }
 
+- (void)reset
+{
+    // Can only do this if the loader supports it
+    if (![_loader respondsToSelector:@selector(reset:scene:)])
+        return;
+    
+    if ([NSThread currentThread] != _layerThread)
+    {
+        [self performSelector:@selector(reset) onThread:_layerThread withObject:nil waitUntilDone:NO];
+        return;
+    }
+    
+    // Clean out anything we might be currently evaluating
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
+    nodesForEval.clear();
+    
+    // Remove nodes until we run out
+    Quadtree::NodeInfo remNodeInfo;
+    [_loader quadDisplayLayerStartUpdates:self];
+    while (_quadtree->leastImportantNode(remNodeInfo,true))
+    {
+        _quadtree->removeTile(remNodeInfo.ident);
+    }
+    
+    // Tell the tile loader to reset
+    [_loader reset:self scene:_scene];
+    
+    // Now start loading again
+    [self poke];
+}
+
 - (void)poke
 {
     if ([NSThread currentThread] != _layerThread)

@@ -246,4 +246,10 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
 
+/** @brief Do a hard reset of the layer.
+    @details This will clean out all the layers resources and force it to start loading again.
+    @details Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.
+  */
+- (void)reset;
+
 @end

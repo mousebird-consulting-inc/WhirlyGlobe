@@ -204,7 +204,7 @@ using namespace WhirlyKit;
     _tileSource = tileSource;
     
     [self setupTileLoader];
-    [quadLayer refresh];
+    [quadLayer reset];
 }
 
 - (void)setupTileLoader
@@ -253,6 +253,26 @@ using namespace WhirlyKit;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];
+}
+
+- (void)setDrawPriority:(int)drawPriority
+{
+    super.drawPriority = drawPriority;
+    if (tileLoader)
+        tileLoader.drawPriority = drawPriority;
+}
+
+- (void)setColor:(UIColor *)color
+{
+    _color = color;
+    if (tileLoader)
+        tileLoader.color = [color asRGBAColor];
+}
+
+- (void)reset
+{
+    if (quadLayer)
+        [quadLayer reset];
 }
 
 - (void)setAnimationPeriod:(float)animationPeriod
@@ -361,13 +381,6 @@ using namespace WhirlyKit;
     _coverPoles = coverPoles;
     if (tileLoader)
         tileLoader.coverPoles = coverPoles;
-}
-
-- (void)setDrawPriority:(int)drawPriority
-{
-    super.drawPriority = drawPriority;
-    if (tileLoader)
-        tileLoader.drawPriority = drawPriority;
 }
 
 - (void)reload
