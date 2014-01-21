@@ -159,6 +159,9 @@ using namespace WhirlyKit;
     }
     pthread_mutex_unlock(&tileLock);
     
+    networkFetches.clear();
+    localFetches.clear();
+    
     if (tileBuilder)
         tileBuilder->clearAtlases(theChangeRequests);
     
