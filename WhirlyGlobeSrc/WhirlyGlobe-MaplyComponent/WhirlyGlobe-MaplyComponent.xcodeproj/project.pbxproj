@@ -101,6 +101,26 @@
 		2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BB9E01E15BF9EF200F1DDD8 /* MaplyScreenLabel.m */; };
 		2BBAA907181EEE3100BE1277 /* MaplyBillboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */; };
 		2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */; };
+		2BBDFECE188EFD5B00AE4CEB /* AFHTTPClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEBB188EFD5B00AE4CEB /* AFHTTPClient.h */; };
+		2BBDFECF188EFD5B00AE4CEB /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEBC188EFD5B00AE4CEB /* AFHTTPClient.m */; };
+		2BBDFED0188EFD5B00AE4CEB /* AFHTTPRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEBD188EFD5B00AE4CEB /* AFHTTPRequestOperation.h */; };
+		2BBDFED1188EFD5B00AE4CEB /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEBE188EFD5B00AE4CEB /* AFHTTPRequestOperation.m */; };
+		2BBDFED2188EFD5B00AE4CEB /* AFImageRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEBF188EFD5B00AE4CEB /* AFImageRequestOperation.h */; };
+		2BBDFED3188EFD5B00AE4CEB /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEC0188EFD5B00AE4CEB /* AFImageRequestOperation.m */; };
+		2BBDFED4188EFD5B00AE4CEB /* AFJSONRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEC1188EFD5B00AE4CEB /* AFJSONRequestOperation.h */; };
+		2BBDFED5188EFD5B00AE4CEB /* AFJSONRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEC2188EFD5B00AE4CEB /* AFJSONRequestOperation.m */; };
+		2BBDFED6188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEC3188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.h */; };
+		2BBDFED7188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEC4188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.m */; };
+		2BBDFED8188EFD5B00AE4CEB /* AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEC5188EFD5B00AE4CEB /* AFNetworking.h */; };
+		2BBDFED9188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEC6188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h */; };
+		2BBDFEDA188EFD5B00AE4CEB /* AFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEC7188EFD5B00AE4CEB /* AFPropertyListRequestOperation.m */; };
+		2BBDFEDB188EFD5B00AE4CEB /* AFURLConnectionOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEC8188EFD5B00AE4CEB /* AFURLConnectionOperation.h */; };
+		2BBDFEDC188EFD5B00AE4CEB /* AFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFEC9188EFD5B00AE4CEB /* AFURLConnectionOperation.m */; };
+		2BBDFEDD188EFD5B00AE4CEB /* AFXMLRequestOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFECA188EFD5B00AE4CEB /* AFXMLRequestOperation.h */; };
+		2BBDFEDE188EFD5B00AE4CEB /* AFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFECB188EFD5B00AE4CEB /* AFXMLRequestOperation.m */; };
+		2BBDFEDF188EFD5B00AE4CEB /* UIImageView+AFNetworking.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFECC188EFD5B00AE4CEB /* UIImageView+AFNetworking.h */; };
+		2BBDFEE0188EFD5B00AE4CEB /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFECD188EFD5B00AE4CEB /* UIImageView+AFNetworking.m */; };
+		2BBDFEE2188F229600AE4CEB /* MaplyRemoteTileSource_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFEE1188F229600AE4CEB /* MaplyRemoteTileSource_private.h */; };
 		2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */; };
 		2BBEB82F15CB06AD00E363E7 /* MaplyVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */; };
 		2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */; };
@@ -111,7 +131,7 @@
 		2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */; };
 		2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */; };
 		2BC9896E17D93EA60071DA9E /* MaplyMultiplexTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */; };
-		2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */; };
+		2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.mm */; };
 		2BC989C117DC1F130071DA9E /* NSData+Zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989C017DC1F130071DA9E /* NSData+Zlib.h */; };
 		2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989C217DC1F1E0071DA9E /* NSData+Zlib.m */; };
 		2BC989C517DC214E0071DA9E /* MaplyElevationDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC989C417DC214E0071DA9E /* MaplyElevationDatabase.h */; };
@@ -251,6 +271,26 @@
 		2BB9E01E15BF9EF200F1DDD8 /* MaplyScreenLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyScreenLabel.m; path = src/MaplyScreenLabel.m; sourceTree = SOURCE_ROOT; };
 		2BBAA906181EEE3100BE1277 /* MaplyBillboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyBillboard.h; path = include/MaplyBillboard.h; sourceTree = SOURCE_ROOT; };
 		2BBAA909181EEE3F00BE1277 /* MaplyBillboard.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyBillboard.mm; path = src/MaplyBillboard.mm; sourceTree = SOURCE_ROOT; };
+		2BBDFEBB188EFD5B00AE4CEB /* AFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPClient.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPClient.h"; sourceTree = "<group>"; };
+		2BBDFEBC188EFD5B00AE4CEB /* AFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFHTTPClient.m; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPClient.m"; sourceTree = "<group>"; };
+		2BBDFEBD188EFD5B00AE4CEB /* AFHTTPRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFHTTPRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.h"; sourceTree = "<group>"; };
+		2BBDFEBE188EFD5B00AE4CEB /* AFHTTPRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFHTTPRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFHTTPRequestOperation.m"; sourceTree = "<group>"; };
+		2BBDFEBF188EFD5B00AE4CEB /* AFImageRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFImageRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFImageRequestOperation.h"; sourceTree = "<group>"; };
+		2BBDFEC0188EFD5B00AE4CEB /* AFImageRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFImageRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFImageRequestOperation.m"; sourceTree = "<group>"; };
+		2BBDFEC1188EFD5B00AE4CEB /* AFJSONRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFJSONRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFJSONRequestOperation.h"; sourceTree = "<group>"; };
+		2BBDFEC2188EFD5B00AE4CEB /* AFJSONRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFJSONRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFJSONRequestOperation.m"; sourceTree = "<group>"; };
+		2BBDFEC3188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFNetworkActivityIndicatorManager.h; path = "../../third-party/AFNetworking/AFNetworking/AFNetworkActivityIndicatorManager.h"; sourceTree = "<group>"; };
+		2BBDFEC4188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFNetworkActivityIndicatorManager.m; path = "../../third-party/AFNetworking/AFNetworking/AFNetworkActivityIndicatorManager.m"; sourceTree = "<group>"; };
+		2BBDFEC5188EFD5B00AE4CEB /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFNetworking.h; path = "../../third-party/AFNetworking/AFNetworking/AFNetworking.h"; sourceTree = "<group>"; };
+		2BBDFEC6188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFPropertyListRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFPropertyListRequestOperation.h"; sourceTree = "<group>"; };
+		2BBDFEC7188EFD5B00AE4CEB /* AFPropertyListRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFPropertyListRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFPropertyListRequestOperation.m"; sourceTree = "<group>"; };
+		2BBDFEC8188EFD5B00AE4CEB /* AFURLConnectionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFURLConnectionOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFURLConnectionOperation.h"; sourceTree = "<group>"; };
+		2BBDFEC9188EFD5B00AE4CEB /* AFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFURLConnectionOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFURLConnectionOperation.m"; sourceTree = "<group>"; };
+		2BBDFECA188EFD5B00AE4CEB /* AFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AFXMLRequestOperation.h; path = "../../third-party/AFNetworking/AFNetworking/AFXMLRequestOperation.h"; sourceTree = "<group>"; };
+		2BBDFECB188EFD5B00AE4CEB /* AFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AFXMLRequestOperation.m; path = "../../third-party/AFNetworking/AFNetworking/AFXMLRequestOperation.m"; sourceTree = "<group>"; };
+		2BBDFECC188EFD5B00AE4CEB /* UIImageView+AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImageView+AFNetworking.h"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.h"; sourceTree = "<group>"; };
+		2BBDFECD188EFD5B00AE4CEB /* UIImageView+AFNetworking.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImageView+AFNetworking.m"; path = "../../third-party/AFNetworking/AFNetworking/UIImageView+AFNetworking.m"; sourceTree = "<group>"; };
+		2BBDFEE1188F229600AE4CEB /* MaplyRemoteTileSource_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyRemoteTileSource_private.h; path = include/private/MaplyRemoteTileSource_private.h; sourceTree = SOURCE_ROOT; };
 		2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject.h; path = include/MaplyVectorObject.h; sourceTree = SOURCE_ROOT; };
 		2BBEB82E15CB06AD00E363E7 /* MaplyVectorObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorObject.mm; path = src/MaplyVectorObject.mm; sourceTree = SOURCE_ROOT; };
 		2BBEB83415CB2A2D00E363E7 /* MaplyVectorObject_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorObject_private.h; path = include/private/MaplyVectorObject_private.h; sourceTree = SOURCE_ROOT; };
@@ -261,7 +301,7 @@
 		2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyRemoteTileSource.mm; path = src/MaplyRemoteTileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyMBTileSource.mm; path = src/MaplyMBTileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMultiplexTileSource.h; path = include/MaplyMultiplexTileSource.h; sourceTree = SOURCE_ROOT; };
-		2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MaplyMultiplexTileSource.m; path = src/MaplyMultiplexTileSource.m; sourceTree = SOURCE_ROOT; };
+		2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyMultiplexTileSource.mm; path = src/MaplyMultiplexTileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BC989C017DC1F130071DA9E /* NSData+Zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSData+Zlib.h"; path = "include/NSData+Zlib.h"; sourceTree = "<group>"; };
 		2BC989C217DC1F1E0071DA9E /* NSData+Zlib.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSData+Zlib.m"; path = "src/NSData+Zlib.m"; sourceTree = "<group>"; };
 		2BC989C417DC214E0071DA9E /* MaplyElevationDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyElevationDatabase.h; path = include/MaplyElevationDatabase.h; sourceTree = "<group>"; };
@@ -388,6 +428,7 @@
 			isa = PBXGroup;
 			children = (
 				2B0D62EC17A2ECCA00C3298D /* libxml2.dylib */,
+				2BBDFEB9188EFD4600AE4CEB /* AFNetworking */,
 				2B0D62DB17A2E87B00C3298D /* KissXML */,
 				2BC989C817DC23170071DA9E /* fmdb */,
 				2B789F71185B8C420028E027 /* SMCalloutView */,
@@ -604,6 +645,32 @@
 			name = "image tiles";
 			sourceTree = "<group>";
 		};
+		2BBDFEB9188EFD4600AE4CEB /* AFNetworking */ = {
+			isa = PBXGroup;
+			children = (
+				2BBDFEBB188EFD5B00AE4CEB /* AFHTTPClient.h */,
+				2BBDFEBC188EFD5B00AE4CEB /* AFHTTPClient.m */,
+				2BBDFEBD188EFD5B00AE4CEB /* AFHTTPRequestOperation.h */,
+				2BBDFEBE188EFD5B00AE4CEB /* AFHTTPRequestOperation.m */,
+				2BBDFEBF188EFD5B00AE4CEB /* AFImageRequestOperation.h */,
+				2BBDFEC0188EFD5B00AE4CEB /* AFImageRequestOperation.m */,
+				2BBDFEC1188EFD5B00AE4CEB /* AFJSONRequestOperation.h */,
+				2BBDFEC2188EFD5B00AE4CEB /* AFJSONRequestOperation.m */,
+				2BBDFEC3188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.h */,
+				2BBDFEC4188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.m */,
+				2BBDFEC5188EFD5B00AE4CEB /* AFNetworking.h */,
+				2BBDFEC6188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h */,
+				2BBDFEC7188EFD5B00AE4CEB /* AFPropertyListRequestOperation.m */,
+				2BBDFEC8188EFD5B00AE4CEB /* AFURLConnectionOperation.h */,
+				2BBDFEC9188EFD5B00AE4CEB /* AFURLConnectionOperation.m */,
+				2BBDFECA188EFD5B00AE4CEB /* AFXMLRequestOperation.h */,
+				2BBDFECB188EFD5B00AE4CEB /* AFXMLRequestOperation.m */,
+				2BBDFECC188EFD5B00AE4CEB /* UIImageView+AFNetworking.h */,
+				2BBDFECD188EFD5B00AE4CEB /* UIImageView+AFNetworking.m */,
+			);
+			name = AFNetworking;
+			sourceTree = "<group>";
+		};
 		2BC988E117D791040071DA9E /* Tile Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -612,11 +679,12 @@
 				2BC988E317D793F30071DA9E /* MaplyAnimationTestTileSource.h */,
 				2BC988E917D794010071DA9E /* MaplyAnimationTestTileSource.m */,
 				2BC988E417D793F30071DA9E /* MaplyRemoteTileSource.h */,
+				2BBDFEE1188F229600AE4CEB /* MaplyRemoteTileSource_private.h */,
 				2BC988EA17D794010071DA9E /* MaplyRemoteTileSource.mm */,
 				2BC988E517D793F30071DA9E /* MaplyMBTileSource.h */,
 				2BC988EB17D794010071DA9E /* MaplyMBTileSource.mm */,
 				2BC9896D17D93EA60071DA9E /* MaplyMultiplexTileSource.h */,
-				2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.m */,
+				2BC9897017D93EB30071DA9E /* MaplyMultiplexTileSource.mm */,
 				2BAC290A184D571400FD14FD /* MaplyGDALRetileSource.h */,
 				2BAC290D184D571B00FD14FD /* MaplyGDALRetileSource.mm */,
 			);
@@ -685,15 +753,18 @@
 				2B897A7115BB5A2F00250F23 /* MaplyCoordinate.h in Headers */,
 				2B897A7315BB5A5E00250F23 /* PanDelegateFixed.h in Headers */,
 				2B897A7515BB5A6A00250F23 /* MaplyViewControllerLayer_private.h in Headers */,
+				2BBDFED8188EFD5B00AE4CEB /* AFNetworking.h in Headers */,
 				2B897A7715BB5A7400250F23 /* WGSphericalEarthWithTexGroup_private.h in Headers */,
 				2B897A7915BB5AC600250F23 /* WGInteractionLayer_private.h in Headers */,
 				2BE8491415BC8DEB006CFD3F /* MaplyComponentObject_private.h in Headers */,
 				2BB9E01715BF9EE300F1DDD8 /* MaplyLabel.h in Headers */,
 				2BEBABA51811F64D00A9419C /* MaplyImageTile.h in Headers */,
 				2BB9E01815BF9EE300F1DDD8 /* MaplyMarker.h in Headers */,
+				2BBDFEDF188EFD5B00AE4CEB /* UIImageView+AFNetworking.h in Headers */,
 				2BB9E01915BF9EE300F1DDD8 /* MaplyScreenLabel.h in Headers */,
 				2B0B0D1315C1D88600CCB3B2 /* MaplyViewTracker.h in Headers */,
 				2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */,
+				2BBDFEDB188EFD5B00AE4CEB /* AFURLConnectionOperation.h in Headers */,
 				2BEB21F618441AF30048DDE3 /* MaplyTexture_private.h in Headers */,
 				2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */,
 				2BECC1BD15E548EF00FBD805 /* PinchDelegateFixed.h in Headers */,
@@ -704,6 +775,7 @@
 				2B61D7BE1607939C007888CF /* WGCoordinate.h in Headers */,
 				2B61D7C41607ACC3007888CF /* WGViewControllerLayer_private.h in Headers */,
 				2BE43866160930B200A81959 /* MaplyComponentObject.h in Headers */,
+				2BBDFED2188EFD5B00AE4CEB /* AFImageRequestOperation.h in Headers */,
 				2BE88486160A437D00E92A0A /* MaplySharedAttributes.h in Headers */,
 				2BE8848A160A46BA00E92A0A /* MaplyInteractionLayer_private.h in Headers */,
 				2BE8848F160A544D00E92A0A /* SelectObject_private.h in Headers */,
@@ -714,6 +786,7 @@
 				2B0A4DB0167BD795000D5786 /* MaplyBaseViewController.h in Headers */,
 				2B0A4DB1167BD795000D5786 /* MaplyBaseViewController_private.h in Headers */,
 				2B0A4DB5167BDAC6000D5786 /* MaplyBaseInteractionLayer_private.h in Headers */,
+				2BBDFED4188EFD5B00AE4CEB /* AFJSONRequestOperation.h in Headers */,
 				2B0A4DC0167BFA7A000D5786 /* MaplyViewController_private.h in Headers */,
 				2B37059916B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup.h in Headers */,
 				2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */,
@@ -728,22 +801,28 @@
 				2B3836C21877877D00467ABD /* MaplyVectorTiles.h in Headers */,
 				2BCA689D1741913200696BA8 /* MaplyTileSource.h in Headers */,
 				2BBAA907181EEE3100BE1277 /* MaplyBillboard.h in Headers */,
+				2BBDFED6188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.h in Headers */,
 				2BCA68A7174195A800696BA8 /* MaplyCoordinateSystem.h in Headers */,
 				2BCA68A8174195A800696BA8 /* MaplyQuadImageTilesLayer.h in Headers */,
 				2BCA68AA174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h in Headers */,
 				2B789F79185B91F90028E027 /* MaplyAnnotation.h in Headers */,
 				2BCA68AC174197C500696BA8 /* MaplyCoordinateSystem_private.h in Headers */,
+				2BBDFEDD188EFD5B00AE4CEB /* AFXMLRequestOperation.h in Headers */,
 				2B44E817174B20A800474C2B /* MaplyQuadPagingLayer.h in Headers */,
 				2B44E81E174B20F500474C2B /* MaplyQuadPagingLayer_private.h in Headers */,
 				2B0D62D017A1D9AC00C3298D /* MaplyWMSTileSource.h in Headers */,
 				2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */,
+				2BBDFED9188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h in Headers */,
+				2BBDFECE188EFD5B00AE4CEB /* AFHTTPClient.h in Headers */,
 				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
 				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
 				2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */,
 				2B0D630817A2EDA300C3298D /* DDXMLElement.h in Headers */,
 				2B0D630A17A2EDA300C3298D /* DDXMLNode.h in Headers */,
 				2B0D630C17A2EDA300C3298D /* DDXMLPrivate.h in Headers */,
+				2BBDFED0188EFD5B00AE4CEB /* AFHTTPRequestOperation.h in Headers */,
 				2BB54EEA17CFABDF0065451F /* MaplyElevationSource.h in Headers */,
+				2BBDFEE2188F229600AE4CEB /* MaplyRemoteTileSource_private.h in Headers */,
 				2BB54EEF17CFB8040065451F /* MaplyElevationSource_private.h in Headers */,
 				2BC988E617D793F30071DA9E /* MaplyAnimationTestTileSource.h in Headers */,
 				2BC988E717D793F30071DA9E /* MaplyRemoteTileSource.h in Headers */,
@@ -840,8 +919,10 @@
 				2B97AFED17E3D6CE00D4B33D /* FMDatabaseAdditions.m in Sources */,
 				2B897A9115BC6CEE00250F23 /* MaplyViewControllerLayer.mm in Sources */,
 				2B897A9315BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm in Sources */,
+				2BBDFECF188EFD5B00AE4CEB /* AFHTTPClient.m in Sources */,
 				2B97AFF117E3D6D700D4B33D /* FMResultSet.m in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
+				2BBDFEDE188EFD5B00AE4CEB /* AFXMLRequestOperation.m in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BEBABAB1811F65700A9419C /* MaplyTileSource.mm in Sources */,
 				2BB9E02115BF9EF200F1DDD8 /* MaplyScreenLabel.m in Sources */,
@@ -855,23 +936,30 @@
 				2BEBABAA1811F65700A9419C /* MaplyImageTile.mm in Sources */,
 				2B61D7C51607ACC3007888CF /* WGViewControllerLayer.mm in Sources */,
 				2BE8848C160A46C700E92A0A /* MaplyInteractionLayer.mm in Sources */,
+				2BBDFEDA188EFD5B00AE4CEB /* AFPropertyListRequestOperation.m in Sources */,
+				2BBDFEE0188EFD5B00AE4CEB /* UIImageView+AFNetworking.m in Sources */,
+				2BBDFED1188EFD5B00AE4CEB /* AFHTTPRequestOperation.m in Sources */,
 				2BD115961615E16900A4BF5D /* MaplyShape.mm in Sources */,
 				2BB0717D1676B5BD00DE387D /* MaplySticker.mm in Sources */,
 				2B97AFEF17E3D6D200D4B33D /* FMDatabasePool.m in Sources */,
 				2B0A4DB8167BDAD3000D5786 /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
 				2B37059E16B1E6110096C970 /* MaplySphericalQuadEarthWithTexGroup.mm in Sources */,
+				2BBDFED3188EFD5B00AE4CEB /* AFImageRequestOperation.m in Sources */,
 				2BB7FB5316B9AD0D0017EB2F /* MaplyLight.m in Sources */,
 				2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */,
 				2BEA1E66171E0ED90039F1A4 /* MaplyActiveObject.mm in Sources */,
 				2BCA68A31741957700696BA8 /* MaplyCoordinateSystem.mm in Sources */,
 				2BCA68A41741957700696BA8 /* MaplyQuadImageTilesLayer.mm in Sources */,
+				2BBDFED7188EFD5B00AE4CEB /* AFNetworkActivityIndicatorManager.m in Sources */,
 				2B44E81C174B20C700474C2B /* MaplyQuadPagingLayer.mm in Sources */,
 				2B0D62D317A1D9BB00C3298D /* MaplyWMSTileSource.mm in Sources */,
 				2B789F7C185B92000028E027 /* MaplyAnnotation.mm in Sources */,
 				2B0D630217A2EDA300C3298D /* DDXMLElementAdditions.m in Sources */,
+				2BBDFEDC188EFD5B00AE4CEB /* AFURLConnectionOperation.m in Sources */,
 				2B0D630417A2EDA300C3298D /* NSString+DDXML.m in Sources */,
 				2B97AFF017E3D6D400D4B33D /* FMDatabaseQueue.m in Sources */,
+				2BBDFED5188EFD5B00AE4CEB /* AFJSONRequestOperation.m in Sources */,
 				2B789F76185B8C950028E027 /* SMCalloutView.m in Sources */,
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
 				2B0D630917A2EDA300C3298D /* DDXMLElement.m in Sources */,
@@ -881,7 +969,7 @@
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
 				2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */,
-				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.m in Sources */,
+				2BC9897117D93EB30071DA9E /* MaplyMultiplexTileSource.mm in Sources */,
 				2B11057317E237D400735C46 /* MaplyElevationDatabase.mm in Sources */,
 				2BC989C317DC1F1E0071DA9E /* NSData+Zlib.m in Sources */,
 			);
