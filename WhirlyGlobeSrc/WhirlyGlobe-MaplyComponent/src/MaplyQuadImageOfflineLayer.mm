@@ -44,6 +44,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayer *quadLayer;
     Scene *scene;
     bool sourceSupportsMulti;
+    bool sourceWantsAsync;
     int minZoom,maxZoom;
     int tileSize;
     bool canDoValidTiles;
@@ -67,7 +68,10 @@ using namespace WhirlyKit;
     _textureSize = CGSizeMake(1024, 1024);
     _autoRes = true;
     _importanceScale = 1.0;
-    
+
+    // See if we're letting the source do the async calls r what
+    sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
+
     // Check if the source can handle multiple images
     sourceSupportsMulti = [_tileSource respondsToSelector:@selector(imageForTile:numImages:)];
 
@@ -247,6 +251,23 @@ using namespace WhirlyKit;
         tileID.y = y;
     }
     
+    // The tile source wants to do all the async management
+    if (sourceWantsAsync)
+    {
+        // Tile sources often do work in the startFetch so let's spin that off
+        if (_asyncFetching)
+        {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                           ^{
+                               [_tileSource startFetchLayer:self tile:tileID];
+                           }
+                           );
+        } else {
+            [_tileSource startFetchLayer:self tile:tileID];
+        }
+        return;
+    }
+
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
     ^{
@@ -281,6 +302,33 @@ using namespace WhirlyKit;
         // In sync mode, we just do the work
         workBlock();
     }
+}
+
+- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+{
+    // Adjust the y back to what the system is expecting
+    int y = tileID.y;
+    if (!_flipY)
+    {
+        y = (1<<tileID.level)-tileID.y-1;
+    }
+
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
+    
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    if (super.layerThread)
+    {
+        if ([NSThread currentThread] == super.layerThread)
+            [self performSelector:@selector(mergeTile:) withObject:args];
+        else
+            [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+    }
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
+{
+    // Note doing with the error right now
 }
 
 // Merge the tile result back on the layer thread

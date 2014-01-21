@@ -153,4 +153,18 @@
   */
 - (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
 
+/** @brief Generate the request for a given tile.
+    @details If someone outside of this request wants to fetch the data directly, they can do so by using this NSURLRequest.
+    @param tileID The tile we'd like the NSURLRequest for.
+    @return An NSURLRequest object you can use to fetch data for the tile.
+  */
+- (NSURLRequest *)requestForTile:(MaplyTileID)tileID;
+
+/** @brief The full path for a cached tile.
+    @details This returns the full path to where a tile is or where a tile would be if it were cached.
+    @details We don't check if the tile is there or not.
+    @param tileID The tile we need the filename for.
+   */
+- (NSString *)fileNameForTile:(MaplyTileID)tileID;
+
 @end
