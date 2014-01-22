@@ -225,4 +225,10 @@
   */
 @property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
+/// @brief Passes through the coord system from the MaplyRemoteTileInfo
+@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
+
+/// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
+@property (nonatomic) NSString *cacheDir;
+
 @end

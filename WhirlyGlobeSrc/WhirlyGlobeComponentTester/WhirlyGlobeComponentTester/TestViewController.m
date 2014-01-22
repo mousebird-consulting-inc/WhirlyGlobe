@@ -197,7 +197,7 @@ LocationInfo locations[NumLocations] =
     [self addChildViewController:baseViewC];
 
     // Note: Debugging
-    [self labelExercise];
+//    [self labelExercise];
 
     baseViewC.frameInterval = 2;  // 30fps
     
@@ -923,7 +923,7 @@ static const int NumMegaMarkers = 40000;
              MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
              tileSource.cacheDir = thisCacheDir;
              if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-                 tileSource.maxZoom = zoomLimit;
+                 tileSource.tileInfo.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
@@ -1007,8 +1007,8 @@ static const int NumMegaMarkers = 40000;
                 NSMutableArray *tileSources = [NSMutableArray array];
                 for (unsigned int ii=0;ii<5;ii++)
                 {
-                    MaplyRemoteTileSource *precipTileSource =
-                    [[MaplyRemoteTileSource alloc]
+                    MaplyRemoteTileInfo *precipTileSource =
+                    [[MaplyRemoteTileInfo alloc]
                      initWithBaseURL:[NSString stringWithFormat:@"http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer%d/",ii] ext:@"png" minZoom:0 maxZoom:6];
                     precipTileSource.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weather_layer%d/",cacheDir,ii];
                     [tileSources addObject:precipTileSource];
