@@ -610,17 +610,23 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset
 {
+    // See if we're already representing the annotation
+    bool alreadyHere = [annotations containsObject:annotate];
+    
     // Let's put it in the right place so the callout can do its layout logic
     CGPoint pt = [self screenPointFromGeo:coord];
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
     annotate.calloutView.delegate = self;
     annotate.loc = coord;
-    [annotations addObject:annotate];
-    [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    if (!alreadyHere)
+    {
+        [annotations addObject:annotate];
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    }
     
     // But then we move it back because we're controlling its positioning
     CGRect frame = annotate.calloutView.frame;
-    annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x, frame.origin.y-pt.y, frame.size.width, frame.size.height);
+    annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
     
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
