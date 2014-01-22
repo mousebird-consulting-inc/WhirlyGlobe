@@ -52,4 +52,10 @@
  */
 @property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
 
+/** @brief If set, we'll let failures pass through.
+    @details If you're fetching a very wide set of tiles, you may want to let a few failures happen and fill in the images yourself.
+    @details To do that, the multiplex tile source needs to accept failures and store an NSNull in the appropriate entry.
+  */
+@property (nonatomic) bool acceptFailures;
+
 @end
