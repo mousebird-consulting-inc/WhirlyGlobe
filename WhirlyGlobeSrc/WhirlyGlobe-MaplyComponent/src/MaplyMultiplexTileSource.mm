@@ -235,7 +235,7 @@ typedef std::set<SortedTile> SortedTileSet;
     }
     
     // Let's write it back out for the cache
-    MaplyRemoteTileSource *tileSource = _tileSources[which];
+    MaplyRemoteTileInfo *tileSource = _tileSources[which];
     NSString *fileName = [tileSource fileNameForTile:tileID];
     if (fileName)
     {
@@ -285,7 +285,7 @@ typedef std::set<SortedTile> SortedTileSet;
     
     // Work through the sources, kicking off a request as we go
     int which = 0;
-    for (MaplyRemoteTileSource *tileSource in _tileSources)
+    for (MaplyRemoteTileInfo *tileSource in _tileSources)
     {
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID])
@@ -293,11 +293,13 @@ typedef std::set<SortedTile> SortedTileSet;
             // We'll save the block for later and run at the end
             void (^workBlock)() =
             ^{
-                id thisTile = [tileSource imageForTile:tileID];
-                if (!thisTile || [thisTile isKindOfClass:[NSError class]])
-                    [self failedToGetTile:tileID error:thisTile layer:layer];
+                NSString *fileName = [tileSource fileNameForTile:tileID];
+                NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+                
+                if (!imgData)
+                    [self failedToGetTile:tileID error:nil layer:layer];
                 else
-                    [self gotTile:tileID which:which data:thisTile layer:layer];
+                    [self gotTile:tileID which:which data:imgData layer:layer];
             };
             workBlocks.push_back(workBlock);
         } else {
