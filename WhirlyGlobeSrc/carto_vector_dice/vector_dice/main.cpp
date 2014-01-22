@@ -860,7 +860,7 @@ int main(int argc, char * argv[])
                         for (unsigned int si=0;si<outStyle.size();si++)
                             for (unsigned int ri=0;ri<outStyle[si].rules.size();ri++)
                                 numRules += outStyle[si].rules[ri].symbolizers.size();
-                        printf(" %d styles, %d symbilizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
+                        printf(" %d styles, %d symbolizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
                         
                         std::string thisLayerName = layer.name;
                         mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
