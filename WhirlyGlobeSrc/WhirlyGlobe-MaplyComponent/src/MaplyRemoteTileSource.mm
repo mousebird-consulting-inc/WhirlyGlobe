@@ -247,6 +247,26 @@ using namespace WhirlyKit;
     }
 }
 
+- (MaplyCoordinateSystem *)coordSys
+{
+    return _tileInfo.coordSys;
+}
+
+- (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
+{
+    _tileInfo.coordSys = coordSys;
+}
+
+- (NSString *)cacheDir
+{
+    return _tileInfo.cacheDir;
+}
+
+- (void)setCacheDir:(NSString *)cacheDir
+{
+    _tileInfo.cacheDir = cacheDir;
+}
+
 - (int)minZoom
 {
     return _tileInfo.minZoom;
