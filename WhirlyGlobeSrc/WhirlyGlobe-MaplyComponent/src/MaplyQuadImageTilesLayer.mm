@@ -627,7 +627,6 @@ using namespace WhirlyKit;
     int borderTexel = quadLoader.borderTexel;
     
     // The tile source wants to do all the async management
-    // Well fine.  I'm not offended.  Really.  It's fine.
     if (sourceWantsAsync)
     {
         // Tile sources often do work in the startFetch so let's spin that off
