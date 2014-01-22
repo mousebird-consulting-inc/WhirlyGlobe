@@ -51,7 +51,7 @@ public:
 
     /// Draw priority for ordering
     unsigned int getDrawPriority() const { return drawPriority; }
-    void setDrawPriority(unsigned int newPriority) { drawPriority = newPriority; }
+    void setDrawPriority(int newPriority) { drawPriority = newPriority; }
     
     /// Set all the texture info at once
     void setTexInfo(const std::vector<BasicDrawable::TexInfo> &newTexInfo) { texInfo = newTexInfo; }
@@ -307,4 +307,32 @@ protected:
     bool enable;
 };
 
+/// Change the draw priority of a big drawable
+class BigDrawableDrawPriorityChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableDrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority) : drawId(drawId), drawPriority(drawPriority) { }
+    
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity drawId;
+    int drawPriority;
+};
+
+/// Change the draw priority of a big drawable
+class BigDrawableProgramIDChangeRequest : public ChangeRequest
+{
+public:
+    BigDrawableProgramIDChangeRequest(SimpleIdentity drawId,int programID) : drawId(drawId), programID(programID) { }
+    
+    /// Run the command.  The renderer calls this
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity drawId;
+    int programID;
+};
+    
 }

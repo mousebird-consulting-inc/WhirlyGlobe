@@ -47,6 +47,12 @@ public:
     /// Enable/disable all the big drawables we're using
     void setEnableAllDrawables(bool enabled,ChangeSet &changes);
     
+    /// Change the draw priority of all the drawables we're using
+    void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
+    
+    /// Change the program ID for all the drawables we're using
+    void setProgramIDAllDrawables(int programID,ChangeSet &changes);
+        
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
     {

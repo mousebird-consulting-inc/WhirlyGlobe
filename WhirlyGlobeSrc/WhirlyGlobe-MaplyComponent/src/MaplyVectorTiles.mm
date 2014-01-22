@@ -48,25 +48,28 @@ UIColor *ParseColor(NSString *colorStr)
     return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
 }
 
+@implementation MaplyVectorTileStyleSettings
+@end
+
 @implementation MaplyVectorTileStyle
 
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry index:(int)index
++ (id)styleFromStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
 {
     MaplyVectorTileStyle *tileStyle = nil;
     
     NSString *typeStr = styleEntry[@"type"];
     if ([typeStr isEqualToString:@"LineSymbolizer"])
     {
-        tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry index:index];
+        tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry index:index settings:settings];
     } else if ([typeStr isEqualToString:@"PolygonSymbolizer"])
     {
-        tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry index:index];
+        tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry index:index settings:settings];
     } else if ([typeStr isEqualToString:@"TextSymbolizer"])
     {
-        tileStyle = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:styleEntry index:index];
+        tileStyle = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:styleEntry index:index settings:settings];
     } else if ([typeStr isEqualToString:@"MarkersSymbolizer"])
     {
-        tileStyle = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:styleEntry index:index];
+        tileStyle = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:styleEntry index:index settings:settings];
     } else {
         // Set up one that doesn't do anything
         NSLog(@"Unknown symbolizer type %@",typeStr);
@@ -89,10 +92,7 @@ UIColor *ParseColor(NSString *colorStr)
     NSDictionary *desc;
 }
 
-// Note: Strokes less than 1.0 don't look great
-static const float StrokeFactor = 2.0;
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
 {
     self = [super init];
     
@@ -121,7 +121,7 @@ static const float StrokeFactor = 2.0;
     }
     if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
         self.geomAdditive = true;
-    desc = @{kMaplyVecWidth: @(StrokeFactor * strokeWidth),
+    desc = @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
              kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
              kMaplyDrawPriority: @(index+kMaplyVectorDrawPriorityDefault)
             };
@@ -146,7 +146,7 @@ static const float StrokeFactor = 2.0;
     NSDictionary *desc;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
 {
     self = [super init];
 
@@ -204,10 +204,11 @@ static const float StrokeFactor = 2.0;
 @implementation MaplyVectorTileStyleText
 {
     NSMutableDictionary *desc;
+    float dx,dy;
     float textSize;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
 {
     self = [super init];
     
@@ -234,6 +235,12 @@ static const float StrokeFactor = 2.0;
     float outlineSize = 1.0;
     if (styleEntry[@"halo-radius"])
         outlineSize = [styleEntry[@"halo-radius"] floatValue];
+    dx = 0.0;
+    if (styleEntry[@"dx"])
+        dx = [styleEntry[@"dx"] floatValue] * settings.textScale;
+    dy = 0.0;
+    if (styleEntry[@"dy"])
+        dy = [styleEntry[@"dy"] floatValue] * settings.textScale;
     
     if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
         self.geomAdditive = true;
@@ -244,7 +251,7 @@ static const float StrokeFactor = 2.0;
     if (outlineColor)
     {
         desc[kMaplyTextOutlineColor] = outlineColor;
-        desc[kMaplyTextOutlineSize] = @(outlineSize);
+        desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
     }
     
     return self;
@@ -264,6 +271,7 @@ static const float StrokeFactor = 2.0;
         if (label.text)
             [labels addObject:label];
         label.size = CGSizeMake(textSize,textSize);
+        label.offset = CGPointMake(dx, dy);
         label.layoutImportance = 1.0;
     }
     
@@ -283,11 +291,13 @@ static const float StrokeFactor = 2.0;
     UIImage *markerImage;
     float width;
     bool allowOverlap;
+    MaplyVectorTileStyleSettings *settings;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)inSettings
 {
     self = [super init];
+    settings = inSettings;
     
     UIColor *fillColor = [UIColor whiteColor];
     if (styleEntry[@"fill"])
@@ -308,7 +318,7 @@ static const float StrokeFactor = 2.0;
     
     desc = [NSMutableDictionary dictionary];
     
-    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*StrokeFactor*width, 4*StrokeFactor*width) color:fillColor strokeSize:2*StrokeFactor*strokeWidth strokeColor:strokeColor];
+    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*settings.markerScale*width, 4*settings.markerScale*width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
     
     return self;
 }
@@ -327,7 +337,7 @@ static const float StrokeFactor = 2.0;
             marker.layoutImportance = MAXFLOAT;
         else
             marker.layoutImportance = 1.0;
-        marker.size = CGSizeMake(StrokeFactor*width, StrokeFactor*width);
+        marker.size = CGSizeMake(settings.markerScale*width, settings.markerScale*width);
         [markers addObject:marker];
     }
     
@@ -390,6 +400,11 @@ static const float StrokeFactor = 2.0;
     styleObjects = [NSMutableArray array];
     for (NSDictionary *styleEntry in _styles)
         [styleObjects addObject:[NSNull null]];
+    
+    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings.lineScale = [UIScreen mainScreen].scale;
+    _settings.textScale = [UIScreen mainScreen].scale;
+    _settings.markerScale = [UIScreen mainScreen].scale;
     
     return self;
 }
@@ -472,6 +487,11 @@ static const float StrokeFactor = 2.0;
     for (NSDictionary *styleEntry in _styles)
         [styleObjects addObject:[NSNull null]];
  
+    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings.lineScale = [UIScreen mainScreen].scale;
+    _settings.textScale = [UIScreen mainScreen].scale;
+    _settings.markerScale = [UIScreen mainScreen].scale;    
+    
     return self;
 }
 
@@ -494,7 +514,7 @@ static const float StrokeFactor = 2.0;
         id styleObj = styleObjects[which];
         if ([styleObj isKindOfClass:[NSNull class]])
         {
-            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:_styles[which] index:which];
+            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:_styles[which] index:which settings:_settings];
             styleObjects[which] = styleObj;
         }
         
@@ -565,7 +585,6 @@ static const float StrokeFactor = 2.0;
         // Turn the raw data into vectors
         if (tilePresent && uncompressedData)
         {
-
             vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData attrs:&vecAttrs];
         }
     } else {
