@@ -37,7 +37,7 @@
 		2B3836B6187491FF00467ABD /* tinyxml2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tinyxml2.cpp; path = "../../third-party/tinyxml2/tinyxml2.cpp"; sourceTree = "<group>"; };
 		2B3836B81874937100467ABD /* MapnikConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapnikConfig.cpp; sourceTree = "<group>"; };
 		2B3836B91874937100467ABD /* MapnikConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapnikConfig.h; sourceTree = "<group>"; };
-		2BAD0ECC1852876900FFB126 /* vector_dice */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = vector_dice; path = carto_vector_dice; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BAD0ECC1852876900FFB126 /* carto_vector_dice */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = carto_vector_dice; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BAD0ECF1852876900FFB126 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2BAD0ED11852876900FFB126 /* vector_dice.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = vector_dice.1; sourceTree = "<group>"; };
 		2BBCF348187E1CEF00103DDF /* KompexSQLiteBlob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KompexSQLiteBlob.h; path = "../../../../../../utilities/KompexSQLiteWrapper-Source_1.9.11/inc/KompexSQLiteBlob.h"; sourceTree = "<group>"; };
@@ -93,7 +93,7 @@
 		2BAD0ECD1852876900FFB126 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2BAD0ECC1852876900FFB126 /* vector_dice */,
+				2BAD0ECC1852876900FFB126 /* carto_vector_dice */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -154,7 +154,7 @@
 			);
 			name = carto_vector_dice;
 			productName = vector_dice;
-			productReference = 2BAD0ECC1852876900FFB126 /* vector_dice */;
+			productReference = 2BAD0ECC1852876900FFB126 /* carto_vector_dice */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */

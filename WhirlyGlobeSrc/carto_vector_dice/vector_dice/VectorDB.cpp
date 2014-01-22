@@ -330,12 +330,16 @@ void AddToData(std::vector<unsigned char> &vecData,float fVal)
 // Add a string to the data
 void AddToData(std::vector<unsigned char> &vecData,const char *sVal)
 {
-    AddToData(vecData,(int)strlen(sVal));
+    int len = (int)strlen(sVal);
+    int extra = (4 - len % 4) % 4;
+    AddToData(vecData,len+extra);
     while (*sVal)
     {
         vecData.push_back(*sVal);
         sVal++;
     }
+    for (unsigned int ii=0;ii<extra;ii++)
+        vecData.push_back(0);
 }
     
 // Add a point to the data
