@@ -770,6 +770,13 @@ using namespace WhirlyKit;
 {
     int borderTexel = tileLoader.borderTexel;
 
+    // Adjust the y back to what the system is expecting
+    int y = tileID.y;
+    if (!_flipY)
+    {
+        y = (1<<tileID.level)-tileID.y-1;
+    }
+
     // Get the data for the tile and sort out what the delegate returned to us
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderTexel convertToRaw:true];
@@ -786,7 +793,7 @@ using namespace WhirlyKit;
         // Needed elevation and failed to load, so stop
         if (elevDelegate && _requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
+            NSArray *args = @[[NSNull null],@(tileID.x),@(y),@(tileID.level),_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -813,7 +820,26 @@ using namespace WhirlyKit;
         loadTile.elevChunk = wkChunk;
     }
     
-    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(tileID.y),@(tileID.level),_tileSource];
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    if (super.layerThread)
+    {
+        if ([NSThread currentThread] == super.layerThread)
+            [self performSelector:@selector(mergeTile:) withObject:args];
+        else
+            [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+    }
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
+{
+    // Adjust the y back to what the system is expecting
+    int y = tileID.y;
+    if (!_flipY)
+    {
+        y = (1<<tileID.level)-tileID.y-1;
+    }
+
+    NSArray *args = @[([NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
     if (super.layerThread)
     {
         if ([NSThread currentThread] == super.layerThread)
