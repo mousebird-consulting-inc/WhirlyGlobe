@@ -21,6 +21,14 @@
 #import <UIKit/UIKit.h>
 #import "MaplyQuadPagingLayer.h"
 
+@interface MaplyVectorTileStyleSettings : NSObject
+
+@property (nonatomic) float lineScale;
+@property (nonatomic) float textScale;
+@property (nonatomic) float markerScale;
+
+@end
+
 @interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
 
 - (id)initWithDirectory:(NSString *)tilesDir;
@@ -29,6 +37,8 @@
 @property (nonatomic,readonly) NSString *tilesDir;
 @property (nonatomic,readonly) int minLevel;
 @property (nonatomic,readonly) int maxLevel;
+
+@property (nonatomic) MaplyVectorTileStyleSettings *settings;
 
 @property (nonatomic,readonly) NSArray *layerNames;
 
@@ -46,24 +56,24 @@
 
 @interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end
 
 @interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end
 
 @interface MaplyVectorTileStyleText : MaplyVectorTileStyle
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end
 
 @interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end

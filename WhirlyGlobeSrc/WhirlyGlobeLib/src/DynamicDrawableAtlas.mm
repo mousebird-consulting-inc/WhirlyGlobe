@@ -181,7 +181,19 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
 }
-
+    
+void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
+}
+    
+void DynamicDrawableAtlas::setProgramIDAllDrawables(int programID,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
+}
+    
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation

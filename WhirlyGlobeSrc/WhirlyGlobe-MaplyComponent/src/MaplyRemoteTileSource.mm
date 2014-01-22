@@ -18,21 +18,24 @@
  *
  */
 
+#import "AFHTTPRequestOperation.h"
 #import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobe.h"
 #import "MaplyCoordinateSystem_private.h"
+#import "MaplyQuadImageTilesLayer.h"
+#import "MaplyRemoteTileSource_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyRemoteTileSource
+@implementation MaplyRemoteTileInfo
 {
-    int _minZoom,_maxZoom;
-    int _pixelsPerSide;
     NSDictionary *_jsonSpec;
     NSArray *_tileURLs;
     WhirlyKit::Mbr _mbr;
     bool cacheInit;
+    int _minZoom,_maxZoom;
+    int _pixelsPerSide;
     std::vector<Mbr> mbrs;
 }
 
@@ -89,6 +92,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (int)tileSize
+{
+    return _pixelsPerSide;
+}
+
 - (void)addBoundingBox:(MaplyBoundingBox *)bbox
 {
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
@@ -105,21 +113,6 @@ using namespace WhirlyKit;
     mbrs.push_back(mbr);
 }
 
-- (int)minZoom
-{
-    return _minZoom;
-}
-
-- (int)maxZoom
-{
-    return _maxZoom;
-}
-
-- (int)tileSize
-{
-    return _pixelsPerSide;
-}
-
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
     if (mbrs.empty())
@@ -134,8 +127,11 @@ using namespace WhirlyKit;
 }
 
 // Figure out the name for the tile, if it's local
-- (NSString *)cacheFileForTile:(MaplyTileID)tileID
+- (NSString *)fileNameForTile:(MaplyTileID)tileID
 {
+    if (!_cacheDir)
+        return nil;
+    
     // If there's a cache dir, make sure it's there
     if (!cacheInit)
     {
@@ -146,7 +142,7 @@ using namespace WhirlyKit;
         }
         cacheInit = true;
     }
-
+    
     NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
     return localName;
 }
@@ -156,102 +152,209 @@ using namespace WhirlyKit;
     if (!_cacheDir)
         return false;
     
-    NSString *fileName = [self cacheFileForTile:tileID];
+    NSString *fileName = [self fileNameForTile:tileID];
     if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
         return true;
     
     return false;
 }
 
-- (id)imageForTile:(MaplyTileID)tileID
+- (NSURLRequest *)requestForTile:(MaplyTileID)tileID
 {
     int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    NSMutableURLRequest *urlReq = nil;
     
+    if (_tileURLs)
+    {
+        // Decide here which URL we'll use
+        NSString *tileURL = [_tileURLs objectAtIndex:tileID.x%[_tileURLs count]];
+        
+        // Use the JSON tile spec
+        NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+                                 stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                                stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
+        urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+        if (_timeOut != 0.0)
+            [urlReq setTimeoutInterval:_timeOut];
+    } else {
+        // Fetch the traditional way
+        NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+        urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+        if (_timeOut != 0.0)
+            [urlReq setTimeoutInterval:_timeOut];
+    }
+    
+    return urlReq;
+}
+
+@end
+
+@implementation MaplyRemoteTileSource
+{
+    Maply::TileFetchOpSet tileSet;
+}
+
+- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (id)initWithTilespec:(NSDictionary *)jsonDict
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:jsonDict];
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (id)initWithInfo:(MaplyRemoteTileInfo *)info
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = info;
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    @synchronized(self)
+    {
+        for (Maply::TileFetchOpSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+        {
+            Maply::TileFetchOp tile = *it;
+            [tile.op cancel];
+        }
+        tileSet.clear();
+    }
+}
+
+- (int)minZoom
+{
+    return _tileInfo.minZoom;
+}
+
+- (int)maxZoom
+{
+    return _tileInfo.maxZoom;
+}
+
+- (int)tileSize
+{
+    return _tileInfo.pixelsPerSide;
+}
+
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    return [_tileInfo tileIsLocal:tileID];
+}
+
+// Clear out the operation associated with a tile
+- (void)clearTile:(MaplyTileID)tileID
+{
+    @synchronized(self)
+    {
+        Maply::TileFetchOpSet::iterator it = tileSet.find(Maply::TileFetchOp(tileID));
+        if (it != tileSet.end())
+            tileSet.erase(it);
+    }
+}
+
+// For a remote tile source, this one only works if it's local
+- (id)imageForTile:(MaplyTileID)tileID
+{
+    NSString *fileName = [_tileInfo fileNameForTile:tileID];
+    NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+    
+    return imgData;
+}
+
+- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
+{
     NSData *imgData = nil;
-    bool wasCached = false;
     NSString *fileName = nil;
     // Look for the image in the cache first
-    if (_cacheDir)
+    if (_tileInfo.cacheDir)
     {
-        fileName = [self cacheFileForTile:tileID];
+        fileName = [_tileInfo fileNameForTile:tileID];
         imgData = [NSData dataWithContentsOfFile:fileName];
-        if (imgData)
-        {
-//            NSLog(@"Tile was cached: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-            wasCached = true;
-        }
     }
-
-    NSError *error = nil;
-    if (!imgData)
+    
+    if (imgData)
     {
-        if (_tileURLs)
-        {
-            // Decide here which URL we'll use
-            NSString *tileURL = [_tileURLs objectAtIndex:tileID.x%[_tileURLs count]];
+        if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+            [_delegate remoteTileSource:self tileDidLoad:tileID];
 
-            // Use the JSON tile spec
-            NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
-                                     stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
-                                    stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
-            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-            if (_timeOut != 0.0)
-                [urlReq setTimeoutInterval:_timeOut];
-            
-            // Fetch the image synchronously
-            NSURLResponse *resp = nil;
-            imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-            
-            if (error || !imgData)
-                imgData = nil;
-        } else {
-            // Fetch the traditional way
-            NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
-            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-            if (_timeOut != 0.0)
-                [urlReq setTimeoutInterval:_timeOut];
-            
-            // Fetch the image synchronously
-            NSURLResponse *resp = nil;
-            imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-            
-            // Let's look at the response
-            NSHTTPURLResponse *urlResp = (NSHTTPURLResponse *)resp;
-            if (urlResp.statusCode != 200)
+        // Let the paging layer know about it
+        [layer loadedImages:imgData forTile:tileID];
+    } else {
+        NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
+        
+        // Kick of an async request for the data
+        MaplyRemoteTileSource __weak *weakSelf = self;
+        AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        op.successCallbackQueue = queue;
+        op.failureCallbackQueue = queue;
+        [op setCompletionBlockWithSuccess:
+         ^(AFHTTPRequestOperation *operation, id responseObject)
             {
-                NSString *urlRespDesc = [urlResp description];
-                if (!urlRespDesc)
-                    urlRespDesc = @"Unknown";
-                error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileSource" code:0 userInfo:
-                                  @{NSLocalizedDescriptionKey: urlRespDesc}];
-            }
-            
-            if (error || !imgData)
-                imgData = nil;
-        }
-    }
-    
-    if (_delegate)
-    {
-        if (imgData)
-        {
-            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
-                [_delegate remoteTileSource:self tileDidLoad:tileID];
-        } else {
-            if ([_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-                [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
-        }
-    }
-    
-    // Pass the error back up
-    if (error)
-        return error;
-    
-    // Let's also write it back out for the cache
-    if (_cacheDir && !wasCached)
-        [imgData writeToFile:fileName atomically:YES];
+                if (weakSelf)
+                {
+                    NSData *imgData = responseObject;
+                    
+                    // Let the delegate know we loaded successfully
+                    if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                        [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
+                    
+                    // Let the paging layer know about it
+                    [layer loadedImages:imgData forTile:tileID];
 
-    return imgData;
+                    // Let's also write it back out for the cache
+                    if (weakSelf.tileInfo.cacheDir)
+                        [imgData writeToFile:fileName atomically:YES];
+                    
+                    [weakSelf clearTile:tileID];
+                }
+            }
+        failure:
+         ^(AFHTTPRequestOperation *operation, NSError *error)
+            {
+                if (weakSelf)
+                {
+                    // Unsucessful load
+                    [layer loadError:error forTile:tileID];
+                    if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                        [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:error];
+                    [weakSelf clearTile:tileID];
+                }
+            }];
+        Maply::TileFetchOp fetchOp(tileID);
+        fetchOp.op = op;
+        @synchronized(self)
+        {
+            tileSet.insert(fetchOp);
+        }
+        [op start];
+    }
 }
 
 @end
