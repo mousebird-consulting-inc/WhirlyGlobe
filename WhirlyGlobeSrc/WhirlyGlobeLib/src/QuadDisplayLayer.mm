@@ -494,6 +494,8 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         return;
     }
     
+    waitForLocalLoads = false;
+    
     // Clean out anything we might be currently evaluating
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     nodesForEval.clear();
