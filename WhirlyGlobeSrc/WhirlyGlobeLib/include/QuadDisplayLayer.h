@@ -117,6 +117,10 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// If this is filled in, we can do a hard reset while the layer is running.
+/// This is pretty much identical to shutdownLayer:scene: but we expect to run again afterwards.
+- (void)reset:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
+
 /// Normally we'd call an endUpdates, but if we're holding that open for a while
 /// (e.g. matching frame boundaries), let's at least get all the work done.
 - (void)updateWithoutFlush;
@@ -191,6 +195,10 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
+
+/// This cleans out existing resources and allows you to change tile sources.
+/// It only works if the tile loader supports reload
+- (void)reset;
 
 /// Call this to have the layer re-evaluate its currently displayed data
 - (void)poke;
