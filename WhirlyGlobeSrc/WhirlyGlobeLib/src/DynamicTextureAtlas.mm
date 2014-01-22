@@ -406,6 +406,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             {
                 for (unsigned int ii=0;ii<texVec->size();ii++)
                     changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+                delete texVec;
                 textures.erase(it);
                 // Note: Debugging
 //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
