@@ -252,7 +252,7 @@ typedef std::set<SortedTile> SortedTileSet;
     // Let's write it back out for the cache
     MaplyRemoteTileInfo *tileSource = _tileSources[which];
     NSString *fileName = [tileSource fileNameForTile:tileID];
-    if (fileName)
+    if (fileName && [tileData isKindOfClass:[NSData class]])
     {
         NSData *imgData = tileData;
         [imgData writeToFile:fileName atomically:YES];
