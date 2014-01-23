@@ -59,13 +59,18 @@ public class MainActivity extends Activity
         	{
     	        try 
     	        {
-    	        	ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+
+    	        	// Style information for the vectors
+    	        	VectorInfo vecInfo = new VectorInfo();
+    	        	vecInfo.setColor(1.f, 1.f, 1.f, 1.f);
+    	        	vecInfo.setFade(0.5f);
 
     	        	// Load each of the country files
     	        	for (String country: countries)
     	            {
     	            	String fileName = country.concat(".geojson");
     	            	String json = readGeoJSON(fileName);
+        	        	ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
     	            	if (json != null)
     	            	{
     	                	// Create a vector object
@@ -73,15 +78,11 @@ public class MainActivity extends Activity
     	                	vecObj.fromGeoJSON(json);
     	                	vecObjs.add(vecObj);
     	            	}
+    	            	
+    	            	if (vecObjs.size() > 0)
+    	            		mapControl.addVectors(vecObjs,vecInfo);
     	            }
-    	        	
-    	        	// Style information for the vectors
-    	        	VectorInfo vecInfo = new VectorInfo();
-    	        	vecInfo.setColor(1.f, 0.f, 0.f, 1.f);
-    	        	
-    	        	// Add the vectors all at once
-    	        	mapControl.addVectors(vecObjs,vecInfo);
-    	        	
+    	        	    	        	    	        	
     	        	// Image for a marker
     	        	String bitmapName = "Star.png";
     	        	Bitmap bitmap = readBitmap(bitmapName);
@@ -92,13 +93,13 @@ public class MainActivity extends Activity
         	        	// And a marker
         	        	ScreenMarker testMarker = new ScreenMarker();
         	        	testMarker.loc = Point2d.FromDegrees(-122, 37);
-        	        	testMarker.color = Color.argb(255, 255, 0, 255);
-        	        	testMarker.size = new Point2d(24,24);
+        	        	testMarker.size = new Point2d(32,32);
         	        	testMarker.image = namedBitmap;
         	        	ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
         	        	markers.add(testMarker);
         	        	
         	        	MarkerInfo markerInfo = new MarkerInfo();
+        	        	markerInfo.setFade(0.5f);
         	        	
         	        	mapControl.addScreenMarkers(markers,markerInfo);
     	        	}    	        	

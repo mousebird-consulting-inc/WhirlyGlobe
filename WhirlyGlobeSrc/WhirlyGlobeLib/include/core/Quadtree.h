@@ -19,15 +19,13 @@
  */
 
 #import "WhirlyVector.h"
+#import "Dictionary.h"
 #import <set>
-
-/// @cond
-@protocol WhirlyKitQuadTreeImportanceDelegate;
-/// @endcond
 
 namespace WhirlyKit
 {
-    
+
+class QuadTreeImportanceCalculator;
 class ViewState;
     
 /** The Quadtree is used to represented the quad tree spatial subdivision
@@ -40,7 +38,7 @@ class Quadtree
 public:   
     /// Construct with the spatial information, number of nodes, min importance to consider
     ///  and a delegate to calculate importance.
-    Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate);
+    Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,QuadTreeImportanceCalculator *importDelegate);
     ~Quadtree();
 
     /// Represents a single quad tree node
@@ -66,8 +64,8 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo() { attrs = [NSMutableDictionary dictionary]; }
-        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance) { attrs = [NSMutableDictionary dictionaryWithDictionary:that.attrs]; }
+        NodeInfo();
+        NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), attrs(that.attrs) { }
         ~NodeInfo() { }
         
         /// Compare based on importance.  Used for sorting
@@ -82,7 +80,7 @@ public:
 
         /// Put any attributes you'd like to keep track of here.
         /// There are things you might calculate for a given tile over and over.
-        NSMutableDictionary *attrs;
+        Dictionary attrs;
     };
 
     /// Check if the given tile is already present
@@ -200,7 +198,7 @@ protected:
     int maxNodes;
     float minImportance;
     /// Used to calculate importance for a particular 
-    NSObject<WhirlyKitQuadTreeImportanceDelegate> * __weak importDelegate;
+    QuadTreeImportanceCalculator *importDelegate;
     
     // All nodes, sorted by ID
     NodesByIdentType nodesByIdent;
@@ -208,11 +206,14 @@ protected:
     NodesBySizeType nodesBySize;
 };
 
-}
-
 /// Fill in this protocol to return the importance value for a given tile.
-@protocol WhirlyKitQuadTreeImportanceDelegate
-/// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr tree:(WhirlyKit::Quadtree *)tree attrs:(NSMutableDictionary *)attrs;
-@end
+class QuadTreeImportanceCalculator
+{
+public:
+    virtual ~QuadTreeImportanceCalculator() { }
+    /// Return a number signifying importance.  MAXFLOAT is very important, 0 is not at all
+    virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,Quadtree *tree,Dictionary *attrs) = 0;
+};
+    
+}
 

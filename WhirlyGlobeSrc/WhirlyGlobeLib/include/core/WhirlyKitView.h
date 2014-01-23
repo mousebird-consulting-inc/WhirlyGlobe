@@ -20,9 +20,6 @@
 
 #import <set>
 #import "WhirlyTypes.h"
-#import "WhirlyVector.h"
-#import "WhirlyGeometry.h"
-#import "WhirlyKitView.h"
 #import "CoordSystem.h"
 
 // Sent when a WhirlyKit::View animation starts
@@ -30,22 +27,23 @@
 // Sent when a WhirlyKit::View animation is cancelled
 #define kWKViewAnimationEnded @"WKViewAnimationEnded"
 
+
+
 namespace WhirlyKit
 {
-    class View;
-}
+    
+class View;
 
 /// Watcher Callback
-// Note: Porting
-//@protocol WhirlyKitViewWatcherDelegate
-///// Called when the view changes position
-//- (void)viewUpdated:(WhirlyKit::View *)view;
-//@end
-
-//typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewWatcherDelegateSet;
-
-namespace WhirlyKit
+class ViewWatcher
 {
+public:
+    virtual ~ViewWatcher() { }
+    /// Called when the view changes position
+    virtual void viewUpdated(View *view) = 0;
+};
+
+typedef std::set<ViewWatcher *> ViewWatcherSet;
 
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and Maply.  It contains the general purpose
@@ -59,7 +57,7 @@ public:
 
     /// Calculate the viewing frustum (which is also the image plane)
     /// Need the framebuffer size in pixels as input
-    virtual void calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,WhirlyKit::Point2d &ll,WhirlyKit::Point2d &ur,double &near,double &far);
+    virtual void calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double &near,double &far);
     
     /// Cancel any outstanding animation.  Filled in by subclass.
     virtual void cancelAnimation();
@@ -81,24 +79,22 @@ public:
     virtual Eigen::Matrix4d calcFullMatrix();
     
     /// Calculate the projection matrix, given the size of the frame buffer
-    virtual Eigen::Matrix4d calcProjectionMatrix(WhirlyKit::Point2f frameBufferSize,float margin);
+    virtual Eigen::Matrix4d calcProjectionMatrix(Point2f frameBufferSize,float margin);
     
     /// Return the nominal height above the surface of the data
     virtual double heightAboveSurface();
     
     /// From a screen point calculate the corresponding point in 3-space
-    virtual WhirlyKit::Point3d pointUnproject(WhirlyKit::Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
+    virtual WhirlyKit::Point3d pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
     
     /// Return the ray running from eye through the given screen point in display space
     //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
     
     /// Add a watcher delegate.  Call this on the main thread.
-    // Note: Porting
-//    virtual void addWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> * delegate);
+    virtual void addWatcher(ViewWatcher *delegate);
     
     /// Remove the given watcher delegate.  Call this on the main thread
-    // Note: Porting
-//    virtual void removeWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> *delegate);
+    virtual void removeWatcher(ViewWatcher *delegate);
     
     /// Used by subclasses to notify all the watchers of updates
     virtual void runViewUpdates();
@@ -112,8 +108,7 @@ public:
     bool continuousZoom;
     
     /// Called when positions are updated
-    // Note: Porting
-//    WhirlyKitViewWatcherDelegateSet watchDelegates;
+    ViewWatcherSet watchers;
 };
 
 }

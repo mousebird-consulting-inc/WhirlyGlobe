@@ -18,8 +18,8 @@
  *
  */
 
+#import "ViewState.h"
 #import "GlobeView.h"
-#import "LayerViewWatcher.h"
 
 namespace WhirlyKit
 {
@@ -28,13 +28,14 @@ namespace WhirlyKit
 
 namespace WhirlyGlobe
 {
+
 /** View State related to the Globe view.  This adds
     more parameters relating to the globe.
   */
 class GlobeViewState : public WhirlyKit::ViewState
 {
 public:
-    GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
+    GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
     virtual ~GlobeViewState();
 
     /// Rotation, etc, at this view state
@@ -52,16 +53,15 @@ public:
      */
     bool pointOnSphereFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit);
 };
+    
+// Produces globe view states from globe views
+class GlobeViewStateFactory : public WhirlyKit::ViewStateFactory
+{
+public:
+    WhirlyKit::ViewState *makeViewState(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer)
+    {
+        return new GlobeViewState((GlobeView *)view,renderer);
+    }
+};
 
 }
-
-// Note: Porting
-///** The Globe Layer View watcher is a subclass of the layer view
-//    watcher that takes globe specific parameters into account.
-//  */
-//@interface WhirlyGlobeLayerViewWatcher : WhirlyKitLayerViewWatcher
-//
-///// Initialize with the globe view to watch and the layer thread
-//- (id)initWithView:(WhirlyGlobe::GlobeView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
-//
-//@end

@@ -21,25 +21,22 @@
 #import "ScreenImportance.h"
 #import "FlatMath.h"
 #import "GlobeMath.h"
-#import "GlobeLayerViewWatcher.h"
-#import "MaplyLayerViewWatcher.h"
-#import "UIImage+Stuff.h"
 #import "VectorData.h"
-#import "SceneRendererES2.h"
+#import "FlatMath.h"
+#import "ViewState.h"
 #import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
-using namespace WhirlyKit;
 
-@implementation WhirlyKitDisplaySolid
+namespace WhirlyKit
+{
 
 // Let's not support tiles less than 10m on a side
 static float const BoundsEps = 10.0 / EarthRadius;
 
-+ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)inMinZ maxZ:(float)inMaxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float inMinZ,float inMaxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
+    : valid(true)
 {
-    WhirlyKitDisplaySolid *dispSolid = [[WhirlyKitDisplaySolid alloc] init];
-    
     // Start with the outline in the source coordinate system
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     std::vector<Point3d> srcBounds;
@@ -67,7 +64,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
         Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcBounds[ii]);
         Point3d dispPt = coordAdapter->localToDisplay(localPt);
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
-        dispSolid.surfNormals.push_back(dispNorm);
+        surfNormals.push_back(dispNorm);
         // If the previous one is too close, ditch this one
         if (ii > 0)
         {
@@ -85,7 +82,10 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // If we didn't get enough boundary points, this is degenerate
     if (dispBounds.size() < 3)
-        return nil;
+    {
+        valid = false;
+        return;
+    }
     
     // We'll set up a plane and start working in that space
     Point3d localMidPt = CoordSystemConvert3d(srcSystem, displaySystem, (srcBounds[0]+srcBounds[2])/2.0);
@@ -125,7 +125,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     // Surface normals only make sense if there is a surface, but there are other important
     //  calculations below
     if (inMinZ == inMaxZ)
-        dispSolid.surfNormals.reserve(srcPts.size());
+        surfNormals.reserve(srcPts.size());
     
     for (unsigned int ii=0;ii<srcPts.size();ii++)
     {
@@ -148,7 +148,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
         // And throw in another normal for the biggest tiles
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
         if (inMinZ == inMaxZ)
-            dispSolid.surfNormals.push_back(Vector3d(dispNorm.x(),dispNorm.y(),dispNorm.z()));
+            surfNormals.push_back(Vector3d(dispNorm.x(),dispNorm.y(),dispNorm.z()));
         
 #if 0
         // See if the plane pt is on the right of the two sample points
@@ -194,7 +194,7 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Now let's go ahead and form the polygons for the planes
     // First the ones around the outside
-    dispSolid.polys.reserve(planeMbrPts.size()+2);
+    polys.reserve(planeMbrPts.size()+2);
     for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
     {
         int thisPt = ii;
@@ -204,32 +204,31 @@ static float const BoundsEps = 10.0 / EarthRadius;
         poly.push_back(botCorners[nextPt]);
         poly.push_back(topCorners[nextPt]);
         poly.push_back(topCorners[thisPt]);
-        dispSolid.polys.push_back(poly);
+        polys.push_back(poly);
     }
     // Then top and bottom
-    dispSolid.polys.push_back(topCorners);
+    polys.push_back(topCorners);
     std::reverse(botCorners.begin(),botCorners.end());
-    dispSolid.polys.push_back(botCorners);
+    polys.push_back(botCorners);
     
     // Now calculate normals for each of those
-    dispSolid.normals.reserve(dispSolid.polys.size());
-    for (unsigned int ii=0;ii<dispSolid.polys.size();ii++)
+    normals.reserve(polys.size());
+    for (unsigned int ii=0;ii<polys.size();ii++)
     {
         if (coordAdapter->isFlat())
-            dispSolid.normals.push_back(Vector3d(0,0,1));
+            normals.push_back(Vector3d(0,0,1));
         else {
-            std::vector<std::vector<WhirlyKit::Point3d> > &polys = dispSolid.polys;
             std::vector<Point3d> &poly = polys[ii];
             Point3d &p0 = poly[0];
             Point3d &p1 = poly[1];
             Point3d &p2 = poly[poly.size()-1];
             Vector3d norm = (p1-p0).cross(p2-p0);
             norm.normalize();
-            dispSolid.normals.push_back(norm);
+            normals.push_back(norm);
         }
     }
     
-    return dispSolid;
+    valid = true;
 }
 
 double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize)
@@ -296,36 +295,36 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return std::abs(screenArea) * scale;
 }
 
-- (bool)isInside:(WhirlyKit::Point3d)pt
+bool DisplaySolid::isInside(const Point3d &pt)
 {
     // We should be on the inside of each plane
-    for (unsigned int ii=0;ii<_polys.size();ii++)
+    for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        Point3d org = (_polys[ii])[0];
-        if ((pt-org).dot(_normals[ii]) > 0.0)
+        Point3d org = (polys[ii])[0];
+        if ((pt-org).dot(normals[ii]) > 0.0)
             return false;
     }
     
     return true;
 }
 
-- (double)importanceForViewState:(WhirlyKit::ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &frameSize)
 {
     Point3d eyePos = viewState->eyePos;
     
     if (!viewState->coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
-        if ([self isInside:eyePos])
+        if (isInside(eyePos))
             return MAXFLOAT;
         
         // Make sure that we're pointed toward the eye, even a bit
-        if (!_surfNormals.empty())
+        if (!surfNormals.empty())
         {
             bool isFacing = false;
-            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
+            for (unsigned int ii=0;ii<surfNormals.size();ii++)
             {
-                const Vector3d &surfNorm = _surfNormals[ii];
+                const Vector3d &surfNorm = surfNormals[ii];
                 if ((isFacing |= (surfNorm.dot(eyePos) >= 0.0)))
                     break;
             }
@@ -336,21 +335,21 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     
     // Now work through the polygons and project each to the screen
     double totalImport = 0.0;
-    for (unsigned int ii=0;ii<_polys.size();ii++)
+    for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
+        double import = PolyImportance(polys[ii], normals[ii], viewState, frameSize);
         totalImport += import;
     }
     
     return totalImport/2.0;
 }
 
-- (bool)isOnScreenForViewState:(WhirlyKit::ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &frameSize)
 {
-    for (unsigned int ii=0;ii<_polys.size();ii++)
+    for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        const std::vector<Point3d> &poly = _polys[ii];
-        double origArea = PolygonArea(poly,_normals[ii]);
+        const std::vector<Point3d> &poly = polys[ii];
+        double origArea = PolygonArea(poly,normals[ii]);
         origArea = std::abs(origArea);
         
         std::vector<Eigen::Vector4d> pts;
@@ -378,49 +377,40 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return false;
 }
 
-@end
-
-namespace WhirlyKit
+bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
-    
-bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
-{
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull null]])
+    if (!dispSolid->valid)
         return false;
 
-    return [dispSolid isOnScreenForViewState:viewState frameSize:frameSize];
+    dispSolid->isOnScreenForViewState(viewState,frameSize);
 }
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull class]])
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -430,23 +420,21 @@ double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frame
 }
 
 // This version is for volumes with height
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:minZ maxZ:maxZ srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull class]])
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     

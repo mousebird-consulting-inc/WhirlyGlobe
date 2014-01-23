@@ -100,15 +100,16 @@ bool Quadtree::Node::hasChildren()
     
 void Quadtree::Node::Print()
 {
-    NSLog(@"Node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
-    if (parent)
-        NSLog(@" Parent = (%d,%d,%d)",parent->nodeInfo.ident.x,parent->nodeInfo.ident.y,parent->nodeInfo.ident.level);
-    for (unsigned int ii=0;ii<4;ii++)
-        if (children[ii])
-            NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
+    // Note: Porting
+//    NSLog(@"Node (%d,%d,%d)",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level);
+//    if (parent)
+//        NSLog(@" Parent = (%d,%d,%d)",parent->nodeInfo.ident.x,parent->nodeInfo.ident.y,parent->nodeInfo.ident.level);
+//    for (unsigned int ii=0;ii<4;ii++)
+//        if (children[ii])
+//            NSLog(@"  Child = (%d,%d,%d)",children[ii]->nodeInfo.ident.x,children[ii]->nodeInfo.ident.y,children[ii]->nodeInfo.ident.level);
 }
 
-Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
+Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,QuadTreeImportanceCalculator *importDelegate)
     : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance)
 {
     this->importDelegate = importDelegate;
@@ -167,7 +168,7 @@ void Quadtree::reevaluateNodes()
          it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
-        node->nodeInfo.importance = [importDelegate importanceForTile:node->nodeInfo.ident mbr:node->nodeInfo.mbr tree:this attrs:node->nodeInfo.attrs];
+        node->nodeInfo.importance = importDelegate->importanceForTile(node->nodeInfo.ident, node->nodeInfo.mbr, this, &node->nodeInfo.attrs);
         if (!node->hasChildren())
             nodesBySize.insert(node);
     }
@@ -219,7 +220,7 @@ Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
     nodeInfo.mbr = generateMbrForNode(ident);
-    nodeInfo.importance = [importDelegate importanceForTile:nodeInfo.ident mbr:nodeInfo.mbr tree:this attrs:nodeInfo.attrs];
+    nodeInfo.importance = importDelegate->importanceForTile(nodeInfo.ident, nodeInfo.mbr, this, &nodeInfo.attrs);
     
     return nodeInfo;
 }
@@ -318,14 +319,15 @@ bool Quadtree::hasParent(Quadtree::Identifier ident,Quadtree::Identifier &parent
     
 void Quadtree::Print()
 {
-    NSLog(@"***QuadTree Dump***");
-    for (NodesByIdentType::iterator it = nodesByIdent.begin();
-         it != nodesByIdent.end(); ++it)
-    {
-        Node *node = *it;
-        node->Print();
-    }
-    NSLog(@"******");
+    // Note: Porting
+//    NSLog(@"***QuadTree Dump***");
+//    for (NodesByIdentType::iterator it = nodesByIdent.begin();
+//         it != nodesByIdent.end(); ++it)
+//    {
+//        Node *node = *it;
+//        node->Print();
+//    }
+//    NSLog(@"******");
 }
 
     

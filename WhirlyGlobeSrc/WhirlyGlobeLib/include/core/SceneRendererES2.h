@@ -22,13 +22,7 @@
 // Note: Porting
 //#import "Lighting.h"
 #import "WhirlyTypes.h"
-
 #import "glwrapper.h"
-
-namespace WhirlyKit
-{
-class SceneRendererES2;
-}
 
 namespace WhirlyKit
 {
@@ -59,7 +53,7 @@ public:
     /// We might need this if the view has switched away and then back.
     void forceRenderSetup();
     
-    virtual void setScene(WhirlyKit::Scene *inScene);
+    virtual void setScene(Scene *inScene);
     
     void setClearColor(const RGBAColor &color);
 

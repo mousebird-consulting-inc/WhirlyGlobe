@@ -21,6 +21,7 @@
 #import "LayerThread_private.h"
 
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyKitLayerThread
 {
@@ -57,12 +58,11 @@ using namespace WhirlyKit;
         _renderer = inRenderer;
 		layers = [NSMutableArray array];
         // Note: This could be better
-        // Note: Porting
-//        if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
-//            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobe::GlobeView *)inView thread:self];
-//        else
-//            if (dynamic_cast<Maply::MapScene *>(_scene))
-//                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(Maply::MapView *)inView thread:self];
+        if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
+            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobe::GlobeView *)inView thread:self];
+        else
+            if (dynamic_cast<Maply::MapScene *>(_scene))
+                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(Maply::MapView *)inView thread:self];
         
         // We'll create the context here and set it in the layer thread, always
         _glContext = [[EAGLContext alloc] initWithAPI:_renderer->getContext().API sharegroup:_renderer->getContext().sharegroup];

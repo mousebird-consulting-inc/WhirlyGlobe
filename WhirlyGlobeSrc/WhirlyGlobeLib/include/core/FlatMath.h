@@ -28,7 +28,7 @@ namespace WhirlyKit
     represents the map as a flat non-projection of that.
     This is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
-class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
+class PlateCarreeCoordSystem : public CoordSystem
 {
 public:
     /// Convert from the local coordinate system to lat/lon
@@ -52,7 +52,7 @@ public:
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
     This is a scaled unrolling from a center point.
  */
-class FlatEarthCoordSystem : public WhirlyKit::CoordSystem
+class FlatEarthCoordSystem : public CoordSystem
 {
 public:
     FlatEarthCoordSystem(const GeoCoord &origin);

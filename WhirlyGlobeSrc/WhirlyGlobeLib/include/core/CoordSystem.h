@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyVector.h"
+#import <boost/shared_ptr.hpp>
 #import "WhirlyGeometry.h"
 
 namespace WhirlyKit
@@ -30,13 +30,8 @@ T DegToRad(T deg) { return deg / 180.0 * (T)M_PI; }
 
 /// Radians to degress
 template<typename T>
-T RadToDeg(T rad) { return rad / (T)M_PI * 180.0; }    
+T RadToDeg(T rad) { return rad / (T)M_PI * 180.0; }
     
-}
-
-namespace WhirlyKit
-{
-
 /// This class give us a virtual destructor to make use of
 ///  when we're deleting random objects at the end of the layer thread.
 class DelayedDeletable
@@ -44,6 +39,8 @@ class DelayedDeletable
 public:
     virtual ~DelayedDeletable() { }
 };
+    
+typedef boost::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.

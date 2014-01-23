@@ -208,6 +208,15 @@ std::string Dictionary::getString(const std::string &name,const std::string &def
     it->second->asString(retStr);
     return retStr;
 }
+    
+DelayedDeletableRef Dictionary::getObject(const std::string &name)
+{
+    FieldMap::const_iterator it = fields.find(name);
+    if (it == fields.end())
+        return DelayedDeletableRef();
+    
+    return DelayedDeletableRef(it->second->asObject());
+}
 
 void Dictionary::setInt(const std::string &name,int val)
 {
@@ -234,6 +243,15 @@ void Dictionary::setString(const std::string &name,const std::string &val)
     StringValue *sVal = new StringValue();
     sVal->val = val;
     fields[name] = sVal;
+}
+    
+void Dictionary::setObject(const std::string &name, DelayedDeletableRef obj)
+{
+    removeField(name);
+    
+    ObjectValue *oVal = new ObjectValue();
+    oVal->val = obj;
+    fields[name] = oVal;
 }
     
 }

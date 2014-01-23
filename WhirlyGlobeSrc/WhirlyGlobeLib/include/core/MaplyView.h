@@ -18,14 +18,12 @@
  *
  */
 
-#import "WhirlyVector.h"
-#import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-namespace Maply
-{
-class MapView;
-}
+//namespace Maply
+//{
+//class MapView;
+//}
 
 // Note: Porting
 /// Animation callback

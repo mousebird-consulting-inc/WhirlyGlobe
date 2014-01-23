@@ -23,6 +23,7 @@
 #import <WhirlyGlobe.h>
 #import "DataLayer_private.h"
 #import "SceneRenderer_private.h"
+#import "LayerViewWatcher_private.h"
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -35,9 +36,8 @@
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;
 /// Run loop created within our main
 @property (nonatomic,readonly) NSRunLoop *runLoop;
-// Note: Porting
 /// Used to let layers get view change notices
-//@property (nonatomic,strong) WhirlyKitLayerViewWatcher *viewWatcher;
+@property (nonatomic) WhirlyKitLayerViewWatcher *viewWatcher;
 /// Our own EAGLContext, connected by a share group to the main one
 @property (nonatomic,readonly) EAGLContext *glContext;
 /// The renderer we're working with

@@ -1,5 +1,5 @@
 /*
- *  MayerLayerViewWatcher.h
+ *  MaplyLayerViewWatcher.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/14/12.
@@ -18,31 +18,16 @@
  *
  */
 
-#import "GlobeView.h"
-#import "LayerViewWatcher.h"
-#import "MaplyView.h"
+#import "MaplyViewState.h"
+
+using namespace WhirlyKit;
 
 namespace Maply
 {
-    
-/** View State related to the map view.
-  */
-class MapViewState : public WhirlyKit::ViewState
-{
-public:
-    MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
-};
-                   
-}
 
-// Note: Porting
-///// The Map Layer View Watcher is a subclass of the layer view
-/////  that handles map specific parameters.
-//@interface MaplyLayerViewWatcher : WhirlyKitLayerViewWatcher
-//{
-//}
-//
-///// Initialize with the globe view to watch and the layer thread
-//- (id)initWithView:(Maply::MapView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
-//
-//@end
+MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer)
+    : ViewState(mapView,renderer)
+{
+}
+    
+}

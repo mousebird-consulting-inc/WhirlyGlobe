@@ -18,15 +18,13 @@
  *
  */
 
-#import "WhirlyVector.h"
-#import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-namespace WhirlyGlobe
-{
-    class GlobeView;
-}
-
+//namespace WhirlyGlobe
+//{
+//    class GlobeView;
+//}
+//
 // Note: Porting
 ///// Animation callback
 //@protocol WhirlyGlobeAnimationDelegate

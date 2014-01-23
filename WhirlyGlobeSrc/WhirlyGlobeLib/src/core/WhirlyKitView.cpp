@@ -160,26 +160,23 @@ Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned i
 //    return Ray3f(eyePt,(dispPt-eyePt).normalized());
 //}
 
-// Note: Porting
 /// Add a watcher delegate
-//void View::addWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> *delegate)
-//{
-//    watchDelegates.insert(delegate);
-//}
+void View::addWatcher(ViewWatcher *watcher)
+{
+    watchers.insert(watcher);
+}
 
-// Note: Porting
-///// Remove the given watcher delegate
-//void View::removeWatcherDelegate(NSObject<WhirlyKitViewWatcherDelegate> *delegate)
-//{
-//    watchDelegates.erase(delegate);
-//}
+/// Remove the given watcher delegate
+void View::removeWatcher(ViewWatcher *watcher)
+{
+    watchers.erase(watcher);
+}
 
 void View::runViewUpdates()
 {
-    // Note: Porting
-//    for (WhirlyKitViewWatcherDelegateSet::iterator it = watchDelegates.begin();
-//         it != watchDelegates.end(); ++it)
-//        [(*it) viewUpdated:this];
+    for (ViewWatcherSet::iterator it = watchers.begin();
+         it != watchers.end(); ++it)
+        (*it)->viewUpdated(this);
 }
 
 }

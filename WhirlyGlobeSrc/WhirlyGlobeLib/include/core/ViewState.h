@@ -1,5 +1,5 @@
 /*
- *  LayerViewWatcher.h
+ *  ViewState.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
@@ -20,47 +20,19 @@
 
 #import "WhirlyKitView.h"
 
-//@class WhirlyKitLayerThread;
-
 namespace WhirlyKit
 {
-    class SceneRendererES;
-    class ViewStateFactory;
-    class ViewState;
-}
-
-// Note: Porting
-///** The layer view watcher is a base class.  We subclass it for specific
-//    view types, such as globe and map.  Each of the subclasses determines
-//    the criteria for watcher updates.
-// */
-//@interface WhirlyKitLayerViewWatcher : NSObject<WhirlyKitViewWatcherDelegate>
-//
-///// The sublcass of WhirlyKit::ViewState we'll use
-//@property (nonatomic) WhirlyKit::ViewStateFactory *viewStateFactory;
-//
-///// Initialize with a view and layer thread
-//- (id)initWithView:(WhirlyKit::View *)view thread:(WhirlyKitLayerThread *)layerThread;
-//
-///// Add the given target/selector combo as a watcher.
-///// Will get called at most the given frequency.
-//- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime;
-//
-///// Remove the given target/selector combo
-//- (void)removeWatcherTarget:(id)target selector:(SEL)selector;
-//
-//@end
-
-namespace WhirlyKit
-{
+//class ViewStateFactory;
+class ViewState;
+class SceneRendererES;
     
 /// Generate a view state of the appropriate type
 class ViewStateFactory
 {
 public:
-    ViewStateFactory();
-    virtual ~ViewStateFactory();
-    virtual ViewState *makeViewState(WhirlyKit::View *,SceneRendererES *renderer) = 0;
+    ViewStateFactory() { }
+    virtual ~ViewStateFactory() { }
+    virtual ViewState *makeViewState(View *,SceneRendererES *renderer) = 0;
 };
 
 /** Representation of the view state.  This is the base
@@ -70,9 +42,10 @@ public:
 class ViewState
 {
 public:
-    ViewState(WhirlyKit::View *view,SceneRendererES *renderer);
+    ViewState() { }
+    ViewState(View *view,SceneRendererES *renderer);
     virtual ~ViewState();
-
+    
     /// Calculate the viewing frustum (which is also the image plane)
     /// Need the framebuffer size in pixels as input
     /// This will cache the values in the view state for later use
@@ -83,7 +56,7 @@ public:
     
     /// From a world location (3D), figure out the projection to the screen
     ///  Returns a point within the frame
-    Point2f pointOnScreenFromDisplay(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+    Point2f pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize);
     
     /// Compare this view state to the other one.  Returns true if they're identical.
     bool isSameAs(WhirlyKit::ViewState *other);
@@ -97,14 +70,15 @@ public:
     double imagePlaneSize;
     double nearPlane;
     double farPlane;
-    WhirlyKit::Point3d eyeVec;
-    WhirlyKit::Point3d eyeVecModel;
-    WhirlyKit::Point2d ll,ur;
+    Point3d eyeVec;
+    Point3d eyeVecModel;
+    Point2d ll,ur;
     double near,far;
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    CoordSystemDisplayAdapter *coordAdapter;
     
     /// Calculate where the eye is in model coordinates
     Point3d eyePos;
 };
 
 }
+

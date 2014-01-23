@@ -1,5 +1,5 @@
 /*
- *  DataLayer.h
+ *  DataLayer_private.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.

@@ -362,6 +362,7 @@ public class MaplyController implements View.OnTouchListener
 		}
 
 		MarkerInfo markerInfo = new MarkerInfo();
+		markerInfo.setFade(labelInfo.fade);
 		long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
 		if (markerId != EmptyIdentity)
 			compObj.addMarkerID(markerId);

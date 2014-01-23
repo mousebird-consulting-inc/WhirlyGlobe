@@ -1,5 +1,5 @@
 /*
- *  MaplyLayerViewWatcher.mm
+ *  MayerLayerViewWatcher.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/14/12.
@@ -18,48 +18,29 @@
  *
  */
 
-#import "MaplyLayerViewWatcher.h"
-// Note: Porting
-//#import "LayerThread.h"
-
-using namespace WhirlyKit;
+#import "GlobeView.h"
+#import "ViewState.h"
+#import "MaplyView.h"
 
 namespace Maply
 {
-
-MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer)
-    : ViewState(mapView,renderer)
-{
-}
-
-// Generate MapViewState objects as required
-class MapViewStateFactory : public ViewStateFactory
+    
+/** View State related to the map view.
+  */
+class MapViewState : public WhirlyKit::ViewState
 {
 public:
-    virtual ViewState *makeViewState(WhirlyKit::View *view,SceneRendererES *renderer)
+    MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
+};
+
+// Generate MapViewState objects as required
+class MapViewStateFactory : public WhirlyKit::ViewStateFactory
+{
+public:
+    virtual WhirlyKit::ViewState *makeViewState(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer)
     {
         return new Maply::MapViewState((Maply::MapView *)view,renderer);
     }
 };
     
 }
-
-// Note: Porting
-//@implementation MaplyLayerViewWatcher
-//{
-//    Maply::MapViewStateFactory mapViewStateFactory;
-//}
-//
-//- (id)initWithView:(Maply::MapView *)inView thread:(WhirlyKitLayerThread *)inLayerThread;
-//{
-//    self = [super initWithView:inView thread:inLayerThread];
-//    if (self)
-//    {
-//        inView->addWatcherDelegate(self);
-//        super.viewStateFactory = &mapViewStateFactory;
-//    }
-//    
-//    return self;
-//}
-//
-//@end

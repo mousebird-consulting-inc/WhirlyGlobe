@@ -21,12 +21,13 @@
 #import <map>
 #import <string>
 #import "WhirlyVector.h"
+#import "CoordSystem.h"
 
 namespace WhirlyKit
 {
     
 /// Data types in dictionary
-typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeDouble} DictionaryType;
+typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeDouble,DictTypeObject} DictionaryType;
 
 /// The Dictionary is my cross platform replacement for NSDictionary
 class Dictionary
@@ -63,6 +64,8 @@ public:
     std::string getString(const std::string &name) const;
     /// Return a string, using the default if it's missing
     std::string getString(const std::string &name,const std::string &defVal) const;
+    /// Return an object pointer
+    DelayedDeletableRef getObject(const std::string &name);
     
     /// Set field as int
     void setInt(const std::string &name,int val);
@@ -70,6 +73,8 @@ public:
     void setDouble(const std::string &name,double val);
     /// Set field as string
     void setString(const std::string &name,const std::string &val);
+    /// Set field as pointer
+    void setObject(const std::string &name,DelayedDeletableRef obj);
     
 protected:
     class Value
@@ -83,6 +88,7 @@ protected:
         virtual int asInt() = 0;
         virtual void asString(std::string &retStr) = 0;
         virtual double asDouble() = 0;
+        virtual DelayedDeletableRef asObject() { return DelayedDeletableRef(); }
     };
     
     class StringValue : public Value
@@ -128,6 +134,22 @@ protected:
         virtual double asDouble() { return val; }
         
         double val;
+    };
+    
+    class ObjectValue : public Value
+    {
+    public:
+        ObjectValue() { }
+        ObjectValue(DelayedDeletableRef inVal) : val(inVal) { }
+        
+        virtual DictionaryType type() { return DictTypeObject; }
+        virtual Value *copy() { return new ObjectValue(val); }
+        virtual int asInt() { return 0; }
+        virtual void asString(std::string &retStr) { }
+        virtual double asDouble() { return 0.0; }
+        virtual DelayedDeletableRef asObject() { return val; }
+        
+        DelayedDeletableRef val;
     };
 
     typedef std::map<std::string,Value *> FieldMap;

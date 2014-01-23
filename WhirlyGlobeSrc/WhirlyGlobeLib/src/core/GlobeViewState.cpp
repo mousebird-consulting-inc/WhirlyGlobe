@@ -1,5 +1,5 @@
 /*
- *  GlobeLayerViewWatcher.mm
+ *  GlobeLayerViewWatcher.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/17/12.
@@ -18,9 +18,7 @@
  *
  */
 
-#import "GlobeLayerViewWatcher.h"
-// Note: Porting
-//#import "LayerThread.h"
+#import "GlobeViewState.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -77,35 +75,5 @@ bool GlobeViewState::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *t
 	
 	return false;
 }
-
-// Produces globe view states from globe views
-class GlobeViewStateFactory : public ViewStateFactory
-{
-public:
-    ViewState *makeViewState(WhirlyKit::View *view,SceneRendererES *renderer)
-    {
-        return new GlobeViewState((GlobeView *)view,renderer);
-    }
-};
     
 }
-
-// Note: Porting
-//@implementation WhirlyGlobeLayerViewWatcher
-//{
-//    WhirlyGlobe::GlobeViewStateFactory globeViewFactory;
-//}
-//
-//- (id)initWithView:(WhirlyGlobe::GlobeView *)inView thread:(WhirlyKitLayerThread *)inLayerThread
-//{
-//    self = [super initWithView:inView thread:inLayerThread];
-//    if (self)
-//    {
-//        inView->addWatcherDelegate(self);
-//        super.viewStateFactory = &globeViewFactory;
-//    }
-//    
-//    return self;
-//}
-//
-//@end

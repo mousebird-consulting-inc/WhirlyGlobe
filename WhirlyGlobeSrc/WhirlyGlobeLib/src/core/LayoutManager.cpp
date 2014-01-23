@@ -24,8 +24,8 @@
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
 #import "ScreenSpaceGenerator.h"
-// Note: Porting
-//#import "ScreenSpaceGenerator.h"
+#import "GlobeViewState.h"
+#import "MaplyViewState.h"
 
 using namespace Eigen;
 

@@ -25,7 +25,7 @@
 #import "Drawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
-#import "GlobeLayerViewWatcher.h"
+#import "ViewState.h"
 
 namespace WhirlyKit
 {
