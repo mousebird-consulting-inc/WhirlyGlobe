@@ -59,7 +59,7 @@ public:
     virtual int getMaxZoom() = 0;
     
     /// Return an importance value for the given tile
-    virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,const ViewState *viewState,const Point2f &frameSize,Dictionary *attrs) = 0;
+    virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs) = 0;
     
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState) = 0;

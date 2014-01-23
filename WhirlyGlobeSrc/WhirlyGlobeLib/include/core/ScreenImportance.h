@@ -31,15 +31,15 @@ namespace WhirlyKit
 {
 
 /// Check if any part of the given tile is on screen
-bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
     
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This version takes a min/max height and is optimized for volumes.
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr, double minZ,double maxZ, WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, double minZ,double maxZ, const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
 
 /// A solid volume used to describe the display space a tile takes up.
 /// We use these for screen space calculations and cache them in the tile

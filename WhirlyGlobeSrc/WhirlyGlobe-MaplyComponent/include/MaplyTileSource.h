@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyImageTile.h"
+//#import "MaplyImageTile.h"
 #import "MaplyCoordinate.h"
 
 /** @typedef struct MaplyTileID

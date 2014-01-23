@@ -377,7 +377,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
     return false;
 }
 
-bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
+bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
     DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
@@ -391,12 +391,12 @@ bool TileIsOnScreen(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize
     if (!dispSolid->valid)
         return false;
 
-    dispSolid->isOnScreenForViewState(viewState,frameSize);
+    return dispSolid->isOnScreenForViewState(viewState,frameSize);
 }
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
     DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);
@@ -420,7 +420,7 @@ double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frame
 }
 
 // This version is for volumes with height
-double ScreenImportance(WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs)
 {
     DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
     DisplaySolidRef dispSolid = boost::dynamic_pointer_cast<DisplaySolid>(objRef);

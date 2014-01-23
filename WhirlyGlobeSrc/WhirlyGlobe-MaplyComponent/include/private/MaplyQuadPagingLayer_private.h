@@ -20,10 +20,11 @@
 
 #import "MaplyQuadPagingLayer.h"
 #import "WhirlyGlobe.h"
+#import "LayerThread_private.h"
 
-@interface MaplyQuadPagingLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadLoader>
+@interface MaplyQuadPagingLayer()
 
-- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
+- (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKit::SceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 

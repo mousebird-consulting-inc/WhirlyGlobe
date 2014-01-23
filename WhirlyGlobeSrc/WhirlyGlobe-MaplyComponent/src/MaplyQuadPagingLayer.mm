@@ -21,11 +21,138 @@
 #import "MaplyQuadPagingLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyViewController_private.h"
+#import "MaplyViewControllerLayer_private.h"
+#import "MaplyQuadDisplayLayer_private.h"
 
 using namespace WhirlyKit;
 
+@interface MaplyQuadPagingLayer()
+- (WhirlyKit::CoordSystem *)coordSystem;
+- (WhirlyKit::Mbr)totalExtents;
+- (int)minZoom;
+- (int)maxZoom;
+- (double)importanceForTile:(const WhirlyKit::Quadtree::Identifier &)ident mbr:(const WhirlyKit::Mbr &)mbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(const WhirlyKit::Point2f &)frameSize attrs:(Dictionary *)attrs;
+- (void)shutdown;
+- (bool)isReady;
+- (void)loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (bool)canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo;
+- (void)shutdownLayer;
+@end
+
 namespace WhirlyKit
 {
+
+/* WhirlyKit is a C++ library.  This layer is Objective-C.
+    This object acts as an adapter between the C++ in the quad loader
+    and the objective C in our layer.
+  */
+class MaplyQuadDisplayAdapter : public QuadLoader, public QuadDataStructure
+{
+public:
+    /** QuadDataStructure Calls **/
+    virtual CoordSystem *getCoordSystem()
+    {
+        return [layer coordSystem];
+    }
+    
+    /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
+    virtual Mbr getTotalExtents()
+    {
+        return [layer totalExtents];
+    }
+    
+    /// Bounding box of data you actually want to display.  In local coordinate system.
+    /// Unless you're being clever, make this the same as totalExtents.
+    virtual Mbr getValidExtents()
+    {
+        return getTotalExtents();
+    }
+    
+    /// Return the minimum quad tree zoom level (usually 0)
+    virtual int getMinZoom()
+    {
+        return [layer minZoom];
+    }
+    
+    /// Return the maximum quad tree zoom level.  Must be at least minZoom
+    virtual int getMaxZoom()
+    {
+        return [layer maxZoom];
+    }
+    
+    /// Return an importance value for the given tile
+    virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
+    {
+        return [layer importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:frameSize attrs:attrs];
+    }
+    
+    /// Called when the view state changes.  If you're caching info, do it here.
+    virtual void newViewState(ViewState *viewState)
+    {
+    }
+    
+    /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
+    virtual void shutdown()
+    {
+        [layer shutdown];
+    }
+
+    /** QuadLoader Calls **/
+    virtual bool isReady()
+    {
+        return [layer isReady];
+    }
+    
+    virtual void startUpdates()
+    {
+    }
+    
+    virtual void endUpdates()
+    {
+    }
+    
+    virtual void loadTile(const Quadtree::NodeInfo &tileInfo)
+    {
+        return [layer loadTile:tileInfo];
+    }
+    
+    virtual void unloadTile(const Quadtree::NodeInfo &tileInfo)
+    {
+        return [layer unloadTile:tileInfo];
+    }
+    
+    virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
+    {
+        return [layer canLoadChildrenOfTile:tileInfo];
+    }
+    
+    virtual void shutdownLayer()
+    {
+        [layer shutdownLayer];
+    }
+    
+    virtual bool shouldUpdate(ViewState *viewState,bool isInitial)
+    {
+        return true;
+    }
+    
+    virtual void updateWithoutFlush()
+    {
+    }
+    
+    virtual int networkFetches() { return -1; }
+    
+    virtual int localFetches() { return -1; }
+    
+    virtual void log()
+    {
+        
+    }
+    
+    /// Objective-C layer we want to call back
+    MaplyQuadPagingLayer *layer;
+};
     
 // Used to track tiles in the process of loading
 class QuadPagingLoadedTile
@@ -132,6 +259,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 @implementation MaplyQuadPagingLayer
 {
     WhirlyKitQuadDisplayLayer *quadLayer;
+    MaplyQuadDisplayAdapter adapter;
     Scene *scene;
     MaplyCoordinateSystem *coordSys;
     NSObject<MaplyPagingDelegate> *tileSource;
@@ -153,6 +281,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_init(&tileSetLock, NULL);
     _importance = 512*512;
     
+    adapter.layer = self;
+    
+    
     return self;
 }
 
@@ -168,7 +299,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_destroy(&tileSetLock);
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
 {
     super.layerThread = inLayerThread;
     scene = inScene;
@@ -179,10 +310,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     maxZoom = [tileSource maxZoom];
     
     // Set up tile and and quad layer with us as the data source
-    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:self renderer:renderer];
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:&adapter loader:&adapter renderer:renderer];
     // A tile needs to take up this much screen space
-    quadLayer.minImportance = _importance;
-    quadLayer.maxTiles = 256;
+    quadLayer.displayControl->setMinImportance(_importance);
+    quadLayer.displayControl->setMaxTiles(256);
     
     [super.layerThread addLayer:quadLayer];
     
@@ -200,17 +331,19 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         delete *it;
     tileSet.clear();
     pthread_mutex_unlock(&tileSetLock);
+    
+    quadLayer = nil;
 }
 
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    if (!quadLayer || !quadLayer.displayControl->getQuadtree() || !scene || !scene->getCoordAdapter())
         return;
     
-    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    Mbr mbr = quadLayer.displayControl->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
     GeoMbr geoMbr;
-    CoordSystem *wkCoordSys = quadLayer.coordSys;
+    CoordSystem *wkCoordSys = quadLayer.displayControl->getCoordSys();
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
@@ -224,7 +357,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
+    Mbr mbr = quadLayer.displayControl->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
     ll->x = mbr.ll().x();
     ll->y = mbr.ll().y();
@@ -250,13 +383,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return mbr;
 }
 
-/// Bounding box of data you actually want to display.  In local coordinate system.
-/// Unless you're being clever, make this the same as totalExtents.
-- (WhirlyKit::Mbr)validExtents
-{
-    return [self totalExtents];
-}
-
 /// Return the minimum quad tree zoom level (usually 0)
 - (int)minZoom
 {
@@ -270,7 +396,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 /// Return an importance value for the given tile
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(const WhirlyKit::Quadtree::Identifier &)ident mbr:(const WhirlyKit::Mbr &)mbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(const WhirlyKit::Point2f &)frameSize attrs:(Dictionary *)attrs
 {
     if (ident.level <= 1)
         return MAXFLOAT;
@@ -281,15 +407,15 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     parentIdent.y = ident.y / 2;
     parentIdent.level = ident.level - 1;
     
-    Mbr parentMbr = quadLayer.quadtree->generateMbrForNode(parentIdent);
-
+    Mbr parentMbr = quadLayer.displayControl->getQuadtree()->generateMbrForNode(parentIdent);
+    
     // This is how much screen real estate we're covering for this tile
-    double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+    double import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
     
     // Just the importance of this tile.
-//    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
-//    NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
+    //    NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
@@ -303,26 +429,13 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 #pragma mark - WhirlyKitQuadLoader
 
-- (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
-{
-    quadLayer = layer;
-}
-
 - (bool)isReady
 {
     return (numFetches < _numSimultaneousFetches);
 }
 
-- (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
-{
-}
-
-- (void)quadDisplayLayerEndUpdates:(WhirlyKitQuadDisplayLayer *)layer
-{
-}
-
 // Called on the layer thread
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)loadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     MaplyTileID tileID;
     tileID.x = tileInfo.ident.x;
@@ -365,7 +478,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 // Called on the layer thread
 // Clean out the data created for the tile
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (void)unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     QuadPagingLoadedTile *tile = NULL;
     NSArray *addCompObjs = nil,*replaceCompObjs = nil;
@@ -442,7 +555,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)loadFailNotify:(MaplyTileIDObject *)tileIDObj
 {
     MaplyTileID tileID = tileIDObj.tileID;
-    [quadLayer loader:self tileDidNotLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level)];
+    quadLayer.displayControl->tileDidNotLoad(Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
 }
 
 // If it failed, clear out the tile
@@ -552,7 +665,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)loadNotify:(MaplyTileIDObject *)tileIDObj
 {
     MaplyTileID tileID = tileIDObj.tileID;
-    [quadLayer loader:self tileDidLoad:Quadtree::Identifier(tileID.x,tileID.y,tileID.level)];
+    quadLayer.displayControl->tileDidLoad(Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
 }
 
 - (void)tileDidLoad:(MaplyTileID)tileID
@@ -617,7 +730,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 // As long as we're not loading the tile, we can load the children
-- (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
+- (bool)canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
     bool ret = false;
     
@@ -652,7 +765,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [_viewC removeObjects:compObjs];
 }
 
-- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)shutdownLayer
 {
     [self clearContents];
 }

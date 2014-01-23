@@ -59,8 +59,6 @@
 /// The Map Layer View Watcher is a subclass of the layer view
 ///  that handles map specific parameters.
 @interface MaplyLayerViewWatcher : WhirlyKitLayerViewWatcher
-{
-}
 
 /// Initialize with the globe view to watch and the layer thread
 - (id)initWithView:(Maply::MapView *)view thread:(WhirlyKitLayerThread *)inLayerThread;
