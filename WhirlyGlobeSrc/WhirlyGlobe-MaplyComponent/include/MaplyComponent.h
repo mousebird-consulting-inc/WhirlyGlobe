@@ -31,10 +31,11 @@
 #import <MaplyVectorObject.h>
 //#import <MaplyViewTracker.h>
 #import <MaplyViewController.h>
-//#import <MaplyQuadPagingLayer.h>
+#import <MaplyQuadPagingLayer.h>
+#import <MaplyVectorPagingTestDelgate.h>
 //#import <MaplyQuadImageTilesLayer.h>
 //#import <MaplyQuadImageOfflineLayer.h>
-//#import <MaplyTileSource.h>
+#import <MaplyTileSource.h>
 //#import <MaplyWMSTileSource.h>
 //#import <MaplyMBTileSource.h>
 //#import <MaplyGDALRetileSource.h>

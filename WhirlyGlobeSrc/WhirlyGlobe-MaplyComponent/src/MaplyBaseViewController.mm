@@ -23,8 +23,7 @@
 #import "NSData+Zlib.h"
 #import "UIColor+Stuff.h"
 #import "NSDictionary+Stuff.h"
-// Note: Porting
-//#import "MaplyTexture_private.h"
+#import "MaplyTexture_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -678,76 +677,75 @@ static const float PerfOutputDelay = 15.0;
 //        [self removeActiveObject:theObj];
 //}
 
-// Note: Porting
-//- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
-//{
-//    if (newLayer && ![userLayers containsObject:newLayer])
-//    {
-//        WhirlyKitLayerThread *layerThread = baseLayerThread;
-//        // Only supporting quad image tiles layer for the thread per layer
+- (bool)addLayer:(MaplyViewControllerLayer *)newLayer
+{
+    if (newLayer && ![userLayers containsObject:newLayer])
+    {
+        WhirlyKitLayerThread *layerThread = baseLayerThread;
+        // Note: Porting
+        // Only supporting quad image tiles layer for the thread per layer
 //        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
 //        {
 //            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView renderer:sceneRenderer mainLayerThread:false];
 //            [layerThreads addObject:layerThread];
 //            [layerThread start];
 //        }
-//        
-//        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
-//        {
-//            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
-//            [userLayers addObject:newLayer];
-//            return true;
-//        }
-//    }
-//    
-//    return false;
-//}
-//
-//- (void)removeLayer:(MaplyViewControllerLayer *)layer
-//{
-//    bool found = false;
-//    MaplyViewControllerLayer *theLayer = nil;
-//    for (theLayer in userLayers)
-//    {
-//        if (theLayer == layer)
-//        {
-//            found = true;
-//            break;
-//        }
-//    }
-//    if (!found)
-//        return;
-//    
-//    WhirlyKitLayerThread *layerThread = layer.layerThread;
-//    [layer cleanupLayers:layerThread scene:scene];
-//    [userLayers removeObject:layer];
-//    
-//    // Need to shut down the layer thread too
-//    if (layerThread != baseLayerThread)
-//    {
-//        if ([layerThreads containsObject:layerThread])
-//        {
-//            [layerThreads removeObject:layerThread];
-//            [layerThread addThingToRelease:theLayer];
-//            [layerThread cancel];
-//        }
-//    }
-//}
+        
+        if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
+        {
+            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+            [userLayers addObject:newLayer];
+            return true;
+        }
+    }
+    
+    return false;
+}
 
-// Note: Porting
-//- (void)removeLayers:(NSArray *)layers
-//{
-//    for (MaplyViewControllerLayer *layer in layers)
-//        [self removeLayer:layer];
-//}
-//
-//- (void)removeAllLayers
-//{
-//    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
-//    
-//    for (MaplyViewControllerLayer *theLayer in allLayers)
-//        [self removeLayer:theLayer];
-//}
+- (void)removeLayer:(MaplyViewControllerLayer *)layer
+{
+    bool found = false;
+    MaplyViewControllerLayer *theLayer = nil;
+    for (theLayer in userLayers)
+    {
+        if (theLayer == layer)
+        {
+            found = true;
+            break;
+        }
+    }
+    if (!found)
+        return;
+    
+    WhirlyKitLayerThread *layerThread = layer.layerThread;
+    [layer cleanupLayers:layerThread scene:scene];
+    [userLayers removeObject:layer];
+    
+    // Need to shut down the layer thread too
+    if (layerThread != baseLayerThread)
+    {
+        if ([layerThreads containsObject:layerThread])
+        {
+            [layerThreads removeObject:layerThread];
+            [layerThread addThingToRelease:theLayer];
+            [layerThread cancel];
+        }
+    }
+}
+
+- (void)removeLayers:(NSArray *)layers
+{
+    for (MaplyViewControllerLayer *layer in layers)
+        [self removeLayer:layer];
+}
+
+- (void)removeAllLayers
+{
+    NSArray *allLayers = [NSArray arrayWithArray:userLayers];
+    
+    for (MaplyViewControllerLayer *theLayer in allLayers)
+        [self removeLayer:theLayer];
+}
 
 #pragma mark - Properties
 

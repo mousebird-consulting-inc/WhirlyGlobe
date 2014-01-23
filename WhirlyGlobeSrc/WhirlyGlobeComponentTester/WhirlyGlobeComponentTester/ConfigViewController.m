@@ -89,7 +89,8 @@
                                                rows:
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
-                  kMaplyTestForecastIO: @(NO)}
+                  kMaplyTestForecastIO: @(NO),
+                  kMaplyTestQuadPaging: @(NO)}
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -119,7 +120,8 @@
                                            rows:
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
-              kMaplyTestForecastIO: @(NO)}
+              kMaplyTestForecastIO: @(NO),
+              kMaplyTestQuadPaging: @(NO)}
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:

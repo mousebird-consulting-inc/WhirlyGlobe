@@ -64,7 +64,7 @@ public:
     class NodeInfo
     {
     public:
-        NodeInfo();
+        NodeInfo() { }
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance), attrs(that.attrs) { }
         ~NodeInfo() { }
         

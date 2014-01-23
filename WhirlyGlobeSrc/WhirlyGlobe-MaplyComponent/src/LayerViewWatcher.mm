@@ -49,8 +49,7 @@ public:
 @interface LocalWatcher : NSObject
 {
 @public
-    id __weak target;
-    SEL selector;
+    NSObject<WhirlyKitLayer> *target;
     NSTimeInterval minTime,maxLagTime;
     Point3d lastEyePos;
     float minDist;
@@ -94,11 +93,30 @@ public:
     return self;
 }
 
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime
+- (void)dealloc
+{
+    [self setLastViewState:NULL];
+    [self setNewViewState:NULL];
+}
+
+- (void)setLastViewState:(ViewState *)theViewState
+{
+    if (lastViewState)
+        delete lastViewState;
+    lastViewState = theViewState;
+}
+
+- (void)setNewViewState:(ViewState *)theViewState
+{
+    if (newViewState)
+        delete newViewState;
+    newViewState = theViewState;
+}
+
+- (void)addWatcherTarget:(NSObject<WhirlyKitLayer> *)target minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
-    watch->selector = selector;
     watch->minTime = minTime;
     watch->minDist = minDist;
     watch->maxLagTime = maxLagTime;
@@ -108,7 +126,7 @@ public:
     if (!lastViewState && layerThread.renderer->getFramebufferSize().x() != 0)
     {
         ViewState *viewState = _viewStateFactory->makeViewState(view,layerThread.renderer);
-        lastViewState = viewState;
+        [self setLastViewState:viewState];
     }
 
     // Make sure it gets a starting update
@@ -122,7 +140,6 @@ public:
     // Call into the layer thread, just to be safe
     LocalWatcher *toRemove = [[LocalWatcher alloc] init];
     toRemove->target = target;
-    toRemove->selector = selector;
     if ([NSThread currentThread] == layerThread)
         [self removeWatcherTargetLayer:toRemove];
     else
@@ -135,7 +152,7 @@ public:
 
     for (LocalWatcher *watch in watchers)
     {
-        if (watch->target == toRemove->target && watch->selector == toRemove->selector)
+        if (watch->target == toRemove->target)
         {
             found = watch;
             break;
@@ -166,7 +183,7 @@ public:
 //    lastViewState = viewState;
     @synchronized(self)
     {
-        newViewState = viewState;
+        [self setNewViewState:viewState];
         if (!kickoffScheduled)
         {
             kickoffScheduled = true;
@@ -180,8 +197,9 @@ public:
 - (void)kickoffViewUpdated
 {
     @synchronized(self)
-{
-    lastViewState = newViewState;
+    {
+        [self setLastViewState:newViewState];
+        newViewState = NULL;
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
@@ -211,12 +229,10 @@ public:
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        // Note: Porting
-//        [watch->target performSelector:watch->selector withObject:lastViewState];
+        [watch->target viewUpdate:lastViewState];
 #pragma clang diagnostic pop
         watch->lastUpdated = CFAbsoluteTimeGetCurrent();
-        // Note: Porting
-//        watch->lastEyePos = [lastViewState eyePos];
+        watch->lastEyePos = lastViewState->eyePos;
     } else
         NSLog(@"Missing last view state");
 }

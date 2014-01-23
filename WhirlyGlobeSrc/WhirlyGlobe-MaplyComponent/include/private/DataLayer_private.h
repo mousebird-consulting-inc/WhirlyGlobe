@@ -49,6 +49,9 @@
 
 @optional
 
+/// Called when a view updates (more or less)
+- (void)viewUpdate:(WhirlyKit::ViewState *)viewState;
+
 /// Dump logging information out to the console
 - (void)log;
 

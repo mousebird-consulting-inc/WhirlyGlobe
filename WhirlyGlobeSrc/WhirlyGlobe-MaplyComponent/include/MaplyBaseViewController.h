@@ -27,8 +27,7 @@
 //#import "MaplyViewTracker.h"
 #import "MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
-// Note: Porting
-//#import "MaplyViewControllerLayer.h"
+#import "MaplyViewControllerLayer.h"
 //#import "MaplyLight.h"
 #import "MaplyShader.h"
 #import "MaplyQuadImageTilesLayer.h"
@@ -478,21 +477,19 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 ///// @brief Remove an array of active objects from the scene
 //- (void)removeActiveObjects:(NSArray *)theObjs;
 
-// Note: Porting
-///** @brief Add a MaplyViewControllerLayer to the globe or map.
-//    @details At present, layers are for paged geometry such as image tiles or vector tiles.  You can create someting like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.
-//  */
-//- (bool)addLayer:(MaplyViewControllerLayer *)layer;
-//
-///// @brief Remove a MaplyViewControllerLayer from the globe or map.
-//- (void)removeLayer:(MaplyViewControllerLayer *)layer;
+/** @brief Add a MaplyViewControllerLayer to the globe or map.
+    @details At present, layers are for paged geometry such as image tiles or vector tiles.  You can create someting like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.
+  */
+- (bool)addLayer:(MaplyViewControllerLayer *)layer;
 
-// Note: Porting
-///// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
-//- (void)removeLayers:(NSArray *)layers;
-//
-///// @brief Remove all the user created MaplyViewControllerLayer objects from the globe or map.
-//- (void)removeAllLayers;
+/// @brief Remove a MaplyViewControllerLayer from the globe or map.
+- (void)removeLayer:(MaplyViewControllerLayer *)layer;
+
+/// @brief Remove zero or more MaplyViewControllerLayer objects from the globe or map.
+- (void)removeLayers:(NSArray *)layers;
+
+/// @brief Remove all the user created MaplyViewControllerLayer objects from the globe or map.
+- (void)removeAllLayers;
 
 /** @brief Utility routine to convert from a lat/lon (in radians) to display coordinates
     @details This is a simple routine to get display coordinates from geocoordinates.  Display coordinates for the globe are based on a radius of 1.0 and an origin of (0,0,0).

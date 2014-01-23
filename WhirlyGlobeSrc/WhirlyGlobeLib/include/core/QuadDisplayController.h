@@ -178,10 +178,10 @@ public:
     
     /// Minimum screen area to consider for a pixel
     float getMinImportance() const { return minImportance; }
-    void setMinImportance(float newMinImport) { minImportance = newMinImport; }
+    void setMinImportance(float newMinImport) { minImportance = newMinImport; if (quadtree) quadtree->setMinImportance(newMinImport); }
     /// Maximum number of tiles loaded in at once
     int getMaxTiles() const { return maxTiles; }
-    void setMaxTiles(int newMaxTiles) { maxTiles = newMaxTiles; quadtree->setMaxNodes(maxTiles); }
+    void setMaxTiles(int newMaxTiles) { maxTiles = newMaxTiles; if (quadtree) quadtree->setMaxNodes(maxTiles); }
     /// [minZoom,maxZoom] range
     void setZoom(int inMinZoom,int inMaxZoom) { minZoom = inMinZoom;  maxZoom = inMaxZoom; }
     

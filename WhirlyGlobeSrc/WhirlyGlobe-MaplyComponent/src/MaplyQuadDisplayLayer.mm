@@ -85,7 +85,7 @@ public:
     
     // We want view updates, but only 1s in frequency
     if (_layerThread.viewWatcher)
-        [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_displayControl->getViewUpdatePeriod() minDist:_displayControl->getMinUpdateDist() maxLagTime:10.0];
+        [_layerThread.viewWatcher addWatcherTarget:self minTime:_displayControl->getViewUpdatePeriod() minDist:_displayControl->getMinUpdateDist() maxLagTime:10.0];
     
     if (_displayControl->getMeteredMode())
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];

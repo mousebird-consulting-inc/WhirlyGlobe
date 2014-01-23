@@ -21,8 +21,7 @@
 #import <UIKit/UIKit.h>
 
 #import "MaplyBaseViewController.h"
-// Note: Porting
-//#import "MaplyViewControllerLayer_private.h"
+#import "MaplyViewControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
 #import "MaplyInteractionLayer_private.h"
 // Note: Porting

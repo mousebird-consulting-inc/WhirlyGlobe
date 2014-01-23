@@ -943,18 +943,24 @@ static const int NumMegaMarkers = 40000;
 // Run through the overlays the user wants turned on
 - (void)setupOverlays:(NSDictionary *)baseSettings
 {
-    // Note: Porting
-//    // For network paging layers, where we'll store temp files
-//    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-//    NSString *thisCacheDir = nil;
-//
-//    for (NSString *layerName in [baseSettings allKeys])
-//    {
-//        bool isOn = [baseSettings[layerName] boolValue];
-//        MaplyViewControllerLayer *layer = ovlLayers[layerName];
-//        // Need to create the layer
-//        if (isOn && !layer)
-//        {
+    // For network paging layers, where we'll store temp files
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+    NSString *thisCacheDir = nil;
+
+    for (NSString *layerName in [baseSettings allKeys])
+    {
+        bool isOn = [baseSettings[layerName] boolValue];
+        MaplyViewControllerLayer *layer = ovlLayers[layerName];
+        // Need to create the layer
+        if (isOn && !layer)
+        {
+            if (![layerName compare:kMaplyTestQuadPaging])
+            {
+                MaplyVectorPagingTestDelegate *pageDelegate = [[MaplyVectorPagingTestDelegate alloc] init];
+                MaplyQuadPagingLayer *pagingLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:pageDelegate.coordSys delegate:pageDelegate];
+                [baseViewC addLayer:pagingLayer];
+                layer = pagingLayer;
+            }
 //            if (![layerName compare:kMaplyTestUSGSOrtho])
 //            {
 //                thisCacheDir = [NSString stringWithFormat:@"%@/usgs_naip/",cacheDir];
@@ -994,24 +1000,24 @@ static const int NumMegaMarkers = 40000;
 //                [baseViewC addLayer:precipLayer];
 //                layer = precipLayer;
 //            }
-//            
-//            // And keep track of it
-//            if (layer)
-//                ovlLayers[layerName] = layer;
-//        } else if (!isOn && layer)
-//        {
-//            // Get rid of the layer
-//            [baseViewC removeLayer:layer];
-//            [ovlLayers removeObjectForKey:layerName];
-//        }
-//    }
-//
-//    // Fill out the cache dir if there is one
-//    if (thisCacheDir)
-//    {
-//        NSError *error = nil;
-//        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
-//    }
+            
+            // And keep track of it
+            if (layer)
+                ovlLayers[layerName] = layer;
+        } else if (!isOn && layer)
+        {
+            // Get rid of the layer
+            [baseViewC removeLayer:layer];
+            [ovlLayers removeObjectForKey:layerName];
+        }
+    }
+
+    // Fill out the cache dir if there is one
+    if (thisCacheDir)
+    {
+        NSError *error = nil;
+        [[NSFileManager defaultManager] createDirectoryAtPath:thisCacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+    }
 }
 
 // Look at the configuration controller and decide what to turn off or on

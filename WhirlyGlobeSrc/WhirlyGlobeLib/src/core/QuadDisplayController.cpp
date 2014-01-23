@@ -32,10 +32,9 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
 : adapter(adapter), dataStructure(dataStructure), loader(loader), quadtree(NULL),
     scene(NULL), renderer(NULL), coordSys(dataStructure->getCoordSystem()), mbr(dataStructure->getValidExtents()),
     minImportance(1.0), maxTiles(128), minZoom(dataStructure->getMinZoom()), maxZoom(dataStructure->getMaxZoom()),
-    greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(0.0), viewUpdatePeriod(4.0),
+    greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), viewUpdatePeriod(0.1),
     minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true)
 {
-    quadtree = new Quadtree(dataStructure->getTotalExtents(),minZoom,maxZoom,maxTiles,minImportance,this);
 }
 
 QuadDisplayController::~QuadDisplayController()
@@ -48,6 +47,8 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
 {
     scene = inScene;
     renderer = inRenderer;
+
+    quadtree = new Quadtree(dataStructure->getTotalExtents(),minZoom,maxZoom,maxTiles,minImportance,this);
     
     if (meteredMode)
         loader->startUpdates();

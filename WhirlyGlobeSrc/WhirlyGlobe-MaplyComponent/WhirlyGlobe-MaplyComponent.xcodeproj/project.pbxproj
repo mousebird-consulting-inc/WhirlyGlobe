@@ -69,6 +69,8 @@
 		2BA647BC1891A40E00CFA6E1 /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B897A9015BC6CEE00250F23 /* MaplyViewControllerLayer.mm */; };
 		2BA647BD1891A45800CFA6E1 /* MaplyTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BCA689C1741913200696BA8 /* MaplyTileSource.h */; };
 		2BA647BE1891A45800CFA6E1 /* MaplyTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEBABA91811F65700A9419C /* MaplyTileSource.mm */; };
+		2BA647C01891CACC00CFA6E1 /* MaplyVectorPagingTestDelgate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA647BF1891CACC00CFA6E1 /* MaplyVectorPagingTestDelgate.h */; };
+		2BA647C21891CAD600CFA6E1 /* MaplyVectorPagingTestDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA647C11891CAD600CFA6E1 /* MaplyVectorPagingTestDelegate.mm */; };
 		2BBDFE98188DF74000AE4CEB /* MaplyQuadDisplayLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFE97188DF74000AE4CEB /* MaplyQuadDisplayLayer_private.h */; };
 		2BBDFE9A188DF74C00AE4CEB /* MaplyQuadDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFE99188DF74C00AE4CEB /* MaplyQuadDisplayLayer.mm */; };
 		2BBEB82B15CB06A100E363E7 /* MaplyVectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBEB82A15CB06A100E363E7 /* MaplyVectorObject.h */; };
@@ -186,6 +188,8 @@
 		2B897A9215BC6E9400250F23 /* WGSphericalEarthWithTexGroup.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WGSphericalEarthWithTexGroup.mm; path = src/WGSphericalEarthWithTexGroup.mm; sourceTree = SOURCE_ROOT; };
 		2BA6479B1891803E00CFA6E1 /* LayerViewWatcher_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayerViewWatcher_private.h; path = include/private/LayerViewWatcher_private.h; sourceTree = "<group>"; };
 		2BA6479E1891804700CFA6E1 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LayerViewWatcher.mm; path = src/LayerViewWatcher.mm; sourceTree = "<group>"; };
+		2BA647BF1891CACC00CFA6E1 /* MaplyVectorPagingTestDelgate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyVectorPagingTestDelgate.h; path = include/MaplyVectorPagingTestDelgate.h; sourceTree = SOURCE_ROOT; };
+		2BA647C11891CAD600CFA6E1 /* MaplyVectorPagingTestDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyVectorPagingTestDelegate.mm; path = src/MaplyVectorPagingTestDelegate.mm; sourceTree = SOURCE_ROOT; };
 		2BAC290A184D571400FD14FD /* MaplyGDALRetileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyGDALRetileSource.h; path = include/MaplyGDALRetileSource.h; sourceTree = SOURCE_ROOT; };
 		2BAC290D184D571B00FD14FD /* MaplyGDALRetileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyGDALRetileSource.mm; path = src/MaplyGDALRetileSource.mm; sourceTree = SOURCE_ROOT; };
 		2BACF3F316C4B94A00C7A4AC /* MaplyShader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyShader_private.h; path = include/private/MaplyShader_private.h; sourceTree = SOURCE_ROOT; };
@@ -422,6 +426,8 @@
 				2B44E81D174B20F500474C2B /* MaplyQuadPagingLayer_private.h */,
 				2B44E81B174B20C700474C2B /* MaplyQuadPagingLayer.mm */,
 				2BCA68A6174195A800696BA8 /* MaplyQuadImageTilesLayer.h */,
+				2BA647BF1891CACC00CFA6E1 /* MaplyVectorPagingTestDelgate.h */,
+				2BA647C11891CAD600CFA6E1 /* MaplyVectorPagingTestDelegate.mm */,
 				2BCA68A9174195B500696BA8 /* MaplyQuadImageTilesLayer_private.h */,
 				2BCA68A21741957700696BA8 /* MaplyQuadImageTilesLayer.mm */,
 				2B4AFB8B18031C1F00C3F948 /* MaplyQuadImageOfflineLayer.h */,
@@ -659,6 +665,7 @@
 				2BF76A461886FCB600465603 /* MaplyTexture_private.h in Headers */,
 				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
 				2B009CAC185FBC31001E2EE8 /* SceneRenderer_private.h in Headers */,
+				2BA647C01891CACC00CFA6E1 /* MaplyVectorPagingTestDelgate.h in Headers */,
 				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
 				2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */,
 				2B009CB0185FC23B001E2EE8 /* EAGLView.h in Headers */,
@@ -763,6 +770,7 @@
 				2B61D7B116078A50007888CF /* MaplyViewController.mm in Sources */,
 				2B97AFEF17E3D6D200D4B33D /* FMDatabasePool.m in Sources */,
 				2B0A4DB9167BDAD3000D5786 /* MaplyBaseViewController.mm in Sources */,
+				2BA647C21891CAD600CFA6E1 /* MaplyVectorPagingTestDelegate.mm in Sources */,
 				2B2E2FFC16C4886800CAD143 /* MaplyShader.mm in Sources */,
 				2BF76A501887040E00465603 /* UIImage+Stuff.mm in Sources */,
 				2B009CB6185FC311001E2EE8 /* UIColor+Stuff.mm in Sources */,
