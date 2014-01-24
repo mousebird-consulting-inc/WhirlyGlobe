@@ -350,20 +350,23 @@ char *SanitizeSRS( const char *pszUserInput )
     return pszResult;
 }
 
+// Get the driver once to save time
+OGRSFDriver *shpDriver = NULL;
+OGRSFDriver *memDriver = NULL;
+
 // Merge the given features into an existing shapefile or create a new one
 bool MergeIntoShapeFile(std::vector<OGRFeature *> &features,OGRLayer *srcLayer,OGRSpatialReference *out_srs,const char *fileName)
 {
     // Look for an existing shapefile
     OGRLayer *destLayer = NULL;
-    OGRDataSource *poCDS = OGRSFDriverRegistrar::Open( fileName, true );
+    OGRDataSource *poCDS = shpDriver->Open(fileName);
     if (poCDS)
     {
         // Use the layer in the data file
         destLayer = poCDS->GetLayer(0);
     } else {
         // Create a data file and a layer
-        OGRSFDriver *poDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("ESRI Shapefile" );
-        poCDS = poDriver->CreateDataSource(fileName);
+        poCDS = shpDriver->CreateDataSource(fileName);
         if (!poCDS)
         {
             fprintf(stderr,"Unable to create output file: %s\n",fileName);
@@ -435,21 +438,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
     double cellSizeX = (xmax-xmin)/numCells;
     double cellSizeY = (ymax-ymin)/numCells;
 
-    // Shapefile output driver
-    OGRSFDriver *poDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("ESRI Shapefile" );
-    OGRSFDriver *memDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("Memory");
-    if( poDriver == NULL )
-    {
-        fprintf(stderr,"Shape driver not available.\n");
-        exit(-1);
-    }
-    if (!memDriver)
-    {
-        fprintf(stderr,"Memory driver not available.");
-        exit(-1);
-    }
-
-    OGRDataSource *poDS = OGRSFDriverRegistrar::Open( inputFile, FALSE );
+    OGRDataSource *poDS = shpDriver->Open(inputFile);
     if( poDS == NULL )
     {
         fprintf(stderr, "Couldn't open file: %s\n",inputFile);
@@ -697,6 +686,19 @@ int main(int argc, char * argv[])
     if (!xmlConfig)
     {
         fprintf(stderr, "Need a mapnik config file.\n");
+        return -1;
+    }
+    
+    shpDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("ESRI Shapefile" );
+    if (!shpDriver)
+    {
+        fprintf(stderr, "Couldn't get shape file driver");
+        return -1;
+    }
+    memDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("Memory");
+    if (!memDriver)
+    {
+        fprintf(stderr, "Couldn't get memory driver");
         return -1;
     }
     
@@ -998,7 +1000,7 @@ int main(int argc, char * argv[])
                                 std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
 
                                 // Open the shapefile and get pointers to the features
-                                OGRDataSource *poCDS = OGRSFDriverRegistrar::Open( cellFileName.c_str(), true );
+                                OGRDataSource *poCDS = shpDriver->Open(cellFileName.c_str());
                                 if (poCDS)
                                 {
                                     OGRLayer *srcLayer = poCDS->GetLayer(0);
