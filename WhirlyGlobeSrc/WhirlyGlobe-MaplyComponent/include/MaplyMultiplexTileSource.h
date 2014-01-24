@@ -35,9 +35,9 @@
   */
 @interface MaplyMultiplexTileSource : NSObject<MaplyTileSource>
 
-/** @brief Initialize with an array of MaplyRemoteTileSource objects.
-    @details To create one of these you need to pass in an NSArray of MaplyRemoteTileSource objects.  Where this is useful is if you want to animate between them.  Check out the animation functionality in MaplyQuadImageTilesLayer.  To animate effectively, that layer must grab all the images for a tile at once, hence this object.
-    @details A simple example would be taking 6 MaplyMBTileSource objects, sticking them in an array and passing them in here.  Each of them might represent a frame of animation in a video you want to show over the whole earth.  Because wow, man.  The whole earth.
+/** @brief Initialize with an array of MaplyRemoteTileInfo objects.
+    @details To create one of these you need to pass in an NSArray of MaplyRemoteTileInfo objects.  Where this is useful is if you want to animate between them.  Check out the animation functionality in MaplyQuadImageTilesLayer.  To animate effectively, that layer must grab all the images for a tile at once, hence this object.
+    @details A simple example would be taking 6 MaplyRemoteTileInfo objects pointing to MBTiles archives, sticking them in an array and passing them in here.  Each of them might represent a frame of animation in a video you want to show over the whole earth.  Because wow, man.  The whole earth.
     @return Returns a working MaplyMultiplexTileSource or nil if it can't.  That might happen if the input tile sources don't match up to each other.
   */
 - (id)initWithSources:(NSArray *)tileSources;
@@ -51,5 +51,11 @@
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
  */
 @property (nonatomic,weak) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
+
+/** @brief If set, we'll let failures pass through.
+    @details If you're fetching a very wide set of tiles, you may want to let a few failures happen and fill in the images yourself.
+    @details To do that, the multiplex tile source needs to accept failures and store an NSNull in the appropriate entry.
+  */
+@property (nonatomic) bool acceptFailures;
 
 @end
