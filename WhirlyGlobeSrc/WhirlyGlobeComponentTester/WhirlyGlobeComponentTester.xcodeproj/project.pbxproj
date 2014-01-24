@@ -45,6 +45,7 @@
 		2BB54EDF17CEB88F0065451F /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */; };
 		2BB54EE017CEB8950065451F /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EDC17CEB8830065451F /* Default.png */; };
 		2BB54EE217CEB8A20065451F /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BB54EE117CEB8A20065451F /* Default@2x.png */; };
+		2BBDFE8B1889F92B00AE4CEB /* sau_paulo.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BBDFE8A1889F92B00AE4CEB /* sau_paulo.sqlite */; };
 		2BC989A817DA66BB0071DA9E /* WeatherShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC989A717DA66BB0071DA9E /* WeatherShader.m */; };
 		2BC989E517DC289B0071DA9E /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */; };
 		2BFD25DD170B92AD00127EF5 /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BFD25DA170B92AD00127EF5 /* map_pin.png */; };
@@ -386,6 +387,7 @@
 		2BB54EDC17CEB8830065451F /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		2BB54EDE17CEB88F0065451F /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		2BB54EE117CEB8A20065451F /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		2BBDFE8A1889F92B00AE4CEB /* sau_paulo.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = sau_paulo.sqlite; path = ../../../../brazil/sau_paulo.sqlite; sourceTree = "<group>"; };
 		2BC989A617DA66BB0071DA9E /* WeatherShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeatherShader.h; sourceTree = "<group>"; };
 		2BC989A717DA66BB0071DA9E /* WeatherShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeatherShader.m; sourceTree = "<group>"; };
 		2BC989E117DC28350071DA9E /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
@@ -810,9 +812,18 @@
 			name = AFNetworking;
 			sourceTree = "<group>";
 		};
+		2BBDFE881889F91500AE4CEB /* vector tiles */ = {
+			isa = PBXGroup;
+			children = (
+				2BBDFE8A1889F92B00AE4CEB /* sau_paulo.sqlite */,
+			);
+			name = "vector tiles";
+			sourceTree = "<group>";
+		};
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BBDFE881889F91500AE4CEB /* vector tiles */,
 				2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */,
 				2BFD25F9170B933B00127EF5 /* country_json_50m */,
 				2BFD25E0170B932000127EF5 /* geography-class.mbtiles */,
@@ -1185,6 +1196,7 @@
 				2BFD25F6170B932000127EF5 /* lowres_wtb_4x0.pvrtc in Resources */,
 				2BFD25F7170B932000127EF5 /* lowres_wtb_4x1.pvrtc in Resources */,
 				2BFD25F8170B932000127EF5 /* lowres_wtb_info.plist in Resources */,
+				2BBDFE8B1889F92B00AE4CEB /* sau_paulo.sqlite in Resources */,
 				2BFD26F3170B933C00127EF5 /* ABW.geojson in Resources */,
 				2BFD26F4170B933C00127EF5 /* AFG.geojson in Resources */,
 				2BFD26F5170B933C00127EF5 /* AGO.geojson in Resources */,

@@ -28,16 +28,15 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyRemoteTileSource
+@implementation MaplyRemoteTileInfo
 {
-    int _minZoom,_maxZoom;
-    int _pixelsPerSide;
     NSDictionary *_jsonSpec;
     NSArray *_tileURLs;
     WhirlyKit::Mbr _mbr;
     bool cacheInit;
+    int _minZoom,_maxZoom;
+    int _pixelsPerSide;
     std::vector<Mbr> mbrs;
-    Maply::TileFetchOpSet tileSet;
 }
 
 - (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
@@ -93,18 +92,9 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)dealloc
+- (int)tileSize
 {
-    @synchronized(self)
-    {
-        for (Maply::TileFetchOpSet::iterator it = tileSet.begin();
-             it != tileSet.end(); ++it)
-        {
-            Maply::TileFetchOp tile = *it;
-            [tile.op cancel];
-        }
-        tileSet.clear();
-    }
+    return _pixelsPerSide;
 }
 
 - (void)addBoundingBox:(MaplyBoundingBox *)bbox
@@ -121,21 +111,6 @@ using namespace WhirlyKit;
     Point3f pt1 = _coordSys->coordSystem->geographicToLocal(GeoCoord(bbox->ur.x,bbox->ur.y));
     mbr.addPoint(Point2f(pt1.x(),pt1.y()));
     mbrs.push_back(mbr);
-}
-
-- (int)minZoom
-{
-    return _minZoom;
-}
-
-- (int)maxZoom
-{
-    return _maxZoom;
-}
-
-- (int)tileSize
-{
-    return _pixelsPerSide;
 }
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -167,7 +142,7 @@ using namespace WhirlyKit;
         }
         cacheInit = true;
     }
-
+    
     NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
     return localName;
 }
@@ -212,6 +187,106 @@ using namespace WhirlyKit;
     return urlReq;
 }
 
+@end
+
+@implementation MaplyRemoteTileSource
+{
+    Maply::TileFetchOpSet tileSet;
+}
+
+- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:ext minZoom:minZoom maxZoom:maxZoom];
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (id)initWithTilespec:(NSDictionary *)jsonDict
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:jsonDict];
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (id)initWithInfo:(MaplyRemoteTileInfo *)info
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _tileInfo = info;
+    if (!_tileInfo)
+        return nil;
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    @synchronized(self)
+    {
+        for (Maply::TileFetchOpSet::iterator it = tileSet.begin();
+             it != tileSet.end(); ++it)
+        {
+            Maply::TileFetchOp tile = *it;
+            [tile.op cancel];
+        }
+        tileSet.clear();
+    }
+}
+
+- (MaplyCoordinateSystem *)coordSys
+{
+    return _tileInfo.coordSys;
+}
+
+- (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
+{
+    _tileInfo.coordSys = coordSys;
+}
+
+- (NSString *)cacheDir
+{
+    return _tileInfo.cacheDir;
+}
+
+- (void)setCacheDir:(NSString *)cacheDir
+{
+    _tileInfo.cacheDir = cacheDir;
+}
+
+- (int)minZoom
+{
+    return _tileInfo.minZoom;
+}
+
+- (int)maxZoom
+{
+    return _tileInfo.maxZoom;
+}
+
+- (int)tileSize
+{
+    return _tileInfo.pixelsPerSide;
+}
+
+- (bool)tileIsLocal:(MaplyTileID)tileID
+{
+    return [_tileInfo tileIsLocal:tileID];
+}
+
 // Clear out the operation associated with a tile
 - (void)clearTile:(MaplyTileID)tileID
 {
@@ -223,14 +298,23 @@ using namespace WhirlyKit;
     }
 }
 
+// For a remote tile source, this one only works if it's local
+- (id)imageForTile:(MaplyTileID)tileID
+{
+    NSString *fileName = [_tileInfo fileNameForTile:tileID];
+    NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+    
+    return imgData;
+}
+
 - (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
 {
     NSData *imgData = nil;
     NSString *fileName = nil;
     // Look for the image in the cache first
-    if (_cacheDir)
+    if (_tileInfo.cacheDir)
     {
-        fileName = [self fileNameForTile:tileID];
+        fileName = [_tileInfo fileNameForTile:tileID];
         imgData = [NSData dataWithContentsOfFile:fileName];
     }
     
@@ -242,7 +326,7 @@ using namespace WhirlyKit;
         // Let the paging layer know about it
         [layer loadedImages:imgData forTile:tileID];
     } else {
-        NSURLRequest *urlReq = [self requestForTile:tileID];
+        NSURLRequest *urlReq = [_tileInfo requestForTile:tileID];
         
         // Kick of an async request for the data
         MaplyRemoteTileSource __weak *weakSelf = self;
@@ -265,7 +349,7 @@ using namespace WhirlyKit;
                     [layer loadedImages:imgData forTile:tileID];
 
                     // Let's also write it back out for the cache
-                    if (weakSelf.cacheDir)
+                    if (weakSelf.tileInfo.cacheDir)
                         [imgData writeToFile:fileName atomically:YES];
                     
                     [weakSelf clearTile:tileID];
