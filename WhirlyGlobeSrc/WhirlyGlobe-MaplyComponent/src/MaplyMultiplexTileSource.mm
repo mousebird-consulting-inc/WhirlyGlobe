@@ -202,6 +202,21 @@ typedef std::set<SortedTile> SortedTileSet;
     }
 }
 
+// If we're accepting errors for tiles, we do a last minute check of the data right here
+- (NSError *)marshalDataArray:(NSMutableArray *)dataArray
+{
+    // We're looking for an NSNull or an NSError
+    for (id obj in dataArray)
+    {
+        if ([obj isKindOfClass:[NSNull class]])
+            return [[NSError alloc] initWithDomain:@"MaplyMultiplexTileSource" code:0 userInfo:nil];
+        else if ([obj isKindOfClass:[NSError class]])
+            return obj;
+    }
+    
+    return nil;
+}
+
 // Got tile data back, figure out what to do with it
 - (void)gotTile:(MaplyTileID)tileID which:(int)which data:(id)tileData layer:(MaplyQuadImageTilesLayer *)layer
 {
@@ -221,7 +236,7 @@ typedef std::set<SortedTile> SortedTileSet;
         sortedTiles.erase(it);
 
         // Add the tile data in and see if we're done
-        theTile.tileData[which] = tileData;
+        theTile.tileData[which] = (tileData ? tileData : [NSNull null]);
         for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
             if (theTile.tileData[ii] == nil)
             {
@@ -235,9 +250,9 @@ typedef std::set<SortedTile> SortedTileSet;
     }
     
     // Let's write it back out for the cache
-    MaplyRemoteTileSource *tileSource = _tileSources[which];
+    MaplyRemoteTileInfo *tileSource = _tileSources[which];
     NSString *fileName = [tileSource fileNameForTile:tileID];
-    if (fileName)
+    if (fileName && [tileData isKindOfClass:[NSData class]])
     {
         NSData *imgData = tileData;
         [imgData writeToFile:fileName atomically:YES];
@@ -248,15 +263,25 @@ typedef std::set<SortedTile> SortedTileSet;
     {
 //        NSLog(@"Finished load for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         
-        // Let the delegate know we loaded successfully
-        if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
-            [_delegate remoteTileSource:self tileDidLoad:tileID];
-    
         // Let the paging layer know about it
         NSMutableArray *allData = [NSMutableArray array];
         for (unsigned int ii=0;ii<theTile.tileData.size();ii++)
             [allData addObject:theTile.tileData[ii]];
-        [layer loadedImages:allData forTile:tileID];
+ 
+        NSError *marshalError = [self marshalDataArray:allData];
+        if (!marshalError)
+        {
+            // Let the delegate know we loaded successfully
+            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                [_delegate remoteTileSource:self tileDidLoad:tileID];
+        
+            [layer loadedImages:allData forTile:tileID];
+        } else {
+            // Last minute failure!
+            [layer loadError:marshalError forTile:tileID];
+            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                [_delegate remoteTileSource:self tileDidNotLoad:tileID error:marshalError];
+        }
     }
 }
 
@@ -285,7 +310,7 @@ typedef std::set<SortedTile> SortedTileSet;
     
     // Work through the sources, kicking off a request as we go
     int which = 0;
-    for (MaplyRemoteTileSource *tileSource in _tileSources)
+    for (MaplyRemoteTileInfo *tileSource in _tileSources)
     {
         // If it's local, just go fetch it
         if ([tileSource tileIsLocal:tileID])
@@ -293,11 +318,13 @@ typedef std::set<SortedTile> SortedTileSet;
             // We'll save the block for later and run at the end
             void (^workBlock)() =
             ^{
-                id thisTile = [tileSource imageForTile:tileID];
-                if (!thisTile || [thisTile isKindOfClass:[NSError class]])
-                    [self failedToGetTile:tileID error:thisTile layer:layer];
+                NSString *fileName = [tileSource fileNameForTile:tileID];
+                NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+                
+                if (!imgData)
+                    [self failedToGetTile:tileID error:nil layer:layer];
                 else
-                    [self gotTile:tileID which:which data:thisTile layer:layer];
+                    [self gotTile:tileID which:which data:imgData layer:layer];
             };
             workBlocks.push_back(workBlock);
         } else {
@@ -320,7 +347,12 @@ typedef std::set<SortedTile> SortedTileSet;
              ^(AFHTTPRequestOperation *operation, NSError *error)
              {
                  if (weakSelf)
-                     [self failedToGetTile:tileID error:error layer:layer];
+                 {
+                     if (weakSelf.acceptFailures)
+                         [self gotTile:tileID which:which data:error layer:layer];
+                     else
+                         [self failedToGetTile:tileID error:error layer:layer];
+                 }
              }];
             
             newTile.fetches.insert(Maply::TileFetch(which,op));

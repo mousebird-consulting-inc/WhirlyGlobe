@@ -113,6 +113,10 @@ LocationInfo locations[NumLocations] =
     bool requireElev;
     bool imageWaitLoad;
     int maxLayerTiles;
+
+    // Label test
+    NSTimer *_labelAnimationTimer;
+    NSMutableDictionary *_trafficLabels;
 }
 
 // Change what we're showing based on the Configuration
@@ -192,6 +196,9 @@ LocationInfo locations[NumLocations] =
     baseViewC.view.frame = self.view.bounds;
     [self addChildViewController:baseViewC];
 
+    // Note: Debugging
+//    [self labelExercise];
+
     baseViewC.frameInterval = 2;  // 30fps
     
     // Set the background color for the globe
@@ -242,6 +249,59 @@ LocationInfo locations[NumLocations] =
     
     // Settings panel
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:@selector(showConfig)];
+}
+
+// Create a bunch of labels periodically
+- (void)labelExercise
+{
+//     NSTimer *_labelAnimationTimer;
+//     NSMutableDictionary *_trafficLabels;
+
+    if (mapViewC) {
+         _trafficLabels = [NSMutableDictionary dictionary];
+
+         _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
+     }
+}
+
+- (void) labelAnimationCallback
+{
+    NSLog(@"anim callback");
+    MaplyComponentObject *trafficLabelCompObj;
+
+    NSArray *keys = [_trafficLabels allKeys];
+    for (NSObject *key in keys) {
+        trafficLabelCompObj = _trafficLabels[key];
+        if (!trafficLabelCompObj)
+            continue;
+        [mapViewC removeObject:trafficLabelCompObj];
+        [_trafficLabels removeObjectForKey:key];
+    }
+
+    NSDictionary *labelsDesc = @{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.3), kMaplyJustify : @"left", kMaplyDrawPriority: @(50)};
+    MaplyScreenLabel *label;
+    for (int i=0; i<50; i++) {
+         label = [[MaplyScreenLabel alloc] init];
+
+         label.size = CGSizeMake(0.0, 20.0);
+         label.loc = MaplyCoordinateMakeWithDegrees(
+             -100.0 + 0.25 * ((float)arc4random()/0x100000000),
+             40.0 + 0.25 * ((float)arc4random()/0x100000000));
+         label.rotation = 0.0;
+         label.layoutImportance = 1.0;
+         label.text = @"ABCDE";
+         label.layoutPlacement = kMaplyLayoutRight;
+         label.userObject = nil;
+         label.color = [UIColor whiteColor];
+ 
+        
+         trafficLabelCompObj = [mapViewC addScreenLabels:[NSArray arrayWithObjects:label, nil] desc:labelsDesc];
+         _trafficLabels[@(i)] = trafficLabelCompObj;
+        
+     }
+    
+    
+     _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
 }
 
 // Try to fetch the given WMS layer
@@ -863,7 +923,7 @@ static const int NumMegaMarkers = 40000;
              MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
              tileSource.cacheDir = thisCacheDir;
              if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-                 tileSource.maxZoom = zoomLimit;
+                 tileSource.tileInfo.maxZoom = zoomLimit;
              MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
              layer.handleEdges = true;
              layer.waitLoad = imageWaitLoad;
@@ -947,8 +1007,8 @@ static const int NumMegaMarkers = 40000;
                 NSMutableArray *tileSources = [NSMutableArray array];
                 for (unsigned int ii=0;ii<5;ii++)
                 {
-                    MaplyRemoteTileSource *precipTileSource =
-                    [[MaplyRemoteTileSource alloc]
+                    MaplyRemoteTileInfo *precipTileSource =
+                    [[MaplyRemoteTileInfo alloc]
                      initWithBaseURL:[NSString stringWithFormat:@"http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer%d/",ii] ext:@"png" minZoom:0 maxZoom:6];
                     precipTileSource.cacheDir = [NSString stringWithFormat:@"%@/forecast_io_weather_layer%d/",cacheDir,ii];
                     [tileSources addObject:precipTileSource];
@@ -966,6 +1026,16 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
+            } else if (![layerName compare:kMaplyTestSauPaolo])
+            {
+                // Toss on a Maply Vector Database
+                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
+                if (vecTiles)
+                {
+                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                    [baseViewC addLayer:pageLayer];
+                    layer = pageLayer;
+                }
             }
             
             // And keep track of it
