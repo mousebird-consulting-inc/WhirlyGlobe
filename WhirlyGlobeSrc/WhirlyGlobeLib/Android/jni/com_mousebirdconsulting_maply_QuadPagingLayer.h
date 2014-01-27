@@ -26,10 +26,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    nativeStartLayer
- * Signature: ()V
+ * Signature: (Lcom/mousebirdconsulting/maply/MapScene;Lcom/mousebirdconsulting/maply/MaplyRenderer;Lcom/mousebirdconsulting/maply/Point2d;Lcom/mousebirdconsulting/maply/Point2d;II)V
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeStartLayer
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject, jobject, jobject, jobject, jint, jint);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer

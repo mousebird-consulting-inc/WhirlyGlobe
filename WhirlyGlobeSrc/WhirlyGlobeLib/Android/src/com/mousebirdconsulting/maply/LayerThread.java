@@ -14,6 +14,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	MapScene scene = null;
 	MaplyRenderer renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
+	ArrayList<Layer> layers = new ArrayList<Layer>();
 	
 	/* Objects that want to be called back when the view changes
 	 * implement this interface.
@@ -63,6 +64,24 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			}
 		});
 	}
+	
+	// Add a layer.  These just run in our thread and do their own thing
+	void addLayer(final Layer layer)
+	{
+		// Do the actual work on the layer thread
+		final LayerThread theLayerThread = this;
+		addTask(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				layers.add(layer);
+				layer.startLayer(theLayerThread);
+			}
+		});
+	}
+	
+	// Note: Need a removeLayer()
 
 	// Add a task, which will get executed on this thread at some point
 	void addTask(Runnable run)

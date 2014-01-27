@@ -9,12 +9,21 @@ using namespace WhirlyKit;
 class QuadPagingLayerAdapter : public QuadLoader, public QuadDataStructure, public QuadDisplayControllerAdapter
 {
 public:
-	QuadDisplayController *displayControl;
+	JNIEnv *env;
+	jobject javaObj;
 	CoordSystem *coordSys;
 	jobject delegateObj;
+	Point2d ll,ur;
+	int minZoom,maxZoom;
+	int numFetches;
+	int simultaneousFetches;
+
+	// Methods for Java quad layer
+	jmethodID tileLoadJava,tileUnloadJava;
 
 	QuadPagingLayerAdapter(CoordSystem *coordSys,jobject delegateObj)
-		: coordSys(coordSys), delegateObj(delegateObj), displayControl(NULL)
+		: env(NULL), javaObj(NULL), coordSys(coordSys), delegateObj(delegateObj), QuadLoader(),
+		  numFetches(0), simultaneousFetches(1)
 	{
 	}
 
@@ -22,6 +31,18 @@ public:
 	{
 		if (coordSys)
 			delete coordSys;
+	}
+
+	QuadDisplayController *getController() { return control; }
+
+	void start(Scene *inScene,SceneRendererES *renderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
+	{
+		scene = inScene;
+		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
+
+		// Set up the display controller
+		control = new QuadDisplayController(this,this,this);
+		control->init(scene,renderer);
 	}
 
 	// Called after a tile unloads.  Don't care here.
@@ -43,6 +64,8 @@ public:
     /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
     virtual Mbr getTotalExtents()
     {
+    	Mbr mbr(Point2f(ll.x(),ll.y()),Point2f(ur.x(),ur.y()));
+    	return mbr;
     }
 
     /// Bounding box of data you actually want to display.  In local coordinate system.
@@ -55,16 +78,31 @@ public:
     /// Return the minimum quad tree zoom level (usually 0)
     virtual int getMinZoom()
     {
+    	return minZoom;
     }
 
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
     virtual int getMaxZoom()
     {
+    	return maxZoom;
     }
 
     /// Return an importance value for the given tile
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
     {
+        if (ident.level <= 1)
+            return MAXFLOAT;
+
+        // For a child tile, we're taking the size of our parent so all the children load at once
+        WhirlyKit::Quadtree::Identifier parentIdent;
+        parentIdent.x = ident.x / 2;
+        parentIdent.y = ident.y / 2;
+        parentIdent.level = ident.level - 1;
+
+        Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
+
+        // This is how much screen real estate we're covering for this tile
+        double import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
     }
 
     /// Called when the view state changes.  If you're caching info, do it here.
@@ -75,11 +113,17 @@ public:
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
     virtual void shutdown()
     {
+    	if (control)
+    	{
+    		control->shutdown();
+    		delete control;
+    	}
     }
 
     /** QuadLoader Calls **/
     virtual bool isReady()
     {
+    	return (numFetches < simultaneousFetches);
     }
 
     virtual void startUpdates()
@@ -90,16 +134,21 @@ public:
     {
     }
 
+    // Call loadTile on the java side
     virtual void loadTile(const Quadtree::NodeInfo &tileInfo)
     {
+    	env->CallVoidMethod(javaObj,tileLoadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
 
+    // Call unloadTile on the java side
     virtual void unloadTile(const Quadtree::NodeInfo &tileInfo)
     {
+    	env->CallVoidMethod(javaObj,tileUnloadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
 
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
     {
+    	return true;
     }
 
     virtual void shutdownLayer()
@@ -134,6 +183,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_initia
 			return;
 
 		QuadPagingLayerAdapter *adapter = new QuadPagingLayerAdapter(coordSys,delegateObj);
+
 		setHandle(env,obj,adapter);
 	}
 	catch (...)
@@ -161,16 +211,22 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeStartLayer
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject sceneObj, jobject rendererObj, jobject llObj, jobject urObj, jint minZoom, jint maxZoom)
 {
 	try
 	{
 		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
-		if (!adapter)
+		Point2d *ll = getHandle<Point2d>(env,llObj);
+		Point2d *ur = getHandle<Point2d>(env,urObj);
+		Scene *scene = getHandle<Scene>(env,sceneObj);
+		SceneRendererES *renderer = getHandle<SceneRendererES>(env,rendererObj);
+		if (!adapter || !ll || !ur || !scene || !renderer)
 			return;
 
-		// Set up the display controller
-		adapter->displayControl = new QuadDisplayController(adapter,adapter,adapter);
+		adapter->env = env;
+		adapter->javaObj = obj;
+
+		adapter->start(scene,renderer,*ll,*ur,minZoom,maxZoom);
 	}
 	catch (...)
 	{
@@ -187,7 +243,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 		if (!adapter)
 			return;
 
-		adapter->displayControl->shutdown();
+		adapter->getController()->shutdown();
 	}
 	catch (...)
 	{
@@ -205,7 +261,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 		if (!adapter || !viewState)
 			return;
 
-		adapter->displayControl->viewUpdate(viewState);
+		adapter->env = env;
+		adapter->javaObj = obj;
+		// Look for the wrapper object's methods
+		jclass theClass = env->GetObjectClass(obj);
+		adapter->tileLoadJava = env->GetMethodID(theClass,"loadTile","(III)V");
+		adapter->tileUnloadJava = env->GetMethodID(theClass,"unloadTile","(III)V");
+
+		adapter->getController()->viewUpdate(viewState);
 	}
 	catch (...)
 	{
@@ -222,8 +285,15 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 		if (!adapter)
 			return false;
 
+		adapter->env = env;
+		adapter->javaObj = obj;
+		// Look for the wrapper object's methods
+		jclass theClass = env->GetObjectClass(obj);
+		adapter->tileLoadJava = env->GetMethodID(theClass,"loadTile","(III)V");
+		adapter->tileUnloadJava = env->GetMethodID(theClass,"unloadTile","(III)V");
+
 		// Note: Not passing in frame boundary info
-		return adapter->displayControl->evalStep(0.0,0.0,0.0);
+		return adapter->getController()->evalStep(0.0,0.0,0.0);
 	}
 	catch (...)
 	{
@@ -240,10 +310,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 		if (!adapter)
 			return false;
 
-		if (adapter->displayControl->getWaitForLocalLoads())
+		if (adapter->getController()->getWaitForLocalLoads())
 			return false;
 
-		adapter->displayControl->refresh();
+		adapter->getController()->refresh();
 		return true;
 	}
 	catch (...)

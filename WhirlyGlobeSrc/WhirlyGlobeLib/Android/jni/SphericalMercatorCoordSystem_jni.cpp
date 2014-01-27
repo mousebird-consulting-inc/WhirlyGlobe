@@ -5,7 +5,7 @@
 
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_PlateCarreeCoordSystem_initialise
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_SphericalMercatorCoordSystem_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
@@ -15,6 +15,6 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_PlateCarreeCoordSystem
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in PlateCarreeCoordSystem::initialise()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalMercatorCoordSystem::initialise()");
 	}
 }

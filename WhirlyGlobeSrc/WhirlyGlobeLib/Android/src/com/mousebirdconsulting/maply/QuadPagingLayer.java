@@ -2,6 +2,7 @@ package com.mousebirdconsulting.maply;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
@@ -57,7 +58,10 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public void startLayer(LayerThread layerThread)
 	{
 		super.startLayer(layerThread);
-		nativeStartLayer();
+		layerThread.addWatcher(this);
+		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
+		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
+		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,pagingDelegate.minZoom(),pagingDelegate.maxZoom());
 	}
 	
 	// Called when the layer shuts down.  Won't be run again.
@@ -141,6 +145,18 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (doEvalStep)
 			scheduleEvalStep();
 	}
+	
+	// Called by the native side when it's time to load a tile
+	public void loadTile(int x,int y,int level)
+	{
+		Log.i("QuadPagingLayer","Load tile: " + level + "(" + x + "," + y + ")");
+	}
+	
+	// Called by the native side when it's time to unload a tile
+	public void unloadTile(int x,int y,int level)
+	{
+		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
+	}
 
 	// Note: Missing wakeUp
 
@@ -148,7 +164,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public native void dispose();
 	private long nativeHandle;
 
-	native void nativeStartLayer();
+	native void nativeStartLayer(MapScene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
 	native void nativeShutdown();
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep();

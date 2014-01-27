@@ -72,10 +72,11 @@ MAPLY_CORE_SRC_FILES := CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp D
 					MaplyView.cpp MaplyViewState.cpp MarkerGenerator.cpp MarkerManager.cpp OpenGLES2Program.cpp \
 					PerformanceTimer.cpp RawData.cpp QuadDisplayController.cpp Quadtree.cpp \
 					Scene.cpp SceneRendererES.cpp \
-					SceneRendererES2.cpp ScreenSpaceGenerator.cpp SelectionManager.cpp ShapeReader.cpp \
+					SceneRendererES2.cpp ScreenImportance.cpp ScreenSpaceGenerator.cpp SelectionManager.cpp ShapeReader.cpp \
 					SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp \
 					VectorData.cpp VectorManager.cpp ViewState.cpp VectorObject.cpp WhirlyGeometry.cpp \
 					WhirlyKitView.cpp WhirlyVector.cpp
+					
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)/core
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 

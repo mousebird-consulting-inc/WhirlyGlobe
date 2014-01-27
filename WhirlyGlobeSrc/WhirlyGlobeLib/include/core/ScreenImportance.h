@@ -18,6 +18,7 @@
  *
  */
 
+#import "Platform.h"
 #import <math.h>
 #import <boost/shared_ptr.hpp>
 #import "WhirlyVector.h"

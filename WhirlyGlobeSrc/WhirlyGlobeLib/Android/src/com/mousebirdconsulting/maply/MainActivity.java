@@ -27,7 +27,11 @@ public class MainActivity extends Activity
     	mapControl = new MaplyController(this);
  
     	// Load all the country outlines on another thread as a test
-    	TestCountries test = new TestCountries(this,mapControl);
+//    	TestCountries test = new TestCountries(this,mapControl);
+//    	test.start();
+    	
+    	// Display remote OSM vector tiles
+    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
     	test.start();
     	
         super.onCreate(savedInstanceState);
