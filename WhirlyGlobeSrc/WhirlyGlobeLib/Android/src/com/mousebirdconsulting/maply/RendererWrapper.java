@@ -7,12 +7,14 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 class RendererWrapper implements Renderer
 {
-	public MaplyRenderer maplyRender;
-	public MapScene mapScene;
-	public MapView mapView;
+	public MaplyRenderer maplyRender = null;
+	public MapScene mapScene = null;
+	public MapView mapView = null;
+	public MaplyController mapControl = null;
 	
-	public RendererWrapper()
+	public RendererWrapper(MaplyController inMapControl)
 	{
+		mapControl = inMapControl;
 	}
 	
 	@Override
@@ -23,6 +25,7 @@ class RendererWrapper implements Renderer
 		maplyRender = new MaplyRenderer();
   		maplyRender.setScene(mapScene);
 		maplyRender.setView(mapView);
+		mapControl.surfaceCreated(this);
 	}
 	
 	@Override

@@ -264,6 +264,8 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
     }
     
     somethingHappened = true;
+
+    adapter->adapterTileDidLoad(tileIdent);
 }
 
 // Tile failed to load.
@@ -271,6 +273,8 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
 void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent)
 {
     somethingHappened = true;
+
+    adapter->adapterTileDidNotLoad(tileIdent);
 }
 
 // Clear out all the existing tiles and start over

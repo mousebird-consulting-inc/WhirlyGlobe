@@ -57,14 +57,6 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_getRot
 
 /*
  * Class:     com_mousebirdconsulting_maply_MapView
- * Method:    runViewUpdates
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_runViewUpdates
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebirdconsulting_maply_MapView
  * Method:    calcModelViewMatrix
  * Signature: ()Lcom/mousebirdconsulting/maply/Matrix4d;
  */

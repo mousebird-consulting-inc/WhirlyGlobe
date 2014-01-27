@@ -32,14 +32,14 @@ class QuadLayerAdapter : public QuadDisplayControllerAdapter
 {
 public:
     // Called right after a tile loaded
-    virtual void tileDidLoad(const Quadtree::Identifier &tileIdent)
+    virtual void adapterTileDidLoad(const Quadtree::Identifier &tileIdent)
     {
         // Make sure we actually evaluate them
         [NSObject cancelPreviousPerformRequestsWithTarget:quadLayer selector:@selector(evalStep:) object:nil];
         [quadLayer performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
     // Called right after a tile unloaded
-    virtual void tileDidNotLoad(const Quadtree::Identifier &tileIdent)
+    virtual void adapterTileDidNotLoad(const Quadtree::Identifier &tileIdent)
     {
         // Might get stuck here
         [NSObject cancelPreviousPerformRequestsWithTarget:quadLayer selector:@selector(evalStep:) object:nil];

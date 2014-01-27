@@ -141,9 +141,9 @@ class QuadDisplayControllerAdapter
 public:
     virtual ~QuadDisplayControllerAdapter() { }
     // Called right after a tile loaded
-    virtual void tileDidLoad(const Quadtree::Identifier &tileIdent) = 0;
+    virtual void adapterTileDidLoad(const Quadtree::Identifier &tileIdent) = 0;
     // Called right after a tile unloaded
-    virtual void tileDidNotLoad(const Quadtree::Identifier &tileIdent) = 0;
+    virtual void adapterTileDidNotLoad(const Quadtree::Identifier &tileIdent) = 0;
 };
 
 /** This data layer displays image data organized in a quad tree.

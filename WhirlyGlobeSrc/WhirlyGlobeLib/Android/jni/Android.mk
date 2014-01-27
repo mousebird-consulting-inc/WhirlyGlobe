@@ -67,20 +67,22 @@ TESS_SRC_DIR = $(THIRD_PARTY)/glues/source/libtess
 LOCAL_SRC_FILES += $(TESS_SRC_FILES:%=$(TESS_SRC_DIR)/%)
 
 MAPLY_CORE_SRC_FILES := CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp Drawable.cpp FlatMath.cpp \
-					Generator.cpp GlobeLayerViewWatcher.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GLUtils.cpp GridClipper.cpp Identifiable.cpp \
-					LayerViewWatcher.cpp LayoutManager.cpp MaplyFlatView.cpp MaplyLayerViewWatcher.cpp MaplyScene.cpp \
-					MaplyView.cpp MarkerGenerator.cpp MarkerManager.cpp OpenGLES2Program.cpp PerformanceTimer.cpp RawData.cpp \
+					Generator.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GlobeViewState.cpp GLUtils.cpp GridClipper.cpp Identifiable.cpp \
+					LayoutManager.cpp MaplyFlatView.cpp MaplyScene.cpp \
+					MaplyView.cpp MaplyViewState.cpp MarkerGenerator.cpp MarkerManager.cpp OpenGLES2Program.cpp \
+					PerformanceTimer.cpp RawData.cpp QuadDisplayController.cpp Quadtree.cpp \
 					Scene.cpp SceneRendererES.cpp \
 					SceneRendererES2.cpp ScreenSpaceGenerator.cpp SelectionManager.cpp ShapeReader.cpp \
-					SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp VectorData.cpp VectorManager.cpp WhirlyGeometry.cpp \
-					WhirlyKitView.cpp WhirlyVector.cpp \
-					VectorObject.cpp
+					SphericalMercator.cpp Tesselator.cpp Texture.cpp TextureAtlas.cpp \
+					VectorData.cpp VectorManager.cpp ViewState.cpp VectorObject.cpp WhirlyGeometry.cpp \
+					WhirlyKitView.cpp WhirlyVector.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)/core
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
 MAPLY_JNI_FILES := ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp \
 					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
-					InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp
+					InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp QuadPagingLayer_jni.cpp \
+					CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)
 
 MAPLY_PLATFORM_FILES := platform.cpp glwrapper.cpp
