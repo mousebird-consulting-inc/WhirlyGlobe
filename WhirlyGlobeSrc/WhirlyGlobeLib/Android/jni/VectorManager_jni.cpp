@@ -92,13 +92,39 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVe
 
 		SimpleIDSet idSet;
 		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(idCount);
+			idSet.insert(ids[ii]);
 
 		vecManager->removeVectors(idSet,*changeSet);
 	}
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::removeVectors()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_enableVectors
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
+{
+	try
+	{
+		VectorManager *vecManager = getHandle<VectorManager>(env,obj);
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
+		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+
+		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+		int idCount = env->GetArrayLength(idArrayObj);
+		if (idCount == 0)
+			return;
+
+		SimpleIDSet idSet;
+		for (int ii=0;ii<idCount;ii++)
+			idSet.insert(ids[ii]);
+
+		vecManager->enableVectors(idSet,enable,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::enableVectors()");
 	}
 }
 

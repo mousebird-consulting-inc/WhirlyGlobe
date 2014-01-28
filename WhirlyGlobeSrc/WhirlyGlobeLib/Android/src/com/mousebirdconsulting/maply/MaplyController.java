@@ -414,16 +414,95 @@ public class MaplyController implements View.OnTouchListener
 		
 		return compObj;
 	}
+	
+	/**
+	 * Disable all the geometry associated with the given component objects.
+	 * @param compObjs
+	 */
+	public void disableObjects(final List<ComponentObject> compObjs)
+	{
+		if (compObjs == null || compObjs.size() == 0)
+			return;
+		
+		final MaplyController control = this;
+		layerThread.addTask(
+				new Runnable()
+				{		
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						for (ComponentObject compObj : compObjs)
+							compObj.enable(control, false, changes);
+						mapScene.addChanges(changes);
+					}
+				});
+	}
+
+	public void enableObjects(final List<ComponentObject> compObjs)
+	{
+		if (compObjs == null || compObjs.size() == 0)
+			return;
+		
+		final MaplyController control = this;
+		layerThread.addTask(
+				new Runnable()
+				{		
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						for (ComponentObject compObj : compObjs)
+							compObj.enable(control, true, changes);
+						mapScene.addChanges(changes);
+					}
+				});
+	}
 
 	/**
 	 * Remove all data associated with the given component object.
 	 * @param compObj Component object to remove.
 	 */
-	public void removeObject(ComponentObject compObj)
+	public void removeObject(final ComponentObject compObj)
 	{
-		ChangeSet changes = new ChangeSet();
-		compObj.clear(this, changes);
-		mapScene.addChanges(changes);
+		if (compObj == null)
+			return;
+		
+		final MaplyController control = this;
+		layerThread.addTask(
+				new Runnable()
+				{		
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						compObj.clear(control, changes);
+						mapScene.addChanges(changes);
+					}
+				});
+	}
+	
+	/**
+	 * Remove all data associated with the given component objects.
+	 */
+	public void removeObjects(final List<ComponentObject> compObjs)
+	{
+		if (compObjs == null || compObjs.size() == 0)
+			return;
+		
+		final MaplyController control = this;
+		layerThread.addTask(
+				new Runnable()
+				{		
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+						for (ComponentObject compObj : compObjs)
+							compObj.clear(control, changes);
+						mapScene.addChanges(changes);
+					}
+				});
 	}
 	
 	/**

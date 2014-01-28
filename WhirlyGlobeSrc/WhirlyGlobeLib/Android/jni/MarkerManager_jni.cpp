@@ -92,3 +92,28 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_removeMa
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_enableMarkers
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
+{
+	try
+	{
+		MarkerManager *markerManager = getHandle<MarkerManager>(env,obj);
+		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
+		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+
+		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+		int idCount = env->GetArrayLength(idArrayObj);
+		if (idCount == 0)
+			return;
+
+		SimpleIDSet idSet;
+		for (int ii=0;ii<idCount;ii++)
+			idSet.insert(idCount);
+
+		markerManager->enableMarkers(idSet,enable,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerManager::enableMarkers()");
+	}
+}

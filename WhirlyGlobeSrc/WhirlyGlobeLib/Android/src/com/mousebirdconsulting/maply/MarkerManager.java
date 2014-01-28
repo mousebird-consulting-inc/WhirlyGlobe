@@ -18,6 +18,9 @@ public class MarkerManager
 	// Remove markers by ID
 	public native void removeMarkers(long ids[],ChangeSet changes);
 	
+	// Enable/disable markers by ID
+	public native void enableMarkers(long ids[],boolean eanble,ChangeSet changes);
+	
 	public native void initialise(MapScene scene);
 	public native void dispose();
 	private long nativeHandle;

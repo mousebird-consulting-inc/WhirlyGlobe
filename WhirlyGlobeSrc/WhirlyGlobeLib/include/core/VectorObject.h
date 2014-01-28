@@ -36,6 +36,9 @@ public:
     /// @param json The GeoJSON data as a std::string
     /// @return True on success, false on failure.
     bool fromGeoJSON(const std::string &json);
+
+    /// @brief Assemblies are just concattenated JSON
+    bool fromGeoJSONAssembly(const std::string &json);
     
 public:
     ShapeSet shapes;

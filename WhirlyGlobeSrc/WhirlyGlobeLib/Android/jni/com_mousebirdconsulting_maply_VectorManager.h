@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVe
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager
+ * Method:    enableVectors
+ * Signature: ([JZLcom/mousebirdconsulting/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_enableVectors
+  (JNIEnv *, jobject, jlongArray, jboolean, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorManager
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/MapScene;)V
  */

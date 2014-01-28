@@ -9,7 +9,7 @@ public class ComponentObject
 	{
 		int which = 0;
 		long[] ids = new long[vectorIDs.size()];
-		for (Long id : ids)
+		for (Long id : vectorIDs)
 		{
 			ids[which] = id;
 			which++;
@@ -37,6 +37,17 @@ public class ComponentObject
 		if (vectorIDs == null)
 			vectorIDs = new ArrayList<Long>();
 		vectorIDs.add(id);
+	}
+	
+	// Enable/disable anything the component object is holding
+	void enable(MaplyController control,boolean enable,ChangeSet changes)
+	{	
+		if (vectorIDs != null && vectorIDs.size() > 0)
+		{
+			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
+		}
+		if (markerIDs != null && markerIDs.size() > 0)
+			control.markerManager.enableMarkers(convertIDs(vectorIDs), enable, changes);
 	}
 	
 	// Clear out anything the component object is holding

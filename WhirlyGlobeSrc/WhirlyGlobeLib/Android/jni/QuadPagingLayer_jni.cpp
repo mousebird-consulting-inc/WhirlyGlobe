@@ -137,13 +137,13 @@ public:
     // Call loadTile on the java side
     virtual void loadTile(const Quadtree::NodeInfo &tileInfo)
     {
-    	env->CallVoidMethod(javaObj,tileLoadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
+    	env->CallVoidMethod(javaObj, tileLoadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
 
     // Call unloadTile on the java side
     virtual void unloadTile(const Quadtree::NodeInfo &tileInfo)
     {
-    	env->CallVoidMethod(javaObj,tileUnloadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
+    	env->CallVoidMethod(javaObj, tileUnloadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
 
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo)
@@ -321,3 +321,38 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::nativeRefresh()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeTileDidLoad
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level)
+{
+	try
+	{
+		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		if (!adapter)
+			return;
+
+	    adapter->getController()->tileDidLoad(Quadtree::Identifier(x,y,level));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::nativeTileDidLoad()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeTileDidNotLoad
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level)
+{
+	try
+	{
+		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		if (!adapter)
+			return;
+
+	    adapter->getController()->tileDidNotLoad(Quadtree::Identifier(x,y,level));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::nativeTileDidNotLoad()");
+	}
+}
+

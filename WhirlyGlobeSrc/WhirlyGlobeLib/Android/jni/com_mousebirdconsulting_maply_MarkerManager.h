@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_removeMa
 
 /*
  * Class:     com_mousebirdconsulting_maply_MarkerManager
+ * Method:    enableMarkers
+ * Signature: ([JZLcom/mousebirdconsulting/maply/ChangeSet;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_enableMarkers
+  (JNIEnv *, jobject, jlongArray, jboolean, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MarkerManager
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/MapScene;)V
  */

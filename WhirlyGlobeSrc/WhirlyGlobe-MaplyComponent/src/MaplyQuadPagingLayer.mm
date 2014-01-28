@@ -193,7 +193,7 @@ public:
     /// Set if this tile successfully loaded
     bool didLoad;
     
-    /// Keep track of whether the visable objects are enabled
+    /// Keep track of whether the visible objects are enabled
     bool enable;
     
     /// If set, our children our enabled, but not us.

@@ -63,6 +63,22 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeRefresh
   (JNIEnv *, jobject);
 
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    nativeTileDidLoad
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeTileDidLoad
+  (JNIEnv *, jobject, jint, jint, jint);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    nativeTileDidNotLoad
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeTileDidNotLoad
+  (JNIEnv *, jobject, jint, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

@@ -17,6 +17,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_fromG
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    fromGeoJSONAssembly
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSONAssembly
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
  * Method:    initialise
  * Signature: ()V
  */

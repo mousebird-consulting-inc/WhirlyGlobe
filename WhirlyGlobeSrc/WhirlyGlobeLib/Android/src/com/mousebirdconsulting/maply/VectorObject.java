@@ -54,6 +54,13 @@ public class VectorObject
 	 */
 	public native boolean fromGeoJSON(String json);
 	
+	/**
+	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
+	 * @param json
+	 * @return
+	 */
+	public native boolean fromGeoJSONAssembly(String json);
+	
 	public native void initialise();
 	
 	/**

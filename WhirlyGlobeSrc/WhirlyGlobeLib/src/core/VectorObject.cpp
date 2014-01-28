@@ -31,5 +31,18 @@ bool VectorObject::fromGeoJSON(const std::string &json)
 {
     return VectorParseGeoJSON(shapes,json);
 }
+    
+bool VectorObject::fromGeoJSONAssembly(const std::string &json)
+{
+    std::map<std::string, ShapeSet> newShapes;
+    if (!VectorParseGeoJSONAssembly(json, newShapes))
+        return false;
+    
+    for (std::map<std::string, ShapeSet>::iterator it = newShapes.begin();
+         it != newShapes.end(); ++it)
+        shapes.insert(it->second.begin(),it->second.end());
+    
+    return true;
+}
 
 }

@@ -69,3 +69,30 @@ jboolean Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSON
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::fromGeoJSON()");
 	}
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSONAssembly
+  (JNIEnv *env, jobject obj, jstring jstr)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		if (!vecObj)
+			return false;
+
+		const char *cStr = env->GetStringUTFChars(jstr,0);
+		if (!cStr)
+			return false;
+		std::string jsonStr(cStr);
+
+		bool ret = vecObj->fromGeoJSONAssembly(jsonStr);
+
+		env->ReleaseStringUTFChars(jstr, cStr);
+
+		return ret;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::fromGeoJSONAssembly()");
+	}
+}
+
