@@ -15,14 +15,6 @@ public class MainActivity extends Activity
     {    	
 		System.loadLibrary("Maply");
     	
-		// Wait for the debugger to catch up
-    	try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
     	// Create the Maply Controller
     	mapControl = new MaplyController(this);
  
