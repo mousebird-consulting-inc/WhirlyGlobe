@@ -20,6 +20,7 @@ import android.widget.Toast;
 public class MaplyController implements View.OnTouchListener
 {	
 	private GLSurfaceView glSurfaceView;
+	Activity activity = null;
 	
 	// Represents an ID that doesn't have data associated with it
 	static long EmptyIdentity = 0;
@@ -49,6 +50,7 @@ public class MaplyController implements View.OnTouchListener
 	public MaplyController(Activity mainActivity) 
 	{
 //		System.loadLibrary("Maply");
+		activity = mainActivity;
 		
 		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
