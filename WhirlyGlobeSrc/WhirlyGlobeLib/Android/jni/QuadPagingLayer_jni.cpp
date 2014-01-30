@@ -210,7 +210,7 @@ public:
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
 
-    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+//    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
 
         } else {
             // Note: Can't short circuit in this case.  Something wrong with the math
@@ -245,6 +245,7 @@ public:
     // Call loadTile on the java side
     virtual void loadTile(const Quadtree::NodeInfo &tileInfo)
     {
+    	numFetches++;
     	env->CallVoidMethod(javaObj, tileLoadJava, tileInfo.ident.x, tileInfo.ident.y, tileInfo.ident.level);
     }
 
@@ -315,6 +316,22 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::dispose()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSimultaneousFetches
+  (JNIEnv *env, jobject obj, jint numFetches)
+{
+	try
+	{
+		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		if (!adapter)
+			return;
+		adapter->simultaneousFetches = numFetches;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setSimultaneousFetches()");
 	}
 }
 
@@ -470,6 +487,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 		if (!adapter)
 			return;
 
+		adapter->numFetches--;
 	    adapter->getController()->tileDidLoad(Quadtree::Identifier(x,y,level));
 	}
 	catch (...)
@@ -487,6 +505,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 		if (!adapter)
 			return;
 
+		adapter->numFetches--;
 	    adapter->getController()->tileDidNotLoad(Quadtree::Identifier(x,y,level));
 	}
 	catch (...)

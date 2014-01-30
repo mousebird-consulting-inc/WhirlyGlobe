@@ -163,6 +163,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         // Let the loader know we're about to do some updates        
         while (!nodesForEval.empty())
         {
+            if (!loader->isReady())
+            	break;
+
             // Grab the first node.
             QuadNodeInfoSet::iterator nodeIt = nodesForEval.end();
             nodeIt--;

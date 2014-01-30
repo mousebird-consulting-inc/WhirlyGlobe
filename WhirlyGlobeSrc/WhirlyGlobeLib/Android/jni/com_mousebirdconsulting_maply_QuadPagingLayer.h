@@ -49,6 +49,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    setSimultaneousFetches
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSimultaneousFetches
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    nativeViewUpdate
  * Signature: (Lcom/mousebirdconsulting/maply/ViewState;)V
  */

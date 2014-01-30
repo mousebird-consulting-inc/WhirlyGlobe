@@ -37,6 +37,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		coordSys = inCoordSys;
 		pagingDelegate = inDelegate;
 		initialise(coordSys,pagingDelegate);
+		setSimultaneousFetches(8);
 	}
 	
 	public void finalize()
@@ -58,7 +59,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		// Note: What?
 		return 4.0f;
 	}	
-
+	
 	Handler evalStepHandle = null;
 	Runnable evalStepRun = null;
 
@@ -427,6 +428,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 
 	native void nativeStartLayer(MapScene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
 	native void nativeShutdown();
+	/// The number of fetches we can have going at once
+	public native void setSimultaneousFetches(int numFetches);
 	native void nativeViewUpdate(ViewState viewState);	
 	native boolean nativeEvalStep();
 	native boolean nativeRefresh();
