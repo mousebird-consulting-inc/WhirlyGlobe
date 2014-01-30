@@ -61,6 +61,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			public void run()
 			{
 				startLock.unlock();				
+				viewUpdated(view);
 			}
 		});
 	}
@@ -119,7 +120,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	
 	ArrayList<ViewWatcher> watchers = new ArrayList<ViewWatcher>();
 
-	// Add an object that once periodic view change updates
+	// Add an object that wants periodic view change updates
 	public void addWatcher(final ViewWatcherInterface watcher)
 	{
 		// Let's do this on the layer thread.  Because.
@@ -128,7 +129,20 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			@Override
 			public void run()
 			{
-				watchers.add(new ViewWatcher(watcher));				
+				watchers.add(new ViewWatcher(watcher));	
+				
+				// Make sure an update gets through the system for this layer
+				// Note: Fix this
+				addTask(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Make sure the watcher gets a callback
+						if (currentViewState != null)
+							updateWatchers(currentViewState,System.currentTimeMillis());						
+					}
+				},true);
 			}
 		});
 	}
@@ -159,6 +173,37 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	boolean viewUpdateScheduled = false;
 	long viewUpdateLastCalled = 0;
 	
+	// Update the watchers themselves
+	void updateWatchers(final ViewState viewState,long now)
+	{
+		viewUpdateLastCalled = now;
+		// Kick off a view update to the watchers on the layer thread
+		final LayerThread theLayerThread = this;
+		synchronized(this)
+		{
+			if (!viewUpdateScheduled)
+			{
+				viewUpdateScheduled = true;
+				addTask(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						synchronized(theLayerThread)
+						{
+							viewUpdateScheduled = false;
+						}
+						currentViewState = viewState;
+						for (ViewWatcher watcher : watchers)
+						{
+							watcher.watcher.viewUpdated(currentViewState);
+						}
+					}
+				});
+			}
+		}		
+	}
+	
 	// Called when the view updates its information
 	public void viewUpdated(MapView view)
 	{
@@ -166,34 +211,10 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 
 		long now = System.currentTimeMillis();
 
+		// Note: Hardwired to 1/10 second.  Lame.
 		if (now - viewUpdateLastCalled > 100)
 		{
-			viewUpdateLastCalled = now;
-			// Kick off a view update to the watchers on the layer thread
-			final LayerThread theLayerThread = this;
-			synchronized(this)
-			{
-				if (!viewUpdateScheduled)
-				{
-					viewUpdateScheduled = true;
-					addTask(new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							synchronized(theLayerThread)
-							{
-								viewUpdateScheduled = false;
-							}
-							currentViewState = viewState;
-							for (ViewWatcher watcher : watchers)
-							{
-								watcher.watcher.viewUpdated(currentViewState);
-							}
-						}
-					});
-				}
-			}
+			updateWatchers(viewState,now);
 		}
 	}
 }
