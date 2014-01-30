@@ -1,12 +1,13 @@
 package com.mousebirdconsulting.maply;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import android.os.Handler;
 import android.os.Looper;
+//import android.util.Log;
 
 public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
@@ -113,7 +114,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			}
 		};
 		evalStepHandle = new Handler();
-		evalStepHandle.post(evalStepRun);		
+		evalStepHandle.post(evalStepRun);	
 	}
 	
 	// Do something small and then return
@@ -152,6 +153,15 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (doEvalStep)
 			scheduleEvalStep();
 	}
+
+	// Calculate the bounding box for a given tile in WGS84 geographic (lon/lat radians)
+	Mbr geoBoundsForTile(MaplyTileID tileID)
+	{
+		Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
+		geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
+		return mbr;
+	}
+	public native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
 	
 	// Called by the native side when it's time to load a tile
 	public void loadTile(int x,int y,int level)
@@ -188,12 +198,13 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (tile == null)
 			return;
 		
+		removeLoadedTile(tileID);
 		tile.clear(maplyControl);
 		
 		// Check the parent
 		if (tileID.level>= pagingDelegate.minZoom())
 		{
-			runTileUpdate();
+			runTileUpdate(parentTile(tileID));
 		}
 	}
 
@@ -208,7 +219,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	    /// Set if this tile successfully loaded
 		public boolean didLoad = false;
 	    /// Keep track of whether the visible objects are enabled
-		public boolean enable = true;
+		public boolean enable = false;
 	    /// If set, our children our enabled, but not us.
 		public boolean childrenEnable = false;
 		
@@ -228,7 +239,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		public void clear(MaplyController maplyControl)
 		{
 			maplyControl.removeObjects(compObjs);
-			compObjs.clear();
+			compObjs = new ArrayList<ComponentObject>();
 		}
 		
 		@Override
@@ -239,7 +250,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	}
 	
 	// Loaded tiles.  Be sure to use synchronized before messing with them
-	Map<MaplyTileID,LoadedTile> loadedTiles = new TreeMap<MaplyTileID,LoadedTile>();
+	Map<MaplyTileID,LoadedTile> loadedTiles = new HashMap<MaplyTileID,LoadedTile>();
 	
 	// Look for a loaded tile
 	LoadedTile findLoadedTile(MaplyTileID tileID)
@@ -281,6 +292,14 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		tile.addToCompObjs(compObjs);
 	}
 	
+	// Calculate the parent tile ID
+	MaplyTileID parentTile(MaplyTileID child)
+	{
+		if (child.level == 0)
+			return new MaplyTileID(0,0,0);
+		return new MaplyTileID(child.x/2,child.y/2,child.level-1);
+	}
+	
 	// Called by the paging delegate to indicate a tile loaded
 	public void tileDidLoad(final MaplyTileID tileID)
 	{
@@ -289,16 +308,16 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		{
 			tile.isLoading = false;
 			tile.didLoad = true;
-			maplyControl.enableObjects(tile.compObjs);
 		}
-		runTileUpdate();
+		runTileUpdate(parentTile(tileID));
 		
 		// Call the native code back on the layer thread
 		layerThread.addTask(new Runnable()
 		{
 			@Override public void run()
 			{
-				nativeTileDidLoad(tileID.x,tileID.y,tileID.level);				
+				nativeTileDidLoad(tileID.x,tileID.y,tileID.level);	
+				scheduleEvalStep();
 			}
 		});
 	}
@@ -312,7 +331,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			tile.clear(maplyControl);
 			removeLoadedTile(tileID);
 		}
-		runTileUpdate();
+		runTileUpdate(parentTile(tileID));
 		
 		// Call the native code back on the layer thread
 		layerThread.addTask(new Runnable()
@@ -320,6 +339,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			@Override public void run()
 			{
 				nativeTileDidNotLoad(tileID.x,tileID.y,tileID.level);				
+				scheduleEvalStep();
 			}
 		});
 	}
@@ -328,8 +348,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Assuming we have the the loadedTiles lock here
 	void evaluate(LoadedTile tile,boolean enable,ArrayList<ComponentObject> toEnable,ArrayList<ComponentObject> toDisable)
 	{
-		ArrayList<LoadedTile> children = new ArrayList<LoadedTile>();
+		LoadedTile children[] = new LoadedTile[4];
 		
+		int numChild = 0;
 		for (int ix=0;ix<2;ix++)
 		{
 			for (int iy=0;iy<2;iy++)
@@ -337,17 +358,18 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				MaplyTileID childID = new MaplyTileID(2*tile.ident.x + ix,2*tile.ident.y+iy,tile.ident.level+1);
 				LoadedTile found = loadedTiles.get(childID);
 				if (found != null && found.didLoad)
-					children.add(found);
+					children[numChild++] = found;
 			}
 		}
-		
+				
 		if (enable)
 		{
 			// Enable the children and disable ourselves
-			if (children.size() == 4)
+			if (numChild == 4)
 			{
 				for (LoadedTile child: children)
-					evaluate(child,enable,toEnable,toDisable);
+					if (child != null)
+						evaluate(child,enable,toEnable,toDisable);
 				if (tile.enable)
 				{
 					tile.enable = false;
@@ -356,7 +378,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			} else {
 				// Disable the children
 				for (LoadedTile child: children)
-					evaluate(child,false,toEnable,toDisable);
+					if (child != null)
+						evaluate(child,false,toEnable,toDisable);
 				// Enable ourselves
 				if (!tile.isLoading && !tile.enable)
 				{
@@ -367,7 +390,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		} else {
 			// Disable children
 			for (LoadedTile child: children)
-				evaluate(child,false,toEnable,toDisable);
+				if (child != null)
+					evaluate(child,false,toEnable,toDisable);
 			// And ourselves
 			if (tile.enable)
 			{
@@ -378,15 +402,16 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	}
 	
 	// When a tile loads or unloads, we need to enable or disable parents and such
-	void runTileUpdate()
+	void runTileUpdate(MaplyTileID topTile)
 	{
+		// Note: Could improve this
+		topTile = new MaplyTileID(0,0,0);
 		ArrayList<ComponentObject> toEnable = new ArrayList<ComponentObject>();
 		ArrayList<ComponentObject> toDisable = new ArrayList<ComponentObject>();
 		
 		// Ask the tiles to sort themselves out
 		synchronized(loadedTiles)
 		{
-			MaplyTileID topTile = new MaplyTileID(0,0,0);
 			LoadedTile found = loadedTiles.get(topTile);
 			if (found != null)
 				evaluate(found,true,toEnable,toDisable);

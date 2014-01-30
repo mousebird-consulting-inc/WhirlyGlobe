@@ -46,6 +46,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_addMark
 		MarkerInfo *markerInfo = getHandle<MarkerInfo>(env,markerInfoObj);
 		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
 		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+		if (!markerManager || !markerInfo || !changeSet || !scene)
+		{
+			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in MarkerManager::addMarkers()");
+			return EmptyIdentity;
+		}
 
 		std::vector<Marker *> markers;
 		int objCount = env->GetArrayLength(markerObjArray);
@@ -55,6 +60,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_addMark
 			Marker *marker = getHandle<Marker>(env,javaMarkerObj);
 			markers.push_back(marker);
 		}
+
+		// Note: Porting
+		// Note: Shouldn't have to set this
+    	markerInfo->markerId = Identifiable::genId();
 
 		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
 
@@ -82,7 +91,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_removeMa
 
 		SimpleIDSet idSet;
 		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(idCount);
+			idSet.insert(ids[ii]);
+		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
 		markerManager->removeMarkers(idSet,*changeSet);
 	}
@@ -101,14 +111,20 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_enableMa
 		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
 		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
 
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
 		int idCount = env->GetArrayLength(idArrayObj);
+		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
 		if (idCount == 0)
 			return;
 
 		SimpleIDSet idSet;
 		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(idCount);
+			idSet.insert(ids[ii]);
+
+//		if (enable)
+//			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Enabling marker: %d",(int)ids[0]);
+//		else
+//			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Disabling marker: %d",(int)ids[0]);
+		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
 		markerManager->enableMarkers(idSet,enable,*changeSet);
 	}

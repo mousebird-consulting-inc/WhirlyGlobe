@@ -9,6 +9,30 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    addPoint
+ * Signature: (Lcom/mousebirdconsulting/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addPoint
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    addLinear
+ * Signature: ([Lcom/mousebirdconsulting/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addLinear
+  (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    addAreal
+ * Signature: ([Lcom/mousebirdconsulting/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addAreal
+  (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
  * Method:    fromGeoJSON
  * Signature: (Ljava/lang/String;)Z
  */

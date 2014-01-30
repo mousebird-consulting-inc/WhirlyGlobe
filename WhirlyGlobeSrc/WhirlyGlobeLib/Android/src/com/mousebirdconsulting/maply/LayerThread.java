@@ -82,12 +82,24 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	}
 	
 	// Note: Need a removeLayer()
+	
+	Handler addTask(Runnable run)
+	{
+		return addTask(run,false);
+	}
 
 	// Add a task, which will get executed on this thread at some point
-	void addTask(Runnable run)
+	Handler addTask(Runnable run,boolean wait)
 	{
-		Handler handler = new Handler(getLooper());
-		handler.post(run);
+		if (!wait && Looper.myLooper() == getLooper())
+			run.run();
+		else {
+			Handler handler = new Handler(getLooper());
+			handler.post(run);
+			return handler;		
+		}
+		
+		return null;
 	}
 
 	// Used to track a view watcher
@@ -143,22 +155,45 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 		});
 	}
 	
+	ViewState currentViewState = null;
+	boolean viewUpdateScheduled = false;
+	long viewUpdateLastCalled = 0;
+	
 	// Called when the view updates its information
 	public void viewUpdated(MapView view)
 	{
 		final ViewState viewState = new ViewState(view,renderer);
 
-		// Note: This is temporary.  Need to slow all this down
-		addTask(new Runnable()
+		long now = System.currentTimeMillis();
+
+		if (now - viewUpdateLastCalled > 100)
 		{
-			@Override
-			public void run()
+			viewUpdateLastCalled = now;
+			// Kick off a view update to the watchers on the layer thread
+			final LayerThread theLayerThread = this;
+			synchronized(this)
 			{
-				for (ViewWatcher watcher : watchers)
+				if (!viewUpdateScheduled)
 				{
-					watcher.watcher.viewUpdated(viewState);
+					viewUpdateScheduled = true;
+					addTask(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							synchronized(theLayerThread)
+							{
+								viewUpdateScheduled = false;
+							}
+							currentViewState = viewState;
+							for (ViewWatcher watcher : watchers)
+							{
+								watcher.watcher.viewUpdated(currentViewState);
+							}
+						}
+					});
 				}
 			}
-		});
+		}
 	}
 }

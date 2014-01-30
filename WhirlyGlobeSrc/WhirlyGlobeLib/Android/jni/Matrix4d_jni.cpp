@@ -12,6 +12,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_initialise
 	try
 	{
 		Matrix4d *mat = new Matrix4d();
+		*mat = Matrix4d::Identity();
 		setHandle(env,obj,mat);
 	}
 	catch (...)

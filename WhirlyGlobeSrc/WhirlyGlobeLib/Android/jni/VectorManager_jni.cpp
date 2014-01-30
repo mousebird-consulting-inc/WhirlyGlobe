@@ -93,6 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVe
 		SimpleIDSet idSet;
 		for (int ii=0;ii<idCount;ii++)
 			idSet.insert(ids[ii]);
+		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
 		vecManager->removeVectors(idSet,*changeSet);
 	}
@@ -119,6 +120,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_enableVe
 		SimpleIDSet idSet;
 		for (int ii=0;ii<idCount;ii++)
 			idSet.insert(ids[ii]);
+		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
 		vecManager->enableVectors(idSet,enable,*changeSet);
 	}

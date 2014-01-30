@@ -47,9 +47,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setEnable
 		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
 		if (!info)
 			return;
-		delete info;
-
-		clearHandle(env,obj);
+		info->enable = enable;
 	}
 	catch (...)
 	{

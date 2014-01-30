@@ -231,7 +231,10 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     {
         // If we're not waiting for local reloads, we may be done
         if (!meteredMode && !waitingForLocalLoads())
+        {
             loader->endUpdates();
+            somethingHappened = false;
+        }
         
         // We're done waiting for local fetches.  Let the next frame boundary catch it
         if (waitForLocalLoads && !!waitingForLocalLoads())

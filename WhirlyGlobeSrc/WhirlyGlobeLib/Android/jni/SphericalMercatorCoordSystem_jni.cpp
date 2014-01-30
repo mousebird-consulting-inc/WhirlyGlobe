@@ -10,7 +10,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_SphericalMercatorCoord
 {
 	try
 	{
-		GeoCoordSystem *coordSystem = new GeoCoordSystem();
+		SphericalMercatorCoordSystem *coordSystem = new SphericalMercatorCoordSystem();
 		setHandle(env,obj,coordSystem);
 	}
 	catch (...)

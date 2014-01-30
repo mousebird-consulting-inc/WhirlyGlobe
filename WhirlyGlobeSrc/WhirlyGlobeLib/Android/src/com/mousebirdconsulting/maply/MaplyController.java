@@ -1,5 +1,6 @@
 package com.mousebirdconsulting.maply;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.*;
@@ -12,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.Looper;
 import android.view.*;
 import android.widget.Toast;
 
@@ -260,6 +262,14 @@ public class MaplyController implements View.OnTouchListener
 		renderWrapper = null;
 	}
 	
+	// Add a single vector
+	public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo)
+	{
+		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		vecObjs.add(vec);
+		return addVectors(vecObjs,vecInfo);
+	}
+	
 	/**
 	 * Add zero or more vectors to the MaplyController.
 	 * @param vecs The list of vectors to display.
@@ -269,26 +279,36 @@ public class MaplyController implements View.OnTouchListener
 		final ComponentObject compObj = new ComponentObject();
 
 		// Do the actual work on the layer thread
-		layerThread.addTask(
-			new Runnable()
-			{		
-				@Override
-				public void run()
-				{
-					// Vectors are simple enough to just add
-					ChangeSet changes = new ChangeSet();
-					long vecId = vecManager.addVectors(vecs.toArray(new VectorObject [vecs.size()]),vecInfo,changes);
-					mapScene.addChanges(changes);
+		Runnable run =
+		new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				// Vectors are simple enough to just add
+				ChangeSet changes = new ChangeSet();
+				long vecId = vecManager.addVectors(vecs.toArray(new VectorObject [vecs.size()]),vecInfo,changes);
+				mapScene.addChanges(changes);
 
-					// Track the vector ID for later use
-					if (vecId != EmptyIdentity)
-						compObj.addVectorID(vecId);
-				}
+				// Track the vector ID for later use
+				if (vecId != EmptyIdentity)
+					compObj.addVectorID(vecId);
 			}
-		);
-		
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 		
 		return compObj;
+	}
+	
+	// Add a single screen marker
+	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo)
+	{
+		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+		markers.add(marker);
+		return addScreenMarkers(markers,markerInfo);
 	}
 	
 	/**
@@ -301,44 +321,55 @@ public class MaplyController implements View.OnTouchListener
 		final ComponentObject compObj = new ComponentObject();
 
 		// Do the actual work on the layer thread
-		layerThread.addTask(
-			new Runnable()
-			{		
-				@Override
-				public void run()
+		Runnable run =
+		new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				ChangeSet changes = new ChangeSet();
+		
+				// Convert to the internal representation of the engine
+				InternalMarker intMarkers[] = new InternalMarker[markers.size()];
+				int which = 0;
+				for (ScreenMarker marker : markers)
 				{
-					ChangeSet changes = new ChangeSet();
-			
-					// Convert to the internal representation of the engine
-					InternalMarker intMarkers[] = new InternalMarker[markers.size()];
-					int which = 0;
-					for (ScreenMarker marker : markers)
-					{
-						InternalMarker intMarker = new InternalMarker(marker,markerInfo);
-						// Map the bitmap to a texture ID
-						long texID = EmptyIdentity;
-						if (marker.image != null)
-							texID = texManager.addTexture(marker.image, changes);
-						if (texID != EmptyIdentity)
-							intMarker.addTexID(texID);
-						
-						intMarkers[which] = intMarker;
-						which++;
-					}
-							
-					// Add the markers and flush the changes
-					long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-					mapScene.addChanges(changes);
+					InternalMarker intMarker = new InternalMarker(marker,markerInfo);
+					// Map the bitmap to a texture ID
+					long texID = EmptyIdentity;
+					if (marker.image != null)
+						texID = texManager.addTexture(marker.image, changes);
+					if (texID != EmptyIdentity)
+						intMarker.addTexID(texID);
 					
-					if (markerId != EmptyIdentity)
-					{
-						compObj.addMarkerID(markerId);
-					}
+					intMarkers[which] = intMarker;
+					which++;
+				}
+						
+				// Add the markers and flush the changes
+				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+				mapScene.addChanges(changes);
+				
+				if (markerId != EmptyIdentity)
+				{
+					compObj.addMarkerID(markerId);
 				}
 			}
-		);
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 
 		return compObj;
+	}
+	
+	// Add a single screen label
+	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo)
+	{
+		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+		labels.add(label);
+		return addScreenLabels(labels,labelInfo);
 	}
 	
 	/**
@@ -352,65 +383,69 @@ public class MaplyController implements View.OnTouchListener
 		final ComponentObject compObj = new ComponentObject();
 
 		// Do the actual work on the layer thread
-		layerThread.addTask(
-			new Runnable()
-			{		
-				@Override
-				public void run()
+		Runnable run =
+		new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				ChangeSet changes = new ChangeSet();
+				
+				// Note: Porting
+				// We'll just turn these into markers for now
+				InternalMarker intMarkers[] = new InternalMarker[labels.size()];		
+				int which = 0;
+				for (ScreenLabel label: labels)
 				{
-					ChangeSet changes = new ChangeSet();
-					
-					// Note: Porting
-					// We'll just turn these into markers for now
-					InternalMarker intMarkers[] = new InternalMarker[labels.size()];		
-					int which = 0;
-					for (ScreenLabel label: labels)
+					// Render the text into a bitmap
+					if (label.text != null && label.text.length() > 0)
 					{
-						// Render the text into a bitmap
-						if (label.text != null && label.text.length() > 0)
+						Paint p = new Paint();
+						p.setTextSize(labelInfo.fontSize);
+						p.setColor(Color.WHITE);
+						Rect bounds = new Rect();
+						p.getTextBounds(label.text, 0, label.text.length(), bounds);
+						int textLen = bounds.right;
+						int textHeight = -bounds.top;
+		
+						// Draw into a bitmap
+						Bitmap bitmap = Bitmap.createBitmap(textLen, textHeight, Bitmap.Config.ARGB_8888);
+						Canvas c = new Canvas(bitmap);
+						c.drawColor(0x00000000);
+						c.drawText(label.text, bounds.left, -bounds.top, p);
+						
+						InternalMarker intMarker = new InternalMarker();
+						intMarker.setLoc(label.loc);
+						intMarker.setHeight(textHeight);
+						intMarker.setWidth(textLen);
+						
+						NamedBitmap nameBitmap = new NamedBitmap(label.text,bitmap);
+						long texID = texManager.addTexture(nameBitmap, changes);
+						if (texID != EmptyIdentity)
 						{
-							Paint p = new Paint();
-							p.setTextSize(labelInfo.fontSize);
-							p.setColor(Color.WHITE);
-							Rect bounds = new Rect();
-							p.getTextBounds(label.text, 0, label.text.length(), bounds);
-							int textLen = bounds.right;
-							int textHeight = -bounds.top;
-			
-							// Draw into a bitmap
-							Bitmap bitmap = Bitmap.createBitmap(textLen, textHeight, Bitmap.Config.ARGB_8888);
-							Canvas c = new Canvas(bitmap);
-							c.drawColor(0x00000000);
-							c.drawText(label.text, bounds.left, -bounds.top, p);
-							
-							InternalMarker intMarker = new InternalMarker();
-							intMarker.setLoc(label.loc);
-							intMarker.setHeight(textHeight);
-							intMarker.setWidth(textLen);
-							
-							NamedBitmap nameBitmap = new NamedBitmap(label.text,bitmap);
-							long texID = texManager.addTexture(nameBitmap, changes);
-							if (texID != EmptyIdentity)
-							{
-								intMarker.addTexID(texID);
-								compObj.addTexID(texID);
-							}
-							intMarkers[which] = intMarker;
+							intMarker.addTexID(texID);
+							compObj.addTexID(texID);
 						}
-						which++;
+						intMarkers[which] = intMarker;
 					}
-			
-					MarkerInfo markerInfo = new MarkerInfo();
-					markerInfo.setFade(labelInfo.fade);
-					long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-					if (markerId != EmptyIdentity)
-						compObj.addMarkerID(markerId);
-			
-					// Flush the text changes
-					mapScene.addChanges(changes);
+					which++;
 				}
+		
+				MarkerInfo markerInfo = new MarkerInfo();
+				markerInfo.setEnable(labelInfo.enable);
+				markerInfo.setFade(labelInfo.fade);
+				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+				if (markerId != EmptyIdentity)
+					compObj.addMarkerID(markerId);
+		
+				// Flush the text changes
+				mapScene.addChanges(changes);
 			}
-		);
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 		
 		return compObj;
 	}
@@ -425,18 +460,21 @@ public class MaplyController implements View.OnTouchListener
 			return;
 		
 		final MaplyController control = this;
-		layerThread.addTask(
-				new Runnable()
-				{		
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-						for (ComponentObject compObj : compObjs)
-							compObj.enable(control, false, changes);
-						mapScene.addChanges(changes);
-					}
-				});
+		Runnable run = new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				ChangeSet changes = new ChangeSet();
+				for (ComponentObject compObj : compObjs)
+					compObj.enable(control, false, changes);
+				mapScene.addChanges(changes);
+			}
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 	}
 
 	public void enableObjects(final List<ComponentObject> compObjs)
@@ -445,18 +483,22 @@ public class MaplyController implements View.OnTouchListener
 			return;
 		
 		final MaplyController control = this;
-		layerThread.addTask(
-				new Runnable()
-				{		
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-						for (ComponentObject compObj : compObjs)
-							compObj.enable(control, true, changes);
-						mapScene.addChanges(changes);
-					}
-				});
+		Runnable run = 
+		new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				ChangeSet changes = new ChangeSet();
+				for (ComponentObject compObj : compObjs)
+					compObj.enable(control, true, changes);
+				mapScene.addChanges(changes);
+			}
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 	}
 
 	/**
@@ -467,19 +509,10 @@ public class MaplyController implements View.OnTouchListener
 	{
 		if (compObj == null)
 			return;
-		
-		final MaplyController control = this;
-		layerThread.addTask(
-				new Runnable()
-				{		
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-						compObj.clear(control, changes);
-						mapScene.addChanges(changes);
-					}
-				});
+
+		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		compObjs.add(compObj);
+		removeObjects(compObjs);
 	}
 	
 	/**
@@ -491,18 +524,22 @@ public class MaplyController implements View.OnTouchListener
 			return;
 		
 		final MaplyController control = this;
-		layerThread.addTask(
-				new Runnable()
-				{		
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-						for (ComponentObject compObj : compObjs)
-							compObj.clear(control, changes);
-						mapScene.addChanges(changes);
-					}
-				});
+		Runnable run =
+		new Runnable()
+		{		
+			@Override
+			public void run()
+			{
+				ChangeSet changes = new ChangeSet();
+				for (ComponentObject compObj : compObjs)
+					compObj.clear(control, changes);
+				mapScene.addChanges(changes);
+			}
+		};
+		if (Looper.myLooper() == layerThread.getLooper())
+			run.run();
+		else
+			layerThread.addTask(run);
 	}
 	
 	/**

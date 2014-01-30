@@ -2,13 +2,15 @@ package com.mousebirdconsulting.maply;
 
 import java.util.ArrayList;
 
+//import android.util.Log;
+
 class MapView 
 {
 	MapView(CoordSystemDisplayAdapter coordAdapter)
 	{
 		initialise(coordAdapter);
 	}
-	
+
 	public void finalize()
 	{
 		dispose();
@@ -43,6 +45,8 @@ class MapView
 	// Let everything know we changed the view
 	public void runViewUpdates()
 	{
+//		Point3d loc = getLoc();
+//		Log.i("Maply","New pos: (" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + ")");
 		for (ViewWatcher watcher: watchers)
 			watcher.viewUpdated(this);
 	}

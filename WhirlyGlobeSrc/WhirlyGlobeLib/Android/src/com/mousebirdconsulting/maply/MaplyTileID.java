@@ -27,6 +27,30 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 		return (level < that.level) ? -1 : 1;
 	}		
 	
+	@Override
+	public boolean equals(Object that)
+	{
+		if (this == that)
+			return true;
+		
+		if (!(that instanceof MaplyTileID))
+			return false;
+		
+		MaplyTileID lhs = (MaplyTileID)that;
+		return level == lhs.level && x == lhs.x && y == lhs.y;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		int result = 17;
+		result = 31 * result + level;
+		result = 31 * result + x;
+		result = 31 * result + y;
+		
+		return result;
+	}
+	
 	public int level = 0;
 	public int x = 0;
 	public int y = 0;

@@ -11,20 +11,27 @@ class QuadPagingLayerAdapter : public QuadLoader, public QuadDataStructure, publ
 public:
 	JNIEnv *env;
 	jobject javaObj;
+	SceneRendererES *renderer;
 	CoordSystem *coordSys;
 	jobject delegateObj;
 	Point2d ll,ur;
 	int minZoom,maxZoom;
 	int numFetches;
 	int simultaneousFetches;
+	bool useTargetZoomLevel;
+	bool canShortCircuitImportance;
+	int maxShortCircuitLevel;
 
 	// Methods for Java quad layer
 	jmethodID tileLoadJava,tileUnloadJava;
 
 	QuadPagingLayerAdapter(CoordSystem *coordSys,jobject delegateObj)
-		: env(NULL), javaObj(NULL), coordSys(coordSys), delegateObj(delegateObj), QuadLoader(),
+		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys), delegateObj(delegateObj), QuadLoader(),
 		  numFetches(0), simultaneousFetches(1)
 	{
+		useTargetZoomLevel = true;
+        canShortCircuitImportance = false;
+        maxShortCircuitLevel = -1;
 	}
 
 	virtual ~QuadPagingLayerAdapter()
@@ -34,15 +41,25 @@ public:
 	}
 
 	QuadDisplayController *getController() { return control; }
+	float shortCircuitImportance;
 
-	void start(Scene *inScene,SceneRendererES *renderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
+	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
 	{
+		renderer = inRenderer;
 		scene = inScene;
 		ll = inLL;  ur = inUR;  minZoom = inMinZoom;  maxZoom = inMaxZoom;
 
 		// Set up the display controller
 		control = new QuadDisplayController(this,this,this);
+		control->setMaxTiles(256);
+		control->setMeteredMode(false);
 		control->init(scene,renderer);
+
+		// Note: Porting
+		// Note: Explicitly setting the min importance for a 128*128 tile
+//		getController()->setMinImportance(128*128);
+		shortCircuitImportance = 256*256;
+		getController()->setMinImportance(1.0);
 	}
 
 	// Called after a tile unloads.  Don't care here.
@@ -93,21 +110,112 @@ public:
         if (ident.level <= 1)
             return MAXFLOAT;
 
-        // For a child tile, we're taking the size of our parent so all the children load at once
-        WhirlyKit::Quadtree::Identifier parentIdent;
-        parentIdent.x = ident.x / 2;
-        parentIdent.y = ident.y / 2;
-        parentIdent.level = ident.level - 1;
+        double import = 0;
+        if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+        {
+        	// We load in all four children at once, so we need to look at the parent extents
+        	Quadtree::Identifier parentIdent;
+        	parentIdent.level = ident.level-1;
+        	parentIdent.x = ident.x / 2;
+        	parentIdent.y = ident.y / 2;
+        	Mbr parentMbr = getController()->getQuadtree()->generateMbrForNode(parentIdent);
 
-        Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
+            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), parentMbr, parentIdent, attrs))
+            {
+                import = 1.0/(ident.level+10);
+                if (ident.level <= maxShortCircuitLevel)
+                	import += 1.0;
+            }
+        } else {
+			// For a child tile, we're taking the size of our parent so all the children load at once
+			WhirlyKit::Quadtree::Identifier parentIdent;
+			parentIdent.x = ident.x / 2;
+			parentIdent.y = ident.y / 2;
+			parentIdent.level = ident.level - 1;
 
-        // This is how much screen real estate we're covering for this tile
-        double import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+			Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
+
+			// This is how much screen real estate we're covering for this tile
+			import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+        }
+//		__android_log_print(ANDROID_LOG_VERBOSE, "importanceForTile", "tile %d: (%d,%d) import = %f",ident.level,ident.x,ident.y,import);
+
+        return import;
     }
 
-    /// Called when the view state changes.  If you're caching info, do it here.
+    // Calculate a target zoom level for display
+    int targetZoomLevel(ViewState *viewState)
+    {
+        if (!viewState)
+            return minZoom;
+        Point2f frameSize = renderer->getFramebufferSize();
+
+        int zoomLevel = 0;
+        WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
+        while (zoomLevel < maxZoom)
+        {
+            WhirlyKit::Quadtree::Identifier ident;
+            ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
+            // Make an MBR right in the middle of where we're looking
+            Mbr mbr = getController()->getQuadtree()->generateMbrForNode(ident);
+            Point2f span = mbr.ur()-mbr.ll();
+            mbr.ll() = center - span/2.0;
+            mbr.ur() = center + span/2.0;
+            Dictionary attrs;
+            float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
+            if (import <= shortCircuitImportance)
+            {
+                zoomLevel--;
+                break;
+            }
+            zoomLevel++;
+        }
+
+        return zoomLevel;
+    }
+
+    /// Called when the view state changes.  We look for an optimal display level here
     virtual void newViewState(ViewState *viewState)
     {
+    	if (!useTargetZoomLevel)
+    	{
+    		canShortCircuitImportance = false;
+    		maxShortCircuitLevel = -1;
+    		return;
+    	}
+
+        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+        Point3d center = coordAdapter->getCenter();
+        if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+        {
+            canShortCircuitImportance = true;
+            if (!coordAdapter->isFlat())
+            {
+                canShortCircuitImportance = false;
+                return;
+            }
+            // We happen to store tilt in the view matrix.
+            if (!viewState->viewMatrix.isIdentity())
+            {
+                canShortCircuitImportance = false;
+                return;
+            }
+            // The tile source coordinate system must be the same as the display's system
+            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
+            {
+                canShortCircuitImportance = false;
+                return;
+            }
+
+            // We need to feel our way down to the appropriate level
+            maxShortCircuitLevel = targetZoomLevel(viewState);
+
+    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+
+        } else {
+            // Note: Can't short circuit in this case.  Something wrong with the math
+            canShortCircuitImportance = false;
+        }
     }
 
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -207,6 +315,37 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::dispose()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_geoBoundsForTileNative
+  (JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject llObj, jobject urObj)
+{
+	try
+	{
+		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		Point2d *ll = getHandle<Point2d>(env,llObj);
+		Point2d *ur = getHandle<Point2d>(env,urObj);
+		if (!adapter || !ll || !ur)
+			return;
+
+	    Mbr mbr = adapter->getController()->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(x,y,level));
+
+	    GeoMbr geoMbr;
+	    CoordSystem *wkCoordSys = adapter->getController()->getCoordSys();
+	    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
+	    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
+	    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
+	    geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ur().y(),0.0)));
+
+	    ll->x() = geoMbr.ll().x();
+	    ll->y() = geoMbr.ll().y();
+	    ur->x() = geoMbr.ur().x();
+	    ur->y() = geoMbr.ur().y();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::geoBoundsForTileNative()");
 	}
 }
 

@@ -44,6 +44,86 @@ void Java_com_mousebirdconsulting_maply_VectorObject_dispose
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addPoint
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		Point2d *pt = getHandle<Point2d>(env,ptObj);
+		if (!vecObj)
+			return;
+
+		VectorPointsRef pts = VectorPoints::createPoints();
+		pts->pts.push_back(GeoCoord(pt->x(),pt->y()));
+		pts->initGeoMbr();
+		vecObj->shapes.insert(pts);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::addPoint()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addLinear
+  (JNIEnv *env, jobject obj, jobjectArray ptsObj)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		if (!vecObj)
+			return;
+
+		VectorLinearRef lin = VectorLinear::createLinear();
+
+		int count = env->GetArrayLength(ptsObj);
+		if (count == 0)
+			return;
+		for (int ii=0;ii<count;ii++)
+		{
+			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
+			Point2d *pt = getHandle<Point2d>(env,ptObj);
+			lin->pts.push_back(GeoCoord(pt->x(),pt->y()));
+		}
+		lin->initGeoMbr();
+		vecObj->shapes.insert(lin);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::addLinear()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addAreal
+  (JNIEnv *env, jobject obj, jobjectArray ptsObj)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		if (!vecObj)
+			return;
+
+		VectorArealRef ar = VectorAreal::createAreal();
+		ar->loops.resize(1);
+
+		int count = env->GetArrayLength(ptsObj);
+		if (count == 0)
+			return;
+		for (int ii=0;ii<count;ii++)
+		{
+			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
+			Point2d *pt = getHandle<Point2d>(env,ptObj);
+			ar->loops[0].push_back(GeoCoord(pt->x(),pt->y()));
+		}
+		ar->initGeoMbr();
+		vecObj->shapes.insert(ar);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::addAreal()");
+	}
+}
+
 jboolean Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSON
   (JNIEnv *env, jobject obj, jstring jstr)
 {

@@ -6,6 +6,11 @@ public class Point3d
 	{
 		initialise();
 	}
+	Point3d(Point3d that)
+	{
+		initialise();		
+		setValue(that.getX(),that.getY(),that.getZ());
+	}
 	Point3d(double x,double y,double z)
 	{
 		initialise();

@@ -8,8 +8,8 @@ public class ComponentObject
 	long[] convertIDs(ArrayList<Long> inIDs)
 	{
 		int which = 0;
-		long[] ids = new long[vectorIDs.size()];
-		for (Long id : vectorIDs)
+		long[] ids = new long[inIDs.size()];
+		for (Long id : inIDs)
 		{
 			ids[which] = id;
 			which++;
@@ -47,7 +47,7 @@ public class ComponentObject
 			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
 		}
 		if (markerIDs != null && markerIDs.size() > 0)
-			control.markerManager.enableMarkers(convertIDs(vectorIDs), enable, changes);
+			control.markerManager.enableMarkers(convertIDs(markerIDs), enable, changes);
 	}
 	
 	// Clear out anything the component object is holding

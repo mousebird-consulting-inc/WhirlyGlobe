@@ -6,6 +6,11 @@ public class Point2d
 	{
 		initialise();
 	}
+	Point2d(Point2d that)
+	{
+		initialise();
+		setValue(that.getX(),that.getY());
+	}
 	Point2d(double x,double y)
 	{
 		initialise();

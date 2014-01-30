@@ -41,6 +41,16 @@ public class VectorObject
 	{
 		initialise();
 	}
+
+	// Add a single point
+	public native void addPoint(Point2d pt);
+
+	// Add a linear feature
+	public native void addLinear(Point2d pts[]);
+
+	// Add an areal feature
+	public native void addAreal(Point2d pts[]);
+//	public native void addAreal(Point2d ext[],Point2d holes[][]);
 	
 	public void finalize()
 	{
@@ -60,7 +70,7 @@ public class VectorObject
 	 * @return
 	 */
 	public native boolean fromGeoJSONAssembly(String json);
-	
+		
 	public native void initialise();
 	
 	/**
