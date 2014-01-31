@@ -38,7 +38,13 @@ public:
     bool fromGeoJSON(const std::string &json);
 
     /// @brief Assemblies are just concattenated JSON
-    bool fromGeoJSONAssembly(const std::string &json);
+    static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
+    
+    /// @brief Return the attributes for the first shape or NULL
+    Dictionary *getAttributes();
+    
+    /// @brief Returns one shape per VectorObject
+    void splitVectors(std::vector<VectorObject *> &vecs);
     
 public:
     ShapeSet shapes;

@@ -271,7 +271,9 @@ void SceneRendererES2::render()
 
     if (!renderSetup)
     {
-        glEnable(GL_CULL_FACE);
+    	// Note: Porting
+//        glEnable(GL_CULL_FACE);
+    	glDisable(GL_CULL_FACE);
         CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
     }
     

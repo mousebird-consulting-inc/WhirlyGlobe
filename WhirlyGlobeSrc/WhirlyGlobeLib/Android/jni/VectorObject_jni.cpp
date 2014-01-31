@@ -9,8 +9,21 @@
 #import "handle.h"
 #import "com_mousebirdconsulting_maply_VectorObject.h"
 #import "WhirlyGlobe.h"
+#import "Maply_utils_jni.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
+{
+	jclass cls = env->FindClass("com/mousebirdconsulting/maply/VectorObject");
+	jmethodID methodID = env->GetMethodID(cls, "<init>", "()V");
+	if (!methodID)
+		throw 1;
+	jobject vecObj = env->NewObject(cls, methodID);
+	setHandle(env,vecObj,vec);
+
+	return vecObj;
+}
 
 void Java_com_mousebirdconsulting_maply_VectorObject_initialise
   (JNIEnv *env, jobject obj)
@@ -150,29 +163,62 @@ jboolean Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSON
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSONAssembly
-  (JNIEnv *env, jobject obj, jstring jstr)
+JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_FromGeoJSONAssembly
+  (JNIEnv *env, jclass vecObjClass, jstring jstr)
+{
+	try
+	{
+		const char *cStr = env->GetStringUTFChars(jstr,0);
+		if (!cStr)
+			return NULL;
+		std::string jsonStr(cStr);
+
+		std::map<std::string,VectorObject *> vecData;
+		bool ret = VectorObject::FromGeoJSONAssembly(jsonStr,vecData);
+
+		env->ReleaseStringUTFChars(jstr, cStr);
+
+		if (ret)
+		{
+			jclass mapClass = env->FindClass("java/util/HashMap");
+			jmethodID init = env->GetMethodID(mapClass, "<init>", "(I)V");
+			jobject hashMap = env->NewObject(mapClass, init, 1);
+			jmethodID put = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+
+			for (std::map<std::string,VectorObject *>::iterator it = vecData.begin();
+					it != vecData.end(); ++it)
+			{
+				jstring key = env->NewStringUTF(it->first.c_str());
+				jobject vecObj = MakeVectorObject(env,it->second);
+				env->CallObjectMethod(hashMap, put, key, vecObj);
+			}
+
+			return hashMap;
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::FromGeoJSONAssembly()");
+	}
+
+	return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_getAttributes
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
 		if (!vecObj)
-			return false;
+			return NULL;
 
-		const char *cStr = env->GetStringUTFChars(jstr,0);
-		if (!cStr)
-			return false;
-		std::string jsonStr(cStr);
+		jobject dictObj = MakeAttrDictionary(env,vecObj->getAttributes());
 
-		bool ret = vecObj->fromGeoJSONAssembly(jsonStr);
-
-		env->ReleaseStringUTFChars(jstr, cStr);
-
-		return ret;
+		return dictObj;
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::fromGeoJSONAssembly()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::getAttributes()");
 	}
 }
-

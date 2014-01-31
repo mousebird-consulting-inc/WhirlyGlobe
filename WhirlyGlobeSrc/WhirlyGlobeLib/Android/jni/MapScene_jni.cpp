@@ -20,8 +20,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_initialise
 	try
 	{
 		CoordSystemDisplayAdapter *coordAdapter = getHandle<CoordSystemDisplayAdapter>(env,coordAdapterObj);
-		Maply::MapScene *inst = new Maply::MapScene(coordAdapter);
-		setHandle(env,obj,inst);
+		Maply::MapScene *scene = new Maply::MapScene(coordAdapter);
+		setHandle(env,obj,scene);
 	}
 	catch (...)
 	{

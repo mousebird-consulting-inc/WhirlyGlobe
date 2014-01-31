@@ -279,6 +279,14 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			loadedTiles.remove(tileID);
 		}
 	}
+	
+	// Called by the paging delegate to hand us data for a given tile
+	public void addData(ComponentObject compObj,MaplyTileID tileID)
+	{
+		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		compObjs.add(compObj);
+		addData(compObjs,tileID);
+	}
 
 	// Called by the paging delegate to hand us data for a given tile
 	public void addData(List<ComponentObject> compObjs,MaplyTileID tileID)

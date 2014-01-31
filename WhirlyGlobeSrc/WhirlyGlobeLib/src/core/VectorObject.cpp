@@ -32,7 +32,7 @@ bool VectorObject::fromGeoJSON(const std::string &json)
     return VectorParseGeoJSON(shapes,json);
 }
     
-bool VectorObject::fromGeoJSONAssembly(const std::string &json)
+bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData)
 {
     std::map<std::string, ShapeSet> newShapes;
     if (!VectorParseGeoJSONAssembly(json, newShapes))
@@ -40,9 +40,33 @@ bool VectorObject::fromGeoJSONAssembly(const std::string &json)
     
     for (std::map<std::string, ShapeSet>::iterator it = newShapes.begin();
          it != newShapes.end(); ++it)
-        shapes.insert(it->second.begin(),it->second.end());
+    {
+        VectorObject *vecObj = new VectorObject();
+        vecObj->shapes.insert(it->second.begin(),it->second.end());
+        vecData[it->first] = vecObj;
+    }
     
     return true;
+}
+    
+Dictionary *VectorObject::getAttributes()
+{
+    if (shapes.empty())
+        return NULL;
+    
+    return (*shapes.begin())->getAttrDict();
+}
+ 
+void VectorObject::splitVectors(std::vector<VectorObject *> &vecs)
+{    
+    for (WhirlyKit::ShapeSet::iterator it = shapes.begin();
+         it != shapes.end(); ++it)
+    {
+        VectorObject *vecObj = new VectorObject();
+        vecObj->shapes.insert(*it);
+        vecs.push_back(vecObj);
+    }
+    
 }
 
 }

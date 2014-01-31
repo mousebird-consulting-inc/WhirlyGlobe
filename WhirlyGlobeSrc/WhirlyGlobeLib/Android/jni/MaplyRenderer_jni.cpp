@@ -88,6 +88,11 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setScene
 			return;
 
 		renderer->setScene(scene);
+		// Note: Porting
+		// Set up no lighting shaders here
+        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+        if (triNoLighting != EmptyIdentity)
+            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
 	}
 	catch (...)
 	{

@@ -20,6 +20,8 @@
 
 package com.mousebirdconsulting.maply;
 
+import java.util.Map;
+
 /** Maply Vector Object represents zero or more vector features.
  * <p>
  * The Vector Object can hold several vector features of the same or different types.  It's meant to be a fairly opaque structure, 
@@ -32,7 +34,7 @@ package com.mousebirdconsulting.maply;
  * <p>
  * Vector Objects vertices are always in geographic, with longitude = x and latitude = y.
 */
-public class VectorObject 
+public class VectorObject implements Iterable<VectorObject>
 {
 	/**
 	 * Construct empty.
@@ -41,13 +43,16 @@ public class VectorObject
 	{
 		initialise();
 	}
-
+	
+	// Return attributes for the feature.  If there are multiple features, we get the first one.
+	public native AttrDictionary getAttributes();
+	
 	// Add a single point
 	public native void addPoint(Point2d pt);
 
 	// Add a linear feature
 	public native void addLinear(Point2d pts[]);
-
+	
 	// Add an areal feature
 	public native void addAreal(Point2d pts[]);
 //	public native void addAreal(Point2d ext[],Point2d holes[][]);
@@ -56,6 +61,13 @@ public class VectorObject
 	{
 		dispose();
 	}
+	
+	// Vector object can contain multiple subobjects.  This iterates over them.
+	@Override
+	public VectorIterator iterator() 
+	{
+		return new VectorIterator(this);
+	}	
 	
 	/**
 	 * Load vector objects from a GeoJSON string.
@@ -69,14 +81,10 @@ public class VectorObject
 	 * @param json
 	 * @return
 	 */
-	public native boolean fromGeoJSONAssembly(String json);
+	static public native Map<String,VectorObject> FromGeoJSONAssembly(String json);
 		
 	public native void initialise();
-	
-	/**
-	 * This will explicitly release memory associated with the native vector data.
-	 */
 	public native void dispose();
 
-	private long nativeHandle;	
+	private long nativeHandle;
 }

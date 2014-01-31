@@ -80,8 +80,9 @@ MAPLY_CORE_SRC_FILES := CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp D
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)/core
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
-MAPLY_JNI_FILES := ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp \
-					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
+MAPLY_JNI_FILES := AttrDictionary_jni.cpp ChangeSet_jni.cpp CoordSystemDisplayAdapter_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp \
+					MapView_jni.cpp \
+					Matrix4d_jni.cpp Point2d_jni.cpp Point3d_jni.cpp VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp \
 					InternalMarker_jni.cpp MarkerInfo_jni.cpp MarkerManager_jni.cpp Texture_jni.cpp QuadPagingLayer_jni.cpp \
 					CoordSystem_jni.cpp SphericalMercatorCoordSystem_jni.cpp PlateCarreeCoordSystem_jni.cpp ViewState_jni.cpp
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)

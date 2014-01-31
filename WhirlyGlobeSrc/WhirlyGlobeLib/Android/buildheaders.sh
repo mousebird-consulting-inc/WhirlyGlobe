@@ -1,6 +1,6 @@
 cd src
 
-for mod in ChangeSet CoordSystem CoordSystemDisplayAdapter InternalMarker MapScene MapView MarkerInfo MarkerManager MaplyRenderer Matrix4d PlateCarreeCoordSystem Point2d Point3d QuadPagingLayer SphericalMercatorCoordSystem Texture VectorInfo VectorManager VectorObject ViewState
+for mod in AttrDictionary ChangeSet CoordSystem CoordSystemDisplayAdapter InternalMarker MapScene MapView MarkerInfo MarkerManager MaplyRenderer Matrix4d PlateCarreeCoordSystem Point2d Point3d QuadPagingLayer SphericalMercatorCoordSystem Texture VectorIterator VectorInfo VectorManager VectorObject ViewState
 do
 
 echo "Building header for $mod"

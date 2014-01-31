@@ -40,7 +40,7 @@ static void combineCallback(const GLfloat newVertex[3], const GLfloat *neighborV
                                 const GLfloat neighborWeight[4], GLfloat **outData, TriangulationInfo *triInfo)
 {
     triInfo->pts.push_back(Point3f(newVertex[0],newVertex[1],0.0));
-    *outData = (GLfloat *)triInfo->pts.size()-1;
+    *outData = (GLfloat *)(triInfo->pts.size()-1);
 }
 
 // This is here to verify we're getting just triangles out (not strips or fans)

@@ -270,6 +270,8 @@ static const char *vertexShaderNoLightTri =
 "{                                           \n"
 "   v_texCoord = a_texCoord0;                 \n"
 "   v_color = a_color * u_fade;\n"
+// Note: Porting.  Debugging color
+"   v_color = vec4(1,1,1,1);\n"
 "\n"
 "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);  \n"
 "}                                           \n"
@@ -286,7 +288,10 @@ static const char *fragmentShaderNoLightTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
-"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
+//"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
+		// Note: Porting
+//		"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
+		" vec4 baseColor = vec4(1.0,1.0,1.0,1.0);"
 //"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"
