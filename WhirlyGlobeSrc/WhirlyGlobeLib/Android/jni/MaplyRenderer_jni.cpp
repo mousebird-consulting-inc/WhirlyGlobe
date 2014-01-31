@@ -43,6 +43,7 @@ void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
 	try
 	{
 		MaplySceneRenderer *renderer = new MaplySceneRenderer();
+		renderer->setClearColor(RGBAColor(255,255,255,255));
 		setHandle(env,obj,renderer);
 
 		if (!glSetup)
@@ -118,11 +119,23 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setView
 	}
 }
 
-/*
- * Class:     com_mousebirdconsulting_maply_MaplyRenderer
- * Method:    teardown
- * Signature: ()Z
- */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setClearColor
+  (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+{
+	try
+	{
+		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
+		if (!renderer)
+			return;
+
+		renderer->setClearColor(RGBAColor(r*255,g*255,b*255,a*255));
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::setClearColor()");
+	}
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_teardown
   (JNIEnv *, jobject)
 {

@@ -197,11 +197,11 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		compObjs.add(compObj);
 		
 		// Outline for water
-		VectorInfo waterOutlineInfo = new VectorInfo();
-		waterOutlineInfo.setFilled(false);
-		waterOutlineInfo.setColor(137.f/255.f,188.f/255.f,228.f/255.f,1.f);
-		compObj = maplyControl.addVector(water, waterOutlineInfo);
-		compObjs.add(compObj);
+//		VectorInfo waterOutlineInfo = new VectorInfo();
+//		waterOutlineInfo.setFilled(false);
+//		waterOutlineInfo.setColor(137.f/255.f,188.f/255.f,228.f/255.f,1.f);
+//		compObj = maplyControl.addVector(water, waterOutlineInfo);
+//		compObjs.add(compObj);
 	}
 
 	// The connection task loaded data.  Yay!

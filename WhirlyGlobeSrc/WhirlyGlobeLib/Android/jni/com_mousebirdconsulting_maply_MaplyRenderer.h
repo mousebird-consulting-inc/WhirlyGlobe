@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setView
 
 /*
  * Class:     com_mousebirdconsulting_maply_MaplyRenderer
+ * Method:    setClearColor
+ * Signature: (FFFF)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setClearColor
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MaplyRenderer
  * Method:    teardown
  * Signature: ()Z
  */

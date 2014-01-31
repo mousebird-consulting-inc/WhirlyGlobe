@@ -1107,12 +1107,14 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         unsigned char *basePtr = glMem;
         for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
             addPointToBuffer(basePtr, ii);
-        
+
         // Now the element buffer
+        triBuffer = numVerts*vertexSize;
         for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
             memcpy(basePtr, &tris[ii], sizeof(Triangle));
         
-        glBufferData(GL_ARRAY_BUFFER, numVerts*vertexSize, glMem, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
+        free(glMem);
     }
 
 
@@ -1229,7 +1231,7 @@ const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
     return vertexAttributes;
 }
     
-// Note: Closed for repaiars
+// Note: Closed for repairs
 #if 0
 // Combined vertex used in triangle stripping
 struct TmpVert
@@ -1600,7 +1602,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         }
         
         // Bind the element array
-        if (type == GL_TRIANGLES && triBuffer)
+        if (type == GL_TRIANGLES)
         {
             boundElements = true;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
@@ -1693,14 +1695,14 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                     }
-                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(sharedBufferOffset,triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     if (!boundElements)
                     {
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                     }
                 } else {
-                    glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
             }

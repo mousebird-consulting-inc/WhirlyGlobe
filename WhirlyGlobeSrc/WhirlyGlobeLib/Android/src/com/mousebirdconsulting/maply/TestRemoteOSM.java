@@ -28,5 +28,6 @@ public class TestRemoteOSM
 //		TestQuadPager pager = new TestQuadPager(0,16);
 		QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys, pager);
 		mapControl.layerThread.addLayer(pagingLayer);
+//		mapControl.renderWrapper.maplyRender.setClearColor(1.f,1.f,1.f,1.f);
 	}
 }
