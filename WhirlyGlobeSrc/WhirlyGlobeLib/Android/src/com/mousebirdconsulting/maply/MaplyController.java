@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
@@ -279,7 +280,7 @@ public class MaplyController implements View.OnTouchListener
 	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo)
 	{
 		final ComponentObject compObj = new ComponentObject();
-
+		
 		// Do the actual work on the layer thread
 		Runnable run =
 		new Runnable()
@@ -287,14 +288,26 @@ public class MaplyController implements View.OnTouchListener
 			@Override
 			public void run()
 			{
-				// Vectors are simple enough to just add
-				ChangeSet changes = new ChangeSet();
-				long vecId = vecManager.addVectors(vecs.toArray(new VectorObject [vecs.size()]),vecInfo,changes);
-				mapScene.addChanges(changes);
-
-				// Track the vector ID for later use
-				if (vecId != EmptyIdentity)
-					compObj.addVectorID(vecId);
+				// Note: Hack
+				// If the vector list is over a certain size, we have to split it
+				int numEl = vecs.size();
+				int batch = 400;
+				for (int start = 0;start < numEl;start+=batch)
+				{
+					int end = start+batch;
+					if (end > vecs.size())
+						end = vecs.size();
+					List<VectorObject> subList = vecs.subList(start, end);
+	
+					// Vectors are simple enough to just add
+					ChangeSet changes = new ChangeSet();
+					long vecId = vecManager.addVectors(subList.toArray(new VectorObject [subList.size()]),vecInfo,changes);
+					mapScene.addChanges(changes);
+	
+					// Track the vector ID for later use
+					if (vecId != EmptyIdentity)
+						compObj.addVectorID(vecId);
+				}
 			}
 		};
 		if (Looper.myLooper() == layerThread.getLooper())

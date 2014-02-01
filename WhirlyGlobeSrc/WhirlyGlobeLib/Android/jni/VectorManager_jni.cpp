@@ -61,9 +61,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVect
 		int vecObjCount = env->GetArrayLength(vecObjArray);
 		for (int ii=0;ii<vecObjCount;ii++)
 		{
-			jobject javaVecObj = (jobject) env->GetObjectArrayElement(vecObjArray, ii);
+			jobject javaVecObj = env->GetObjectArrayElement(vecObjArray, ii);
 			VectorObject *vecObj = getHandle<VectorObject>(env,javaVecObj);
 			shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+			env->DeleteLocalRef(javaVecObj);
 		}
 
 		SimpleIdentity vecId = vecManager->addVectors(&shapes,*vecInfo,*changeSet);

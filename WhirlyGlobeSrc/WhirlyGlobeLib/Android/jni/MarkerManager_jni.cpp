@@ -59,6 +59,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_addMark
 			jobject javaMarkerObj = (jobject) env->GetObjectArrayElement(markerObjArray, ii);
 			Marker *marker = getHandle<Marker>(env,javaMarkerObj);
 			markers.push_back(marker);
+			env->DeleteLocalRef(javaMarkerObj);
 		}
 
 		// Note: Porting

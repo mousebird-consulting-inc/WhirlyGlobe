@@ -21,6 +21,7 @@ JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
 		throw 1;
 	jobject vecObj = env->NewObject(cls, methodID);
 	setHandle(env,vecObj,vec);
+	env->DeleteLocalRef(cls);
 
 	return vecObj;
 }
