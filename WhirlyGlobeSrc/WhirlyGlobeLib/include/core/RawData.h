@@ -20,6 +20,7 @@
 
 #import <ctime>
 #import <vector>
+#import <string>
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit
@@ -56,6 +57,32 @@ protected:
     const unsigned char *data;
     unsigned int len;
 };
+    
+// Wrapper on top of a raw data object for reading more structured data
+class RawDataReader
+{
+public:
+    RawDataReader(const RawData *);
+    virtual ~RawDataReader() { }
+    
+    // True if we've reached the end of the buffer
+    bool done();
+    
+    // Read an integer
+    bool getInt(int &val);
+    // Read a double
+    bool getDouble(double &val);
+    // Read a string
+    bool getString(std::string &str);
+    
+protected:
+    const RawData *rawData;
+    int pos;
+};
+    
+// Read data from a file, return null if we fail
+// Caller responsible for deletion
+RawDataWrapper *RawDataFromFile(FILE *fp,unsigned int dataLen);
 
 // You can add data to this one as needed
 class MutableRawData : public RawData
@@ -69,6 +96,13 @@ public:
     virtual const unsigned char *getRawData() const;
     // Length of the raw data collected thus far
     virtual unsigned long getLen() const;
+
+    // Add an integer
+    virtual void addInt(int iVal);
+    // Add a double
+    virtual void addDouble(double dVal);
+    // Add a string
+    virtual void addString(const std::string &str);
     
 protected:
     std::vector<unsigned char> data;

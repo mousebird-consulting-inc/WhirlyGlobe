@@ -34,7 +34,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	File cacheDir = null;
 	ExecutorService executor = null;
 	
-	OSMVectorTilePager(MaplyController inMaplyControl,String inRemotePath, int inMinZoom, int inMaxZoom)
+	OSMVectorTilePager(MaplyController inMaplyControl,String inRemotePath, int inMinZoom, int inMaxZoom, int numThreads)
 	{
 		maplyControl = inMaplyControl;
 		remotePath = inRemotePath;
@@ -42,7 +42,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		maxZoom = inMaxZoom;
 		
 		// We'll keep 4 threads in a pool for parsing data
-		executor = Executors.newFixedThreadPool(4);
+		executor = Executors.newFixedThreadPool(numThreads);
 	}
 
 	@Override
@@ -112,12 +112,6 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 
 	}
 	
-	// Generate the cache file name
-	String makeTileFileName(MaplyTileID tileID)
-	{
-		return tileID.level + "_" + tileID.x + "_" + tileID.y + ".json";		
-	}
-
 	// The paging layer calls us here to start paging a tile
 	@Override
 	public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID) 
@@ -127,11 +121,10 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		// Look for it in the cache
 		if (cacheDir != null)
 		{
-			String tileFileName = makeTileFileName(tileID);
-			String json = readFromFile(tileFileName);
-			if (!json.isEmpty())
+			Map<String,VectorObject> vecData = readFromCache(tileID);
+			if (vecData != null)
 			{
-				didLoad(layer,tileID,json,true);
+				showData(layer,vecData,tileID);
 				return;
 			}
 		}
@@ -353,6 +346,22 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		ComponentObject compObj = maplyControl.addVector(water, waterInfo);
 		compObjs.add(compObj);
 	}
+	
+	// Apply the styling to show the data, and let the layer know
+	void showData(QuadPagingLayer layer,Map<String,VectorObject> vecData,MaplyTileID tileID)
+	{
+		// Work through the various top level types
+		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		styleRoads(vecData.get("highroad"),compObjs);
+		styleRoadLabels(vecData.get("skeletron"),compObjs);
+		styleBuildings(vecData.get("buildings"),compObjs);
+		// Note: The land usage is kind of a mess
+//		styleLandUsage(vecData.get("land-usages"),compObjs);
+		styleWater(vecData.get("water-areas"),compObjs);
+		
+		layer.addData(compObjs, tileID);
+		layer.tileDidLoad(tileID);		
+	}
 
 	// The connection task loaded data.  Yay!
 	void didLoad(final QuadPagingLayer layer,final MaplyTileID tileID,final String json,final boolean wasCached)
@@ -365,29 +374,16 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				{
 					@Override
 					public void run()
-					{
-						// Write it out to the cache
-						if (!wasCached)
-						{
-							String tileFileName = makeTileFileName(tileID);
-							writeToFile(tileFileName,json);
-						}
-						
+					{						
 						// Parse the GeoJSON assembly into groups based on the type
 						Map<String,VectorObject> vecData = VectorObject.FromGeoJSONAssembly(json);
-
-						// Work through the various top level types
-						ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
-						styleRoads(vecData.get("highroad"),compObjs);
-						styleRoadLabels(vecData.get("skeletron"),compObjs);
-						styleBuildings(vecData.get("buildings"),compObjs);
-						// Note: The land usage is kind of a mess
-//						styleLandUsage(vecData.get("land-usages"),compObjs);
-						styleWater(vecData.get("water-areas"),compObjs);
 						
-						layer.addData(compObjs, tileID);
-						layer.tileDidLoad(tileID);
-						
+						// And display it
+						showData(layer,vecData,tileID);
+					
+						// Write it out to the cache
+						if (!wasCached)
+							writeToCache(vecData,tileID);
 					}
 				}
 		);
@@ -409,47 +405,47 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 				});
 	}
 	
-	// Write a string to file
-	// Courtesy: http://stackoverflow.com/questions/14376807/how-to-read-write-string-from-a-file-in-android
-	private void writeToFile(String fileName,String data) {
-	    try {
-	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(maplyControl.activity.openFileOutput(fileName, Context.MODE_PRIVATE));
-	        outputStreamWriter.write(data);
-	        outputStreamWriter.close();
-	    }
-	    catch (IOException e) {
-//	        Log.e("Exception", "File write failed: " + e.toString());
-	    } 
+	// Filename for cache with type
+	String cacheName(MaplyTileID tileID,String type)
+	{
+		String fileName = type + "_" + tileID.level + "_" + tileID.x + "_" + tileID.y + ".bvec";
+		
+		return maplyControl.activity.getCacheDir().getAbsolutePath() + "/" + fileName;
 	}
 	
-	// Create a file into a string
-	private String readFromFile(String inputFile) 
+	// Write the data layers out to the cache
+	void writeToCache(Map<String,VectorObject> vecData,MaplyTileID tileID)
 	{
-	    String ret = "";
+		// Write each type into its own cache file
+		for (String type : vecData.keySet())
+		{
+			VectorObject vecObj = vecData.get(type);
+			String fileName = cacheName(tileID,type);
+			vecObj.writeToFile(fileName);
+		}
+	}
+	
+	// Read the data layers out of the cache
+	Map<String,VectorObject> readFromCache(MaplyTileID tileID)
+	{
+		Map<String,VectorObject> vecData = new HashMap<String,VectorObject>();
 
-	    try {
-	        InputStream inputStream = maplyControl.activity.openFileInput(inputFile);
-
-	        if ( inputStream != null ) {
-	            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-	            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-	            String receiveString = "";
-	            StringBuilder stringBuilder = new StringBuilder();
-
-	            while ( (receiveString = bufferedReader.readLine()) != null ) {
-	                stringBuilder.append(receiveString);
-	            }
-
-	            inputStream.close();
-	            ret = stringBuilder.toString();
-	        }
-	    }
-	    catch (FileNotFoundException e) {
-//	        Log.e("Maply", "File not found: " + e.toString());
-	    } catch (IOException e) {
-//	        Log.e("Maply", "Can not read file: " + e.toString());
-	    }
-
-	    return ret;
+		// Work through the types we're expecting to find
+		String[] types = {"highroad","skeletron","buildings","land-usages","water-areas"};
+		for (String type : types)
+		{
+			String fileName = cacheName(tileID,type);
+			File theFile = new File(fileName);
+			if (theFile.exists())
+			{
+				VectorObject vecObj = new VectorObject();
+				vecObj.readFromFile(fileName);
+				vecData.put(type, vecObj);
+			}
+		}
+		
+		if (vecData.size() > 0)
+			return vecData;
+		return null;
 	}
 }

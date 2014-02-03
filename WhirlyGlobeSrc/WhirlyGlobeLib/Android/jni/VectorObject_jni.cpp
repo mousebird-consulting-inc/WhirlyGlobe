@@ -223,3 +223,47 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_getAtt
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::getAttributes()");
 	}
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_readFromFile
+  (JNIEnv *env, jobject obj, jstring fileNameStr)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		if (!vecObj)
+			return false;
+		const char *cStr = env->GetStringUTFChars(fileNameStr,0);
+		if (!cStr)
+			return false;
+		std::string fileName(cStr);
+		env->ReleaseStringUTFChars(fileNameStr, cStr);
+
+		return vecObj->fromFile(fileName);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::readFromFile()");
+	}
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_writeToFile
+  (JNIEnv *env, jobject obj, jstring fileNameStr)
+{
+	try
+	{
+		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		if (!vecObj)
+			return false;
+		const char *cStr = env->GetStringUTFChars(fileNameStr,0);
+		if (!cStr)
+			return false;
+		std::string fileName(cStr);
+		env->ReleaseStringUTFChars(fileNameStr, cStr);
+
+		return vecObj->toFile(fileName);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::writeToFile()");
+	}
+}

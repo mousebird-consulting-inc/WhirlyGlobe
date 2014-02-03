@@ -68,5 +68,16 @@ void VectorObject::splitVectors(std::vector<VectorObject *> &vecs)
     }
     
 }
+    
+bool VectorObject::fromFile(const std::string &fileName)
+{
+    return VectorReadFile(fileName, shapes);
+}
+
+bool VectorObject::toFile(const std::string &file)
+{
+    return VectorWriteFile(file, shapes);
+}
+
 
 }

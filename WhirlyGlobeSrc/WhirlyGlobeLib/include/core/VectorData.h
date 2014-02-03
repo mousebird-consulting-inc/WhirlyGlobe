@@ -260,9 +260,8 @@ bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str);
   */
 bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
     
-    // Note: Porting
-//bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
-//bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
+bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
+bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
     
 }
 

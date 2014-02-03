@@ -18,6 +18,8 @@
  *
  */
 
+#include <stdlib.h>
+#include <string>
 #include <unistd.h>
 #import "rawData.h"
 
@@ -54,6 +56,52 @@ unsigned long RawDataWrapper::getLen() const
 {
     return len;
 }
+    
+RawDataReader::RawDataReader(const RawData *rawData)
+: rawData(rawData), pos(0)
+{
+}
+
+bool RawDataReader::done()
+{
+    return (pos >= rawData->getLen());
+}
+
+bool RawDataReader::getInt(int &val)
+{
+    size_t dataSize = sizeof(int);
+    if (pos+dataSize > rawData->getLen())
+        return false;
+    val = *((int *)(rawData->getRawData()+pos));
+    pos += dataSize;
+    
+    return true;
+}
+
+bool RawDataReader::getDouble(double &val)
+{
+    size_t dataSize = sizeof(double);
+    if (pos+dataSize > rawData->getLen())
+        return false;
+    val = *((int *)(rawData->getRawData()+pos));
+    pos += dataSize;
+    
+    return true;
+}
+
+bool RawDataReader::getString(std::string &str)
+{
+    int dataLen;
+    if (!getInt(dataLen))
+        return false;
+    if (pos+dataLen > rawData->getLen())
+        return false;
+    str = std::string((char *)(rawData->getRawData()+pos), dataLen);
+    
+    pos += dataLen;
+    return true;
+}
+
 
 MutableRawData::MutableRawData()
 {
@@ -80,6 +128,45 @@ const unsigned char *MutableRawData::getRawData() const
 unsigned long MutableRawData::getLen() const
 {
     return data.size();
+}
+
+void MutableRawData::addInt(int iVal)
+{
+    size_t len = sizeof(int);
+    data.resize(data.size()+len);
+    memcpy(&data[data.size()-len], &iVal, len);
+}
+
+void MutableRawData::addDouble(double dVal)
+{
+    size_t len = sizeof(double);
+    data.resize(data.size()+len);
+    memcpy(&data[data.size()-len], &dVal, len);
+}
+
+void MutableRawData::addString(const std::string &str)
+{
+    size_t len = str.length();
+    size_t extra = (4 - len % 4) % 4;
+    addInt(len+extra);
+    size_t start = data.size();
+    data.resize(data.size()+len+extra);
+    memcpy(&data[start], str.c_str(), len);
+    memset(&data[start+len], 0, extra);
+}
+
+    
+RawDataWrapper *RawDataFromFile(FILE *fp,unsigned int dataLen)
+{
+    unsigned char *data = (unsigned char *)malloc((size_t)dataLen);
+
+    if (fread(data, dataLen, 1, fp) != 1)
+    {
+        free(data);
+        return NULL;
+    }
+    
+    return new RawDataWrapper(data,dataLen,true);
 }
 
 }

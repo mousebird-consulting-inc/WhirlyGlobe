@@ -89,6 +89,80 @@ Dictionary &Dictionary::operator = (const Dictionary &that)
     return *this;
 }
     
+Dictionary::Dictionary(RawData *rawData)
+{
+    RawDataReader dataRead(rawData);
+    while (!dataRead.done())
+    {
+        int type;
+        if (!dataRead.getInt(type))
+            return;
+        std::string attrName;
+        if (!dataRead.getString(attrName))
+            return;
+        switch (type)
+        {
+            case DictTypeString:
+            {
+                std::string sVal;
+                if (!dataRead.getString(sVal))
+                    return;
+                setString(attrName, sVal);
+            }
+                break;
+            case DictTypeInt:
+            {
+                int iVal;
+                if (!dataRead.getInt(iVal))
+                    return;
+                setInt(attrName, iVal);
+            }
+                break;
+            case DictTypeDouble:
+            {
+                double dVal;
+                if (!dataRead.getDouble(dVal))
+                    return;
+                setDouble(attrName, dVal);
+            }
+                break;
+            default:
+                return;
+        }
+    }
+}
+    
+void Dictionary::asRawData(MutableRawData *rawData)
+{
+    for (FieldMap::iterator it = fields.begin(); it != fields.end(); ++it)
+    {
+        Value *val = it->second;
+        if (val->type() == DictTypeObject)
+            continue;
+        rawData->addInt(val->type());
+        rawData->addString(it->first);
+        switch (val->type())
+        {
+            case DictTypeString:
+            {
+                std::string str;
+                val->asString(str);
+                rawData->addString(str);
+            }
+                break;
+            case DictTypeInt:
+                rawData->addInt(val->asInt());
+                break;
+            case DictTypeDouble:
+                rawData->addDouble(val->asDouble());
+                break;
+            default:
+                throw 1;
+                break;
+        }
+    }
+}
+    
 bool Dictionary::hasField(const std::string &name) const
 {
     FieldMap::const_iterator it = fields.find(name);

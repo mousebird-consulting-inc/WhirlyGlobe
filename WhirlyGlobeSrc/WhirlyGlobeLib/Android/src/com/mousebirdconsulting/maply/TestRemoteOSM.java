@@ -23,10 +23,12 @@ public class TestRemoteOSM
 
 		// Set up a paging layer in spherical mercator and the proper delegate
 		SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
-		OSMVectorTilePager pager = new OSMVectorTilePager(mapControl,"http://tile.openstreetmap.us/vectiles-all/",0,16);
+		int numThreads = 4;
+		OSMVectorTilePager pager = new OSMVectorTilePager(mapControl,"http://tile.openstreetmap.us/vectiles-all/",0,16,numThreads);
 		pager.cacheDir = cacheDir;
 //		TestQuadPager pager = new TestQuadPager(0,16);
 		QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl,coordSys, pager);
+		pagingLayer.setSimultaneousFetches(numThreads);
 		mapControl.layerThread.addLayer(pagingLayer);
 //		mapControl.renderWrapper.maplyRender.setClearColor(1.f,1.f,1.f,1.f);
 	}

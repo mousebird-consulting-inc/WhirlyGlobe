@@ -57,6 +57,22 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_FromGe
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    readFromFile
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_readFromFile
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    writeToFile
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_writeToFile
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
  * Method:    initialise
  * Signature: ()V
  */

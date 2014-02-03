@@ -46,6 +46,12 @@ public:
     /// @brief Returns one shape per VectorObject
     void splitVectors(std::vector<VectorObject *> &vecs);
     
+    /// @brief Read from a file
+    bool fromFile(const std::string &fileName);
+    
+    /// @brief Write to a file
+    bool toFile(const std::string &file);
+    
 public:
     ShapeSet shapes;
 };

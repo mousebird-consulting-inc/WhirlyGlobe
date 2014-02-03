@@ -58,7 +58,7 @@ public:
 		// Note: Porting
 		// Note: Explicitly setting the min importance for a 128*128 tile
 //		getController()->setMinImportance(128*128);
-		shortCircuitImportance = 256*256;
+		shortCircuitImportance = 256*256 * 16;
 		getController()->setMinImportance(1.0);
 	}
 

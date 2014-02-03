@@ -22,6 +22,7 @@
 #import <string>
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
+#import "RawData.h"
 
 namespace WhirlyKit
 {
@@ -34,6 +35,8 @@ class Dictionary
 {
 public:
     Dictionary();
+    // Construct from a raw data buffer
+    Dictionary(RawData *rawData);
     // Copy constructor
     Dictionary(const Dictionary &that);
     // Assignment operator
@@ -75,6 +78,9 @@ public:
     void setString(const std::string &name,const std::string &val);
     /// Set field as pointer
     void setObject(const std::string &name,DelayedDeletableRef obj);
+    
+    // Write data to a raw data buffer
+    void asRawData(MutableRawData *rawData);
     
 protected:
     class Value

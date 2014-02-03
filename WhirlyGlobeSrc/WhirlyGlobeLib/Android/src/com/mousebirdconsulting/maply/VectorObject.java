@@ -82,6 +82,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @return
 	 */
 	static public native Map<String,VectorObject> FromGeoJSONAssembly(String json);
+	
+	public native boolean readFromFile(String fileName);
+	public native boolean writeToFile(String fileName);
 		
 	public native void initialise();
 	public native void dispose();
