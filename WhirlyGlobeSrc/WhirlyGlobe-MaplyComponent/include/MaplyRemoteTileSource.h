@@ -75,7 +75,7 @@
  image type.  It's typically @"png" or @"jpg", but it
  can be anything that UIImage will recognize.
  */
-@property (nonatomic) NSString *ext;
+@property (nonatomic, strong) NSString *ext;
 
 /** @brief The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
  @details This is non set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
@@ -107,7 +107,7 @@
  files to the given directory forever.  If you're interacting
  with a giant image pyramid, that could be problematic.
  */
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic, strong) NSString *cacheDir;
 
 /** @brief Add a bounding box tiles are valid within.
  @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
@@ -140,6 +140,14 @@
     @param tileID The tile we'd like to check for.
   */
 - (bool)tileIsLocal:(MaplyTileID)tileID;
+
+/** @brief Check if we should even try to load a given tile.
+ @details Check whether tile level is within zoom limits for the source, and if the tile is within any MBRs that have been added.
+ @param tileID The tile we're asking about.
+ @param bbox The bounding box of the tile we're asking about, for convenience.
+ @return True if the tile is loadable, false if not.
+ */
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
 
 @end
 
