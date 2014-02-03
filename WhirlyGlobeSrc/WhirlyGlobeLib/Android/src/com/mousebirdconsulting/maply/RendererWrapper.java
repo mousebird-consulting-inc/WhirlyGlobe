@@ -5,6 +5,12 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView.*;
 import javax.microedition.khronos.egl.EGLConfig;
 
+/**
+ * This is an internal class used to talk to the OpenGL ES surface.
+ * 
+ * @author sjg
+ *
+ */
 class RendererWrapper implements Renderer
 {
 	public MaplyRenderer maplyRender = null;

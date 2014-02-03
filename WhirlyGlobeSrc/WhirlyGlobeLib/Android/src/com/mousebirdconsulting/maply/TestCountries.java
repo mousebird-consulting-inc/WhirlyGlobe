@@ -11,7 +11,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-/*
+/**
  * Test Maply by loading every country outline we have and tossing in a couple other objects.
  * Works on its own thread.
  */

@@ -1,8 +1,13 @@
 package com.mousebirdconsulting.maply;
 
-// The view state encapulates what's in a view at a certain point in time.
-// It's here so we can pass that around without fear of making a mess
-public class ViewState 
+/**
+ * The view state encapulates what's in a view at a certain point in time.
+ * It's here so we can pass that around without fear of making a mess
+ * 
+ * @author sjg
+ *
+ */
+class ViewState 
 {
 	ViewState(MapView view,MaplyRenderer renderer)
 	{
@@ -14,7 +19,7 @@ public class ViewState
 		dispose();
 	}
 
-	public native void initialise(MapView view,MaplyRenderer renderer);
-	public native void dispose();
+	native void initialise(MapView view,MaplyRenderer renderer);
+	native void dispose();
 	private long nativeHandle;
 }

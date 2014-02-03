@@ -2,6 +2,14 @@ package com.mousebirdconsulting.maply;
 
 import java.util.ArrayList;
 
+/**
+ * Test Maply's quad paging by creating a rectangle for each tile
+ * with a label in the center.  This is extremely useful for debugging
+ * and not much else.
+ * 
+ * @author sjg
+ *
+ */
 public class TestQuadPager implements QuadPagingLayer.PagingInterface
 {
 	int minZoom = 0;

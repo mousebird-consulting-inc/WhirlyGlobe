@@ -1,15 +1,19 @@
 package com.mousebirdconsulting.maply;
 
-public class ChangeSet 
+/**
+ * The change set is a largely opaque object the Maply uses to
+ * track visual changes in the map or globe.  Most of the action
+ * takes place behind the scenes and users of the Maply API should
+ * not be manipulating these.
+ * 
+ * @author sjg
+ *
+ */
+class ChangeSet
 {
 	ChangeSet()
 	{
 		initialise();
-	}
-	
-	public void finalize()
-	{
-		dispose();
 	}
 	
 	// Add a texture to the list of changes to the scene
@@ -18,7 +22,11 @@ public class ChangeSet
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);
 
-	public native void initialise();
-	public native void dispose();
-	private long nativeHandle;
+	public void finalize()
+	{
+		dispose();
+	}
+	native void initialise();
+	native void dispose();	
+	private long nativeHandle;	
 }

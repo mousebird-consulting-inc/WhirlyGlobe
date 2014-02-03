@@ -1,13 +1,9 @@
 package com.mousebirdconsulting.maply;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -19,12 +15,22 @@ import java.util.concurrent.Executors;
 
 import org.apache.http.util.ByteArrayBuffer;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 
+/**
+ * The OSM Vector Tile Pager reads vector tiles from a remote source,
+ * probably the US OpenStreetMap server, and displays them on the
+ * screen as the user moves around.
+ * <p>
+ * This is an example implementation of the QuadPagingLayer.PagingInterface
+ * for OSM vector tiles.
+ *
+ * @author sjg
+ *
+ */
 public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 {
 	MaplyController maplyControl = null;
@@ -34,6 +40,15 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	File cacheDir = null;
 	ExecutorService executor = null;
 	
+	/**
+	 * Construct with the data we need to start.
+	 * 
+	 * @param inMaplyControl The control we'll add geometry to as we go.
+	 * @param inRemotePath The remote path to the vector tiles.
+	 * @param inMinZoom Minimum zoom level to start at.  Normally 0, but you can cut off levels.
+	 * @param inMaxZoom The maximum zoom level to zoom into.
+	 * @param numThreads Number of threads we're allowed to use in the process of fetching data.
+	 */
 	OSMVectorTilePager(MaplyController inMaplyControl,String inRemotePath, int inMinZoom, int inMaxZoom, int numThreads)
 	{
 		maplyControl = inMaplyControl;

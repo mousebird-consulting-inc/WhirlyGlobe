@@ -1,5 +1,12 @@
 package com.mousebirdconsulting.maply;
 
+/**
+ * This encapsulates a Maply4d matrix.  In general, we don't manipulate
+ * them, but we do pass them around.
+ * 
+ * @author sjg
+ *
+ */
 public class Matrix4d 
 {
 	Matrix4d()
@@ -12,7 +19,7 @@ public class Matrix4d
 		dispose();
 	}
 		
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 }

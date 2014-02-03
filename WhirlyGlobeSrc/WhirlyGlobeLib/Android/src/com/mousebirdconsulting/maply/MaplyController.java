@@ -14,17 +14,30 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
-import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
+/**
+ * The MaplyController is the main object in the Maply library.  Toolkit
+ * users add and remove their geometry through here.
+ * <p>
+ * The controller starts by creating an OpenGL ES surface and handling
+ * all the various setup between Maply and that surface.  It also kicks off
+ * a LayerThread, which it uses to queue requests to the rest of Maply.
+ * <p>
+ * Once the controller is set up and running the toolkit user can make
+ * calls to add and remove geometry.  Those calls are thread safe.
+ * 
+ * @author sjg
+ *
+ */
 public class MaplyController implements View.OnTouchListener
 {	
 	private GLSurfaceView glSurfaceView;
 	Activity activity = null;
 	
 	// Represents an ID that doesn't have data associated with it
-	static long EmptyIdentity = 0;
+	public static long EmptyIdentity = 0;
 	
 	// Implements the GL renderer protocol
 	RendererWrapper renderWrapper;
@@ -48,6 +61,19 @@ public class MaplyController implements View.OnTouchListener
 	// Layer thread we use for data manipulation
 	LayerThread layerThread = null;
 	
+	/**
+	 * Construct the maply controller with an Activity.  We need access to a few
+	 * of the usual Android resources.
+	 * <p>
+	 * On construction the Controller will create the scene, the view, kick off
+	 * the OpenGL ES surface, and construct a layer thread for handling data
+	 * requests.
+	 * <p>
+	 * The controller also sets up some default gestures and handles those
+	 * callbacks.
+	 * <p>
+	 * @param mainActivity Your main activity that we'll attach ourselves to.
+	 */
 	public MaplyController(Activity mainActivity) 
 	{
 //		System.loadLibrary("Maply");
@@ -100,7 +126,7 @@ public class MaplyController implements View.OnTouchListener
 	
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
-	public void surfaceCreated(RendererWrapper wrap)
+	void surfaceCreated(RendererWrapper wrap)
 	{
         // Kick off the layer thread for background operations
 		layerThread.setRenderer(renderWrapper.maplyRender);
@@ -264,18 +290,26 @@ public class MaplyController implements View.OnTouchListener
 		
 		renderWrapper = null;
 	}
-	
-	// Add a single vector
+
+	/**
+	 * Add a single VectorObject.  See addVectors() for details.
+	 */
 	public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo)
 	{
 		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
 		vecObjs.add(vec);
 		return addVectors(vecObjs,vecInfo);
 	}
-	
+
 	/**
-	 * Add zero or more vectors to the MaplyController.
-	 * @param vecs The list of vectors to display.
+	 * Add vectors to the MaplyController to display.  Vectors are linear or areal
+	 * features with line width, filled style, color and so forth defined by the
+	 * VectorInfo class.
+	 * 
+	 * @param vecs A list of VectorObject's created by the user or read in from various sources.
+	 * @param vecInfo A description of how the vectors should look.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the vectors once created.
 	 */
 	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo)
 	{
@@ -317,19 +351,25 @@ public class MaplyController implements View.OnTouchListener
 		
 		return compObj;
 	}
-	
-	// Add a single screen marker
+
+	/**
+	 * Add a single screen marker.  See addScreenMarkers() for details.
+	 */
 	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo)
 	{
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
 		markers.add(marker);
 		return addScreenMarkers(markers,markerInfo);
 	}
-	
+
 	/**
-	 * Add zero or more markers to the MaplyController
-	 * @param markers The list of markers to display.
-	 * @param markerInfo
+	 * Add screen markers to the visual display.  Screen markers are 2D markers that sit
+	 * on top of the screen display, rather than interacting with the geometry.  Their
+	 * visual look is defined by the MarkerInfo class.
+	 * 
+	 * @param markers The markers to add to the display
+	 * @param markerInfo How the markers should look.
+	 * @return This represents the screen markers for later modification or deletion.
 	 */
 	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo)
 	{		
@@ -378,20 +418,25 @@ public class MaplyController implements View.OnTouchListener
 
 		return compObj;
 	}
-	
-	// Add a single screen label
+
+	/**
+	 * Add a single screen label.  See addScreenLabels() for details.
+	 */
 	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo)
 	{
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		labels.add(label);
 		return addScreenLabels(labels,labelInfo);
 	}
-	
+
 	/**
-	 * Add zero or more screen labels to the MaplyController.
-	 * @param labels
-	 * @param labelInfo
-	 * @return
+	 * Add screen labels to the display.  Screen labels are 2D labels that float above the 3D geometry
+	 * and stay fixed in size no matter how the user zoom in or out.  Their visual appearance is controlled
+	 * by the LabelInfo class.
+	 * 
+	 * @param labels Labels to add to the display.
+	 * @param labelInfo The visual appearance of the labels.
+	 * @return This represents the labels for modification or deletion.
 	 */
 	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo)
 	{
@@ -464,10 +509,13 @@ public class MaplyController implements View.OnTouchListener
 		
 		return compObj;
 	}
-	
+
 	/**
-	 * Disable all the geometry associated with the given component objects.
-	 * @param compObjs
+	 * Disable the given objects. These were the objects returned by the various
+	 * add calls.  Once called, the objects will be invisible, but can be made
+	 * visible once again with enableObjects()
+	 * 
+	 * @param compObjs Objects to disable in the display.
 	 */
 	public void disableObjects(final List<ComponentObject> compObjs)
 	{
@@ -492,6 +540,12 @@ public class MaplyController implements View.OnTouchListener
 			layerThread.addTask(run);
 	}
 
+	/**
+	 * Enable the display for the given objects.  These objects were returned
+	 * by the various add calls.  To disable the display, call disableObjects().
+	 *
+	 * @param compObjs Objects to disable.
+	 */
 	public void enableObjects(final List<ComponentObject> compObjs)
 	{
 		if (compObjs == null || compObjs.size() == 0)
@@ -517,8 +571,7 @@ public class MaplyController implements View.OnTouchListener
 	}
 
 	/**
-	 * Remove all data associated with the given component object.
-	 * @param compObj Component object to remove.
+	 * Remove a single objects from the display.  See removeObjects() for details.
 	 */
 	public void removeObject(final ComponentObject compObj)
 	{
@@ -529,9 +582,12 @@ public class MaplyController implements View.OnTouchListener
 		compObjs.add(compObj);
 		removeObjects(compObjs);
 	}
-	
+
 	/**
-	 * Remove all data associated with the given component objects.
+	 * Remove the given component objects from the display.  This will permanently remove them
+	 * from Maply.  The component objects were returned from the various add calls.
+	 * 
+	 * @param compObjs Component Objects to remove.
 	 */
 	public void removeObjects(final List<ComponentObject> compObjs)
 	{

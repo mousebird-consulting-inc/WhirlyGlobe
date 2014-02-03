@@ -2,6 +2,18 @@ package com.mousebirdconsulting.maply;
 
 import java.util.ArrayList;
 
+/**
+ * The Component Object tracks the various geometry, textures, and outlines
+ * associated with a given call to addVectors, addScreenMarkers, etc... in
+ * the MaplyController.
+ * <p>
+ * Users of the toolkit keep these around to ask for modification or deletion
+ * of their geometry later.  If they're never going to do that, they can
+ * safely ignore these as well.
+ * 
+ * @author sjg
+ *
+ */
 public class ComponentObject 
 {
 	// Convert from Long to long array
@@ -18,21 +30,24 @@ public class ComponentObject
 		return ids;
 	}
 	
-	public void addTexID(long id)
+	// Track the given texture ID as belonging to us
+	void addTexID(long id)
 	{
 		if (texIDs == null)
 			texIDs = new ArrayList<Long>();
 		texIDs.add(id);
 	}
 
-	public void addMarkerID(long id)
+	// Track the given marker ID as associated with us
+	void addMarkerID(long id)
 	{
 		if (markerIDs == null)
 			markerIDs = new ArrayList<Long>();
 		markerIDs.add(id);
 	}
 
-	public void addVectorID(long id)
+	// Track the given vector ID as associated with us
+	void addVectorID(long id)
 	{
 		if (vectorIDs == null)
 			vectorIDs = new ArrayList<Long>();

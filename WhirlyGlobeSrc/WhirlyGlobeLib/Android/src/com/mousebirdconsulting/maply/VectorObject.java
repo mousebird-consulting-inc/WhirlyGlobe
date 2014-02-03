@@ -22,18 +22,20 @@ package com.mousebirdconsulting.maply;
 
 import java.util.Map;
 
-/** Maply Vector Object represents zero or more vector features.
+/**
+ * The Maply VectorObject represents a group of vector features.  There can be a single point in here,
+ * multiple points, or even a combination of points, areals, and linears.
  * <p>
- * The Vector Object can hold several vector features of the same or different types.  It's meant to be a fairly opaque structure, 
- * often read from GeoJSON or Shapefiles.  It's less opaque than originally planned, however, and sports a number of specific methods.
- * <p> 
- * If you're doing real vector manipulation, it's best to do it somewhere else and then create one of these as needed for display.
+ * You can create these yourself, but they are typically read from data files, such as GeoJSON or
+ * Shapefiles.
  * <p>
- * Vector Objects can be created directly or read from a MaplyVectorDatabase.  They are typically then displayed on top of a 
- * MaplyViewController or WhirlyGlobeViewController as vectors.
- * <p>
- * Vector Objects vertices are always in geographic, with longitude = x and latitude = y.
-*/
+ * The VectorObject is meant to be somewhat opaque (but not as opaque as originally planned).  If you
+ * need to do a lot of manipulation of your vector data, it's best ot do it elsewhere and then convert
+ * to a VectorObject.
+ * 
+ * @author sjg
+ *
+ */
 public class VectorObject implements Iterable<VectorObject>
 {
 	/**
@@ -44,16 +46,24 @@ public class VectorObject implements Iterable<VectorObject>
 		initialise();
 	}
 	
-	// Return attributes for the feature.  If there are multiple features, we get the first one.
+	/**
+	 * Return attributes for the feature.  If there are multiple features, we get the first one.
+	 */
 	public native AttrDictionary getAttributes();
 	
-	// Add a single point
+	/**
+	 * Add a single point
+	 */
 	public native void addPoint(Point2d pt);
 
-	// Add a linear feature
+	/**
+	 *  Add a linear feature
+	 */
 	public native void addLinear(Point2d pts[]);
 	
-	// Add an areal feature
+	/**
+	 *  Add an areal feature with one external loop.
+	 */
 	public native void addAreal(Point2d pts[]);
 //	public native void addAreal(Point2d ext[],Point2d holes[][]);
 	
@@ -62,7 +72,10 @@ public class VectorObject implements Iterable<VectorObject>
 		dispose();
 	}
 	
-	// Vector object can contain multiple subobjects.  This iterates over them.
+	/**
+	 * Vector objects can be made of lots of smaller objects.  If you need to access
+	 * each of this individually, this iterator will handle that efficiently.
+	 */
 	@Override
 	public VectorIterator iterator() 
 	{
@@ -83,11 +96,24 @@ public class VectorObject implements Iterable<VectorObject>
 	 */
 	static public native Map<String,VectorObject> FromGeoJSONAssembly(String json);
 	
+	/**
+	 * Read vector objects from a binary file.  This is fairly efficient and a good way to
+	 * cache data.
+	 * @param fileName The file to read vector data from.
+	 * @return true on success, false otherwise.
+	 */
 	public native boolean readFromFile(String fileName);
+	
+	/**
+	 * Write a vector object to a binary file.  This is fairly efficient for caching data,
+	 * but not to be used for much else.
+	 * @param fileName The file to write data to.
+	 * @return true on success, false otherwise.
+	 */
 	public native boolean writeToFile(String fileName);
 		
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 
 	private long nativeHandle;
 }

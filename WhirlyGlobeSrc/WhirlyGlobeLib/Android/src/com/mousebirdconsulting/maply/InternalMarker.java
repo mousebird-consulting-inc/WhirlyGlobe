@@ -2,7 +2,13 @@ package com.mousebirdconsulting.maply;
 
 import android.graphics.Color;
 
-class InternalMarker 
+/**
+ * An internal representation for the markers.  Toolkit users use ScreenMarker or Marker instead of this.
+ * 
+ * @author sjg
+ *
+ */
+class InternalMarker
 {
 	InternalMarker()
 	{
@@ -38,7 +44,7 @@ class InternalMarker
 	public native void setOffset(Point2d offset);
 	public native void setLayoutImportance(double layoutImp);
 	
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 }

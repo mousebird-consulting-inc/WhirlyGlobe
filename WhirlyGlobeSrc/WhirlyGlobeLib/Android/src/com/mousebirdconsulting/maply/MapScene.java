@@ -1,6 +1,13 @@
 package com.mousebirdconsulting.maply;
 
-class MapScene 
+/**
+ * The map scene represents an internal Maply Scene object and
+ * is completely opaque to toolkit users.
+ * 
+ * @author sjg
+ *
+ */
+class MapScene
 {
 	MapScene(CoordSystemDisplayAdapter coordAdapter)
 	{
@@ -13,9 +20,9 @@ class MapScene
 	}
 	
 	// Flush the given changes out to the Scene
-	public native void addChanges(ChangeSet changes);
+	native void addChanges(ChangeSet changes);
 
-	public native void initialise(CoordSystemDisplayAdapter coordAdapter);
-	public native void dispose();
+	native void initialise(CoordSystemDisplayAdapter coordAdapter);
+	native void dispose();
 	private long nativeHandle;
 }

@@ -2,8 +2,14 @@ package com.mousebirdconsulting.maply;
 
 import java.util.TreeSet;
 
-// Used to manage textures we're actively using
-public class TextureManager 
+/**
+ * This class is used by the MaplyController to reference count textures.
+ * It should be entirely invisible to toolkit users.
+ * 
+ * @author sjg
+ *
+ */
+class TextureManager 
 {
 	class TextureWrapper implements Comparable<TextureWrapper>
 	{

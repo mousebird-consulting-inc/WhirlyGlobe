@@ -7,7 +7,16 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
-// The layer thread runs tasks we don't want on the UI thread
+/**
+ * The layer thread runs tasks we want off the UI thread, but still need
+ * some control over.  The layer thread has some of its own state, including
+ * ChangeSets and similar objects.
+ * <p>
+ * When you call addTask on the MaplyController, the Runnable probably ends up here.
+ * 
+ * @author sjg
+ *
+ */
 public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 {
 	MapView view = null;
@@ -15,18 +24,38 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	MaplyRenderer renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
-	
-	/* Objects that want to be called back when the view changes
-	 * implement this interface.
+
+	/**
+	 * Objects that want to be called when the view updates its position
+	 * fill out this interface and register with the layer thread.  These
+	 * are probably layers.
+	 * 
+	 * @author sjg
+	 *
 	 */
 	interface ViewWatcherInterface
 	{
+		/**
+		 * This method is called when the view updates, but no more often then the minTime().
+		 * 
+		 * @param viewState The new state for the view associated with the MaplyController.
+		 */
 		public void viewUpdated(ViewState viewState);
+		
+		/**
+		 * This minimum time before unique viewUpdated() calls.  Layers can't handle rapid
+		 * changes of the view, typically.  So we pick a period, such as 1/10s that we can
+		 * handle and specify that here.  The viewUpdated() calls will come no more often than this.
+		 */
 		public float getMinTime();
+		
+		/**
+		 * How long the layer can go without a viewUpdated() call.
+		 */
 		public float getMaxLagTime();
 	}
 	
-	public LayerThread(String name,MapView inView,MapScene inScene) 
+	LayerThread(String name,MapView inView,MapScene inScene) 
 	{
 		super(name);
 		view = inView;
@@ -50,7 +79,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	}
 
 	// Setting the renderer kicks off activity
-	public void setRenderer(MaplyRenderer inRenderer)
+	void setRenderer(MaplyRenderer inRenderer)
 	{
 		renderer = inRenderer;
 		// We're probably being called on the rendering thread here
@@ -84,12 +113,27 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	
 	// Note: Need a removeLayer()
 	
+	/**
+	 * Add a Runnable to our queue.  This will be executed at some point in the future.
+	 * 
+	 * @param run Runnable to run
+	 * @return The Handler if you want to cancel this at some point in the future.
+	 */
 	Handler addTask(Runnable run)
 	{
 		return addTask(run,false);
 	}
 
-	// Add a task, which will get executed on this thread at some point
+	/**
+	 * Add a Runnable to this thread's queue.  It will be executed at some point in the future.
+	 * 
+	 * @param run Runnable to run
+	 * @param wait If true we'll always put the Runnable in the queue.  If false we'll see
+	 * if we're already on the layer thread and just execute the runnable instead.
+	 * 
+	 * @return Returns a Handler if you want to cancel the task later.  Returns null if
+	 * we were on the layer thread and no Handler was needed.
+	 */
 	Handler addTask(Runnable run,boolean wait)
 	{
 		if (!wait && Looper.myLooper() == getLooper())
@@ -120,7 +164,13 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	
 	ArrayList<ViewWatcher> watchers = new ArrayList<ViewWatcher>();
 
-	// Add an object that wants periodic view change updates
+	/**
+	 * Add an object that we'd like to track changes to the view as
+	 * the user moves around.  This is typically called by a Layer
+	 * in the startLayer() call.
+	 * 
+	 * @param watcher Watcher to add to the list.
+	 */
 	public void addWatcher(final ViewWatcherInterface watcher)
 	{
 		// Let's do this on the layer thread.  Because.
@@ -146,8 +196,11 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			}
 		});
 	}
-	
-	// Remove an object that no longer wants periodic view change updates
+
+	/**
+	 * Remove a view watcher that was added previously.  That object will
+	 * no longer get view updates.
+	 */
 	public void removeWatcher(final ViewWatcherInterface watcher)
 	{
 		// Let's do this on the layer thread.  Because.

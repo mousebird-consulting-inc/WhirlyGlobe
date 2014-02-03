@@ -4,18 +4,33 @@ import java.io.File;
 
 import android.app.Activity;
 
+/**
+ * Test Maply by creating a quad paging layer with an OSMVectorTilePager.
+ * This is effectively an OSM vector map.
+ * 
+ * @author sjg
+ *
+ */
 public class TestRemoteOSM 
 {
 	Activity activity = null;
 	MaplyController mapControl = null;
 	
+	/**
+	 * Construct with the main activity and maply controller.  Won't actually
+	 * do anything, though, call start() for that.
+	 */
 	TestRemoteOSM(Activity inActivity,MaplyController inMapControl)
 	{
 		activity = inActivity;
 		mapControl = inMapControl;
 	}
 	
-	void start()
+	/**
+	 * This kicks off the action, creating the quad paging layer and paging
+	 * delegate.
+	 */
+	public void start()
 	{
 		// Cache directory for tiles
 		File cacheDir = new File(activity.getCacheDir(),"osmtiles");

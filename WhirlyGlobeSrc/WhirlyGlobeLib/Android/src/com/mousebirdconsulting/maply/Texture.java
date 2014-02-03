@@ -2,6 +2,13 @@ package com.mousebirdconsulting.maply;
 
 import android.graphics.Bitmap;
 
+/**
+ * Encapsulates a Maply Texture.  This is opaque to toolkit users.  They'll
+ * use a NamedBitmap instead.
+ * 
+ * @author sjg
+ *
+ */
 class Texture 
 {
 	Texture()
@@ -24,7 +31,7 @@ class Texture
 	// Once created, this is how we identify it to the rendering engine
 	public native long getID();
 	
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 }

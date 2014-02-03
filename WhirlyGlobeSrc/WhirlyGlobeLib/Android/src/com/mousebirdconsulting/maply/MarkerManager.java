@@ -1,6 +1,13 @@
 package com.mousebirdconsulting.maply;
 
-public class MarkerManager 
+/**
+ * The marker manager interfaces to the Maply C++/JNI side of things
+ * and is invisible to toolkit users.
+ * 
+ * @author sjg
+ *
+ */
+class MarkerManager 
 {
 	MarkerManager(MapScene scene)
 	{
@@ -21,8 +28,8 @@ public class MarkerManager
 	// Enable/disable markers by ID
 	public native void enableMarkers(long ids[],boolean eanble,ChangeSet changes);
 	
-	public native void initialise(MapScene scene);
-	public native void dispose();
+	native void initialise(MapScene scene);
+	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;
 }

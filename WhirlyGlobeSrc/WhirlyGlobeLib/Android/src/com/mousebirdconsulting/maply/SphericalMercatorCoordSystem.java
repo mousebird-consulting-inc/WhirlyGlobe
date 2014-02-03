@@ -1,7 +1,19 @@
 package com.mousebirdconsulting.maply;
 
+/**
+ * A wrapper around Maply's spherical mercator coordinate system implementation.
+ * Spherical mercator is the mostly commonly used coordinate system in
+ * tile based implementations on the web.
+ * 
+ * @author sjg
+ *
+ */
 public class SphericalMercatorCoordSystem extends CoordSystem
 {
+	/**
+	 * Construct a spherical mercator system that covers the full
+	 * extents of the earth.
+	 */
 	SphericalMercatorCoordSystem()
 	{
 		// Initialize to cover the whole world
@@ -10,6 +22,6 @@ public class SphericalMercatorCoordSystem extends CoordSystem
 		ur = geographicToLocal(new Point3d(Math.PI,85.05113/180.0*Math.PI,0.0));
 	}
 
-	public native void initialise();
+	native void initialise();
 	private long nativeHandle;
 }

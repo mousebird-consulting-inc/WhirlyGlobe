@@ -1,15 +1,33 @@
 package com.mousebirdconsulting.maply;
 
-// Represents a simple Tile ID for paging
+/**
+ * A tile ID represents a single tile for paging.  Tile IDs
+ * will show up when you're implementing a tile source.
+ * You'll be given a tileID to fetch the data for.
+ * <p>
+ * We assume all tiles refer to positions with a quad tree
+ * starting at (0,0,0).
+ * 
+ * @author sjg
+ *
+ */
 public class MaplyTileID implements Comparable<MaplyTileID>
 {
 	MaplyTileID() { }
+	
+	/**
+	 * Construct with x,y, and level.
+	 * @param inX The horizontal tile
+	 * @param inY Vertical tile
+	 * @param inLevel Level in the quad tree.
+	 */
 	MaplyTileID(int inX,int inY,int inLevel)
 	{
 		x = inX;
 		y = inY;
 		level = inLevel;
 	}
+	
 	@Override
 	public int compareTo(MaplyTileID that) 
 	{
@@ -51,7 +69,20 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 		return result;
 	}
 	
+	/**
+	 * Level refers to the level within the quad tree.  This starts at zero.
+	 */
 	public int level = 0;
+	
+	/**
+	 * Horizontal position in the quad tree.  This starts on the left as
+	 * far as Maply is concerned, but your own implementation may vary.
+	 */
 	public int x = 0;
+	
+	/**
+	 * Vertical position in the quad tree.  This starts at the bottom,
+	 * but your own tiling system may vary.
+	 */
 	public int y = 0;
 }

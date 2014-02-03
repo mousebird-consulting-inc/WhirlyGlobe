@@ -1,5 +1,16 @@
 package com.mousebirdconsulting.maply;
 
+/**
+ * This class holds the visual information for a set of 2D or 3D markers.
+ * Rather than have each of those represent their own visual information,
+ * we share it here.
+ * <p>
+ * Toolkit users fill this class out and pass it into the addScreenMarkers()
+ * or addMarkers() call on the MaplyController.
+ * 
+ * @author sjg
+ *
+ */
 public class MarkerInfo 
 {
 	MarkerInfo()
@@ -20,7 +31,7 @@ public class MarkerInfo
 	public native void setColor(float r,float g,float b,float a);
 	public native void setFade(float fade);
 
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 }

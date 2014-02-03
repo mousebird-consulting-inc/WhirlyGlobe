@@ -2,8 +2,14 @@ package com.mousebirdconsulting.maply;
 
 import java.util.ArrayList;
 
-//import android.util.Log;
-
+/**
+ * The Map View handles math related to user position and orientation.
+ * It's largely opaque to toolkit users.  The MaplyController handles
+ * passing data to and getting data from it.
+ * 
+ * @author sjg
+ *
+ */
 class MapView 
 {
 	MapView(CoordSystemDisplayAdapter coordAdapter)
@@ -23,7 +29,7 @@ class MapView
 	}
 	
 	// Set the view location from a Point3d
-	public void setLoc(Point3d loc)
+	void setLoc(Point3d loc)
 	{
 		setLoc(loc.getX(),loc.getY(),loc.getZ());
 		
@@ -33,17 +39,17 @@ class MapView
 	ArrayList<ViewWatcher> watchers = new ArrayList<ViewWatcher>();
 	
 	// Add a watcher for callbacks on each and every view related change
-	public void addViewWatcher(ViewWatcher watcher)
+	void addViewWatcher(ViewWatcher watcher)
 	{
 		watchers.add(watcher);
 	}
 	// Remove an object that was watching view changes
-	public void removeViewWatcher(ViewWatcher watcher)
+	void removeViewWatcher(ViewWatcher watcher)
 	{
 		watchers.remove(watcher);
 	}
 	// Let everything know we changed the view
-	public void runViewUpdates()
+	void runViewUpdates()
 	{
 //		Point3d loc = getLoc();
 //		Log.i("Maply","New pos: (" + loc.getX() + "," + loc.getY() + "," + loc.getZ() + ")");
@@ -52,9 +58,9 @@ class MapView
 	}
 	
 	// Minimum possible height above the surface
-	public native double minHeightAboveSurface();
+	native double minHeightAboveSurface();
 	// Maximum possible height above the surface
-	public native double maxHeightAboveSurface();
+	native double maxHeightAboveSurface();
 	// Set the view location (including height)
 	native void setLoc(double x,double y,double z);
 	// Get the current view location
@@ -62,13 +68,13 @@ class MapView
 	// Set the 2D rotation
 	native void setRot(double rot);
 	// Return the 2D rotation
-	public native double getRot();
+	native double getRot();
 	// Return the current model & view matrix combined (but not projection)
-	public native Matrix4d calcModelViewMatrix();	
+	native Matrix4d calcModelViewMatrix();	
 	// Calculate the point on the view plan given the screen location
-	public native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
+	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
 			
-	public native void initialise(CoordSystemDisplayAdapter coordAdapter);
-	public native void dispose();
+	native void initialise(CoordSystemDisplayAdapter coordAdapter);
+	native void dispose();
 	private long nativeHandle;
 }

@@ -1,6 +1,14 @@
 package com.mousebirdconsulting.maply;
 
-public class CoordSystemDisplayAdapter 
+/**
+ * The coordinate system display adapter controls the conversion from source
+ * data coordinates to display coordinates.  It's completely opaque outside
+ * of the toolkit.
+ * 
+ * @author sjg
+ *
+ */
+class CoordSystemDisplayAdapter 
 {
 	CoordSystemDisplayAdapter()
 	{
@@ -12,7 +20,7 @@ public class CoordSystemDisplayAdapter
 		dispose();
 	}
 
-	public native void initialise();
-	public native void dispose();
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 }

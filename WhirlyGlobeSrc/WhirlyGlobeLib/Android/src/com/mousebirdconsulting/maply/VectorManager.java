@@ -1,6 +1,13 @@
 package com.mousebirdconsulting.maply;
 
-public class VectorManager 
+/**
+ * The Vector Manager is an interface to the Maply C++ vector
+ * manager and should be invisible to toolkit users.
+ *
+ * @author sjg
+ *
+ */
+class VectorManager 
 {
 	VectorManager(MapScene scene)
 	{
@@ -21,8 +28,8 @@ public class VectorManager
 	// Enable/disable vectors by ID
 	public native void enableVectors(long ids[],boolean enable,ChangeSet changes);
 	
-	public native void initialise(MapScene scene);
-	public native void dispose();
+	native void initialise(MapScene scene);
+	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;
 }

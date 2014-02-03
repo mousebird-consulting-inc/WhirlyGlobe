@@ -5,6 +5,13 @@ import android.app.*;
 import android.view.Menu;
 //import android.widget.Toast;
 
+/**
+ * The MainActivity is a test activity for the Maply library.
+ * For a real app, you'll be wanting to make one of these of your own.
+ * 
+ * @author sjg
+ *
+ */
 public class MainActivity extends Activity 
 {
 	// Handles drawing, interaction, and so forth for Maply

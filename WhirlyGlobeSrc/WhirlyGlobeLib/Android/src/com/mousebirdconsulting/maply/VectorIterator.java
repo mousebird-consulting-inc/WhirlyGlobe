@@ -2,7 +2,14 @@ package com.mousebirdconsulting.maply;
 
 import java.util.Iterator;
 
-// Handles iterating over the pieces of a vector object
+/**
+ * A VectorObject can contain multiple sub-vectors.  This iterator
+ * lets toolkit users iterate over those sub-vectors without having
+ * to access them directly.
+ * 
+ * @author sjg
+ *
+ */
 public class VectorIterator implements Iterator<VectorObject>
 {
 	VectorIterator(VectorObject vecObj)
@@ -10,8 +17,8 @@ public class VectorIterator implements Iterator<VectorObject>
 		initialise(vecObj);
 	}
 
-	public native void initialise(VectorObject vecObj);
-	public native void dispose();
+	native void initialise(VectorObject vecObj);
+	native void dispose();
 
 	private long nativeHandle;
 

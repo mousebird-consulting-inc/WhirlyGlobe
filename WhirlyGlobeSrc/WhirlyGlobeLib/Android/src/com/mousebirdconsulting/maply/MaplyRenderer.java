@@ -1,6 +1,13 @@
 package com.mousebirdconsulting.maply;
 
-class MaplyRenderer 
+/**
+ * The renderer encapsulates the OpenGL ES specific rendering.
+ * This is opaque to the toolkit user.
+ * 
+ * @author sjg
+ *
+ */
+class MaplyRenderer
 {
 	public Point2d frameSize = new Point2d();
 	
@@ -37,9 +44,9 @@ class MaplyRenderer
 	protected native boolean teardown();
 	protected native boolean resize(int width,int height);
 	protected native void render();
-	
-	protected native void initialise();
-	public native void dispose();
+
+	native void initialise();
+	native void dispose();
 	private long nativeHandle;
 	
 	static
