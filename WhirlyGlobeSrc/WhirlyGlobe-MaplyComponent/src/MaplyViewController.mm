@@ -46,7 +46,8 @@ using namespace Maply;
         return nil;
     
     _autoMoveToTap = true;
-    
+    _rotateGesture = true;
+
     return self;
 }
 
@@ -59,7 +60,8 @@ using namespace Maply;
     // Turn off lighting
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     _flatMode = true;
-    
+    _rotateGesture = true;
+
     return self;
 }
 
@@ -257,7 +259,8 @@ using namespace Maply;
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
         pinchDelegate.minZoom = [mapView minHeightAboveSurface];
         pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
-        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        if(_rotateGesture)
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
@@ -297,6 +300,30 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
 }
+
+
+- (void)setRotateGesture:(bool)rotateGesture
+{
+    _rotateGesture = rotateGesture;
+    if (rotateGesture)
+    {
+        if (!rotateDelegate)
+        {
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        }
+    } else {
+        if (rotateDelegate)
+        {
+            UIRotationGestureRecognizer *rotRecog = nil;
+            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+                if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
+                    rotRecog = (UIRotationGestureRecognizer *)recog;
+           [glView removeGestureRecognizer:rotRecog];
+           rotateDelegate = nil;
+        }
+    }
+}
+
 
 #pragma mark - Interaction
 
