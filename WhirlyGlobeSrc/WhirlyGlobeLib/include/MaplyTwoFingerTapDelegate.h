@@ -1,8 +1,8 @@
 /*
- *  MaplyDoubleTapDelegate.mm
+ *  MaplyTwoFingerTapDelegate.h
  *
  *
- *  Created by Jesse Crocker on 2/3/14.
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,9 @@
 #import "MaplyView.h"
 #import "MaplyZoomGestureDelegate.h"
 
-@interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
+@interface MaplyTwoFingerTapDelegate : MaplyZoomGestureDelegate
 
-/// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+/// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
++ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
 @end
