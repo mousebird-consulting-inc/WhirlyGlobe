@@ -1,8 +1,8 @@
 /*
- *  MaplyDoubleTapDelegate.mm
+ *  MaplyTwoFingerTapDelegate.m
  *
  *
- *  Created by Jesse Crocker on 2/3/14.
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,19 +18,19 @@
  *
  */
 
-#import "MaplyDoubleTapDelegate.h"
+#import "MaplyTwoFingerTapDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
 
 using namespace WhirlyKit;
 
-@implementation MaplyDoubleTapDelegate
+@implementation MaplyTwoFingerTapDelegate
 
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
-    MaplyDoubleTapDelegate *tapDelegate = [[MaplyDoubleTapDelegate alloc] initWithMapView:mapView];
+    MaplyTwoFingerTapDelegate *tapDelegate = [[MaplyTwoFingerTapDelegate alloc] initWithMapView:mapView];
     UITapGestureRecognizer *tapGecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapGesture:)];
-    tapGecognizer.numberOfTapsRequired = 2;
-    tapGecognizer.numberOfTouchesRequired = 1;
+    tapGecognizer.numberOfTapsRequired = 1;
+    tapGecognizer.numberOfTouchesRequired = 2;
     tapGecognizer.delegate = tapDelegate;
 	[view addGestureRecognizer:tapGecognizer];
 	return tapDelegate;
@@ -50,7 +50,7 @@ using namespace WhirlyKit;
     CGPoint touchLoc = [tap locationInView:tap.view];
     if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
-        double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
+        double newZ = curLoc.z() + (curLoc.z() - self.minZoom)/2.0;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
             [mapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
