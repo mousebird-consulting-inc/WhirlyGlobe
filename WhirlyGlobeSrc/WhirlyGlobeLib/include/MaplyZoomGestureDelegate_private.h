@@ -1,8 +1,8 @@
 /*
- *  MaplyDoubleTapDelegate.mm
+ *  MaplyZoomGestureDelegate_private.h
  *
  *
- *  Created by Jesse Crocker on 2/3/14.
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +20,12 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
-#import "MaplyZoomGestureDelegate.h"
+#import "EAGLView.h"
+#import "SceneRendererES.h"
 
-@interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
+using namespace WhirlyKit;
 
-/// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+@interface MaplyZoomGestureDelegate (_private)
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender;
 
 @end

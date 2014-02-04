@@ -419,6 +419,8 @@
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
 		88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */; };
+		88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */; };
+		88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */; };
 		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
@@ -467,7 +469,7 @@
 		2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitView.mm; sourceTree = "<group>"; };
 		2B4504B814BCC29D00C99306 /* FlatMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FlatMath.mm; sourceTree = "<group>"; };
 		2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPinchDelegate.h; sourceTree = "<group>"; };
-		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; };
+		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		2B4730161732DEF9000507E9 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyFlatView.h; sourceTree = "<group>"; };
 		2B4730181732DF0E000507E9 /* MaplyFlatView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyFlatView.mm; sourceTree = "<group>"; };
 		2B4AE3B217662D6800850F3F /* JSONOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONOptions.h; path = "../../third-party/libjson/JSONOptions.h"; sourceTree = "<group>"; };
@@ -882,6 +884,11 @@
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
 		88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDelegate.h; sourceTree = "<group>"; };
 		88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B7C18A14DE7008D702C /* MaplyTwoFingerTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTwoFingerTapDelegate.h; sourceTree = "<group>"; };
+		88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate.h; sourceTree = "<group>"; };
+		88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyZoomGestureDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate_private.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
@@ -1341,6 +1348,9 @@
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
 				88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */,
 				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
+				88115B7C18A14DE7008D702C /* MaplyTwoFingerTapDelegate.h */,
+				88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */,
+				88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1828,6 +1838,7 @@
 			isa = PBXGroup;
 			children = (
 				2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */,
+				88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */,
 				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
 				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
 				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
@@ -1839,6 +1850,7 @@
 				2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */,
 				2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */,
 				88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */,
+				88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */,
 				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
 				2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */,
 				2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */,
@@ -2255,6 +2267,7 @@
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
+				88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
@@ -2292,6 +2305,7 @@
 				2B4AE3EC1766610900850F3F /* JSONIterators.cpp in Sources */,
 				2B4AE3ED1766610900850F3F /* JSONMemory.cpp in Sources */,
 				2B4AE3F01766610900850F3F /* JSONNode.cpp in Sources */,
+				88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */,
 				2B4AE3F21766610900850F3F /* JSONNode_Mutex.cpp in Sources */,
 				2B4AE3F31766610900850F3F /* JSONPreparse.cpp in Sources */,
 				2B4AE3F81766610900850F3F /* JSONStream.cpp in Sources */,

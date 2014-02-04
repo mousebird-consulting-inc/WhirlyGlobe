@@ -1,8 +1,8 @@
 /*
- *  MaplyDoubleTapDelegate.mm
+ *  MaplyZoomGestureDelegate.h
  *
  *
- *  Created by Jesse Crocker on 2/3/14.
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,11 +20,24 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
-#import "MaplyZoomGestureDelegate.h"
 
-@interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
+@interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
+{
+  MaplyView *mapView;
+  /// Boundary quad that we're to stay within
+  std::vector<WhirlyKit::Point2f> bounds;
+}
 
-/// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+/// Minimum allowable zoom level
+@property (nonatomic,assign) float minZoom;
+/// Maximum allowable zoom level
+@property (nonatomic,assign) float maxZoom;
+//The gesture recognizer
+@property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
+
+/// Set the bounding rectangle
+- (void)setBounds:(WhirlyKit::Point2f *)bounds;
+
+- (instancetype)initWithMapView:(MaplyView *)inView;
 
 @end
