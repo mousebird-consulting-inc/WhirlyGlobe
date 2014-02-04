@@ -261,6 +261,12 @@ using namespace Maply;
         pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
         if(_rotateGesture)
             rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        if(_doubleTapZoomGesture)
+        {
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
+            doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
@@ -324,6 +330,26 @@ using namespace Maply;
     }
 }
 
+- (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
+{
+    _doubleTapZoomGesture = doubleTapZoomGesture;
+    if (doubleTapZoomGesture)
+    {
+        if (!doubleTapDelegate)
+        {
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
+            doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
+    } else {
+        if (doubleTapDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            doubleTapDelegate.gestureRecognizer = nil;
+            doubleTapDelegate = nil;
+        }
+    }
+}
 
 #pragma mark - Interaction
 
@@ -365,6 +391,8 @@ using namespace Maply;
         [panDelegate setBounds:bounds];
     if (pinchDelegate)
         [pinchDelegate setBounds:bounds];
+    if (doubleTapDelegate)
+        [doubleTapDelegate setBounds:bounds];
 }
 
 // Internal animation handler
@@ -665,5 +693,6 @@ using namespace Maply;
     // If there is no selection, it will call us back in the main thread
     [mapInteractLayer userDidTap:msg];
 }
+
 
 @end
