@@ -112,6 +112,11 @@ public class VectorObject implements Iterable<VectorObject>
 	 */
 	public native boolean writeToFile(String fileName);
 		
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 

@@ -13,15 +13,48 @@
 
 using namespace WhirlyKit;
 
+// Caching class and method pointers
+class VectorClassInfo : public JavaClassInfo<VectorObject>
+{
+public:
+	VectorClassInfo(JNIEnv *env, jclass theClass)
+		: JavaClassInfo<VectorObject>(env,theClass)
+	{
+		initMethodID = env->GetMethodID(theClass, "<init>", "()V");
+
+		jclass localMapClass = env->FindClass("java/util/HashMap");
+		mapClass = (jclass)env->NewGlobalRef(localMapClass);
+		mapInitMethodID = env->GetMethodID(mapClass, "<init>", "(I)V");
+		putMethodID = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+	}
+
+	jmethodID initMethodID;
+	jclass mapClass;
+	jmethodID mapInitMethodID;
+	jmethodID putMethodID;
+};
+
+static VectorClassInfo *classInfo = NULL;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_nativeInit
+  (JNIEnv *env, jclass theClass)
+{
+	if (classInfo)
+		delete classInfo;
+	classInfo = new VectorClassInfo(env,theClass);
+}
+
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,VectorObject *vec)
 {
-	jclass cls = env->FindClass("com/mousebirdconsulting/maply/VectorObject");
-	jmethodID methodID = env->GetMethodID(cls, "<init>", "()V");
-	if (!methodID)
-		throw 1;
-	jobject vecObj = env->NewObject(cls, methodID);
+	if (!classInfo)
+	{
+		jclass cls = env->FindClass("com/mousebirdconsulting/maply/VectorObject");
+		classInfo = new VectorClassInfo(env,cls);
+		env->DeleteLocalRef(cls);
+	}
+
+	jobject vecObj = env->NewObject(classInfo->theClass, classInfo->initMethodID);
 	setHandle(env,vecObj,vec);
-	env->DeleteLocalRef(cls);
 
 	return vecObj;
 }
@@ -32,7 +65,7 @@ void Java_com_mousebirdconsulting_maply_VectorObject_initialise
 	try
 	{
 		VectorObject *inst = new VectorObject();
-		setHandle(env,obj,inst);
+		classInfo->setHandle(env,obj,inst);
 	}
 	catch (...)
 	{
@@ -45,12 +78,12 @@ void Java_com_mousebirdconsulting_maply_VectorObject_dispose
 {
 	try
 	{
-		VectorObject *inst = getHandle<VectorObject>(env,obj);
+		VectorObject *inst = classInfo->getHandle(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -63,7 +96,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addPoint
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		Point2d *pt = getHandle<Point2d>(env,ptObj);
 		if (!vecObj)
 			return;
@@ -84,7 +117,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addLinear
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return;
 
@@ -113,7 +146,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_addAreal
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return;
 
@@ -143,7 +176,7 @@ jboolean Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSON
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return false;
 
@@ -151,10 +184,9 @@ jboolean Java_com_mousebirdconsulting_maply_VectorObject_fromGeoJSON
 		if (!cStr)
 			return false;
 		std::string jsonStr(cStr);
+		env->ReleaseStringUTFChars(jstr, cStr);
 
 		bool ret = vecObj->fromGeoJSON(jsonStr);
-
-		env->ReleaseStringUTFChars(jstr, cStr);
 
 		return ret;
 	}
@@ -173,25 +205,20 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_FromGe
 		if (!cStr)
 			return NULL;
 		std::string jsonStr(cStr);
+		env->ReleaseStringUTFChars(jstr, cStr);
 
 		std::map<std::string,VectorObject *> vecData;
 		bool ret = VectorObject::FromGeoJSONAssembly(jsonStr,vecData);
 
-		env->ReleaseStringUTFChars(jstr, cStr);
-
 		if (ret)
 		{
-			jclass mapClass = env->FindClass("java/util/HashMap");
-			jmethodID init = env->GetMethodID(mapClass, "<init>", "(I)V");
-			jobject hashMap = env->NewObject(mapClass, init, 1);
-			jmethodID put = env->GetMethodID(mapClass, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-
+			jobject hashMap = env->NewObject(classInfo->mapClass, classInfo->mapInitMethodID, 1);
 			for (std::map<std::string,VectorObject *>::iterator it = vecData.begin();
 					it != vecData.end(); ++it)
 			{
 				jstring key = env->NewStringUTF(it->first.c_str());
 				jobject vecObj = MakeVectorObject(env,it->second);
-				env->CallObjectMethod(hashMap, put, key, vecObj);
+				env->CallObjectMethod(hashMap, classInfo->putMethodID, key, vecObj);
 			}
 
 			return hashMap;
@@ -210,7 +237,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorObject_getAtt
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return NULL;
 
@@ -229,7 +256,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_readF
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return false;
 		const char *cStr = env->GetStringUTFChars(fileNameStr,0);
@@ -251,7 +278,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_write
 {
 	try
 	{
-		VectorObject *vecObj = getHandle<VectorObject>(env,obj);
+		VectorObject *vecObj = classInfo->getHandle(env,obj);
 		if (!vecObj)
 			return false;
 		const char *cStr = env->GetStringUTFChars(fileNameStr,0);

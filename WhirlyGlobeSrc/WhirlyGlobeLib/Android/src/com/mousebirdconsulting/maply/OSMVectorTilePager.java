@@ -133,36 +133,45 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 	{
 //		Log.i("OSMVectorTilePager","Starting Tile : " + tileID.level + " (" + tileID.x + "," + tileID.y + ")");
 		
-		// Look for it in the cache
-		if (cacheDir != null)
+		// Use one of our threads to work through this logic
+		final OSMVectorTilePager thePager = this;
+		executor.execute(new Runnable()
 		{
-			Map<String,VectorObject> vecData = readFromCache(tileID);
-			if (vecData != null)
+			@Override
+			public void run()
 			{
-				showData(layer,vecData,tileID);
-				return;
-			}
-		}
-		
-		// Form the tile URL
-		int maxY = 1<<tileID.level;
-		int remoteY = maxY - tileID.y - 1;
-		final String tileURL = remotePath + "/" + tileID.level + "/" + tileID.x + "/" + remoteY + ".json";
-		
-		// Need to kick this task off on the main thread
-		final OSMVectorTilePager pager = this;
-		Handler handle = new Handler(Looper.getMainLooper());
-		handle.post(new Runnable()
-			{
-				@Override
-				public void run()
+				// Look for it in the cache
+				if (cacheDir != null)
 				{
-					ConnectionTask task = new ConnectionTask(pager,layer,tileID);
-					String[] params = new String[1];
-					params[0] = tileURL;
-					task.execute(params);				
+					Map<String,VectorObject> vecData = readFromCache(tileID);
+					if (vecData != null)
+					{
+						showData(layer,vecData,tileID);
+						return;
+					}
 				}
-			});
+				
+				// Form the tile URL
+				int maxY = 1<<tileID.level;
+				int remoteY = maxY - tileID.y - 1;
+				final String tileURL = remotePath + "/" + tileID.level + "/" + tileID.x + "/" + remoteY + ".json";
+				
+				// Need to kick this task off on the main thread
+				final OSMVectorTilePager pager = thePager;
+				Handler handle = new Handler(Looper.getMainLooper());
+				handle.post(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							ConnectionTask task = new ConnectionTask(pager,layer,tileID);
+							String[] params = new String[1];
+							params[0] = tileURL;
+							task.execute(params);				
+						}
+					});				
+			}
+		});
 	}
 
 	// Group data together for efficiency
@@ -235,7 +244,14 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 		
 		if (roadStyles == null)
 			initRoadStyles();
-
+/*
+		VectorInfo roadInfo = new VectorInfo();
+		roadInfo.setColor(0,0,0,1.f);
+		roadInfo.setDrawPriority(400);
+		roadInfo.setLineWidth(2.f*2);
+		roadInfo.setEnable(false);
+		compObjs.add(maplyControl.addVector(roads, roadInfo));
+	*/	
 		HashMap<String,VectorGroup> groups = sortIntoGroups(roads);
 		
 		// Note: Scale up for high res displays
@@ -267,7 +283,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			roadInfo.setLineWidth(roadStyle.width*scale);
 			roadInfo.setEnable(false);
 			compObjs.add(maplyControl.addVectors(group.vecs, roadInfo));
-		}		
+		}
 	}
 	
 	void styleRoadLabels(VectorObject roads,List<ComponentObject> compObjs)

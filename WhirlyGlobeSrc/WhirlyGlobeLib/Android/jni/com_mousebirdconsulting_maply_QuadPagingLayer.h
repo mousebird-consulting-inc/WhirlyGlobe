@@ -17,6 +17,22 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_geoBou
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    nativeShutdown
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeShutdown
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    setSimultaneousFetches
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSimultaneousFetches
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/CoordSystem;Lcom/mousebirdconsulting/maply/QuadPagingLayer/PagingInterface;)V
  */
@@ -38,22 +54,6 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeStartLayer
   (JNIEnv *, jobject, jobject, jobject, jobject, jobject, jint, jint);
-
-/*
- * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
- * Method:    nativeShutdown
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeShutdown
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
- * Method:    setSimultaneousFetches
- * Signature: (I)V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSimultaneousFetches
-  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer

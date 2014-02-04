@@ -73,6 +73,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorObject_write
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorObject
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorObject_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorObject
  * Method:    initialise
  * Signature: ()V
  */

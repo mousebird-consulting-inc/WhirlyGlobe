@@ -33,6 +33,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getD
 
 /*
  * Class:     com_mousebirdconsulting_maply_AttrDictionary
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_AttrDictionary
  * Method:    initialise
  * Signature: ()V
  */

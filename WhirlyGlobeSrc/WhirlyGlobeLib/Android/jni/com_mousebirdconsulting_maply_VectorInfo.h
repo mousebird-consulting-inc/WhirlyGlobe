@@ -57,38 +57,6 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setFilled
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorInfo
- * Method:    setTexId
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setTexId
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_mousebirdconsulting_maply_VectorInfo
- * Method:    setTexScale
- * Signature: (FF)V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setTexScale
-  (JNIEnv *, jobject, jfloat, jfloat);
-
-/*
- * Class:     com_mousebirdconsulting_maply_VectorInfo
- * Method:    subdivEps
- * Signature: (F)V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_subdivEps
-  (JNIEnv *, jobject, jfloat);
-
-/*
- * Class:     com_mousebirdconsulting_maply_VectorInfo
- * Method:    setGridSubdiv
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setGridSubdiv
-  (JNIEnv *, jobject, jboolean);
-
-/*
- * Class:     com_mousebirdconsulting_maply_VectorInfo
  * Method:    setColor
  * Signature: (FFFF)V
  */
