@@ -117,6 +117,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the double tap to zoom gesture recognizer on and off
+ @details Off by default.
+ */
+@property(nonatomic,assign) bool doubleTapZoomGesture;
+
 /** @brief The current rotation away from north.
  */
 @property(nonatomic,assign) float heading;
@@ -209,5 +214,6 @@
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+
 
 @end
