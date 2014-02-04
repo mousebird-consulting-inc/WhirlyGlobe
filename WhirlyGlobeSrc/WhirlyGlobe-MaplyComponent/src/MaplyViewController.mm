@@ -126,7 +126,9 @@ using namespace Maply;
     panDelegate = nil;
     pinchDelegate = nil;
     rotateDelegate = nil;
-
+    doubleTapDelegate = nil;
+    twoFingerTapDelegate = nil;
+    
     coordAdapter = NULL;
     _tetherView = NULL;
 }
@@ -267,6 +269,12 @@ using namespace Maply;
             doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
             doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
         }
+        if(_twoFingerTapGesture)
+        {
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
+            twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
@@ -347,6 +355,27 @@ using namespace Maply;
             [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
             doubleTapDelegate.gestureRecognizer = nil;
             doubleTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
+{
+    _twoFingerTapGesture = twoFingerTapGesture;
+    if (twoFingerTapGesture)
+    {
+        if (!twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
+            twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
+    } else {
+        if (twoFingerTapDelegate)
+        {
+            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            twoFingerTapDelegate.gestureRecognizer = nil;
+            twoFingerTapDelegate = nil;
         }
     }
 }
