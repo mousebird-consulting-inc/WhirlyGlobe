@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager
  * Method:    addVectors
- * Signature: ([Lcom/mousebirdconsulting/maply/VectorObject;Lcom/mousebirdconsulting/maply/VectorInfo;Lcom/mousebirdconsulting/maply/ChangeSet;)J
+ * Signature: (Ljava/util/List;Lcom/mousebirdconsulting/maply/VectorInfo;Lcom/mousebirdconsulting/maply/ChangeSet;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_VectorManager_addVectors
-  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager
@@ -30,6 +30,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_removeVe
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_enableVectors
   (JNIEnv *, jobject, jlongArray, jboolean, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorManager
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorManager_nativeInit
+  (JNIEnv *, jclass);
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorManager

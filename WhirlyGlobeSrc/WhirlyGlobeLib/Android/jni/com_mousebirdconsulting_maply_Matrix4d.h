@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_Matrix4d
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_Matrix4d
  * Method:    initialise
  * Signature: ()V
  */

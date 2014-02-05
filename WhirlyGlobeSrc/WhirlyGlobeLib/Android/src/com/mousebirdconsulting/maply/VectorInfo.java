@@ -90,6 +90,11 @@ class VectorInfo
 	 */
 	public native void setLineWidth(float lineWidth);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

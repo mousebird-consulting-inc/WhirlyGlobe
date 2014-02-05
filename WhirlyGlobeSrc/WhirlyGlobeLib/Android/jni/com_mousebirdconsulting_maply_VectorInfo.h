@@ -81,6 +81,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setLineWidt
 
 /*
  * Class:     com_mousebirdconsulting_maply_VectorInfo
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorInfo
  * Method:    initialise
  * Signature: ()V
  */

@@ -6,7 +6,7 @@
  */
 
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_MaplyRenderer.h"
 #import "WhirlyGlobe.h"
 
@@ -37,6 +37,12 @@ public:
 
 static bool glSetup = false;
 
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MaplySceneRendererInfo::getClassInfo(env,cls);
+}
+
 void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
   (JNIEnv *env, jobject obj)
 {
@@ -44,7 +50,8 @@ void Java_com_mousebirdconsulting_maply_MaplyRenderer_initialise
 	{
 		MaplySceneRenderer *renderer = new MaplySceneRenderer();
 		renderer->setClearColor(RGBAColor(255,255,255,255));
-		setHandle(env,obj,renderer);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		classInfo->setHandle(env,obj,renderer);
 
 		if (!glSetup)
 		{
@@ -65,12 +72,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_dispose
 {
 	try
 	{
-		MaplySceneRenderer *inst = getHandle<MaplySceneRenderer>(env,obj);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -83,8 +91,9 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setScene
 {
 	try
 	{
-		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
-		Maply::MapScene *scene = getHandle<Maply::MapScene>(env,sceneObj);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+		Maply::MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		if (!renderer || !scene)
 			return;
 
@@ -106,8 +115,9 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setView
 {
 	try
 	{
-		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
-		Maply::MapView *view = getHandle<Maply::MapView>(env,objView);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
+		Maply::MapView *view = MapViewClassInfo::getClassInfo()->getObject(env,objView);
 		if (!renderer || !view)
 			return;
 
@@ -124,7 +134,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_setClear
 {
 	try
 	{
-		SceneRendererES2 *renderer = getHandle<SceneRendererES2>(env,obj);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
 		if (!renderer)
 			return;
 
@@ -152,7 +163,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_resi
 {
 	try
 	{
-		MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
 		if (!renderer)
 			return false;
 
@@ -175,7 +187,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_render
 {
 	try
 	{
-		MaplySceneRenderer *renderer = getHandle<MaplySceneRenderer>(env,obj);
+		MaplySceneRendererInfo *classInfo = MaplySceneRendererInfo::getClassInfo();
+		MaplySceneRenderer *renderer = classInfo->getObject(env,obj);
 		if (!renderer)
 			return;
 

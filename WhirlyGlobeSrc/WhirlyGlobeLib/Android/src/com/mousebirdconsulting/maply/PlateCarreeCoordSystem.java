@@ -23,6 +23,11 @@ public class PlateCarreeCoordSystem extends CoordSystem
 		ur = geographicToLocal(new Point3d(Math.PI,Math.PI/2.0,0.0));
 	}
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	private long nativeHandle;
 }

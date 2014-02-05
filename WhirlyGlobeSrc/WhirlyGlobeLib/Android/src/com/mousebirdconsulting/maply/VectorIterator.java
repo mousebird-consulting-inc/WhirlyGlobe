@@ -12,11 +12,20 @@ import java.util.Iterator;
  */
 public class VectorIterator implements Iterator<VectorObject>
 {
+	private VectorIterator()
+	{
+	}
+	
 	VectorIterator(VectorObject vecObj)
 	{
 		initialise(vecObj);
 	}
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(VectorObject vecObj);
 	native void dispose();
 

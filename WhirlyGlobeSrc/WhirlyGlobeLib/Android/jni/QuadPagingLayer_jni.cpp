@@ -1,5 +1,5 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_QuadPagingLayer.h"
 #import "WhirlyGlobe.h"
 
@@ -282,18 +282,26 @@ public:
     }
 };
 
+typedef JavaClassInfo<QuadPagingLayerAdapter> QPLAdapterClassInfo;
+template<> QPLAdapterClassInfo *QPLAdapterClassInfo::classInfoObj = NULL;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	QPLAdapterClassInfo::getClassInfo(env,cls);
+}
+
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_initialise
   (JNIEnv *env, jobject obj, jobject coordSysObj, jobject delegateObj)
 {
 	try
 	{
-		CoordSystem *coordSys = getHandle<CoordSystem>(env,coordSysObj);
+		CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
 		if (!coordSys)
 			return;
 
 		QuadPagingLayerAdapter *adapter = new QuadPagingLayerAdapter(coordSys,delegateObj);
-
-		setHandle(env,obj,adapter);
+		QPLAdapterClassInfo::getClassInfo()->setHandle(env,obj,adapter);
 	}
 	catch (...)
 	{
@@ -306,12 +314,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_dispos
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
 		delete adapter;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -324,7 +333,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSim
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
 		adapter->simultaneousFetches = numFetches;
@@ -340,9 +350,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_geoBou
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
-		Point2d *ll = getHandle<Point2d>(env,llObj);
-		Point2d *ur = getHandle<Point2d>(env,urObj);
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+		Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
+		Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
 		if (!adapter || !ll || !ur)
 			return;
 
@@ -371,11 +382,12 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
-		Point2d *ll = getHandle<Point2d>(env,llObj);
-		Point2d *ur = getHandle<Point2d>(env,urObj);
-		Scene *scene = getHandle<Scene>(env,sceneObj);
-		SceneRendererES *renderer = getHandle<SceneRendererES>(env,rendererObj);
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+		Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
+		Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
+		Scene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		SceneRendererES *renderer = (SceneRendererES *)MaplySceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!adapter || !ll || !ur || !scene || !renderer)
 			return;
 
@@ -395,7 +407,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
+		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
 		if (!adapter)
 			return;
 
@@ -412,8 +425,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
-		ViewState *viewState = getHandle<ViewState>(env,viewStateObj);
+		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+		ViewState *viewState = ViewStateClassInfo::getClassInfo()->getObject(env,viewStateObj);
 		if (!adapter || !viewState)
 			return;
 
@@ -437,7 +450,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		if (!adapter)
 			return false;
 
@@ -462,7 +475,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		if (!adapter)
 			return false;
 
@@ -483,7 +496,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		if (!adapter)
 			return;
 
@@ -501,7 +514,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 {
 	try
 	{
-		QuadPagingLayerAdapter *adapter = getHandle<QuadPagingLayerAdapter>(env,obj);
+		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		if (!adapter)
 			return;
 

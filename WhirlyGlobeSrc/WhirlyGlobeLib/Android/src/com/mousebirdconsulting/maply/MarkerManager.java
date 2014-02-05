@@ -1,5 +1,7 @@
 package com.mousebirdconsulting.maply;
 
+import java.util.List;
+
 /**
  * The marker manager interfaces to the Maply C++/JNI side of things
  * and is invisible to toolkit users.
@@ -9,6 +11,10 @@ package com.mousebirdconsulting.maply;
  */
 class MarkerManager 
 {
+	private MarkerManager()
+	{		
+	}
+	
 	MarkerManager(MapScene scene)
 	{
 		initialise(scene);
@@ -20,7 +26,7 @@ class MarkerManager
 	}
 	
 	// Add markers to the scene and return an ID to track them
-	public native long addMarkers(InternalMarker markers[],MarkerInfo markerInfo,ChangeSet changes);
+	public native long addMarkers(List<InternalMarker> markers,MarkerInfo markerInfo,ChangeSet changes);
 	
 	// Remove markers by ID
 	public native void removeMarkers(long ids[],ChangeSet changes);
@@ -28,6 +34,11 @@ class MarkerManager
 	// Enable/disable markers by ID
 	public native void enableMarkers(long ids[],boolean eanble,ChangeSet changes);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(MapScene scene);
 	native void dispose();
 	private long nativeHandle;

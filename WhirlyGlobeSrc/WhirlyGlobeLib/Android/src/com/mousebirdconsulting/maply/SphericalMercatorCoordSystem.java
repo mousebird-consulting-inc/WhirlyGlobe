@@ -22,6 +22,11 @@ public class SphericalMercatorCoordSystem extends CoordSystem
 		ur = geographicToLocal(new Point3d(Math.PI,85.05113/180.0*Math.PI,0.0));
 	}
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	private long nativeHandle;
 }

@@ -12,6 +12,10 @@ import java.util.ArrayList;
  */
 class MapView 
 {
+	private MapView()
+	{
+	}
+	
 	MapView(CoordSystemDisplayAdapter coordAdapter)
 	{
 		initialise(coordAdapter);
@@ -74,6 +78,11 @@ class MapView
 	// Calculate the point on the view plan given the screen location
 	native Point3d pointOnPlaneFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
 			
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(CoordSystemDisplayAdapter coordAdapter);
 	native void dispose();
 	private long nativeHandle;

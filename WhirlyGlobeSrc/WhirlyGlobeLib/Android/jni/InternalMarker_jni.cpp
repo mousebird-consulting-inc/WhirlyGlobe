@@ -1,9 +1,18 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_InternalMarker.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
+template<> MarkerClassInfo *MarkerClassInfo::classInfoObj = NULL;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MarkerClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_initialise
   (JNIEnv *env, jobject obj)
@@ -11,7 +20,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_initial
 	try
 	{
 		Marker *marker = new Marker();
-		setHandle(env,obj,marker);
+		MarkerClassInfo::getClassInfo()->setHandle(env,obj,marker);
 	}
 	catch (...)
 	{
@@ -24,12 +33,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_dispose
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 		delete marker;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -42,7 +52,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setSele
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -59,7 +70,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setSele
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -76,9 +88,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setLoc
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
-		Point2d *pt = getHandle<Point2d>(env,ptObj);
-		if (!marker)
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
+		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+		if (!marker || !pt)
 			return;
 
 		marker->loc.x() = pt->x();
@@ -95,7 +108,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setColo
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -112,7 +126,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_addTexI
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -129,7 +144,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setLock
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -146,7 +162,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setHeig
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -163,7 +180,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setWidt
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -180,7 +198,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setRota
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 
@@ -197,9 +216,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setOffs
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
-		Point2d *pt = getHandle<Point2d>(env,obj);
-		if (!marker)
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
+		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,obj);
+		if (!marker || !pt)
 			return;
 
 		marker->offset.x() = pt->x();
@@ -216,7 +236,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setLayo
 {
 	try
 	{
-		Marker *marker = getHandle<Marker>(env,obj);
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
 		if (!marker)
 			return;
 

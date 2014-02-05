@@ -45,6 +45,11 @@ class MaplyRenderer
 	protected native boolean resize(int width,int height);
 	protected native void render();
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

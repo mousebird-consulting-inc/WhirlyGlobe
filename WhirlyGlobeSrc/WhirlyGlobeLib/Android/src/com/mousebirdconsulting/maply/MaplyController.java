@@ -322,26 +322,14 @@ public class MaplyController implements View.OnTouchListener
 			@Override
 			public void run()
 			{
-				// Note: Hack
-				// If the vector list is over a certain size, we have to split it
-				int numEl = vecs.size();
-				int batch = 400;
-				for (int start = 0;start < numEl;start+=batch)
-				{
-					int end = start+batch;
-					if (end > vecs.size())
-						end = vecs.size();
-					List<VectorObject> subList = vecs.subList(start, end);
+				// Vectors are simple enough to just add
+				ChangeSet changes = new ChangeSet();
+				long vecId = vecManager.addVectors(vecs,vecInfo,changes);
+				mapScene.addChanges(changes);
 	
-					// Vectors are simple enough to just add
-					ChangeSet changes = new ChangeSet();
-					long vecId = vecManager.addVectors(subList.toArray(new VectorObject [subList.size()]),vecInfo,changes);
-					mapScene.addChanges(changes);
-	
-					// Track the vector ID for later use
-					if (vecId != EmptyIdentity)
-						compObj.addVectorID(vecId);
-				}
+				// Track the vector ID for later use
+				if (vecId != EmptyIdentity)
+					compObj.addVectorID(vecId);
 			}
 		};
 		if (Looper.myLooper() == layerThread.getLooper())
@@ -385,8 +373,7 @@ public class MaplyController implements View.OnTouchListener
 				ChangeSet changes = new ChangeSet();
 		
 				// Convert to the internal representation of the engine
-				InternalMarker intMarkers[] = new InternalMarker[markers.size()];
-				int which = 0;
+				ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
 				for (ScreenMarker marker : markers)
 				{
 					InternalMarker intMarker = new InternalMarker(marker,markerInfo);
@@ -397,8 +384,7 @@ public class MaplyController implements View.OnTouchListener
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
 					
-					intMarkers[which] = intMarker;
-					which++;
+					intMarkers.add(intMarker);
 				}
 						
 				// Add the markers and flush the changes
@@ -453,8 +439,7 @@ public class MaplyController implements View.OnTouchListener
 				
 				// Note: Porting
 				// We'll just turn these into markers for now
-				InternalMarker intMarkers[] = new InternalMarker[labels.size()];		
-				int which = 0;
+				ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();		
 				for (ScreenLabel label: labels)
 				{
 					// Render the text into a bitmap
@@ -486,9 +471,8 @@ public class MaplyController implements View.OnTouchListener
 							intMarker.addTexID(texID);
 							compObj.addTexID(texID);
 						}
-						intMarkers[which] = intMarker;
+						intMarkers.add(intMarker);
 					}
-					which++;
 				}
 		
 				MarkerInfo markerInfo = new MarkerInfo();

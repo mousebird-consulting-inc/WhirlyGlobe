@@ -1,9 +1,15 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_ChangeSet.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	ChangeSetClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_initialise
   (JNIEnv *env, jobject obj)
@@ -11,7 +17,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_initialise
 	try
 	{
 		ChangeSet *changeSet = new ChangeSet();
-		setHandle(env,obj,changeSet);
+		ChangeSetClassInfo::getClassInfo()->setHandle(env,obj,changeSet);
 	}
 	catch (...)
 	{
@@ -24,7 +30,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_dispose
 {
 	try
 	{
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
+		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
+		ChangeSet *changeSet = classInfo->getObject(env,obj);
 		if (!changeSet)
 			return;
 
@@ -34,7 +41,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_dispose
 
 		delete changeSet;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -47,13 +54,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_addTexture
 {
 	try
 	{
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
-		Texture *texture = getHandle<Texture>(env,texObj);
+		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
+		ChangeSet *changeSet = classInfo->getObject(env,obj);
+		Texture *texture = TextureClassInfo::getClassInfo()->getObject(env,texObj);
 		if (!changeSet || !texture)
 			return;
 
 		// We take control of the Texture * as soon as it goes into the change set
-		clearHandle(env,texObj);
+		TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
 		changeSet->push_back(new AddTextureReq(texture));
 	}
 	catch (...)
@@ -72,7 +80,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_removeTextur
 {
 	try
 	{
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
 		if (!changeSet)
 			return;
 

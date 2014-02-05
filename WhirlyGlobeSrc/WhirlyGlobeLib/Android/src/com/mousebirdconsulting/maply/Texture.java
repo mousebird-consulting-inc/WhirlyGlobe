@@ -31,6 +31,11 @@ class Texture
 	// Once created, this is how we identify it to the rendering engine
 	public native long getID();
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_addChanges
 
 /*
  * Class:     com_mousebirdconsulting_maply_MapScene
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapScene
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/CoordSystemDisplayAdapter;)V
  */

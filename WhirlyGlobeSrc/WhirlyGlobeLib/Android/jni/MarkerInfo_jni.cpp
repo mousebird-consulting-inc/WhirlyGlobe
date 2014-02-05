@@ -1,9 +1,15 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_MarkerInfo.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MarkerInfoClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_initialise
   (JNIEnv *env, jobject obj)
@@ -13,7 +19,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_initialise
 		MarkerInfo *info = new MarkerInfo();
 		// Note: Porting
 		info->screenObject = true;
-		setHandle(env,obj,info);
+		MarkerInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
 	}
 	catch (...)
 	{
@@ -26,12 +32,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_dispose
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		delete info;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -44,7 +51,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setEnable
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->enable = enable;
@@ -60,7 +68,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setDrawOffs
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->drawOffset = drawOffset;
@@ -76,7 +85,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setDrawPrio
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->drawPriority = drawPriority;
@@ -92,7 +102,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setMinVis
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->minVis = minVis;
@@ -108,7 +119,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setMaxVis
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->maxVis = maxVis;
@@ -124,7 +136,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setColor
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->color = RGBAColor(r*255,g*255,b*255,a*255);
@@ -140,7 +153,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setFade
 {
 	try
 	{
-		MarkerInfo *info = getHandle<MarkerInfo>(env,obj);
+		MarkerInfoClassInfo *classInfo = MarkerInfoClassInfo::getClassInfo();
+		MarkerInfo *info = classInfo->getObject(env,obj);
 		if (!info)
 			return;
 		info->fade = fade;

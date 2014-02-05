@@ -7,24 +7,28 @@
 
 
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_MapView.h"
-#import "com_mousebirdconsulting_maply_Point3d.h"
-#import "com_mousebirdconsulting_maply_Matrix4d.h"
 #import "Maply_utils_jni.h"
 #import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MapViewClassInfo::getClassInfo(env,cls);
+}
+
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_initialise
   (JNIEnv *env, jobject obj, jobject coordAdapterObj)
 {
 	try
 	{
-		CoordSystemDisplayAdapter *coordAdapter = getHandle<CoordSystemDisplayAdapter>(env,coordAdapterObj);
+		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapView *inst = new Maply::MapView(coordAdapter);
-		setHandle(env,obj,inst);
+		MapViewClassInfo::getClassInfo()->setHandle(env,obj,inst);
 	}
 	catch (...)
 	{
@@ -37,12 +41,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_dispose
 {
 	try
 	{
-		Maply::MapView *inst = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -55,7 +60,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_setLoc
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return;
 
@@ -72,7 +78,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_getLoc
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return NULL;
 
@@ -93,7 +100,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_minHeightAb
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return 0.0;
 
@@ -110,7 +118,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_maxHeightAb
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return 0.0;
 
@@ -128,7 +137,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_setRot
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return;
 
@@ -146,7 +156,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_MapView_getRot
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return 0.0;
 
@@ -163,7 +174,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_runViewUpdates
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return;
 		view->runViewUpdates();
@@ -179,7 +191,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_calcModelVi
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return NULL;
 
@@ -197,12 +210,13 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_pointOnPlan
 {
 	try
 	{
-		Maply::MapView *view = getHandle<Maply::MapView>(env,obj);
+		MapViewClassInfo *classInfo = MapViewClassInfo::getClassInfo();
+		Maply::MapView *view = classInfo->getObject(env,obj);
 		if (!view)
 			return NULL;
-		Point2d *screenPt = getHandle<Point2d>(env,screenPtObj);
-		Matrix4d *viewModelMat = getHandle<Matrix4d>(env,viewModelMatObj);
-		Point2d *framePt = getHandle<Point2d>(env,frameObj);
+		Point2d *screenPt = Point2dClassInfo::getClassInfo()->getObject(env,screenPtObj);
+		Matrix4d *viewModelMat = Matrix4dClassInfo::getClassInfo()->getObject(env,viewModelMatObj);
+		Point2d *framePt = Point2dClassInfo::getClassInfo()->getObject(env,frameObj);
 		Point3d hit;
 
 		Point2f screenPt2f(screenPt->x(),screenPt->y());

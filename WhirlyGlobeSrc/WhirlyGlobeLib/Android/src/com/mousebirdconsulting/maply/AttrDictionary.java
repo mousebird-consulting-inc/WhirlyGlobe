@@ -44,11 +44,11 @@ public class AttrDictionary
 	{
 		nativeInit();
 	}
+	private static native void nativeInit();
 	public void finalize()
 	{
 		dispose();
 	}
-	private static native void nativeInit();
 	native void initialise();
 	native void dispose();	
 	private long nativeHandle;	

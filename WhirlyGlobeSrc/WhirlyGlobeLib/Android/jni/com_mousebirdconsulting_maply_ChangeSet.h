@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_removeTextur
 
 /*
  * Class:     com_mousebirdconsulting_maply_ChangeSet
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ChangeSet
  * Method:    initialise
  * Signature: ()V
  */

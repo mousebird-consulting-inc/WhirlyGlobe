@@ -1,10 +1,16 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_Matrix4d.h"
 #import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	Matrix4dClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_initialise
   (JNIEnv *env, jobject obj)
@@ -13,7 +19,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_initialise
 	{
 		Matrix4d *mat = new Matrix4d();
 		*mat = Matrix4d::Identity();
-		setHandle(env,obj,mat);
+		Matrix4dClassInfo::getClassInfo()->setHandle(env,obj,mat);
 	}
 	catch (...)
 	{
@@ -27,12 +33,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_dispose
 {
 	try
 	{
-		Matrix4d *inst = getHandle<Matrix4d>(env,obj);
+		Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo();
+		Matrix4d *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -43,14 +50,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Matrix4d_dispose
 jobject MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat)
 {
 	// Make a Java Matrix4d
-	jclass cls = env->FindClass("com/mousebirdconsulting/maply/Matrix4d");
-	jmethodID methodID = env->GetMethodID(cls, "<init>", "()V");
-	if (!methodID)
-		throw 1;
-	jobject jMat = env->NewObject(cls,methodID);
+	Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env,"com/mousebirdconsulting/maply/Matrix4d");
 	Matrix4d *newMat = new Matrix4d(mat);
-	setHandle(env,jMat,newMat);
-
-	return jMat;
+	return classInfo->makeWrapperObject(env,newMat);
 }
 

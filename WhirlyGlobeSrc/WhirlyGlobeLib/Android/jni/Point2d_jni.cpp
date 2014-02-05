@@ -1,10 +1,16 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_Point2d.h"
 #import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point2d_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	Point2dClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point2d_initialise
   (JNIEnv *env, jobject obj)
@@ -12,7 +18,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point2d_initialise
 	try
 	{
 		Point2d *pt = new Point2d();
-		setHandle(env,obj,pt);
+		Point2dClassInfo::getClassInfo()->setHandle(env,obj,pt);
 	}
 	catch (...)
 	{
@@ -25,12 +31,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point2d_dispose
 {
 	try
 	{
-		Point2d *inst = getHandle<Point2d>(env,obj);
+		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
+		Point2d *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -43,7 +50,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_Point2d_getX
 {
 	try
 	{
-		Point2d *pt = getHandle<Point2d>(env,obj);
+		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
+		Point2d *pt = classInfo->getObject(env,obj);
 		if (!pt)
 			return 0.0;
 
@@ -60,7 +68,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebirdconsulting_maply_Point2d_getY
 {
 	try
 	{
-		Point2d *pt = getHandle<Point2d>(env,obj);
+		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
+		Point2d *pt = classInfo->getObject(env,obj);
 		if (!pt)
 			return 0.0;
 
@@ -77,7 +86,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point2d_setValue
 {
 	try
 	{
-		Point2d *pt = getHandle<Point2d>(env,obj);
+		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
+		Point2d *pt = classInfo->getObject(env,obj);
 		if (!pt)
 			return;
 		pt->x() = x;

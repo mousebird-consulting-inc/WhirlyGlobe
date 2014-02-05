@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_setSim
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/CoordSystem;Lcom/mousebirdconsulting/maply/QuadPagingLayer/PagingInterface;)V
  */

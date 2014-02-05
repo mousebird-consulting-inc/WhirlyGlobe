@@ -63,6 +63,11 @@ public class Point3d
 	 */
 	public native void setValue(double x,double y,double z);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

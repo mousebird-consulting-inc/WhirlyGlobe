@@ -1,5 +1,5 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_MarkerManager.h"
 #import "WhirlyGlobe.h"
 
@@ -8,15 +8,23 @@ using namespace Maply;
 
 static const char *SceneHandleName = "nativeSceneHandle";
 
+typedef JavaClassInfo<MarkerManager> MarkerManagerClassInfo;
+template<> MarkerManagerClassInfo *MarkerManagerClassInfo::classInfoObj = NULL;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MarkerManagerClassInfo::getClassInfo(env,cls);
+}
+
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_initialise
   (JNIEnv *env, jobject obj, jobject sceneObj)
 {
 	try
 	{
-		MapScene *scene = getHandle<MapScene>(env,sceneObj);
-		setHandleNamed(env,obj,scene,SceneHandleName);
+		MapScene *scene = MapSceneClassInfo::getClassInfo()->getObject(env,sceneObj);
 		MarkerManager *markerManager = dynamic_cast<MarkerManager *>(scene->getManager(kWKMarkerManager));
-		setHandle(env,obj,markerManager);
+		MarkerManagerClassInfo::getClassInfo()->setHandle(env,obj,markerManager);
 	}
 	catch (...)
 	{
@@ -29,7 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_dispose
 {
 	try
 	{
-		clearHandle(env,obj);
+		MarkerManagerClassInfo::getClassInfo()->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -38,37 +46,40 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_addMarkers
-  (JNIEnv *env, jobject obj, jobjectArray markerObjArray, jobject markerInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobject markerList, jobject markerInfoObj, jobject changeSetObj)
 {
 	try
 	{
-		MarkerManager *markerManager = getHandle<MarkerManager>(env,obj);
-		MarkerInfo *markerInfo = getHandle<MarkerInfo>(env,markerInfoObj);
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
-		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
-		if (!markerManager || !markerInfo || !changeSet || !scene)
+		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
+		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		MarkerInfo *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!markerManager || !markerInfo || !changeSet)
 		{
 			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in MarkerManager::addMarkers()");
 			return EmptyIdentity;
 		}
 
-		std::vector<Marker *> markers;
-		int objCount = env->GetArrayLength(markerObjArray);
-		for (int ii=0;ii<objCount;ii++)
-		{
-			jobject javaMarkerObj = (jobject) env->GetObjectArrayElement(markerObjArray, ii);
-			Marker *marker = getHandle<Marker>(env,javaMarkerObj);
-			markers.push_back(marker);
-			env->DeleteLocalRef(javaMarkerObj);
-		}
+		// Note: Porting.  Turn this back on
+//		std::vector<Marker *> markers;
+//		int objCount = env->GetArrayLength(markerObjArray);
+//		for (int ii=0;ii<objCount;ii++)
+//		{
+//			jobject javaMarkerObj = (jobject) env->GetObjectArrayElement(markerObjArray, ii);
+//			Marker *marker = getHandle<Marker>(env,javaMarkerObj);
+//			markers.push_back(marker);
+//			env->DeleteLocalRef(javaMarkerObj);
+//		}
+//
+//		// Note: Porting
+//		// Note: Shouldn't have to set this
+//    	markerInfo->markerId = Identifiable::genId();
+//
+//		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
+//
+//		return markerId;
 
-		// Note: Porting
-		// Note: Shouldn't have to set this
-    	markerInfo->markerId = Identifiable::genId();
-
-		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
-
-		return markerId;
+		return EmptyIdentity;
 	}
 	catch (...)
 	{
@@ -81,9 +92,11 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_removeMa
 {
 	try
 	{
-		MarkerManager *markerManager = getHandle<MarkerManager>(env,obj);
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
-		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
+		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!markerManager || !changeSet)
+			return;
 
 		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
 		int idCount = env->GetArrayLength(idArrayObj);
@@ -108,9 +121,11 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_enableMa
 {
 	try
 	{
-		MarkerManager *markerManager = getHandle<MarkerManager>(env,obj);
-		ChangeSet *changeSet = getHandle<ChangeSet>(env,changeSetObj);
-		Scene *scene = getHandleNamed<Scene>(env,obj,SceneHandleName);
+		MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
+		MarkerManager *markerManager = classInfo->getObject(env,obj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!markerManager || !changeSet)
+			return;
 
 		int idCount = env->GetArrayLength(idArrayObj);
 		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);

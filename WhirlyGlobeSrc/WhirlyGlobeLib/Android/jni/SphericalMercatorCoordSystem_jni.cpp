@@ -1,9 +1,14 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_SphericalMercatorCoordSystem.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_SphericalMercatorCoordSystem_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_SphericalMercatorCoordSystem_initialise
   (JNIEnv *env, jobject obj)
@@ -11,7 +16,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_SphericalMercatorCoord
 	try
 	{
 		SphericalMercatorCoordSystem *coordSystem = new SphericalMercatorCoordSystem();
-		setHandle(env,obj,coordSystem);
+		CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
 	}
 	catch (...)
 	{

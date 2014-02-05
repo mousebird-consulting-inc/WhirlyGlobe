@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_VectorIterator
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_VectorIterator
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/VectorObject;)V
  */

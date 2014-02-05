@@ -5,23 +5,27 @@
  *      Author: sjg
  */
 
-
-
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_MapScene.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	MapSceneClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_initialise
   (JNIEnv *env, jobject obj, jobject coordAdapterObj)
 {
 	try
 	{
-		CoordSystemDisplayAdapter *coordAdapter = getHandle<CoordSystemDisplayAdapter>(env,coordAdapterObj);
+		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapScene *scene = new Maply::MapScene(coordAdapter);
-		setHandle(env,obj,scene);
+		MapSceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
 	}
 	catch (...)
 	{
@@ -34,12 +38,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_dispose
 {
 	try
 	{
-		Maply::MapScene *inst = getHandle<Maply::MapScene>(env,obj);
+		MapSceneClassInfo *classInfo = MapSceneClassInfo::getClassInfo();
+		Maply::MapScene *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return;
 		delete inst;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -52,8 +57,9 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapScene_addChanges
 {
 	try
 	{
-		Maply::MapScene *scene = getHandle<Maply::MapScene>(env,obj);
-		ChangeSet *changes = getHandle<ChangeSet>(env,changesObj);
+		MapSceneClassInfo *classInfo = MapSceneClassInfo::getClassInfo();
+		Maply::MapScene *scene = classInfo->getObject(env,obj);
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
 		scene->addChangeRequests(*changes);
 		changes->clear();
 	}

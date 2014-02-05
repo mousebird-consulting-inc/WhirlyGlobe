@@ -22,6 +22,11 @@ class ChangeSet
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	public void finalize()
 	{
 		dispose();

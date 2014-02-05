@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebirdconsulting_maply_ViewState
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ViewState_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ViewState
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/MapView;Lcom/mousebirdconsulting/maply/MaplyRenderer;)V
  */

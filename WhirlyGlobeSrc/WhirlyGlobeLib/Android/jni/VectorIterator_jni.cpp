@@ -1,5 +1,5 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_VectorIterator.h"
 #import "Maply_utils_jni.h"
 #import "WhirlyGlobe.h"
@@ -20,14 +20,23 @@ public:
 	ShapeSet::iterator it;
 };
 
+typedef JavaClassInfo<VectorIterator> VectorIteratorClassInfo;
+template<> VectorIteratorClassInfo *VectorIteratorClassInfo::classInfoObj = NULL;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	VectorIteratorClassInfo::getClassInfo(env,cls);
+}
+
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_initialise
   (JNIEnv *env, jobject obj, jobject vecObj)
 {
 	try
 	{
-		VectorObject *vec = getHandle<VectorObject>(env,vecObj);
+		VectorObject *vec = VectorObjectClassInfo::getClassInfo()->getObject(env,vecObj);
 		VectorIterator *vecIter = new VectorIterator(vec);
-		setHandle(env,obj,vecIter);
+		VectorIteratorClassInfo::getClassInfo()->setHandle(env,obj,vecIter);
 	}
 	catch (...)
 	{
@@ -40,12 +49,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_dispose
 {
 	try
 	{
-		VectorIterator *vecIter = getHandle<VectorIterator>(env,obj);
+		VectorIteratorClassInfo *classInfo = VectorIteratorClassInfo::getClassInfo();
+		VectorIterator *vecIter = classInfo->getObject(env,obj);
 		if (!vecIter)
 			return;
 		delete vecIter;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -58,7 +68,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_has
 {
 	try
 	{
-		VectorIterator *vecIter = getHandle<VectorIterator>(env,obj);
+		VectorIteratorClassInfo *classInfo = VectorIteratorClassInfo::getClassInfo();
+		VectorIterator *vecIter = classInfo->getObject(env,obj);
 		if (!vecIter)
 			return false;
 
@@ -75,7 +86,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_VectorIterator_next
 {
 	try
 	{
-		VectorIterator *vecIter = getHandle<VectorIterator>(env,obj);
+		VectorIteratorClassInfo *classInfo = VectorIteratorClassInfo::getClassInfo();
+		VectorIterator *vecIter = classInfo->getObject(env,obj);
 		if (!vecIter)
 			return NULL;
 

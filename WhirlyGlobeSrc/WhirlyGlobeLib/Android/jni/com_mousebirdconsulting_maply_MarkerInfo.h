@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_setFade
 
 /*
  * Class:     com_mousebirdconsulting_maply_MarkerInfo
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerInfo_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MarkerInfo
  * Method:    initialise
  * Signature: ()V
  */

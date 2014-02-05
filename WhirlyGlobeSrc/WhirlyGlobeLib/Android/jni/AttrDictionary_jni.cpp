@@ -1,58 +1,23 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_AttrDictionary.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
-// Caching class and method pointers
-class AttrClassInfo : public JavaClassInfo<Dictionary>
-{
-public:
-	AttrClassInfo(JNIEnv *env, jclass theClass)
-		: JavaClassInfo<Dictionary>(env,theClass)
-	{
-		initMethodID = env->GetMethodID(theClass, "<init>", "()V");
-
-		jclass intLocalClass = env->FindClass("java/lang/Integer");
-		integerClass = (jclass)env->NewGlobalRef(intLocalClass);
-	    integerClassInitID = env->GetMethodID(integerClass, "<init>", "(I)V");
-
-	    jclass doubleLocalClass = env->FindClass("java/lang/Double");
-	    doubleClass = (jclass)env->NewGlobalRef(doubleLocalClass);
-	    doubleClassInitID = env->GetMethodID(doubleClass, "<init>", "(D)V");
-	}
-
-	jmethodID initMethodID;
-	jclass integerClass;
-	jmethodID integerClassInitID;
-	jclass doubleClass;
-	jmethodID doubleClassInitID;
-};
-
-static AttrClassInfo *classInfo = NULL;
-
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_nativeInit
   (JNIEnv *env, jclass theClass)
 {
-	if (classInfo)
-		delete classInfo;
-
-	classInfo = new AttrClassInfo(env,theClass);
+	AttrDictClassInfo::getClassInfo(env,theClass);
 }
 
 JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,Dictionary *dict)
 {
-	if (!classInfo)
-	{
-		jclass cls = env->FindClass("com/mousebirdconsulting/maply/AttrDictionary");
-		classInfo = new AttrClassInfo(env,cls);
-		env->DeleteLocalRef(cls);
-	}
+	AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebirdconsulting/maply/AttrDictionary");
 
-	jobject dictObj = env->NewObject(classInfo->theClass, classInfo->initMethodID);
-	Dictionary *copyDict = new Dictionary(*dict);
-	setHandle(env,dictObj,copyDict);
+//	Dictionary *copyDict = new Dictionary(*dict);
+	// Note: Just wrapping what's passed in
+	jobject dictObj = classInfo->makeWrapperObject(env,dict);
 
 	return dictObj;
 }
@@ -63,7 +28,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_initial
 	try
 	{
 		Dictionary *dict = new Dictionary();
-		classInfo->setHandle(env,obj,dict);
+		AttrDictClassInfo::getClassInfo()->setHandle(env,obj,dict);
 	}
 	catch (...)
 	{
@@ -76,10 +41,12 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_dispose
 {
 	try
 	{
-		Dictionary *dict = classInfo->getHandle(env,obj);
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		Dictionary *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return;
-		delete dict;
+		// Note: This only works because we're not copying dictionaries
+//		delete dict;
 
 		classInfo->clearHandle(env,obj);
 	}
@@ -94,7 +61,8 @@ JNIEXPORT jstring JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getS
 {
 	try
 	{
-		Dictionary *dict = classInfo->getHandle(env,obj);
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		Dictionary *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -123,7 +91,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getI
 {
 	try
 	{
-		Dictionary *dict = classInfo->getHandle(env,obj);
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		Dictionary *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -136,7 +105,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getI
 		if (dict->hasField(attrName))
 		{
 			int val = dict->getInt(attrName);
-		    return env->NewObject(classInfo->integerClass, classInfo->integerClassInitID, val);
+			return JavaIntegerClassInfo::getClassInfo(env)->makeInteger(env,val);
 		}
 	}
 	catch (...)
@@ -152,7 +121,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getD
 {
 	try
 	{
-		Dictionary *dict = classInfo->getHandle(env,obj);
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		Dictionary *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -165,7 +135,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_AttrDictionary_getD
 		if (dict->hasField(attrName))
 		{
 			double val = dict->getDouble(attrName);
-		    return env->NewObject(classInfo->doubleClass, classInfo->doubleClassInitID, val);
+		    return JavaDoubleClassInfo::getClassInfo(env)->makeDouble(env,val);
 		}
 	}
 	catch (...)

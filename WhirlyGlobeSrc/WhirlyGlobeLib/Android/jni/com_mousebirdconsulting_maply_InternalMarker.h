@@ -97,6 +97,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_setLayo
 
 /*
  * Class:     com_mousebirdconsulting_maply_InternalMarker
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_InternalMarker_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_InternalMarker
  * Method:    initialise
  * Signature: ()V
  */

@@ -1,9 +1,15 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_VectorInfo.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	VectorInfoClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_initialise
   (JNIEnv *env, jobject obj)
@@ -11,7 +17,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_initialise
 	try
 	{
 		VectorInfo *vecInfo = new VectorInfo();
-		setHandle(env,obj,vecInfo);
+		VectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
 	}
 	catch (...)
 	{
@@ -24,12 +30,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_dispose
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		delete vecInfo;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -42,7 +49,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setEnable
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->enable = bVal;
@@ -58,7 +66,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setDrawOffs
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->drawOffset = fVal;
@@ -74,7 +83,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setDrawPrio
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->priority = val;
@@ -90,7 +100,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setMinVis
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->minVis = fVal;
@@ -106,7 +117,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setMaxVis
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->maxVis = fVal;
@@ -122,7 +134,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setFilled
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->filled = bVal;
@@ -138,7 +151,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setTexId
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->texId = val;
@@ -154,7 +168,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setTexScale
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->texScale.x() = s;
@@ -171,7 +186,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_subdivEps
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->subdivEps = eps;
@@ -187,7 +203,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setGridSubd
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->gridSubdiv = bVal;
@@ -203,7 +220,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setColor
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
@@ -219,7 +237,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setFade
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->fade = val;
@@ -235,7 +254,8 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_VectorInfo_setLineWidt
 {
 	try
 	{
-		VectorInfo *vecInfo = getHandle<VectorInfo>(env,obj);
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
 		vecInfo->lineWidth = val;

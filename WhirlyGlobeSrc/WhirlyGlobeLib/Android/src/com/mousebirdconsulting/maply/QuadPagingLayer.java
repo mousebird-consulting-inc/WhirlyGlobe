@@ -21,6 +21,10 @@ import android.os.Looper;
  */
 public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
+	private QuadPagingLayer()
+	{
+	}
+	
 	/**
 	 * This is the interface paging delegates must fill in.
 	 * You'll get called back on the startFetchForTile on the layerThread.
@@ -518,6 +522,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public native void setSimultaneousFetches(int numFetches);
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(CoordSystem coordSys,PagingInterface pagingDelegate);
 	native void dispose();
 	private long nativeHandle;

@@ -25,6 +25,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_localTo
 
 /*
  * Class:     com_mousebirdconsulting_maply_CoordSystem
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_CoordSystem
  * Method:    initialise
  * Signature: ()V
  */

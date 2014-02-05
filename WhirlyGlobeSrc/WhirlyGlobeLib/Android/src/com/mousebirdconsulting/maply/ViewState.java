@@ -9,6 +9,10 @@ package com.mousebirdconsulting.maply;
  */
 class ViewState 
 {
+	private ViewState()
+	{
+	}
+	
 	ViewState(MapView view,MaplyRenderer renderer)
 	{
 		initialise(view,renderer);
@@ -19,6 +23,11 @@ class ViewState
 		dispose();
 	}
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(MapView view,MaplyRenderer renderer);
 	native void dispose();
 	private long nativeHandle;

@@ -44,6 +44,11 @@ class InternalMarker
 	public native void setOffset(Point2d offset);
 	public native void setLayoutImportance(double layoutImp);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

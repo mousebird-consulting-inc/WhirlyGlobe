@@ -31,6 +31,11 @@ public class MarkerInfo
 	public native void setColor(float r,float g,float b,float a);
 	public native void setFade(float fade);
 
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

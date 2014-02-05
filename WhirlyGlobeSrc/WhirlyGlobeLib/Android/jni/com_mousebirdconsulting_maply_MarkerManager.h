@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebirdconsulting_maply_MarkerManager
  * Method:    addMarkers
- * Signature: ([Lcom/mousebirdconsulting/maply/InternalMarker;Lcom/mousebirdconsulting/maply/MarkerInfo;Lcom/mousebirdconsulting/maply/ChangeSet;)J
+ * Signature: (Ljava/util/List;Lcom/mousebirdconsulting/maply/MarkerInfo;Lcom/mousebirdconsulting/maply/ChangeSet;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_addMarkers
-  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_MarkerManager
@@ -30,6 +30,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_removeMa
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_enableMarkers
   (JNIEnv *, jobject, jlongArray, jboolean, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MarkerManager
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MarkerManager_nativeInit
+  (JNIEnv *, jclass);
 
 /*
  * Class:     com_mousebirdconsulting_maply_MarkerManager

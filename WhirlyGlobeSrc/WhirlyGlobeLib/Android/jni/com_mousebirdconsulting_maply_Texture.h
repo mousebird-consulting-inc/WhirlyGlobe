@@ -25,6 +25,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_Texture_getID
 
 /*
  * Class:     com_mousebirdconsulting_maply_Texture
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Texture_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_Texture
  * Method:    initialise
  * Signature: ()V
  */

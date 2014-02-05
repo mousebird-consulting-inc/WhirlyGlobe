@@ -1,5 +1,7 @@
 package com.mousebirdconsulting.maply;
 
+import java.util.List;
+
 /**
  * The Vector Manager is an interface to the Maply C++ vector
  * manager and should be invisible to toolkit users.
@@ -9,6 +11,10 @@ package com.mousebirdconsulting.maply;
  */
 class VectorManager 
 {
+	private VectorManager()
+	{
+	}
+	
 	VectorManager(MapScene scene)
 	{
 		initialise(scene);
@@ -20,7 +26,7 @@ class VectorManager
 	}
 	
 	// Add vectors to the scene and return an ID to track them
-	public native long addVectors(VectorObject vecObjs[],VectorInfo vecInfo,ChangeSet changes);
+	public native long addVectors(List<VectorObject> vecs,VectorInfo vecInfo,ChangeSet changes);
 	
 	// Remove vectors by ID
 	public native void removeVectors(long ids[],ChangeSet changes);
@@ -28,8 +34,12 @@ class VectorManager
 	// Enable/disable vectors by ID
 	public native void enableVectors(long ids[],boolean enable,ChangeSet changes);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise(MapScene scene);
 	native void dispose();
 	private long nativeHandle;
-	private long nativeSceneHandle;
 }

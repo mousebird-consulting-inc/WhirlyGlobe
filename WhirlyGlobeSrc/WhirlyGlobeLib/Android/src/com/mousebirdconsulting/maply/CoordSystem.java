@@ -49,6 +49,11 @@ public class CoordSystem
 	 */
 	public native Point3d localToGeographic(Point3d pt);
 	
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
 	private long nativeHandle;

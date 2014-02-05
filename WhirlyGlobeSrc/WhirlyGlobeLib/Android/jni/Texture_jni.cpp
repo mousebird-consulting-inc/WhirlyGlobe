@@ -1,10 +1,16 @@
 #import <jni.h>
 #import <android/bitmap.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_Texture.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Texture_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	TextureClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Texture_initialise
   (JNIEnv *env, jobject obj)
@@ -12,7 +18,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Texture_initialise
 	try
 	{
 		Texture *tex = new Texture("jni");
-		setHandle(env,obj,tex);
+		TextureClassInfo::getClassInfo()->setHandle(env,obj,tex);
 	}
 	catch (...)
 	{
@@ -25,12 +31,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Texture_dispose
 {
 	try
 	{
-		Texture *tex = getHandle<Texture>(env,obj);
+		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+		Texture *tex = classInfo->getObject(env,obj);
 		if (!tex)
 			return;
 		delete tex;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -43,7 +50,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_Texture_setBitmap
 {
 	try
 	{
-		Texture *tex = getHandle<Texture>(env,obj);
+		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+		Texture *tex = classInfo->getObject(env,obj);
 		if (!tex)
 			return false;
 
@@ -84,7 +92,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebirdconsulting_maply_Texture_getID
 {
 	try
 	{
-		Texture *tex = getHandle<Texture>(env,obj);
+		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+		Texture *tex = classInfo->getObject(env,obj);
 		if (!tex)
 			return EmptyIdentity;
 

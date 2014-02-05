@@ -73,6 +73,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_MapView_pointOnPlan
 
 /*
  * Class:     com_mousebirdconsulting_maply_MapView
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MapView_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MapView
  * Method:    initialise
  * Signature: (Lcom/mousebirdconsulting/maply/CoordSystemDisplayAdapter;)V
  */

@@ -57,6 +57,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_render
 
 /*
  * Class:     com_mousebirdconsulting_maply_MaplyRenderer
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_MaplyRenderer
  * Method:    initialise
  * Signature: ()V
  */

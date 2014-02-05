@@ -1,17 +1,23 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_ViewState.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ViewState_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	ViewStateClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ViewState_initialise
   (JNIEnv *env, jobject obj, jobject viewObj, jobject rendererObj)
 {
 	try
 	{
-		View *view = getHandle<View>(env,viewObj);
-		SceneRendererES *renderer = getHandle<SceneRendererES>(env,rendererObj);
+		View *view = MapViewClassInfo::getClassInfo()->getObject(env,viewObj);
+		SceneRendererES *renderer = (SceneRendererES *)MaplySceneRendererInfo::getClassInfo()->getObject(env,rendererObj);
 		if (!view || !renderer)
 			return;
 
@@ -25,7 +31,7 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ViewState_initialise
 		}
 
 		if (viewState)
-			setHandle(env,obj,viewState);
+			ViewStateClassInfo::getClassInfo()->setHandle(env,obj,viewState);
 	}
 	catch (...)
 	{
@@ -38,12 +44,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ViewState_dispose
 {
 	try
 	{
-		ViewState *viewState = getHandle<ViewState>(env,obj);
+		ViewStateClassInfo *classInfo = ViewStateClassInfo::getClassInfo();
+		ViewState *viewState = classInfo->getObject(env,obj);
 		if (!viewState)
 			return;
 		delete viewState;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{

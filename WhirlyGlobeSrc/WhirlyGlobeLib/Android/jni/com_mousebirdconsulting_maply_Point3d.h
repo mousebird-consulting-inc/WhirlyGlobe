@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point3d_setValue
 
 /*
  * Class:     com_mousebirdconsulting_maply_Point3d
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_Point3d_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_Point3d
  * Method:    initialise
  * Signature: ()V
  */

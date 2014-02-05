@@ -1,10 +1,16 @@
 #import <jni.h>
-#import "handle.h"
+#import "Maply_jni.h"
 #import "com_mousebirdconsulting_maply_CoordSystem.h"
 #import "Maply_utils_jni.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_nativeInit
+  (JNIEnv *env, jclass cls)
+{
+	CoordSystemClassInfo::getClassInfo(env,cls);
+}
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_initialise
   (JNIEnv *env, jobject obj)
@@ -12,7 +18,6 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_initialise
 	try
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "CoordSystem::initialise() called.  This is a base class.  Oops.");
-		clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -25,13 +30,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_dispose
 {
 	try
 	{
-		CoordSystem *coordSys = getHandle<CoordSystem>(env,obj);
+		CoordSystemClassInfo *classInfo = CoordSystemClassInfo::getClassInfo();
+		CoordSystem *coordSys = classInfo->getObject(env,obj);
 		if (!coordSys)
 			return;
 
 		delete coordSys;
 
-		clearHandle(env,obj);
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -44,8 +50,9 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_geograp
 {
 	try
 	{
-		CoordSystem *coordSys = getHandle<CoordSystem>(env,obj);
-		Point3d *pt = getHandle<Point3d>(env,ptObj);
+		CoordSystemClassInfo *classInfo = CoordSystemClassInfo::getClassInfo();
+		CoordSystem *coordSys = classInfo->getObject(env,obj);
+		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
 			return NULL;
 
@@ -63,8 +70,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebirdconsulting_maply_CoordSystem_localTo
 {
 	try
 	{
-		CoordSystem *coordSys = getHandle<CoordSystem>(env,obj);
-		Point3d *pt = getHandle<Point3d>(env,ptObj);
+		CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,obj);
+		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
 			return NULL;
 
