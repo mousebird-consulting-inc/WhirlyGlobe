@@ -115,7 +115,7 @@ using namespace WhirlyKit;
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
-    if(tileID.level > _maxZoom || tileID.level < _minZoom)
+    if(tileID.level > _maxZoom)
       return false;
 
     if (mbrs.empty())
