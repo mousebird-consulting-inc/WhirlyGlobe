@@ -34,9 +34,9 @@ using namespace WhirlyKit;
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
     MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
-    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
-    pinchRecog.delegate = pinchDelegate;
-	[view addGestureRecognizer:pinchRecog];
+    pinchDelegate.gestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
+    pinchDelegate.gestureRecognizer.delegate = pinchDelegate;
+	[view addGestureRecognizer:pinchDelegate.gestureRecognizer];
 	return pinchDelegate;
 }
 
@@ -47,7 +47,7 @@ using namespace WhirlyKit;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
 	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
-	
+    
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
