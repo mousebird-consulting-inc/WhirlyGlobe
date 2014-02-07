@@ -118,14 +118,19 @@
 @property(nonatomic,assign) bool rotateGesture;
 
 /** @brief Turn the double tap to zoom gesture recognizer on and off
- @details Off by default.
+    @details On by default.
  */
 @property(nonatomic,assign) bool doubleTapZoomGesture;
 
 /** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
-    @details Off by default.
+    @details On by default.
  */
 @property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+    @details On by default.
+  */
+@property(nonatomic,assign) bool doubleTapDragGesture;
 
 /** @brief The current rotation away from north.
  */
