@@ -274,6 +274,7 @@ using namespace Maply;
             twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
             twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
             twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
     }
 
@@ -369,6 +370,7 @@ using namespace Maply;
             twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
             twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
             twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
     } else {
         if (twoFingerTapDelegate)
