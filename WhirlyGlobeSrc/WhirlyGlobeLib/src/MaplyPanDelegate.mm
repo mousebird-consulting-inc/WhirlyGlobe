@@ -131,7 +131,7 @@ static const float AnimLen = 1.0;
             // Save where we touched
             startTransform = [mapView calcFullMatrix];
             [mapView pointOnPlaneFromScreen:[pan locationInView:pan.view] transform:&startTransform
-                                  frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
+                                  frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                         hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
             panning = YES;
@@ -148,7 +148,7 @@ static const float AnimLen = 1.0;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
                 [mapView pointOnPlaneFromScreen:touchPt transform:&startTransform
-                                       frameSize:Point2f(sceneRender.framebufferWidth,sceneRender.framebufferHeight)
+                                       frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&hit clip:false];
 
                 // Note: Just doing a translation for now.  Won't take angle into account
