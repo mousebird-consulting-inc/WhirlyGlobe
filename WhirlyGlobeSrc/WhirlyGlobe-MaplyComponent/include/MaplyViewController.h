@@ -123,7 +123,7 @@
 @property(nonatomic,assign) bool doubleTapZoomGesture;
 
 /** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
- @details Off by default.
+    @details Off by default.
  */
 @property(nonatomic,assign) bool twoFingerTapGesture;
 
