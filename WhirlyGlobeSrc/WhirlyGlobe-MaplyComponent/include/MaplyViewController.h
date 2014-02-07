@@ -176,7 +176,7 @@
 
 /** @brief Set the center of the screen and the height offset immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
-    @param height Height the view point above the map.  Doesn't work in 2D mode.
+    @param height Height the view point above the map.
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
