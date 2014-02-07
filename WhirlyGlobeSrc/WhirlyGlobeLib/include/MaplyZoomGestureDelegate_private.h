@@ -1,8 +1,8 @@
 /*
- *  MaplyPinchDelegateMap.h
- *  WhirlyGlobeLib
+ *  MaplyZoomGestureDelegate_private.h
  *
- *  Created by Steve Gifford on 1/10/12.
+ *
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyZoomGestureDelegate.h"
+#import "MaplyView.h"
+#import "EAGLView.h"
+#import "SceneRendererES.h"
 
-@interface MaplyPinchDelegate : MaplyZoomGestureDelegate
+using namespace WhirlyKit;
 
-/// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+@interface MaplyZoomGestureDelegate (_private)
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender;
 
 @end
