@@ -115,6 +115,9 @@ using namespace WhirlyKit;
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
+    if(tileID.level > _maxZoom)
+      return false;
+
     if (mbrs.empty())
         return true;
     
@@ -285,6 +288,11 @@ using namespace WhirlyKit;
 - (bool)tileIsLocal:(MaplyTileID)tileID
 {
     return [_tileInfo tileIsLocal:tileID];
+}
+
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+{
+    return [_tileInfo validTile:tileID bbox:bbox];
 }
 
 // Clear out the operation associated with a tile
