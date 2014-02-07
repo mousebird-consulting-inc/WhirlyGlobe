@@ -27,4 +27,8 @@
 /// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
 + (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
+// How long we animate from one place to the next
+@property (nonatomic) float animTime;
+
+
 @end
