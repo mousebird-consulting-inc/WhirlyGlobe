@@ -1,8 +1,8 @@
 /*
- *  MaplyPinchDelegateMap.h
- *  WhirlyGlobeLib
+ *  MaplyDoubleTapDelegate.mm
  *
- *  Created by Steve Gifford on 1/10/12.
+ *
+ *  Created by Jesse Crocker on 2/3/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,12 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "MaplyView.h"
 #import "MaplyZoomGestureDelegate.h"
 
-@interface MaplyPinchDelegate : MaplyZoomGestureDelegate
+@interface MaplyDoubleTapDelegate : MaplyZoomGestureDelegate
 
-/// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+/// Create a double tap gesture and a delegate and wire them up to the given UIView
++ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
 @end
