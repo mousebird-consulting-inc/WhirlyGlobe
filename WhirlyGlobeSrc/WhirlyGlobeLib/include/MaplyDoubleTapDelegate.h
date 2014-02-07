@@ -27,4 +27,7 @@
 /// Create a double tap gesture and a delegate and wire them up to the given UIView
 + (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
+/// How long we animate from starting to end point
+@property (nonatomic) float animTime;
+
 @end
