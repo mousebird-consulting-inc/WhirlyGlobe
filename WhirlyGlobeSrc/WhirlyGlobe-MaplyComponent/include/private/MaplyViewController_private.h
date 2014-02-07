@@ -23,6 +23,7 @@
 #import "MaplyInteractionLayer_private.h"
 #import "MaplyDoubleTapDelegate.h"
 #import "MaplyTwoFingerTapDelegate.h"
+#import "MaplyDoubleTapDragDelegate.h"
 
 @interface MaplyViewController()
 {
@@ -50,6 +51,7 @@
     MaplyRotateDelegate *rotateDelegate;
     MaplyDoubleTapDelegate *doubleTapDelegate;
     MaplyTwoFingerTapDelegate *twoFingerTapDelegate;
+    MaplyDoubleTapDragDelegate *doubleTapDragDelegate;
   
     /// Bounding box for the viewer
     MaplyCoordinate boundLL,boundUR;

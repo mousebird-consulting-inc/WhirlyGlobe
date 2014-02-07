@@ -47,6 +47,9 @@ using namespace Maply;
     
     _autoMoveToTap = true;
     _rotateGesture = true;
+    _doubleTapDragGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapZoomGesture = true;
 
     return self;
 }
@@ -61,6 +64,9 @@ using namespace Maply;
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     _flatMode = true;
     _rotateGesture = true;
+    _doubleTapDragGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapZoomGesture = true;
 
     return self;
 }
@@ -128,6 +134,7 @@ using namespace Maply;
     rotateDelegate = nil;
     doubleTapDelegate = nil;
     twoFingerTapDelegate = nil;
+    doubleTapDragDelegate = nil;
     
     coordAdapter = NULL;
     _tetherView = NULL;
@@ -276,6 +283,14 @@ using namespace Maply;
             twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
+        if (_doubleTapDragGesture)
+        {
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView];
+            doubleTapDragDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDragDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
     }
 
     [self setViewExtentsLL:boundLL ur:boundUR];
@@ -379,6 +394,29 @@ using namespace Maply;
             [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
             twoFingerTapDelegate.gestureRecognizer = nil;
             twoFingerTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
+{
+    _doubleTapZoomGesture = doubleTapDragGesture;
+    if (doubleTapDragGesture)
+    {
+        if (!doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView];
+            doubleTapDragDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDragDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (doubleTapDragDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            doubleTapDragDelegate.gestureRecognizer = nil;
+            doubleTapDragDelegate = nil;
         }
     }
 }
