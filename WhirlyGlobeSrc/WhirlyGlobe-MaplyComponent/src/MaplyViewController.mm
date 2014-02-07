@@ -726,4 +726,21 @@ using namespace Maply;
 }
 
 
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
+  	Point3d hit;
+    WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
+    if ([mapView pointOnPlaneFromScreen:point transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    {
+        Point3d localPt = coordAdapter->displayToLocal(hit);
+		GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
+        MaplyCoordinate maplyCoord;
+        maplyCoord.x = coord.x();
+        maplyCoord.y  = coord.y();
+        return maplyCoord;
+    } else {
+        return MaplyCoordinateMakeWithDegrees(0, 0);
+    }
+}
+
 @end
