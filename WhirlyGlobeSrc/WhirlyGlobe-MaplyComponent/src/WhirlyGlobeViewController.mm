@@ -56,6 +56,9 @@ using namespace WhirlyGlobe;
         return nil;
     
     _autoMoveToTap = true;
+    _doubleTapZoomGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapDragGesture = true;
     
     return self;
 }
@@ -73,6 +76,10 @@ using namespace WhirlyGlobe;
     tapDelegate = nil;
     rotateDelegate = nil;
     animateRotation = nil;    
+
+    doubleTapDelegate = nil;
+    twoFingerTapDelegate = nil;
+    doubleTapDragDelegate = nil;
 }
 
 - (void) dealloc
@@ -118,6 +125,25 @@ using namespace WhirlyGlobe;
     self.rotateGesture = true;
         
     self.selection = true;
+    
+    if(_doubleTapZoomGesture)
+    {
+        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+    }
+    if(_twoFingerTapGesture)
+    {
+        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+        if (pinchDelegate)
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+    }
+    if (_doubleTapDragGesture)
+    {
+        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -348,6 +374,67 @@ using namespace WhirlyGlobe;
 - (void)setTilt:(float)newTilt
 {
     globeView.tilt = newTilt;
+}
+
+- (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
+{
+    _doubleTapZoomGesture = doubleTapZoomGesture;
+    if (doubleTapZoomGesture)
+    {
+        if (!doubleTapDelegate)
+        {
+            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        }
+    } else {
+        if (doubleTapDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            doubleTapDelegate.gestureRecognizer = nil;
+            doubleTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
+{
+    _twoFingerTapGesture = twoFingerTapGesture;
+    if (twoFingerTapGesture)
+    {
+        if (!twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+    } else {
+        if (twoFingerTapDelegate)
+        {
+            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            twoFingerTapDelegate.gestureRecognizer = nil;
+            twoFingerTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
+{
+    _doubleTapZoomGesture = doubleTapDragGesture;
+    if (doubleTapDragGesture)
+    {
+        if (!doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (doubleTapDragDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            doubleTapDragDelegate.gestureRecognizer = nil;
+            doubleTapDragDelegate = nil;
+        }
+    }
 }
 
 #pragma mark - Interaction
