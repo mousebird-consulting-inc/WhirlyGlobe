@@ -156,6 +156,22 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the double tap to zoom gesture recognizer on and off
+ @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapZoomGesture;
+
+/** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
+ @details On by default.
+ */
+@property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+ @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapDragGesture;
+
+
 /** @brief If set, we'll automatically move to wherever the user tapped.
     @details When on we'll move the current location to wherever the user tapped if they tapped the globe.  That's true for selection as well.  On by default.
   */

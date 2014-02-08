@@ -1,9 +1,9 @@
 /*
- *  TapDelegate.h
+ *  GlobeAnimateHeight.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Created by Steve Gifford on 2/7/14.
+ *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,17 +19,14 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "WhirlyVector.h"
+#import "WhirlyGeometry.h"
 #import "GlobeView.h"
-#import "TapMessage.h"
 
-/** WhirlyGlobe tap gesture delegate
-	responds to taps by blasting out a notification.
- */
-@interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
+/// Animate height for a globe view over time
+@interface WhirlyGlobeAnimateViewHeight : NSObject<WhirlyGlobeAnimationDelegate>
 
-/// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
-
-@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+/// Start interpolating height immediately for the given time period
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong;
 
 @end

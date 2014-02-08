@@ -113,6 +113,7 @@ using namespace WhirlyKit;
 	WGPinchDelegateFixed *pinchDelegate = [[WGPinchDelegateFixed alloc] initWithGlobeView:globeView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
     pinchRecog.delegate = pinchDelegate;
+    pinchDelegate.gestureRecognizer = pinchRecog;
 	[view addGestureRecognizer:pinchRecog];
 	return pinchDelegate;
 }
