@@ -28,7 +28,13 @@
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
-/// How long we animate from starting to end point
-@property (nonatomic) float animTime;
+// How much we zoom in by
+@property (nonatomic) float zoomTapFactor;
+
+// How long the zoom animation takes
+@property (nonatomic) float zoomAnimationDuration;
+
+/// Zoom limits
+@property (nonatomic) float minZoom,maxZoom;
 
 @end

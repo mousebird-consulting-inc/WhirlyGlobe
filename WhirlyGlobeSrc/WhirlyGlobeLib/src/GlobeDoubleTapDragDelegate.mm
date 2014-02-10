@@ -73,7 +73,7 @@ using namespace WhirlyKit;
             float height = sceneRenderer.framebufferHeight / glView.contentScaleFactor;
             float scale = powf(2.0,2*diffY/(height/2));
             float newZ = startZ * scale;
-            if (globeView.minHeightAboveGlobe < newZ && newZ < globeView.maxHeightAboveGlobe)
+            if (_minZoom < newZ && newZ < _maxZoom)
             {
                 globeView.heightAboveGlobe = newZ;
             }

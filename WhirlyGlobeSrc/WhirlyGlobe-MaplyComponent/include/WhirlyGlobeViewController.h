@@ -208,6 +208,16 @@
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
 
+/** @brief How much we zoom in or out by when the user double taps or two finger taps.
+    @details This sets the factor we'll use to zoom in by (e.g. *2.0) when the user double taps.  It also sets how much we zoom out by when the user two finger taps.  This will only have an effect if those gestures are active.
+  */
+@property (nonatomic) float zoomTapFactor;
+
+/** @brief How long we take to zoom in or out when the user double taps or two finger taps.
+    @details This controls the duration of the zoom animation.  You can set it to zero to avoid the animation entirely.
+  */
+@property (nonatomic) float zoomTapAnimationDuration;
+
 /** @brief Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.
     @details This implements a simplified mode for tilting.  As the user gets closer to the ground we tilt more toward the horizon.
     @param minHeight The minimum height corresponding to minTilt.
