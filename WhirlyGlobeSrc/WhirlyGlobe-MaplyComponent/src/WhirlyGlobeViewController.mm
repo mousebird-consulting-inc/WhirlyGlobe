@@ -318,6 +318,7 @@ using namespace WhirlyGlobe;
             [glView removeGestureRecognizer:rotRecog];
             rotateDelegate = nil;
             pinchDelegate.rotateDelegate = nil;
+            pinchDelegate.doRotation = false;
         }
     }
 }
