@@ -391,7 +391,7 @@ using namespace WhirlyGlobe;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
 }
 
-- (void)setZoomAnimationDuration:(float)zoomAnimationDuration
+- (void)setZoomTapAnimationDuration:(float)zoomAnimationDuration
 {
     _zoomTapAnimationDuration = zoomAnimationDuration;
     
