@@ -381,6 +381,26 @@ using namespace WhirlyGlobe;
     }
 }
 
+- (void)setZoomTapFactor:(float)zoomTapFactor
+{
+    _zoomTapFactor = zoomTapFactor;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+}
+
+- (void)setZoomAnimationDuration:(float)zoomAnimationDuration
+{
+    _zoomTapAnimationDuration = zoomAnimationDuration;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+}
+
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
     if (pinchDelegate)
