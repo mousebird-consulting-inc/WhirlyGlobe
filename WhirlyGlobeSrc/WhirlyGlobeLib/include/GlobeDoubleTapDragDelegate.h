@@ -28,4 +28,8 @@
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
+/// Zoom limits
+@property (nonatomic) float minZoom,maxZoom;
+
+
 @end

@@ -59,6 +59,8 @@ using namespace WhirlyGlobe;
     _doubleTapZoomGesture = true;
     _twoFingerTapGesture = true;
     _doubleTapDragGesture = true;
+    _zoomTapFactor = 2.0;
+    _zoomTapAnimationDuration = 0.1;
     
     return self;
 }
@@ -129,11 +131,19 @@ using namespace WhirlyGlobe;
     if(_doubleTapZoomGesture)
     {
         doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
     {
         twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+        twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+        twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
         if (pinchDelegate)
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
@@ -141,6 +151,8 @@ using namespace WhirlyGlobe;
     if (_doubleTapDragGesture)
     {
         doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+        doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
     }
@@ -350,6 +362,22 @@ using namespace WhirlyGlobe;
             globeView.heightAboveGlobe = minHeight;
         if (globeView.heightAboveGlobe > maxHeight)
             globeView.heightAboveGlobe = maxHeight;
+
+        if (doubleTapDelegate)
+        {
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
     }
 }
 
@@ -384,6 +412,10 @@ using namespace WhirlyGlobe;
         if (!doubleTapDelegate)
         {
             doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+            doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
         }
     } else {
         if (doubleTapDelegate)
@@ -403,6 +435,10 @@ using namespace WhirlyGlobe;
         if (!twoFingerTapDelegate)
         {
             twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+            twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
             if (pinchDelegate)
                 [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
@@ -424,6 +460,8 @@ using namespace WhirlyGlobe;
         if (!doubleTapDragDelegate)
         {
             doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
             [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         }

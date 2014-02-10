@@ -39,7 +39,8 @@ using namespace WhirlyKit;
     tapRecognizer.numberOfTouchesRequired = 2;
     tapRecognizer.delegate = tapDelegate;
     tapDelegate.gestureRecognizer = tapRecognizer;
-    tapDelegate.animTime = 0.1;
+    tapDelegate.zoomTapFactor = 2.0;
+    tapDelegate.zoomAnimationDuration = 0.1;
 	[view addGestureRecognizer:tapRecognizer];
 	return tapDelegate;
 }
@@ -58,10 +59,10 @@ using namespace WhirlyKit;
     if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
     {
         double curH = globeView.heightAboveGlobe;
-        double newH = curH * 2.0;
-        if (globeView.minHeightAboveGlobe < newH && newH < globeView.maxHeightAboveGlobe)
+        double newH = curH * _zoomTapFactor;
+        if (_minZoom < newH && newH < _maxZoom)
         {
-            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_animTime];
+            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration];
             globeView.delegate = animate;
         }
     }
