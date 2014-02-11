@@ -58,6 +58,8 @@ using namespace WhirlyKit;
             if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
                 [mapView setLoc:curLoc];
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:mapView];
     } else {
         // Not expecting this case
     }
