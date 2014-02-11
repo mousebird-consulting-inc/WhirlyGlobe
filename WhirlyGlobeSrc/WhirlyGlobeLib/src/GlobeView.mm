@@ -361,6 +361,43 @@ using namespace Eigen;
     return newRotQuat;
 }
 
+// Construct a rotation to the given location, including a heading
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const GeoCoord &)worldCoord heading:(double)heading
+{
+    Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    
+    // Let's rotate to where they tapped over a 1sec period
+    Vector3d curUp = [self currentUp];
+    
+    // The rotation from where we are to where we tapped
+    Eigen::Quaterniond endRot;
+    endRot = QuatFromTwoVectors(worldLoc,curUp);
+    Eigen::Quaterniond curRotQuat = _rotQuat;
+    Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
+
+    // Orient to north up so we can include the heading
+    Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
+    if (northPole.y() != 0.0)
+    {
+        // Then rotate it back on to the YZ axis
+        // This will keep it upward
+        float ang = atan(northPole.x()/northPole.y());
+        // However, the pole might be down now
+        // If so, rotate it back up
+        if (northPole.y() < 0.0)
+            ang += M_PI;
+        Eigen::AngleAxisd upRot(ang,worldLoc);
+        newRotQuat = newRotQuat * upRot;
+
+        // Now include the heading
+        Eigen::AngleAxisd rot(heading,curUp);
+        newRotQuat = newRotQuat * rot;
+    }
+    
+    return newRotQuat;
+}
+
+
 - (Eigen::Quaterniond) makeRotationToGeoCoordd:(const GeoCoord &)worldCoord keepNorthUp:(BOOL)northUp
 {
     Point3d worldLoc = super.coordAdapter->localToDisplay(super.coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
