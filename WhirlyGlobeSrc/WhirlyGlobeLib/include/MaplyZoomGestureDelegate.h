@@ -21,6 +21,10 @@
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
 
+#define kZoomGestureDelegateDidStart @"WKPanDelegateStarted"
+// Sent out when the pan delegate finished (but hands off to momentum)
+#define kZoomGestureDelegateDidEnd @"WKPanDelegateEnded"
+
 @interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
 {
   MaplyView *mapView;
