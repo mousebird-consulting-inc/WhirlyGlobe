@@ -225,5 +225,7 @@
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+- (BOOL)panGestureEnabled;
+- (void)setPanGestureEnabled:(BOOL)enabled;
 
 @end
