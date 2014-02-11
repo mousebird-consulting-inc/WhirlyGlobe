@@ -314,6 +314,10 @@ using namespace Maply;
 - (void)registerForEvents
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
 }
 
 
@@ -725,6 +729,61 @@ using namespace Maply;
     [mapInteractLayer userDidTap:msg];
 }
 
+// Called when the pan delegate starts moving
+- (void) panDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    //    NSLog(@"Pan started");
+    
+    [self handleStartMoving:true];
+}
+
+// Called when the pan delegate stops moving
+- (void) panDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStopMoving:true];
+}
+
+- (void) zoomGestureDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStartMoving:true];
+}
+
+- (void) zoomGestureDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStopMoving:true];
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStartMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+    {
+        [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
+    }
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners];
+        [self.delegate maplyViewController:self didStopMoving:corners userMotion:userMotion];
+    }
+}
 
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
   	Point3d hit;
@@ -739,7 +798,22 @@ using namespace Maply;
         maplyCoord.y  = coord.y();
         return maplyCoord;
     } else {
-        return MaplyCoordinateMakeWithDegrees(0, 0);
+        return MaplyCoordinateMakeWithDegrees(NAN, NAN);
+    }
+}
+
+
+- (void)corners:(MaplyCoordinate *)corners
+{
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        corners[ii] = [self geoFromScreenPoint:screenCorners[ii]];
     }
 }
 
