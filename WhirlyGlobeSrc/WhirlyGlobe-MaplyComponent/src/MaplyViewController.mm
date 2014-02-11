@@ -743,4 +743,16 @@ using namespace Maply;
     }
 }
 
+
+- (BOOL)panGestureEnabled
+{
+    return panDelegate.gestureRecognizer.enabled;
+}
+
+
+- (void)setPanGestureEnabled:(BOOL)enabled
+{
+    panDelegate.gestureRecognizer.enabled = enabled;
+}
+
 @end

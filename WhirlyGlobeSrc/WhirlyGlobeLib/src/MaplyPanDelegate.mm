@@ -62,6 +62,7 @@ using namespace WhirlyKit;
   	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
   	panRecognizer.delegate = panDelegate;
 	[view addGestureRecognizer:panRecognizer];
+  panDelegate.gestureRecognizer = panRecognizer;
 	return panDelegate;
 }
 
