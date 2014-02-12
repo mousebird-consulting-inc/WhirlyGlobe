@@ -113,6 +113,7 @@ using namespace WhirlyKit;
 	WGPinchDelegateFixed *pinchDelegate = [[WGPinchDelegateFixed alloc] initWithGlobeView:globeView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
     pinchRecog.delegate = pinchDelegate;
+    pinchDelegate.gestureRecognizer = pinchRecog;
 	[view addGestureRecognizer:pinchRecog];
 	return pinchDelegate;
 }
@@ -179,7 +180,7 @@ using namespace WhirlyKit;
                 if (_minHeight <= newH && newH <= _maxHeight)
                     [globeView setHeightAboveGlobe:newH updateWatchers:false];
 
-                Eigen::Quaterniond newRotQuat = startQuat;
+                Eigen::Quaterniond newRotQuat = globeView.rotQuat;
                 Point3d axis = [globeView currentUp];
                 if (_zoomAroundPinch)
                 {

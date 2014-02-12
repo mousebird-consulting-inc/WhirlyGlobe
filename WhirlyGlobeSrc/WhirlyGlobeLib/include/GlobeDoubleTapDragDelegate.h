@@ -1,9 +1,9 @@
 /*
- *  TapDelegate.h
- *  WhirlyGlobeLib
+ *  GlobeDoubleTapDragDelegate.h
  *
- *  Created by Steve Gifford on 2/3/11.
- *  Copyright 2011-2013 mousebird consulting
+ *
+ *  Created by Steve Gifford on 2/7/14.
+ *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,18 +18,18 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import "GlobeView.h"
-#import "TapMessage.h"
 
-/** WhirlyGlobe tap gesture delegate
-	responds to taps by blasting out a notification.
- */
-@interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
+@interface WhirlyGlobeDoubleTapDragDelegate : NSObject<UIGestureRecognizerDelegate>
 
-/// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
+/// Create a double tap gesture and a delegate and wire them up to the given UIView
++ (WhirlyGlobeDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
+/// Zoom limits
+@property (nonatomic) float minZoom,maxZoom;
+
 
 @end

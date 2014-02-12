@@ -178,11 +178,15 @@ LocationInfo locations[NumLocations] =
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
+            mapViewC.doubleTapZoomGesture = true;
+            mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             break;
         case Maply2DMap:
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
+            mapViewC.doubleTapZoomGesture = true;
+            mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             configViewC.configOptions = ConfigOptionsFlat;

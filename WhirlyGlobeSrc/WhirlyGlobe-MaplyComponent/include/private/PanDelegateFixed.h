@@ -34,4 +34,6 @@
 
 + (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
 @end

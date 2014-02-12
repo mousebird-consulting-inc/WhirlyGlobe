@@ -1,8 +1,8 @@
 /*
- *  MaplyPanDelegateMap.h
- *  WhirlyGlobeLib
+ *  MaplyZoomGestureDelegate.h
  *
- *  Created by Steve Gifford on 1/10/12.
+ *
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,17 +19,25 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <vector>
 #import "MaplyView.h"
 
-@interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
+@interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
+{
+  MaplyView * __weak mapView;
+  /// Boundary quad that we're to stay within
+  std::vector<WhirlyKit::Point2f> bounds;
+}
 
-/// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
-
-@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+/// Minimum allowable zoom level
+@property (nonatomic,assign) float minZoom;
+/// Maximum allowable zoom level
+@property (nonatomic,assign) float maxZoom;
+//The gesture recognizer
+@property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2f *)bounds;
+
+- (instancetype)initWithMapView:(MaplyView *)inView;
 
 @end

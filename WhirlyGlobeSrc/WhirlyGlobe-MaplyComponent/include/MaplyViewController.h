@@ -117,6 +117,21 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the double tap to zoom gesture recognizer on and off
+    @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapZoomGesture;
+
+/** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
+    @details On by default.
+ */
+@property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+    @details On by default.
+  */
+@property(nonatomic,assign) bool doubleTapDragGesture;
+
 /** @brief The current rotation away from north.
  */
 @property(nonatomic,assign) float heading;
@@ -176,7 +191,7 @@
 
 /** @brief Set the center of the screen and the height offset immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
-    @param height Height the view point above the map.  Doesn't work in 2D mode.
+    @param height Height the view point above the map.
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
@@ -203,11 +218,17 @@
  */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
+/** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
+    @return Returns the geo coordinate corresponding to a given screen point in radians.
+ */
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point;
+
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
     @param The bounding box (in radians) we're trying to view.
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+
 
 @end
