@@ -283,11 +283,7 @@ using namespace WhirlyGlobe;
     } else {
         if (pinchDelegate)
         {
-            UIPinchGestureRecognizer *pinchRecog = nil;
-            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
-                if ([recog isKindOfClass:[UIPinchGestureRecognizer class]])
-                    pinchRecog = (UIPinchGestureRecognizer *)recog;
-            [glView removeGestureRecognizer:pinchRecog];
+            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
         }
     }
