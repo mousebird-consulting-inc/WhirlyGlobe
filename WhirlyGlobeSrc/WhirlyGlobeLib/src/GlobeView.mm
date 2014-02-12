@@ -390,7 +390,8 @@ using namespace Eigen;
         newRotQuat = newRotQuat * upRot;
 
         // Now include the heading
-        Eigen::AngleAxisd rot(heading,curUp);
+        Vector3d prospectiveUp = [WhirlyGlobeView prospectiveUp:newRotQuat];
+        Eigen::AngleAxisd rot(heading,prospectiveUp);
         newRotQuat = newRotQuat * rot;
     }
     
