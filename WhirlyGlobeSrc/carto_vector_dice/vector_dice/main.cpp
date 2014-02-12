@@ -19,40 +19,73 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <boost/filesystem.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/index/rtree.hpp>
 #include "MapnikConfig.h"
 #include "VectorDB.h"
 
+namespace bg = boost::geometry;
+namespace bgi = boost::geometry::index;
+
 using namespace tinyxml2;
 
-// Used to store and calculate feature MBRs
-class LayerMBRs
+// A spatial index that uses the boost R-Tree
+// The way we're chopping things up, we need a fast indexing scheme
+class LayerSpatialIndex
 {
 public:
-    LayerMBRs(OGRLayer *layer)
+    // Typedefs for the R-tree
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point;
+    typedef bg::model::box<point> box;
+    typedef std::pair<box, unsigned> value;
+    
+    LayerSpatialIndex(OGRLayer *layer)
     : layer(layer)
     {
-        features.reserve(layer->GetFeatureCount());
-        mbrs.reserve(layer->GetFeatureCount());
-        for (unsigned int ii=0;ii<layer->GetFeatureCount();ii++)
+        int numFeatures = layer->GetFeatureCount();
+        features.resize(numFeatures,NULL);
+        mbrs.resize(numFeatures);
+        for (unsigned int ii=0;ii<numFeatures;ii++)
         {
+            features[ii] = layer->GetFeature(ii);
             OGRFeature *feature = layer->GetFeature(ii);
-            OGRGeometry *geom = feature->GetGeometryRef();
-            OGREnvelope mbr;
-            geom->getEnvelope(&mbr);
-            features.push_back(feature);
-            mbrs.push_back(mbr);
+            OGREnvelope env;
+            feature->GetGeometryRef()->getEnvelope(&env);
+            mbrs[ii] = env;
+            double spanX = env.MaxX - env.MinX, spanY = env.MaxY - env.MinY;
+            // Note: This assumes meters-like numbers
+            if (spanX == 0)                spanX = 10.0;
+            if (spanY == 0)                spanY = 10.0;
+            env.MinX -= spanX/10;  env.MinY -= spanY/10;
+            env.MaxX += spanY/10;  env.MaxY += spanY/10;
+            box b(point(env.MinX,env.MinY), point(env.MaxX,env.MaxY));
+            rtree.insert(std::make_pair(b,ii));
         }
     }
-    ~LayerMBRs()
+    ~LayerSpatialIndex()
     {
         for (unsigned int ii=0;ii<features.size();ii++)
-        {
             OGRFeature::DestroyFeature(features[ii]);
-        }
     }
+    
+    // Return all the features covering a given area
+    void findFeatures(double sx,double sy,double ex,double ey,std::vector<OGRFeature *> &retFeatures)
+    {
+        box query_box(point(sx,sy),point(ex,ey));
+        std::vector<value> rets;
+        rtree.query(bgi::intersects(query_box), std::back_inserter(rets));
+        for (unsigned int ii=0;ii<rets.size();ii++)
+            retFeatures.push_back(features[rets[ii].second]);
+    }
+    
     OGRLayer *layer;
     std::vector<OGRFeature *> features;
     std::vector<OGREnvelope> mbrs;
+    // A max of sixteen elements per node, using a quadratic r-tree
+    bgi::rtree< value, bgi::rstar<16> > rtree;
 };
 
 // Convert the given feature to the given data type
@@ -125,7 +158,7 @@ OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataTyp
 }
 
 // Transform all the geometry in the given layer into the new coordinate system
-void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::Style> *styles,MapnikConfig::SymbolDataType dataType,OGREnvelope &mbr)
+void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups,MapnikConfig::SymbolDataType dataType,OGREnvelope &mbr)
 {
     OGREnvelope blank;
     mbr = blank;
@@ -140,46 +173,95 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
         
         // If we've got rules to apply, let's do that here
         bool approved = true;
-        if (styles)
+        if (!symGroups.empty())
         {
             approved = false;
 
-            // Work through the styles
-            for (unsigned int si=0;si<styles->size();si++)
+            // Work through the groups, which have their own filters
+            for (unsigned int si=0;si<symGroups.size();si++)
             {
-                MapnikConfig::Style &style = styles->at(si);
+                MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup &symGroup = symGroups[si];
                 bool styleApproved = false;
+                MapnikConfig::Filter &filter = symGroup.filter;
                 // Work through the valid rules within this style
-                for (unsigned int ri=0;ri<style.rules.size();ri++)
                 {
-                    MapnikConfig::Rule &rule = style.rules[ri];
                     bool ruleApproved = false;
                     // No filter means it all matches
-                    if (rule.filter.isEmpty())
+                    if (filter.isEmpty())
                     {
                         ruleApproved = true;
                     } else {
-                        // Look for the attribute we're comparing
-                        int idx = feature->GetFieldIndex(rule.filter.attrName.c_str());
-                        if (idx >= 0)
+                        if (filter.logicalOp != MapnikConfig::Filter::OperatorAND)
                         {
-                            // Compare the value.  Might be a string or a real
-                            switch (rule.filter.compareValueType)
+                            fprintf(stderr,"Can only currently handle AND in logical operator rules");
+                            exit(-1);
+                        }
+                        
+                        // Work through the comparisons
+                        for (unsigned int ci=0;ci<filter.comparisons.size();ci++)
+                        {
+                            MapnikConfig::Filter::Comparison &comp = filter.comparisons[ci];
+                            
+                            // Look for the attribute we're comparing
+                            int idx = feature->GetFieldIndex(comp.attrName.c_str());
+                            if (idx >= 0)
                             {
-                                case MapnikConfig::Filter::CompareString:
+                                // Compare the value.  Might be a string or a real
+                                switch (comp.compareValueType)
                                 {
-                                    const char *strVal = feature->GetFieldAsString(idx);
-                                    if (!rule.filter.attrValStr.compare(strVal))
-                                        ruleApproved = true;
+                                    case MapnikConfig::Filter::Comparison::CompareString:
+                                    {
+                                        const char *strVal = feature->GetFieldAsString(idx);
+                                        switch (comp.compareType)
+                                        {
+                                            case MapnikConfig::Filter::Comparison::CompareEqual:
+                                                if (!comp.attrValStr.compare(strVal))
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareNotEqual:
+                                                if (comp.attrValStr.compare(strVal))
+                                                    ruleApproved = true;
+                                                break;
+                                            default:
+                                                fprintf(stderr,"Not expecting value comparison for string.  Giving up.");
+                                                exit(-1);
+                                                break;
+                                        }
+                                    }
+                                        break;
+                                    case MapnikConfig::Filter::Comparison::CompareReal:
+                                    {
+                                        double val = feature->GetFieldAsDouble(idx);
+                                        switch (comp.compareType)
+                                        {
+                                            case MapnikConfig::Filter::Comparison::CompareEqual:
+                                                if (val == comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareNotEqual:
+                                                if (val != comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareMore:
+                                                if (val > comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareMoreEqual:
+                                                if (val >= comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareLess:
+                                                if (val < comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                            case MapnikConfig::Filter::Comparison::CompareLessEqual:
+                                                if (val <= comp.attrValReal)
+                                                    ruleApproved = true;
+                                                break;
+                                        }
+                                    }
+                                        break;
                                 }
-                                    break;
-                                case MapnikConfig::Filter::CompareReal:
-                                {
-                                    double val = feature->GetFieldAsDouble(idx);
-                                    if (rule.filter.attrValReal == val)
-                                        ruleApproved = true;
-                                }
-                                    break;
                             }
                         }
                     }
@@ -187,17 +269,17 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                     // Add the symbolizers since we approved this rule
                     if (ruleApproved)
                     {
-                        symbolizers.insert(symbolizers.end(), rule.symbolizers.begin(), rule.symbolizers.end());
-                        attrsToKeep.insert(rule.attrs.begin(),rule.attrs.end());
+                        attrsToKeep.insert(symGroup.attrs.begin(),symGroup.attrs.end());
                     }
                     styleApproved |= ruleApproved;
                     
+                    approved |= styleApproved;
+
                     // We may just match the first rule we find
-                    if (ruleApproved && style.filterMode == MapnikConfig::FilterFirst)
+                    // Note: Everything is filter first now
+                    if (ruleApproved) // && styleInst.style->filterMode == MapnikConfig::FilterFirst)
                         break;
                 }
-
-                approved |= styleApproved;
             }
         }
 
@@ -220,12 +302,12 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
             mbr.Merge(thisEnv);
 //            int numFields = feature->GetFieldCount();
 
-            // Need attributges for the various styles
-            for (unsigned int si=0;si<symbolizers.size();si++)
+            // Need attributes for the various styles
+            for (unsigned int ig=0;ig<symGroups.size();ig++)
             {
-                std::string styleIndex = (std::string)"style" + std::to_string(si);
+                std::string styleIndex = (std::string)"style" + std::to_string(ig);
                 // Make sure the field definition is there
-                OGRFieldDefn fieldDef(styleIndex.c_str(),OFTInteger);
+                OGRFieldDefn fieldDef(styleIndex.c_str(),OFTString);
                 if (outLayer->GetLayerDefn()->GetFieldIndex(styleIndex.c_str()) == -1)
                     if (outLayer->CreateField(&fieldDef) != OGRERR_NONE)
                     {
@@ -256,11 +338,12 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
 
             // Now apply the symbolizers (they'll be styles in the final output)
 //            int numNewFields = newFeature->GetFieldCount();
-            for (unsigned int si=0;si<symbolizers.size();si++)
+//                std::string styleIndex = (std::string)"style" + std::to_string(si);
+            for (unsigned int ig=0;ig<symGroups.size();ig++)
             {
-                std::string styleIndex = (std::string)"style" + std::to_string(si);
-                
-                newFeature->SetField(styleIndex.c_str(), symbolizers[si]);
+                std::string styleIndex = (std::string)"style" + std::to_string(ig);
+                std::string uuid = boost::uuids::to_string(symGroups[ig].uuid);
+                newFeature->SetField(styleIndex.c_str(), uuid.c_str());
             }
             
             // And don't forget the attributes they care about
@@ -286,7 +369,7 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
 }
 
 // Clip the input layer to the given box
-void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY,OGRSpatialReference *out_srs,std::vector<OGRFeature *> &outFeatures,OGRCoordinateTransformation *tileTransform)
+void ClipInputToBox(LayerSpatialIndex *layer,double llX,double llY,double urX,double urY,OGRSpatialReference *out_srs,std::vector<OGRFeature *> &outFeatures,OGRCoordinateTransformation *tileTransform)
 {
     // Set up the clipping layer
     OGRPolygon poly;
@@ -301,13 +384,14 @@ void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY
     mbr.MinX = llX;  mbr.MinY = llY;
     mbr.MaxX = urX;  mbr.MaxY = urY;
     
-    for (unsigned int ii=0;ii<layer->features.size();ii++)
+    std::vector<OGRFeature *> features;
+    layer->findFeatures(llX,llY,urX,urY,features);
+    for (unsigned int ii=0;ii<features.size();ii++)
     {
-        if (mbr.Intersects(layer->mbrs[ii]))
-        {
-            OGRFeature *inFeature = layer->features[ii];
+        OGRFeature *inFeature = features[ii];
 //            int numFields = inFeature->GetFieldCount();
-            OGRGeometry *geom = inFeature->GetGeometryRef();
+        OGRGeometry *geom = inFeature->GetGeometryRef();
+        try {
             OGRGeometry *clipGeom = geom->Intersection(&poly);
             if (clipGeom && !clipGeom->IsEmpty())
             {
@@ -318,6 +402,10 @@ void ClipInputToBox(LayerMBRs *layer,double llX,double llY,double urX,double urY
                 outFeatures.push_back(feature);
             } else if (clipGeom)
                 delete clipGeom;
+        }
+        catch (...)
+        {
+            fprintf(stderr,"Unhappy intersection call.  Punting geometry.");
         }
     }
 }
@@ -359,7 +447,7 @@ bool MergeIntoShapeFile(std::vector<OGRFeature *> &features,OGRLayer *srcLayer,O
 {
     // Look for an existing shapefile
     OGRLayer *destLayer = NULL;
-    OGRDataSource *poCDS = shpDriver->Open(fileName);
+    OGRDataSource *poCDS = shpDriver->Open(fileName,true);
     if (poCDS)
     {
         // Use the layer in the data file
@@ -431,7 +519,7 @@ public:
 };
 
 // Chop up a shapefile into little bits
-void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::Style> *styles, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv,OGREnvelope *clipEnv)
+void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv,OGREnvelope *clipEnv,int &copiedFeatures)
 {
     // Number of cells at this level
     int numCells = 1<<level;
@@ -454,7 +542,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         // Copy the input layer into memory and reproject it
         OGRLayer *inLayer = poDS->GetLayer(jj);
         OGRSpatialReference *this_srs = inLayer->GetSpatialRef();
-        fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
+//        fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
         
         OGREnvelope psExtent;
         inLayer->GetExtent(&psExtent);
@@ -476,8 +564,9 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         OGRDataSource *memDS = memDriver->CreateDataSource("memory");
         OGRLayer *layer = memDS->CreateLayer("layer",this_srs);
         // We'll also apply any rules and attribute changes at this point
-        TransformLayer(inLayer,layer,transform,styles,dataType,psExtent);
-        LayerMBRs layerMBRs(layer);
+        TransformLayer(inLayer,layer,transform,symGroups,dataType,psExtent);
+        LayerSpatialIndex layerIndex(layer);
+        copiedFeatures += layer->GetFeatureCount();
         
         // Which cells might we be covering
         int sx = floor((psExtent.MinX - xmin) / cellSizeX);
@@ -509,7 +598,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                 totalEnv.Merge(cellEnv);
                 
                 std::vector<OGRFeature *> clippedFeatures;
-                ClipInputToBox(&layerMBRs,cellEnv.MinX,cellEnv.MinY,cellEnv.MaxX,cellEnv.MaxY,hTrgSRS,clippedFeatures,tileTransform);
+                ClipInputToBox(&layerIndex,cellEnv.MinX,cellEnv.MinY,cellEnv.MaxX,cellEnv.MaxY,hTrgSRS,clippedFeatures,tileTransform);
                 
                 //                    fprintf(stdout, "            Cell (%d,%d):  %d features\n",ix,iy,cellLayer->GetFeatureCount());
                 
@@ -558,6 +647,7 @@ int main(int argc, char * argv[])
 {
     const char *targetDir = NULL;
     const char *targetDb = NULL;
+    const char *shapeCacheDir = NULL;
     char *destSRS = NULL,*tileSRS = NULL;
     bool teSet = false;
     char *xmlConfig = NULL;
@@ -586,6 +676,15 @@ int main(int argc, char * argv[])
                 return -1;
             }
             targetDir = argv[ii+1];
+        } else if (EQUAL(argv[ii],"-cachedir"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument for -cachedir\n");
+                return -1;
+            }
+            shapeCacheDir = argv[ii+1];
         } else if (EQUAL(argv[ii],"-targetdb"))
         {
             numArgs = 2;
@@ -689,6 +788,11 @@ int main(int argc, char * argv[])
         return -1;
     }
     
+    if (shapeCacheDir)
+    {
+        mkdir(shapeCacheDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+    
     shpDriver = OGRSFDriverRegistrar::GetRegistrar()->GetDriverByName("ESRI Shapefile" );
     if (!shpDriver)
     {
@@ -750,134 +854,95 @@ int main(int argc, char * argv[])
     
     if (mapnikConfig)
     {
-        // Work through the levels
-        for (int li=minLevel;li<=maxLevel;li++)
+        // Work through the layers
+        for (unsigned int ii=0;ii<mapnikConfig->layers.size();ii++)
         {
-            printf("==== Level %d ====\n",li);
-            int scale = ScaleForLevel(li);
-            
-            // Work through the layers, looking for rules that match this level
-            for (unsigned int ii=0;ii<mapnikConfig->layers.size();ii++)
+            MapnikConfig::Layer &inLayer = mapnikConfig->layers[ii];
+            MapnikConfig::SortedLayer layer(mapnikConfig,inLayer);
+            if (!layer.isValid())
             {
-                MapnikConfig::Layer &layer = mapnikConfig->layers[ii];
+                fprintf(stderr,"Problem parsing layer definition: %s\n",inLayer.name.c_str());
+                exit(-1);
+            }
+            std::vector<bool> sortedStylesDone(layer.sortStyles.size(),false);
+            
+            fprintf(stdout,"Data Source: %s\n",inLayer.name.c_str());
+            fflush(stdout);
+            
+            // Work through the levels
+            for (int li=minLevel;li<=maxLevel;li++)
+            {
+                fprintf(stdout, "  Level %d\n",li);
+                int scale = ScaleForLevel(li);
                 
-                // We need a list of all the rules that apply, sorted by styles
-                //  and sorted by required data type
-                std::vector<MapnikConfig::Style> outStyles[MapnikConfig::SymbolDataUnknown];
-                std::vector<std::string> styleNames;
-                layerNames.insert(layer.name);
-                for (unsigned int si=0;si<layer.styleNames.size();si++)
+                // Look through the sorted styles that might apply and aren't done
+                for (unsigned int ssi=0;ssi<layer.sortStyles.size();ssi++)
                 {
-                    const MapnikConfig::Style *style = mapnikConfig->findStyle(layer.styleNames[si]);
-                    if (!style)
+                    MapnikConfig::SortedLayer::SortedStyle *style = &layer.sortStyles[ssi];
+                    if (!sortedStylesDone[ssi] && (style->maxScale == 0 || style->maxScale >= scale))
                     {
-                        fprintf(stderr, "Dangling style name %s in layer %s",layer.styleNames[si].c_str(),layer.name.c_str());
-                        return -1;
-                    }
-                    MapnikConfig::Style outStyle[MapnikConfig::SymbolDataUnknown];
-                    for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
-                    {
-                        outStyle[ssi] = *style;
-                        for (unsigned int ri=0;ri<outStyle[ssi].rules.size();ri++)
-                            outStyle[ssi].rules[ri].symbolizers.clear();
-                    }
-                    
-                    // Look through the rules that might apply to this level
-                    for (unsigned int ri=0;ri<style->rules.size();ri++)
-                    {
-                        const MapnikConfig::Rule &rule = style->rules[ri];
-                        int maxScale = 1e20;
-                        if (rule.maxScale > -1)
-                            maxScale = rule.maxScale;
-                        int minScale = 0;
-                        if (rule.minScale > -1)
-                            minScale = rule.minScale;
-
-                        // Should be in this level
-                        if (minScale < scale && scale < maxScale)
-                        {
-                            bool approved = true;
-                            // However, there are rules that apply at low levels that would be redundant higher up
-                            if (rule.minScale == -1)
-                            {
-                                if (li!=minLevel)
-                                {
-                                    int lastScale = ScaleForLevel(li-1);
-                                    if (minScale < lastScale && lastScale < maxScale)
-                                        approved = false;
-                                }
-                            }
-                                
-                            if (approved)
-                            {
-                                // Sort into the appropriate bucket based on the data type of the symbolizers
-                                for (unsigned symi=0;symi<rule.symbolizers.size();symi++)
-                                {
-                                    int symID = rule.symbolizers[symi];
-                                    MapnikConfig::Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[symID];
-                                    outStyle[sym.dataType].rules[ri].symbolizers.push_back(symID);
-                                }
-                                styleNames.push_back(style->name);
-                            }
-                        }
-                    }
-                    
-                    // See if any of the rules matched and save them if they did.
-                    // Sorted by data type
-                    for (unsigned int ssi=0;ssi<MapnikConfig::SymbolDataUnknown;ssi++)
-                    {
-                        MapnikConfig::Style &testStyle = outStyle[ssi];
-                        for (unsigned int ri=0;ri<testStyle.rules.size();ri++)
-                        {
-                            if (!testStyle.rules[ri].symbolizers.empty())
-                            {
-                                outStyles[ssi].push_back(testStyle);
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                // Some of the rules apply here, so let's work through the data files
-                for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
-                {
-                    // Filter out the styles that didn't get any symbolizer rules
-                    std::vector<MapnikConfig::Style> &testStyle = outStyles[di];
-                    std::vector<MapnikConfig::Style> outStyle;
-                    for (unsigned int ti=0;ti<testStyle.size();ti++)
-                    {
-                        MapnikConfig::Style &inStyle = testStyle[ti];
-                        MapnikConfig::Style style = inStyle;
-                        style.rules.clear();
-                        for (unsigned int ri=0;ri<inStyle.rules.size();ri++)
-                            if (!inStyle.rules[ri].symbolizers.empty())
-                                style.rules.push_back(inStyle.rules[ri]);
-                        if (!style.rules.empty())
-                            outStyle.push_back(style);
-                    }
-
-                    if (!outStyle.empty())
-                    {
-                        int numRules = 0;
-                        for (unsigned int si=0;si<outStyle.size();si++)
-                            for (unsigned int ri=0;ri<outStyle[si].rules.size();ri++)
-                                numRules += outStyle[si].rules[ri].symbolizers.size();
-                        printf(" %d styles, %d symbolizers: %s\n",(int)outStyle.size(),numRules,layer.dataSources[0].c_str());
+                        sortedStylesDone[ssi] = true;
+                        // Compile these styles, which gives us the UUIDs we need below for the groups
+                        // Individual features point to these groups
+                        std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> symGroups;
+                        mapnikConfig->compiledSymTable.addSymbolizerGroup(mapnikConfig, style, symGroups);
                         
-                        std::string thisLayerName = layer.name;
-                        mapnikConfig->symbolizerTable.layerNames.insert(thisLayerName);
+                        // This is one specific filter, so we need to chop this version right here
+                        // We'll work through the data type.  Chop will actually merge, so we can hit the same layer multiple times.
+                        int totalFeatures = 0;
+                        for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
+                        {
+                            const char *symbolType = NULL;
+                            switch (di)
+                            {
+                                case MapnikConfig::SymbolDataPoint:
+                                    symbolType = "Point";
+                                    break;
+                                case MapnikConfig::SymbolDataLinear:
+                                    symbolType = "Linear";
+                                    break;
+                                case MapnikConfig::SymbolDataAreal:
+                                    symbolType = "Areal";
+                                    break;
+                            }
+                            int numRules = 0;
+                            for (unsigned int si=0;si<style->styleInstances.size();si++)
+                                numRules += style->styleInstances[si].rules.size();
+                            if (style->filter.filter.empty())
+                                fprintf(stdout, "\tData Type = %s; Empty Filter, %d rules\n",symbolType,numRules);
+                            else
+                                fprintf(stdout,"\tData Type = %s; Filter = %s, %d rules\n",symbolType,style->filter.filter.c_str(),numRules);
                             
-                        ChopShapefile(thisLayerName.c_str(), layer.dataSources[0].c_str(), &outStyle, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents, (clipBoundsSet ? &clipBounds : NULL));
+                            int copiedFeatures = 0;
+                            std::string thisLayerName = inLayer.name;
+                            ChopShapefile(thisLayerName.c_str(), inLayer.dataSources[0]->getShapefileName(&inLayer,(shapeCacheDir ? shapeCacheDir : targetDir)).c_str(), symGroups, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents, (clipBoundsSet ? &clipBounds : NULL),copiedFeatures);
+                            
+                            if (copiedFeatures > 0)
+                            {
+                                mapnikConfig->compiledSymTable.layerNames.insert(thisLayerName);
+
+                                fprintf(stdout,"\t\tChopped %d %s features\n",copiedFeatures,symbolType);
+                                totalFeatures += copiedFeatures;
+                            }
+                        }
+                        
+                        // Something used this style, so writ it out
+                        if (totalFeatures > 0)
+                        {
+                        }
                     }
+                    
+                    // We know something came over from this layer
+                    layerNames.insert(inLayer.name);
                 }
             }
         }
         
         // Write the symbolizers out as JSON
         std::string styleJson;
-        mapnikConfig->symbolizerTable.minLevel = minLevel;
-        mapnikConfig->symbolizerTable.maxLevel = maxLevel;
-        if (!mapnikConfig->symbolizerTable.writeJSON(styleJson))
+        mapnikConfig->compiledSymTable.minLevel = minLevel;
+        mapnikConfig->compiledSymTable.maxLevel = maxLevel;
+        if (!mapnikConfig->compiledSymTable.writeJSON(styleJson))
         {
             fprintf(stderr, "Failed to convert styles to JSON");
             return -1;
@@ -942,15 +1007,16 @@ int main(int argc, char * argv[])
             Maply::VectorDatabase *vectorDb = new Maply::VectorDatabase();
             vectorDb->setupDatabase(sqliteDb, destSRS, tileSRS, xmin, ymin, ymax, ymax, minLevel, maxLevel, true);
             
-            // Copy over the styles
-            for (unsigned int si=0;si<mapnikConfig->symbolizerTable.symbolizers.size();si++)
+            // Write out the styles
+            for (unsigned int ii=0;ii<mapnikConfig->compiledSymTable.symGroups.size();ii++)
             {
-                MapnikConfig::Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[si];
-                std::string json;
-                sym.toString(json);
-                vectorDb->addStyle(sym.name.c_str(),json.c_str());
+                std::string styleStr;
+                MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup &symGroup = mapnikConfig->compiledSymTable.symGroups[ii];
+                symGroup.toString(styleStr);
+                std::string name = "style " + std::to_string(ii);
+                vectorDb->addStyle(name.c_str(), styleStr.c_str());
             }
-
+            
             // Set up the layer tables
             std::vector<int> layerIDs;
             std::vector<std::string> localLayerNames;
@@ -979,6 +1045,30 @@ int main(int argc, char * argv[])
                 
                 for (unsigned int iy=sy;iy<=ey;iy++)
                 {
+                    // If there's nothing in the row we can skip that
+                    std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
+                    boost::filesystem::path yDirPath(yDir);
+                    if (!boost::filesystem::exists(yDirPath))
+                    {
+                        cellsProcessed += (ex-sx+1);
+                        double done = cellsProcessed/((double)totalNumCells);
+                        GDALTermProgress(done,NULL,NULL);
+                        continue;
+                    }
+                    
+                    // Collect up all the filenames for the row, to save us from opening files one by one
+                    std::set<std::string> yFileNames;
+                    for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+                         dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+                    {
+                        boost::filesystem::path p = dirIter->path();
+                        std::string ext = p.extension().string();
+                        if (!ext.compare(".shp"))
+                        {
+                            yFileNames.insert(p.string());
+                        }
+                    }
+
                     for (unsigned int ix=sx;ix<=ex;ix++)
                     {
                         // Set up an in memory data source
@@ -998,6 +1088,10 @@ int main(int argc, char * argv[])
                             {
                                 const char *typeName = (di == MapnikConfig::SymbolDataPoint ? "_p" : ((di == MapnikConfig::SymbolDataLinear) ? "_l" : ((di == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
                                 std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
+                                
+                                // Look for the filename in the name cache.  Faster.
+                                if (yFileNames.find(cellFileName) == yFileNames.end())
+                                    continue;
 
                                 // Open the shapefile and get pointers to the features
                                 OGRDataSource *poCDS = shpDriver->Open(cellFileName.c_str());
@@ -1012,10 +1106,13 @@ int main(int argc, char * argv[])
                             
                             // Write the data out in our custom format
                             try {
-                                std::vector<unsigned char> vecData;
-                                vectorDb->vectorToDBFormat(layerFeatures, vecData);
-                                if (!vecData.empty())
-                                    vectorDb->addVectorTile(ix, iy, level, layerIDs[li], (const char *)&vecData[0], (int)vecData.size());
+                                if (!layerFeatures.empty())
+                                {
+                                    std::vector<unsigned char> vecData;
+                                    vectorDb->vectorToDBFormat(layerFeatures, vecData);
+                                    if (!vecData.empty())
+                                        vectorDb->addVectorTile(ix, iy, level, layerIDs[li], (const char *)&vecData[0], (int)vecData.size());
+                                }
                             }
                             catch (std::string &errorStr)
                             {

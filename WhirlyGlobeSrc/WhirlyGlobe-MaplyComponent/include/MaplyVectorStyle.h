@@ -1,5 +1,5 @@
 /*
- *  MaplyVectorTiles.h
+ *  MaplyVectorStyle.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -20,23 +20,25 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyQuadPagingLayer.h"
-#import "MaplyVectorStyle.h"
 
-@interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
+@interface MaplyVectorTileStyleSettings : NSObject
 
-+ (UIColor *)ParseColor:(NSString *)colorStr;
+@property (nonatomic) float lineScale;
+@property (nonatomic) float textScale;
+@property (nonatomic) float markerScale;
 
-- (id)initWithDirectory:(NSString *)tilesDir;
-- (id)initWithDatabase:(NSString *)tilesDB;
+@end
 
-@property (nonatomic,readonly) NSString *tilesDir;
-@property (nonatomic,readonly) int minLevel;
-@property (nonatomic,readonly) int maxLevel;
+@interface MaplyVectorTileStyle : NSObject
 
-@property (nonatomic) MaplyVectorTileStyleSettings *settings;
+@property (nonatomic) NSString *uuid;
 
-@property (nonatomic,readonly) NSArray *layerNames;
++ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings;
 
-@property (nonatomic,readonly) NSArray *styles;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry;
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+
+@property (nonatomic) bool geomAdditive;
 
 @end
