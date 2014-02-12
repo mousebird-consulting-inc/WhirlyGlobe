@@ -173,7 +173,7 @@ using namespace WhirlyKit;
             if (valid)
             {
 //                NSLog(@"Pinch updated");
-//                [globeView cancelAnimation];
+                [globeView cancelAnimation];
                 
                 // And adjust the height too
                 float newH = startZ/pinch.scale;
