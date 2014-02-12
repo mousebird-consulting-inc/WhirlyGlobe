@@ -180,7 +180,7 @@ using namespace WhirlyKit;
                 if (_minHeight <= newH && newH <= _maxHeight)
                     [globeView setHeightAboveGlobe:newH updateWatchers:false];
 
-                Eigen::Quaterniond newRotQuat = startQuat;
+                Eigen::Quaterniond newRotQuat = globeView.rotQuat;
                 Point3d axis = [globeView currentUp];
                 if (_zoomAroundPinch)
                 {
