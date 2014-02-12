@@ -6,8 +6,10 @@
 //  Copyright (c) 2014 mousebird consulting. All rights reserved.
 //
 
+#import <map>
 #include "MapnikConfig.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace tinyxml2;
 
@@ -16,18 +18,87 @@ MapnikConfig::Symbolizer::Symbolizer()
 {
 }
 
-void MapnikConfig::Symbolizer::toString(std::string &json)
+void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *mapnikConfig,void *inStyle,std::vector<SymbolizerGroup> &retGroups)
+{
+    SortedLayer::SortedStyle *style = (SortedLayer::SortedStyle *)inStyle;
+    std::map<SymbolizerType,SymbolizerGroup *> groups;
+    
+    // Work through the symbolizers, building up compatible groups as we go
+    for (unsigned int ii=0;ii<style->styleInstances.size();ii++)
+    {
+        SortedLayer::SortedStyle::Instance &inst = style->styleInstances[ii];
+        for (unsigned int ri=0;ri<inst.rules.size();ri++)
+        {
+            Rule &rule = inst.rules[ri];
+            for (unsigned int si=0;si<rule.symbolizers.size();si++)
+            {
+                Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[rule.symbolizers[si]];
+                // Look for a matching type
+                auto it = groups.find(sym.symType);
+                SymbolizerGroup *group = NULL;
+                if (it == groups.end())
+                {
+                    group = new SymbolizerGroup();
+                    group->symType = sym.symType;
+                    group->dataType = style->dataType;
+                    group->geomType = Symbolizer::TileGeomAdd;
+                    group->filter = rule.filter;
+                    group->attrs.insert(rule.attrs.begin(),rule.attrs.end());
+                    groups[group->symType] = group;
+                } else
+                    group = it->second;
+                SubSymbolizer subSym;
+                subSym.minScaleDenom = sym.minScaleDenom;
+                subSym.maxScaleDenom = sym.maxScaleDenom;
+                subSym.xmlEl = sym.xmlEl;
+                group->subSyms.push_back(subSym);
+            }
+        }
+    }
+    
+    // Add the groups to the compiled symbolizer table
+    for (auto& it : groups)
+    {
+        symGroups.push_back(*it.second);
+        retGroups.push_back(*it.second);
+        // And clean them up
+        delete it.second;
+    }
+}
+
+void MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup::toString(std::string &json)
+{
+    XMLElement *symEl = subSyms[0].xmlEl;
+
+    json += "\t\t{\n";
+    json += (std::string)"\t\t\t\"uuid\": " + "\"" + boost::uuids::to_string(uuid) + "\"" + ",\n";
+    json += (std::string)"\t\t\t\"type\": " + "\"" + symEl->Name() + "\"" + ",\n";
+
+    json += (std::string)"\t\t\t\"tilegeom\": " + "\"" + (geomType == Symbolizer::TileGeomAdd ? "add" : "replace") + "\",\n";
+    
+    json += (std::string)"\t\t\t\"substyles\" : [\n";
+    
+    for (unsigned int ii=0;ii<subSyms.size();ii++)
+    {
+        subSyms[ii].toString(json);
+        if (ii < subSyms.size()-1)
+            json += ",";
+        json += "\n";
+    }
+    json += (std::string)"\t\t\t]\n";
+    json += "\t\t}";
+}
+
+void MapnikConfig::CompiledSymbolizerTable::SubSymbolizer::toString(std::string &json)
 {
     XMLElement *symEl = xmlEl;
-    
-    json += "\t\t{\n";
-    json += (std::string)"\t\t\t\"type\": " + "\"" + symEl->Name() + "\"";
-    json += ",\n";
-    
-    json += (std::string)"\t\t\t\"tilegeom\": " + "\"" + (geomType == Symbolizer::TileGeomAdd ? "add" : "replace") + "\"";
-    if (symEl->FirstAttribute())
-        json += ",";
-    json += "\n";
+
+    std::string indent = "\t\t\t\t";
+    json += indent + "{\n";
+    if (minScaleDenom > 0)
+        json += indent + "\t\"minscaledenom\": " + std::to_string(minScaleDenom) + ",\n";
+    if (maxScaleDenom > 0)
+        json += indent + "\t\"maxscaledenom\": " + std::to_string(maxScaleDenom) + ",\n";
     
     const char *bodyStr = symEl->GetText();
     
@@ -46,7 +117,7 @@ void MapnikConfig::Symbolizer::toString(std::string &json)
             isNumber = false;
         }
         
-        json += (std::string)"\t\t\t\"" + attr->Name() + "\": ";
+        json += indent + "\t\"" + attr->Name() + "\": ";
         if (isNumber)
             json += attr->Value();
         else
@@ -59,13 +130,13 @@ void MapnikConfig::Symbolizer::toString(std::string &json)
     // Some of these have a body as well
     if (bodyStr)
     {
-        json += (std::string)"\t\t\t\"" + "attribute" + "\": " + "\"" + bodyStr + "\"";
+        json += indent + "\t\"" + "attribute" + "\": " + "\"" + bodyStr + "\"\n";
     }
     
-    json += "\t\t}";
+    json += indent + "}";
 }
 
-bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
+bool MapnikConfig::CompiledSymbolizerTable::writeJSON(std::string &json)
 {
     json += "{\n";
     
@@ -86,13 +157,13 @@ bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
     json += "\t\"styles\": [\n";
     
     // Work through the individual symbolizers
-    for (unsigned int ii=0;ii<symbolizers.size();ii++)
+    for (unsigned int ii=0;ii<symGroups.size();ii++)
     {
         std::string symJson;
-        symbolizers[ii].toString(symJson);
+        symGroups[ii].toString(symJson);
         json += symJson;
         
-        if (ii != symbolizers.size()-1)
+        if (ii != symGroups.size()-1)
             json += ",";
         json += "\n";
     }
@@ -105,7 +176,6 @@ bool MapnikConfig::SymbolizerTable::writeJSON(std::string &json)
 }
 
 MapnikConfig::Filter::Filter()
-: exp(NULL)
 {
 }
 
@@ -115,7 +185,7 @@ MapnikConfig::Filter::~Filter()
 
 bool MapnikConfig::Filter::isValid()
 {
-    return (exp.get() != NULL);
+    return !comparisons.empty();
 }
 
 bool MapnikConfig::Filter::isEmpty()
@@ -123,52 +193,93 @@ bool MapnikConfig::Filter::isEmpty()
     return !isValid();
 }
 
+bool MapnikConfig::Filter::Comparison::isValid()
+{
+    return exp.get() != NULL;
+}
+
+void MapnikConfig::Filter::Comparison::setFilter(const std::string &filterText)
+{
+    exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|>|<|<=|>=|&gt;|&lt;|&lt;&gt;|!=)\\s(\'?\\w*\'?)\\)"));
+    boost::smatch what;
+    if (boost::regex_match(filterText, what, *exp, boost::match_default))
+    {
+        if (what.size() != 4)
+            throw 1;
+        
+        attrName = what[1];
+        std::string strVal = what[3];
+        std::string attrComp = what[2];
+        if (!attrComp.compare("="))
+        {
+            compareType = CompareEqual;
+        } else if (!attrComp.compare("&lt;&gt;") || !attrComp.compare("&gt;&lt;") || !attrComp.compare("!="))
+        {
+            compareType = CompareNotEqual;
+        } else if (!attrComp.compare("&lt;") || !attrComp.compare("<"))
+        {
+            compareType = CompareLess;
+        } else if (!attrComp.compare("&gt;") || !attrComp.compare(">"))
+        {
+            compareType = CompareMore;
+        } else if (!attrComp.compare("<="))
+        {
+            compareType = CompareLessEqual;
+        } else if (!attrComp.compare(">="))
+        {
+            compareType = CompareMoreEqual;
+        } else
+        {
+            // Unknown comparison type
+            throw 1;
+        }
+        
+        if (strVal.empty())
+        {
+            throw 1;
+        }
+        if (strVal[0] == '\'')
+        {
+            if (strVal.back() != '\'')
+                throw 1;
+            attrValStr = strVal.substr(1,strVal.length()-2);
+            compareValueType = CompareString;
+        } else {
+            attrValReal = boost::lexical_cast<double>(strVal);
+            compareValueType = CompareReal;
+        }
+    } else {
+        throw 1;
+    }
+}
+
 void MapnikConfig::Filter::setFilter(const std::string &filterText)
 {
     filter = filterText;
     
     try {
-        exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|&gt|&lt|&lt&gt|!=)\\s(\'?\\w*\'?)\\)"));
+        // Let's try an AND
+        exp = RegExRef(new boost::regex("(\\(.+\\))\\s(?:and)\\s(\\(.+\\))"));
         boost::smatch what;
         if (boost::regex_match(filterText, what, *exp, boost::match_default))
         {
-            if (what.size() != 4)
+            if (what.size() != 3)
                 throw 1;
 
-            attrName = what[1];
-            std::string strVal = what[3];
-            std::string attrComp = what[2];
-            if (!attrComp.compare("="))
+            logicalOp = OperatorAND;
+            for (unsigned int ii=0;ii<2;ii++)
             {
-                compareType = CompareEqual;
-            } else if (!attrComp.compare("&lt&gt") || !attrComp.compare("&gt&lt") || !attrComp.compare("!="))
-            {
-                compareType = CompareNotEqual;
-            } else if (!attrComp.compare("&lt"))
-            {
-                compareType = CompareLess;
-            } else if (!attrComp.compare("&gt"))
-            {
-                compareType = CompareMore;
-            } else {
-                // Unknown comparison type
-                throw 1;
-            }
-            
-            if (strVal.empty())
-            {
-                throw 1;
-            }
-            if (strVal[0] == '\'')
-            {
-                if (strVal.back() != '\'')
-                    throw 1;
-                attrValStr = strVal.substr(1,strVal.length()-2);
-            } else {
-                attrValReal = boost::lexical_cast<double>(strVal);
+                Comparison comp;
+                comp.setFilter(what[ii+1]);
+                comparisons.push_back(comp);
             }
         } else {
-            throw 1;
+            // Okay, how about a single operation
+            Comparison comp;
+            comp.setFilter(filterText);
+            logicalOp = OperatorAND;
+            if (comp.isValid())
+                comparisons.push_back(comp);
         }
     }
     catch (...)
@@ -180,7 +291,21 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
 MapnikConfig::Rule::Rule() :
     xmlEl(NULL), minScale(-1), maxScale(-1)
 {
+}
+
+MapnikConfig::Rule MapnikConfig::Rule::ruleForDataType(MapnikConfig *mapnikConfig, SymbolDataType dataType) const
+{
+    Rule rule = *this;
+    rule.symbolizers.clear();
     
+    for (unsigned int ii=0;ii<symbolizers.size();ii++)
+    {
+        Symbolizer &sym = mapnikConfig->symbolizerTable.symbolizers[symbolizers[ii]];
+        if (sym.dataType == dataType)
+            rule.symbolizers.push_back(symbolizers[ii]);
+    }
+    
+    return rule;
 }
 
 MapnikConfig::Rule::~Rule()
@@ -198,6 +323,56 @@ MapnikConfig::Style::~Style()
     
 }
 
+MapnikConfig::ShapefileDataSource::ShapefileDataSource(const std::string &fileName)
+: fileName(fileName)
+{
+}
+
+std::string MapnikConfig::ShapefileDataSource::getName()
+{
+    return fileName;
+}
+
+std::string MapnikConfig::ShapefileDataSource::getShapefileName(Layer *layer,const char *outDir)
+{
+    return fileName;
+}
+
+std::string MapnikConfig::PostGISDataSource::getName()
+{
+    return idStr;
+}
+
+std::string MapnikConfig::PostGISDataSource::getShapefileName(Layer *layer,const char *outDir)
+{
+    if (shapefileName.empty())
+    {
+        shapefileName = (std::string)outDir + "/" + layer->name + ".shp";
+        
+        // Let's see if it's there already
+        FILE *fp = fopen(shapefileName.c_str(),"r");
+        if (fp)
+        {
+            fclose(fp);
+            return shapefileName;
+        }
+        
+        // Run pgsql2shp to generate a shapefile.
+        // This way we don't have to have GDAL installed with postgis.  I know, I know.
+        std::string query = "SELECT * FROM " + table;
+        boost::replace_all(query, "\"", "\\\"");
+        boost::replace_all(query, "\n", " ");
+        std::string execStr = ((std::string)"/usr/local/bin/pgsql2shp -f " + "\"" + shapefileName + "\"" + " " + dbname + " " + "\"" + query + "\"");
+        if (system(execStr.c_str()))
+        {
+            fprintf(stderr, "Failed to execute postgis request:\n%s\n",execStr.c_str());
+            throw execStr;
+        }
+    }
+    
+    return shapefileName;
+}
+
 MapnikConfig::Layer::Layer() :
     xmlEl(NULL)
 {
@@ -206,18 +381,91 @@ MapnikConfig::Layer::Layer() :
 
 MapnikConfig::Layer::~Layer()
 {
+}
+
+MapnikConfig::SortedLayer::SortedLayer(MapnikConfig *mapnikConfig,const Layer &layer)
+{
+    valid = false;
     
+    // Work through the styles that apply to this layer
+    for (unsigned si=0;si<layer.styleNames.size();si++)
+    {
+        const MapnikConfig::Style *style = mapnikConfig->findStyle(layer.styleNames[si]);
+        if (!style)
+        {
+            fprintf(stderr, "Dangling style name %s in layer %s",layer.styleNames[si].c_str(),layer.name.c_str());
+            return;
+        }
+
+        // Look through the style's rules
+        for (unsigned int ri=0;ri<style->rules.size();ri++)
+        {
+            const MapnikConfig::Rule &inRule = style->rules[ri];
+            
+            // Work through the data types
+            for (unsigned int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
+            {
+                MapnikConfig::Rule rule = inRule.ruleForDataType(mapnikConfig,(SymbolDataType)di);
+                if (rule.symbolizers.empty())
+                    continue;
+                int maxScale = 0;
+                if (rule.maxScale > -1)
+                    maxScale = rule.maxScale;
+                
+                // Look for a style that matches this filter
+                SortedStyle *thisSStyle = NULL;
+                for (unsigned ssi=0;ssi<sortStyles.size();ssi++)
+                {
+                    if (!sortStyles[ssi].filter.filter.compare(rule.filter.filter) && sortStyles[ssi].dataType == di)
+                    {
+                        thisSStyle = &sortStyles[ssi];
+                        break;
+                    }
+                }
+                // Or add one
+                if (!thisSStyle)
+                {
+                    sortStyles.resize(sortStyles.size()+1);
+                    thisSStyle = &sortStyles.back();
+                    thisSStyle->maxScale = maxScale;
+                    thisSStyle->filter = rule.filter;
+                    thisSStyle->dataType = (SymbolDataType)di;
+                }
+                // Might need this at a lower loading level
+                if (maxScale > thisSStyle->maxScale)
+                    thisSStyle->maxScale = maxScale;
+                
+                // Now look for a style entry here
+                SortedStyle::Instance *inst = NULL;
+                for (unsigned int si=0;si<thisSStyle->styleInstances.size();si++)
+                    if (thisSStyle->styleInstances[si].style == style)
+                    {
+                        inst = &thisSStyle->styleInstances[si];
+                        break;
+                    }
+                if (!inst)
+                {
+                    thisSStyle->styleInstances.resize(thisSStyle->styleInstances.size()+1);
+                    inst = &thisSStyle->styleInstances.back();
+                    inst->style = style;
+                }
+                
+                // And move the rule over
+                inst->rules.push_back(rule);
+            }
+        }
+    }
+    
+    valid = true;
 }
 
 MapnikConfig::MapnikConfig() :
     paramEl(NULL)
 {
-    
 }
 
 MapnikConfig::~MapnikConfig()
 {
-    
 }
 
 bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
@@ -289,11 +537,12 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
             {
                 std::string filterText = filterEl->GetText();
                 rule.filter.setFilter(filterText);
-                if (!rule.filter.isValid())
-                {
-                    error = "Could not parse filter (" + filterText + ") in rule in style " + style.name;
-                    return false;
-                }
+                // Note: debugging
+//                if (!rule.filter.isValid())
+//                {
+//                    error = "Could not parse filter (" + filterText + ") in rule in style " + style.name;
+//                    return false;
+//                }
             }
 
             // Work through the symbolizers
@@ -331,11 +580,14 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                     sym.symType = symType;
                     sym.name = style.name + "_rule" + std::to_string(ruleCount) + "_" + std::to_string(symCount);
                     sym.xmlEl = symEl;
-                    // If the min scale isn't set for this rule, then the geometry sticks around
-                    if (rule.minScale == -1)
-                        sym.geomType = Symbolizer::TileGeomAdd;
-                    else
-                        sym.geomType = Symbolizer::TileGeomReplace;
+                    sym.geomType = Symbolizer::TileGeomAdd;
+                    sym.minScaleDenom = rule.minScale;
+                    sym.maxScaleDenom = rule.maxScale;
+//                    // If the min scale isn't set for this rule, then the geometry sticks around
+//                    if (rule.minScale == -1)
+//                        sym.geomType = Symbolizer::TileGeomAdd;
+//                    else
+//                        sym.geomType = Symbolizer::TileGeomReplace;
                     symbolizerTable.symbolizers.push_back(sym);
                     rule.symbolizers.push_back(whichSym);
                     
@@ -402,7 +654,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
              dataSourceEl; dataSourceEl = dataSourceEl->NextSiblingElement("Datasource"))
         {
             // Two parameters, one with the file name and one with the data type
-            std::string dataType,fileName;
+            std::string dataType,fileName,dbname,table,idStr;
             for (XMLElement *paramEl = dataSourceEl->FirstChildElement("Parameter");
                  paramEl; paramEl = paramEl->NextSiblingElement("Parameter"))
             {
@@ -413,18 +665,41 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                 } else if (!name.compare("type"))
                 {
                     dataType = paramEl->GetText();
-                } else {
+                } else if (!name.compare("dbname"))
+                {
+                    dbname = paramEl->GetText();
+                } else if (!name.compare("table"))
+                {
+                    table = paramEl->GetText();
+                } else if (!name.compare("id"))
+                {
+                    idStr = paramEl->GetText();
+                } else
+                {
                     // Note: Tolerant of fields we don't know here
 //                    error = "Unknown name " + name + " for data source paramater in layer " + layer.name;
 //                    return false;
                 }
             }
-            if (dataType.compare("shape"))
+            
+            DataSource *dataSource = NULL;
+            if (!dataType.compare("shape"))
             {
+                ShapefileDataSource *shapeDataSource = new ShapefileDataSource(fileName);
+                dataSource = shapeDataSource;
+            } else if (!dataType.compare("postgis"))
+            {
+                PostGISDataSource *pgDataSource = new PostGISDataSource();
+                pgDataSource->dbname = dbname;
+                pgDataSource->table = table;
+                pgDataSource->idStr = idStr;
+                dataSource = pgDataSource;
+            } else {
                 error = "Data type: " + dataType + " is unsupported for data sources in layer " + layer.name;
                 return false;
             }
-            layer.dataSources.push_back(fileName);
+            
+            layer.dataSources.push_back(DataSourceRef(dataSource));
         }
         
         if (layer.dataSources.size() != 1)

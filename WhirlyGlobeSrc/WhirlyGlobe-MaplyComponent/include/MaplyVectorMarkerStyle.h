@@ -1,5 +1,5 @@
 /*
- *  MaplyVectorTiles.h
+ *  MaplyVectorMarkerStyle.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -18,25 +18,11 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "MaplyQuadPagingLayer.h"
+#import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
 
-@interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
+@interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
 
-+ (UIColor *)ParseColor:(NSString *)colorStr;
-
-- (id)initWithDirectory:(NSString *)tilesDir;
-- (id)initWithDatabase:(NSString *)tilesDB;
-
-@property (nonatomic,readonly) NSString *tilesDir;
-@property (nonatomic,readonly) int minLevel;
-@property (nonatomic,readonly) int maxLevel;
-
-@property (nonatomic) MaplyVectorTileStyleSettings *settings;
-
-@property (nonatomic,readonly) NSArray *layerNames;
-
-@property (nonatomic,readonly) NSArray *styles;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end
