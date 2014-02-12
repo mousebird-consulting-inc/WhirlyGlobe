@@ -218,6 +218,11 @@
  */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
+/** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
+    @return Returns the geo coordinate corresponding to a given screen point in radians.
+ */
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point;
+
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
     @param The bounding box (in radians) we're trying to view.
