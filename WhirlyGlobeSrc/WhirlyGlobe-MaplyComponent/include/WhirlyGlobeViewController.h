@@ -275,4 +275,6 @@
  */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+- (float)calculateMapScale;
+
 @end
