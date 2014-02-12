@@ -1,8 +1,8 @@
 /*
- *  MaplyTapDelegate.h
- *  WhirlyGlobeLib
+ *  MaplyTwoFingerTapDelegate.h
  *
- *  Created by Steve Gifford on 1/20/12.
+ *
+ *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,20 +18,17 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "WhirlyVector.h"
+#import <Foundation/Foundation.h>
 #import "MaplyView.h"
-#import "MaplyTapMessage.h"
+#import "MaplyZoomGestureDelegate.h"
 
-/** Maply tap gesture delegate responds to a tap
- by sending out a notification.
- */
-@interface MaplyTapDelegate : NSObject <UIGestureRecognizerDelegate>
+@interface MaplyTwoFingerTapDelegate : MaplyZoomGestureDelegate
 
-/// Create a tap gesture recognizer and a delegate, then wire them up to the given UIView
-+ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+/// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
++ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
-/// Gesture recognizer created for the delegate
-@property (nonatomic,weak) UITapGestureRecognizer *gestureRecognizer;
+// How long we animate from one place to the next
+@property (nonatomic) float animTime;
+
 
 @end

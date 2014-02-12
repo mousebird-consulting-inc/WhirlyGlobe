@@ -60,6 +60,8 @@
 /// If set, we'll maintain north as up
 @property (nonatomic,assign) bool northUp;
 
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
 /// Turn off the tilt controlled by zoom height
 - (void)clearTiltZoom;
 

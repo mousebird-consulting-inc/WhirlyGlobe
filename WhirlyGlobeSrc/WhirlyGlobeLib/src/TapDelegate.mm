@@ -44,7 +44,9 @@ using namespace WhirlyKit;
 {
 	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
     
-	[view addGestureRecognizer: [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
+    UITapGestureRecognizer *tapRecog = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)];
+    tapDelegate.gestureRecognizer = tapRecog;
+	[view addGestureRecognizer:tapRecog];
     
 	return tapDelegate;
 }
