@@ -26,9 +26,9 @@
     NSMutableArray *subStyles;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings
+- (id)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
-    self = [super initWithStyleEntry:style];
+    self = [super initWithStyleEntry:style viewC:viewC];
 
     subStyles = [NSMutableArray array];
     NSArray *subStylesArray = style[@"substyles"];
@@ -39,7 +39,7 @@
         float alpha = 1.0;
         
         // Build up the vector description dictionary
-        if (style[@"stroke-width"])
+        if (styleEntry[@"stroke-width"])
             strokeWidth = [styleEntry[@"stroke-width"] floatValue];
         if (styleEntry[@"stroke-opacity"])
         {
@@ -62,10 +62,15 @@
         {
             drawPriority = [styleEntry[@"drawpriority"] integerValue];
         }
-        NSDictionary *desc = @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
                  kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
-                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault)
-                 };
+                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
+                 kMaplyEnable: @(NO),
+                  kMaplyFade: @(0.0)
+                 }];
+        [self resolveVisibility:styleEntry settings:settings desc:desc];
+
         [subStyles addObject:desc];
     }
     
@@ -74,15 +79,21 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
-    // Note: Switch to instancing
+    MaplyComponentObject *baseObj = nil;
+    NSMutableArray *compObjs = [NSMutableArray array];
     for (NSDictionary *desc in subStyles)
     {
-        MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc];
+        MaplyComponentObject *compObj = nil;
+        if (!baseObj)
+            baseObj = compObj = [viewC addVectors:vecObjs desc:desc];
+        else
+            // Note: Should do current thread here
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
         if (compObj)
-            return @[compObj];
+            [compObjs addObject:compObj];
     }
     
-    return nil;
+    return compObjs;
 }
 
 @end

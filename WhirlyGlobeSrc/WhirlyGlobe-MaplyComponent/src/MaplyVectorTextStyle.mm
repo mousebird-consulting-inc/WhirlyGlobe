@@ -40,9 +40,9 @@
     NSMutableArray *subStyles;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings
+- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
-    self = [super initWithStyleEntry:styles];
+    self = [super initWithStyleEntry:styles viewC:viewC];
 
     NSArray *stylesArray = styles[@"substyles"];
     subStyles = [NSMutableArray array];
@@ -90,6 +90,10 @@
             subStyle->desc[kMaplyTextOutlineColor] = outlineColor;
             subStyle->desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
         }
+
+        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
+
+        [subStyles addObject:subStyle];
     }
     
     return self;
@@ -97,6 +101,7 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
+    NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleText *subStyle in subStyles)
     {
         // One label per object
@@ -117,10 +122,10 @@
         
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];
         if (compObj)
-            return @[compObj];
+            [compObjs addObject:compObj];
     }
-    
-    return nil;
+
+    return compObjs;
 }
 
 @end

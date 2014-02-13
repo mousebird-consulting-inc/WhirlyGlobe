@@ -136,6 +136,9 @@ public:
             // Min and max scale denominators
             float minScaleDenom,maxScaleDenom;
             
+            // Draw priority (just order of the symbolizer)
+            int drawPriority;
+            
             // XML describing original symbolizer
             tinyxml2::XMLElement *xmlEl;
         };

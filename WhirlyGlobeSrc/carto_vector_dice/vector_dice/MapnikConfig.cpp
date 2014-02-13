@@ -48,6 +48,7 @@ void MapnikConfig::CompiledSymbolizerTable::addSymbolizerGroup(MapnikConfig *map
                 } else
                     group = it->second;
                 SubSymbolizer subSym;
+                subSym.drawPriority = rule.symbolizers[si];
                 subSym.minScaleDenom = sym.minScaleDenom;
                 subSym.maxScaleDenom = sym.maxScaleDenom;
                 subSym.xmlEl = sym.xmlEl;
@@ -99,6 +100,7 @@ void MapnikConfig::CompiledSymbolizerTable::SubSymbolizer::toString(std::string 
         json += indent + "\t\"minscaledenom\": " + std::to_string(minScaleDenom) + ",\n";
     if (maxScaleDenom > 0)
         json += indent + "\t\"maxscaledenom\": " + std::to_string(maxScaleDenom) + ",\n";
+    json += indent + "\t\"drawpriority\": " + std::to_string(drawPriority) + ",\n";
     
     const char *bodyStr = symEl->GetText();
     

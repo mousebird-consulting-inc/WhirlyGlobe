@@ -26,12 +26,14 @@
 
 + (UIColor *)ParseColor:(NSString *)colorStr;
 
-- (id)initWithDirectory:(NSString *)tilesDir;
-- (id)initWithDatabase:(NSString *)tilesDB;
+- (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
 
 @property (nonatomic,readonly) NSString *tilesDir;
 @property (nonatomic,readonly) int minLevel;
 @property (nonatomic,readonly) int maxLevel;
+
+@property (nonatomic,weak) MaplyBaseViewController *viewC;
 
 @property (nonatomic) MaplyVectorTileStyleSettings *settings;
 

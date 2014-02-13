@@ -597,9 +597,24 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
+    // If this is an instance, deal with that madness
+    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawable);
+    if (drawInst)
+    {
+        DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
+        BasicDrawableRef baseDraw = boost::dynamic_pointer_cast<BasicDrawable>(theDraw);
+        if (baseDraw)
+            drawInst->setMaster(baseDraw);
+        else {
+            // Uh oh, dangling reference, just kill it
+            delete drawable;
+            return;
+        }
+    }
+
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
-        
+    
     // Initialize any OpenGL foo
     WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
     setupInfo->minZres = [view calcZbufferRes];

@@ -66,9 +66,10 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
 }
 
-- (id)initWithDirectory:(NSString *)tilesDir
+- (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
+    _viewC = viewC;
     _tilesDir = tilesDir;
     
     // Look for the styles file
@@ -106,10 +107,10 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return self;
 }
 
-- (id)initWithDatabase:(NSString *)name
+- (id)initWithDatabase:(NSString *)name viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
-    
+    _viewC = viewC;
     NSString *infoPath = nil;
     // See if that was a direct path first
     if ([[NSFileManager defaultManager] fileExistsAtPath:name])
@@ -182,7 +183,8 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     _settings = [[MaplyVectorTileStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
-    _settings.markerScale = [UIScreen mainScreen].scale;    
+    _settings.markerScale = [UIScreen mainScreen].scale;
+    _settings.mapScaleScale = 1.0/32;
     
     return self;
 }
@@ -222,7 +224,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
             }
             if (!theStyle)
                 return nil;
-            MaplyVectorTileStyle *styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings];
+            MaplyVectorTileStyle *styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings viewC:_viewC];
             styleObjects[uuid] = styleObj;
         } else
             styleObj = it->second;
