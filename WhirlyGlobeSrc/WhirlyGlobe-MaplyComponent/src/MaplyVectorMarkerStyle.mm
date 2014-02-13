@@ -24,7 +24,7 @@
 @interface MaplyVectorTileSubStyleMarker : NSObject
 {
 @public
-    NSDictionary *desc;
+    NSMutableDictionary *desc;
     UIImage *markerImage;
     float width;
     bool allowOverlap;
@@ -42,9 +42,9 @@
     NSMutableArray *subStyles;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)inSettings
+- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
 {
-    self = [super initWithStyleEntry:styles];
+    self = [super initWithStyleEntry:styles viewC:viewC];
     settings = inSettings;
     
     NSArray *stylesArray = styles[@"substyles"];
@@ -67,6 +67,7 @@
         float strokeWidth = 2.0;
         
         subStyle->desc = [NSMutableDictionary dictionary];
+        [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
         subStyle->markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
         

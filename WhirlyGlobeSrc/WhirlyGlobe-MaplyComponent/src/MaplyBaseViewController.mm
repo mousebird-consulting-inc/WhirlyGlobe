@@ -501,6 +501,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
@@ -870,6 +875,22 @@ static const float PerfOutputDelay = 15.0;
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
+}
+
+- (float)currentMapScale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapScale:frameSize];
+}
+
+- (float)heightForMapScale:(float)scale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return -1.0;
+    return (float)[visualView heightForMapScale:scale frame:frameSize];
 }
 
 @end

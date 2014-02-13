@@ -26,9 +26,9 @@
     NSMutableArray *subStyles;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings
+- (id)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
 {
-    self = [super initWithStyleEntry:styles];
+    self = [super initWithStyleEntry:styles viewC:viewC];
     
     int red = 255,green = 255,blue = 255;
     float alpha = 1.0;
@@ -59,10 +59,12 @@
         {
             drawPriority = [styleEntry[@"drawpriority"] integerValue];
         }
-        NSDictionary *desc = @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
                  kMaplyFilled: @(YES),
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault)
-                 };
+                 }];
+        [self resolveVisibility:styleEntry settings:settings desc:desc];
         [subStyles addObject:desc];
     }
     
@@ -71,23 +73,31 @@
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
+    MaplyComponentObject *baseObj = nil;
+    NSMutableArray *compObjs = [NSMutableArray array];
     for (NSDictionary *desc in subStyles)
     {
-        // Tesselate everything here, rather than tying up the layer thread
-        NSMutableArray *tessObjs = [NSMutableArray array];
-        for (MaplyVectorObject *vec in vecObjs)
+        MaplyComponentObject *compObj = nil;
+        if (!baseObj)
         {
-            MaplyVectorObject *tessVec = [vec tesselate];
-            if (tessVec)
-                [tessObjs addObject:tessVec];
+            // Tesselate everything here, rather than tying up the layer thread
+            NSMutableArray *tessObjs = [NSMutableArray array];
+            for (MaplyVectorObject *vec in vecObjs)
+            {
+                MaplyVectorObject *tessVec = [vec tesselate];
+                if (tessVec)
+                    [tessObjs addObject:tessVec];
+            }
+            
+            compObj = [viewC addVectors:tessObjs desc:desc];
+        } else {
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
         }
-        
-        MaplyComponentObject *compObj = [viewC addVectors:tessObjs desc:desc];
         if (compObj)
-            return @[compObj];
+            [compObjs addObject:compObj];
     }
     
-    return nil;
+    return compObjs;
 }
 
 @end
