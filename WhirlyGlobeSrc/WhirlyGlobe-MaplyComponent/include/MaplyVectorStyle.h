@@ -26,6 +26,7 @@
 @property (nonatomic) float lineScale;
 @property (nonatomic) float textScale;
 @property (nonatomic) float markerScale;
+@property (nonatomic) float mapScaleScale;
 
 @end
 
@@ -33,12 +34,16 @@
 
 @property (nonatomic) NSString *uuid;
 
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings;
++ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
+
+// Turn the min/maxscaledenom into height ranges for minVis/maxVis
+- (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 
+@property (nonatomic,weak) MaplyBaseViewController *viewC;
 @property (nonatomic) bool geomAdditive;
 
 @end

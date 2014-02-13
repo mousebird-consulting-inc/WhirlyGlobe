@@ -23,6 +23,6 @@
 
 @interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
 
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 @end
