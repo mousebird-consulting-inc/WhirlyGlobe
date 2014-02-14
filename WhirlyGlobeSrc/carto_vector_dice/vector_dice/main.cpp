@@ -89,7 +89,7 @@ public:
 };
 
 // Convert the given feature to the given data type
-OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataType dataType)
+void ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataType dataType,std::vector<OGRGeometry *> &retGeom)
 {
     switch (inGeom->getGeometryType())
     {
@@ -97,16 +97,18 @@ OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataTyp
         {
             OGRPoint *pt = (OGRPoint *)inGeom;
             if (dataType != MapnikConfig::SymbolDataPoint)
-                return NULL;
-            return pt->clone();
+                return;
+            retGeom.push_back(pt->clone());
+            return;
         }
             break;
         case wkbLineString:
         {
             OGRLineString *lin = (OGRLineString *)inGeom;
             if (dataType != MapnikConfig::SymbolDataLinear)
-                return NULL;
-            return lin->clone();
+                return;
+            retGeom.push_back(lin->clone());
+            return;
         }
             break;
         case wkbPolygon:
@@ -117,16 +119,19 @@ OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataTyp
                 // Note: This isn't guaranteed to be inside the area
                 OGREnvelope env;
                 inGeom->getEnvelope(&env);
-                return new OGRPoint((env.MinX+env.MaxX)/2.0,(env.MinY+env.MaxY)/2.0);
+                retGeom.push_back(new OGRPoint((env.MinX+env.MaxX)/2.0,(env.MinY+env.MaxY)/2.0));
+                return;
             }
                 break;
             case MapnikConfig::SymbolDataLinear:
             {
-                return inGeom->Boundary();
+                retGeom.push_back(inGeom->Boundary());
+                return;
             }
                 break;
             default:
-                return inGeom->clone();
+                retGeom.push_back(inGeom->clone());
+                return;
                 break;
         }
             break;
@@ -135,26 +140,16 @@ OGRGeometry *ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataTyp
         case wkbMultiPolygon:
         {
             OGRGeometryCollection *inColl = (OGRGeometryCollection *)inGeom;
-            OGRGeometryCollection *outColl = new OGRGeometryCollection();
             for (unsigned int ii=0;ii<inColl->getNumGeometries();ii++)
             {
-                OGRGeometry *outGeom = ConvertGeometryType(inColl->getGeometryRef(ii), dataType);
-                if (outGeom)
-                    outColl->addGeometry(outGeom);
+                ConvertGeometryType(inColl->getGeometryRef(ii), dataType, retGeom);
             }
-            if (outColl->getNumGeometries() == 0)
-            {
-                delete outColl;
-                outColl = NULL;
-            }
-            return outColl;
+            return;
         }
             break;
         default:
             break;
     }
-    
-    return NULL;
 }
 
 // Transform all the geometry in the given layer into the new coordinate system
@@ -287,20 +282,26 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
         {
             // Copy to the output
             // Convert the geometry type, if needed
-            OGRGeometry *geom = ConvertGeometryType(feature->GetGeometryRef(), dataType);
-            if (!geom)
+            std::vector<OGRGeometry *> geoms;
+            ConvertGeometryType(feature->GetGeometryRef(), dataType,geoms);
+            if (geoms.empty())
                 continue;
-            
-            OGRErr err = geom->transform(transform);
-            if (err != OGRERR_NONE)
+        
+            for (unsigned int igeom=0;igeom<geoms.size();igeom++)
             {
-                fprintf(stderr, "Error transforming feature.");
-                exit(-1);
+                OGRGeometry *geom = geoms[igeom];
+                OGRErr err = geom->transform(transform);
+                if (err != OGRERR_NONE)
+                {
+                    fprintf(stderr, "Error transforming feature.");
+                    exit(-1);
+                }
+                OGREnvelope thisEnv;
+                geom->getEnvelope(&thisEnv);
+                mbr.Merge(thisEnv);
             }
-            OGREnvelope thisEnv;
-            geom->getEnvelope(&thisEnv);
-            mbr.Merge(thisEnv);
-//            int numFields = feature->GetFieldCount();
+            
+    //            int numFields = feature->GetFieldCount();
 
             // Need attributes for the various styles
             for (unsigned int ig=0;ig<symGroups.size();ig++)
@@ -330,40 +331,46 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                     }
             }
             
-//            int whichFeature = outLayer->GetFeatureCount();
-//            outLayer->CreateFeature(feature);
-//            OGRFeature *newFeature = outLayer->GetFeature(whichFeature);
-            OGRFeature *newFeature = new OGRFeature(outLayer->GetLayerDefn());
-            newFeature->SetGeometry(geom);
+            for (unsigned int igeom=0;igeom<geoms.size();igeom++)
+            {
+                OGRGeometry *geom = geoms[igeom];
+                
+    //            int whichFeature = outLayer->GetFeatureCount();
+    //            outLayer->CreateFeature(feature);
+    //            OGRFeature *newFeature = outLayer->GetFeature(whichFeature);
+                OGRFeature *newFeature = new OGRFeature(outLayer->GetLayerDefn());
+                newFeature->SetGeometry(geom);
 
-            // Now apply the symbolizers (they'll be styles in the final output)
-//            int numNewFields = newFeature->GetFieldCount();
-//                std::string styleIndex = (std::string)"style" + std::to_string(si);
-            for (unsigned int ig=0;ig<symGroups.size();ig++)
-            {
-                std::string styleIndex = (std::string)"style" + std::to_string(ig);
-                std::string uuid = boost::uuids::to_string(symGroups[ig].uuid);
-                newFeature->SetField(styleIndex.c_str(), uuid.c_str());
-            }
-            
-            // And don't forget the attributes they care about
-            for (std::set<std::string>::iterator it = attrsToKeep.begin();
-                 it != attrsToKeep.end(); ++it)
-            {
-                std::string fieldName = *it;
-                int idx = feature->GetFieldIndex(fieldName.c_str());
-                if (idx != -1)
+                // Now apply the symbolizers (they'll be styles in the final output)
+    //            int numNewFields = newFeature->GetFieldCount();
+    //                std::string styleIndex = (std::string)"style" + std::to_string(si);
+                for (unsigned int ig=0;ig<symGroups.size();ig++)
                 {
-                    // Note: Should deal with other types
-                    const char *fieldVal = feature->GetFieldAsString(idx);
-                    if (fieldVal)
-                        newFeature->SetField(fieldName.c_str(), fieldVal);
+                    std::string styleIndex = (std::string)"style" + std::to_string(ig);
+                    std::string uuid = boost::uuids::to_string(symGroups[ig].uuid);
+                    newFeature->SetField(styleIndex.c_str(), uuid.c_str());
                 }
+                
+                // And don't forget the attributes they care about
+                for (std::set<std::string>::iterator it = attrsToKeep.begin();
+                     it != attrsToKeep.end(); ++it)
+                {
+                    std::string fieldName = *it;
+                    int idx = feature->GetFieldIndex(fieldName.c_str());
+                    if (idx != -1)
+                    {
+                        // Note: Should deal with other types
+                        const char *fieldVal = feature->GetFieldAsString(idx);
+                        if (fieldVal)
+                            newFeature->SetField(fieldName.c_str(), fieldVal);
+                    }
+                }
+                
+                outLayer->CreateFeature(newFeature);
+                OGRFeature::DestroyFeature(newFeature);
             }
-            
-            outLayer->CreateFeature(newFeature);
-            OGRFeature::DestroyFeature(newFeature);
         }
+        
         OGRFeature::DestroyFeature(feature);
     }
 }

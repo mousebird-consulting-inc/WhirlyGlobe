@@ -184,7 +184,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
     _settings.markerScale = [UIScreen mainScreen].scale;
-    _settings.mapScaleScale = 1.0/32;
+    _settings.mapScaleScale = 1.0;
     
     return self;
 }

@@ -239,21 +239,30 @@ struct VectorChunkCompare
             if (featADefn.GetType() != featBDefn.GetType())
                 return featADefn.GetType() < featBDefn.GetType();
             
-            OGRField *fieldA = featA->GetRawFieldRef(ii);
-            OGRField *fieldB = featB->GetRawFieldRef(fieldIdxB);
             switch (featADefn.GetType())
             {
                 case OFTInteger:
-                    return fieldA->Integer < fieldB->Integer;
+                {
+                    int intA = featA->GetFieldAsInteger(ii);
+                    int intB = featB->GetFieldAsInteger(fieldIdxB);
+                    if (intA != intB)
+                        return intA < intB;
+                }
                     break;
                 case OFTReal:
-                    return fieldA->Real < fieldB->Real;
+                {
+                    double realA = featA->GetFieldAsDouble(ii);
+                    double realB = featB->GetFieldAsDouble(fieldIdxB);
+                    if (realA != realB)
+                        return realA < realB;
+                }
                     break;
                 case OFTString:
                 {
-                    std::string strA = fieldA->String;
-                    std::string strB = fieldB->String;
-                    return strA < strB;
+                    std::string strA = featA->GetFieldAsString(ii);
+                    std::string strB = featB->GetFieldAsString(fieldIdxB);
+                    if (strA != strB)
+                        return strA < strB;
                 }
                     break;
                 default:

@@ -621,20 +621,25 @@ static const float PerfOutputDelay = 15.0;
     // Let's put it in the right place so the callout can do its layout logic
     CGPoint pt = [self screenPointFromGeo:coord];
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
-    annotate.calloutView.delegate = self;
     annotate.loc = coord;
+    annotate.calloutView.delegate = self;
     if (!alreadyHere)
     {
         [annotations addObject:annotate];
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    } else {
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
     }
     
     // But then we move it back because we're controlling its positioning
     CGRect frame = annotate.calloutView.frame;
     annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
-    
-    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
+
+    if (!alreadyHere)
+    {
+        ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
+    }
     sceneRenderer.triggerDraw = true;
 }
 

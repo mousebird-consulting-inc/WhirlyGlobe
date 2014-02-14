@@ -155,6 +155,8 @@
 #define kMaplySubdivSimple @"simple"
 /// Clip features along a grid of the given size
 #define kMaplySubdivGrid @"grid"
+/// Used to turn off selection in vectors
+#define kMaplySelectable @"selectable"
 
 /// These are used for stickers
 
