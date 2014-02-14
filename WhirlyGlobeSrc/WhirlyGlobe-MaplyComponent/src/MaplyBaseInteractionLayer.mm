@@ -781,7 +781,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = vectors;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
@@ -845,6 +844,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                 compObj.vectorIDs.insert(vecID);
         }
     }
+    
+    // If the vectors are selectable we want to keep them around
+    id selVal = inDesc[@"selectable"];
+    if (!selVal || [selVal boolValue])
+        compObj.vectors = vectors;
     
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];

@@ -118,6 +118,7 @@
             label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
             label.offset = CGPointMake(subStyle->dx, subStyle->dy);
             label.layoutImportance = 1.0;
+            label.selectable = false;
         }
         
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];

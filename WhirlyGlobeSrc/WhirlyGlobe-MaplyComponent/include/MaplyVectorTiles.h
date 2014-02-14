@@ -22,11 +22,14 @@
 #import "MaplyQuadPagingLayer.h"
 #import "MaplyVectorStyle.h"
 
+/**
+  */
 @interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
 
 + (UIColor *)ParseColor:(NSString *)colorStr;
 
-- (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC;
+/** @brief
+  */
 - (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
 
 @property (nonatomic,readonly) NSString *tilesDir;
@@ -37,8 +40,11 @@
 
 @property (nonatomic) MaplyVectorTileStyleSettings *settings;
 
+/// @brief Individual layers parsed out of the vector tiles database
 @property (nonatomic,readonly) NSArray *layerNames;
 
+/// @brief An array of the style dictionaries.
+/// @details Style dictionaries are used internally to style the vector data.
 @property (nonatomic,readonly) NSArray *styles;
 
 @end
