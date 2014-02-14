@@ -89,7 +89,7 @@
                     [tessObjs addObject:tessVec];
             }
             
-            compObj = [viewC addVectors:tessObjs desc:desc];
+            baseObj = compObj = [viewC addVectors:tessObjs desc:desc];
         } else {
             compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
         }

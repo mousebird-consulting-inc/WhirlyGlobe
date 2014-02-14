@@ -794,17 +794,51 @@ public:
         // Wrap a reader around the NSData
         Maply::DataReader dataReader(data);
         
+        // String table first
+        std::vector<NSString *> strings;
+        int numStrings = dataReader.getInt();
+        dataReader.rangeCheck(numStrings, 0, 1000000);
+        strings.resize(numStrings,nil);
+        for (unsigned int ii=0;ii<numStrings;ii++)
+            strings[ii] = dataReader.getString();
+        
         // Each chunk has a group of shared attributes
         int numChunks = dataReader.getInt();
         dataReader.rangeCheck(numChunks, 0, 1000000);
         for (int ii=0;ii<numChunks;ii++)
         {
-            // Attributes we'll find on each feature
-            int numAttrsPresent = dataReader.getInt();
-            dataReader.rangeCheck(numAttrsPresent, 0, 10000);
-            std::vector<int> attrsPresent;
-            for (int ai=0;ai<numAttrsPresent;ai++)
-                attrsPresent.push_back(dataReader.getInt());
+            // All the attributes are shared within the chunk
+            NSMutableDictionary *attrDict = [NSMutableDictionary dictionary];
+            int numAttrs = dataReader.getInt();
+            dataReader.rangeCheck(numAttrs, 0, 10000);
+            for (unsigned int jj=0;jj<numAttrs;jj++)
+            {
+                // Name is index into the string table
+                int nameIdx = dataReader.getInt();
+                dataReader.rangeCheck(nameIdx, 0, strings.size());
+                NSString *name = strings[nameIdx];
+                
+                // Type
+                int type = dataReader.getInt();
+                switch (type)
+                {
+                    case 0:
+                        attrDict[name] = @(dataReader.getInt());
+                        break;
+                    case 1:
+                        attrDict[name] = @(dataReader.getFloat());
+                        break;
+                    case 2:
+                    {
+                        int valIdx = dataReader.getInt();
+                        dataReader.rangeCheck(valIdx, 0, strings.size());
+                        attrDict[name] = strings[valIdx];
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            }
             
             // Geometry type and number of features in chunk
             int geomType = dataReader.getInt();
@@ -814,32 +848,6 @@ public:
             // Work through the features
             for (int jj=0;jj<numFeat;jj++)
             {
-                NSMutableDictionary *attrDict = [NSMutableDictionary dictionary];
-                
-                // The attributes we'll find on each point
-                for (int ai=0;ai<attrsPresent.size();ai++)
-                {
-                    int whichAttr = attrsPresent[ai];
-                    if (whichAttr < 0 || whichAttr >= attrs->size())
-                        throw 1;
-                    const Maply::VectorAttribute &rawVecAttr = attrs->at(whichAttr);
-                    switch (rawVecAttr.type)
-                    {
-                        case Maply::VectorAttrInt:
-                            attrDict[rawVecAttr.name] = @(dataReader.getInt());
-                            break;
-                        case Maply::VectorAttrReal:
-                            attrDict[rawVecAttr.name] = @(dataReader.getFloat());
-                            break;
-                        case Maply::VectorAttrString:
-                            attrDict[rawVecAttr.name] = dataReader.getString();
-                            break;
-                        default:
-                            throw 1;
-                            break;
-                    }
-                }
-                
                 VectorShapeRef shape;
                 switch (geomType)
                 {
