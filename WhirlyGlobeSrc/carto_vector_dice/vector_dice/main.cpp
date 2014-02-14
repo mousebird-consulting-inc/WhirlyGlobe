@@ -905,6 +905,18 @@ int main(int argc, char * argv[])
                                     symbolType = "Areal";
                                     break;
                             }
+                            
+                            // Make sure someone wants this data type
+                            bool wanted = false;
+                            for (unsigned int sgi=0;sgi<symGroups.size();sgi++)
+                                if (symGroups[sgi].dataType == di)
+                                {
+                                    wanted = true;
+                                    break;
+                                }
+                            if (!wanted)
+                                continue;
+                            
                             int numRules = 0;
                             for (unsigned int si=0;si<style->styleInstances.size();si++)
                                 numRules += style->styleInstances[si].rules.size();
