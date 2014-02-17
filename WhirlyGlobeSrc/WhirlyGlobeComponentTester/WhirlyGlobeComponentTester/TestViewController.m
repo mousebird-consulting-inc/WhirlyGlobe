@@ -1033,13 +1033,14 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestSauPaolo])
             {
                 // Toss on a Maply Vector Database
-                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
-                if (vecTiles)
-                {
-                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                    [baseViewC addLayer:pageLayer];
-                    layer = pageLayer;
-                }
+                // Note: Turned off for a while
+//                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
+//                if (vecTiles)
+//                {
+//                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+//                    [baseViewC addLayer:pageLayer];
+//                    layer = pageLayer;
+//                }
             }
             
             // And keep track of it
