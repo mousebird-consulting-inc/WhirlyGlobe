@@ -635,10 +635,13 @@ static const float PerfOutputDelay = 15.0;
     CGRect frame = annotate.calloutView.frame;
     annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
 
-    if (!alreadyHere)
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    if (alreadyHere)
     {
-        ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
+        vpGen->moveView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    } else
+    {
+        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
     }
     sceneRenderer.triggerDraw = true;
 }
