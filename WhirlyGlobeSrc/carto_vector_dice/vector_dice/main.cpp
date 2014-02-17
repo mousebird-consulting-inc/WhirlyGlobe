@@ -1073,7 +1073,7 @@ int main(int argc, char * argv[])
                     bool fileExists = true;
                     try
                     {
-                        fileExists = boost::filesystem::exists(yDirPath);
+//                        fileExists = boost::filesystem::exists(yDirPath);
                     }
                     catch (...)
                     {
@@ -1088,20 +1088,20 @@ int main(int argc, char * argv[])
                     }
                     
                     // Collect up all the filenames for the row, to save us from opening files one by one
-                    bool fileNameCache = true;
+                    bool fileNameCache = false;
                     std::set<std::string> yFileNames;
                     try
                     {
-                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
-                        {
-                            boost::filesystem::path p = dirIter->path();
-                            std::string ext = p.extension().string();
-                            if (!ext.compare(".shp"))
-                            {
-                                yFileNames.insert(p.string());
-                            }
-                        }
+//                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+//                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+//                        {
+//                            boost::filesystem::path p = dirIter->path();
+//                            std::string ext = p.extension().string();
+//                            if (!ext.compare(".shp"))
+//                            {
+//                                yFileNames.insert(p.string());
+//                            }
+//                        }
                     }
                     catch (...)
                     {
