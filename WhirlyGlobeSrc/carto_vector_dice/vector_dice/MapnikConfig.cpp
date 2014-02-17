@@ -90,6 +90,32 @@ void MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup::toString(std::strin
     json += "\t\t}";
 }
 
+// Convert a color value from rgba(r,g,b,a) to #rrggbbaa if necessary
+bool ConvertColor(const std::string &inVal,std::string &outVal)
+{
+    std::string floatMatch = "([+-]?(?=[.]?[0-9])[0-9]*(?:[.][0-9]*)?(?:[Ee][+-]?[0-9]+)?)";
+    std::string commaMatch = "\\s*,\\s*";
+    RegExRef exp(new boost::regex("rgba\\(" + floatMatch + commaMatch + floatMatch + commaMatch + floatMatch + commaMatch + floatMatch + "\\)"));
+    boost::smatch what;
+    if (boost::regex_match(inVal, what, *exp, boost::match_default))
+    {
+        if (what.size() != 5)
+            return false;
+
+        int r = (int)boost::lexical_cast<double>(what[1]);
+        int g = (int)boost::lexical_cast<double>(what[2]);
+        int b = (int)boost::lexical_cast<double>(what[3]);
+        int a = (int)boost::lexical_cast<double>(what[4]);
+        char outStr[1024];
+        sprintf(outStr,"#%02x%02x%02x%02x",(unsigned int)(r&0xFF),(unsigned int)(g&0xFF),(unsigned int)(b&0xFF),(unsigned int)(a&0xFF));
+        outVal = outStr;
+        
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void MapnikConfig::CompiledSymbolizerTable::SubSymbolizer::toString(std::string &json)
 {
     XMLElement *symEl = xmlEl;
@@ -122,8 +148,12 @@ void MapnikConfig::CompiledSymbolizerTable::SubSymbolizer::toString(std::string 
         json += indent + "\t\"" + attr->Name() + "\": ";
         if (isNumber)
             json += attr->Value();
-        else
-            json += (std::string)"\"" + attr->Value() + "\"";
+        else {
+            std::string attrVal;
+            if (!ConvertColor(attr->Value(),attrVal))
+                attrVal = attr->Value();
+            json += (std::string)"\"" + attrVal + "\"";
+        }
         if (attr->Next() || bodyStr)
             json += ",";
         json += "\n";

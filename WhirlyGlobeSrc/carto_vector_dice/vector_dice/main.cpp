@@ -180,7 +180,7 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                 MapnikConfig::Filter &filter = symGroup.filter;
                 // Work through the valid rules within this style
                 {
-                    bool ruleApproved = false;
+                    bool ruleApproved = true;
                     // No filter means it all matches
                     if (filter.isEmpty())
                     {
@@ -196,6 +196,7 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                         for (unsigned int ci=0;ci<filter.comparisons.size();ci++)
                         {
                             MapnikConfig::Filter::Comparison &comp = filter.comparisons[ci];
+                            bool clauseApproved = false;
                             
                             // Look for the attribute we're comparing
                             int idx = feature->GetFieldIndex(comp.attrName.c_str());
@@ -211,11 +212,11 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                                         {
                                             case MapnikConfig::Filter::Comparison::CompareEqual:
                                                 if (!comp.attrValStr.compare(strVal))
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareNotEqual:
                                                 if (comp.attrValStr.compare(strVal))
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             default:
                                                 fprintf(stderr,"Not expecting value comparison for string.  Giving up.");
@@ -231,33 +232,35 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
                                         {
                                             case MapnikConfig::Filter::Comparison::CompareEqual:
                                                 if (val == comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareNotEqual:
                                                 if (val != comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareMore:
                                                 if (val > comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareMoreEqual:
                                                 if (val >= comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareLess:
                                                 if (val < comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                             case MapnikConfig::Filter::Comparison::CompareLessEqual:
                                                 if (val <= comp.attrValReal)
-                                                    ruleApproved = true;
+                                                    clauseApproved = true;
                                                 break;
                                         }
                                     }
                                         break;
                                 }
                             }
+                            
+                            ruleApproved &= clauseApproved;
                         }
                     }
                     
@@ -1067,7 +1070,16 @@ int main(int argc, char * argv[])
                     // If there's nothing in the row we can skip that
                     std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
                     boost::filesystem::path yDirPath(yDir);
-                    if (!boost::filesystem::exists(yDirPath))
+                    bool fileExists = true;
+                    try
+                    {
+                        fileExists = boost::filesystem::exists(yDirPath);
+                    }
+                    catch (...)
+                    {
+                        // This tells us nothing
+                    }
+                    if (!fileExists)
                     {
                         cellsProcessed += (ex-sx+1);
                         double done = cellsProcessed/((double)totalNumCells);
@@ -1076,16 +1088,24 @@ int main(int argc, char * argv[])
                     }
                     
                     // Collect up all the filenames for the row, to save us from opening files one by one
+                    bool fileNameCache = true;
                     std::set<std::string> yFileNames;
-                    for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-                         dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+                    try
                     {
-                        boost::filesystem::path p = dirIter->path();
-                        std::string ext = p.extension().string();
-                        if (!ext.compare(".shp"))
+                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
                         {
-                            yFileNames.insert(p.string());
+                            boost::filesystem::path p = dirIter->path();
+                            std::string ext = p.extension().string();
+                            if (!ext.compare(".shp"))
+                            {
+                                yFileNames.insert(p.string());
+                            }
                         }
+                    }
+                    catch (...)
+                    {
+                        fileNameCache = false;
                     }
 
                     for (unsigned int ix=sx;ix<=ex;ix++)
@@ -1109,8 +1129,9 @@ int main(int argc, char * argv[])
                                 std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
                                 
                                 // Look for the filename in the name cache.  Faster.
-                                if (yFileNames.find(cellFileName) == yFileNames.end())
-                                    continue;
+                                if (fileNameCache)
+                                    if (yFileNames.find(cellFileName) == yFileNames.end())
+                                        `   continue;
 
                                 // Open the shapefile and get pointers to the features
                                 OGRDataSource *poCDS = shpDriver->Open(cellFileName.c_str());

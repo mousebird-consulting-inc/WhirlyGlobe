@@ -111,6 +111,8 @@
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
             // Note: HACK!
             label.text = vec.attributes[@"NAME"];
+            if (!label.text)
+                label.text = vec.attributes[@"name"];
             MaplyCoordinate center = [vec center];
             label.loc = center;
             if (label.text)

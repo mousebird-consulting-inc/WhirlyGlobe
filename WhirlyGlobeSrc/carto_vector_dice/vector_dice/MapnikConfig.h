@@ -18,6 +18,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+typedef boost::shared_ptr<boost::regex> RegExRef;
+
 /// A Mapnik config file we've parse into a form we can use
 class MapnikConfig
 {
@@ -86,7 +88,6 @@ public:
         // We'll parse the filter at this point
         void setFilter(const std::string &filterText);
 
-        typedef boost::shared_ptr<boost::regex> RegExRef;
         std::string filter;
         RegExRef exp;
 
