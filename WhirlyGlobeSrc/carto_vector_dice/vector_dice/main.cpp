@@ -1131,7 +1131,7 @@ int main(int argc, char * argv[])
                                 // Look for the filename in the name cache.  Faster.
                                 if (fileNameCache)
                                     if (yFileNames.find(cellFileName) == yFileNames.end())
-                                        `   continue;
+                                        continue;
 
                                 // Open the shapefile and get pointers to the features
                                 OGRDataSource *poCDS = shpDriver->Open(cellFileName.c_str());
