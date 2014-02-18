@@ -44,7 +44,7 @@ public:
     }
     
     // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const std::vector<Point2f> &pts)
+    bool addObject(const Point2fVector &pts)
     {
         Mbr objMbr;
         for (unsigned int ii=0;ii<pts.size();ii++)
@@ -91,7 +91,7 @@ protected:
     {
     public:
         ~BoundedObject() { }
-        std::vector<Point2f> pts;
+        Point2fVector pts;
     };
     
     Mbr mbr;
@@ -345,7 +345,7 @@ void LayoutManager::runLayoutRules(WhirlyKit::ViewState *viewState)
                         }
                         
                         // Rotate the rectangle
-                        std::vector<Point2f> objPts(4);
+                        Point2fVector objPts(4);
                         if (screenRot == 0.0)
                         {
                             objPts[0] = Point2f(objPt.x(),objPt.y()) + objOffset*resScale;

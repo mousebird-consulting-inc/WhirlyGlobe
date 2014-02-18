@@ -193,6 +193,8 @@ public:
     /// Construct with the ID of the Drawable we'll be changing
 	DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
 	virtual ~DrawableChangeRequest() { }
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	
 	/// This will look for the drawable by ID and then call execute2()
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
@@ -312,6 +314,8 @@ public:
     /// You can violate this, but it will reserve space
 	BasicDrawable(const std::string &name, unsigned int numVert,unsigned int numTri);
 	virtual ~BasicDrawable();
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;

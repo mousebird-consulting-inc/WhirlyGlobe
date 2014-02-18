@@ -70,7 +70,7 @@ typedef boost::shared_ptr<VectorPoints> VectorPointsRef;
 typedef boost::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
-typedef std::vector<Point2f> VectorRing;
+typedef Point2fVector VectorRing;
 
 /// Comparison function for the vector shape.
 /// This is here to ensure we don't put in the same pointer twice
@@ -88,7 +88,7 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);
 /// Calculate area of a loop
-double CalcLoopArea(const std::vector<Point2d> &);
+double CalcLoopArea(const Point2dVector &);
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
     
@@ -117,7 +117,7 @@ public:
 	GeoMbr geoMbr;
 
     // Shared points
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     // Triangles
     std::vector<Triangle> tris;
     
@@ -210,7 +210,7 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3fVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

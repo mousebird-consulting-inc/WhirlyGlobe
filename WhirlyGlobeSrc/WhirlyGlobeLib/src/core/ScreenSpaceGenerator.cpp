@@ -35,7 +35,7 @@ ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry()
 {
 }
 
-ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords)
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2fVector &coords,const std::vector<TexCoord> &texCoords)
     : texID(texID), programID(programID), color(color), coords(coords), texCoords(texCoords)
 {    
 }
@@ -188,7 +188,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKit::Renderer
     
         // Set up the point, including snap to make it look better
         float resScale = frameInfo->sceneRenderer->getScale();
-        std::vector<Point2f> pts;
+        Point2fVector pts;
         pts.resize(geom.coords.size());
         Point2f org(MAXFLOAT,MAXFLOAT);
         for (unsigned int ii=0;ii<geom.coords.size();ii++)

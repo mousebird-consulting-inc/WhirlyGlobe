@@ -64,7 +64,7 @@ public:
     bool valid;
     
     /// The actual polygons for the side (we are lazy)
-    std::vector<std::vector<Point3d> > polys;
+    std::vector<Point3dVector > polys;
     /// Normals for all 5 or 6 planes
     std::vector<Eigen::Vector3d> normals;
     /// Normals for the surface.  We use these to make sure the solid is pointing towards us.

@@ -115,6 +115,8 @@ class RendererFrameInfo
 public:
     RendererFrameInfo();
     
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Renderer version (e.g. OpenGL ES 1 vs 2)
     int oglVersion;
     /// Renderer itself
@@ -166,6 +168,8 @@ class SceneRendererES : public DelayedDeletable
 public:
     SceneRendererES(int apiVersion);
     virtual ~SceneRendererES();
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Called right after the constructor
     virtual void setup();

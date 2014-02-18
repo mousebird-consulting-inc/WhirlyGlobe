@@ -33,6 +33,11 @@ typedef Eigen::Vector3d Point3d;
 typedef Eigen::Vector2d Point2d;
 typedef Eigen::Vector2f Point2f;
     
+typedef std::vector<Point2f,Eigen::aligned_allocator<Point2f> > Point2fVector;
+typedef std::vector<Point2d,Eigen::aligned_allocator<Point2d> > Point2dVector;
+typedef std::vector<Point3f,Eigen::aligned_allocator<Point3f> > Point3fVector;
+typedef std::vector<Point3d,Eigen::aligned_allocator<Point3d> > Point3dVector;
+typedef std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> > Vector4dVector;
 	
 /// Convenience wrapper for texture coordinate
 class TexCoord : public Eigen::Vector2f
@@ -94,7 +99,7 @@ public:
     /// Construct with a lower left and upper right point
 	Mbr(Point2f ll,Point2f ur) : pt_ll(ll), pt_ur(ur) { }
 	/// Construct from the MBR of a vector of points
-	Mbr(const std::vector<Point2f> &pts);
+	Mbr(const Point2fVector &pts);
     
     /// Resets back to invalid
     void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur = Point2f(-1.f,-1.f); }
@@ -122,7 +127,7 @@ public:
 	void addPoint(Point2f pt);
     
     /// Extend the MBR by the givenpoints
-    void addPoints(const std::vector<Point2f> &coords);
+    void addPoints(const Point2fVector &coords);
 
 	/// See if this Mbr overlaps the other one
 	bool overlaps(const Mbr &that) const;
@@ -140,8 +145,8 @@ public:
     Mbr intersect(const Mbr &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
-    void asPoints(std::vector<Point2f> &pts) const;
-    void asPoints(std::vector<Point2d> &pts) const;
+    void asPoints(Point2fVector &pts) const;
+    void asPoints(Point2dVector &pts) const;
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
@@ -163,7 +168,7 @@ public:
 	/// Construct from a list of geo coordinates
 	GeoMbr(const std::vector<GeoCoord> &coords);
 	/// Construct with a list of 2d coordinates.  X is lon, Y is lat
-	GeoMbr(const std::vector<Point2f> &pts);
+	GeoMbr(const Point2fVector &pts);
 
     /// Resets back to invalid
     void reset() { pt_ll = GeoCoord(-1000,-1000);  pt_ur = GeoCoord(-1000,-1000); }
@@ -195,7 +200,7 @@ public:
 	/// Expand by the vector of geo coords
 	void addGeoCoords(const std::vector<GeoCoord> &coords);
     /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
-	void addGeoCoords(const std::vector<Point2f> &coords);
+	void addGeoCoords(const Point2fVector &coords);
 	
 	/// Determine overlap.
 	/// This takes into account MBRs that wrap over -180/+180

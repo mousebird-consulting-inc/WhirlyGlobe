@@ -135,7 +135,7 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     newSelect.midPt /= 8.0;
     for (unsigned int ii=0;ii<6;ii++)
     {
-        std::vector<Point3f> poly;
+        Point3fVector poly;
         for (unsigned int jj=0;jj<4;jj++)
             poly.push_back(pts[corners[ii][jj]]);
         newSelect.polys.push_back(poly);
@@ -363,7 +363,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
-                    std::vector<Point2f> screenPts;
+                    Point2fVector screenPts;
                     for (unsigned int jj=0;jj<4;jj++)
                         screenPts.push_back(sel.pts[jj]+projPt.screenLoc);
 
@@ -416,8 +416,8 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
-                        std::vector<Point3f> &poly3f = sel.polys[ii];
-                        std::vector<Point3d> poly;
+                        Point3fVector &poly3f = sel.polys[ii];
+                        Point3dVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
@@ -425,7 +425,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                             poly.push_back(Point3d(pt.x(),pt.y(),pt.z()));
                         }
                         
-                        std::vector<Point2f> screenPts;
+                        Point2fVector screenPts;
                         ClipAndProjectPolygon(modelTrans,projTrans,frameSize,poly,screenPts);
                         
                         if (screenPts.size() > 3)
@@ -477,7 +477,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < theView->heightAboveSurface() && theView->heightAboveSurface() < sel.maxVis))
                 {
-                    std::vector<Point2f> screenPts;
+                    Point2fVector screenPts;
                     
                     for (unsigned int ii=0;ii<4;ii++)
                     {
@@ -535,7 +535,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
             {
                 
                 // Come up with a rectangle in display space
-                std::vector<Point3d> poly(4);
+                Point3dVector poly(4);
                 Vector3d normal3d = Vector3fToVector3d(sel.normal);
                 Point3d axisX = eyeVec.cross(normal3d);
                 Point3d center3d = Vector3fToVector3d(sel.center);
@@ -547,7 +547,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 
                 BillboardSelectable sel = *it;
 
-                std::vector<Point2f> screenPts;
+                Point2fVector screenPts;
                 ClipAndProjectPolygon(modelTrans,projTrans,frameSize,poly,screenPts);
                 
                 if (screenPts.size() > 3)

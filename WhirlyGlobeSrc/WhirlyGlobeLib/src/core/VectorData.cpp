@@ -40,7 +40,7 @@ float CalcLoopArea(const VectorRing &loop)
     return area;
 }
     
-double CalcLoopArea(const std::vector<Point2d> &loop)
+double CalcLoopArea(const Point2dVector &loop)
 {
     double area = 0.0;
     for (unsigned int ii=0;ii<loop.size();ii++)
@@ -142,7 +142,7 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
 }
     
 // Great circle version
-void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,Point3fVector &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -161,7 +161,7 @@ void subdivideToSurfaceRecurseGC(Point3f p0,Point3f p1,std::vector<Point3f> &out
     outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,std::vector<Point3f> &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3fVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;

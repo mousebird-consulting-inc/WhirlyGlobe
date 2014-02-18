@@ -73,7 +73,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const PolytopeSelectable &that) const;
     
-    std::vector<std::vector<Point3f> > polys;
+    std::vector<Point3fVector> polys;
     Point3f midPt;        // Point right in the middle of the polytope
 };
 

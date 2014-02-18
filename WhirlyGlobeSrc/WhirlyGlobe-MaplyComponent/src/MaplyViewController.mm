@@ -541,7 +541,7 @@ using namespace Maply;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
     mapView->setLoc(testLoc,false);
     
-    std::vector<Point2f> pts;
+    Point2fVector pts;
     mbr.asPoints(pts);
     CGRect frame = self.view.frame;
     for (unsigned int ii=0;ii<pts.size();ii++)

@@ -68,7 +68,7 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
-bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
+bool PointInPolygon(Point2f pt,const Point2fVector &ring)
 {
 	int ii, jj;
 	bool c = false;
@@ -80,7 +80,7 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 	return c;
 }
     
-bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1)
+bool ConvexPolyIntersect(const Point2fVector &pts0,const Point2fVector &pts1)
 {
     // Simple bounding box check
     Mbr mbr0;
@@ -177,7 +177,7 @@ bool insidePlane(const Vector4d &pt,ClipPlane plane)
     return false;
 }
 
-void ClipHomogeneousPolyToPlane(const std::vector<Eigen::Vector4d> &pts,ClipPlane plane,std::vector<Eigen::Vector4d> &outPts)
+void ClipHomogeneousPolyToPlane(const Vector4dVector &pts,ClipPlane plane,Vector4dVector &outPts)
 {
     outPts.reserve(pts.size());
     for (unsigned int ii=0;ii<pts.size();ii++)
@@ -198,11 +198,11 @@ void ClipHomogeneousPolyToPlane(const std::vector<Eigen::Vector4d> &pts,ClipPlan
     }
 }
     
-void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &inPts,std::vector<Eigen::Vector4d> &outPts)
+void ClipHomogeneousPolygon(const Vector4dVector &inPts,Vector4dVector &outPts)
 {
     if (inPts.size() < 3)
         return;
-    std::vector<Vector4d> pts = inPts;
+    Vector4dVector pts = inPts;
  
     ClipHomogeneousPolyToPlane(pts, Left, outPts);  pts = outPts;  outPts.clear();
     ClipHomogeneousPolyToPlane(pts, Right, outPts);  pts = outPts;  outPts.clear();
@@ -212,9 +212,9 @@ void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &inPts,std::vecto
     ClipHomogeneousPolyToPlane(pts, Far, outPts);
 }
 
-void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly)
+void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,Point3dVector &poly,Point2fVector &screenPoly)
 {
-    std::vector<Vector4d> pts;
+    Vector4dVector pts;
     for (unsigned int ii=0;ii<poly.size();ii++)
     {
         const Point3d &pt = poly[ii];
@@ -225,7 +225,7 @@ void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Po
         pts.push_back(projPt);
     }
 
-    std::vector<Eigen::Vector4d> clipSpacePts;
+    Vector4dVector clipSpacePts;
     ClipHomogeneousPolygon(pts,clipSpacePts);
     
     if (clipSpacePts.empty())
@@ -249,7 +249,7 @@ bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
 }
     
 // Inspired by: http://geomalgorithms.com/a01-_area.html
-double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm)
+double PolygonArea(const Point3dVector &poly,const Point3d &norm)
 {
     if (poly.size() < 3)
         return 0.0;

@@ -68,12 +68,12 @@ public:
     {
     public:
         SimpleGeometry();
-        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords);
+        SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2fVector &coords,const std::vector<TexCoord> &texCoords);
 
         SimpleIdentity texID;
         SimpleIdentity programID;
         RGBAColor color;
-        std::vector<Point2f> coords;
+        Point2fVector coords;
         std::vector<TexCoord> texCoords;
     };
 

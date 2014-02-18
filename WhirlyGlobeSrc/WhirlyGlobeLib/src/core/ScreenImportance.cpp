@@ -41,7 +41,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
 {
     // Start with the outline in the source coordinate system
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
-    std::vector<Point3d> srcBounds;
+    Point3dVector srcBounds;
     srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),inMinZ));
@@ -57,9 +57,9 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     }
     
     // Figure out where the bounds drop in display space
-    std::vector<Point3d> dispBounds;
+    Point3dVector dispBounds;
     dispBounds.reserve(srcBounds.size());
-    std::vector<Point3d> srcPts;
+    Point3dVector srcPts;
     srcPts.reserve(srcBounds.size());
     for (unsigned int ii=0;ii<srcBounds.size();ii++)
     {
@@ -99,7 +99,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     
     // Project the corner points onto the plane
     // We'll collect height at the same time
-    std::vector<Point2d> planePts;
+    Point2dVector planePts;
     planePts.reserve(dispBounds.size());
     double minZ=MAXFLOAT,maxZ =-MAXFLOAT;
     Point2d minPt,maxPt;
@@ -175,9 +175,9 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     }
     
     // Now convert the plane points back into display space for the volume
-    std::vector<WhirlyKit::Point3d> botCorners;
-    std::vector<WhirlyKit::Point3d> topCorners;
-    std::vector<WhirlyKit::Point2d> planeMbrPts;  planeMbrPts.reserve(4);
+    Point3dVector botCorners;
+    Point3dVector topCorners;
+    Point2dVector planeMbrPts;  planeMbrPts.reserve(4);
     planeMbrPts.push_back(minPt);
     planeMbrPts.push_back(Point2d(maxPt.x(),minPt.y()));
     planeMbrPts.push_back(maxPt);
@@ -201,7 +201,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     {
         int thisPt = ii;
         int nextPt = (ii+1)%planeMbrPts.size();
-        std::vector<Point3d> poly;  poly.reserve(4);
+        Point3dVector poly;  poly.reserve(4);
         poly.push_back(botCorners[thisPt]);
         poly.push_back(botCorners[nextPt]);
         poly.push_back(topCorners[nextPt]);
@@ -220,7 +220,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
         if (coordAdapter->isFlat())
             normals.push_back(Vector3d(0,0,1));
         else {
-            std::vector<Point3d> &poly = polys[ii];
+            Point3dVector &poly = polys[ii];
             Point3d &p0 = poly[0];
             Point3d &p1 = poly[1];
             Point3d &p2 = poly[poly.size()-1];
@@ -233,12 +233,12 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     valid = true;
 }
 
-double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const Point3dVector &poly,const Point3d &norm,WhirlyKit::ViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     double origArea = PolygonArea(poly,norm);
     origArea = std::abs(origArea);
     
-    std::vector<Eigen::Vector4d> pts;
+    Vector4dVector pts;
     pts.reserve(poly.size());
     for (unsigned int ii=0;ii<poly.size();ii++)
     {
@@ -251,7 +251,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     }
     
     // The points are in clip space, so clip!
-    std::vector<Eigen::Vector4d> clipSpacePts;
+    Vector4dVector clipSpacePts;
     clipSpacePts.reserve(2*pts.size());
     ClipHomogeneousPolygon(pts,clipSpacePts);
     
@@ -260,7 +260,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         return 0.0;
     
     // Project to the screen
-    std::vector<Point2d> screenPts;
+    Point2dVector screenPts;
     screenPts.reserve(clipSpacePts.size());
     Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
     for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
@@ -276,7 +276,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         screenArea = 0.0;
     
     // Now project the screen points back into model space
-    std::vector<Point3d> backPts;
+    Point3dVector backPts;
     backPts.reserve(screenPts.size());
     for (unsigned int ii=0;ii<screenPts.size();ii++)
     {
@@ -350,11 +350,11 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
 {
     for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        const std::vector<Point3d> &poly = polys[ii];
+        const Point3dVector &poly = polys[ii];
         double origArea = PolygonArea(poly,normals[ii]);
         origArea = std::abs(origArea);
         
-        std::vector<Eigen::Vector4d> pts;
+        Vector4dVector pts;
         pts.reserve(poly.size());
         for (unsigned int ii=0;ii<poly.size();ii++)
         {
@@ -367,7 +367,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
         }
         
         // The points are in clip space, so clip!
-        std::vector<Eigen::Vector4d> clipSpacePts;
+        Vector4dVector clipSpacePts;
         clipSpacePts.reserve(2*pts.size());
         ClipHomogeneousPolygon(pts,clipSpacePts);
 

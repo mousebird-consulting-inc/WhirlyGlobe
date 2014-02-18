@@ -631,7 +631,7 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            std::vector<Point2f> outPts;
+            Point2fVector outPts;
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
         } else {
@@ -640,7 +640,7 @@ using namespace WhirlyGlobe;
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
                 {
-                    std::vector<Point2f> outPts;
+                    Point2fVector outPts;
                     SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
                     ar->loops[ii] = outPts;
                 }
@@ -659,7 +659,7 @@ using namespace WhirlyGlobe;
         VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            std::vector<Point3f> outPts;
+            Point3fVector outPts;
             SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
             VectorRing outPts2D;
             outPts2D.resize(outPts.size());
@@ -672,7 +672,7 @@ using namespace WhirlyGlobe;
             {
                 for (unsigned int ii=0;ii<ar->loops.size();ii++)
                 {
-                    std::vector<Point3f> outPts;
+                    Point3fVector outPts;
                     SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
                     VectorRing outPts2D;
                     outPts2D.resize(outPts.size());

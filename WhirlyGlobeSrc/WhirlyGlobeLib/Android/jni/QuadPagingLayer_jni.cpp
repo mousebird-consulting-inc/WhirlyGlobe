@@ -9,12 +9,15 @@ using namespace WhirlyKit;
 class QuadPagingLayerAdapter : public QuadLoader, public QuadDataStructure, public QuadDisplayControllerAdapter
 {
 public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+	Point2d ll,ur;
+
 	JNIEnv *env;
 	jobject javaObj;
 	SceneRendererES *renderer;
 	CoordSystem *coordSys;
 	jobject delegateObj;
-	Point2d ll,ur;
 	int minZoom,maxZoom;
 	int numFetches;
 	int simultaneousFetches;

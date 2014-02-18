@@ -1045,7 +1045,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 	if (drawOffset != 0 && (points.size() == vertexAttributes[normalEntry]->numElements()))
 	{
 		float scale = setupInfo->minZres*drawOffset;
-        std::vector<Point3f> &norms = *(std::vector<Point3f> *)vertexAttributes[normalEntry]->data;
+        Point3fVector &norms = *(Point3fVector *)vertexAttributes[normalEntry]->data;
         
 		for (unsigned int ii=0;ii<points.size();ii++)
 		{

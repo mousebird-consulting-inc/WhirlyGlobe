@@ -46,6 +46,8 @@ public:
     ViewState(View *view,SceneRendererES *renderer);
     virtual ~ViewState();
     
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Calculate the viewing frustum (which is also the image plane)
     /// Need the framebuffer size in pixels as input
     /// This will cache the values in the view state for later use

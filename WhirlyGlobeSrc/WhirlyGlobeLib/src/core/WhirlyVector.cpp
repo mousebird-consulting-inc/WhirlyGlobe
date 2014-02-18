@@ -30,7 +30,7 @@ GeoCoord GeoCoord::CoordFromDegrees(float lon,float lat)
     return GeoCoord(lon/180.f*M_PI,lat/180.f*M_PI);
 }
 	
-Mbr::Mbr(const std::vector<Point2f> &pts)
+Mbr::Mbr(const Point2fVector &pts)
     : pt_ll(0,0), pt_ur(-1,-1)
 {
 	for (unsigned int ii=0;ii<pts.size();ii++)
@@ -51,7 +51,7 @@ void Mbr::addPoint(Point2f pt)
 	pt_ur.y() = std::max(pt_ur.y(),pt.y());
 }
     
-void Mbr::addPoints(const std::vector<Point2f> &coords)
+void Mbr::addPoints(const Point2fVector &coords)
 {
     for (unsigned int ii=0;ii<coords.size();ii++)
         addPoint(coords[ii]);
@@ -92,7 +92,7 @@ void Mbr::expand(const Mbr &that)
 }
 
     
-void Mbr::asPoints(std::vector<Point2f> &pts) const
+void Mbr::asPoints(Point2fVector &pts) const
 {
     pts.push_back(pt_ll);
     pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
@@ -100,7 +100,7 @@ void Mbr::asPoints(std::vector<Point2f> &pts) const
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
 
-void Mbr::asPoints(std::vector<Point2d> &pts) const
+void Mbr::asPoints(Point2dVector &pts) const
 {
     pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
     pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
@@ -126,7 +126,7 @@ GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
 		addGeoCoord(coords[ii]);
 }
 	
-GeoMbr::GeoMbr(const std::vector<Point2f> &pts)
+GeoMbr::GeoMbr(const Point2fVector &pts)
 	: pt_ll(-1000,-1000), pt_ur(-1000,-1000)
 {
 	for (unsigned int ii=0;ii<pts.size();ii++)
@@ -157,7 +157,7 @@ void GeoMbr::addGeoCoords(const std::vector<GeoCoord> &coords)
 		addGeoCoord(coords[ii]);
 }
 
-void GeoMbr::addGeoCoords(const std::vector<Point2f> &coords)
+void GeoMbr::addGeoCoords(const Point2fVector &coords)
 {
 	for (unsigned int ii=0;ii<coords.size();ii++)
 	{

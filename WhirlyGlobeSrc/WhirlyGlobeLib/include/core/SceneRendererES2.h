@@ -37,6 +37,8 @@ public:
     SceneRendererES2();
     virtual ~SceneRendererES2();
     
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Add a light to the existing set
     // Note: Porting
 //    void addLight(WhirlyKitDirectionalLight *light);

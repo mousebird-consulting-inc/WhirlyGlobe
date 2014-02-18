@@ -20,7 +20,7 @@ static float PolyScale = 1e14;
     
 typedef struct
 {
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     std::vector<int> vertIDs;
 } TriangulationInfo;
     
@@ -80,7 +80,7 @@ void TesselateRingClipper(const VectorRing &ring,std::vector<VectorRing> &rets)
     }
     
     // We need an outline to make this work
-    std::vector<Point2f> boundPts;
+    Point2fVector boundPts;
     testMbr.asPoints(boundPts);
     ClipperLib::Polygon outline(4);
     for (unsigned int ii=0;ii<boundPts.size();ii++)

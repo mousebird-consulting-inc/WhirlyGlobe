@@ -155,6 +155,8 @@ public:
     QuadDisplayController(QuadDataStructure *dataStructure,QuadLoader *loader,QuadDisplayControllerAdapter *adapter);
     ~QuadDisplayController();
 
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     // Called when we ready to start doing things
     void init(Scene *scene,SceneRendererES *renderer);
     

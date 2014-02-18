@@ -32,10 +32,10 @@ bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit);
 
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.
-bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring);
+bool PointInPolygon(Point2f pt,const Point2fVector &ring);
 
 /// Run a convex polygon intersection check.  Returns true if they overlap
-bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1);
+bool ConvexPolyIntersect(const Point2fVector &pts0,const Point2fVector &pts1);
 	
 /// Return the next higher power of 2 unless the input is a power of 2.  Doesn't work for 0.
 unsigned int NextPowOf2(unsigned int val);
@@ -47,19 +47,19 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
 
 /// Clip and return a polygon represented in homogeneous coordinates
-void ClipHomogeneousPolygon(const std::vector<Eigen::Vector4d> &pts,std::vector<Eigen::Vector4d> &outPts);
+void ClipHomogeneousPolygon(const Vector4dVector &pts,Vector4dVector &outPts);
 	
 /// Project and clip a given polygon to screen space.  Clips in homogeneous coordinates.
-void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,std::vector<Point3d> &poly,std::vector<Point2f> &screenPoly);
+void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,Point3dVector &poly,Point2fVector &screenPoly);
     
 /// Look for a ray/rectangular solid intersection.
 /// Return true if we found one and the distance^2 from the ray origin to the intersection
 bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
     
 /// Return the area of the 3D polygon
-float PolygonArea(const std::vector<Point3f> &poly,const Point3f &norm);
+float PolygonArea(const Point3fVector &poly,const Point3f &norm);
 
 /// Return the area of the 3D polygon
-double PolygonArea(const std::vector<Point3d> &poly,const Point3d &norm);
+double PolygonArea(const Point3dVector &poly,const Point3d &norm);
     
 }
