@@ -501,6 +501,11 @@ static const float PerfOutputDelay = 15.0;
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
+}
+
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
@@ -616,20 +621,28 @@ static const float PerfOutputDelay = 15.0;
     // Let's put it in the right place so the callout can do its layout logic
     CGPoint pt = [self screenPointFromGeo:coord];
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
-    annotate.calloutView.delegate = self;
     annotate.loc = coord;
+    annotate.calloutView.delegate = self;
     if (!alreadyHere)
     {
         [annotations addObject:annotate];
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    } else {
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
     }
     
     // But then we move it back because we're controlling its positioning
     CGRect frame = annotate.calloutView.frame;
     annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
-    
+
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,DrawVisibleInvalid,DrawVisibleInvalid);
+    if (alreadyHere)
+    {
+        vpGen->moveView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    } else
+    {
+        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    }
     sceneRenderer.triggerDraw = true;
 }
 
@@ -870,6 +883,22 @@ static const float PerfOutputDelay = 15.0;
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
+}
+
+- (float)currentMapScale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapScale:frameSize];
+}
+
+- (float)heightForMapScale:(float)scale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return -1.0;
+    return (float)[visualView heightForMapScale:scale frame:frameSize];
 }
 
 @end

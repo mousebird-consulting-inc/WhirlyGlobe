@@ -50,7 +50,22 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
 }
+
+void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,float maxVis)
+{
+    // Make sure it isn't already there
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
+    if (it != viewInstanceSet.end())
+        viewInstanceSet.erase(it);
     
+    ViewInstance viewInst(loc,view);
+    viewInst.minVis = minVis;
+    viewInst.maxVis = maxVis;
+    CGRect frame = view.frame;
+    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
+    viewInstanceSet.insert(viewInst);
+}
+
 void ViewPlacementGenerator::removeView(UIView *view)
 {
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));

@@ -36,16 +36,6 @@ public:
     VectorDatabase();
     ~VectorDatabase();
 
-    // Used to track attribute name/type
-    class Attribute
-    {
-    public:
-        bool operator < (const Attribute &that) const { return name < that.name; }
-        std::string name;
-        int index;
-        VectorAttributeType type;
-    };
-
     // Set up the data structures we need in the SQLite database
     bool setupDatabase(Kompex::SQLiteDatabase *db,const char *dbSrs,const char *tileSrs,double minX,double minY,double maxX,double maxY,int minLevel,int maxLevel,bool compress);
     
@@ -54,12 +44,6 @@ public:
     
     // Add a layer.  We store those in individual tables.
     int addVectorLayer(const char *);
-    
-    // Return an attribute ID by name if it exists, -1 if it doesn't
-    bool getAttribute(const char *name,Attribute &attr);
-    
-    // Add an attribute to the table (or return the index of an existing one)
-    Attribute addAttribute(const char *name,VectorAttributeType type);
     
     // Convert OGR vector data to our raw format
     void vectorToDBFormat(std::vector<OGRFeature *> &features,std::vector<unsigned char> &vecData);
@@ -80,7 +64,6 @@ protected:
     
     Kompex::SQLiteDatabase *db;
     std::vector<std::string> layerNames;
-    std::set<Attribute> attributes;
     
     double minx,miny,maxx,maxy;
     int minLevel,maxLevel;

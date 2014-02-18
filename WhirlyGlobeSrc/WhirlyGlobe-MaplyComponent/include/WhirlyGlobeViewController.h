@@ -156,6 +156,22 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the double tap to zoom gesture recognizer on and off
+ @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapZoomGesture;
+
+/** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
+ @details On by default.
+ */
+@property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+ @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapDragGesture;
+
+
 /** @brief If set, we'll automatically move to wherever the user tapped.
     @details When on we'll move the current location to wherever the user tapped if they tapped the globe.  That's true for selection as well.  On by default.
   */
@@ -191,6 +207,16 @@
     @param maxHeight The farthest away a viewer is allowed to get from the globe surface.
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
+
+/** @brief How much we zoom in or out by when the user double taps or two finger taps.
+    @details This sets the factor we'll use to zoom in by (e.g. *2.0) when the user double taps.  It also sets how much we zoom out by when the user two finger taps.  This will only have an effect if those gestures are active.
+  */
+@property (nonatomic) float zoomTapFactor;
+
+/** @brief How long we take to zoom in or out when the user double taps or two finger taps.
+    @details This controls the duration of the zoom animation.  You can set it to zero to avoid the animation entirely.
+  */
+@property (nonatomic) float zoomTapAnimationDuration;
 
 /** @brief Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.
     @details This implements a simplified mode for tilting.  As the user gets closer to the ground we tilt more toward the horizon.

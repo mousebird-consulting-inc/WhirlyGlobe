@@ -252,6 +252,28 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Make a copy of the base object and apply the attributes given for the new version.
+ @details This call makes a cheap copy of the vectors in the given MaplyComponentObject and applies the given description to them.  You can use this to make a wider or thinner version of a set of vectors, or change their color, while continuing to draw the originals.  Or not, as the case may be.
+ @details This is useful for vector maps where we tend to reuse the same geometry at multiple levels and with different colors and line widths.
+ @details Instancing only works with a handful of visual changes.  For instance, you can't make a filled and non-filled version.
+ @param baseObj The MaplyComponentObject returned by an addVectors: call.  This only works for vectors.
+ @param desc The description dictionary with controls how vectors will be displayed.  It takes the following entries.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the vector features.|
+ |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the GL lines.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 
@@ -544,6 +566,19 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @return Returns the registered shader if it found one.
   */
 - (MaplyShader *)getShaderByName:(NSString *)name;
+
+/** @brief Return the current map scale from the viewpoint.
+    @details Calculate the map scale denominator (ala Mapnik) based on the current screen size and the 3D viewport.
+    @return Returns the map scale denominator or MAXFLOAT if the system is not yet initialized.
+  */
+- (float)currentMapScale;
+
+/** @brief Calculate the height that corresponds to a given Mapnik-style map scale.
+    @details Figure out the viewer height that corresponds to a given scale denominator (ala Mapnik).
+    @details This height will probably be use for visibility ranges on geometry.  This works as a mechanism for making geometry appear at certain map scales and disappear at others.
+    @return Returns the height or 0.0 if the system isn't initialized yet.
+  */
+- (float)heightForMapScale:(float)scale;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

@@ -43,13 +43,14 @@ namespace WhirlyKit
 class VectorSceneRep : public Identifiable
 {
 public:
-    VectorSceneRep() { }
+    VectorSceneRep() : fade(0.0) { }
     VectorSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     
     // Clean out the representation
     void clear(ChangeSet &changes);
     
     SimpleIDSet drawIDs;    // The drawables we created
+    SimpleIDSet instIDs;    // Instances if we're doing that
     float fade;       // If set, the amount of time to fade out before deletion
 };
 typedef std::set<VectorSceneRep *,IdentifiableSorter> VectorSceneRepSet;
@@ -70,6 +71,9 @@ public:
     
     /// Change the vector(s) represented by the given ID
     void changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
+    
+    /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
+    SimpleIdentity instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
     
     /// Remove a group of vectors associated with the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);

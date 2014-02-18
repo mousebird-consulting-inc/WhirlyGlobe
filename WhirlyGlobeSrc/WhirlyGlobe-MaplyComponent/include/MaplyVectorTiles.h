@@ -20,60 +20,31 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyQuadPagingLayer.h"
+#import "MaplyVectorStyle.h"
 
-@interface MaplyVectorTileStyleSettings : NSObject
-
-@property (nonatomic) float lineScale;
-@property (nonatomic) float textScale;
-@property (nonatomic) float markerScale;
-
-@end
-
+/**
+  */
 @interface MaplyVectorTiles : NSObject<MaplyPagingDelegate>
 
-- (id)initWithDirectory:(NSString *)tilesDir;
-- (id)initWithDatabase:(NSString *)tilesDB;
++ (UIColor *)ParseColor:(NSString *)colorStr;
+
+/** @brief
+  */
+- (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
 
 @property (nonatomic,readonly) NSString *tilesDir;
 @property (nonatomic,readonly) int minLevel;
 @property (nonatomic,readonly) int maxLevel;
 
+@property (nonatomic,weak) MaplyBaseViewController *viewC;
+
 @property (nonatomic) MaplyVectorTileStyleSettings *settings;
 
+/// @brief Individual layers parsed out of the vector tiles database
 @property (nonatomic,readonly) NSArray *layerNames;
 
+/// @brief An array of the style dictionaries.
+/// @details Style dictionaries are used internally to style the vector data.
 @property (nonatomic,readonly) NSArray *styles;
-
-@end
-
-@interface MaplyVectorTileStyle : NSObject
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-
-@property (nonatomic) bool geomAdditive;
-
-@end
-
-@interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
-
-@end
-
-@interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
-
-@end
-
-@interface MaplyVectorTileStyleText : MaplyVectorTileStyle
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
-
-@end
-
-@interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings;
 
 @end
