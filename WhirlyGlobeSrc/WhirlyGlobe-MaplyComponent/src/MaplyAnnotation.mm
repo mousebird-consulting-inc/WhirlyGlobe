@@ -29,6 +29,7 @@
     _calloutView = [[SMCalloutView alloc] init];
     _minVis = WhirlyKit::DrawVisibleInvalid;
     _maxVis = WhirlyKit::DrawVisibleInvalid;
+    _repositionForVisibility = true;
     
     return self;
 }
