@@ -56,6 +56,11 @@ using namespace WhirlyGlobe;
         return nil;
     
     _autoMoveToTap = true;
+    _doubleTapZoomGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapDragGesture = true;
+    _zoomTapFactor = 2.0;
+    _zoomTapAnimationDuration = 0.1;
     
     return self;
 }
@@ -73,6 +78,10 @@ using namespace WhirlyGlobe;
     tapDelegate = nil;
     rotateDelegate = nil;
     animateRotation = nil;    
+
+    doubleTapDelegate = nil;
+    twoFingerTapDelegate = nil;
+    doubleTapDragDelegate = nil;
 }
 
 - (void) dealloc
@@ -118,6 +127,35 @@ using namespace WhirlyGlobe;
     self.rotateGesture = true;
         
     self.selection = true;
+    
+    if(_doubleTapZoomGesture)
+    {
+        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+    }
+    if(_twoFingerTapGesture)
+    {
+        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+        twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+        twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        if (pinchDelegate)
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+    }
+    if (_doubleTapDragGesture)
+    {
+        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+        doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -245,11 +283,7 @@ using namespace WhirlyGlobe;
     } else {
         if (pinchDelegate)
         {
-            UIPinchGestureRecognizer *pinchRecog = nil;
-            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
-                if ([recog isKindOfClass:[UIPinchGestureRecognizer class]])
-                    pinchRecog = (UIPinchGestureRecognizer *)recog;
-            [glView removeGestureRecognizer:pinchRecog];
+            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
         }
     }
@@ -280,6 +314,7 @@ using namespace WhirlyGlobe;
             [glView removeGestureRecognizer:rotRecog];
             rotateDelegate = nil;
             pinchDelegate.rotateDelegate = nil;
+            pinchDelegate.doRotation = false;
         }
     }
 }
@@ -324,7 +359,43 @@ using namespace WhirlyGlobe;
             globeView.heightAboveGlobe = minHeight;
         if (globeView.heightAboveGlobe > maxHeight)
             globeView.heightAboveGlobe = maxHeight;
+
+        if (doubleTapDelegate)
+        {
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
     }
+}
+
+- (void)setZoomTapFactor:(float)zoomTapFactor
+{
+    _zoomTapFactor = zoomTapFactor;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+}
+
+- (void)setZoomTapAnimationDuration:(float)zoomAnimationDuration
+{
+    _zoomTapAnimationDuration = zoomAnimationDuration;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
 }
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
@@ -348,6 +419,77 @@ using namespace WhirlyGlobe;
 - (void)setTilt:(float)newTilt
 {
     globeView.tilt = newTilt;
+}
+
+- (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
+{
+    _doubleTapZoomGesture = doubleTapZoomGesture;
+    if (doubleTapZoomGesture)
+    {
+        if (!doubleTapDelegate)
+        {
+            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+            doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        }
+    } else {
+        if (doubleTapDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            doubleTapDelegate.gestureRecognizer = nil;
+            doubleTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
+{
+    _twoFingerTapGesture = twoFingerTapGesture;
+    if (twoFingerTapGesture)
+    {
+        if (!twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+            twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+    } else {
+        if (twoFingerTapDelegate)
+        {
+            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            twoFingerTapDelegate.gestureRecognizer = nil;
+            twoFingerTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
+{
+    _doubleTapZoomGesture = doubleTapDragGesture;
+    if (doubleTapDragGesture)
+    {
+        if (!doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (doubleTapDragDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            doubleTapDragDelegate.gestureRecognizer = nil;
+            doubleTapDragDelegate = nil;
+        }
+    }
 }
 
 #pragma mark - Interaction

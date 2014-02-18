@@ -34,6 +34,8 @@
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2f *)bounds;
 

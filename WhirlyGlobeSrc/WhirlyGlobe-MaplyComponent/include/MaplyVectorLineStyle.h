@@ -1,9 +1,9 @@
 /*
- *  MaplyTwoFingerTapDelegate.h
+ *  MaplyVectorLineStyle.h
+ *  WhirlyGlobe-MaplyComponent
  *
- *
- *  Created by Jesse Crocker on 2/4/14.
- *  Copyright 2011-2013 mousebird consulting
+ *  Created by Steve Gifford on 1/3/14.
+ *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,17 +18,11 @@
  *
  */
 
-#import <Foundation/Foundation.h>
-#import "MaplyView.h"
-#import "MaplyZoomGestureDelegate.h"
+#import "MaplyVectorTiles.h"
+#import "MaplyVectorStyle.h"
 
-@interface MaplyTwoFingerTapDelegate : MaplyZoomGestureDelegate
+@interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
 
-/// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
-
-// How long we animate from one place to the next
-@property (nonatomic) float animTime;
-
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 @end

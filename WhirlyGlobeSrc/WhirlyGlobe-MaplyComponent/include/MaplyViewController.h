@@ -133,14 +133,19 @@
 @property(nonatomic,assign) bool rotateGesture;
 
 /** @brief Turn the double tap to zoom gesture recognizer on and off
- @details Off by default.
+    @details On by default.
  */
 @property(nonatomic,assign) bool doubleTapZoomGesture;
 
 /** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
- @details Off by default.
+    @details On by default.
  */
 @property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+    @details On by default.
+  */
+@property(nonatomic,assign) bool doubleTapDragGesture;
 
 /** @brief The current rotation away from north.
  */
@@ -201,7 +206,7 @@
 
 /** @brief Set the center of the screen and the height offset immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
-    @param height Height the view point above the map.  Doesn't work in 2D mode.
+    @param height Height the view point above the map.
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
@@ -228,8 +233,8 @@
  */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
 
-/** @brief Return the geographic (lon/lat radians) coordinate for a given screen point.
- @return Returns the geo coordinate corresponding to a given screen point.
+/** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
+    @return Returns the geo coordinate corresponding to a given screen point in radians.
  */
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point;
 

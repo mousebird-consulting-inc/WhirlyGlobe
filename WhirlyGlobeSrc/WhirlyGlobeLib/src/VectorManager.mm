@@ -126,8 +126,8 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          VectorInfo *vecInfo,bool linesOrPoints)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
+                          VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -182,15 +182,19 @@ public:
             if (primType == GL_POINTS)
             {
                 drawable->addPoint(pt);
-                drawable->addColor(baseColor);
+                if (doColor)
+                    drawable->addColor(baseColor);
                 drawable->addNormal(norm);
             } else {
                 if (jj > 0)
                 {
                     drawable->addPoint(prevPt);
                     drawable->addPoint(pt);
-                    drawable->addColor(baseColor);
-                    drawable->addColor(baseColor);
+                    if (doColor)
+                    {
+                        drawable->addColor(baseColor);
+                        drawable->addColor(baseColor);
+                    }
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
                 } else {
@@ -207,8 +211,11 @@ public:
         {
             drawable->addPoint(prevPt);
             drawable->addPoint(firstPt);
-            drawable->addColor(baseColor);
-            drawable->addColor(baseColor);
+            if (doColor)
+            {
+                drawable->addColor(baseColor);
+                drawable->addColor(baseColor);
+            }
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
         }
@@ -236,6 +243,7 @@ public:
     }
     
 protected:
+    bool doColor;
     Scene *scene;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
@@ -253,8 +261,8 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             VectorInfo *vecInfo)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL)
+                             VectorInfo *vecInfo,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor)
     {
     }
     
@@ -395,7 +403,8 @@ public:
                 Point3f pt = coordAdapter->localToDisplay(localPt);
                 
                 drawable->addPoint(pt);
-                drawable->addColor(baseColor);
+                if (doColor)
+                    drawable->addColor(baseColor);
                 drawable->addNormal(norm);
                 if (vecInfo->texId != EmptyIdentity)
                 {
@@ -432,7 +441,8 @@ public:
         }
     }
     
-protected:   
+protected:
+    bool doColor;
     Scene *scene;
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
@@ -472,10 +482,22 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
 //    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
 //    bool linesOrPoints = (thePoints.get() ? false : true);
     
+    // Look for per vector colors
+    bool doColors = false;
+    for (ShapeSet::iterator it = vecInfo->shapes.begin();
+         it != vecInfo->shapes.end(); ++it)
+    {
+        if (((*it)->getAttrDict())[@"color"])
+        {
+            doColors = true;
+            break;
+        }
+    }
+    
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true);
-    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo);
+    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true,doColors);
+    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo,doColors);
         
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
@@ -556,6 +578,66 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     
     return vecID;
 }
+    
+SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+{
+    SimpleIdentity newId = EmptyIdentity;
+    
+    pthread_mutex_lock(&vectorLock);
+    
+    // Look for the representation
+    VectorSceneRep dummyRep(vecID);
+    VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
+    if (it != vectorReps.end())
+    {
+        VectorSceneRep *sceneRep = *it;
+        VectorSceneRep *newSceneRep = new VectorSceneRep();
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+        {
+            // Make up a BasicDrawableInstance
+            BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt);
+            
+            // Changed color
+            if ([desc objectForKey:@"color"]) {
+                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
+                drawInst->setColor(newColor);
+            }
+            
+            // Changed visibility
+            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
+                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+                drawInst->setVisibleRange(minVis, maxVis);
+            }
+            
+            // Changed line width
+            if ([desc objectForKey:@"width"]) {
+                float lineWidth = [desc floatForKey:@"width" default:1.0];
+                drawInst->setLineWidth(lineWidth);
+            }
+            
+            // Changed draw priority
+            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
+                int priority = [desc intForKey:@"drawPriority" default:0];
+                // This looks like an old bug
+                priority = [desc intForKey:@"priority" default:priority];
+                drawInst->setDrawPriority(priority);
+            }
+
+            // Note: Should set fade
+            newSceneRep->instIDs.insert(drawInst->getId());
+            changes.push_back(new AddDrawableReq(drawInst));
+        }
+        
+        vectorReps.insert(newSceneRep);
+        newId = newSceneRep->getId();
+    }
+
+    pthread_mutex_unlock(&vectorLock);
+    
+    return newId;
+}
 
 void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
 {
@@ -567,8 +649,11 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
     if (it != vectorReps.end())
     {
         VectorSceneRep *sceneRep = *it;
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        // Make sure we change both drawables and intances
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        for (SimpleIDSet::iterator idIt = allIDs.begin();idIt != allIDs.end(); ++idIt)
         {
             // Turned it on or off
             if ([desc objectForKey:@"enable"])
@@ -582,8 +667,8 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
             
             // Changed visibility
             if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
-                int minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-                int maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
+                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
+                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
                 changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
             }
             
@@ -620,10 +705,13 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         {
             VectorSceneRep *sceneRep = *it;
             
+            SimpleIDSet allIDs = sceneRep->drawIDs;
+            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
             if (sceneRep->fade > 0.0)
             {
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
+                for (SimpleIDSet::iterator idIt = allIDs.begin();
+                     idIt != allIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
                 
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
@@ -638,8 +726,8 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                                );
                 sceneRep->fade = 0.0;
             } else {
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
+                for (SimpleIDSet::iterator idIt = allIDs.begin();
+                     idIt != allIDs.end(); ++idIt)
                     changes.push_back(new RemDrawableReq(*idIt));
                 vectorReps.erase(it);
                 
@@ -663,8 +751,9 @@ void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &cha
         {
             VectorSceneRep *sceneRep = *it;
             
-            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                 idIt != sceneRep->drawIDs.end(); ++idIt)
+            SimpleIDSet allIDs = sceneRep->drawIDs;
+            allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+            for (SimpleIDSet::iterator idIt = allIDs.begin(); idIt != allIDs.end(); ++idIt)
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
         }
     }

@@ -71,7 +71,10 @@ public:
     /// Add a view to be tracked.
     /// You should call this from the main thread.
     void addView(GeoCoord loc,UIView *view,float minVis,float maxVis);
-    
+
+    /// Move an existing tracked view to a new location
+    void moveView(GeoCoord loc,UIView *view,float minVis,float maxVis);
+
     /// Remove a view being tracked.
     /// Call this in the main thread
     void removeView(UIView *view);

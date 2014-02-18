@@ -27,7 +27,7 @@
 
 @interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
 {
-  MaplyView *mapView;
+  MaplyView * __weak mapView;
   /// Boundary quad that we're to stay within
   std::vector<WhirlyKit::Point2f> bounds;
 }

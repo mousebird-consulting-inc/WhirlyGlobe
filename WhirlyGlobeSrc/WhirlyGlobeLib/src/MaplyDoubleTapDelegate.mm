@@ -20,10 +20,14 @@
 
 #import "MaplyDoubleTapDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
+#import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyDoubleTapDelegate
+{
+    MaplyAnimateViewTranslation *animation;
+}
 
 + (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
@@ -33,6 +37,7 @@ using namespace WhirlyKit;
     tapRecognizer.numberOfTouchesRequired = 1;
     tapRecognizer.delegate = tapDelegate;
     tapDelegate.gestureRecognizer = tapRecognizer;
+    tapDelegate.animTime = 0.1;
 	[view addGestureRecognizer:tapRecognizer];
 	return tapDelegate;
 }
@@ -54,9 +59,9 @@ using namespace WhirlyKit;
         double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
-            [mapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
-            if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
-                [mapView setLoc:curLoc];
+            Point3f newLoc(hit.x(),hit.y(),newZ);
+            animation = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:_animTime];
+            mapView.delegate = animation;
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
         [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:mapView];
