@@ -64,7 +64,6 @@ using namespace WhirlyKit;
             mapView.delegate = animation;
         }
         [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
-        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:mapView];
     } else {
         // Not expecting this case
     }
