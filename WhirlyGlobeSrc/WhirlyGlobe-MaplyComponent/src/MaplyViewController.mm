@@ -319,7 +319,7 @@ using namespace Maply;
         [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -330,11 +330,19 @@ using namespace Maply;
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
 }
 
+- (void)unregisterForEvents
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
+}
 
 - (void)setRotateGesture:(bool)rotateGesture
 {
@@ -575,6 +583,8 @@ using namespace Maply;
     if (scrollView)
         return;
 
+    [self handleStartMoving:NO];
+    
     [mapView cancelAnimation];
     
     if (pinchDelegate)
@@ -594,6 +604,7 @@ using namespace Maply;
     Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView.loc = loc;
+    [self handleStopMoving:NO];
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
@@ -779,15 +790,6 @@ using namespace Maply;
     [self handleStartMoving:true];
 }
 
-// Called when the pan delegate stops moving
-- (void) panDidEnd:(NSNotification *)note
-{
-    if (note.object != mapView)
-        return;
-    
-    [self handleStopMoving:true];
-}
-
 - (void) zoomGestureDidStart:(NSNotification *)note
 {
     if (note.object != mapView)
@@ -802,6 +804,14 @@ using namespace Maply;
         return;
     
     [self handleStopMoving:true];
+}
+
+- (void) animationDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStopMoving:NO];
 }
 
 // Convenience routine to handle the end of moving
