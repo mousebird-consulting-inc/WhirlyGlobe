@@ -655,7 +655,7 @@ static const float PerfOutputDelay = 15.0;
     // Need to find the annotation this belongs to
     for (MaplyAnnotation *annotation in annotations)
     {
-        if (annotation.calloutView == calloutView)
+        if (annotation.calloutView == calloutView && annotation.repositionForVisibility)
         {
             CGPoint pt = [self screenPointFromGeo:annotation.loc];
             CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
