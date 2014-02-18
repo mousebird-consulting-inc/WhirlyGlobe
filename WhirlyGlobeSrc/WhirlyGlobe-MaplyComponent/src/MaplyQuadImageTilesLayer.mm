@@ -507,8 +507,7 @@ using namespace WhirlyKit;
         canShortCircuitImportance = false;
     }
     
-    // Note: Debugging
-    canShortCircuitImportance = false;
+//    canShortCircuitImportance = false;
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.

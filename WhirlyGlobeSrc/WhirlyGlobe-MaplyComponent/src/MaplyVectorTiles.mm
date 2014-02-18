@@ -25,14 +25,32 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyScreenLabel.h"
 #import "MaplyIconManager.h"
+#import "MaplyVectorLineStyle.h"
+#import "MaplyVectorMarkerStyle.h"
+#import "MaplyVectorPolygonStyle.h"
+#import "MaplyVectorTextStyle.h"
 #import <string>
 #import <map>
 #import <vector>
 
 using namespace Maply;
 
+typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
+
+@implementation MaplyVectorTiles
+{
+    // If we're reading from a database, these are set
+    FMDatabase *db;
+    FMDatabaseQueue *queue;
+    bool compressed;
+    std::vector<VectorAttribute> vecAttrs;
+    
+    // The style info
+    StyleMap styleObjects;
+}
+
 // Parse a UIColor from hex values
-UIColor *ParseColor(NSString *colorStr)
++(UIColor *) ParseColor:(NSString *)colorStr
 {
     int red = 255, green = 255, blue = 255;
     float alpha = 1.0;
@@ -48,325 +66,10 @@ UIColor *ParseColor(NSString *colorStr)
     return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
 }
 
-@implementation MaplyVectorTileStyleSettings
-@end
-
-@implementation MaplyVectorTileStyle
-
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
-{
-    MaplyVectorTileStyle *tileStyle = nil;
-    
-    NSString *typeStr = styleEntry[@"type"];
-    if ([typeStr isEqualToString:@"LineSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry index:index settings:settings];
-    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry index:index settings:settings];
-    } else if ([typeStr isEqualToString:@"TextSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:styleEntry index:index settings:settings];
-    } else if ([typeStr isEqualToString:@"MarkersSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:styleEntry index:index settings:settings];
-    } else {
-        // Set up one that doesn't do anything
-        NSLog(@"Unknown symbolizer type %@",typeStr);
-        tileStyle = [[MaplyVectorTileStyle alloc] init];
-    }
-    
-    return tileStyle;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
-    return nil;
-}
-
-@end
-
-// Line styles
-@implementation MaplyVectorTileStyleLine
-{
-    NSDictionary *desc;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
+- (id)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
-    
-    float strokeWidth = 1.0;
-    int red = 255,green = 255,blue = 255;
-    float alpha = 1.0;
-
-    // Build up the vector description dictionary
-    if (styleEntry[@"stroke-width"])
-        strokeWidth = [styleEntry[@"stroke-width"] floatValue];
-    if (styleEntry[@"stroke-opacity"])
-    {
-        alpha = [styleEntry[@"stroke-opacity"] floatValue];
-    }
-    if (styleEntry[@"stroke"])
-    {
-        NSString *colorStr = styleEntry[@"stroke"];
-        // parse the hex
-        NSScanner *scanner = [NSScanner scannerWithString:colorStr];
-        unsigned int colorVal;
-        [scanner setScanLocation:1]; // bypass #
-        [scanner scanHexInt:&colorVal];
-        blue = colorVal & 0xFF;
-        green = (colorVal >> 8) & 0xFF;
-        red = (colorVal >> 16) & 0xFF;
-    }
-    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
-        self.geomAdditive = true;
-    desc = @{kMaplyVecWidth: @(settings.lineScale * strokeWidth),
-             kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
-             kMaplyDrawPriority: @(index+kMaplyVectorDrawPriorityDefault)
-            };
-    
-    return self;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
-    MaplyComponentObject *compObj = [viewC addVectors:vecObjs desc:desc];
-    if (compObj)
-        return @[compObj];
-    
-    return nil;
-}
-
-@end
-
-// Filled polygons styles
-@implementation MaplyVectorTileStylePolygon
-{
-    NSDictionary *desc;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
-{
-    self = [super init];
-
-    int red = 255,green = 255,blue = 255;
-    float alpha = 1.0;
-
-    // Build up the vector description dictionary
-    if (styleEntry[@"fill-opacity"])
-    {
-        alpha = [styleEntry[@"fill-opacity"] floatValue];
-    }
-    if (styleEntry[@"fill"])
-    {
-        NSString *colorStr = styleEntry[@"fill"];
-        // parse the hex
-        NSScanner *scanner = [NSScanner scannerWithString:colorStr];
-        unsigned int colorVal;
-        [scanner setScanLocation:1]; // bypass #
-        [scanner scanHexInt:&colorVal];
-        blue = colorVal & 0xFF;
-        green = (colorVal >> 8) & 0xFF;
-        red = (colorVal >> 16) & 0xFF;
-    }
-    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
-        self.geomAdditive = true;
-    desc = @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
-             kMaplyFilled: @(YES),
-             kMaplyDrawPriority: @(index+kMaplyVectorDrawPriorityDefault)
-             };
-    
-    return self;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
-    // Tesselate everything here, rather than tying up the layer thread
-    NSMutableArray *tessObjs = [NSMutableArray array];
-    for (MaplyVectorObject *vec in vecObjs)
-    {
-        MaplyVectorObject *tessVec = [vec tesselate];
-        if (tessVec)
-            [tessObjs addObject:tessVec];
-    }
-        
-    MaplyComponentObject *compObj = [viewC addVectors:tessObjs desc:desc];
-    if (compObj)
-        return @[compObj];
-    
-    return nil;
-}
-
-@end
-
-// Text placement styles
-@implementation MaplyVectorTileStyleText
-{
-    NSMutableDictionary *desc;
-    float dx,dy;
-    float textSize;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)settings
-{
-    self = [super init];
-    
-    UIColor *fillColor = [UIColor whiteColor];
-    if (styleEntry[@"fill"])
-        fillColor = ParseColor(styleEntry[@"fill"]);
-    textSize = 12.0;
-    if (styleEntry[@"size"])
-    {
-        textSize = [styleEntry[@"size"] floatValue];
-    }
-    UIFont *font = [UIFont systemFontOfSize:textSize];
-    if (styleEntry[@"face-name"])
-    {
-        // Note: This doesn't work all that well
-        NSString *faceName = styleEntry[@"face-name"];
-        UIFont *thisFont = [UIFont fontWithName:[faceName stringByReplacingOccurrencesOfString:@" " withString:@"-"] size:textSize];
-        if (thisFont)
-            font = thisFont;
-    }
-    UIColor *outlineColor = nil;
-    if (styleEntry[@"halo-fill"])
-        outlineColor = ParseColor(styleEntry[@"halo-fill"]);
-    float outlineSize = 1.0;
-    if (styleEntry[@"halo-radius"])
-        outlineSize = [styleEntry[@"halo-radius"] floatValue];
-    dx = 0.0;
-    if (styleEntry[@"dx"])
-        dx = [styleEntry[@"dx"] floatValue] * settings.textScale;
-    dy = 0.0;
-    if (styleEntry[@"dy"])
-        dy = [styleEntry[@"dy"] floatValue] * settings.textScale;
-    
-    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
-        self.geomAdditive = true;
-
-    desc = [NSMutableDictionary dictionary];
-    desc[kMaplyTextColor] = fillColor;
-    desc[kMaplyFont] = font;
-    if (outlineColor)
-    {
-        desc[kMaplyTextOutlineColor] = outlineColor;
-        desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
-    }
-    
-    return self;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
-    // One label per object
-    NSMutableArray *labels = [NSMutableArray array];
-    for (MaplyVectorObject *vec in vecObjs)
-    {
-        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-        // Note: HACK!
-        label.text = vec.attributes[@"NAME"];
-        MaplyCoordinate center = [vec center];
-        label.loc = center;
-        if (label.text)
-            [labels addObject:label];
-        label.size = CGSizeMake(textSize,textSize);
-        label.offset = CGPointMake(dx, dy);
-        label.layoutImportance = 1.0;
-    }
-    
-    MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:desc];
-    if (compObj)
-        return @[compObj];
-    
-    return nil;
-}
-
-@end
-
-// Marker placement style
-@implementation MaplyVectorTileStyleMarker
-{
-    NSMutableDictionary *desc;
-    UIImage *markerImage;
-    float width;
-    bool allowOverlap;
-    MaplyVectorTileStyleSettings *settings;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry index:(int)index settings:(MaplyVectorTileStyleSettings *)inSettings
-{
-    self = [super init];
-    settings = inSettings;
-    
-    UIColor *fillColor = [UIColor whiteColor];
-    if (styleEntry[@"fill"])
-        fillColor = ParseColor(styleEntry[@"fill"]);
-    UIColor *strokeColor = [UIColor blackColor];
-    if (styleEntry[@"stroke"])
-        strokeColor = ParseColor(styleEntry[@"stroke"]);
-    width = 10.0;
-    if (styleEntry[@"width"])
-        width = [styleEntry[@"width"] floatValue];
-    allowOverlap = false;
-    if (styleEntry[@"allow-overlap"])
-        allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
-    float strokeWidth = 2.0;
-    
-    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
-        self.geomAdditive = true;
-    
-    desc = [NSMutableDictionary dictionary];
-    
-    markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*settings.markerScale*width, 4*settings.markerScale*width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
-    
-    return self;
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
-{
-    // One marker per object
-    NSMutableArray *markers = [NSMutableArray array];
-    for (MaplyVectorObject *vec in vecObjs)
-    {
-        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-        marker.selectable = false;
-        marker.image = markerImage;
-        marker.loc = [vec center];
-        if (allowOverlap)
-            marker.layoutImportance = MAXFLOAT;
-        else
-            marker.layoutImportance = 1.0;
-        marker.size = CGSizeMake(settings.markerScale*width, settings.markerScale*width);
-        [markers addObject:marker];
-    }
-    
-    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:desc];
-    if (compObj)
-        return @[compObj];
-    
-    return nil;
-}
-
-@end
-
-
-
-@implementation MaplyVectorTiles
-{
-    // If we're reading from a database, these are set
-    FMDatabase *db;
-    FMDatabaseQueue *queue;
-    bool compressed;
-    std::vector<VectorAttribute> vecAttrs;
-    
-    // The style info
-    NSMutableArray *styleObjects;
-}
-
-- (id)initWithDirectory:(NSString *)tilesDir
-{
-    self = [super init];
+    _viewC = viewC;
     _tilesDir = tilesDir;
     
     // Look for the styles file
@@ -396,11 +99,6 @@ UIColor *ParseColor(NSString *colorStr)
         return nil;
     _styles = styles;
     
-    // Set up an entry for each style.  Don't fill them in yet.
-    styleObjects = [NSMutableArray array];
-    for (NSDictionary *styleEntry in _styles)
-        [styleObjects addObject:[NSNull null]];
-    
     _settings = [[MaplyVectorTileStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
@@ -409,10 +107,10 @@ UIColor *ParseColor(NSString *colorStr)
     return self;
 }
 
-- (id)initWithDatabase:(NSString *)name
+- (id)initWithDatabase:(NSString *)name viewC:(MaplyBaseViewController *)viewC
 {
     self = [super init];
-    
+    _viewC = viewC;
     NSString *infoPath = nil;
     // See if that was a direct path first
     if ([[NSFileManager defaultManager] fileExistsAtPath:name])
@@ -482,15 +180,11 @@ UIColor *ParseColor(NSString *colorStr)
         vecAttrs.push_back(attr);
     }
     
-    // Set up an entry for each style.  Don't fill them in yet.
-    styleObjects = [NSMutableArray array];
-    for (NSDictionary *styleEntry in _styles)
-        [styleObjects addObject:[NSNull null]];
- 
     _settings = [[MaplyVectorTileStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
-    _settings.markerScale = [UIScreen mainScreen].scale;    
+    _settings.markerScale = [UIScreen mainScreen].scale;
+    _settings.mapScaleScale = 1.0;
     
     return self;
 }
@@ -506,17 +200,34 @@ UIColor *ParseColor(NSString *colorStr)
 }
 
 // Return or create the object which will create the given style
-- (MaplyVectorTileStyle *)getStyle:(int)which
+- (MaplyVectorTileStyle *)getStyle:(const std::string &)uuid
 {
     // Note: Is this too much locking?
-    @synchronized(styleObjects)
+    @synchronized(self)
     {
-        id styleObj = styleObjects[which];
-        if ([styleObj isKindOfClass:[NSNull class]])
+        StyleMap::iterator it = styleObjects.find(uuid);
+        MaplyVectorTileStyle *styleObj = nil;
+        if (it == styleObjects.end())
         {
-            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:_styles[which] index:which settings:_settings];
-            styleObjects[which] = styleObj;
-        }
+            // Look for the corresponding style
+            // Note: index this
+            NSDictionary *theStyle = nil;
+            for (NSDictionary *style in _styles)
+            {
+                NSString *uuidStr = style[@"uuid"];
+                std::string thisUuid = [uuidStr cStringUsingEncoding:NSASCIIStringEncoding];
+                if (!uuid.compare(thisUuid))
+                {
+                    theStyle = style;
+                    break;
+                }
+            }
+            if (!theStyle)
+                return nil;
+            MaplyVectorTileStyle *styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings viewC:_viewC];
+            styleObjects[uuid] = styleObj;
+        } else
+            styleObj = it->second;
         
         return styleObj;
     }
@@ -603,7 +314,7 @@ UIColor *ParseColor(NSString *colorStr)
     return vecObj;
 }
 
-typedef std::map<int,NSMutableArray *> VecsForStyles;
+typedef std::map<std::string,NSMutableArray *> VecsForStyles;
 
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
@@ -627,20 +338,18 @@ typedef std::map<int,NSMutableArray *> VecsForStyles;
                        for (unsigned int si=0;si<100;si++)
                        {
                            NSString *styleName = [NSString stringWithFormat:@"style%d",si];
-                           id styleVal = vecDict[styleName];
-                           if (!styleVal)
+                           NSString *styleUUID = vecDict[styleName];
+                           if (![styleUUID isKindOfClass:[NSString class]])
                                break;
-                           if ([styleVal isKindOfClass:[NSString class]] && [styleVal length] == 0)
-                               break;
-                           int styleId = [styleVal integerValue];
                            
                            // Add the vector to the appropriate spot for the style
-                           VecsForStyles::iterator it = vecsForStyles.find(styleId);
+                           std::string uuid = [styleUUID cStringUsingEncoding:NSASCIIStringEncoding];
+                           VecsForStyles::iterator it = vecsForStyles.find(uuid);
                            NSMutableArray *vecsForThisStyle = nil;
                            if (it == vecsForStyles.end())
                            {
                                vecsForThisStyle = [NSMutableArray array];
-                               vecsForStyles[styleId] = vecsForThisStyle;
+                               vecsForStyles[uuid] = vecsForThisStyle;
                            } else
                                vecsForThisStyle = it->second;
                            [vecsForThisStyle addObject:thisVecObj];

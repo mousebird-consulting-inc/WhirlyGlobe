@@ -178,11 +178,15 @@ LocationInfo locations[NumLocations] =
             break;
         case Maply3DMap:
             mapViewC = [[MaplyViewController alloc] init];
+            mapViewC.doubleTapZoomGesture = true;
+            mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             break;
         case Maply2DMap:
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
+            mapViewC.doubleTapZoomGesture = true;
+            mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;
             baseViewC = mapViewC;
             configViewC.configOptions = ConfigOptionsFlat;
@@ -1029,13 +1033,14 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestSauPaolo])
             {
                 // Toss on a Maply Vector Database
-                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
-                if (vecTiles)
-                {
-                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-                    [baseViewC addLayer:pageLayer];
-                    layer = pageLayer;
-                }
+                // Note: Turned off for a while
+//                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
+//                if (vecTiles)
+//                {
+//                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+//                    [baseViewC addLayer:pageLayer];
+//                    layer = pageLayer;
+//                }
             }
             
             // And keep track of it

@@ -91,6 +91,12 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Return the ray running from eye through the given screen point in display space
 //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
 
+/// Calculate a map scale
+- (double)currentMapScale:(WhirlyKit::Point2f &)frameSize;
+
+/// Calculate the height for a given scale.  Probably for minVis/maxVis
+- (double)heightForMapScale:(double)scale frame:(WhirlyKit::Point2f &)frameSize;
+
 /// Add a watcher delegate.  Call this on the main thread.
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
 

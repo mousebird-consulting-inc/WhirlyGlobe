@@ -1692,7 +1692,14 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 void ColorChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-	basicDrawable->setColor(color);
+    if (basicDrawable)
+    {
+        basicDrawable->setColor(color);
+    } else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+    }
 }
 	
 OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
@@ -1704,7 +1711,13 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-	basicDrawable->setOnOff(newOnOff);
+    if (basicDrawable)
+        basicDrawable->setOnOff(newOnOff);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setEnable(newOnOff);
+    }
 }
     
 VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis)
@@ -1715,7 +1728,12 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setVisibleRange(minVis,maxVis);
+    if (basicDrawable)
+        basicDrawable->setVisibleRange(minVis,maxVis);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        basicDrawInst->setVisibleRange(minVis, maxVis);
+    }
 }
     
 FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
@@ -1728,7 +1746,10 @@ void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer
 {
     // Fade it out, then remove it
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setFade(fadeDown, fadeUp);
+    if (basicDrawable)
+    {
+        basicDrawable->setFade(fadeDown, fadeUp);
+    }
     
     // And let the renderer know
     [renderer setRenderUntil:fadeDown];
@@ -1779,7 +1800,13 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setDrawPriority(drawPriority);
+    if (basicDrawable)
+        basicDrawable->setDrawPriority(drawPriority);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setDrawPriority(drawPriority);
+    }
 }
 
 LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth)
@@ -1790,8 +1817,93 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
-    basicDrawable->setLineWidth(lineWidth);
+    if (basicDrawable)
+        basicDrawable->setLineWidth(lineWidth);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setLineWidth(lineWidth);
+    }
 }
 
+BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID)
+    : Drawable(name), enable(true), masterID(masterID)
+{
+}
 
+Mbr BasicDrawableInstance::getLocalMbr() const
+{
+    return basicDraw->getLocalMbr();
+}
+    
+unsigned int BasicDrawableInstance::getDrawPriority() const
+{
+    if (hasDrawPriority)
+        return drawPriority;
+    return basicDraw->getDrawPriority();
+}
+
+SimpleIdentity BasicDrawableInstance::getProgram() const
+{
+    return basicDraw->getProgram();
+}
+
+bool BasicDrawableInstance::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+{
+    if (minVis == DrawVisibleInvalid || !enable)
+        return enable;
+    
+    double visVal = [frameInfo.theView heightAboveSurface];
+    
+    bool test = ((minVis <= visVal && visVal <= maxVis) ||
+                 (maxVis <= visVal && visVal <= minVis));
+    return test;
+}
+
+GLenum BasicDrawableInstance::getType() const
+{
+    return basicDraw->getType();
+}
+
+bool BasicDrawableInstance::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
+{
+    return basicDraw->hasAlpha(frameInfo);
+}
+
+void BasicDrawableInstance::updateRenderer(WhirlyKitSceneRendererES *renderer)
+{
+    return basicDraw->updateRenderer(renderer);
+}
+
+void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+{
+    int oldDrawPriority = basicDraw->getDrawPriority();
+    RGBAColor oldColor = basicDraw->getColor();
+    float oldLineWidth = basicDraw->getLineWidth();
+    float oldMinVis,oldMaxVis;
+    basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
+    
+    // Change the drawable
+    if (hasDrawPriority)
+        basicDraw->setDrawPriority(drawPriority);
+    if (hasColor)
+        basicDraw->setColor(color);
+    if (hasLineWidth)
+        basicDraw->setLineWidth(lineWidth);
+    if (hasMinVis || hasMaxVis)
+        basicDraw->setVisibleRange(minVis, maxVis);
+    
+    basicDraw->draw(frameInfo,scene);
+    
+    // Set it back
+    if (hasDrawPriority)
+        basicDraw->setDrawPriority(oldDrawPriority);
+    if (hasColor)
+        basicDraw->setColor(oldColor);
+    if (hasLineWidth)
+        basicDraw->setLineWidth(oldLineWidth);
+    if (hasMinVis || hasMaxVis)
+        basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
+}
+    
 }

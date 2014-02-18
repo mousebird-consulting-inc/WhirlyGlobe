@@ -776,12 +776,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 }
 
 // Actually add the vectors.
-// Called in an unknown.
+// Called in an unknown thread
 - (void)addVectorsRun:(NSArray *)argArray
 {
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    compObj.vectors = vectors;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
@@ -846,6 +845,11 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         }
     }
     
+    // If the vectors are selectable we want to keep them around
+    id selVal = inDesc[@"selectable"];
+    if (!selVal || [selVal boolValue])
+        compObj.vectors = vectors;
+    
     pthread_mutex_lock(&userLock);
     [userObjects addObject:compObj];
     compObj.underConstruction = false;
@@ -866,6 +870,80 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             break;
         case MaplyThreadAny:
             [self performSelector:@selector(addVectorsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+    
+    return compObj;
+}
+
+// Run the instancing logic
+// Called in an unknown thread
+- (void)instanceVectorsRun:(NSArray *)argArray
+{
+    MaplyComponentObject *baseObj = [argArray objectAtIndex:0];
+    MaplyComponentObject *compObj = [argArray objectAtIndex:1];
+    compObj.vectors = baseObj.vectors;
+    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    bool makeVisible = [[argArray objectAtIndex:3] boolValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
+    
+    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
+    
+    // Might be a custom shader on these
+    [self resolveShader:inDesc];
+    
+    // Look for a texture and add it
+    if (inDesc[kMaplyVecTexture])
+    {
+        UIImage *theImage = inDesc[kMaplyVecTexture];
+        MaplyTexture *tex = nil;
+        if ([theImage isKindOfClass:[UIImage class]])
+            tex = [self addImage:theImage imageFormat:MaplyImage4Layer8Bit mode:threadMode];
+        else if ([theImage isKindOfClass:[MaplyTexture class]])
+            tex = (MaplyTexture *)theImage;
+        if (tex.texID)
+            inDesc[kMaplyVecTexture] = @(tex.texID);
+        else
+            [inDesc removeObjectForKey:kMaplyVecTexture];
+    }
+    
+    if (makeVisible)
+    {
+        VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
+        
+        if (vectorManager)
+        {
+            ChangeSet changes;
+            for (SimpleIDSet::iterator it = baseObj.vectorIDs.begin();it != baseObj.vectorIDs.end(); ++it)
+            {
+                SimpleIdentity instID = vectorManager->instanceVectors(*it, inDesc, changes);
+                if (instID != EmptyIdentity)
+                    compObj.vectorIDs.insert(instID);
+            }
+            [self flushChanges:changes mode:threadMode];
+        }
+    }
+    
+    pthread_mutex_lock(&userLock);
+    [userObjects addObject:compObj];
+    compObj.underConstruction = false;
+    pthread_mutex_unlock(&userLock);
+}
+
+// Instance vectors
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    MaplyComponentObject *compObj = [[MaplyComponentObject alloc] init];
+    compObj.underConstruction = true;
+    
+    NSArray *argArray = @[baseObj, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self instanceVectorsRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(instanceVectorsRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
             break;
     }
     

@@ -49,9 +49,6 @@ bool VectorDatabase::setupDatabase(Kompex::SQLiteDatabase *inDb,const char *dbSr
         // Layer table
         stmt.SqlStatement("CREATE TABLE layers (name TEXT);");
         
-        // Attribute table
-        stmt.SqlStatement("CREATE TABLE attributes (name TEXT,type INTEGER);");
-        
         // Style table
         stmt.SqlStatement("CREATE TABLE styles (name TEXT,style TEXT);");
     }
@@ -102,46 +99,6 @@ int VectorDatabase::addVectorLayer(const char *name)
     return (int)layerNames.size()-1;
 }
     
-bool VectorDatabase::getAttribute(const char *name,Attribute &attr)
-{
-    Attribute search;
-    search.name = name;
-    std::set<Attribute>::iterator it = attributes.find(search);
-    if (it != attributes.end())
-    {
-        attr = *it;
-        return true;
-    }
-
-    return false;
-}
-    
-VectorDatabase::Attribute VectorDatabase::addAttribute(const char *name,VectorAttributeType type)
-{
-    Attribute search;
-    search.name = name;
-    std::set<Attribute>::iterator it = attributes.find(search);
-    if (it != attributes.end())
-        return *it;
-    
-    // Add the attribute
-    search.index = (int)attributes.size();
-    search.type = type;
-    attributes.insert(search);
-    try {
-        SQLiteStatement stmt(db);
-        stmt.SqlStatement((std::string)"INSERT INTO attributes (name,type) VALUES ('" + name + "'," + std::to_string(type) + ");");
-    }
-    catch (SQLiteException &exc)
-    {
-        std::string errorStr = (std::string)"Failed to write to database:\n" + exc.GetString();
-        valid = false;
-        throw errorStr;
-    }
-    
-    return search;
-}
-
 // Compress data
 // Courtesy: http://stackoverflow.com/questions/6466178/how-to-convert-an-nsdata-to-a-zip-file-with-objective-c/6466832#6466832
 bool CompressData(void *data,int dataLen,void **retData,int &retDataLen)
@@ -282,21 +239,30 @@ struct VectorChunkCompare
             if (featADefn.GetType() != featBDefn.GetType())
                 return featADefn.GetType() < featBDefn.GetType();
             
-            OGRField *fieldA = featA->GetRawFieldRef(ii);
-            OGRField *fieldB = featB->GetRawFieldRef(fieldIdxB);
             switch (featADefn.GetType())
             {
                 case OFTInteger:
-                    return fieldA->Integer < fieldB->Integer;
+                {
+                    int intA = featA->GetFieldAsInteger(ii);
+                    int intB = featB->GetFieldAsInteger(fieldIdxB);
+                    if (intA != intB)
+                        return intA < intB;
+                }
                     break;
                 case OFTReal:
-                    return fieldA->Real < fieldB->Real;
+                {
+                    double realA = featA->GetFieldAsDouble(ii);
+                    double realB = featB->GetFieldAsDouble(fieldIdxB);
+                    if (realA != realB)
+                        return realA < realB;
+                }
                     break;
                 case OFTString:
                 {
-                    std::string strA = fieldA->String;
-                    std::string strB = fieldB->String;
-                    return strA < strB;
+                    std::string strA = featA->GetFieldAsString(ii);
+                    std::string strB = featB->GetFieldAsString(fieldIdxB);
+                    if (strA != strB)
+                        return strA < strB;
                 }
                     break;
                 default:
@@ -385,42 +351,77 @@ void AddToData(std::vector<unsigned char> &vecData,OGRPolygon *poly)
     }
 }
     
-// Add the attributes for a feature to the data
-void AddToData(std::vector<unsigned char> &vecData,std::vector<const VectorDatabase::Attribute> &attrsPresent,OGRFeature *thisFeat)
+// Information about attributes in a given tile
+class VectorTileAttrInfo
 {
-    // First, the attributes
-    for (int fi=0;fi<attrsPresent.size();fi++)
+public:
+    // Attribute table
+    typedef std::map<std::string,unsigned int> StringValMap;
+    StringValMap stringValMap;
+    
+    // Find or add a string
+    unsigned int getAddString(const std::string &str)
     {
-        const VectorDatabase::Attribute &thisAttr = attrsPresent[fi];
-        int fieldIdx = thisFeat->GetFieldIndex(thisAttr.name.c_str());
-        if (fieldIdx < 0)
-            throw (std::string)"Indexing problem when sorting out attributes.";
-        switch (thisAttr.type)
+        StringValMap::iterator it = stringValMap.find(str);
+        if (it != stringValMap.end())
+            return it->second;
+        unsigned int idx = (unsigned int)stringValMap.size();
+        stringValMap[str] = idx;
+        return idx;
+    }
+    
+    // Add a given attribute to the data stream
+    void addAttribute(OGRFeature *feat,int fieldID,std::vector<unsigned char> &data)
+    {
+        // The name points into an index
+        int nameIdx = getAddString(feat->GetFieldDefnRef(fieldID)->GetNameRef());
+        AddToData(data,nameIdx);
+        OGRFieldType fieldType = feat->GetFieldDefnRef(fieldID)->GetType();
+
+        // Field type and value
+        switch (fieldType)
         {
-            case VectorAttrInt:
+            case OFTInteger:
             {
-                int iVal = thisFeat->GetFieldAsInteger(fieldIdx);
-                AddToData(vecData,iVal);
+                AddToData(data, (int)0);
+                int iVal = feat->GetFieldAsInteger(fieldID);
+                AddToData(data,iVal);
             }
                 break;
-            case VectorAttrReal:
+            case OFTReal:
             {
-                float fVal = thisFeat->GetFieldAsDouble(fieldIdx);
-                AddToData(vecData,fVal);
+                AddToData(data, (int)1);
+                float fVal = feat->GetFieldAsDouble(fieldID);
+                AddToData(data,fVal);
             }
                 break;
-            case VectorAttrString:
+            case OFTString:
             {
-                const char *sVal = thisFeat->GetFieldAsString(fieldIdx);
-                AddToData(vecData,sVal);
+                AddToData(data, (int)2);
+                int valIdx = getAddString(feat->GetFieldAsString(fieldID));
+                AddToData(data,(int)valIdx);
             }
+                break;
+            default:
+                throw (std::string)"Unhandled attribute type in vectorToDBFormat()";
                 break;
         }
     }
     
-}
+    // Convert the attribute data into raw data
+    void convert(std::vector<unsigned char> &data)
+    {
+        // Strings first
+        std::vector<std::string> strs(stringValMap.size());
+        for (StringValMap::iterator it = stringValMap.begin(); it != stringValMap.end(); ++it)
+            strs[it->second] = it->first;
+        AddToData(data, (int)strs.size());
+        for (unsigned int ii=0;ii<strs.size();ii++)
+            AddToData(data, strs[ii].c_str());
+    }
+};
     
-void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::vector<unsigned char> &vecData)
+void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::vector<unsigned char> &retData)
 {
     VectorChunkSet vectorChunks;
 
@@ -447,7 +448,11 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
     
     if (vectorChunks.empty())
         return;
-
+    
+    // Used to consolidate attribute and string values in front
+    VectorTileAttrInfo attrInfo;
+    
+    std::vector<unsigned char> vecData;
     // Start with the number of chunks
     AddToData(vecData,(int)vectorChunks.size());
     
@@ -455,39 +460,14 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
     for (VectorChunkSet::iterator it = vectorChunks.begin(); it != vectorChunks.end(); ++it)
     {
         VectorChunk *chunk = *it;
-        
-        // Figure out which attributes are in this chunk
-        std::vector<const Attribute> attrsPresent;
-        std::vector<std::string> fieldNames;
+
+        // Write all the attributes for this chunk.  They'll all be identical
         OGRFeature *feat = chunk->mainFeature();
+        AddToData(vecData, (int)feat->GetFieldCount());
         for (unsigned int fi=0;fi<feat->GetFieldCount();fi++)
         {
-            OGRFieldDefn fieldDefn = feat->GetFieldDefnRef(fi);
-            fieldNames.push_back(fieldDefn.GetNameRef());
-            VectorAttributeType attrType;
-            switch (fieldDefn.GetType())
-            {
-                case OFTInteger:
-                    attrType = VectorAttrInt;
-                    break;
-                case OFTReal:
-                    attrType = VectorAttrReal;
-                    break;
-                case OFTString:
-                    attrType = VectorAttrString;
-                    break;
-                default:
-                    throw (std::string)"Unhandled attribute type in vectorToDBFormat()";
-                    break;
-            }
-            Attribute theAttr = addAttribute(fieldDefn.GetNameRef(), attrType);
-            attrsPresent.push_back(theAttr);
+            attrInfo.addAttribute(feat,fi,vecData);
         }
-        
-        // Number of attributes present and then the attribute indices
-        AddToData(vecData,(int)attrsPresent.size());
-        for (unsigned int fi=0;fi<attrsPresent.size();fi++)
-            AddToData(vecData,(int)attrsPresent[fi].index);
         
         // The data type
         OGRwkbGeometryType geomType = chunk->geomType();
@@ -506,15 +486,12 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
             switch (thisGeom->getGeometryType())
             {
                 case wkbPoint:
-                    AddToData(vecData,attrsPresent,thisFeat);
                     AddToData(vecData,(OGRPoint *)thisGeom);
                     break;
                 case wkbLineString:
-                    AddToData(vecData,attrsPresent,thisFeat);
                     AddToData(vecData,(OGRLineString *)thisGeom);
                     break;
                 case wkbPolygon:
-                    AddToData(vecData,attrsPresent,thisFeat);
                     AddToData(vecData,(OGRPolygon *)thisGeom);
                     break;
                 case wkbMultiPoint:
@@ -522,7 +499,6 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
                     OGRMultiPoint *pts = (OGRMultiPoint *)thisGeom;
                     for (unsigned int mi=0;mi<pts->getNumGeometries();mi++)
                     {
-                        AddToData(vecData,attrsPresent,thisFeat);
                         AddToData(vecData, (OGRPoint *)pts->getGeometryRef(mi));
                     }
                 }
@@ -532,7 +508,6 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
                     OGRMultiLineString *lins = (OGRMultiLineString *)thisGeom;
                     for (unsigned int mi=0;mi<lins->getNumGeometries();mi++)
                     {
-                        AddToData(vecData,attrsPresent,thisFeat);
                         AddToData(vecData, (OGRLineString *)lins->getGeometryRef(mi));
                     }
                 }
@@ -542,7 +517,6 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
                     OGRMultiPolygon *polys = (OGRMultiPolygon *)thisGeom;
                     for (unsigned int mi=0;mi<polys->getNumGeometries();mi++)
                     {
-                        AddToData(vecData,attrsPresent,thisFeat);
                         AddToData(vecData, (OGRPolygon *)polys->getGeometryRef(mi));
                     }
                 }
@@ -557,6 +531,9 @@ void VectorDatabase::vectorToDBFormat(std::vector<OGRFeature *> &features,std::v
     // Clean up the sorted vectors
     for (VectorChunkSet::iterator it = vectorChunks.begin(); it != vectorChunks.end(); ++it)
         delete *it;
+
+    attrInfo.convert(retData);
+    retData.insert(retData.end(), vecData.begin(), vecData.end());
 }
 
 bool VectorDatabase::addVectorTile(int x,int y,int level,int layerID,const char *data,unsigned int dataLen)

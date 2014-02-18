@@ -45,7 +45,9 @@ using namespace WhirlyKit;
 + (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
 	MaplyTapDelegate *tapDelegate = [[MaplyTapDelegate alloc] initWithMapView:mapView];
-	[view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)]];
+    UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)];
+    tapDelegate.gestureRecognizer = gestureRecognizer;
+	[view addGestureRecognizer:gestureRecognizer];
 	return tapDelegate;
 }
 
