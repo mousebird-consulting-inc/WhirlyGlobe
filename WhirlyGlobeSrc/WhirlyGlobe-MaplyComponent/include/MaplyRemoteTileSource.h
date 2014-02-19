@@ -237,6 +237,6 @@
 @property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
 
 /// @brief Passes through the cacheDir from the MaplyRemoteTileInfo
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,strong) NSString *cacheDir;
 
 @end
