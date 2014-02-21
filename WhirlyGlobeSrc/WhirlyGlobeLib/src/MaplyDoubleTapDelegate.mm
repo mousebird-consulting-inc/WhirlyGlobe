@@ -63,6 +63,7 @@ using namespace WhirlyKit;
             animation = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:_animTime];
             mapView.delegate = animation;
         }
+        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
     } else {
         // Not expecting this case
     }
