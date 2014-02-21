@@ -63,6 +63,7 @@ using namespace WhirlyKit;
   	panRecognizer.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecognizer;
 	[view addGestureRecognizer:panRecognizer];
+  panDelegate.gestureRecognizer = panRecognizer;
 	return panDelegate;
 }
 
@@ -136,6 +137,7 @@ static const float AnimLen = 1.0;
                                         hit:&startOnPlane clip:false];
             startLoc = [mapView loc];
             panning = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:mapView];
         }
             break;
         case UIGestureRecognizerStateChanged:
@@ -206,6 +208,7 @@ static const float AnimLen = 1.0;
                 mapView.delegate = translateDelegate;
                 
                 panning = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:mapView];
             }
             break;
         default:
