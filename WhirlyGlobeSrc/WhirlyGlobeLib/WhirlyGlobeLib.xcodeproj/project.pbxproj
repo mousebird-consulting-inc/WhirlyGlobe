@@ -544,7 +544,7 @@
 		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
 		2B7EF31715FF95CF00D4079F /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
 		2B7EF31A15FF95E900D4079F /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
-		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; };
+		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		2B7EF31E15FF96D100D4079F /* MaplyView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyView.mm; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };

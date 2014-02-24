@@ -319,7 +319,7 @@ using namespace Maply;
         [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -329,8 +329,20 @@ using namespace Maply;
 - (void)registerForEvents
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
 }
 
+- (void)unregisterForEvents
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
+}
 
 - (void)setRotateGesture:(bool)rotateGesture
 {
@@ -571,6 +583,8 @@ using namespace Maply;
     if (scrollView)
         return;
 
+    [self handleStartMoving:NO];
+    
     [mapView cancelAnimation];
     
     if (pinchDelegate)
@@ -590,6 +604,7 @@ using namespace Maply;
     Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView.loc = loc;
+    [self handleStopMoving:NO];
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
@@ -764,8 +779,62 @@ using namespace Maply;
     [mapInteractLayer userDidTap:msg];
 }
 
-- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point
+// Called when the pan delegate starts moving
+- (void) panDidStart:(NSNotification *)note
 {
+    if (note.object != mapView)
+        return;
+    
+    //    NSLog(@"Pan started");
+    
+    [self handleStartMoving:true];
+}
+
+- (void) zoomGestureDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStartMoving:true];
+}
+
+- (void) zoomGestureDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStopMoving:true];
+}
+
+- (void) animationDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStopMoving:NO];
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStartMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+    {
+        [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
+    }
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners];
+        [self.delegate maplyViewController:self didStopMoving:corners userMotion:userMotion];
+    }
+}
+
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
   	Point3d hit;
     WhirlyKitSceneRendererES *sceneRender = glView.renderer;
     Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
@@ -780,6 +849,33 @@ using namespace Maply;
     } else {
         return MaplyCoordinateMakeWithDegrees(0, 0);
     }
+}
+
+
+- (void)corners:(MaplyCoordinate *)corners
+{
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        corners[ii] = [self geoFromScreenPoint:screenCorners[ii]];
+    }
+}
+
+
+- (BOOL)panGestureEnabled
+{
+    return panDelegate.gestureRecognizer.enabled;
+}
+
+
+- (void)setPanGestureEnabled:(BOOL)enabled
+{
+    panDelegate.gestureRecognizer.enabled = enabled;
 }
 
 @end
