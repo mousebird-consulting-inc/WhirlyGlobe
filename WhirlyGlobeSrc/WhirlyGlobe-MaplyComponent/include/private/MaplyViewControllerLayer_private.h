@@ -31,6 +31,9 @@
 /// Layer thread this layer belongs to
 @property (nonatomic,weak) WhirlyKitLayerThread *layerThread;
 
+/// Set if the draw priority was changed externally
+@property (nonatomic,readonly) bool drawPriorityWasSet;
+
 /// Subclasses fill this in.  It's called when the Component layer is added to the view controller.
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC;
 
