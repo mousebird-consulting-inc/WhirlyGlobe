@@ -56,6 +56,21 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord;
 
+/** @brief Called when the map starts moving.
+ @param viewC The map view controller.
+ @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
+ @details This is called when something (probably the user) starts moving the map.
+ */
+- (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion;
+
+/** @brief Called when the map stops moving.
+ @details This is called when the map stops moving.  It passes in the corners of the current viewspace.
+ @param viewC The globe view controller.
+ @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
+ @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+
 @end
 
 /** @brief This view controller implements a map.
@@ -230,5 +245,7 @@
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
 
+- (BOOL)panGestureEnabled;
+- (void)setPanGestureEnabled:(BOOL)enabled;
 
 @end
