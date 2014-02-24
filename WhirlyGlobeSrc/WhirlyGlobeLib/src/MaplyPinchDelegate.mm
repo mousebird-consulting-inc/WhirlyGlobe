@@ -54,6 +54,7 @@ using namespace WhirlyKit;
 			// Store the starting Z for comparison
 			startZ = mapView.loc.z();
             [mapView cancelAnimation];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
 			break;
 		case UIGestureRecognizerStateChanged:
         {
@@ -67,6 +68,9 @@ using namespace WhirlyKit;
             }
         }
 			break;
+        case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:mapView];
+            break;
         default:
             break;
 	}
