@@ -18,6 +18,7 @@
  *
  */
 
+#import "RawData.h"
 #import "Drawable.h"
 #import "CoordSystem.h"
 
@@ -99,7 +100,7 @@ public:
     /// Look for a region of the given size for the given data.
     /// This places the vertex data and adds the element data to the set
     ///  of element chunks we consolidate during a flush.
-    SimpleIdentity addRegion(NSMutableData *vertData,int &vertPos,NSMutableData *elementData,bool enabled);
+    SimpleIdentity addRegion(RawDataRef vertData,int &vertPos,RawDataRef elementData,bool enabled);
     
     /// Enable/Disable a given region
     void setEnableRegion(SimpleIdentity elementChunkId,bool enabled);
@@ -150,7 +151,7 @@ protected:
     class Change
     {
     public:
-        Change(ChangeType type,int whereVert,NSData *vertData,int clearLen=0);
+        Change(ChangeType type,int whereVert,RawDataRef vertData,int clearLen=0);
         Change(const Change &that) : type(that.type), whereVert(that.whereVert), vertData(that.vertData), clearLen(that.clearLen) { }
         const Change & operator = (const Change &that) { type = that.type;  whereVert = that.whereVert; vertData = that.vertData;  clearLen = that.clearLen; return *this; }
         ~Change() { }
@@ -160,7 +161,7 @@ protected:
         // Location (in bytes) in the vertex pool
         int whereVert;
         // For an add, the actual data
-        NSData *vertData;
+        RawDataRef vertData;
         // For a clear, amount of data to clear
         int clearLen;
     };
@@ -219,9 +220,9 @@ protected:
     class ElementChunk : public Identifiable
     {
     public:
-        ElementChunk(NSData *elementData) : elementData(elementData), enabled(true) { }
+        ElementChunk(RawDataRef elementData) : elementData(elementData), enabled(true) { }
         ElementChunk(SimpleIdentity theId) : Identifiable(theId) { }
-        NSData *elementData;
+        RawDataRef elementData;
         bool enabled;
     };
     typedef std::set<ElementChunk> ElementChunkSet;
@@ -237,9 +238,12 @@ typedef boost::shared_ptr<BigDrawable> BigDrawableRef;
 class BigDrawableSwap : public ChangeRequest
 {
 public:
+    // Called when the bid drawable has swapped (on the rendering thread)
+    typedef void (*SwapCallback)(BigDrawableSwap *swap,void *data);
+    
     /// Construct with the big drawable ID and the buffer to switch to
-    BigDrawableSwap(NSObject * __weak target,SEL sel)
-    : target(target), sel(sel) { }
+    BigDrawableSwap(SwapCallback *swapCallback,void *swapData)
+    : swapCallback(swapCallback), swapData(swapData) { }
     
     void addSwap(SimpleIdentity drawId,int whichBuffer)
     {
@@ -253,8 +257,8 @@ public:
     virtual bool needsFlush() { return true; }
 
 protected:
-    NSObject * __weak target;
-    SEL sel;
+    SwapCallback *swapCallback;
+    void *swapData;
     class SwapInfo
     {
     public:

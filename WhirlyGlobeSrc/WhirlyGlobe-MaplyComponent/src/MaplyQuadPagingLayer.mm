@@ -104,11 +104,11 @@ public:
         return [layer isReady];
     }
     
-    virtual void startUpdates()
+    virtual void startUpdates(ChangeSet &changes)
     {
     }
     
-    virtual void endUpdates()
+    virtual void endUpdates(ChangeSet &changes)
     {
     }
     
@@ -127,7 +127,7 @@ public:
         return [layer canLoadChildrenOfTile:tileInfo];
     }
     
-    virtual void shutdownLayer()
+    virtual void shutdownLayer(ChangeSet &changes)
     {
         [layer shutdownLayer];
     }

@@ -20,7 +20,6 @@
 
 #import <vector>
 #import <set>
-#import <UIKit/UIKit.h>
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -60,7 +59,7 @@ public:
     void addTexture(Texture *tex,const Region &region);
     
     /// Add the data at a given location in the texture
-    void addTextureData(int startX,int startY,int width,int height,NSData *data);
+    void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
     
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
@@ -119,8 +118,9 @@ typedef struct
 class DynamicTextureAddRegion : public ChangeRequest
 {
 public:
-    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,NSData *data)
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawData *data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
+    
 
     /// Add the region.  Never call this.
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
@@ -128,7 +128,7 @@ public:
 protected:
     SimpleIdentity texId;
     int startX,startY,width,height;
-    NSData *data;
+    RawDataRef data;
 };
     
 /// Tell a dynamic texture that a region has been released for use

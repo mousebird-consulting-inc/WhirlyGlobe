@@ -21,6 +21,7 @@
 #import <ctime>
 #import <vector>
 #import <string>
+#import <boost/shared_ptr.hpp>
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit
@@ -40,6 +41,8 @@ public:
     
 protected:
 };
+    
+typedef boost::shared_ptr<RawData> RawDataRef;
 
 // Read only version that wraps a random collection of bytes
 class RawDataWrapper : public RawData
@@ -91,6 +94,8 @@ public:
     MutableRawData();
     // Make a copy of the data and store it
     MutableRawData(void *data,unsigned int size);
+    // Allocate the given space
+    MutableRawData(unsigned int size);
     virtual ~MutableRawData();
     // Return a pointer to the raw data we're keeping
     virtual const unsigned char *getRawData() const;
@@ -107,5 +112,7 @@ public:
 protected:
     std::vector<unsigned char> data;
 };
+    
+typedef boost::shared_ptr<MutableRawData> MutableRawDataRef;
 
 }

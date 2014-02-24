@@ -22,8 +22,7 @@
 #import "Drawable.h"
 #import "GlobeScene.h"
 #import "SceneRendererES.h"
-// Note: Porting
-//#import "TextureAtlas.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 
@@ -921,29 +920,28 @@ void BasicDrawable::updateRenderer(WhirlyKit::SceneRendererES *renderer)
     }
 }
         
-// Note: Porting
-//// Move the texture coordinates around and apply a new texture
-//void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
-//{
-//    if (which == -1)
-//    {
-//        // Apply the mapping everywhere
-//        for (unsigned int ii=0;ii<texInfo.size();ii++)
-//            applySubTexture(ii, subTex, startingAt);
-//    } else {
-//        setupTexCoordEntry(which, 0);
-//        
-//        TexInfo &thisTexInfo = texInfo[which];
-//        thisTexInfo.texId = subTex.texId;
-//        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
-//        
-//        for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
-//        {
-//            Point2f tc = (*texCoords)[ii];
-//            (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
-//        }
-//    }
-//}
+// Move the texture coordinates around and apply a new texture
+void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
+{
+    if (which == -1)
+    {
+        // Apply the mapping everywhere
+        for (unsigned int ii=0;ii<texInfo.size();ii++)
+            applySubTexture(ii, subTex, startingAt);
+    } else {
+        setupTexCoordEntry(which, 0);
+        
+        TexInfo &thisTexInfo = texInfo[which];
+        thisTexInfo.texId = subTex.texId;
+        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)vertexAttributes[thisTexInfo.texCoordEntry]->data;
+        
+        for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
+        {
+            Point2f tc = (*texCoords)[ii];
+            (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
+        }
+    }
+}
     
 int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name)
 {
@@ -1131,100 +1129,92 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     usingBuffers = true;
 }
 
-// Note: Porting
-//// Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
-//NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
-//{
-//    if (points.empty())
-//        return nil;
-//    
-//    // Verify that everything else (that has data) has the same amount)
-//    int numElements = points.size();
-//    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-//    {
-//        VertexAttribute *attr = vertexAttributes[ii];
-//        int theseElements = attr->numElements();
-//        if (theseElements != 0 && theseElements != numElements)
-//            return nil;
-//    }
-//
-//    NSData *retData = nil;
-//    if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
-//    {
-//        vertexSize = singleVertexSize();
-//        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
-//
-//        unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
-//        retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
-//        unsigned char *basePtr = buffer;
-//        if (dupStart)
-//        {
-//            addPointToBuffer(basePtr, 0);
-//            basePtr += vertexSize;
-//            addPointToBuffer(basePtr, 0);
-//            basePtr += vertexSize;
-//        }
-//        for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-//            addPointToBuffer(basePtr, ii);
-//        if (dupEnd)
-//        {
-//            addPointToBuffer(basePtr, points.size()-1);
-//            basePtr += vertexSize;
-//            addPointToBuffer(basePtr, points.size()-1);
-//            basePtr += vertexSize;
-//        }
-//    }
-//    
-//    return retData;
-//}
+// Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
+RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
+{
+    MutableRawDataRef retData;
+    if (points.empty())
+        return retData;
     
-// Note: Porting
-//void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize)
-//{
-//    *retVertData = nil;
-//    *retElementData = nil;
-//    if (type != GL_TRIANGLES)
-//        return;
-//    if (points.empty() || tris.empty())
-//        return;
-//
-//    // Verify that everything else (that has data) has the same amount)
-//    int numElements = points.size();
-//    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-//    {
-//        VertexAttribute *attr = vertexAttributes[ii];
-//        int theseElements = attr->numElements();
-//        if (theseElements != 0 && theseElements != numElements)
-//            return;
-//    }
-//
-//    // Build up the vertices
-//    vertexSize = singleVertexSize();
-//    int numVerts = points.size();
-//    NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
-//    unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
-//    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
-//        addPointToBuffer(basePtr, ii);
-//        
-//    // Build up the triangles
-//    int triSize = singleElementSize * 3;
-//    int numTris = tris.size();
-//    int totSize = numTris*triSize;
-//    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(totSize)) length:totSize freeWhenDone:YES];
-//    GLushort *elPtr = (GLushort *)[elementData mutableBytes];
-//    for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
-//    {
-//        Triangle &tri = tris[ii];
-//        for (unsigned int jj=0;jj<3;jj++)
-//        {
-//            unsigned short vertId = tri.verts[jj];
-//            elPtr[jj] = vertId;
-//        }
-//    }
-//    
-//    *retVertData = vertData;
-//    *retElementData = elementData;
-//}
+    // Verify that everything else (that has data) has the same amount)
+    int numElements = points.size();
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute *attr = vertexAttributes[ii];
+        int theseElements = attr->numElements();
+        if (theseElements != 0 && theseElements != numElements)
+            return retData;
+    }
+
+    if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
+    {
+        vertexSize = singleVertexSize();
+        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+
+        retData = MutableRawDataRef(new MutableRawData(vertexSize*numVerts));
+        unsigned char *basePtr = (unsigned char *)retData->getRawData();
+        if (dupStart)
+        {
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, 0);
+            basePtr += vertexSize;
+        }
+        for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr, ii);
+        if (dupEnd)
+        {
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+            addPointToBuffer(basePtr, points.size()-1);
+            basePtr += vertexSize;
+        }
+    }
+    
+    return retData;
+}
+    
+void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRawDataRef &elementData,int singleElementSize)
+{
+    if (type != GL_TRIANGLES)
+        return;
+    if (points.empty() || tris.empty())
+        return;
+
+    // Verify that everything else (that has data) has the same amount)
+    int numElements = points.size();
+    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    {
+        VertexAttribute *attr = vertexAttributes[ii];
+        int theseElements = attr->numElements();
+        if (theseElements != 0 && theseElements != numElements)
+            return;
+    }
+
+    // Build up the vertices
+    vertexSize = singleVertexSize();
+    int numVerts = points.size();
+    vertData = MutableRawDataRef(new MutableRawData(vertexSize * numVerts));
+    unsigned char *basePtr = (unsigned char *)vertData->getRawData();
+    for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
+        addPointToBuffer(basePtr, ii);
+        
+    // Build up the triangles
+    int triSize = singleElementSize * 3;
+    int numTris = tris.size();
+    int totSize = numTris*triSize;
+    elementData = MutableRawDataRef(new MutableRawData(totSize));
+    GLushort *elPtr = (GLushort *)elementData->getRawData();
+    for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
+    {
+        Triangle &tri = tris[ii];
+        for (unsigned int jj=0;jj<3;jj++)
+        {
+            unsigned short vertId = tri.verts[jj];
+            elPtr[jj] = vertId;
+        }
+    }
+}
 
 const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
 {

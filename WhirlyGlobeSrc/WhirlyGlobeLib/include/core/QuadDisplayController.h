@@ -87,10 +87,10 @@ public:
     virtual bool isReady() = 0;
 
     /// Called right before we start a series of updates
-    virtual void startUpdates() = 0;
+    virtual void startUpdates(ChangeSet &changes) = 0;
 
     /// Called right after we finish a series of updates
-    virtual void endUpdates() = 0;
+    virtual void endUpdates(ChangeSet &changes) = 0;
 
     /// The quad tree wants to load the given tile.
     /// Call the layer back when the tile is loaded.
@@ -107,7 +107,7 @@ public:
     virtual bool canLoadChildrenOfTile(const Quadtree::NodeInfo &tileInfo) = 0;
 
     /// Called when the layer is about to shut down.  Clear out any drawables and caches.
-    virtual void shutdownLayer() = 0;
+    virtual void shutdownLayer(ChangeSet &changes) = 0;
 
     /// Called right before the view update to determine if we should even be paging
     /// You can use this to temporarily suspend paging.
@@ -119,10 +119,10 @@ public:
     virtual void updateWithoutFlush() { };
 
     /// Number of network fetches outstanding.  Used by the pager for optimization.
-    virtual int networkFetches() { return -1; };
+    virtual int numNetworkFetches() { return -1; };
 
     /// Number of local fetches outstanding.  Used by the pager for optimizaiton.
-    virtual int localFetches() { return -1; };
+    virtual int numLocalFetches() { return -1; };
 
     /// Dump some log info out to the console
     virtual void log() { };
@@ -144,6 +144,10 @@ public:
     virtual void adapterTileDidLoad(const Quadtree::Identifier &tileIdent) = 0;
     // Called right after a tile unloaded
     virtual void adapterTileDidNotLoad(const Quadtree::Identifier &tileIdent) = 0;
+    // This is called on the rendering thread when a big drawable is done swapping.
+    // We typically have to wait for that before adding more tiles.
+    // Never called if there are no big drawables
+    virtual void adapterWakeUp() = 0;
 };
 
 /** This data layer displays image data organized in a quad tree.
@@ -239,21 +243,22 @@ public:
     
     // Called at regular intervals to do a small bit of work, then returns.
     // Returns true if there's more work to do
-    bool evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame);
+    bool evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame,ChangeSet &changes);
     
     // Called near the end of a frame in metered mode
-    void frameEnd();
+    void frameEnd(ChangeSet &changes);
 
     // True if we're waiting for local loads to finish (looks faster to the user)
     bool waitingForLocalLoads();
     
     // Called when the layer wants to shut down
-    void shutdown();
+    void shutdown(ChangeSet &changes);
 
     /// Call this to force a reload for all existing tiles
-    void refresh();
+    void refresh(ChangeSet &changes);
 
     // If we were waiting for something, apparently we no longer are
+    // No idea what thread this might get called on
     void wakeUp();
     
     // Callback used by the quad tree

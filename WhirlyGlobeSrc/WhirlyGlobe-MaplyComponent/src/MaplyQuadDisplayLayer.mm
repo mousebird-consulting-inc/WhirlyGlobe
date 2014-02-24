@@ -45,6 +45,10 @@ public:
         [NSObject cancelPreviousPerformRequestsWithTarget:quadLayer selector:@selector(evalStep:) object:nil];
         [quadLayer performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
+    // Not called in this setup
+    virtual void adapterWakeUp()
+    {
+    }
     
     WhirlyKitQuadDisplayLayer *quadLayer;
 };
@@ -101,7 +105,9 @@ public:
 
 - (void)shutdown
 {
-    _displayControl->shutdown();
+    ChangeSet changes;
+    _displayControl->shutdown(changes);
+    [_layerThread addChangeRequests:changes];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -135,7 +141,9 @@ static const TimeInterval AvailableFrame = 4.0/5.0;
     NSTimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
     if (howLong > 0.0)
     {
-        _displayControl->getLoader()->startUpdates();
+        ChangeSet changes;
+        _displayControl->getLoader()->startUpdates(changes);
+        [_layerThread addChangeRequests:changes];
         [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
     }
 }
@@ -145,7 +153,9 @@ static const TimeInterval AvailableFrame = 4.0/5.0;
     if (!_displayControl->getSomethingHappened())
         return;
     
-    _displayControl->frameEnd();
+    ChangeSet changes;
+    _displayControl->frameEnd(changes);
+    [_layerThread addChangeRequests:changes];
 }
 
 // Called every so often by the view watcher
@@ -179,7 +189,9 @@ static const TimeInterval AvailableFrame = 4.0/5.0;
         return;
     }
     
-    bool didSomething = _displayControl->evalStep(frameStart,frameInterval,AvailableFrame);
+    ChangeSet changes;
+    bool didSomething = _displayControl->evalStep(frameStart,frameInterval,AvailableFrame,changes);
+    [_layerThread addChangeRequests:changes];
     
     if (didSomething)
         [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
@@ -200,7 +212,9 @@ static const TimeInterval AvailableFrame = 4.0/5.0;
     // Clean out anything we might be currently evaluating
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     
-    _displayControl->refresh();
+    ChangeSet changes;
+    _displayControl->refresh(changes);
+    [_layerThread addChangeRequests:changes];
     
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
 }

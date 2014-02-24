@@ -24,6 +24,7 @@
 #import <map>
 #import <boost/shared_ptr.hpp>
 #import <boost/pointer_cast.hpp>
+#import "RawData.h"
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
@@ -216,8 +217,7 @@ static const unsigned int MaxDrawablePoints = ((1<<16)-1);
 /// Maximum number of triangles we want in a drawable
 static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
     
-// Note: Porting
-//class SubTexture;
+class SubTexture;
 
 /// Data types we'll accept for attributes
 typedef enum {BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType} BDAttributeDataType;
@@ -508,19 +508,16 @@ public:
     const Eigen::Matrix4d *getMatrix() const;
 
     /// Run the texture and texture coordinates based on a SubTexture
-    // Note: Porting
-//    void applySubTexture(int which,SubTexture subTex,int startingAt=0);
+    void applySubTexture(int which,SubTexture subTex,int startingAt=0);
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
-    // Note: Porting
-//    NSData *asData(bool dupStart,bool dupEnd);
+    RawDataRef asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    // Note: Porting
-//    void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize);
+    void asVertexAndElementData(MutableRawDataRef &retVertData,MutableRawDataRef &retElementData,int singleElementSize);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     void convertToTriStrip();

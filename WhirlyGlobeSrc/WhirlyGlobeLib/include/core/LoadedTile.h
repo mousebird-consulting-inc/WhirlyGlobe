@@ -18,32 +18,21 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "Scene.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
 #import "GlobeMath.h"
-#import "sqlhelpers.h"
 #import "Quadtree.h"
 #import "SceneRendererES.h"
-#import "QuadDisplayLayer.h"
+#import "QuadDisplayController.h"
 #import "TextureAtlas.h"
-#import "ElevationChunk.h"
+// Note: Porting
+//#import "ElevationChunk.h"
 #import "DynamicDrawableAtlas.h"
 #import "DynamicTextureAtlas.h"
 
-/** Type of the image being passed to the tile loader.
- UIImage - A UIImage object.
- NSDataAsImage - An NSData object containing PNG or JPEG data.
- WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
- PVRTC4 - Compressed PVRTC, 4 bit, no alpha
- Placeholder - This is an empty image (so no visual representation)
- that is nonetheless "valid" so its children will be paged.
- */
-typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+namespace WhirlyKit
+{
 
 /// Used to specify the image type for the textures we create
 typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4} WhirlyKitTileImageType;
@@ -55,64 +44,51 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /** The Loaded Image is handed back to the Tile Loader when an image
  is finished.  It can either be loaded or empty, or something of that sort.
  */
-@interface WhirlyKitLoadedImage : NSObject
-
-/// The data we're passing back
-@property (nonatomic,assign) WhirlyKitLoadedImageType type;
-/// Set if there are any border pixels in the image
-@property (nonatomic,assign) int borderSize;
-/// The UIImage or NSData object
-@property (nonatomic) NSObject *imageData;
-/// Some formats contain no size info (e.g. PVRTC).  In which case, this is set
-@property (nonatomic,assign) int width,height;
-
-/// Return a loaded image made of a standard UIImage
-+ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image;
-
-/// Return a loaded image made from an NSData object containing PVRTC
-+ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize;
-
-/// Return a loaded image that's just an empty placeholder.
-/// This means there's nothing to display, but the children are valid
-+ (WhirlyKitLoadedImage *)PlaceholderImage;
-
-/// Return a loaded image made from an NSData object that contains a PNG or JPG.
-/// Basically somethign that UIImage will recognize if you initialize it with one.
-+ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData;
-
-/// Generate an appropriate texture.
-/// You could overload this, just be sure to respect the border pixels.
-- (WhirlyKit::Texture *)buildTexture:(int)borderSize destWidth:(int)width destHeight:(int)height;
-
-/// This will extract the pixels out of an image or NSData and store them for later use
-- (bool)convertToRawData:(int)borderTexel;
-
-@end
+class LoadedImage
+{
+public:
+    LoadedImage();
+    virtual ~LoadedImage();
+    
+    /// Generate an appropriate texture.
+    /// You could overload this, just be sure to respect the border pixels.
+    virtual Texture *buildTexture(int borderSize,int width,int height) = 0;
+    
+    /// This means there's nothing to display, but the children are valid
+    virtual bool isPlaceholder() = 0;
+    
+    /// Return image width
+    virtual int getWidth() = 0;
+    
+    /// Return image height
+    virtual int getHeight() = 0;
+protected:
+};
 
 /** This is a more generic version of the Loaded Image.  It can be a single
  loaded image, a stack of them (for animation) and/or a terrain chunk.
  If you're doing a stack of images, make sure you set up the tile quad loader
  that way.
  */
-@interface WhirlyKitLoadedTile : NSObject
+// Note: Porting
+//class LoadedTile
+//{
+//public:
+//    std::vector<LoadedImage *> images;
+//    // Note: Porting
+//    //@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+//};
 
-@property (nonatomic,readonly) NSMutableArray *images;
-@property (nonatomic) WhirlyKitElevationChunk *elevChunk;
+// Note: Porting
+///** This protocol is used by the data sources to optionally tack some elevation on to a tile
+// fetch.  Elevation often comes from a different source and we want to be able to reuse
+// our generic image tile fetchers.
+// */
+//@protocol WhirlyKitElevationHelper
+///// Return the elevation data for the given tile or nil if there is none
+//- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
+//@end
 
-@end
-
-/** This protocol is used by the data sources to optionally tack some elevation on to a tile
- fetch.  Elevation often comes from a different source and we want to be able to reuse
- our generic image tile fetchers.
- */
-@protocol WhirlyKitElevationHelper
-/// Return the elevation data for the given tile or nil if there is none
-- (WhirlyKitElevationChunk *)elevForLevel:(int)level col:(int)col row:(int)row;
-@end
-
-namespace WhirlyKit
-{
-    
 /** The Tile Builder stores data needed to build individual tiles.
     This includes the texture and drawable atlases.
   */
@@ -135,8 +111,11 @@ public:
     void buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev);
     
     // Build a given tile
+    // Note: Porting
+//    bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
+//                   Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
     bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-              Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
+                   Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages);
     
     // Flush updates out into the change requests
     bool flushUpdates(ChangeSet &changes);
@@ -151,7 +130,7 @@ public:
     bool isReady();
     
     // Output some debug info
-    void log(NSString *name);
+//    void log(NSString *name);
     
     // Bounding box of area we're representing
     Mbr mbr;
@@ -222,22 +201,24 @@ public:
     loaded in to memory, but may be in various states.  It's also
     used to fill in child outlines that may be missing.
  */
-class LoadedTile
+class InternalLoadedTile
 {
 public:
-    LoadedTile();
-    LoadedTile(const WhirlyKit::Quadtree::Identifier &);
-    ~LoadedTile() { }
-    
+    InternalLoadedTile();
+    InternalLoadedTile(const WhirlyKit::Quadtree::Identifier &);
+    ~InternalLoadedTile() { }
+
+    // Note: Porting
     /// Build the data needed for a scene representation
-    bool addToScene(TileBuilder *tileBuilder,std::vector<WhirlyKitLoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+//    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,WhirlyKitElevationChunk *loadElev,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    bool addToScene(TileBuilder *tileBuilder,std::vector<LoadedImage *>loadImages,int currentImage0,int currentImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Remove data from scene.  This just sets up the changes requests.
     /// They must still be passed to the scene
     void clearContents(TileBuilder *tileBuilder,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Update what we're displaying based on the quad tree, particulary for children
-    void updateContents(TileBuilder *tileBuilder,LoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
+    void updateContents(TileBuilder *tileBuilder,InternalLoadedTile *childTiles[],std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
     
     /// Switch to the given images
     void setCurrentImages(TileBuilder *tileBuilder,int whichImage0,int whichImage1,std::vector<WhirlyKit::ChangeRequest *> &changeRequests);
@@ -263,8 +244,9 @@ public:
     std::vector<WhirlyKit::SimpleIdentity> texIds;
     /// If set, these are subsets of a larger dynamic texture
     std::vector<WhirlyKit::SubTexture> subTexs;
+    // Note: Porting
     /// If here, the elevation data needed to build geometry
-    WhirlyKitElevationChunk *elevData;
+//    WhirlyKitElevationChunk *elevData;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
@@ -276,13 +258,13 @@ public:
 typedef struct
 {
     /// Comparison operator based on node identifier
-    bool operator() (const LoadedTile *a,const LoadedTile *b)
+    bool operator() (const InternalLoadedTile *a,const InternalLoadedTile *b)
     {
         return a->nodeInfo.ident < b->nodeInfo.ident;
     }
 } LoadedTileSorter;
 
 /// A set that sorts loaded MB Tiles by Quad tree identifier
-typedef std::set<LoadedTile *,LoadedTileSorter> LoadedTileSet;
+typedef std::set<InternalLoadedTile *,LoadedTileSorter> LoadedTileSet;
     
 }

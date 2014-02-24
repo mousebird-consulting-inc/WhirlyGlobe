@@ -113,6 +113,12 @@ MutableRawData::MutableRawData(void *inData,unsigned int size)
     
     memcpy(&data[0], inData, size);
 }
+    
+MutableRawData::MutableRawData(unsigned int size)
+{
+    data.resize(size);
+    memset(&data[0], 0, size);
+}
 
 MutableRawData::~MutableRawData()
 {

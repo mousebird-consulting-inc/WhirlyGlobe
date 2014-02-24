@@ -143,7 +143,7 @@ void PerformanceTimer::log()
     std::sort(sortedEntries.begin(),sortedEntries.end(),TimeEntryByMax);
     for (unsigned int ii=0;ii<sortedEntries.size();ii++)
     {
-        TimeEntry &entry = sortedEntries[ii];
+//        TimeEntry &entry = sortedEntries[ii];
         // Note: Porting
 //        if (entry.numRuns > 0)
 //            NSLog(@"  %s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
@@ -151,7 +151,7 @@ void PerformanceTimer::log()
     for (std::map<std::string,CountEntry>::iterator it = countEntries.begin();
          it != countEntries.end(); ++it)
     {
-        CountEntry &entry = it->second;
+//        CountEntry &entry = it->second;
         // Note: Porting
 //        if (entry.numRuns > 0)
 //            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);

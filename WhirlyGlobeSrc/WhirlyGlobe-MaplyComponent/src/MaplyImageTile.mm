@@ -21,6 +21,140 @@
 #import "MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
 
++ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage.type = WKLoadedImageUIImage;
+    loadImage.borderSize = 0;
+    loadImage.imageData = image;
+    CGImageRef cgImage = image.CGImage;
+    loadImage.width = CGImageGetWidth(cgImage);
+    loadImage.height = CGImageGetHeight(cgImage);
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage.type = WKLoadedImagePVRTC4;
+    loadImage.borderSize = 0;
+    loadImage.imageData = imageData;
+    loadImage.width = loadImage.height = squareSize;
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage.type = WKLoadedImageNSDataAsImage;
+    loadImage.borderSize = 0;
+    loadImage.imageData = imageData;
+    loadImage.width = loadImage.height = 0;
+    UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+    if (texImage)
+    {
+        loadImage.imageData = texImage;
+        loadImage.width = CGImageGetWidth(texImage.CGImage);
+        loadImage.height = CGImageGetHeight(texImage.CGImage);
+        loadImage.type = WKLoadedImageUIImage;
+    } else
+        return nil;
+    
+    return loadImage;
+}
+
++ (WhirlyKitLoadedImage *)PlaceholderImage
+{
+    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+    loadImage.type = WKLoadedImagePlaceholder;
+    
+    return loadImage;
+}
+
+- (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData width:(int)theWidth height:(int)theHeight
+{
+    Texture *newTex = new Texture("Tile Quad Loader",theData,false);
+    newTex->setWidth(theWidth);
+    newTex->setHeight(theHeight);
+    
+    return newTex;
+}
+
+- (WhirlyKit::Texture *)buildTexture:(int)reqBorderTexel destWidth:(int)destWidth destHeight:(int)destHeight
+{
+    Texture *newTex = NULL;
+    
+    switch (_type)
+    {
+        case WKLoadedImageUIImage:
+        {
+            destWidth = (destWidth <= 0 ? _width : destWidth);
+            destHeight = (destHeight <= 0 ? _height : destHeight);
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:reqBorderTexel];
+            newTex = [self textureFromRawData:rawData width:destWidth height:destHeight];
+        }
+            break;
+        case WKLoadedImageNSDataAsImage:
+            // These are converted to UIImages on initialization.  So it must have failed.
+            break;
+        case WKLoadedImageNSDataRawData:
+            if ([_imageData isKindOfClass:[NSData class]])
+            {
+                // Note: This isn't complete
+                return [self textureFromRawData:(NSData *)_imageData width:_width height:_height];
+            }
+            break;
+        case WKLoadedImagePVRTC4:
+            if ([_imageData isKindOfClass:[NSData class]])
+            {
+                newTex = new Texture("Tile Quad Loader", (NSData *)_imageData,true);
+                newTex->setWidth(_width);
+                newTex->setHeight(_height);
+            }
+            break;
+        case WKLoadedImagePlaceholder:
+        default:
+            break;
+    }
+    
+    return newTex;
+}
+
+- (bool)convertToRawData:(int)borderTexel
+{
+    switch (_type)
+    {
+        case WKLoadedImageUIImage:
+        {
+            int destWidth = _width;
+            int destHeight = _height;
+            // We need this to be square.  Because duh.
+            if (destWidth != destHeight)
+            {
+                int size = std::max(destWidth,destHeight);
+                destWidth = destHeight = size;
+            }
+            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
+            if (rawData)
+            {
+                _imageData = rawData;
+                _type = WKLoadedImageNSDataRawData;
+                _width = destWidth;
+                _height = destHeight;
+            }
+        }
+            break;
+        default:
+            return false;
+            break;
+    }
+    
+    return true;
+}
+
+
 @implementation MaplyImageTile
 {
     int _width,_height;

@@ -61,6 +61,16 @@
 		2B009D13186102E4001E2EE8 /* libjson.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CEB186102E4001E2EE8 /* libjson.h */; };
 		2B009D171861093A001E2EE8 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009D151861093A001E2EE8 /* clipper.cpp */; };
 		2B009D181861093A001E2EE8 /* clipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B009D161861093A001E2EE8 /* clipper.hpp */; };
+		2B13BA8418B416F6007DA1A3 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */; };
+		2B13BA8618B41704007DA1A3 /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */; };
+		2B13BA8818B41B52007DA1A3 /* DynamicDrawableAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */; };
+		2B13BA8A18B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */; };
+		2B13BA8C18B41E88007DA1A3 /* BigDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */; };
+		2B13BA8E18B41E96007DA1A3 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */; };
+		2B13BA9018B42E6E007DA1A3 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */; };
+		2B13BA9218B42E79007DA1A3 /* LoadedTile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */; };
+		2B13BA9818B525B5007DA1A3 /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */; };
+		2B13BA9A18B525C0007DA1A3 /* TileQuadLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */; };
 		2B23C3B718903AF50059FF8F /* Quadtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23C3B618903AF50059FF8F /* Quadtree.h */; };
 		2B23C3B918903AFF0059FF8F /* Quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23C3B818903AFF0059FF8F /* Quadtree.cpp */; };
 		2B23C3BB189042A30059FF8F /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23C3BA189042A30059FF8F /* ScreenImportance.h */; };
@@ -399,6 +409,16 @@
 		2B009CEB186102E4001E2EE8 /* libjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libjson.h; path = "../../third-party/libjson/libjson.h"; sourceTree = "<group>"; };
 		2B009D151861093A001E2EE8 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../../third-party/clipper/cpp/clipper.cpp"; sourceTree = "<group>"; };
 		2B009D161861093A001E2EE8 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../../third-party/clipper/cpp/clipper.hpp"; sourceTree = "<group>"; };
+		2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicTextureAtlas.h; path = core/DynamicTextureAtlas.h; sourceTree = "<group>"; };
+		2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicTextureAtlas.cpp; path = core/DynamicTextureAtlas.cpp; sourceTree = "<group>"; };
+		2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicDrawableAtlas.h; path = core/DynamicDrawableAtlas.h; sourceTree = "<group>"; };
+		2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicDrawableAtlas.cpp; path = core/DynamicDrawableAtlas.cpp; sourceTree = "<group>"; };
+		2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BigDrawable.h; path = core/BigDrawable.h; sourceTree = "<group>"; };
+		2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BigDrawable.cpp; path = core/BigDrawable.cpp; sourceTree = "<group>"; };
+		2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadedTile.h; path = core/LoadedTile.h; sourceTree = "<group>"; };
+		2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadedTile.cpp; path = core/LoadedTile.cpp; sourceTree = "<group>"; };
+		2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TileQuadLoader.h; path = core/TileQuadLoader.h; sourceTree = "<group>"; };
+		2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TileQuadLoader.cpp; path = core/TileQuadLoader.cpp; sourceTree = "<group>"; };
 		2B23C3B618903AF50059FF8F /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quadtree.h; path = core/Quadtree.h; sourceTree = "<group>"; };
 		2B23C3B818903AFF0059FF8F /* Quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Quadtree.cpp; path = core/Quadtree.cpp; sourceTree = "<group>"; };
 		2B23C3BA189042A30059FF8F /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenImportance.h; path = core/ScreenImportance.h; sourceTree = "<group>"; };
@@ -874,6 +894,11 @@
 		2B789F82185BD2CB0028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */,
+				2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */,
+				2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */,
+				2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */,
+				2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */,
 				2B23C3BA189042A30059FF8F /* ScreenImportance.h */,
 				2B23C3BC189042B10059FF8F /* ScreenImportance.cpp */,
 				2B23C3B618903AF50059FF8F /* Quadtree.h */,
@@ -929,6 +954,11 @@
 		2B789F83185BD2D00028E027 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */,
+				2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */,
+				2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */,
+				2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */,
+				2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */,
 				2B23C3B818903AFF0059FF8F /* Quadtree.cpp */,
 				2BBDFE7D188871AF00AE4CEB /* QuadDisplayController.cpp */,
 				2BBDFE751887482800AE4CEB /* RawData.cpp */,
@@ -1313,12 +1343,14 @@
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
 				2B789F8C185BD3460028E027 /* FlatMath.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
+				2B13BA8418B416F6007DA1A3 /* DynamicTextureAtlas.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
 				2B789F8E185BD3460028E027 /* Identifiable.h in Headers */,
 				2BBDFE741887480D00AE4CEB /* RawData.h in Headers */,
 				2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */,
 				2B789F8F185BD3460028E027 /* OpenGLES2Program.h in Headers */,
 				2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */,
+				2B13BA8818B41B52007DA1A3 /* DynamicDrawableAtlas.h in Headers */,
 				2B789F91185BD3460028E027 /* WhirlyVector.h in Headers */,
 				2B789FF3185BE56F0028E027 /* LayoutManager.h in Headers */,
 				2B789F90185BD3460028E027 /* WhirlyGeometry.h in Headers */,
@@ -1335,10 +1367,12 @@
 				2B789FCD185BDDAF0028E027 /* PerformanceTimer.h in Headers */,
 				2B009CFC186102E4001E2EE8 /* JSONGlobals.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
+				2B13BA9818B525B5007DA1A3 /* TileQuadLoader.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
 				2B789FC9185BDC480028E027 /* SceneRendererES.h in Headers */,
 				2B789FE1185BE3520028E027 /* SphericalMercator.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
+				2B13BA8C18B41E88007DA1A3 /* BigDrawable.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
 				2BF76A2F1886030800465603 /* Texture.h in Headers */,
@@ -1352,6 +1386,7 @@
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
+				2B13BA9018B42E6E007DA1A3 /* LoadedTile.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
 				2B789FE7185BE3710028E027 /* GlobeViewState.h in Headers */,
@@ -1509,6 +1544,7 @@
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
 				2B23C3BD189042B10059FF8F /* ScreenImportance.cpp in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
+				2B13BA8E18B41E96007DA1A3 /* BigDrawable.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
@@ -1541,6 +1577,7 @@
 				2B789F9F185BD3FB0028E027 /* WhirlyVector.cpp in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
 				2B789FEB185BE4430028E027 /* MaplyViewState.cpp in Sources */,
+				2B13BA8618B41704007DA1A3 /* DynamicTextureAtlas.cpp in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
 				2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */,
 				2BBDFE761887482800AE4CEB /* RawData.cpp in Sources */,
@@ -1551,6 +1588,7 @@
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
+				2B13BA9A18B525C0007DA1A3 /* TileQuadLoader.cpp in Sources */,
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
@@ -1612,6 +1650,7 @@
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
+				2B13BA9218B42E79007DA1A3 /* LoadedTile.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
@@ -1646,6 +1685,7 @@
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
+				2B13BA8A18B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
 				2B789FC4185BDBC40028E027 /* Generator.cpp in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,

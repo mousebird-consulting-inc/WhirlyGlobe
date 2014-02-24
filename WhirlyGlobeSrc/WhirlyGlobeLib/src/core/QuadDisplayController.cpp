@@ -51,10 +51,14 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
     quadtree = new Quadtree(dataStructure->getTotalExtents(),minZoom,maxZoom,maxTiles,minImportance,this);
     
     if (meteredMode)
-        loader->startUpdates();
+    {
+        ChangeSet changes;
+        loader->startUpdates(changes);
+        // We'll never get any changes here
+    }
 }
     
-void QuadDisplayController::frameEnd()
+void QuadDisplayController::frameEnd(ChangeSet &changes)
 {
     TimeInterval now = TimeGetCurrent();
     
@@ -68,8 +72,8 @@ void QuadDisplayController::frameEnd()
         forcedFlush = true;
     
     // Flush out the updates and immediately start new ones
-    loader->endUpdates();
-    loader->startUpdates();
+    loader->endUpdates(changes);
+    loader->startUpdates(changes);
     // If we forced out a flush, we can wait for more local loads
     if (!forcedFlush)
         waitForLocalLoads = false;
@@ -126,7 +130,7 @@ bool QuadDisplayController::waitingForLocalLoads()
     // Check for local fetches ongoing
     bool localActivity = !nodesForEval.empty();
     if (!localActivity)
-        localActivity = loader->localFetches() != 0;
+        localActivity = loader->numLocalFetches() != 0;
         
         if (!localActivity)
             return false;
@@ -137,7 +141,7 @@ bool QuadDisplayController::waitingForLocalLoads()
 }
 
 // Run the evaluation step for outstanding nodes
-bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame)
+bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameInterval,float availableFrame,ChangeSet &changes)
 {
     bool didSomething = false;
     
@@ -146,7 +150,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         return false;
     
     if (!meteredMode)
-        loader->startUpdates();
+        loader->startUpdates(changes);
     
     // Look for nodes to remove
     Quadtree::NodeInfo remNodeInfo;
@@ -224,8 +228,9 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     if (meteredMode || waitingForLocalLoads() || didSomething)
     {
         loader->updateWithoutFlush();
-    } else
-        loader->endUpdates();
+    } else {
+        loader->endUpdates(changes);
+    }
 
     if (debugMode)
         dumpInfo();
@@ -235,7 +240,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
         // If we're not waiting for local reloads, we may be done
         if (!meteredMode && !waitingForLocalLoads())
         {
-            loader->endUpdates();
+            loader->endUpdates(changes);
             somethingHappened = false;
         }
         
@@ -284,13 +289,13 @@ void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent
 }
 
 // Clear out all the existing tiles and start over
-void QuadDisplayController::refresh()
+void QuadDisplayController::refresh(ChangeSet &changes)
 {
     nodesForEval.clear();
 
     // Remove nodes until we run out
     Quadtree::NodeInfo remNodeInfo;
-    loader->startUpdates();
+    loader->startUpdates(changes);
     while (quadtree->leastImportantNode(remNodeInfo,true))
     {
         
@@ -307,22 +312,23 @@ void QuadDisplayController::refresh()
             nodesForEval.insert(thisNode);
         }
     
-    loader->startUpdates();
+    loader->startUpdates(changes);
 
     somethingHappened = true;
 }
     
-void QuadDisplayController::shutdown()
+void QuadDisplayController::shutdown(ChangeSet &changes)
 {
-    loader->endUpdates();
+    loader->endUpdates(changes);
     
     dataStructure->shutdown();
-    loader->shutdownLayer();
+    loader->shutdownLayer(changes);
 }
 
 void QuadDisplayController::wakeUp()
 {
     somethingHappened = true;
+    adapter->adapterWakeUp();
 }
 
 // Importance callback for quad tree
