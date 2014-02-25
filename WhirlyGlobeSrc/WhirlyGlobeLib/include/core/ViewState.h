@@ -42,7 +42,7 @@ public:
 class ViewState
 {
 public:
-    ViewState() { }
+    ViewState() : near(0), far(0) { }
     ViewState(View *view,SceneRendererES *renderer);
     virtual ~ViewState();
     
@@ -62,6 +62,9 @@ public:
     
     /// Compare this view state to the other one.  Returns true if they're identical.
     bool isSameAs(WhirlyKit::ViewState *other);
+    
+    /// Return true if the view state has been set to something
+    bool isValid() { return near != far; }
     
     /// Dump out info about the view state
     void log();

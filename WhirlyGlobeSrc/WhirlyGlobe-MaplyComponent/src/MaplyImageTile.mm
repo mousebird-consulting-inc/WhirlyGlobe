@@ -20,143 +20,83 @@
 
 #import "MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
+#import "UIImage+Stuff.h"
 
-+ (WhirlyKitLoadedImage *)LoadedImageWithUIImage:(UIImage *)image
+using namespace WhirlyKit;
+
+// Wrapper for a single image in its various forms
+@interface MaplySingleImage : NSObject
+@property (nonatomic) UIImage *image;
+@property (nonatomic) NSData *data;
+@property (nonatomic) Texture *texture;
+@end
+
+@implementation MaplySingleImage
+
+- (void)dealloc
 {
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImageUIImage;
-    loadImage.borderSize = 0;
-    loadImage.imageData = image;
-    CGImageRef cgImage = image.CGImage;
-    loadImage.width = CGImageGetWidth(cgImage);
-    loadImage.height = CGImageGetHeight(cgImage);
-    
-    return loadImage;
+    if (_texture)
+        delete _texture;
 }
 
-+ (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize
-{
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImagePVRTC4;
-    loadImage.borderSize = 0;
-    loadImage.imageData = imageData;
-    loadImage.width = loadImage.height = squareSize;
-    
-    return loadImage;
-}
+//+ (MaplySingleImage *)LoadedImageWithUIImage:(UIImage *)image
+//{
+//    MaplySingleImage *loadImage = [[MaplySingleImage alloc] init];
+//    
+//    
+//    loadImage.imageData = image;
+//    CGImageRef cgImage = image.CGImage;
+//    loadImage.width = CGImageGetWidth(cgImage);
+//    loadImage.height = CGImageGetHeight(cgImage);
+//    
+//    return loadImage;
+//}
+//
+//+ (MaplySingleImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize
+//{
+//    MaplySingleImage *loadImage = [[MaplySingleImage alloc] init];
+//    loadImage.type = WKLoadedImagePVRTC4;
+//    loadImage.borderSize = 0;
+//    loadImage.imageData = imageData;
+//    loadImage.width = loadImage.height = squareSize;
+//    
+//    return loadImage;
+//}
+//
+//+ (MaplySingleImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
+//{
+//    MaplySingleImage *loadImage = [[MaplySingleImage alloc] init];
+//    loadImage.type = WKLoadedImageNSDataAsImage;
+//    loadImage.borderSize = 0;
+//    loadImage.imageData = imageData;
+//    loadImage.width = loadImage.height = 0;
+//    UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+//    if (texImage)
+//    {
+//        loadImage.imageData = texImage;
+//        loadImage.width = CGImageGetWidth(texImage.CGImage);
+//        loadImage.height = CGImageGetHeight(texImage.CGImage);
+//        loadImage.type = WKLoadedImageUIImage;
+//    } else
+//        return nil;
+//    
+//    return loadImage;
+//}
+//
+//+ (MaplySingleImage *)PlaceholderImage
+//{
+//    MaplySingleImage *loadImage = [[MaplySingleImage alloc] init];
+//    loadImage.type = WKLoadedImagePlaceholder;
+//    
+//    return loadImage;
+//}
 
-+ (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
-{
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImageNSDataAsImage;
-    loadImage.borderSize = 0;
-    loadImage.imageData = imageData;
-    loadImage.width = loadImage.height = 0;
-    UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
-    if (texImage)
-    {
-        loadImage.imageData = texImage;
-        loadImage.width = CGImageGetWidth(texImage.CGImage);
-        loadImage.height = CGImageGetHeight(texImage.CGImage);
-        loadImage.type = WKLoadedImageUIImage;
-    } else
-        return nil;
-    
-    return loadImage;
-}
-
-+ (WhirlyKitLoadedImage *)PlaceholderImage
-{
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImagePlaceholder;
-    
-    return loadImage;
-}
-
-- (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData width:(int)theWidth height:(int)theHeight
-{
-    Texture *newTex = new Texture("Tile Quad Loader",theData,false);
-    newTex->setWidth(theWidth);
-    newTex->setHeight(theHeight);
-    
-    return newTex;
-}
-
-- (WhirlyKit::Texture *)buildTexture:(int)reqBorderTexel destWidth:(int)destWidth destHeight:(int)destHeight
-{
-    Texture *newTex = NULL;
-    
-    switch (_type)
-    {
-        case WKLoadedImageUIImage:
-        {
-            destWidth = (destWidth <= 0 ? _width : destWidth);
-            destHeight = (destHeight <= 0 ? _height : destHeight);
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:reqBorderTexel];
-            newTex = [self textureFromRawData:rawData width:destWidth height:destHeight];
-        }
-            break;
-        case WKLoadedImageNSDataAsImage:
-            // These are converted to UIImages on initialization.  So it must have failed.
-            break;
-        case WKLoadedImageNSDataRawData:
-            if ([_imageData isKindOfClass:[NSData class]])
-            {
-                // Note: This isn't complete
-                return [self textureFromRawData:(NSData *)_imageData width:_width height:_height];
-            }
-            break;
-        case WKLoadedImagePVRTC4:
-            if ([_imageData isKindOfClass:[NSData class]])
-            {
-                newTex = new Texture("Tile Quad Loader", (NSData *)_imageData,true);
-                newTex->setWidth(_width);
-                newTex->setHeight(_height);
-            }
-            break;
-        case WKLoadedImagePlaceholder:
-        default:
-            break;
-    }
-    
-    return newTex;
-}
-
-- (bool)convertToRawData:(int)borderTexel
-{
-    switch (_type)
-    {
-        case WKLoadedImageUIImage:
-        {
-            int destWidth = _width;
-            int destHeight = _height;
-            // We need this to be square.  Because duh.
-            if (destWidth != destHeight)
-            {
-                int size = std::max(destWidth,destHeight);
-                destWidth = destHeight = size;
-            }
-            NSData *rawData = [(UIImage *)_imageData rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
-            if (rawData)
-            {
-                _imageData = rawData;
-                _type = WKLoadedImageNSDataRawData;
-                _width = destWidth;
-                _height = destHeight;
-            }
-        }
-            break;
-        default:
-            return false;
-            break;
-    }
-    
-    return true;
-}
-
+@end
 
 @implementation MaplyImageTile
 {
+//    loadImage.type = WKLoadedImageUIImage;
+//    loadImage.borderSize = 0;
     int _width,_height;
     int _targetWidth,_targetHeight;
     
@@ -181,7 +121,9 @@
     self = [super init];
     _type = MaplyImgTypeRawImage;
     
-    stuff = @[data];
+    MaplySingleImage *single = [[MaplySingleImage alloc] init];
+    single.data = data;
+    stuff = @[single];
     _width = width;
     _height = height;
     
@@ -200,7 +142,15 @@
     
     self = [super init];
     _type = MaplyImgTypeRawImage;
-    stuff = dataArray;
+    
+    NSMutableArray *newStuff = [NSMutableArray array];
+    for (NSData *data in dataArray)
+    {
+        MaplySingleImage *single = [[MaplySingleImage alloc] init];
+        single.data = data;
+        [newStuff addObject:single];
+    }
+    stuff = newStuff;
     _width = width;
     _height = height;
     
@@ -214,7 +164,9 @@
     
     self = [super init];
     _type = MaplyImgTypeImage;
-    stuff = @[image];
+    MaplySingleImage *single = [[MaplySingleImage alloc] init];
+    single.image = image;
+    stuff = @[single];
     _width = _height = -1;
     
     return self;
@@ -228,7 +180,14 @@
     
     self = [super init];
     _type = MaplyImgTypeImage;
-    stuff = images;
+    NSMutableArray *newStuff = [NSMutableArray array];
+    for (UIImage *image in images)
+    {
+        MaplySingleImage *single = [[MaplySingleImage alloc] init];
+        single.image = image;
+        [newStuff addObject:single];
+    }
+    stuff = newStuff;
     _width = _height = -1;
     
     return self;
@@ -241,7 +200,9 @@
     
     self = [super init];
     _type = MaplyImgTypeData;
-    stuff = @[data];
+    MaplySingleImage *single = [[MaplySingleImage alloc] init];
+    single.data = data;
+    stuff = @[single];
     _width = _height = -1;
     
     return self;
@@ -257,7 +218,14 @@
     
     self = [super init];
     _type = MaplyImgTypeData;
-    stuff = dataArray;
+    NSMutableArray *newStuff = [NSMutableArray array];
+    for (NSData *data in dataArray)
+    {
+        MaplySingleImage *single = [[MaplySingleImage alloc] init];
+        single.data = data;
+        [newStuff addObject:single];
+    }
+    stuff = newStuff;
     _width = _height = -1;
     
     return self;
@@ -305,53 +273,55 @@
     return self;
 }
 
-- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw
+- (void)convertToRaw:(int)borderTexel destWidth:(int)inDestWidth destHeight:(int)inDestHeight
 {
-    WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
-    
     if (_type == MaplyImgTypePlaceholder)
     {
-        [loadTile.images addObject:[WhirlyKitLoadedImage PlaceholderImage]];
-        return loadTile;
+        return;
     }
 
-    // Work through the various layers
-    for (id thing in stuff)
+    // Work through the various layers and convert to raw data
+    for (MaplySingleImage *single in stuff)
     {
-        WhirlyKitLoadedImage *loadImage = nil;
         switch (_type)
         {
-            case MaplyImgTypeImage:
-                loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:thing];
-                break;
             case MaplyImgTypeData:
-                loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:thing];
+                // These are converted to UIImages on initialization.  So it must have failed.
+                break;
+            case MaplyImgTypeImage:
+            {
+                int destWidth = (inDestWidth <= 0 ? _width : inDestWidth);
+                int destHeight = (inDestHeight <= 0 ? _height : inDestHeight);
+                NSData *rawData = [single.image rawDataScaleWidth:destWidth height:destHeight border:borderTexel];
+                single.data = rawData;
+                single.image = NULL;
+            }
                 break;
             case MaplyImgTypeRawImage:
-                loadImage = [[WhirlyKitLoadedImage alloc] init];
-                loadImage.imageData = thing;
-                loadImage.width = _width;
-                loadImage.height = _height;
                 break;
             default:
                 break;
         }
-        if (!loadImage)
-            return nil;
-        if (_targetHeight > 0 && _targetWidth > 0)
-        {
-            loadImage.width = _targetWidth;
-            loadImage.height = _targetHeight;
-        }
-
-        // This pulls the pixels out of their weird little compressed formats
-        // Since we're on our own thread here (probably) this may save time
-        if (convertToRaw)
-            [loadImage convertToRawData:borderTexel];
-        [loadTile.images addObject:loadImage];
     }
-    
-    return loadTile;
+    _type = MaplyImgTypeRawImage;
 }
+
+- (WhirlyKit::Texture *)buildTextureFor:(int)which border:(int)reqBorderTexel destWidth:(int)destWidth destHeight:(int)destHeight
+{
+    if (_type != MaplyImgTypeRawImage)
+        [self convertToRaw:reqBorderTexel destWidth:destWidth destHeight:destHeight];
+    
+    if (_type != MaplyImgTypeRawImage)
+        return NULL;
+    
+    NSData *data = ((MaplySingleImage *)[stuff objectAtIndex:which]).data;
+    RawDataWrapper rawData([data bytes], [data length], false);
+    Texture *newTex = new Texture("Tile Quad Loader",&rawData,false);
+    newTex->setWidth(destWidth);
+    newTex->setHeight(destHeight);
+    
+    return newTex;
+}
+
 
 @end

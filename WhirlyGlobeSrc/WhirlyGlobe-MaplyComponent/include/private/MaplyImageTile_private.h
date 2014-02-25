@@ -25,8 +25,11 @@ typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage,MaplyImgTy
 
 @interface MaplyImageTile()
 
-// Generate a WhirlyKit compatible tile
-- (WhirlyKitLoadedTile *)wkTile:(int)borderTexel convertToRaw:(bool)convertToRaw;
+// Convert to raw data internally.  This may require some decompression, so we pull it (optionally) ouot
+- (void)convertToRaw:(int)borderTexel destWidth:(int)inDestWidth destHeight:(int)inDestHeight;
+
+// Build a WhirlyKit texture for the given layer of image data
+- (WhirlyKit::Texture *)buildTextureFor:(int)which border:(int)reqBorderTexel destWidth:(int)destWidth destHeight:(int)destHeight;
 
 // Internal type
 @property (nonatomic) MaplyImgType type;
