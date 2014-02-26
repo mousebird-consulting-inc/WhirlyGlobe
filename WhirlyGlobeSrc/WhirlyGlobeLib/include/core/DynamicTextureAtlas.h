@@ -118,7 +118,7 @@ typedef struct
 class DynamicTextureAddRegion : public ChangeRequest
 {
 public:
-    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawData *data)
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
     
 

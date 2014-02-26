@@ -49,6 +49,7 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
     renderer = inRenderer;
 
     quadtree = new Quadtree(dataStructure->getTotalExtents(),minZoom,maxZoom,maxTiles,minImportance,this);
+    loader->init(this,scene);
     
     if (meteredMode)
     {

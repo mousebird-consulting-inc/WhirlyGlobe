@@ -137,7 +137,7 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
     {
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
-            tileBuilder->drawAtlas->swap(changeRequests, (BigDrawableSwap::SwapCallback *)&BigDrawableSwapCallback, this);
+            tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this);
         }
     }
 
@@ -379,7 +379,7 @@ void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo)
     tileSet.insert(newTile);
     pthread_mutex_unlock(&tileLock);
     
-    bool isNetworkFetch = !imageSource->tileIsLocalLevel(tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
+    bool isNetworkFetch = !imageSource->tileIsLocal(tileInfo.ident.level,tileInfo.ident.x,tileInfo.ident.y);
     if (isNetworkFetch)
         networkFetches.insert(tileInfo.ident);
     else
@@ -492,11 +492,13 @@ void QuadTileLoader::endUpdates(ChangeSet &changes)
 // We'll try to skip updates
 bool QuadTileLoader::shouldUpdate(ViewState *viewState,bool isInitial)
 {
-    bool doUpdate = true;;
+    bool doUpdate = true;
 
     // Always do at least one
     if (isInitial)
+    {
         return true;
+    }
 
     // Test against the visibility range
     if ((minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid) || (minPageVis != DrawVisibleInvalid && maxPageVis != DrawVisibleInvalid))

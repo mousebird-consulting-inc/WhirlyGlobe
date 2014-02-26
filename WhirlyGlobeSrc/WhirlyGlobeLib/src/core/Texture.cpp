@@ -25,7 +25,7 @@ using namespace WhirlyKit;
 
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
-RawData *ConvertRGBATo565(RawData *inData)
+RawData *ConvertRGBATo565(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -46,7 +46,7 @@ RawData *ConvertRGBATo565(RawData *inData)
 
 
 // Convert a buffer in RGBA to 2-byte 4444
-RawData *ConvertRGBATo4444(RawData *inData)
+RawData *ConvertRGBATo4444(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -67,7 +67,7 @@ RawData *ConvertRGBATo4444(RawData *inData)
 }
 
 // Convert a buffer in RGBA to 2-byte 5551
-RawData *ConvertRGBATo5551(RawData *inData)
+RawData *ConvertRGBATo5551(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -88,7 +88,7 @@ RawData *ConvertRGBATo5551(RawData *inData)
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
-RawData *ConvertRGBATo8(RawData *inData,WKSingleByteSource source)
+RawData *ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount);
@@ -130,33 +130,28 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), texData(NULL), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
+	: TextureBase(name), isPVRTC(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 {
 }
 	
 // Construct with raw texture data
-Texture::Texture(const std::string &name,RawData *texData,bool isPVRTC)
+Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
 	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB)
 { 
 }
 
 Texture::~Texture()
 {
-    if (texData)
-        delete texData;
-	texData = NULL;
 }
     
 void Texture::setRawData(RawData *inRawData,int inWidth,int inHeight)
 {
-    if (texData)
-        delete texData;
-    texData = inRawData;
+    texData = RawDataRef(inRawData);
     width = inWidth;
     height = inHeight;
 }
 
-RawData *Texture::processData()
+RawDataRef Texture::processData()
 {
 	if (isPVRTC)
 	{
@@ -170,21 +165,21 @@ RawData *Texture::processData()
                 return texData;
                 break;
             case GL_UNSIGNED_SHORT_5_6_5:
-                return ConvertRGBATo565(texData);
+                return RawDataRef(ConvertRGBATo565(texData));
                 break;
             case GL_UNSIGNED_SHORT_4_4_4_4:
-                return ConvertRGBATo4444(texData);
+                return RawDataRef(ConvertRGBATo4444(texData));
                 break;
             case GL_UNSIGNED_SHORT_5_5_5_1:
-                return ConvertRGBATo5551(texData);
+                return RawDataRef(ConvertRGBATo5551(texData));
                 break;
             case GL_ALPHA:
-                return ConvertRGBATo8(texData,byteSource);
+                return RawDataRef(ConvertRGBATo8(texData,byteSource));
                 break;
         }
 	}
     
-    return NULL;
+    return RawDataRef();
 }
     
 // Define the texture in OpenGL
@@ -220,7 +215,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 
     CheckGLError("Texture::createInGL() glTexParameteri()");
     
-    RawData *convertedData = processData();
+    RawDataRef convertedData = processData();
 	
 	// If it's in an optimized form, we can use that more efficiently
 	if (isPVRTC)
@@ -256,8 +251,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
         glGenerateMipmap(GL_TEXTURE_2D);
 	
     // Once we've moved it over to OpenGL, let's get rid of this copy
-    delete texData;
-    texData = NULL;
+    texData.reset();
 	
 	return true;
 }

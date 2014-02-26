@@ -54,13 +54,13 @@ public:
     /// Return image width
     virtual int getWidth()
     {
-        return tile.targetSize.width;
+        return tile.size.width;
     }
     
     /// Return image height
     virtual int getHeight()
     {
-        return tile.targetSize.height;
+        return tile.size.height;
     }
 
 protected:
@@ -77,6 +77,10 @@ protected:
 - (int)maxZoom;
 - (double)importanceForTile:(const WhirlyKit::Quadtree::Identifier &)ident mbr:(const WhirlyKit::Mbr &)mbr viewInfo:(WhirlyKit::ViewState *) viewState frameSize:(const WhirlyKit::Point2f &)frameSize attrs:(Dictionary *)attrs;
 - (void)shutdown;
+- (int)maxSimultaneousFetches;
+- (void)startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(Dictionary *)attrs;
+- (bool)tileIsLocalLevel:(int)level col:(int)col row:(int)row;
+- (void)newViewState:(ViewState *)viewState;
 @end
 
 namespace WhirlyKit
@@ -129,6 +133,7 @@ public:
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState)
     {
+        [layer newViewState:viewState];
     }
     
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
@@ -136,7 +141,27 @@ public:
     {
         [layer shutdown];
     }
+    
+    virtual int maxSimultaneousFetches()
+    {
+        return [layer maxSimultaneousFetches];
+    }
+    
+    /// The quad loader is letting us know to start loading the image.
+    /// We'll call the loader back with the image when it's ready.
+    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,Dictionary *attrs)
+    {
+        [layer startFetchForLevel:level col:col row:row attrs:attrs];
+    }
+    
+    /// Check if the given tile is a local or remote fetch.  This is a hint
+    ///  to the pager.  It can display local tiles as a group faster.
+    virtual bool tileIsLocal(int level,int col,int row)
+    {
+        return [layer tileIsLocalLevel:level col:col row:row];
+    }
 
+    
     // Objective-C layer we're calling back
     MaplyQuadImageTilesLayer *layer;
 };
@@ -264,6 +289,7 @@ public:
     tileSize = [tileSource tileSize];
     
     // Set up tile and and quad layer with us as the data source
+    adapter.layer = self;
     tileLoader = new QuadTileLoader("Image Layer",&adapter);
     [self setupTileLoader];
     quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:&adapter loader:tileLoader renderer:renderer];
@@ -526,7 +552,8 @@ public:
         Point2f span = mbr.ur()-mbr.ll();
         mbr.ll() = center - span/2.0;
         mbr.ur() = center + span/2.0;
-        float import = ScreenImportance(&lastViewState, _renderer->getFramebufferSize(), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        Dictionary attrs;
+        float import = ScreenImportance(&lastViewState, _renderer->getFramebufferSize(), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, &attrs);
         if (import <= quadLayer.displayControl->getMinImportance())
         {
             zoomLevel--;
@@ -709,7 +736,7 @@ public:
 /// This version of the load method passes in a mutable dictionary.
 /// Store your expensive to generate key/value pairs here.
 // Note: Not handling the case where we get a corrupt image and then store it to the cache.
-- (void)quadTileLoader:(QuadTileLoader *)quadLoader startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(Dictionary *)attrs
+- (void)startFetchForLevel:(int)level col:(int)col row:(int)row attrs:(Dictionary *)attrs
 {
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
@@ -735,7 +762,7 @@ public:
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
     }
-    int borderTexel = quadLoader->getBorderTexel();
+    int borderTexel = tileLoader->getBorderTexel();
     
     // The tile source wants to do all the async management
     // Well fine.  I'm not offended.  Really.  It's fine.
@@ -786,7 +813,7 @@ public:
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         [tileData convertToRaw:borderTexel destWidth:-1 destHeight:-1];
         
-        if (tileData)
+        if (!tileData)
         {
             NSLog(@"Bad image data for tile: %d: (%d,%d)",level,col,row);
         }

@@ -63,15 +63,15 @@ public:
 
     /// Number of simultaneous fetches this data source can support.
     /// You can change this on the fly, but it won't cancel outstanding fetches.
-    int maxSimultaneousFetches();
+    virtual int maxSimultaneousFetches() = 0;
 
     /// The quad loader is letting us know to start loading the image.
     /// We'll call the loader back with the image when it's ready.
-    void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,Dictionary *attrs);
+    virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,Dictionary *attrs) = 0;
 
     /// Check if the given tile is a local or remote fetch.  This is a hint
     ///  to the pager.  It can display local tiles as a group faster.
-    bool tileIsLocalLevel(int level,int col,int row);
+    virtual bool tileIsLocal(int level,int col,int row) = 0;
 };
 
 /** The Globe Quad Tile Loader responds to the Quad Loader protocol and

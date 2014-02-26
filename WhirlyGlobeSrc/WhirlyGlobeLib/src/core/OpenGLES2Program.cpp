@@ -213,7 +213,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetShaderInfoLog(*shaderId, len, &len, logStr);
-            // Note: Porting
+            fprintf(stderr,"Shader compile error: %s",logStr);
 //            NSLog(@"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
             free(logStr);
         }

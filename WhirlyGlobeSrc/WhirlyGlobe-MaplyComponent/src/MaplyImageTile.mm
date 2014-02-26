@@ -21,6 +21,7 @@
 #import "MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
 #import "UIImage+Stuff.h"
+#import "MaplyRawDataWrapper.h"
 
 using namespace WhirlyKit;
 
@@ -167,7 +168,9 @@ using namespace WhirlyKit;
     MaplySingleImage *single = [[MaplySingleImage alloc] init];
     single.image = image;
     stuff = @[single];
-    _width = _height = -1;
+    CGImageRef cgImage = image.CGImage;
+    _width = CGImageGetWidth(cgImage);
+    _height = CGImageGetHeight(cgImage);
     
     return self;
 }
@@ -177,6 +180,8 @@ using namespace WhirlyKit;
     for (UIImage *image in images)
         if (![image isKindOfClass:[UIImage class]])
             return nil;
+    if ([images count] == 0)
+        return nil;
     
     self = [super init];
     _type = MaplyImgTypeImage;
@@ -188,7 +193,9 @@ using namespace WhirlyKit;
         [newStuff addObject:single];
     }
     stuff = newStuff;
-    _width = _height = -1;
+    CGImageRef cgImage = ((UIImage *)images[0]).CGImage;
+    _width = CGImageGetWidth(cgImage);
+    _height = CGImageGetHeight(cgImage);
     
     return self;
 }
@@ -199,11 +206,13 @@ using namespace WhirlyKit;
         return nil;
     
     self = [super init];
-    _type = MaplyImgTypeData;
+    _type = MaplyImgTypeImage;
     MaplySingleImage *single = [[MaplySingleImage alloc] init];
-    single.data = data;
+    single.image = [UIImage imageWithData:data];
     stuff = @[single];
-    _width = _height = -1;
+    CGImageRef cgImage = single.image.CGImage;
+    _width = CGImageGetWidth(cgImage);
+    _height = CGImageGetHeight(cgImage);
     
     return self;
 }
@@ -222,11 +231,13 @@ using namespace WhirlyKit;
     for (NSData *data in dataArray)
     {
         MaplySingleImage *single = [[MaplySingleImage alloc] init];
-        single.data = data;
+        single.image = [UIImage imageWithData:data];
         [newStuff addObject:single];
     }
     stuff = newStuff;
-    _width = _height = -1;
+    CGImageRef cgImage = ((MaplySingleImage *)stuff[0]).image.CGImage;
+    _width = CGImageGetWidth(cgImage);
+    _height = CGImageGetHeight(cgImage);
     
     return self;
 }
@@ -240,6 +251,11 @@ using namespace WhirlyKit;
 - (CGSize)targetSize
 {
     return CGSizeMake(_targetWidth, _targetHeight);
+}
+
+- (CGSize)size
+{
+    return CGSizeMake(_width, _height);
 }
 
 - (id)initWithRandomData:(id)theObj
@@ -315,8 +331,8 @@ using namespace WhirlyKit;
         return NULL;
     
     NSData *data = ((MaplySingleImage *)[stuff objectAtIndex:which]).data;
-    RawDataWrapper rawData([data bytes], [data length], false);
-    Texture *newTex = new Texture("Tile Quad Loader",&rawData,false);
+    RawDataRef rawData(new RawNSDataWrapper(data));
+    Texture *newTex = new Texture("Tile Quad Loader",rawData,false);
     newTex->setWidth(destWidth);
     newTex->setHeight(destHeight);
     

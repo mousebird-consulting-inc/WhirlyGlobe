@@ -131,7 +131,7 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
     int width = tex->getWidth();
     int height = tex->getHeight();
     
-    RawDataRef data(tex->processData());
+    RawDataRef data = tex->processData();
     addTextureData(startX,startY,width,height,data);
 }
     
@@ -148,8 +148,9 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
         {
             size_t size = width * height / 2;
             glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, size, data->getRawData());
-        } else
+        } else {
             glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, data->getRawData());
+        }
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
     }    

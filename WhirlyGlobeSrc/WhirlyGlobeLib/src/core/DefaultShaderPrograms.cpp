@@ -285,7 +285,7 @@ static const char *fragmentShaderNoLightTri =
 "\n"
 "void main()                                         \n"
 "{                                                   \n"
-"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
+//"  vec4 baseColor = texture2D(s_baseMap0, v_texCoord); \n"
 "  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
 //"  if (baseColor.a < 0.1)                            \n"
 //"      discard;                                      \n"

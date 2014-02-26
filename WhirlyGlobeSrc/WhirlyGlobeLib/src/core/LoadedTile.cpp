@@ -31,6 +31,10 @@ LoadedImage::LoadedImage()
 {
     
 }
+    
+LoadedImage::~LoadedImage()
+{
+}
 
 // Figure out the target size for an image based on our settings
 void TileBuilder::textureSize(int width, int height,int *destWidth,int *destHeight)

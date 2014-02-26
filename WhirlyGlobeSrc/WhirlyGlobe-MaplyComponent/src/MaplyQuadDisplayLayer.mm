@@ -45,9 +45,12 @@ public:
         [NSObject cancelPreviousPerformRequestsWithTarget:quadLayer selector:@selector(evalStep:) object:nil];
         [quadLayer performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
-    // Not called in this setup
+    // Wake the thread up
     virtual void adapterWakeUp()
     {
+        // Might get stuck here
+        [NSObject cancelPreviousPerformRequestsWithTarget:quadLayer selector:@selector(evalStep:) object:nil];
+        [quadLayer performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     }
     
     WhirlyKitQuadDisplayLayer *quadLayer;
@@ -70,6 +73,8 @@ public:
 
     renderer = inRenderer;
     _displayControl = new QuadDisplayController(dataSource,loader,&adapter);
+    // Note: Porting
+    _displayControl->setMeteredMode(false);
     
     return self;
 }

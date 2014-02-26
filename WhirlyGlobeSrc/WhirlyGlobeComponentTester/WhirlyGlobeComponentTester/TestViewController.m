@@ -669,77 +669,77 @@ static const int NumMegaMarkers = 40000;
 // Also tear down an old one
 - (void)setupBaseLayer:(NSDictionary *)baseSettings
 {
-    // Note: Porting
-//    // Figure out which one we're supposed to display
-//    NSString *newBaseLayerName = nil;
-//    for (NSString *key in [baseSettings allKeys])
-//    {
-//        if ([baseSettings[key] boolValue])
-//        {
-//            newBaseLayerName = key;
-//            break;
-//        }
-//    }
-//    
-//    // Didn't change
-//    if (![newBaseLayerName compare:baseLayerName])
-//        return;
-//    
-//    // Tear down the old layer
-//    if (baseLayer)
-//    {
-//        baseLayerName = nil;
-//        [baseViewC removeLayer:baseLayer];
-//        baseLayer = nil;
-//    }
-//    baseLayerName = newBaseLayerName;
-//    
-//    // For network paging layers, where we'll store temp files
-//    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-//    
-//    // We'll pick default colors for the labels
-//    UIColor *screenLabelColor = [UIColor whiteColor];
-//    UIColor *screenLabelBackColor = [UIColor clearColor];
-//    UIColor *labelColor = [UIColor whiteColor];
-//    UIColor *labelBackColor = [UIColor clearColor];
-//    // And for the vectors to stand out
-//    UIColor *vecColor = [UIColor whiteColor];
-//    float vecWidth = 4.0;
-//    
-//    NSString *jsonTileSpec = nil;
-//    NSString *thisCacheDir = nil;
-//    
-//#ifdef RELOADTEST
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
-//#endif
-//    
-//    if (![baseLayerName compare:kMaplyTestGeographyClass])
-//    {
-//        self.title = @"Geography Class - MBTiles Local";
-//        // This is the Geography Class MBTiles data set from MapBox
-//        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
-//        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-//            tileSource.maxZoom = zoomLimit;
-//        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-//        baseLayer = layer;
-//        layer.handleEdges = true;
-//        layer.coverPoles = true;
-//        layer.requireElev = requireElev;
-//        layer.waitLoad = imageWaitLoad;
-//        layer.drawPriority = 0;
-//        [baseViewC addLayer:layer];
-//        
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor whiteColor];
-//        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-//        
-//#ifdef RELOADTEST
-//        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
-//#endif
-//
-//    } else if (![baseLayerName compare:kMaplyTestBlueMarble])
-//    {
-//        self.title = @"Blue Marble Single Res";
+    // Figure out which one we're supposed to display
+    NSString *newBaseLayerName = nil;
+    for (NSString *key in [baseSettings allKeys])
+    {
+        if ([baseSettings[key] boolValue])
+        {
+            newBaseLayerName = key;
+            break;
+        }
+    }
+    
+    // Didn't change
+    if (![newBaseLayerName compare:baseLayerName])
+        return;
+    
+    // Tear down the old layer
+    if (baseLayer)
+    {
+        baseLayerName = nil;
+        [baseViewC removeLayer:baseLayer];
+        baseLayer = nil;
+    }
+    baseLayerName = newBaseLayerName;
+    
+    // For network paging layers, where we'll store temp files
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
+    
+    // We'll pick default colors for the labels
+    UIColor *screenLabelColor = [UIColor whiteColor];
+    UIColor *screenLabelBackColor = [UIColor clearColor];
+    UIColor *labelColor = [UIColor whiteColor];
+    UIColor *labelBackColor = [UIColor clearColor];
+    // And for the vectors to stand out
+    UIColor *vecColor = [UIColor whiteColor];
+    float vecWidth = 4.0;
+    
+    NSString *jsonTileSpec = nil;
+    NSString *thisCacheDir = nil;
+    
+#ifdef RELOADTEST
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
+#endif
+    
+    if (![baseLayerName compare:kMaplyTestGeographyClass])
+    {
+        self.title = @"Geography Class - MBTiles Local";
+        // This is the Geography Class MBTiles data set from MapBox
+        MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"geography-class"];
+        if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+            tileSource.maxZoom = zoomLimit;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        baseLayer = layer;
+        layer.handleEdges = true;
+        layer.coverPoles = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
+        layer.drawPriority = 0;
+        [baseViewC addLayer:layer];
+        
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+        
+#ifdef RELOADTEST
+        [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
+
+    } else if (![baseLayerName compare:kMaplyTestBlueMarble])
+    {
+        self.title = @"Blue Marble Single Res";
+        // Note: Porting
 //        if (globeViewC)
 //        {
 //            // This is the static image set, included with the app, built with ImageChopper
@@ -753,90 +753,91 @@ static const int NumMegaMarkers = 40000;
 //            vecColor = [UIColor whiteColor];
 //            vecWidth = 4.0;
 //        }        
-//    } else if (![baseLayerName compare:kMaplyTestStamenWatercolor])
-//    {
-//        self.title = @"Stamen Water Color - Remote";
-//        // These are the Stamen Watercolor tiles.
-//        // They're beautiful, but the server isn't so great.
-//        thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
-//        int maxZoom = 10;
-//        if (zoomLimit != 0 && zoomLimit < maxZoom)
-//            maxZoom = zoomLimit;
-//        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
-//        tileSource.cacheDir = thisCacheDir;
-//        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-//        layer.handleEdges = true;
-//        layer.requireElev = requireElev;
-//        [baseViewC addLayer:layer];
-//        layer.drawPriority = 0;
-//        layer.waitLoad = imageWaitLoad;
-//        baseLayer = layer;
-//        screenLabelColor = [UIColor whiteColor];
-//        screenLabelBackColor = [UIColor whiteColor];
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor blackColor];
-//        vecColor = [UIColor grayColor];
-//        vecWidth = 4.0;
-//    } else if (![baseLayerName compare:kMaplyTestOSM])
-//    {
-//        self.title = @"OpenStreetMap - Remote";
-//        // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
-//        thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
-//        int maxZoom = 18;
-//        if (zoomLimit != 0 && zoomLimit < maxZoom)
-//            maxZoom = zoomLimit;
-//        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
-//        tileSource.cacheDir = thisCacheDir;
-//        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-//        layer.drawPriority = 0;
-//        layer.handleEdges = true;
-//        layer.requireElev = requireElev;
-//        layer.waitLoad = imageWaitLoad;
-//        layer.maxTiles = maxLayerTiles;
-//        [baseViewC addLayer:layer];
-//        layer.drawPriority = 0;
-//        baseLayer = layer;
-//        screenLabelColor = [UIColor whiteColor];
-//        screenLabelBackColor = [UIColor whiteColor];
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor whiteColor];
-//        vecColor = [UIColor blackColor];
-//        vecWidth = 4.0;
-//    } else if (![baseLayerName compare:kMaplyTestMapBoxSat])
-//    {
-//        self.title = @"MapBox Tiles Satellite - Remote";
-//        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
-//        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
-//        screenLabelColor = [UIColor whiteColor];
-//        screenLabelBackColor = [UIColor whiteColor];
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor whiteColor];
-//        vecColor = [UIColor whiteColor];
-//        vecWidth = 4.0;
-//    } else if (![baseLayerName compare:kMaplyTestMapBoxTerrain])
-//    {
-//        self.title = @"MapBox Tiles Terrain - Remote";
-//        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
-//        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
-//        screenLabelColor = [UIColor whiteColor];
-//        screenLabelBackColor = [UIColor whiteColor];
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor whiteColor];
-//        vecColor = [UIColor blackColor];
-//        vecWidth = 4.0;
-//    } else if (![baseLayerName compare:kMaplyTestMapBoxRegular])
-//    {
-//        self.title = @"MapBox Tiles Regular - Remote";
-//        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
-//        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
-//        screenLabelColor = [UIColor whiteColor];
-//        screenLabelBackColor = [UIColor whiteColor];
-//        labelColor = [UIColor blackColor];
-//        labelBackColor = [UIColor whiteColor];
-//        vecColor = [UIColor blackColor];
-//        vecWidth = 4.0;
-//    } else if (![baseLayerName compare:kMaplyTestQuadTest])
-//    {
+    } else if (![baseLayerName compare:kMaplyTestStamenWatercolor])
+    {
+        self.title = @"Stamen Water Color - Remote";
+        // These are the Stamen Watercolor tiles.
+        // They're beautiful, but the server isn't so great.
+        thisCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",cacheDir];
+        int maxZoom = 10;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/watercolor/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.handleEdges = true;
+        layer.requireElev = requireElev;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        layer.waitLoad = imageWaitLoad;
+        baseLayer = layer;
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor blackColor];
+        vecColor = [UIColor grayColor];
+        vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestOSM])
+    {
+        self.title = @"OpenStreetMap - Remote";
+        // This points to the OpenStreetMap tile set hosted by MapQuest (I think)
+        thisCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
+        int maxZoom = 18;
+        if (zoomLimit != 0 && zoomLimit < maxZoom)
+            maxZoom = zoomLimit;
+        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+        tileSource.cacheDir = thisCacheDir;
+        MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+        layer.drawPriority = 0;
+        layer.handleEdges = true;
+        layer.requireElev = requireElev;
+        layer.waitLoad = imageWaitLoad;
+        layer.maxTiles = maxLayerTiles;
+        [baseViewC addLayer:layer];
+        layer.drawPriority = 0;
+        baseLayer = layer;
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestMapBoxSat])
+    {
+        self.title = @"MapBox Tiles Satellite - Remote";
+        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
+        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor whiteColor];
+        vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestMapBoxTerrain])
+    {
+        self.title = @"MapBox Tiles Terrain - Remote";
+        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zq0f1vuc.json";
+        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesterrain1/",cacheDir];
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestMapBoxRegular])
+    {
+        self.title = @"MapBox Tiles Regular - Remote";
+        jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zswgei2n.json";
+        thisCacheDir = [NSString stringWithFormat:@"%@/mbtilesregular1/",cacheDir];
+        screenLabelColor = [UIColor whiteColor];
+        screenLabelBackColor = [UIColor whiteColor];
+        labelColor = [UIColor blackColor];
+        labelBackColor = [UIColor whiteColor];
+        vecColor = [UIColor blackColor];
+        vecWidth = 4.0;
+    } else if (![baseLayerName compare:kMaplyTestQuadTest])
+    {
+        // Note: Porting
 //        self.title = @"Quad Paging Test Layer";
 //        screenLabelColor = [UIColor whiteColor];
 //        screenLabelBackColor = [UIColor whiteColor];
@@ -852,8 +853,9 @@ static const int NumMegaMarkers = 40000;
 //        [baseViewC addLayer:layer];
 //        layer.drawPriority = 0;
 //        baseLayer = layer;
-//    } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
-//    {
+    } else if (![baseLayerName compare:kMaplyTestQuadTestAnimate])
+    {
+        // Note: Porting
 //        self.title = @"Quad Paging Test Layer (animated)";
 //        screenLabelColor = [UIColor whiteColor];
 //        screenLabelBackColor = [UIColor whiteColor];
@@ -872,57 +874,57 @@ static const int NumMegaMarkers = 40000;
 //        [baseViewC addLayer:layer];
 //        layer.drawPriority = 0;
 //        baseLayer = layer;        
-//    }
-//    
-//    // If we're fetching one of the JSON tile specs, kick that off
-//    if (jsonTileSpec)
-//    {
-//        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
-//        
-//        AFJSONRequestOperation *operation =
-//        [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-//                                                        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
-//         {
-//             // Add a quad earth paging layer based on the tile spec we just fetched
-//             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
-//             tileSource.cacheDir = thisCacheDir;
-//             if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
-//                 tileSource.maxZoom = zoomLimit;
-//             MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-//             layer.handleEdges = true;
-//             layer.waitLoad = imageWaitLoad;
-//             layer.requireElev = requireElev;
-//             layer.maxTiles = maxLayerTiles;
-//             [baseViewC addLayer:layer];
-//             layer.drawPriority = 0;
-//             baseLayer = layer;
-//
-//#ifdef RELOADTEST
-//             [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
-//#endif
-//         }
-//                                                        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
-//         {
-//             NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
-//         }
-//         ];
-//        
-//        [operation start];
-//    }
-//    
-//    // Set up some defaults for display
-//    screenLabelDesc = @{kMaplyTextColor: screenLabelColor,
-//                        //                        kMaplyBackgroundColor: screenLabelBackColor,
-//                        kMaplyFade: @(1.0),
-//                        kMaplyTextOutlineSize: @(1.5),
-//                        kMaplyTextOutlineColor: [UIColor blackColor],
-//                        };
-//    labelDesc = @{kMaplyTextColor: labelColor,
-//                  kMaplyBackgroundColor: labelBackColor,
-//                  kMaplyFade: @(1.0)};
-//    vectorDesc = @{kMaplyColor: vecColor,
-//                   kMaplyVecWidth: @(vecWidth),
-//                   kMaplyFade: @(1.0)};
+    }
+    
+    // If we're fetching one of the JSON tile specs, kick that off
+    if (jsonTileSpec)
+    {
+        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+        
+        AFJSONRequestOperation *operation =
+        [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                                        success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+         {
+             // Add a quad earth paging layer based on the tile spec we just fetched
+             MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:JSON];
+             tileSource.cacheDir = thisCacheDir;
+             if (zoomLimit != 0 && zoomLimit < tileSource.maxZoom)
+                 tileSource.maxZoom = zoomLimit;
+             MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+             layer.handleEdges = true;
+             layer.waitLoad = imageWaitLoad;
+             layer.requireElev = requireElev;
+             layer.maxTiles = maxLayerTiles;
+             [baseViewC addLayer:layer];
+             layer.drawPriority = 0;
+             baseLayer = layer;
+
+#ifdef RELOADTEST
+             [self performSelector:@selector(reloadLayer:) withObject:nil afterDelay:10.0];
+#endif
+         }
+                                                        failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+         {
+             NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+         }
+         ];
+        
+        [operation start];
+    }
+    
+    // Set up some defaults for display
+    screenLabelDesc = @{kMaplyTextColor: screenLabelColor,
+                        //                        kMaplyBackgroundColor: screenLabelBackColor,
+                        kMaplyFade: @(1.0),
+                        kMaplyTextOutlineSize: @(1.5),
+                        kMaplyTextOutlineColor: [UIColor blackColor],
+                        };
+    labelDesc = @{kMaplyTextColor: labelColor,
+                  kMaplyBackgroundColor: labelBackColor,
+                  kMaplyFade: @(1.0)};
+    vectorDesc = @{kMaplyColor: vecColor,
+                   kMaplyVecWidth: @(vecWidth),
+                   kMaplyFade: @(1.0)};
     
 }
 

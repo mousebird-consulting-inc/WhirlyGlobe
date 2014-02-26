@@ -73,7 +73,7 @@ public:
     /// Construct emty
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
-	Texture(const std::string &name,RawData *,bool isPVRTC);
+	Texture(const std::string &name,RawDataRef,bool isPVRTC);
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
@@ -83,7 +83,7 @@ public:
     void setRawData(RawData *rawData,int width,int height);
 	    
     /// Process the data for display based on the format.
-    RawData *processData();
+    RawDataRef processData();
 	
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -110,7 +110,7 @@ public:
 	
 protected:
 	/// Raw texture data
-	RawData *texData;
+	RawDataRef texData;
 	/// Need to know how we're going to load it
 	bool isPVRTC;
     /// If not PVRTC, the format we'll use for the texture

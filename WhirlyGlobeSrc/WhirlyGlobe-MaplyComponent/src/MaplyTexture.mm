@@ -64,7 +64,7 @@ MaplyTextureWrapper::MaplyTextureWrapper(const std::string &name,NSString *baseN
         texNSData = [[NSData alloc] initWithContentsOfFile:path];
         if (!texNSData)
             return;
-        texData = new RawDataWrapper([texNSData bytes],[texNSData length],false);
+        texData = RawDataRef(new RawDataWrapper([texNSData bytes],[texNSData length],false));
     } else {
         // Otherwise load it the normal way
         UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.%@",baseName,ext]];
@@ -75,7 +75,7 @@ MaplyTextureWrapper::MaplyTextureWrapper(const std::string &name,NSString *baseN
                 return;
         }
         texNSData = [image rawDataRetWidth:&width height:&height roundUp:true];
-        texData = new RawDataWrapper([texNSData bytes],[texNSData length],false);
+        texData = RawDataRef(new RawDataWrapper([texNSData bytes],[texNSData length],false));
     }
 }
 
@@ -84,7 +84,7 @@ MaplyTextureWrapper::MaplyTextureWrapper(const std::string &name,UIImage *inImag
 : Texture(name)
 {
     texNSData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
-    texData = new RawDataWrapper([texNSData bytes],[texNSData length],false);
+    texData = RawDataRef(new RawDataWrapper([texNSData bytes],[texNSData length],false));
 }
     
 }
