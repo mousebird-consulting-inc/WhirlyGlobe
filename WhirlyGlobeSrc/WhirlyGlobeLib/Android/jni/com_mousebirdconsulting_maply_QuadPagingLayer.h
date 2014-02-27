@@ -18,10 +18,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_geoBou
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    nativeShutdown
- * Signature: ()V
+ * Signature: (Lcom/mousebirdconsulting/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeShutdown
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
@@ -42,10 +42,10 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    initialise
- * Signature: (Lcom/mousebirdconsulting/maply/CoordSystem;Lcom/mousebirdconsulting/maply/QuadPagingLayer/PagingInterface;)V
+ * Signature: (Lcom/mousebirdconsulting/maply/CoordSystem;Lcom/mousebirdconsulting/maply/QuadPagingLayer/PagingInterface;Lcom/mousebirdconsulting/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_initialise
-  (JNIEnv *, jobject, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
@@ -74,18 +74,18 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    nativeEvalStep
- * Signature: ()Z
+ * Signature: (Lcom/mousebirdconsulting/maply/ChangeSet;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeEvalStep
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer
  * Method:    nativeRefresh
- * Signature: ()Z
+ * Signature: (Lcom/mousebirdconsulting/maply/ChangeSet;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeRefresh
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebirdconsulting_maply_QuadPagingLayer

@@ -87,7 +87,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		maplyControl = inMaplyControl;
 		coordSys = inCoordSys;
 		pagingDelegate = inDelegate;
-		initialise(coordSys,pagingDelegate);
+		ChangeSet changes = new ChangeSet();
+		initialise(coordSys,pagingDelegate,changes);
+		maplyControl.layerThread.addChanges(changes);
 		setSimultaneousFetches(8);
 	}
 	
@@ -128,7 +130,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public void shutdown()
 	{
 		cancelEvalStep();
-		nativeShutdown();
+		ChangeSet changes = new ChangeSet();
+		nativeShutdown(changes);
+		layerThread.addChanges(changes);
 		super.shutdown();
 	}
 
@@ -176,8 +180,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		evalStepRun = null;
 		
 		// Note: Check that the renderer is set up and such.
-		
-		boolean didSomething = nativeEvalStep();
+		ChangeSet changes = new ChangeSet();
+		boolean didSomething = nativeEvalStep(changes);
+		layerThread.addChanges(changes);
 		if (didSomething)
 			scheduleEvalStep();
 	}
@@ -204,7 +209,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			return;
 		}
 		
-		boolean doEvalStep = nativeRefresh();
+		ChangeSet changes = new ChangeSet();
+		boolean doEvalStep = nativeRefresh(changes);
+		layerThread.addChanges(changes);
 		if (doEvalStep)
 			scheduleEvalStep();
 	}
@@ -514,7 +521,7 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		maplyControl.disableObjects(toDisable);
 	}
 	
-	native void nativeShutdown();
+	native void nativeShutdown(ChangeSet changes);
 	/**
 	 * We can only have a certain number of fetches going at once.
 	 * We'll create this number of threads (in some cases) based
@@ -527,14 +534,14 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystem coordSys,PagingInterface pagingDelegate);
+	native void initialise(CoordSystem coordSys,PagingInterface pagingDelegate,ChangeSet changes);
 	native void dispose();
 	private long nativeHandle;
 
 	native void nativeStartLayer(MapScene scene,MaplyRenderer renderer,Point2d ll,Point2d ur,int minZoom,int maxZoom);
 	native void nativeViewUpdate(ViewState viewState);	
-	native boolean nativeEvalStep();
-	native boolean nativeRefresh();
+	native boolean nativeEvalStep(ChangeSet changes);
+	native boolean nativeRefresh(ChangeSet changes);
 	native void nativeTileDidLoad(int x,int y,int level);
 	native void nativeTileDidNotLoad(int x,int y,int level);
 }

@@ -107,6 +107,11 @@ public:
     	return maxZoom;
     }
 
+    // Shutdown for QuadDataStructure
+    virtual void shutdown()
+    {
+    }
+
     /// Return an importance value for the given tile
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
     {
@@ -221,28 +226,33 @@ public:
         }
     }
 
-    /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-    virtual void shutdown()
-    {
-    	if (control)
-    	{
-    		control->shutdown();
-    		delete control;
-    	}
-    }
-
     /** QuadLoader Calls **/
     virtual bool isReady()
     {
     	return (numFetches < simultaneousFetches);
     }
 
-    virtual void startUpdates()
+    virtual void startUpdates(ChangeSet &changes)
     {
     }
 
-    virtual void endUpdates()
+    virtual void endUpdates(ChangeSet &changes)
     {
+    }
+
+    virtual void adapterWakeUp()
+    {
+    }
+
+    /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
+    virtual void shutdownLayer(ChangeSet &changes)
+    {
+    	if (control)
+    	{
+    		control->shutdown(changes);
+
+    		delete control;
+    	}
     }
 
     // Call loadTile on the java side
@@ -295,12 +305,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_initialise
-  (JNIEnv *env, jobject obj, jobject coordSysObj, jobject delegateObj)
+  (JNIEnv *env, jobject obj, jobject coordSysObj, jobject delegateObj, jobject changesObj)
 {
 	try
 	{
 		CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
-		if (!coordSys)
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		if (!coordSys || !changes)
 			return;
 
 		QuadPagingLayerAdapter *adapter = new QuadPagingLayerAdapter(coordSys,delegateObj);
@@ -406,16 +417,17 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 }
 
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeShutdown
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
 	{
 		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
 		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
-		if (!adapter)
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		if (!adapter || !changes)
 			return;
 
-		adapter->getController()->shutdown();
+		adapter->getController()->shutdown(*changes);
 	}
 	catch (...)
 	{
@@ -449,12 +461,13 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_native
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeEvalStep
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
 	{
 		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
-		if (!adapter)
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		if (!adapter || !changes)
 			return false;
 
 		adapter->env = env;
@@ -465,7 +478,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 		adapter->tileUnloadJava = env->GetMethodID(theClass,"unloadTile","(III)V");
 
 		// Note: Not passing in frame boundary info
-		return adapter->getController()->evalStep(0.0,0.0,0.0);
+		return adapter->getController()->evalStep(0.0,0.0,0.0,*changes);
 	}
 	catch (...)
 	{
@@ -474,18 +487,19 @@ JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_na
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebirdconsulting_maply_QuadPagingLayer_nativeRefresh
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
 	{
 		QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
-		if (!adapter)
+		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
+		if (!adapter || !changes)
 			return false;
 
 		if (adapter->getController()->getWaitForLocalLoads())
 			return false;
 
-		adapter->getController()->refresh();
+		adapter->getController()->refresh(*changes);
 		return true;
 	}
 	catch (...)
