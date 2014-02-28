@@ -232,7 +232,7 @@ bool MapnikConfig::Filter::Comparison::isValid()
 
 void MapnikConfig::Filter::Comparison::setFilter(const std::string &filterText)
 {
-    exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|>|<|<=|>=|&gt;|&lt;|&lt;&gt;|!=)\\s(\'?\\w*\'?)\\)"));
+    exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|>|<|<=|>=|&gt;|&lt;|&lt;&gt;|!=)\\s(\'.*\'?)\\)"));
     boost::smatch what;
     if (boost::regex_match(filterText, what, *exp, boost::match_default))
     {
@@ -317,6 +317,7 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
     catch (...)
     {
         exp.reset();
+        throw (std::string)"Could not create filter.  May be too complex:\n" + filterText.c_str();
     }
 }
 
@@ -502,245 +503,258 @@ MapnikConfig::~MapnikConfig()
 
 bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
 {
-    // Top level Map element
-    XMLElement *mapEl = doc->FirstChildElement("Map");
-    if (!mapEl)
+    try
     {
-        error = "Missing Map node";
-        return false;
-    }
-    
-    // Parameters, which we're not parsing at the moment
-    paramEl = mapEl->FirstChildElement("Parameters");
-    if (!paramEl)
-    {
-        error = "Expecting Parameters node";
-        return false;
-    }
-    
-    // Now for the styles
-    for (XMLElement *styleEl = mapEl->FirstChildElement("Style");
-         styleEl; styleEl = styleEl->NextSiblingElement("Style"))
-    {
-        Style style;
-
-        // Name
-        style.name = styleEl->Attribute("name");
-        if (style.name.length() == 0)
+        // Top level Map element
+        XMLElement *mapEl = doc->FirstChildElement("Map");
+        if (!mapEl)
         {
-            error = "Expecting name for style";
-            return false;
-        }
-
-        // Filter mode
-        const char* filter = styleEl->Attribute("filter-mode");
-        if (!filter)
-        {
-            error = "Expecting filter-mode for style " + style.name;
-            return false;
-        }
-        if (!strcmp(filter,"first"))
-            style.filterMode = FilterFirst;
-        else if (!strcmp(filter,"all"))
-            style.filterMode = FilterAll;
-        else {
-            error = "Expecting 'all' or 'first' for filter-mode in style " + style.name;
+            error = "Missing Map node";
             return false;
         }
         
-        // Now for the rules
-        int ruleCount = 0;
-        for (XMLElement *ruleEl = styleEl->FirstChildElement("Rule");
-             ruleEl; ruleEl = ruleEl->NextSiblingElement("Rule"))
+        // Parameters, which we're not parsing at the moment
+        paramEl = mapEl->FirstChildElement("Parameters");
+        if (!paramEl)
         {
-            Rule rule;
-            
-            // Min and max scale (optional)
-            XMLElement *minScale = ruleEl->FirstChildElement("MinScaleDenominator");
-            if (minScale)
-                rule.minScale = std::stoi(minScale->GetText());
-            XMLElement *maxScale = ruleEl->FirstChildElement("MaxScaleDenominator");
-            if (maxScale)
-                rule.maxScale = std::stoi(maxScale->GetText());
-            
-            // Filter (optional)
-            XMLElement *filterEl = ruleEl->FirstChildElement("Filter");
-            if (filterEl)
+            error = "Expecting Parameters node";
+            return false;
+        }
+        
+        // Now for the styles
+        for (XMLElement *styleEl = mapEl->FirstChildElement("Style");
+             styleEl; styleEl = styleEl->NextSiblingElement("Style"))
+        {
+            Style style;
+
+            // Name
+            style.name = styleEl->Attribute("name");
+            if (style.name.length() == 0)
             {
-                std::string filterText = filterEl->GetText();
-                rule.filter.setFilter(filterText);
-                // Note: debugging
-//                if (!rule.filter.isValid())
-//                {
-//                    error = "Could not parse filter (" + filterText + ") in rule in style " + style.name;
-//                    return false;
-//                }
+                error = "Expecting name for style";
+                return false;
             }
 
-            // Work through the symbolizers
-            int symCount = 0;
-            for (XMLElement *symEl = ruleEl->FirstChildElement();
-                 symEl; symEl = symEl->NextSiblingElement())
+            // Filter mode
+            const char* filter = styleEl->Attribute("filter-mode");
+            if (!filter)
             {
-                std::string name = symEl->Name();
-                SymbolDataType dataType = SymbolDataUnknown;
-                SymbolizerType symType = UnknownSymbolizer;
-                if (!name.compare("MarkersSymbolizer"))
-                {
-                    dataType = SymbolDataPoint;
-                    symType = MarkersSymbolizer;
-                } else if (!name.compare("LineSymbolizer"))
-                {
-                    dataType = SymbolDataLinear;
-                    symType = LineSymbolizer;
-                } else if (!name.compare("TextSymbolizer"))
-                {
-                    dataType = SymbolDataPoint;
-                    symType = TextSymbolizer;
-                } else if (!name.compare("PolygonSymbolizer"))
-                {
-                    dataType = SymbolDataAreal;
-                    symType = PolygonSymbolizer;
-                }
-                
-                if (symType != UnknownSymbolizer)
-                {
-                    int whichSym = (int)symbolizerTable.symbolizers.size();
-                    // Set up the symbolizer
-                    Symbolizer sym;
-                    sym.dataType = dataType;
-                    sym.symType = symType;
-                    sym.name = style.name + "_rule" + std::to_string(ruleCount) + "_" + std::to_string(symCount);
-                    sym.xmlEl = symEl;
-                    sym.geomType = Symbolizer::TileGeomAdd;
-                    sym.minScaleDenom = rule.minScale;
-                    sym.maxScaleDenom = rule.maxScale;
-//                    // If the min scale isn't set for this rule, then the geometry sticks around
-//                    if (rule.minScale == -1)
-//                        sym.geomType = Symbolizer::TileGeomAdd;
-//                    else
-//                        sym.geomType = Symbolizer::TileGeomReplace;
-                    symbolizerTable.symbolizers.push_back(sym);
-                    rule.symbolizers.push_back(whichSym);
-                    
-                    // Look for attributes we'll want to keep
-                    const char *bodyStr = symEl->GetText();
-                    if (bodyStr)
-                    {
-                        boost::regex regex("\\[(\\w+)\\]");
-                        boost::smatch what;
-                        if (boost::regex_match((std::string)bodyStr, what, regex, boost::match_default))
-                        {
-                            if (what.size() == 2)
-                            {
-                                std::string attrName = what[1];
-                                rule.attrs.insert(attrName);
-                            } else {
-                                error = (std::string)"Confusing format in body for symbolizer in style " + style.name;
-                                return false;
-                            }
-                        } else {
-                            error = (std::string)"Could not parse body (" + bodyStr + ") of symbolizer in style " + style.name;
-                            return false;
-                        }
-                    }
-                    symCount++;
-                } else if (strstr(name.c_str(),"Symbolizer"))
-                {
-                    error = "Unknown symbolizer type " + name + " in rule in style " + style.name;
-                    return false;
-                }
+                error = "Expecting filter-mode for style " + style.name;
+                return false;
             }
-            
-            ruleCount++;
-            style.rules.push_back(rule);
-        }
-        
-        styles.push_back(style);
-    }
-    
-    // And the layers
-    for (XMLElement *layerEl = mapEl->FirstChildElement("Layer");
-         layerEl; layerEl = layerEl->NextSiblingElement("Layer"))
-    {
-        Layer layer;
-        
-        // Name
-        layer.name = layerEl->Attribute("name");
-        if (layer.name.length() == 0)
-        {
-            error = "Expecting name for layer";
-            return false;
-        }
-        
-        // SRS
-        layer.srs = layerEl->Attribute("srs");
-        
-        // References to styles
-        for (XMLElement *styleRefEl = layerEl->FirstChildElement("StyleName");
-             styleRefEl; styleRefEl = styleRefEl->NextSiblingElement("StyleName"))
-            layer.styleNames.push_back(styleRefEl->GetText());
-        
-        // Data sources
-        for (XMLElement *dataSourceEl = layerEl->FirstChildElement("Datasource");
-             dataSourceEl; dataSourceEl = dataSourceEl->NextSiblingElement("Datasource"))
-        {
-            // Two parameters, one with the file name and one with the data type
-            std::string dataType,fileName,dbname,table,idStr;
-            for (XMLElement *paramEl = dataSourceEl->FirstChildElement("Parameter");
-                 paramEl; paramEl = paramEl->NextSiblingElement("Parameter"))
-            {
-                std::string name = paramEl->Attribute("name");
-                if (!name.compare("file"))
-                {
-                    fileName = paramEl->GetText();
-                } else if (!name.compare("type"))
-                {
-                    dataType = paramEl->GetText();
-                } else if (!name.compare("dbname"))
-                {
-                    dbname = paramEl->GetText();
-                } else if (!name.compare("table"))
-                {
-                    table = paramEl->GetText();
-                } else if (!name.compare("id"))
-                {
-                    idStr = paramEl->GetText();
-                } else
-                {
-                    // Note: Tolerant of fields we don't know here
-//                    error = "Unknown name " + name + " for data source paramater in layer " + layer.name;
-//                    return false;
-                }
-            }
-            
-            DataSource *dataSource = NULL;
-            if (!dataType.compare("shape"))
-            {
-                ShapefileDataSource *shapeDataSource = new ShapefileDataSource(fileName);
-                dataSource = shapeDataSource;
-            } else if (!dataType.compare("postgis"))
-            {
-                PostGISDataSource *pgDataSource = new PostGISDataSource();
-                pgDataSource->dbname = dbname;
-                pgDataSource->table = table;
-                pgDataSource->idStr = idStr;
-                dataSource = pgDataSource;
-            } else {
-                error = "Data type: " + dataType + " is unsupported for data sources in layer " + layer.name;
+            if (!strcmp(filter,"first"))
+                style.filterMode = FilterFirst;
+            else if (!strcmp(filter,"all"))
+                style.filterMode = FilterAll;
+            else {
+                error = "Expecting 'all' or 'first' for filter-mode in style " + style.name;
                 return false;
             }
             
-            layer.dataSources.push_back(DataSourceRef(dataSource));
+            // Now for the rules
+            int ruleCount = 0;
+            for (XMLElement *ruleEl = styleEl->FirstChildElement("Rule");
+                 ruleEl; ruleEl = ruleEl->NextSiblingElement("Rule"))
+            {
+                Rule rule;
+                
+                // Min and max scale (optional)
+                XMLElement *minScale = ruleEl->FirstChildElement("MinScaleDenominator");
+                if (minScale)
+                    rule.minScale = std::stoi(minScale->GetText());
+                XMLElement *maxScale = ruleEl->FirstChildElement("MaxScaleDenominator");
+                if (maxScale)
+                    rule.maxScale = std::stoi(maxScale->GetText());
+                
+                // Filter (optional)
+                XMLElement *filterEl = ruleEl->FirstChildElement("Filter");
+                if (filterEl)
+                {
+                    std::string filterText = filterEl->GetText();
+                    rule.filter.setFilter(filterText);
+                    // Note: debugging
+    //                if (!rule.filter.isValid())
+    //                {
+    //                    error = "Could not parse filter (" + filterText + ") in rule in style " + style.name;
+    //                    return false;
+    //                }
+                }
+
+                // Work through the symbolizers
+                int symCount = 0;
+                for (XMLElement *symEl = ruleEl->FirstChildElement();
+                     symEl; symEl = symEl->NextSiblingElement())
+                {
+                    std::string name = symEl->Name();
+                    SymbolDataType dataType = SymbolDataUnknown;
+                    SymbolizerType symType = UnknownSymbolizer;
+                    if (!name.compare("MarkersSymbolizer"))
+                    {
+                        dataType = SymbolDataPoint;
+                        symType = MarkersSymbolizer;
+                    } else if (!name.compare("LineSymbolizer"))
+                    {
+                        dataType = SymbolDataLinear;
+                        symType = LineSymbolizer;
+                    } else if (!name.compare("TextSymbolizer"))
+                    {
+                        dataType = SymbolDataPoint;
+                        symType = TextSymbolizer;
+                    } else if (!name.compare("PolygonSymbolizer"))
+                    {
+                        dataType = SymbolDataAreal;
+                        symType = PolygonSymbolizer;
+                    }
+                    
+                    if (symType != UnknownSymbolizer)
+                    {
+                        int whichSym = (int)symbolizerTable.symbolizers.size();
+                        // Set up the symbolizer
+                        Symbolizer sym;
+                        sym.dataType = dataType;
+                        sym.symType = symType;
+                        sym.name = style.name + "_rule" + std::to_string(ruleCount) + "_" + std::to_string(symCount);
+                        sym.xmlEl = symEl;
+                        sym.geomType = Symbolizer::TileGeomAdd;
+                        sym.minScaleDenom = rule.minScale;
+                        sym.maxScaleDenom = rule.maxScale;
+    //                    // If the min scale isn't set for this rule, then the geometry sticks around
+    //                    if (rule.minScale == -1)
+    //                        sym.geomType = Symbolizer::TileGeomAdd;
+    //                    else
+    //                        sym.geomType = Symbolizer::TileGeomReplace;
+                        symbolizerTable.symbolizers.push_back(sym);
+                        rule.symbolizers.push_back(whichSym);
+                        
+                        // Look for attributes we'll want to keep
+                        const char *bodyStr = symEl->GetText();
+                        if (bodyStr)
+                        {
+                            boost::regex regex("\\[(\\w+)\\]");
+                            boost::smatch what;
+                            if (boost::regex_match((std::string)bodyStr, what, regex, boost::match_default))
+                            {
+                                if (what.size() == 2)
+                                {
+                                    std::string attrName = what[1];
+                                    rule.attrs.insert(attrName);
+                                } else {
+                                    error = (std::string)"Confusing format in body for symbolizer in style " + style.name;
+                                    return false;
+                                }
+                            } else {
+                                error = (std::string)"Could not parse body (" + bodyStr + ") of symbolizer in style " + style.name;
+                                return false;
+                            }
+                        }
+                        symCount++;
+                    } else if (strstr(name.c_str(),"Symbolizer"))
+                    {
+                        error = "Unknown symbolizer type " + name + " in rule in style " + style.name;
+                        return false;
+                    }
+                }
+                
+                ruleCount++;
+                style.rules.push_back(rule);
+            }
+            
+            styles.push_back(style);
         }
         
-        if (layer.dataSources.size() != 1)
+        // And the layers
+        for (XMLElement *layerEl = mapEl->FirstChildElement("Layer");
+             layerEl; layerEl = layerEl->NextSiblingElement("Layer"))
         {
-            error = "Expecting exactly one data source per layer: " + layer.name;
-            return false;
+            Layer layer;
+            
+            // Name
+            layer.name = layerEl->Attribute("name");
+            if (layer.name.length() == 0)
+            {
+                error = "Expecting name for layer";
+                return false;
+            }
+            
+            // SRS
+            layer.srs = layerEl->Attribute("srs");
+            
+            // References to styles
+            for (XMLElement *styleRefEl = layerEl->FirstChildElement("StyleName");
+                 styleRefEl; styleRefEl = styleRefEl->NextSiblingElement("StyleName"))
+                layer.styleNames.push_back(styleRefEl->GetText());
+            
+            // Data sources
+            for (XMLElement *dataSourceEl = layerEl->FirstChildElement("Datasource");
+                 dataSourceEl; dataSourceEl = dataSourceEl->NextSiblingElement("Datasource"))
+            {
+                // Two parameters, one with the file name and one with the data type
+                std::string dataType,fileName,dbname,table,idStr;
+                for (XMLElement *paramEl = dataSourceEl->FirstChildElement("Parameter");
+                     paramEl; paramEl = paramEl->NextSiblingElement("Parameter"))
+                {
+                    std::string name = paramEl->Attribute("name");
+                    if (!name.compare("file"))
+                    {
+                        fileName = paramEl->GetText();
+                    } else if (!name.compare("type"))
+                    {
+                        dataType = paramEl->GetText();
+                    } else if (!name.compare("dbname"))
+                    {
+                        dbname = paramEl->GetText();
+                    } else if (!name.compare("table"))
+                    {
+                        table = paramEl->GetText();
+                    } else if (!name.compare("id"))
+                    {
+                        idStr = paramEl->GetText();
+                    } else
+                    {
+                        // Note: Tolerant of fields we don't know here
+    //                    error = "Unknown name " + name + " for data source paramater in layer " + layer.name;
+    //                    return false;
+                    }
+                }
+                
+                DataSource *dataSource = NULL;
+                if (!dataType.compare("shape"))
+                {
+                    ShapefileDataSource *shapeDataSource = new ShapefileDataSource(fileName);
+                    dataSource = shapeDataSource;
+                } else if (!dataType.compare("postgis"))
+                {
+                    PostGISDataSource *pgDataSource = new PostGISDataSource();
+                    pgDataSource->dbname = dbname;
+                    pgDataSource->table = table;
+                    pgDataSource->idStr = idStr;
+                    dataSource = pgDataSource;
+                } else {
+                    error = "Data type: " + dataType + " is unsupported for data sources in layer " + layer.name;
+                    return false;
+                }
+                
+                layer.dataSources.push_back(DataSourceRef(dataSource));
+            }
+            
+            if (layer.dataSources.size() != 1)
+            {
+                error = "Expecting exactly one data source per layer: " + layer.name;
+                return false;
+            }
+            
+            layers.push_back(layer);
         }
-        
-        layers.push_back(layer);
+    }
+    catch (const std::string &errStr)
+    {
+        error = errStr;
+        return false;
+    }
+    catch (...)
+    {
+        error = "Unknown problem";
+        return false;
     }
     
     return true;
