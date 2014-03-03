@@ -413,6 +413,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)clearAnnotations;
 
+/** @brief Return an array of active annotations.  Don't modify these.
+  */
+- (NSArray *)annotations;
+
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
 
