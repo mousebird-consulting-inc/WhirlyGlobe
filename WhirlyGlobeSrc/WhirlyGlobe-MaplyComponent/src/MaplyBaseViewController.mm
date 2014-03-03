@@ -958,4 +958,12 @@ static const float PerfOutputDelay = 15.0;
     return target.image;
 }
 
+- (float)currentMapZoom:(MaplyCoordinate)coordinate
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
+}
+
 @end
