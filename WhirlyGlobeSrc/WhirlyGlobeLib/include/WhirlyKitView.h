@@ -97,6 +97,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Calculate the height for a given scale.  Probably for minVis/maxVis
 - (double)heightForMapScale:(double)scale frame:(WhirlyKit::Point2f &)frameSize;
 
+/// Calculate map zoom
+- (double)currentMapZoom:(WhirlyKit::Point2f &)frameSize latitude:(double)latitude;
+
 /// Add a watcher delegate.  Call this on the main thread.
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;
 
