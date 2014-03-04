@@ -19,6 +19,8 @@
  */
 
 #import "GlobeMath.h"
+// Note: This works around an Android boost problem
+#define _LITTLE_ENDIAN
 #import <boost/math/special_functions/fpclassify.hpp>
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"

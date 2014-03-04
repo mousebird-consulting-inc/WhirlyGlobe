@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.microedition.khronos.egl.*;
+import javax.microedition.khronos.opengles.GL10;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -102,11 +103,21 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	void setRenderer(MaplyRenderer inRenderer)
 	{
 		renderer = inRenderer;
-
+		
 		EGL10 egl = (EGL10) EGLContext.getEGL();
 		int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
 		context = egl.eglCreateContext(renderer.display,renderer.config,renderer.context, attrib_list);
-		surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, attrib_list);
+		int[] surface_attrs =
+			{
+			    EGL10.EGL_WIDTH, 32,
+			    EGL10.EGL_HEIGHT, 32,
+//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+			    EGL10.EGL_NONE
+			};
+		surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, surface_attrs);
 		
 		// This will release the very first task which sets the right context
 		Handler handler = new Handler(Looper.getMainLooper());
