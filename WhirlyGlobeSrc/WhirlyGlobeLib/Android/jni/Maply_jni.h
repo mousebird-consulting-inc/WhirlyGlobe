@@ -244,4 +244,8 @@ typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::ViewState> ViewStateClassInfo;
 
+// The shared JNIEnv set in the ::render call
+extern JNIEnv *maplyCurrentEnv;
+
+
 #endif /* Maply_JNI_h_ */

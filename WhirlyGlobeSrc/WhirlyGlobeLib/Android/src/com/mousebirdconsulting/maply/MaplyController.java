@@ -14,6 +14,7 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
+import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
@@ -191,7 +192,8 @@ public class MaplyController implements View.OnTouchListener
 	}
 	
 	// Listening for the rest of the interesting events
-	private class GestureListener implements GestureDetector.OnGestureListener
+	private class GestureListener implements GestureDetector.OnGestureListener,
+				GestureDetector.OnDoubleTapListener
 	{
 		MaplyController maplyControl;
 		public boolean valid = false;
@@ -248,7 +250,7 @@ public class MaplyController implements View.OnTouchListener
 //			Log.d("Maply","Fling");
 			return false;
 		}
-
+		
 		@Override
 		public void onLongPress(MotionEvent e) 
 		{
@@ -266,6 +268,29 @@ public class MaplyController implements View.OnTouchListener
 		{
 //			Log.d("Maply","Single Tap Up");
 			return false;
+		}
+
+		@Override
+		public boolean onDoubleTapEvent(MotionEvent e) 
+		{
+//			Log.d("Maply","Double tap update");
+			return true;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		// Zoom in on double tap
+		@Override
+		public boolean onDoubleTap(MotionEvent e) 
+		{
+			Point3d loc = mapView.getLoc();
+			loc.setValue(loc.getX(), loc.getY(), loc.getZ()/2.0);
+			mapView.setLoc(loc);
+			return true;
 		}		
 	}
 	

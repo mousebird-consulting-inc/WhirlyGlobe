@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.microedition.khronos.egl.*;
-import javax.microedition.khronos.opengles.GL10;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -156,7 +155,7 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	 */
 	void addChanges(ChangeSet changes)
 	{
-		// Note: We should sit one these for a while
+		// Note: We should sit on these for a while
 		scene.addChanges(changes);
 	}
 	

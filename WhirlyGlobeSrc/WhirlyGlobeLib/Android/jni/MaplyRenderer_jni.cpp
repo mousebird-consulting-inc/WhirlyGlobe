@@ -12,6 +12,10 @@
 
 using namespace WhirlyKit;
 
+// There are callbacks deep within the renderer.
+// Some of those need to call out to
+JNIEnv *maplyCurrentEnv = NULL;
+
 class MaplySceneRenderer : public SceneRendererES2
 {
 public:
@@ -192,7 +196,9 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_MaplyRenderer_render
 		if (!renderer)
 			return;
 
+		maplyCurrentEnv = env;
 		renderer->render();
+		maplyCurrentEnv = NULL;
 	}
 	catch (...)
 	{

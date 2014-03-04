@@ -24,7 +24,7 @@ public class MainActivity extends Activity
     	
 		// Wait for the debugger to catch up
     	try {
-			Thread.sleep(5000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
