@@ -270,7 +270,8 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 #if TARGET_IPHONE_SIMULATOR
 static const bool MainThreadMerge = true;
 #else
-static const bool MainThreadMerge = false;
+// Note: Porting
+static const bool MainThreadMerge = true;
 #endif
     
 bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels)

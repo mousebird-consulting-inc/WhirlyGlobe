@@ -3,9 +3,12 @@ package com.mousebirdconsulting.maply;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.microedition.khronos.egl.*;
+
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.util.Log;
 
 /**
  * The layer thread runs tasks we want off the UI thread, but still need
@@ -24,6 +27,9 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	MaplyRenderer renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
+	// A unique context for this thread
+	EGLContext context = null;
+	EGLSurface surface = null;
 
 	/**
 	 * Objects that want to be called when the view updates its position
@@ -74,15 +80,35 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 			{
 				startLock.lock();
 				startLock.unlock();
+
+				try
+				{
+					EGL10 egl = (EGL10) EGLContext.getEGL();
+					if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+						Log.i("Maply","Failed to make current context in layer thread.");
+				}
+				catch (Exception e)
+				{
+					Log.i("Maply","Failed to make current context in layer thread.");
+				}
 			}
 		});
 	}
-
+	
+	// Note: Why isn't this in EGL10?
+	private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+	
 	// Setting the renderer kicks off activity
 	void setRenderer(MaplyRenderer inRenderer)
 	{
 		renderer = inRenderer;
-		// We're probably being called on the rendering thread here
+
+		EGL10 egl = (EGL10) EGLContext.getEGL();
+		int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+		context = egl.eglCreateContext(renderer.display,renderer.config,renderer.context, attrib_list);
+		surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, attrib_list);
+		
+		// This will release the very first task which sets the right context
 		Handler handler = new Handler(Looper.getMainLooper());
 		handler.post(new Runnable()
 		{

@@ -1,9 +1,9 @@
 package com.mousebirdconsulting.maply;
 
-import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.egl.*;
+import javax.microedition.khronos.opengles.*;
 
 import android.opengl.GLSurfaceView.*;
-import javax.microedition.khronos.egl.EGLConfig;
 
 /**
  * This is an internal class used to talk to the OpenGL ES surface.
@@ -31,6 +31,7 @@ class RendererWrapper implements Renderer
 		maplyRender = new MaplyRenderer();
   		maplyRender.setScene(mapScene);
 		maplyRender.setView(mapView);
+		maplyRender.setConfig(config);
 		mapControl.surfaceCreated(this);
 	}
 	

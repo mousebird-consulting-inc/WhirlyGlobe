@@ -102,8 +102,9 @@ GL_APICALL GLboolean GL_APIENTRY glUnmapBufferOES (GLenum target)
 #else
 
 // On ios we have both
+// Note: Debugging
 bool hasVertexArraySupport = false;
-bool hasMapBufferSupport = true;
+bool hasMapBufferSupport = false;
 
 #endif
 

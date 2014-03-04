@@ -38,7 +38,11 @@ public class MainActivity extends Activity
 //    	test.start();
     	    	
     	// Display remote OSM vector tiles
-    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
+//    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
+//    	test.start();
+    	
+    	// A remote basemap
+    	TestRemoteImageTiles test = new TestRemoteImageTiles(this,mapControl);
     	test.start();
     	
         super.onCreate(savedInstanceState);

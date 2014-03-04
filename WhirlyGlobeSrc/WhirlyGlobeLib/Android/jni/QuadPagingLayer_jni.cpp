@@ -46,6 +46,7 @@ public:
 	QuadDisplayController *getController() { return control; }
 	float shortCircuitImportance;
 
+	// Called to start the layer
 	void start(Scene *inScene,SceneRendererES *inRenderer,const Point2d &inLL,const Point2d &inUR,int inMinZoom,int inMaxZoom)
 	{
 		renderer = inRenderer;
@@ -252,6 +253,7 @@ public:
     		control->shutdown(changes);
 
     		delete control;
+    		control = NULL;
     	}
     }
 

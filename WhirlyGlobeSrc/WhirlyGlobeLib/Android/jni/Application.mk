@@ -3,7 +3,6 @@ APP_CPPFLAGS += -std=c++11
 APP_CPPFLAGS += -frtti
 APP_CPPFLAGS += -fexceptions
 APP_STL := gnustl_static
-APP_CPPFLAGS += -O3
 APP_ABI := x86
-//APP_CPPFLAGS += -g
+APP_CPPFLAGS += -g
 NDK_DEBUG=1

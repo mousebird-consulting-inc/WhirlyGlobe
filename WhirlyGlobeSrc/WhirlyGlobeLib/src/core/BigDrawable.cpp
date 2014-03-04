@@ -253,10 +253,14 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
         
     // Set up a VAO for this buffer, if there isn't one
-    if (theBuffer.vertexArrayObj == 0)
+    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+    if (!hasVertexArraySupport || theBuffer.vertexArrayObj == 0)
     {
-        glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
-        glBindVertexArrayOES(theBuffer.vertexArrayObj);
+        if (hasVertexArraySupport)
+        {
+            glGenVertexArraysOES(1,&theBuffer.vertexArrayObj);
+            glBindVertexArrayOES(theBuffer.vertexArrayObj);
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
@@ -268,7 +272,6 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
             glEnableVertexAttribArray ( vertAttr->index );
         }
         
-        const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
             progAttrs[ii] = NULL;
@@ -287,20 +290,24 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
             }
         }
         
-        glBindVertexArrayOES(0);
+        if (hasVertexArraySupport)
+            glBindVertexArrayOES(0);
         
         // Let a subclass set up their own VAO state
         setupAdditionalVAO(prog,theBuffer.vertexArrayObj);
 
-        // Tear it all down
-        if (vertAttr)
-            glDisableVertexAttribArray(vertAttr->index);
-        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-            if (progAttrs[ii])
-                glDisableVertexAttribArray(progAttrs[ii]->index);
-        
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        if (hasVertexArraySupport)
+        {
+            // Tear it all down
+            if (vertAttr)
+                glDisableVertexAttribArray(vertAttr->index);
+            for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+                if (progAttrs[ii])
+                    glDisableVertexAttribArray(progAttrs[ii]->index);
+            
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        }
     }
     
     // For the program attributes that we're not filling in, we need to provide defaults
@@ -313,9 +320,11 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Draw it
-    glBindVertexArrayOES(theBuffer.vertexArrayObj);
+    if (hasVertexArraySupport)
+    	glBindVertexArrayOES(theBuffer.vertexArrayObj);
     glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
-    glBindVertexArrayOES(0);
+    if (hasVertexArraySupport)
+    	glBindVertexArrayOES(0);
     
     // Unbind any texture
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
@@ -324,6 +333,19 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
             frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
+    
+    // Tear it all down
+    if (!hasVertexArraySupport)
+    {
+        if (vertAttr)
+            glDisableVertexAttribArray(vertAttr->index);
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (progAttrs[ii])
+                glDisableVertexAttribArray(progAttrs[ii]->index);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    }
 }
     
 SimpleIdentity BigDrawable::addRegion(RawDataRef vertData,int &vertPos,RawDataRef elementData,bool enabled)
@@ -546,24 +568,39 @@ void BigDrawable::executeFlush(int whichBuffer)
 
     // Redo the entire element buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
-    GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    GLubyte *elBufPtr = elBuffer;
     int elBufferSize = 0;
-    for (ElementChunkSet::iterator it = elementChunks.begin();
-         it != elementChunks.end(); ++it)
-        if (it->enabled)
+    if (hasMapBufferSupport)
     {
-        size_t len = it->elementData->getLen();
-        memcpy(elBufPtr, it->elementData->getRawData(), len);
-        elBufPtr += len;
-        elBufferSize += len;
+        GLubyte *elBuffer = (GLubyte *)glMapBufferOES(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+        GLubyte *elBufPtr = elBuffer;
+        for (ElementChunkSet::iterator it = elementChunks.begin();
+             it != elementChunks.end(); ++it)
+            if (it->enabled)
+        {
+            size_t len = it->elementData->getLen();
+            memcpy(elBufPtr, it->elementData->getRawData(), len);
+            elBufPtr += len;
+            elBufferSize += len;
+        }
+        if (elBufPtr - elBuffer > numElementBytes)
+        {
+    //        NSLog(@"Exceeded element buffer size");
+        }
+        glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
+    } else {
+        // Copy the data in with subData calls
+        for (ElementChunkSet::iterator it = elementChunks.begin();
+             it != elementChunks.end(); ++it)
+            if (it->enabled)
+            {
+                size_t len = it->elementData->getLen();
+                glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, elBufferSize, len, it->elementData->getRawData());
+                elBufferSize += len;
+            }
+        
     }
-    if (elBufPtr - elBuffer > numElementBytes)
-    {
-//        NSLog(@"Exceeded element buffer size");
-    }
-    glUnmapBufferOES(GL_ELEMENT_ARRAY_BUFFER);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
     theBuffer.numElement = elBufferSize / singleElementSize;
 }
     
