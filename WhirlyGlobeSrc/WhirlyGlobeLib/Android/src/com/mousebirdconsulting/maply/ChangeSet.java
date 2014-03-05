@@ -21,7 +21,11 @@ class ChangeSet
 	
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);
-
+	
+	// Merge a new set of changes in at the end
+	// This clears the changes in the ChangeSet passed in
+	public native void merge(ChangeSet changes);
+	
 	static
 	{
 		nativeInit();

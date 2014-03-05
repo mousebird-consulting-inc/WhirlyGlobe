@@ -148,15 +148,33 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 	}
 	
 	// Note: Need a removeLayer()
+	
+	ChangeSet changes = new ChangeSet();
+	Handler changeHandler = null;
 
 	/**
 	 * Add a set of change requests to the scene
 	 * @param changes Change requests to process.
 	 */
-	void addChanges(ChangeSet changes)
+	void addChanges(ChangeSet newChanges)
 	{
-		// Note: We should sit on these for a while
-		scene.addChanges(changes);
+		synchronized(changes)
+		{
+			changes.merge(newChanges);
+			// Schedule a merge with the scene
+			if (changeHandler == null)
+			{
+				changeHandler = addTask(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						changeHandler = null;
+						scene.addChanges(changes);
+					}
+				});
+			}
+		}
 	}
 	
 	/**
