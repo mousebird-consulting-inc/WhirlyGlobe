@@ -170,12 +170,15 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 					public void run()
 					{
 						changeHandler = null;
-						scene.addChanges(changes);
+						changes.process(scene);
 					}
 				});
 			}
 		}
 	}
+	
+	// Run through each of the changes, creating things within our own context
+	native void processChanges(ChangeSet changes);
 	
 	/**
 	 * Add a Runnable to our queue.  This will be executed at some point in the future.

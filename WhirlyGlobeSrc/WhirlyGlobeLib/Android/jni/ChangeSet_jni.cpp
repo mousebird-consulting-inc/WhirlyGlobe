@@ -68,6 +68,53 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_merge
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_process
+  (JNIEnv *env, jobject obj, jobject sceneObj)
+{
+	try
+	{
+		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
+		ChangeSet *changes = classInfo->getObject(env,obj);
+		MapSceneClassInfo *mapSceneClassInfo = MapSceneClassInfo::getClassInfo();
+		Scene *scene = mapSceneClassInfo->getObject(env,sceneObj);
+		if (!changes || !scene)
+			return;
+
+		// Note: Porting Should be using the view
+		WhirlyKitGLSetupInfo glSetupInfo;
+		glSetupInfo.minZres = 0.0001;
+
+	    bool requiresFlush = false;
+	    // Set up anything that needs to be set up
+	    ChangeSet changesToAdd;
+	    for (unsigned int ii=0;ii<changes->size();ii++)
+	    {
+	        ChangeRequest *change = changes->at(ii);
+	        if (change)
+	        {
+	            requiresFlush |= change->needsFlush();
+	            change->setupGL(&glSetupInfo, scene->getMemManager());
+	            changesToAdd.push_back(change);
+	        } else
+	            // A NULL change request is just a flush request
+	            requiresFlush = true;
+	    }
+
+	    // If anything needed a flush after that, let's do it
+	    if (requiresFlush)
+	    {
+	        glFlush();
+	    }
+
+	    scene->addChangeRequests(changesToAdd);
+	    changes->clear();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::process()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_addTexture
   (JNIEnv *env, jobject obj, jobject texObj)
 {

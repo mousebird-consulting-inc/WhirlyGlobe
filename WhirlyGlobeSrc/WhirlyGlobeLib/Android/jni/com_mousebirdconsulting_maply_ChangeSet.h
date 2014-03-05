@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_merge
 
 /*
  * Class:     com_mousebirdconsulting_maply_ChangeSet
+ * Method:    process
+ * Signature: (Lcom/mousebirdconsulting/maply/MapScene;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebirdconsulting_maply_ChangeSet_process
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebirdconsulting_maply_ChangeSet
  * Method:    nativeInit
  * Signature: ()V
  */
