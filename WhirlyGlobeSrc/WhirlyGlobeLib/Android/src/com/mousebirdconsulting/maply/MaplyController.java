@@ -14,7 +14,6 @@ import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Looper;
-import android.util.Log;
 import android.view.*;
 import android.widget.Toast;
 
