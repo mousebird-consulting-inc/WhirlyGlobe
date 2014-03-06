@@ -636,12 +636,13 @@ static const float PerfOutputDelay = 15.0;
     CGPoint pt = [self screenPointFromGeo:coord];
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
     annotate.loc = coord;
-    annotate.calloutView.delegate = self;
     if (!alreadyHere)
     {
+        annotate.calloutView.delegate = self;
         [annotations addObject:annotate];
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
     } else {
+        annotate.calloutView.delegate = nil;
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
     }
     
@@ -691,6 +692,27 @@ static const float PerfOutputDelay = 15.0;
     [annotations removeObject:annotate];
     
     [annotate.calloutView dismissCalloutAnimated:YES];
+}
+
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->freezeView(annotate.calloutView);
+        }
+}
+
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->unfreezeView(annotate.calloutView);
+        }
+    sceneRenderer.triggerDraw = true;
 }
 
 - (NSArray *)annotations
