@@ -1429,6 +1429,22 @@ static const int NumMegaMarkers = 40000;
 {
     // Just clear the selection
     [baseViewC clearAnnotations];
+
+    if (globeViewC)
+    {
+//        MaplyCoordinate geoCoord;
+//        if ([globeViewC geoPointFromScreen:CGPointMake(0, 0) geoCoord:&geoCoord])
+//            NSLog(@"GeoCoord (upper left): %f, %f",geoCoord.x,geoCoord.y);
+//        else
+//            NSLog(@"GeoCoord not on globe");
+//        MaplyCoordinate geoCoord = MaplyCoordinateMakeWithDegrees(0, 0);
+//        CGPoint screenPt;
+//        if ([globeViewC screenPointFromGeo:geoCoord screenPt:&screenPt])
+//            NSLog(@"Origin at: %f,%f",screenPt.x,screenPt.y);
+//        else
+//            NSLog(@"Origin not on screen");
+    }
+    
 //    if (selectedViewTrack)
 //    {
 //        [baseViewC removeViewTrackForView:selectedViewTrack.view];
