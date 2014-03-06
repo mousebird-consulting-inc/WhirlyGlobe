@@ -291,8 +291,23 @@
 
 /** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
     @return Returns the screen point corresponding to a given geo coordinate.
+    @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
   */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Return a location on the screen for a given geographic coordinate or false if it's not on the screen.
+    @param geoCoord Point on the earth in lat/lon radians you want a screen position for.
+    @param screenPt Location on the screen.
+    @return True if the geo coord was on the screen, false otherwise.
+  */
+- (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt;
+
+/** @brief Calculate a geo coordinate form a point on the screen.
+    @param screenPt Location on the screen.
+    @param geoCoord Point on the earth in lat/lon radians.
+    @return True if the point was on the globe, false otherwise.
+  */
+- (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)geoCoord;
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
