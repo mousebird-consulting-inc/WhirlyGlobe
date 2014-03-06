@@ -356,7 +356,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
         return false;
 
     try {
-        int numFeatures = shapes.size();
+        int numFeatures = (int)shapes.size();
         if (fwrite(&numFeatures,sizeof(int),1, fp) != 1)
             throw 1;
 
@@ -366,7 +366,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
             
             // They all have a dictionary
             NSData *dictData = [NSKeyedArchiver archivedDataWithRootObject:shape->getAttrDict()];
-            int dataLen = [dictData length];
+            int dataLen = (int)[dictData length];
             if (fwrite(&dataLen,sizeof(int),1,fp) != 1)
                 throw 1;
             if (dataLen > 0)
@@ -383,7 +383,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(&dataType,sizeof(short),1,fp) != 1)
                     throw 1;
                 
-                unsigned int numPts = pts->pts.size();
+                unsigned int numPts = (int)pts->pts.size();
                 if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
                     throw 1;
                 if (fwrite(&pts->pts[0],2*sizeof(float),numPts,fp) != numPts)
@@ -394,7 +394,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(&dataType,sizeof(short),1,fp) != 1)
                     throw 1;
                 
-                unsigned int numPts = lin->pts.size();
+                unsigned int numPts = (unsigned int)lin->pts.size();
                 if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
                     throw 1;
                 if (fwrite(&lin->pts[0],2*sizeof(float),numPts,fp) != numPts)
@@ -406,13 +406,13 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(&dataType,sizeof(short),1,fp) != 1)
                     throw 1;
                 
-                unsigned int numLoops = ar->loops.size();
+                unsigned int numLoops = (unsigned int)ar->loops.size();
                 if (fwrite(&numLoops,sizeof(int),1,fp) != 1)
                     throw 1;
                 for (unsigned int ii=0;ii<numLoops;ii++)
                 {
                     VectorRing &ring = ar->loops[ii];
-                    unsigned int numPts = ring.size();
+                    unsigned int numPts = (unsigned int)ring.size();
                     if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
                         throw 1;
                     if (fwrite(&ring[0],2*sizeof(float),numPts,fp) != numPts)
@@ -425,13 +425,13 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(&dataType,sizeof(short),1,fp) != 1)
                     throw 1;
                 
-                unsigned int numPts = mesh->pts.size();
+                unsigned int numPts = (unsigned int)mesh->pts.size();
                 if (fwrite(&numPts,sizeof(unsigned int),1,fp) != 1)
                     throw 1;
                 if (fwrite(&mesh->pts[0],3*sizeof(float),numPts,fp) != numPts)
                     throw 1;
                 
-                unsigned int numTri = mesh->tris.size();
+                unsigned int numTri = (unsigned int)mesh->tris.size();
                 if (fwrite(&numTri,sizeof(unsigned int),1,fp) != 1)
                     throw 1;
                 if (fwrite(&mesh->tris[0],3*sizeof(unsigned int),numTri,fp) != numTri)

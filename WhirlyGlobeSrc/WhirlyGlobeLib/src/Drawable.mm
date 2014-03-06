@@ -127,7 +127,7 @@ void OpenGLMemManager::clearBufferIDs()
          it != buffIDs.end(); ++it)
         toRemove.push_back(*it);
     if (!toRemove.empty())
-        glDeleteBuffers(toRemove.size(), &toRemove[0]);
+        glDeleteBuffers((GLsizei)toRemove.size(), &toRemove[0]);
     buffIDs.clear();
     
     pthread_mutex_unlock(&idLock);
@@ -189,7 +189,7 @@ void OpenGLMemManager::clearTextureIDs()
          it != texIDs.end(); ++it)
         toRemove.push_back(*it);
     if (!toRemove.empty())
-        glDeleteTextures(toRemove.size(), &toRemove[0]);
+        glDeleteTextures((GLsizei)toRemove.size(), &toRemove[0]);
     texIDs.clear();
     
     pthread_mutex_unlock(&idLock);    
@@ -378,25 +378,25 @@ int VertexAttribute::numElements() const
         case BDFloat3Type:
         {
             std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-            return vecs->size();
+            return (int)vecs->size();
         }
             break;
         case BDFloat2Type:
         {
             std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-            return vecs->size();
+            return (int)vecs->size();
         }
             break;
         case BDChar4Type:
         {
             std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-            return colors->size();
+            return (int)colors->size();
         }
             break;
         case BDFloatType:
         {
             std::vector<float> *floats = (std::vector<float> *)data;
-            return floats->size();
+            return (int)floats->size();
         }
             break;
     }    
@@ -644,7 +644,7 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
     if (which < texInfo.size())
         return;
     
-    for (unsigned int ii=texInfo.size();ii<=which;ii++)
+    for (unsigned int ii=(unsigned int)texInfo.size();ii<=which;ii++)
     {
         TexInfo newInfo;
         char attributeName[40];
@@ -862,7 +862,7 @@ bool BasicDrawable::getWriteZbuffer() const
 unsigned int BasicDrawable::addPoint(Point3f pt)
 {
     points.push_back(pt);
-    return points.size()-1;
+    return (unsigned int)(points.size()-1);
 }
 
 Point3f BasicDrawable::getPoint(int which)
@@ -960,14 +960,14 @@ int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &
     VertexAttribute *attr = new VertexAttribute(dataType,name);
     vertexAttributes.push_back(attr);
     
-    return vertexAttributes.size()-1;
+    return (unsigned int)(vertexAttributes.size()-1);
 }
     
 unsigned int BasicDrawable::getNumPoints() const
-{ return points.size(); }
+{ return (unsigned int)points.size(); }
 
 unsigned int BasicDrawable::getNumTris() const
-{ return tris.size(); }
+{ return (unsigned int)tris.size(); }
 
 void BasicDrawable::reserveNumPoints(int numPoints)
 { points.reserve(points.size()+numPoints); }
@@ -1071,7 +1071,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     // The other buffer pointers are now strides
     // Size of a single vertex entry
     vertexSize = singleVertexSize();
-    int numVerts = points.size();
+    int numVerts = (int)points.size();
     
     // We're handed an external buffer, so just use it
     if (externalSharedBuf)
@@ -1111,9 +1111,9 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     // Clear out the arrays, since we won't need them again
-    numPoints = points.size();
+    numPoints = (int)points.size();
     points.clear();
-    numTris = tris.size();
+    numTris = (int)tris.size();
     tris.clear();
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         vertexAttributes[ii]->clear();
@@ -1128,7 +1128,7 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
         return nil;
     
     // Verify that everything else (that has data) has the same amount)
-    int numElements = points.size();
+    int numElements = (int)points.size();
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         VertexAttribute *attr = vertexAttributes[ii];
@@ -1141,7 +1141,7 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
     if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
     {
         vertexSize = singleVertexSize();
-        int numVerts = points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0);
+        int numVerts = (int)(points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0));
 
         unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
         retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
@@ -1157,9 +1157,9 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
             addPointToBuffer(basePtr, ii);
         if (dupEnd)
         {
-            addPointToBuffer(basePtr, points.size()-1);
+            addPointToBuffer(basePtr, (int)(points.size()-1));
             basePtr += vertexSize;
-            addPointToBuffer(basePtr, points.size()-1);
+            addPointToBuffer(basePtr, (int)(points.size()-1));
             basePtr += vertexSize;
         }
     }
@@ -1177,7 +1177,7 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
         return;
 
     // Verify that everything else (that has data) has the same amount)
-    int numElements = points.size();
+    int numElements = (int)points.size();
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         VertexAttribute *attr = vertexAttributes[ii];
@@ -1188,7 +1188,7 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
 
     // Build up the vertices
     vertexSize = singleVertexSize();
-    int numVerts = points.size();
+    int numVerts = (int)points.size();
     NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
     unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
@@ -1196,7 +1196,7 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
         
     // Build up the triangles
     int triSize = singleElementSize * 3;
-    int numTris = tris.size();
+    int numTris = (int)tris.size();
     int totSize = numTris*triSize;
     NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(totSize)) length:totSize freeWhenDone:YES];
     GLushort *elPtr = (GLushort *)[elementData mutableBytes];
@@ -1640,7 +1640,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 } else {
-                    glDrawElements(GL_TRIANGLES, tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
             }
