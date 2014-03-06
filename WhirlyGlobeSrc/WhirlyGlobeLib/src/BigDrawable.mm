@@ -357,7 +357,7 @@ SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMut
         vertPos = theRegion.pos;
         
         // Split up the remaining space, if there is any
-        Region newRegion(theRegion.pos + vertexSize,theRegion.len - vertexSize);
+        Region newRegion((int)(theRegion.pos + vertexSize),(int)(theRegion.len - vertexSize));
         if (newRegion.len > 0)
             vertexRegions.insert(newRegion);
     }

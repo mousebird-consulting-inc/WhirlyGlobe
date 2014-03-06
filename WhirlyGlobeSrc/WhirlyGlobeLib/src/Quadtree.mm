@@ -191,7 +191,7 @@ void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
         node->parent->addChild(this,node);
 
     // Need to remove a node
-    int numNodes = nodesByIdent.size();
+    int numNodes = (int)nodesByIdent.size();
     if (numNodes > maxNodes)
     {
         NodesBySizeType::iterator it = nodesBySize.begin();

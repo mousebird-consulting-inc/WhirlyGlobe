@@ -70,7 +70,7 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
 
 bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 {
-	int ii, jj;
+	size_t ii, jj;
 	bool c = false;
 	for (ii = 0, jj = ring.size()-1; ii < ring.size(); jj = ii++) {
 		if ( ((ring[ii].y()>pt.y()) != (ring[jj].y()>pt.y())) &&

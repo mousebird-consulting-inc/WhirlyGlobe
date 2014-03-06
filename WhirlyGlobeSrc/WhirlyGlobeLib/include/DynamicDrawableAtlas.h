@@ -51,7 +51,7 @@ public:
     void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
     
     /// Change the program ID for all the drawables we're using
-    void setProgramIDAllDrawables(int programID,ChangeSet &changes);
+    void setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes);
         
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
