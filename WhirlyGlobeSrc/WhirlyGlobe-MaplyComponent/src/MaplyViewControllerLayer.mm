@@ -23,6 +23,12 @@
 
 @implementation MaplyViewControllerLayer
 
+- (void)setDrawPriority:(int)drawPriority
+{
+    _drawPriorityWasSet = true;
+    _drawPriority = drawPriority;
+}
+
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
 {
     return true;
