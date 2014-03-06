@@ -48,6 +48,12 @@
 
 @end
 
+/// Fill this in to get a view snapshot on the next draw
+@protocol WhirlyKitSnapshot
+/// Called when the snapshot is take.  Use the UIImage.
+- (void)snapshot:(UIImage *)image;
+@end
+
 /** Scene Renderer for OpenGL ES2.
      This implements the actual rendering.  In theory it's
      somewhat composable, but in reality not all that much.
@@ -72,5 +78,8 @@
 /// This lets the UI run in the main thread without interference,
 ///  but it does mean you can't mess with the rendering context.
 @property (nonatomic,assign) bool dispatchRendering;
+
+/// Set if we want a screenshot on the next draw
+@property (nonatomic,weak) NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 
 @end

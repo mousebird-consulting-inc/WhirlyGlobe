@@ -27,6 +27,20 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+// Target for screen snapshot
+@interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
+@property (nonatomic) UIImage *image;
+@end
+
+@implementation SnapshotTarget
+
+- (void)snapshot:(UIImage *)image
+{
+    _image = image;
+}
+
+@end
+
 @implementation MaplyBaseViewController
 {
 }
@@ -907,6 +921,17 @@ static const float PerfOutputDelay = 15.0;
     if (frameSize.x() == 0)
         return -1.0;
     return (float)[visualView heightForMapScale:scale frame:frameSize];
+}
+
+- (UIImage *)snapshot
+{
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    sceneRenderer.snapshotDelegate = target;
+    
+    [sceneRenderer forceDrawNextFrame];
+    [sceneRenderer render:0.0];
+    
+    return target.image;
 }
 
 @end
