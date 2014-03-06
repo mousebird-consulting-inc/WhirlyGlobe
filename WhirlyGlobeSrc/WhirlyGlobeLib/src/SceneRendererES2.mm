@@ -672,9 +672,6 @@ static const float ScreenOverlap = 0.1;
         CheckGLError("SceneRendererES2: glBindRenderbuffer");
     }
 
-    [context presentRenderbuffer:GL_RENDERBUFFER];
-    CheckGLError("SceneRendererES2: presentRenderbuffer");
-    
     // The user wants help with a screen snapshot
     if (_snapshotDelegate)
     {
@@ -685,7 +682,7 @@ static const float ScreenOverlap = 0.1;
         // Read pixel data from the framebuffer
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
+        
         // Create a CGImage with the pixel data
         // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
         // otherwise, use kCGImageAlphaPremultipliedLast
@@ -737,6 +734,9 @@ static const float ScreenOverlap = 0.1;
         _snapshotDelegate = false;
     }
 
+    [context presentRenderbuffer:GL_RENDERBUFFER];
+    CheckGLError("SceneRendererES2: presentRenderbuffer");
+    
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
     
