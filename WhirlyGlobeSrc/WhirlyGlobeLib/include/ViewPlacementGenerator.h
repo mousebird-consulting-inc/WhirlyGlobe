@@ -50,12 +50,14 @@ public:
     public:
         ViewInstance() { }
         ViewInstance(UIView *view) : view(view) { }
-        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), view(view) { offset.x() = view.frame.origin.x;  offset.y() = view.frame.origin.y; }
+        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), view(view), active(true) { offset.x() = view.frame.origin.x;  offset.y() = view.frame.origin.y; }
         ~ViewInstance() { }
         
         /// Sort by UIView
         bool operator < (const ViewInstance &that) const { return view < that.view; }
 
+        /// Set if we're actively moving this around
+        bool active;
         /// Where to put the view
         WhirlyKit::GeoCoord loc;
         /// An offset taken from the view origin when it's passed to us
@@ -74,6 +76,12 @@ public:
 
     /// Move an existing tracked view to a new location
     void moveView(GeoCoord loc,UIView *view,float minVis,float maxVis);
+    
+    /// Stop moving a view around (but keep it)
+    void freezeView(UIView *view);
+    
+    /// Start moving a view around again
+    void unfreezeView(UIView *view);
 
     /// Remove a view being tracked.
     /// Call this in the main thread

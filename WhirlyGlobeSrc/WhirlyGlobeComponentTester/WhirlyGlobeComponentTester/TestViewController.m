@@ -69,6 +69,9 @@ LocationInfo locations[NumLocations] =
     {"Niihau",21.9, -160.166667}
 };
 
+// High performance vs. low performance devices
+typedef enum {HighPerformance,LowPerformance} PerformanceMode;
+
 // Local interface for TestViewController
 // We'll hide a few things here
 @interface TestViewController ()
@@ -117,6 +120,8 @@ LocationInfo locations[NumLocations] =
     // Label test
     NSTimer *_labelAnimationTimer;
     NSMutableDictionary *_trafficLabels;
+    
+    PerformanceMode perfMode;
 }
 
 // Change what we're showing based on the Configuration
@@ -156,6 +161,17 @@ LocationInfo locations[NumLocations] =
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // What sort of hardware are we on?
+    perfMode = LowPerformance;
+    if ([UIScreen mainScreen].scale > 1.0)
+    {
+        // Retina devices tend to be better, except for
+        perfMode = HighPerformance;
+    }
+#if TARGET_IPHONE_SIMULATOR
+    perfMode = HighPerformance;
+#endif
     
     loftPolyDict = [NSMutableDictionary dictionary];
     
@@ -203,7 +219,14 @@ LocationInfo locations[NumLocations] =
     // Note: Debugging
 //    [self labelExercise];
 
-    baseViewC.frameInterval = 2;  // 30fps
+    if (perfMode == LowPerformance)
+    {
+        baseViewC.frameInterval = 3; // 20fps
+        baseViewC.threadPerLayer = false;
+    } else {
+        baseViewC.frameInterval = 2; // 30fps
+        baseViewC.threadPerLayer = true;
+    }
     
     // Set the background color for the globe
     baseViewC.clearColor = [UIColor blackColor];
@@ -1429,6 +1452,25 @@ static const int NumMegaMarkers = 40000;
 {
     // Just clear the selection
     [baseViewC clearAnnotations];
+
+    if (globeViewC)
+    {
+//        MaplyCoordinate geoCoord;
+//        if ([globeViewC geoPointFromScreen:CGPointMake(0, 0) geoCoord:&geoCoord])
+//            NSLog(@"GeoCoord (upper left): %f, %f",geoCoord.x,geoCoord.y);
+//        else
+//            NSLog(@"GeoCoord not on globe");
+//        MaplyCoordinate geoCoord = MaplyCoordinateMakeWithDegrees(0, 0);
+//        CGPoint screenPt;
+//        if ([globeViewC screenPointFromGeo:geoCoord screenPt:&screenPt])
+//            NSLog(@"Origin at: %f,%f",screenPt.x,screenPt.y);
+//        else
+//            NSLog(@"Origin not on screen");
+    }
+    
+    // Screen shot
+//    UIImage *image = [baseViewC snapshot];
+    
 //    if (selectedViewTrack)
 //    {
 //        [baseViewC removeViewTrackForView:selectedViewTrack.view];

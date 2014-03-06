@@ -13,6 +13,7 @@
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
 		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
 		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
+		2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
@@ -445,6 +446,7 @@
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
 		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
+		2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceManager.h; sourceTree = "<group>"; };
 		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1538,6 +1540,7 @@
 		2BA2328517986A9F0063CC84 /* managers */ = {
 			isa = PBXGroup;
 			children = (
+				2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */,
 				2BA2328617986ACA0063CC84 /* LabelManager.h */,
 				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
 				2BA2328817986ACA0063CC84 /* MarkerManager.h */,
@@ -1953,6 +1956,7 @@
 				2B7EF5191603E01500D4079F /* MBTileQuadSource.h in Headers */,
 				2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */,
 				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
+				2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
@@ -2393,6 +2397,7 @@
 		1DEB922308733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2421,6 +2426,7 @@
 		1DEB922408733DC00010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "";

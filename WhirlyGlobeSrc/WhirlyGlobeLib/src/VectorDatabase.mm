@@ -297,7 +297,7 @@ bool VectorDatabase::buildCaches(NSString *mbrCache,NSString *sqlDb)
         unsigned int mbrVersion = 1;
         if (fwrite(&mbrVersion, sizeof(mbrVersion), 1, fp) != 1)
             throw 1;        
-        unsigned int numMbrs = mbrs.size();
+        unsigned int numMbrs = (unsigned int)mbrs.size();
         if (fwrite(&numMbrs, sizeof(numMbrs), 1, fp) != 1)
             throw 1;
         for (unsigned int ii=0;ii<mbrs.size();ii++)

@@ -409,9 +409,22 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)removeAnnotation:(MaplyAnnotation *)annotate;
 
+/** @brief Make the annotation stop moving.
+    @details If you have controls in your annotation you may need to make the annotation stop moving while the user manipulates them.  Call this method to freeze the annotation while this happens.
+  */
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Call this to start an annotation following its location again after being frozen.
+  */
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate;
+
 /** @brief Calls removeAnnotation: on all outstanding annotations.
   */
 - (void)clearAnnotations;
+
+/** @brief Return an array of active annotations.  Don't modify these.
+  */
+- (NSArray *)annotations;
 
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
@@ -582,10 +595,14 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 
 /** @brief Return the current map zoom from the viewpoint.
  @details Calculate the map zoom (TMS) based on the current screen size and the 3D viewport.
+*/
+- (float)currentMapZoom:(MaplyCoordinate)coordinate;
+ 
+/** @brief Takes a snapshot of the current OpenGL view and returns it.
  @param coordinate the location to calculate for. This is needed because zoom is dependant on latitude.
  @return Returns the map zoom or MAXFLOAT if the system is not yet initialized.
- */
-- (float)currentMapZoom:(MaplyCoordinate)coordinate;
+*/
+- (UIImage *)snapshot;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

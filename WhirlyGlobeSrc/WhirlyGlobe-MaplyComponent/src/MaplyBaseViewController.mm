@@ -27,6 +27,20 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+// Target for screen snapshot
+@interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
+@property (nonatomic) UIImage *image;
+@end
+
+@implementation SnapshotTarget
+
+- (void)snapshot:(UIImage *)image
+{
+    _image = image;
+}
+
+@end
+
 @implementation MaplyBaseViewController
 {
 }
@@ -622,12 +636,13 @@ static const float PerfOutputDelay = 15.0;
     CGPoint pt = [self screenPointFromGeo:coord];
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
     annotate.loc = coord;
-    annotate.calloutView.delegate = self;
     if (!alreadyHere)
     {
+        annotate.calloutView.delegate = self;
         [annotations addObject:annotate];
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
     } else {
+        annotate.calloutView.delegate = nil;
         [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
     }
     
@@ -655,7 +670,7 @@ static const float PerfOutputDelay = 15.0;
     // Need to find the annotation this belongs to
     for (MaplyAnnotation *annotation in annotations)
     {
-        if (annotation.calloutView == calloutView)
+        if (annotation.calloutView == calloutView && annotation.repositionForVisibility)
         {
             CGPoint pt = [self screenPointFromGeo:annotation.loc];
             CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
@@ -677,6 +692,32 @@ static const float PerfOutputDelay = 15.0;
     [annotations removeObject:annotate];
     
     [annotate.calloutView dismissCalloutAnimated:YES];
+}
+
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->freezeView(annotate.calloutView);
+        }
+}
+
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->unfreezeView(annotate.calloutView);
+        }
+    sceneRenderer.triggerDraw = true;
+}
+
+- (NSArray *)annotations
+{
+    return annotations;
 }
 
 - (void)clearAnnotations
@@ -801,7 +842,10 @@ static const float PerfOutputDelay = 15.0;
         
         if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
-            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+            if (!newLayer.drawPriorityWasSet)
+            {
+                newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+            }
             [userLayers addObject:newLayer];
             return true;
         }
@@ -909,6 +953,18 @@ static const float PerfOutputDelay = 15.0;
         return MAXFLOAT;
     return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
 }
+
+- (UIImage *)snapshot
+{
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    sceneRenderer.snapshotDelegate = target;
+    
+    [sceneRenderer forceDrawNextFrame];
+    [sceneRenderer render:0.0];
+    
+    return target.image;
+}
+
 
 
 @end

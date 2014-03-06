@@ -97,7 +97,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         {
             if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
-                represent.vertexSize = [vertData length];
+                represent.vertexSize = (int)[vertData length];
                 represent.bigDrawId = bigDrawInfo.bigDraw->getId();
                 foundBigDraw = bigDrawInfo.bigDraw;
                 break;
@@ -129,7 +129,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         represent.bigDrawId = newBigDraw->getId();
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
-            represent.vertexSize = [vertData length];
+            represent.vertexSize = (int)[vertData length];
             represent.bigDrawId = newBigDraw->getId();
             foundBigDraw = newBigDraw;
         }
@@ -188,7 +188,7 @@ void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSe
         changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
 }
     
-void DynamicDrawableAtlas::setProgramIDAllDrawables(int programID,ChangeSet &changes)
+void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));

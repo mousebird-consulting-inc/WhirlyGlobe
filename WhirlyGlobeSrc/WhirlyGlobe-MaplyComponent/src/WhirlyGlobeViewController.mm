@@ -927,6 +927,43 @@ using namespace WhirlyGlobe;
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
+- (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt
+{
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3f pt3f(pt.x(),pt.y(),pt.z());
+    
+    Eigen::Matrix4d modelTrans4d = [visualView calcModelMatrix];
+    Eigen::Matrix4d viewTrans4d = [visualView calcViewMatrix];
+    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+
+    if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
+        return false;
+    
+    *screenPt =  [globeView pointOnScreenFromSphere:pt transform:&modelAndViewMat4d frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    
+    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > sceneRenderer.framebufferWidth || screenPt->y > sceneRenderer.framebufferHeight)
+        return false;
+    
+    return true;
+}
+
+- (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)retCoord
+{
+	Point3d hit;
+	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    {
+        GeoCoord geoCoord = visualView.coordAdapter->getCoordSystem()->localToGeographic(visualView.coordAdapter->displayToLocal(hit));
+        retCoord->x = geoCoord.x();
+        retCoord->y = geoCoord.y();
+        
+        return true;
+	} else
+        return false;
+}
+
 // Note: Finish writing this
 - (id)findObjectAtLocation:(CGPoint)screenPt
 {
