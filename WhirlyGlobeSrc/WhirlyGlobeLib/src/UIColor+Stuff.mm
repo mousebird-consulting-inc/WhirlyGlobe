@@ -37,7 +37,7 @@ using namespace Eigen;
 - (RGBAColor) asRGBAColor
 {
     RGBAColor color;
-    int numComponents = CGColorGetNumberOfComponents(self.CGColor);
+    int numComponents = (int)CGColorGetNumberOfComponents(self.CGColor);
     const CGFloat *colors = CGColorGetComponents(self.CGColor);
     
     switch (numComponents)
@@ -63,7 +63,7 @@ using namespace Eigen;
 - (Vector4f) asVec4
 {
     Vector4f color;
-    int numComponents = CGColorGetNumberOfComponents(self.CGColor);
+    int numComponents = (int)CGColorGetNumberOfComponents(self.CGColor);
     const CGFloat *colors = CGColorGetComponents(self.CGColor);
     
     switch (numComponents)

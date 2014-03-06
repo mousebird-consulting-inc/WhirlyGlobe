@@ -57,7 +57,7 @@
         int drawPriority = 0;
         if (styleEntry[@"drawpriority"])
         {
-            drawPriority = [styleEntry[@"drawpriority"] integerValue];
+            drawPriority = (int)[styleEntry[@"drawpriority"] integerValue];
         }
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
