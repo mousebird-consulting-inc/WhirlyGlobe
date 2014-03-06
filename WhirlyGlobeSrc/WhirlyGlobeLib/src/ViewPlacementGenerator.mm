@@ -65,7 +65,33 @@ void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,flo
     viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
 }
+    
+void ViewPlacementGenerator::freezeView(UIView *view)
+{
+    ViewInstance newVI(view);
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
+    if (it != viewInstanceSet.end())
+    {
+        newVI = *it;
+        viewInstanceSet.erase(it);
+        newVI.active = false;
+        viewInstanceSet.insert(newVI);
+    }
+}
 
+void ViewPlacementGenerator::unfreezeView(UIView *view)
+{
+    ViewInstance newVI(view);
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
+    if (it != viewInstanceSet.end())
+    {
+        newVI = *it;
+        viewInstanceSet.erase(it);
+        newVI.active = true;
+        viewInstanceSet.insert(newVI);
+    }
+}
+    
 void ViewPlacementGenerator::removeView(UIView *view)
 {
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
@@ -102,6 +128,9 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
         const ViewInstance &viewInst = *it;
         bool hidden = NO;
         CGPoint screenPt;
+        
+        if (!it->active)
+            continue;
         
         // Height above globe test
         float visVal = [frameInfo.theView heightAboveSurface];
