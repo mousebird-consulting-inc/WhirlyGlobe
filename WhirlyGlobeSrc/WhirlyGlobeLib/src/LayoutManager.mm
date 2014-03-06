@@ -69,7 +69,7 @@ public:
         
         // Okay, so it doesn't overlap.  Let's add it where needed.
         objects.resize(objects.size()+1);
-        int newId = objects.size()-1;
+        int newId = (int)(objects.size()-1);
         BoundedObject &newObj = objects[newId];
         newObj.pts = pts;
         for (int ix=sx;ix<=ex;ix++)

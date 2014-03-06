@@ -133,7 +133,7 @@ public:
     
 protected:
     bool enable;
-    GLuint programId;
+    SimpleIdentity programId;
     std::vector<BasicDrawable::TexInfo> texInfo;
     int drawPriority;
     bool requestZBuffer,writeZBuffer;
@@ -325,14 +325,14 @@ protected:
 class BigDrawableProgramIDChangeRequest : public ChangeRequest
 {
 public:
-    BigDrawableProgramIDChangeRequest(SimpleIdentity drawId,int programID) : drawId(drawId), programID(programID) { }
+    BigDrawableProgramIDChangeRequest(SimpleIdentity drawId,SimpleIdentity programID) : drawId(drawId), programID(programID) { }
     
     /// Run the command.  The renderer calls this
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
     
 protected:
     SimpleIdentity drawId;
-    int programID;
+    SimpleIdentity programID;
 };
     
 }

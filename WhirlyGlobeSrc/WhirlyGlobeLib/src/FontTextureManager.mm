@@ -389,7 +389,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
     // Work through the runs (which share attributes)
     CFArrayRef runs = CTLineGetGlyphRuns(line);
-    float lineHeight = 0.0, lineWidth = 0.0, ascent = 0.0, descent = 0.0;
+    CGFloat lineHeight = 0.0, lineWidth = 0.0, ascent = 0.0, descent = 0.0;
     lineWidth = CTLineGetTypographicBounds(line,&ascent,&descent,NULL);
     lineHeight = ascent+descent;
     
@@ -399,7 +399,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (unsigned int ii=0;ii<CFArrayGetCount(runs);ii++)
     {
         CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs,ii);
-        int num = CTRunGetGlyphCount(run);
+        CFIndex num = CTRunGetGlyphCount(run);
         if (num > 0)
         {
             CGGlyph *glyphs = (CGGlyph *)malloc(sizeof(CGGlyph)*num);

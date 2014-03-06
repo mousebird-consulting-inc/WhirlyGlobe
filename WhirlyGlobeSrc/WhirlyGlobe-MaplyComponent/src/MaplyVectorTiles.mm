@@ -86,8 +86,8 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     NSDictionary *paramDict = styleDict[@"parameters"];
     if (![paramDict isKindOfClass:[NSDictionary class]])
         return nil;
-    _minLevel = [paramDict[@"minLevel"] integerValue];
-    _maxLevel = [paramDict[@"maxLevel"] integerValue];
+    _minLevel = (int)[paramDict[@"minLevel"] integerValue];
+    _maxLevel = (int)[paramDict[@"maxLevel"] integerValue];
     
     NSArray *layers = styleDict[@"layers"];
     if (![layers isKindOfClass:[NSArray class]])

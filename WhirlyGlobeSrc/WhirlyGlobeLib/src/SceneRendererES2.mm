@@ -377,7 +377,7 @@ static const float ScreenOverlap = 0.1;
             [activeModel updateForFrame:frameInfo];
         
         if (perfInterval > 0)
-            perfTimer.addCount("Scene changes", scene->changeRequests.size());
+            perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock

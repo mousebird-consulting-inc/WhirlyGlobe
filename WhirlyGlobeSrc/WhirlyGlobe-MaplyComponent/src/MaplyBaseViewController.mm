@@ -679,6 +679,11 @@ static const float PerfOutputDelay = 15.0;
     [annotate.calloutView dismissCalloutAnimated:YES];
 }
 
+- (NSArray *)annotations
+{
+    return annotations;
+}
+
 - (void)clearAnnotations
 {
     NSArray *allAnnotations = [NSArray arrayWithArray:annotations];

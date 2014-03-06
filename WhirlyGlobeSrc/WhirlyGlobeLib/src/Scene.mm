@@ -435,7 +435,7 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
 void Scene::dumpStats()
 {
     NSLog(@"Scene: %ld drawables",drawables.size());
-    NSLog(@"Scene: %d active models",[activeModels count]);
+    NSLog(@"Scene: %d active models",(int)[activeModels count]);
     NSLog(@"Scene: %ld generators",generators.size());
     NSLog(@"Scene: %ld textures",textures.size());
     NSLog(@"Scene: %ld sub textures",subTextureMap.size());

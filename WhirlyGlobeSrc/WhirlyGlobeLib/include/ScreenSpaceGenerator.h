@@ -63,7 +63,6 @@ public:
     typedef std::map<TextureAndProgram,BasicDrawable *> DrawableMap;
     
     /// A simple geometric representation used in shapes
-    /// We do it this way so we can have multiple 
     class SimpleGeometry
     {
     public:

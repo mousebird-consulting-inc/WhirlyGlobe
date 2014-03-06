@@ -124,7 +124,7 @@ void GeomSceneRep::fadeOutScene(std::vector<WhirlyKit::ChangeRequest *> &changeR
 {
     if (_type != WhirlyGlobeGeometryLines && _type != WhirlyGlobeGeometryTriangles)
         return false;
-    int numPoints = _pts.size();
+    int numPoints = (int)_pts.size();
     if (numPoints == 0)
         return false;
     
@@ -328,7 +328,7 @@ static unsigned short CacheFileVersion = 1;
                 tc.u() = coords[0];  tc.v() = coords[1];
             }
             
-            unsigned int numColors = colors.size();
+            unsigned int numColors = (unsigned int)colors.size();
             if (fread(&numColors, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             colors.resize(numColors);
@@ -341,7 +341,7 @@ static unsigned short CacheFileVersion = 1;
                 c.r = vals[0];  c.g = vals[1];  c.b = vals[2];  c.a = vals[3];
             }
             
-            unsigned int numTri = triangles.size();
+            unsigned int numTri = (unsigned int)triangles.size();
             if (fread(&numTri, sizeof(unsigned int ), 1, fp) != 1)
                 throw 1;
             triangles.resize(numTri);
@@ -377,7 +377,7 @@ static unsigned short CacheFileVersion = 1;
             throw 1;
         
         // Textures first
-        unsigned int numTex = _textures.size();
+        unsigned int numTex = (unsigned int)_textures.size();
         if (fwrite(&numTex, sizeof(unsigned int), 1, fp) != 1)
             throw 1;
         for (unsigned int ii=0;ii<_textures.size();ii++)
@@ -388,13 +388,13 @@ static unsigned short CacheFileVersion = 1;
         }
         
         // Raw geometry
-        unsigned int numGeom = [_geom count];
+        unsigned int numGeom = (unsigned int)[_geom count];
         if (fwrite(&numGeom, sizeof(unsigned int), 1, fp) != 1)
             throw 1;
         for (WhirlyGlobeGeometryRaw *rawGeom in _geom)
         {
             unsigned int type = rawGeom.type;
-            unsigned int texId = rawGeom.texId;
+            unsigned int texId = (unsigned int)rawGeom.texId;
             std::vector<WhirlyKit::Point3f> &pts = rawGeom.pts;
             std::vector<WhirlyKit::Point3f> &norms = rawGeom.norms;
             std::vector<WhirlyKit::TexCoord> &texCoords = rawGeom.texCoords;
@@ -405,7 +405,7 @@ static unsigned short CacheFileVersion = 1;
                 fwrite(&texId, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             
-            unsigned int numPts = pts.size();
+            unsigned int numPts = (unsigned int)pts.size();
             if (fwrite(&numPts, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             for (unsigned int ii=0;ii<pts.size();ii++)
@@ -417,7 +417,7 @@ static unsigned short CacheFileVersion = 1;
                     throw 1;
             }
             
-            unsigned int numNorms = norms.size();
+            unsigned int numNorms = (unsigned int)norms.size();
             if (fwrite(&numNorms, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             for (unsigned int ii=0;ii<norms.size();ii++)
@@ -429,7 +429,7 @@ static unsigned short CacheFileVersion = 1;
                     throw 1;
             }
 
-            unsigned int numTexCoord = texCoords.size();
+            unsigned int numTexCoord = (unsigned int)texCoords.size();
             if (fwrite(&numTexCoord, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             for (unsigned int ii=0;ii<texCoords.size();ii++)
@@ -441,7 +441,7 @@ static unsigned short CacheFileVersion = 1;
                     throw 1;
             }
 
-            unsigned int numColors = colors.size();
+            unsigned int numColors = (unsigned int)colors.size();
             if (fwrite(&numColors, sizeof(unsigned int), 1, fp) != 1)
                 throw 1;
             for (unsigned int ii=0;ii<colors.size();ii++)
@@ -453,7 +453,7 @@ static unsigned short CacheFileVersion = 1;
                     throw 1;
             }
             
-            unsigned int numTri = triangles.size();
+            unsigned int numTri = (unsigned int)triangles.size();
             if (fwrite(&numTri, sizeof(unsigned int ), 1, fp) != 1)
                 throw 1;
             for (unsigned int ii=0;ii<triangles.size();ii++)

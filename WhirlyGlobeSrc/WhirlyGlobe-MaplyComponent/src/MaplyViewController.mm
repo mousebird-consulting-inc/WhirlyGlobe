@@ -665,31 +665,27 @@ using namespace Maply;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
     [mapView setLoc:testLoc runUpdates:false];
     
-    std::vector<Point2f> pts;
-    mbr.asPoints(pts);
     CGRect frame = self.view.frame;
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        Point2f pt = pts[ii];
-        MaplyCoordinate geoCoord;
-        geoCoord.x = pt.x();  geoCoord.y = pt.y();
-        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
-        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
-            return false;
-    }
     
-    return true;
+    MaplyCoordinate ul;
+    ul.x = mbr.ul().x();
+    ul.y = mbr.ul().y();
+    
+    MaplyCoordinate lr;
+    lr.x = mbr.lr().x();
+    lr.y = mbr.lr().y();
+    
+    CGPoint ulScreen = [self screenPointFromGeo:ul];
+    CGPoint lrScreen = [self screenPointFromGeo:lr];
+    
+    return lrScreen.x - ulScreen.x < frame.size.width && lrScreen.y - ulScreen.y < frame.size.height;
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
 {
-    
     Point3d oldLoc = mapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     [mapView setLoc:newLoc runUpdates:false];
-
-    // Note: Test
-//    CGPoint testPt = [self screenPointFromGeo:pos];
     
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     
@@ -721,20 +717,18 @@ using namespace Maply;
         if (!minOnScreen && midOnScreen)
         {
             maxHeight = midHeight;
-            maxOnScreen = midOnScreen;
-        } else if (!midOnScreen && maxOnScreen)
-        {
+            maxOnScreen = YES;
+        } else if (!midOnScreen && maxOnScreen) {
             minHeight = midHeight;
-            minOnScreen = midOnScreen;
+            minOnScreen = NO;
         } else {
             // Not expecting this
             break;
         }
         
-        if (maxHeight-minHeight < minRange)
-            break;
-    } while (true);
+    } while (maxHeight-minHeight > minRange);
     
+    //set map back to pre-search state
     [mapView setLoc:oldLoc runUpdates:false];
 
     return maxHeight;
