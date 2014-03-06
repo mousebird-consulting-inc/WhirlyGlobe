@@ -143,7 +143,7 @@ void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris
     
     // Convert to triangles
     //    printf("  ");
-    int startPoint = tris->pts.size();
+    int startPoint = (int)(tris->pts.size());
     for (unsigned int ii=0;ii<tessInfo.pts.size();ii++)
     {
         Point3f &pt = tessInfo.pts[ii];

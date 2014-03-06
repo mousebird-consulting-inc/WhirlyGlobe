@@ -147,7 +147,7 @@ public:
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
-        int ptCount = 2*(pts.size()+1);
+        int ptCount = (int)(2*(pts.size()+1));
         if (!drawable || (drawable->getNumPoints()+ptCount > MaxDrawablePoints))
         {
             // We're done with it, toss it to the scene
@@ -309,8 +309,8 @@ public:
             mesh->getTriangle(ir, pts);
             // Decide if we'll appending to an existing drawable or
             //  create a new one
-            int ptCount = pts.size();
-            int triCount = pts.size()-2;
+            int ptCount = (int)pts.size();
+            int triCount = (int)(pts.size()-2);
             if (!drawable ||
                 (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
                 (drawable->getNumTris()+triCount > MaxDrawableTriangles))

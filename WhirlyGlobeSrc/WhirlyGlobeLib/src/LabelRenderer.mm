@@ -594,7 +594,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 {
                     // If we didn't find one, add a new one
                     texAtlas = [[TextureAtlas alloc] initWithTexSizeX:_textureAtlasSize texSizeY:_textureAtlasSize cellSizeX:8 cellSizeY:8];
-                    foundii = texAtlases.size();
+                    foundii = (int)texAtlases.size();
                     texAtlases.push_back(texAtlas);
                     [texAtlas addImage:textImage texOrg:texOrg texDest:texDest];
                     

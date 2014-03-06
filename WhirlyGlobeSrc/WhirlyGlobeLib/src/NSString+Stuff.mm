@@ -35,7 +35,7 @@
 +(NSString*) stringWithwstring:(const std::wstring&)ws
 {
     char* data = (char*)ws.data();
-    unsigned size = ws.size() * sizeof(wchar_t);
+    unsigned int size = (unsigned int)(ws.size() * sizeof(wchar_t));
     
     NSString* result = [[NSString alloc] initWithBytes:data length:size encoding:CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingUTF32LE)];
     return result;

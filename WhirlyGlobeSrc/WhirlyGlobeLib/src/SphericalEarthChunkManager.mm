@@ -490,10 +490,10 @@ int SphericalChunkManager::getNumChunks()
 {
     int numChunks = 0;
     pthread_mutex_lock(&repLock);
-    numChunks = chunkReps.size();
+    numChunks = (int)chunkReps.size();
     pthread_mutex_unlock(&repLock);
     
-    return chunkReps.size();
+    return (int)chunkReps.size();
 }
     
 /// Process outstanding requests

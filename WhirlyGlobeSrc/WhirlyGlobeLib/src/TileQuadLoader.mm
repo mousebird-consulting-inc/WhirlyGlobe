@@ -345,12 +345,12 @@ using namespace WhirlyKit;
 
 - (int)networkFetches
 {
-    return networkFetches.size();
+    return (int)networkFetches.size();
 }
 
 - (int)localFetches
 {
-    return localFetches.size();
+    return (int)localFetches.size();
 }
 
 // Ask the data source to start loading the image for this tile
@@ -818,7 +818,7 @@ using namespace WhirlyKit;
 
 - (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj
 {
-    int newDrawPriority = [newDrawPriorityObj integerValue];
+    int newDrawPriority = (int)[newDrawPriorityObj integerValue];
     if (newDrawPriority == _drawPriority)
         return;
     
@@ -899,7 +899,7 @@ using namespace WhirlyKit;
 
 - (void)runSetProgramId:(NSNumber *)programIDObj
 {
-    int newProgramID = [programIDObj integerValue];
+    int newProgramID = (int)[programIDObj integerValue];
     if (newProgramID == _programId)
         return;
     

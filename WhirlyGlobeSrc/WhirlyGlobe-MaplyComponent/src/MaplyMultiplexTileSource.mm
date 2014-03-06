@@ -304,7 +304,7 @@ typedef std::set<SortedTile> SortedTileSet;
     
     // Clear out any existing state and add clean state
     [self clearFetchesFor:tileID];
-    Maply::SortedTile newTile(tileID,[_tileSources count]);
+    Maply::SortedTile newTile(tileID,(int)[_tileSources count]);
     // Don't think about this one too hard.
     std::vector<void (^)()> workBlocks;
     
