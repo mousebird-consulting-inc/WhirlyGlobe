@@ -28,7 +28,7 @@
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
 #import "Quadtree.h"
-#import "SceneRendererES.h"
+#import "SceneRendererES2.h"
 #import "ScreenImportance.h"
 
 /// @cond
@@ -140,7 +140,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
  */
-@interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
+@interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate,WhirlyKitFrameBoundaryObserver>
 
 /// Layer thread we're attached to
 @property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
@@ -174,7 +174,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 ///  and unload.
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 /// If set we'll try to match the frame boundaries for our update
 @property (nonatomic,assign) bool meteredMode;
 /// If set, we'll try to completely load everything (local, at least) before switching
