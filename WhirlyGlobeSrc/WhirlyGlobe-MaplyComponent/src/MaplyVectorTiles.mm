@@ -224,7 +224,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
             }
             if (!theStyle)
                 return nil;
-            MaplyVectorTileStyle *styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings viewC:_viewC];
+            styleObj = [MaplyVectorTileStyle styleFromStyleEntry:theStyle settings:_settings viewC:_viewC];
             styleObjects[uuid] = styleObj;
         } else
             styleObj = it->second;
@@ -368,8 +368,12 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
                MaplyVectorTileStyle *style = [self getStyle:it->first];
                NSArray *compObjs = [style buildObjects:it->second viewC:layer.viewC];
                if (compObjs)
+               {
                    [layer addData:compObjs forTile:tileID style:(style.geomAdditive ? MaplyDataStyleAdd : MaplyDataStyleReplace)];
+               }
            }
+           
+//           NSLog(@"Loaded: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 
            
            [layer tileDidLoad:tileID];
