@@ -351,7 +351,7 @@ public:
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
-        int ptCount = 4*(pts.size()+1);
+        int ptCount = (int)(4*(pts.size()+1));
         setupDrawable(ptCount);
         
         Point3f prevPt0,prevPt1,prevNorm,firstPt0,firstPt1,firstNorm;

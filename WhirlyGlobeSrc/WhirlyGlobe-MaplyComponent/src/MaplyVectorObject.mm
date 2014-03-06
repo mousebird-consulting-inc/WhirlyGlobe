@@ -37,7 +37,7 @@ public:
     DataReader(NSData *data)
     : pos(0)
     {
-        len = [data length];
+        len = (int)[data length];
         bytes = (unsigned char *)[data bytes];
     }
     
@@ -815,7 +815,7 @@ public:
             {
                 // Name is index into the string table
                 int nameIdx = dataReader.getInt();
-                dataReader.rangeCheck(nameIdx, 0, strings.size());
+                dataReader.rangeCheck(nameIdx, 0, (int)strings.size());
                 NSString *name = strings[nameIdx];
                 
                 // Type
@@ -831,7 +831,7 @@ public:
                     case 2:
                     {
                         int valIdx = dataReader.getInt();
-                        dataReader.rangeCheck(valIdx, 0, strings.size());
+                        dataReader.rangeCheck(valIdx, 0, (int)strings.size());
                         attrDict[name] = strings[valIdx];
                     }
                         break;
