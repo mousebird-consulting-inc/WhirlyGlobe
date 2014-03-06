@@ -584,6 +584,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (float)heightForMapScale:(float)scale;
 
+/** @brief Takes a snapshot of the current OpenGL view and returns it.
+  */
+- (UIImage *)snapshot;
+
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
 
