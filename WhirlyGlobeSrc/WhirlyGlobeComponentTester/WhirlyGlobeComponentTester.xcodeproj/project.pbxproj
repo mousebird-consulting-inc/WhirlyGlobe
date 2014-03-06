@@ -18,6 +18,7 @@
 		2B0D632A17A2EEAB00C3298D /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D632117A2EEAB00C3298D /* UIImageView+AFNetworking.m */; };
 		2B0D633117A2EEE900C3298D /* AFKissXMLRequestOperation.h in Resources */ = {isa = PBXBuildFile; fileRef = 2B0D632B17A2EEE900C3298D /* AFKissXMLRequestOperation.h */; };
 		2B0D633817A2F2BB00C3298D /* AFKissXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D633717A2F2BB00C3298D /* AFKissXMLRequestOperation.m */; };
+		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
 		2B62DD8616E7F3A2001F52FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD7B16E7F3A2001F52FC /* AppDelegate.m */; };
@@ -664,6 +665,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */,
 				2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */,
 				2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */,
 				2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */,

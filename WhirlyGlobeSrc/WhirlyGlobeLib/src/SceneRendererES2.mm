@@ -90,6 +90,7 @@ public:
     dispatch_semaphore_t frameRenderingSemaphore;
     bool renderSetup;
     WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
+    std::set<__weak NSObject<WhirlyKitFrameBoundaryObserver> *> frameObservers;
 }
 
 - (id) init
@@ -206,6 +207,24 @@ public:
     return ret;
 }
 
+- (void)addFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer
+{
+    @synchronized(self)
+    {
+        frameObservers.insert(observer);
+    }
+}
+
+- (void)removeFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer
+{
+    @synchronized(self)
+    {
+        auto it = frameObservers.find(observer);
+        if (it != frameObservers.end())
+            frameObservers.erase(it);
+    }
+}
+
 // Make the screen a bit bigger for testing
 static const float ScreenOverlap = 0.1;
 
@@ -216,7 +235,13 @@ static const float ScreenOverlap = 0.1;
     frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
     frameMsg.frameInterval = duration;
     frameMsg.renderer = self;
-    [[NSNotificationCenter defaultCenter] postNotificationName:kWKFrameMessage object:frameMsg];
+    @synchronized(self)
+    {
+        for (auto it : frameObservers)
+        {
+            [it frameStart:frameMsg];
+        }
+    }
 
     if (_dispatchRendering)
     {
