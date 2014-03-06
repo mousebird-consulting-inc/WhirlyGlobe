@@ -409,6 +409,15 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (void)removeAnnotation:(MaplyAnnotation *)annotate;
 
+/** @brief Make the annotation stop moving.
+    @details If you have controls in your annotation you may need to make the annotation stop moving while the user manipulates them.  Call this method to freeze the annotation while this happens.
+  */
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Call this to start an annotation following its location again after being frozen.
+  */
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate;
+
 /** @brief Calls removeAnnotation: on all outstanding annotations.
   */
 - (void)clearAnnotations;
