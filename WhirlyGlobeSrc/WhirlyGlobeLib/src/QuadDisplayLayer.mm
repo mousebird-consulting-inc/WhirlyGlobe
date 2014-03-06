@@ -46,7 +46,7 @@ using namespace WhirlyKit;
     WhirlyKitViewState *viewState;
     
     /// Frame times for metered mode
-    NSTimeInterval frameStart,frameInterval;
+    NSTimeInterval frameStart,frameInterval,frameEndTime;
     
     /// Set if we're waiting for local loads (e.g. a reload)
     bool waitForLocalLoads;
@@ -73,7 +73,7 @@ using namespace WhirlyKit;
         _minImportance = 1.0;
         _viewUpdatePeriod = 0.1;
         _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);
-        _renderer = inRenderer;
+        _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
         _lineMode = false;
         _drawEmpty = false;
         _debugMode = false;
@@ -120,7 +120,7 @@ using namespace WhirlyKit;
     
     if (_meteredMode)
     {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameStart:) name:kWKFrameMessage object:nil];
+        [_renderer addFrameObserver:self];
         [_loader quadDisplayLayerStartUpdates:self];
     }
 
@@ -130,6 +130,7 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
+    [_renderer removeFrameObserver:self];
     [_loader quadDisplayLayerEndUpdates:self];
 
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
@@ -148,29 +149,13 @@ using namespace WhirlyKit;
 }
 
 // Called by the renderer (in that thread, so be careful)
-- (void)frameStart:(NSNotification *)note
-{
-    WhirlyKitFrameMessage *msg = note.object;
-    
-    // If it's not coming from our renderer, we can ignore it
-    if (msg.renderer != _renderer)
-        return;
-    
+- (void)frameStart:(WhirlyKitFrameMessage *)msg;
+{        
     frameStart = msg.frameStart;
     frameInterval = msg.frameInterval;
     
     if (_meteredMode)
-        [self performSelector:@selector(frameStartThread) onThread:_layerThread withObject:nil waitUntilDone:NO];
-}
-
-- (void)frameStartThread
-{
-    NSTimeInterval howLong = CFAbsoluteTimeGetCurrent()-frameStart+AvailableFrame*frameInterval;
-    if (howLong > 0.0)
-    {
-        [_loader quadDisplayLayerStartUpdates:self];
-        [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
-    }
+        frameEndTime = frameStart+AvailableFrame*frameInterval;
 }
 
 - (void)frameEndThread
@@ -401,6 +386,15 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     
     somethingHappened |= didSomething;
+    
+    // If we're in metered mode, make sure we've got a flush here
+    if (_meteredMode)
+    {
+        NSTimeInterval howLong = frameEndTime-CFAbsoluteTimeGetCurrent();
+        if (howLong < 0.0)
+            howLong = 0.0;
+        [self performSelector:@selector(frameEndThread) withObject:nil afterDelay:howLong];
+    }
 }
 
 // This is called by the loader when it finished loading a tile
