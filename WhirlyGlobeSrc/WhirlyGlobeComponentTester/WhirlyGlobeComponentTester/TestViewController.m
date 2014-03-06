@@ -1444,7 +1444,10 @@ static const int NumMegaMarkers = 40000;
 //        else
 //            NSLog(@"Origin not on screen");
     }
-        
+    
+    // Screen shot
+    UIImage *image = [baseViewC snapshot];
+    
 //    if (selectedViewTrack)
 //    {
 //        [baseViewC removeViewTrackForView:selectedViewTrack.view];
