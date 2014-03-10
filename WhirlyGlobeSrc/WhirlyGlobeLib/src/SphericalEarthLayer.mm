@@ -105,6 +105,9 @@ using namespace WhirlyGlobe;
 //  up to match the given texture group
 - (void)process:(id)sender
 {
+    if (!scene)
+        return;
+    
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
 	// Unit size of each tesselation, basically
