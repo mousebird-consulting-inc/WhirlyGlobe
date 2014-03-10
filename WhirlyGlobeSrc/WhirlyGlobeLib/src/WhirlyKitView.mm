@@ -194,7 +194,7 @@ using namespace Eigen;
 
 - (double)heightForMapScale:(double)scale frame:(WhirlyKit::Point2f &)frameSize
 {
-    double height = (scale * frameSize.x() * 0.00096) / (2 * self.heightAboveSurface * tan(_fieldOfView/2.0) * EarthRadius);
+    double height = (scale * frameSize.x() * 0.00096) / (2 * tan(_fieldOfView/2.0) * EarthRadius);
     return height;
 }
 
