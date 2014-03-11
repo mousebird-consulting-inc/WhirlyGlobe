@@ -89,11 +89,15 @@ using namespace WhirlyKit;
     {
         float minScale = [styleEntry[@"minscaledenom"] floatValue];
         minVis = [self.viewC heightForMapScale:minScale] * settings.mapScaleScale;
+        // Note: Debugging
+        NSLog(@"minScale = %f, maxVis = %f",minScale,minVis);
     }
     if (styleEntry[@"maxscaledenom"])
     {
         float minScale = [styleEntry[@"maxscaledenom"] floatValue];
         maxVis = [self.viewC heightForMapScale:minScale] * settings.mapScaleScale;
+        // Note: Debugging
+        NSLog(@"minScale = %f, maxVis = %f",minScale,maxVis);
     }
     if (minVis != DrawVisibleInvalid)
     {

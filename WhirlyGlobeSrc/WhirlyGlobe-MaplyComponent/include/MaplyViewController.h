@@ -132,6 +132,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the pan gesture on and off
+    @details Pan gesture is on by default
+  */
+@property(nonatomic,assign) bool panGesture;
+
 /** @brief Turn the double tap to zoom gesture recognizer on and off
     @details On by default.
  */
@@ -244,8 +249,5 @@
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
-
-- (BOOL)panGestureEnabled;
-- (void)setPanGestureEnabled:(BOOL)enabled;
 
 @end
