@@ -344,6 +344,17 @@ using namespace Maply;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
 }
 
+- (bool)panGesture
+{
+    return panDelegate.gestureRecognizer.enabled;
+}
+
+
+- (void)setPanGesture:(bool)enabled
+{
+    panDelegate.gestureRecognizer.enabled = enabled;
+}
+
 - (void)setRotateGesture:(bool)rotateGesture
 {
     _rotateGesture = rotateGesture;
@@ -440,6 +451,11 @@ using namespace Maply;
 {
     *ll = boundLL;
     *ur = boundUR;
+}
+
+- (float)height
+{
+    return mapView.loc.z();
 }
 
 - (void)setHeight:(float)height
@@ -860,16 +876,5 @@ using namespace Maply;
     }
 }
 
-
-- (BOOL)panGestureEnabled
-{
-    return panDelegate.gestureRecognizer.enabled;
-}
-
-
-- (void)setPanGestureEnabled:(BOOL)enabled
-{
-    panDelegate.gestureRecognizer.enabled = enabled;
-}
 
 @end
