@@ -756,7 +756,7 @@ static const float ScreenOverlap = 0.1;
         
         [_snapshotDelegate snapshot:image];
         
-        _snapshotDelegate = false;
+        _snapshotDelegate = nil;
     }
 
     [context presentRenderbuffer:GL_RENDERBUFFER];

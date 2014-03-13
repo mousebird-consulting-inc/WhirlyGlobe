@@ -184,7 +184,7 @@ public:
     
     ShapeReader shapeReader(fileName);
     if (!shapeReader.isValid())
-        return false;
+        return nil;
     
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
     int numObj = shapeReader.getNumObjects();
