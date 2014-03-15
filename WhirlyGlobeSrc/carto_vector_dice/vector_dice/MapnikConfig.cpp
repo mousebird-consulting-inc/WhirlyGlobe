@@ -105,9 +105,9 @@ bool ConvertColor(const std::string &inVal,std::string &outVal)
         int r = (int)boost::lexical_cast<double>(what[1]);
         int g = (int)boost::lexical_cast<double>(what[2]);
         int b = (int)boost::lexical_cast<double>(what[3]);
-        int a = (int)boost::lexical_cast<double>(what[4]);
+        int a = (int)(boost::lexical_cast<double>(what[4])*255);
         char outStr[1024];
-        sprintf(outStr,"#%02x%02x%02x%02x",(unsigned int)(r&0xFF),(unsigned int)(g&0xFF),(unsigned int)(b&0xFF),(unsigned int)(a&0xFF));
+        sprintf(outStr,"#%02x%02x%02x%02x",(unsigned int)(a&0xFF),(unsigned int)(r&0xFF),(unsigned int)(g&0xFF),(unsigned int)(b&0xFF));
         outVal = outStr;
         
         return true;
@@ -232,7 +232,7 @@ bool MapnikConfig::Filter::Comparison::isValid()
 
 void MapnikConfig::Filter::Comparison::setFilter(const std::string &filterText)
 {
-    exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|>|<|<=|>=|&gt;|&lt;|&lt;&gt;|!=)\\s(\'.*\'?)\\)"));
+    exp = RegExRef(new boost::regex("\\(\\[(\\w+)\\]\\s(=|>|<|<=|>=|&gt;|&lt;|&lt;&gt;|!=)\\s(.*?)\\)"));
     boost::smatch what;
     if (boost::regex_match(filterText, what, *exp, boost::match_default))
     {
