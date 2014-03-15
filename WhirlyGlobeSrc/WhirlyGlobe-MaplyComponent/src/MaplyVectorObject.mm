@@ -80,7 +80,8 @@ public:
         bcopy(&bytes[pos],simpleStr,strLen);
         simpleStr[strLen] = 0;
         
-        NSString *retStr = [NSString stringWithFormat:@"%s",simpleStr];
+        NSString *retStr = [NSString stringWithUTF8String:simpleStr];
+        
         free(simpleStr);
         
         pos += strLen;
