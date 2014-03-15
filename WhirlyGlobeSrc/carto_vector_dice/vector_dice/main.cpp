@@ -293,6 +293,8 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
             for (unsigned int igeom=0;igeom<geoms.size();igeom++)
             {
                 OGRGeometry *geom = geoms[igeom];
+                OGREnvelope startEnv;
+                geom->getEnvelope(&startEnv);
                 OGRErr err = geom->transform(transform);
                 if (err != OGRERR_NONE)
                 {
@@ -559,6 +561,10 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         
         // Transform and copy features
         OGRCoordinateTransformation *transform = OGRCreateCoordinateTransformation(this_srs,hTrgSRS);
+//        char *this_srs_out = NULL;
+//        this_srs->exportToWkt(&this_srs_out);
+//        char *trg_srs_out = NULL;
+//        hTrgSRS->exportToWkt(&trg_srs_out);
         if (!transform)
         {
             fprintf(stderr,"Can't transform from coordinate system to destination for: %s\n",inputFile);
@@ -572,7 +578,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         }
         
         OGRDataSource *memDS = memDriver->CreateDataSource("memory");
-        OGRLayer *layer = memDS->CreateLayer("layer",this_srs);
+        OGRLayer *layer = memDS->CreateLayer("layer",hTrgSRS);
         // We'll also apply any rules and attribute changes at this point
         TransformLayer(inLayer,layer,transform,symGroups,dataType,psExtent);
         LayerSpatialIndex layerIndex(layer);
@@ -624,7 +630,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                     mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
                     const char *typeName = (dataType == MapnikConfig::SymbolDataPoint ? "_p" : ((dataType == MapnikConfig::SymbolDataLinear) ? "_l" : ((dataType == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
                     std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
-                    if (!MergeIntoShapeFile(clippedFeatures,layer,hTrgSRS,cellFileName.c_str()))
+                    if (!MergeIntoShapeFile(clippedFeatures,layer,hTileSRS,cellFileName.c_str()))
                         exit(-1);
                 }
                 
@@ -650,7 +656,9 @@ void MergeDataIntoLayer(OGRLayer *destLayer,OGRLayer *srcLayer)
 int ScaleForLevel(int level)
 {
     int exp = 22-level;
-    return (1<<exp) * 150;
+    // Note: We're scaling by 1/16 to get this into a level WG-Maply uses
+    //       The problem here is that map "levels" don't correspond well to loading levels
+    return (1<<exp) * 150 / 8;
 }
 
 int main(int argc, char * argv[])
@@ -854,7 +862,8 @@ int main(int argc, char * argv[])
         mkdir(((std::string)targetDir+"/"+std::to_string(level)).c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
     // Set up a coordinate transformation
-    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:3857") );
+    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:900913") );
+//    OGRSpatialReference *hTileSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:3857") );
     OGRSpatialReference *hTileSRS = new OGRSpatialReference ( tileSRS ? tileSRS : SanitizeSRS("EPSG:4326") );
     
     // Keep track of what we've built
@@ -882,8 +891,8 @@ int main(int argc, char * argv[])
             // Work through the levels
             for (int li=minLevel;li<=maxLevel;li++)
             {
-                fprintf(stdout, "  Level %d\n",li);
                 int scale = ScaleForLevel(li);
+                fprintf(stdout, "  Level %d;  Scale = %d\n",li,scale);
                 
                 // Look through the sorted styles that might apply and aren't done
                 for (unsigned int ssi=0;ssi<layer.sortStyles.size();ssi++)
@@ -1073,7 +1082,7 @@ int main(int argc, char * argv[])
                     bool fileExists = true;
                     try
                     {
-//                        fileExists = boost::filesystem::exists(yDirPath);
+                        fileExists = boost::filesystem::exists(yDirPath);
                     }
                     catch (...)
                     {
@@ -1092,16 +1101,17 @@ int main(int argc, char * argv[])
                     std::set<std::string> yFileNames;
                     try
                     {
-//                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-//                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
-//                        {
-//                            boost::filesystem::path p = dirIter->path();
-//                            std::string ext = p.extension().string();
-//                            if (!ext.compare(".shp"))
-//                            {
-//                                yFileNames.insert(p.string());
-//                            }
-//                        }
+                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+                        {
+                            boost::filesystem::path p = dirIter->path();
+                            std::string ext = p.extension().string();
+                            if (!ext.compare(".shp"))
+                            {
+                                yFileNames.insert(p.string());
+                            }
+                        }
+                        fileNameCache = true;
                     }
                     catch (...)
                     {
