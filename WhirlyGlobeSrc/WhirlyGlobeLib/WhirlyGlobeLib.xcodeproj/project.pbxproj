@@ -7,17 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B009C78185F6F62001E2EE8 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C77185F6F62001E2EE8 /* Dictionary.h */; };
-		2B009C7A185F6F6A001E2EE8 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */; };
-		2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C7B185F7924001E2EE8 /* ShapeReader.h */; };
-		2B009C7E185F7933001E2EE8 /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */; };
-		2B009C80185F7F96001E2EE8 /* GridClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */; };
-		2B009C82185F7F9B001E2EE8 /* GridClipper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C81185F7F9B001E2EE8 /* GridClipper.h */; };
-		2B009C88185F7FFA001E2EE8 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */; };
-		2B009C8A185F8001001E2EE8 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C89185F8001001E2EE8 /* VectorManager.h */; };
-		2B009C8C185F8130001E2EE8 /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8B185F8130001E2EE8 /* SharedAttributes.h */; };
-		2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C8F185F9065001E2EE8 /* Tesselator.h */; };
-		2B009C92185F906D001E2EE8 /* Tesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009C91185F906D001E2EE8 /* Tesselator.cpp */; };
 		2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */; };
 		2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CC1186102E4001E2EE8 /* libbase64++.h */; };
 		2B009CED186102E4001E2EE8 /* mempool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CC3186102E4001E2EE8 /* mempool.h */; };
@@ -61,83 +50,160 @@
 		2B009D13186102E4001E2EE8 /* libjson.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B009CEB186102E4001E2EE8 /* libjson.h */; };
 		2B009D171861093A001E2EE8 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B009D151861093A001E2EE8 /* clipper.cpp */; };
 		2B009D181861093A001E2EE8 /* clipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B009D161861093A001E2EE8 /* clipper.hpp */; };
-		2B13BA8418B416F6007DA1A3 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */; };
-		2B13BA8618B41704007DA1A3 /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */; };
-		2B13BA8818B41B52007DA1A3 /* DynamicDrawableAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */; };
-		2B13BA8A18B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */; };
-		2B13BA8C18B41E88007DA1A3 /* BigDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */; };
-		2B13BA8E18B41E96007DA1A3 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */; };
-		2B13BA9018B42E6E007DA1A3 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */; };
-		2B13BA9218B42E79007DA1A3 /* LoadedTile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */; };
-		2B13BA9818B525B5007DA1A3 /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */; };
-		2B13BA9A18B525C0007DA1A3 /* TileQuadLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */; };
-		2B23C3B718903AF50059FF8F /* Quadtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23C3B618903AF50059FF8F /* Quadtree.h */; };
-		2B23C3B918903AFF0059FF8F /* Quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23C3B818903AFF0059FF8F /* Quadtree.cpp */; };
-		2B23C3BB189042A30059FF8F /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23C3BA189042A30059FF8F /* ScreenImportance.h */; };
-		2B23C3BD189042B10059FF8F /* ScreenImportance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23C3BC189042B10059FF8F /* ScreenImportance.cpp */; };
+		2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671118D762A700EF8DB1 /* BigDrawable.cpp */; };
+		2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671218D762A700EF8DB1 /* CoordSystem.cpp */; };
+		2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671318D762A700EF8DB1 /* Cullable.cpp */; };
+		2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671418D762A700EF8DB1 /* DefaultShaderPrograms.cpp */; };
+		2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671518D762A700EF8DB1 /* Dictionary.cpp */; };
+		2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671618D762A700EF8DB1 /* Drawable.cpp */; };
+		2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671718D762A700EF8DB1 /* DynamicDrawableAtlas.cpp */; };
+		2B35674A18D762A700EF8DB1 /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671818D762A700EF8DB1 /* DynamicTextureAtlas.cpp */; };
+		2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671918D762A700EF8DB1 /* FlatMath.cpp */; };
+		2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671A18D762A700EF8DB1 /* Generator.cpp */; };
+		2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671B18D762A700EF8DB1 /* GlobeMath.cpp */; };
+		2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671C18D762A700EF8DB1 /* GlobeScene.cpp */; };
+		2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671D18D762A700EF8DB1 /* GlobeView.cpp */; };
+		2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671E18D762A700EF8DB1 /* GlobeViewState.cpp */; };
+		2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35671F18D762A700EF8DB1 /* GLUtils.cpp */; };
+		2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672018D762A700EF8DB1 /* GridClipper.cpp */; };
+		2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672118D762A700EF8DB1 /* Identifiable.cpp */; };
+		2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672218D762A700EF8DB1 /* LayoutManager.cpp */; };
+		2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672318D762A700EF8DB1 /* LoadedTile.cpp */; };
+		2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672418D762A700EF8DB1 /* MaplyFlatView.cpp */; };
+		2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672518D762A700EF8DB1 /* MaplyScene.cpp */; };
+		2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672618D762A700EF8DB1 /* MaplyView.cpp */; };
+		2B35675918D762A700EF8DB1 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */; };
+		2B35675A18D762A700EF8DB1 /* MarkerGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */; };
+		2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672918D762A700EF8DB1 /* MarkerManager.cpp */; };
+		2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */; };
+		2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */; };
+		2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672C18D762A700EF8DB1 /* Platform.mm */; };
+		2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672D18D762A700EF8DB1 /* QuadDisplayController.cpp */; };
+		2B35676018D762A700EF8DB1 /* Quadtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672E18D762A700EF8DB1 /* Quadtree.cpp */; };
+		2B35676118D762A700EF8DB1 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35672F18D762A700EF8DB1 /* RawData.cpp */; };
+		2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673018D762A700EF8DB1 /* Scene.cpp */; };
+		2B35676318D762A700EF8DB1 /* SceneRendererES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673118D762A700EF8DB1 /* SceneRendererES.cpp */; };
+		2B35676418D762A700EF8DB1 /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673218D762A700EF8DB1 /* SceneRendererES2.cpp */; };
+		2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673318D762A700EF8DB1 /* ScreenImportance.cpp */; };
+		2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673418D762A700EF8DB1 /* ScreenSpaceGenerator.cpp */; };
+		2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673518D762A700EF8DB1 /* SelectionManager.cpp */; };
+		2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673618D762A700EF8DB1 /* ShapeReader.cpp */; };
+		2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673718D762A700EF8DB1 /* SphericalMercator.cpp */; };
+		2B35676A18D762A700EF8DB1 /* Tesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673818D762A700EF8DB1 /* Tesselator.cpp */; };
+		2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673918D762A700EF8DB1 /* Texture.cpp */; };
+		2B35676C18D762A700EF8DB1 /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673A18D762A700EF8DB1 /* TextureAtlas.cpp */; };
+		2B35676D18D762A700EF8DB1 /* TileQuadLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673B18D762A700EF8DB1 /* TileQuadLoader.cpp */; };
+		2B35676E18D762A700EF8DB1 /* VectorData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673C18D762A700EF8DB1 /* VectorData.cpp */; };
+		2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673D18D762A700EF8DB1 /* VectorManager.cpp */; };
+		2B35677018D762A700EF8DB1 /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673E18D762A700EF8DB1 /* VectorObject.cpp */; };
+		2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35673F18D762A700EF8DB1 /* ViewState.cpp */; };
+		2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35674018D762A700EF8DB1 /* WhirlyGeometry.cpp */; };
+		2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35674118D762A700EF8DB1 /* WhirlyKitView.cpp */; };
+		2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */; };
+		2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677518D762BF00EF8DB1 /* BigDrawable.h */; };
+		2B3567DC18D762BF00EF8DB1 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677618D762BF00EF8DB1 /* CoordSystem.h */; };
+		2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677718D762BF00EF8DB1 /* Cullable.h */; };
+		2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677818D762BF00EF8DB1 /* DefaultShaderPrograms.h */; };
+		2B3567DF18D762BF00EF8DB1 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677918D762BF00EF8DB1 /* Dictionary.h */; };
+		2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677A18D762BF00EF8DB1 /* Drawable.h */; };
+		2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677B18D762BF00EF8DB1 /* DynamicDrawableAtlas.h */; };
+		2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677C18D762BF00EF8DB1 /* DynamicTextureAtlas.h */; };
+		2B3567E318D762BF00EF8DB1 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677D18D762BF00EF8DB1 /* FlatMath.h */; };
+		2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677E18D762BF00EF8DB1 /* Generator.h */; };
+		2B3567E518D762BF00EF8DB1 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35677F18D762BF00EF8DB1 /* GlobeMath.h */; };
+		2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678018D762BF00EF8DB1 /* GlobeScene.h */; };
+		2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678118D762BF00EF8DB1 /* GlobeView.h */; };
+		2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678218D762BF00EF8DB1 /* GlobeViewState.h */; };
+		2B3567E918D762BF00EF8DB1 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678318D762BF00EF8DB1 /* GLUtils.h */; };
+		2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678418D762BF00EF8DB1 /* GridClipper.h */; };
+		2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678518D762BF00EF8DB1 /* Identifiable.h */; };
+		2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678618D762BF00EF8DB1 /* LayoutManager.h */; };
+		2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678718D762BF00EF8DB1 /* LoadedTile.h */; };
+		2B3567EE18D762BF00EF8DB1 /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678918D762BF00EF8DB1 /* ActiveModel.h */; };
+		2B3567EF18D762BF00EF8DB1 /* AnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678A18D762BF00EF8DB1 /* AnimateRotation.h */; };
+		2B3567F018D762BF00EF8DB1 /* AnimateViewMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678B18D762BF00EF8DB1 /* AnimateViewMomentum.h */; };
+		2B3567F118D762BF00EF8DB1 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678C18D762BF00EF8DB1 /* BillboardDrawable.h */; };
+		2B3567F218D762BF00EF8DB1 /* BillboardLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678D18D762BF00EF8DB1 /* BillboardLayer.h */; };
+		2B3567F318D762BF00EF8DB1 /* BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678E18D762BF00EF8DB1 /* BillboardManager.h */; };
+		2B3567F418D762BF00EF8DB1 /* BufferBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35678F18D762BF00EF8DB1 /* BufferBuilder.h */; };
+		2B3567F518D762BF00EF8DB1 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679018D762BF00EF8DB1 /* ElevationChunk.h */; };
+		2B3567F618D762BF00EF8DB1 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679118D762BF00EF8DB1 /* FontTextureManager.h */; };
+		2B3567F718D762BF00EF8DB1 /* GeometryLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679218D762BF00EF8DB1 /* GeometryLayer.h */; };
+		2B3567F818D762BF00EF8DB1 /* GridLines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679318D762BF00EF8DB1 /* GridLines.h */; };
+		2B3567F918D762BF00EF8DB1 /* LabelLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679418D762BF00EF8DB1 /* LabelLayer.h */; };
+		2B3567FA18D762BF00EF8DB1 /* LabelManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679518D762BF00EF8DB1 /* LabelManager.h */; };
+		2B3567FB18D762BF00EF8DB1 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679618D762BF00EF8DB1 /* LabelRenderer.h */; };
+		2B3567FC18D762BF00EF8DB1 /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679718D762BF00EF8DB1 /* LayoutLayer.h */; };
+		2B3567FD18D762BF00EF8DB1 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679818D762BF00EF8DB1 /* Lighting.h */; };
+		2B3567FE18D762BF00EF8DB1 /* LoftLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679918D762BF00EF8DB1 /* LoftLayer.h */; };
+		2B3567FF18D762BF00EF8DB1 /* LoftManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679A18D762BF00EF8DB1 /* LoftManager.h */; };
+		2B35680018D762BF00EF8DB1 /* LongPressDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679B18D762BF00EF8DB1 /* LongPressDelegate.h */; };
+		2B35680118D762BF00EF8DB1 /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679C18D762BF00EF8DB1 /* MaplyAnimateFlat.h */; };
+		2B35680218D762BF00EF8DB1 /* MaplyAnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679D18D762BF00EF8DB1 /* MaplyAnimateTranslateMomentum.h */; };
+		2B35680318D762BF00EF8DB1 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679E18D762BF00EF8DB1 /* MaplyAnimateTranslation.h */; };
+		2B35680418D762BF00EF8DB1 /* MarkerLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B35679F18D762BF00EF8DB1 /* MarkerLayer.h */; };
+		2B35680518D762BF00EF8DB1 /* MBTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A018D762BF00EF8DB1 /* MBTileQuadSource.h */; };
+		2B35680618D762BF00EF8DB1 /* NetworkTileQuadSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A118D762BF00EF8DB1 /* NetworkTileQuadSource.h */; };
+		2B35680718D762BF00EF8DB1 /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A218D762BF00EF8DB1 /* NSString+Stuff.h */; };
+		2B35680818D762BF00EF8DB1 /* PanDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A318D762BF00EF8DB1 /* PanDelegate.h */; };
+		2B35680918D762BF00EF8DB1 /* ParticleGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A418D762BF00EF8DB1 /* ParticleGenerator.h */; };
+		2B35680A18D762BF00EF8DB1 /* ParticleSystemLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A518D762BF00EF8DB1 /* ParticleSystemLayer.h */; };
+		2B35680B18D762BF00EF8DB1 /* ParticleSystemManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A618D762BF00EF8DB1 /* ParticleSystemManager.h */; };
+		2B35680C18D762BF00EF8DB1 /* PinchDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A718D762BF00EF8DB1 /* PinchDelegate.h */; };
+		2B35680D18D762BF00EF8DB1 /* RotateDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A818D762BF00EF8DB1 /* RotateDelegate.h */; };
+		2B35680E18D762BF00EF8DB1 /* SceneGraphManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567A918D762BF00EF8DB1 /* SceneGraphManager.h */; };
+		2B35680F18D762BF00EF8DB1 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AA18D762BF00EF8DB1 /* ShapeDrawableBuilder.h */; };
+		2B35681018D762BF00EF8DB1 /* ShapeLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AB18D762BF00EF8DB1 /* ShapeLayer.h */; };
+		2B35681118D762BF00EF8DB1 /* ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AC18D762BF00EF8DB1 /* ShapeManager.h */; };
+		2B35681218D762BF00EF8DB1 /* SphericalEarthChunkLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AD18D762BF00EF8DB1 /* SphericalEarthChunkLayer.h */; };
+		2B35681318D762BF00EF8DB1 /* SphericalEarthChunkManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AE18D762BF00EF8DB1 /* SphericalEarthChunkManager.h */; };
+		2B35681418D762BF00EF8DB1 /* SphericalEarthLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567AF18D762BF00EF8DB1 /* SphericalEarthLayer.h */; };
+		2B35681518D762BF00EF8DB1 /* SphericalEarthQuadLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B018D762BF00EF8DB1 /* SphericalEarthQuadLayer.h */; };
+		2B35681618D762BF00EF8DB1 /* SwipeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B118D762BF00EF8DB1 /* SwipeDelegate.h */; };
+		2B35681718D762BF00EF8DB1 /* TapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B218D762BF00EF8DB1 /* TapDelegate.h */; };
+		2B35681818D762BF00EF8DB1 /* TapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B318D762BF00EF8DB1 /* TapMessage.h */; };
+		2B35681918D762BF00EF8DB1 /* TextureGroup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B418D762BF00EF8DB1 /* TextureGroup.h */; };
+		2B35681A18D762BF00EF8DB1 /* TileQuadOfflineRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B518D762BF00EF8DB1 /* TileQuadOfflineRenderer.h */; };
+		2B35681B18D762BF00EF8DB1 /* UpdateDisplayLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B618D762BF00EF8DB1 /* UpdateDisplayLayer.h */; };
+		2B35681C18D762BF00EF8DB1 /* VectorDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B718D762BF00EF8DB1 /* VectorDatabase.h */; };
+		2B35681D18D762BF00EF8DB1 /* VectorLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B818D762BF00EF8DB1 /* VectorLayer.h */; };
+		2B35681E18D762BF00EF8DB1 /* ViewPlacementGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567B918D762BF00EF8DB1 /* ViewPlacementGenerator.h */; };
+		2B35681F18D762BF00EF8DB1 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BA18D762BF00EF8DB1 /* MaplyFlatView.h */; };
+		2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */; };
+		2B35682118D762BF00EF8DB1 /* MaplyView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BC18D762BF00EF8DB1 /* MaplyView.h */; };
+		2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */; };
+		2B35682318D762BF00EF8DB1 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */; };
+		2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */; };
+		2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */; };
+		2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */; };
+		2B35682718D762BF00EF8DB1 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C218D762BF00EF8DB1 /* Platform.h */; };
+		2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C318D762BF00EF8DB1 /* QuadDisplayController.h */; };
+		2B35682918D762BF00EF8DB1 /* Quadtree.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C418D762BF00EF8DB1 /* Quadtree.h */; };
+		2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C518D762BF00EF8DB1 /* RawData.h */; };
+		2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C618D762BF00EF8DB1 /* Scene.h */; };
+		2B35682C18D762BF00EF8DB1 /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C718D762BF00EF8DB1 /* SceneRendererES.h */; };
+		2B35682D18D762BF00EF8DB1 /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C818D762BF00EF8DB1 /* SceneRendererES2.h */; };
+		2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567C918D762BF00EF8DB1 /* ScreenImportance.h */; };
+		2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CA18D762BF00EF8DB1 /* ScreenSpaceGenerator.h */; };
+		2B35683018D762BF00EF8DB1 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CB18D762BF00EF8DB1 /* SelectionManager.h */; };
+		2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CC18D762BF00EF8DB1 /* ShapeReader.h */; };
+		2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CD18D762BF00EF8DB1 /* SharedAttributes.h */; };
+		2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CE18D762BF00EF8DB1 /* SphericalMercator.h */; };
+		2B35683418D762BF00EF8DB1 /* Tesselator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567CF18D762BF00EF8DB1 /* Tesselator.h */; };
+		2B35683518D762BF00EF8DB1 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D018D762BF00EF8DB1 /* Texture.h */; };
+		2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D118D762BF00EF8DB1 /* TextureAtlas.h */; };
+		2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D218D762BF00EF8DB1 /* TileQuadLoader.h */; };
+		2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D318D762BF00EF8DB1 /* VectorData.h */; };
+		2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D418D762BF00EF8DB1 /* VectorManager.h */; };
+		2B35683A18D762BF00EF8DB1 /* VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D518D762BF00EF8DB1 /* VectorObject.h */; };
+		2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D618D762BF00EF8DB1 /* ViewState.h */; };
+		2B35683C18D762BF00EF8DB1 /* WhirlyGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D718D762BF00EF8DB1 /* WhirlyGeometry.h */; };
+		2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D818D762BF00EF8DB1 /* WhirlyKitView.h */; };
+		2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567D918D762BF00EF8DB1 /* WhirlyTypes.h */; };
+		2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3567DA18D762BF00EF8DB1 /* WhirlyVector.h */; };
 		2B3836A9186244DC00467ABD /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836A8186244DC00467ABD /* glwrapper.h */; };
 		2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AA18625C9200467ABD /* glwrapper.cpp */; };
-		2B3836AD18635CB200467ABD /* VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3836AC18635CB200467ABD /* VectorObject.h */; };
-		2B3836AF18635CBC00467ABD /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3836AE18635CBC00467ABD /* VectorObject.cpp */; };
 		2B3A0D41133405700085EF43 /* shapefil.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B951D8E12F09E7A005003AE /* shapefil.h */; };
-		2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F84185BD3460028E027 /* CoordSystem.h */; };
-		2B789F8C185BD3460028E027 /* FlatMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F85185BD3460028E027 /* FlatMath.h */; };
-		2B789F8D185BD3460028E027 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F86185BD3460028E027 /* GlobeMath.h */; };
-		2B789F8E185BD3460028E027 /* Identifiable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F87185BD3460028E027 /* Identifiable.h */; };
-		2B789F8F185BD3460028E027 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F88185BD3460028E027 /* OpenGLES2Program.h */; };
-		2B789F90185BD3460028E027 /* WhirlyGeometry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F89185BD3460028E027 /* WhirlyGeometry.h */; };
-		2B789F91185BD3460028E027 /* WhirlyVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789F8A185BD3460028E027 /* WhirlyVector.h */; };
-		2B789F93185BD36A0028E027 /* CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F92185BD36A0028E027 /* CoordSystem.cpp */; };
-		2B789F95185BD37E0028E027 /* FlatMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F94185BD37E0028E027 /* FlatMath.cpp */; };
-		2B789F98185BD3AC0028E027 /* GlobeMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F96185BD3AC0028E027 /* GlobeMath.cpp */; };
-		2B789F99185BD3AC0028E027 /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F97185BD3AC0028E027 /* Identifiable.cpp */; };
-		2B789F9B185BD3E10028E027 /* OpenGLES2Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F9A185BD3E10028E027 /* OpenGLES2Program.cpp */; };
-		2B789F9D185BD3EE0028E027 /* WhirlyGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F9C185BD3EE0028E027 /* WhirlyGeometry.cpp */; };
-		2B789F9F185BD3FB0028E027 /* WhirlyVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789F9E185BD3FB0028E027 /* WhirlyVector.cpp */; };
-		2B789FA1185BD4F70028E027 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FA0185BD4F70028E027 /* WhirlyTypes.h */; };
-		2B789FA3185BD5690028E027 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FA2185BD5690028E027 /* GLUtils.h */; };
-		2B789FA5185BD5780028E027 /* GLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FA4185BD5780028E027 /* GLUtils.cpp */; };
-		2B789FAB185BD7490028E027 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FAA185BD7490028E027 /* Scene.h */; };
-		2B789FAD185BD7950028E027 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FAC185BD7950028E027 /* Scene.cpp */; };
-		2B789FAF185BD7E00028E027 /* Cullable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FAE185BD7E00028E027 /* Cullable.h */; };
-		2B789FB1185BD7E50028E027 /* Drawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FB0185BD7E50028E027 /* Drawable.h */; };
-		2B789FB3185BD9550028E027 /* Generator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FB2185BD9550028E027 /* Generator.h */; };
-		2B789FB5185BDA220028E027 /* GlobeView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FB4185BDA220028E027 /* GlobeView.h */; };
-		2B789FB7185BDA360028E027 /* MaplyView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FB6185BDA360028E027 /* MaplyView.h */; };
-		2B789FB9185BDA420028E027 /* MaplyScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FB8185BDA420028E027 /* MaplyScene.h */; };
-		2B789FBB185BDA4E0028E027 /* GlobeScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FBA185BDA4E0028E027 /* GlobeScene.h */; };
-		2B789FC2185BDBC40028E027 /* Cullable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FBC185BDBC40028E027 /* Cullable.cpp */; };
-		2B789FC3185BDBC40028E027 /* Drawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FBD185BDBC40028E027 /* Drawable.cpp */; };
-		2B789FC4185BDBC40028E027 /* Generator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FBE185BDBC40028E027 /* Generator.cpp */; };
-		2B789FC5185BDBC40028E027 /* GlobeScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FBF185BDBC40028E027 /* GlobeScene.cpp */; };
-		2B789FC6185BDBC40028E027 /* GlobeView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FC0185BDBC40028E027 /* GlobeView.cpp */; };
-		2B789FC7185BDBC40028E027 /* MaplyScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FC1185BDBC40028E027 /* MaplyScene.cpp */; };
-		2B789FC9185BDC480028E027 /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FC8185BDC480028E027 /* SceneRendererES.h */; };
-		2B789FCB185BDD9C0028E027 /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FCA185BDD9C0028E027 /* PerformanceTimer.cpp */; };
-		2B789FCD185BDDAF0028E027 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FCC185BDDAF0028E027 /* PerformanceTimer.h */; };
-		2B789FCF185BDE8B0028E027 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FCE185BDE8B0028E027 /* Platform.h */; };
-		2B789FD1185BE12B0028E027 /* DefaultShaderPrograms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FD0185BE12B0028E027 /* DefaultShaderPrograms.cpp */; };
-		2B789FD3185BE1380028E027 /* DefaultShaderPrograms.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FD2185BE1380028E027 /* DefaultShaderPrograms.h */; };
-		2B789FDA185BE1D80028E027 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FD8185BE1D80028E027 /* Platform.mm */; };
-		2B789FDB185BE1D80028E027 /* WhirlyKitView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FD9185BE1D80028E027 /* WhirlyKitView.cpp */; };
-		2B789FDD185BE2890028E027 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FDC185BE2890028E027 /* WhirlyKitView.h */; };
-		2B789FDF185BE3420028E027 /* SphericalMercator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FDE185BE3420028E027 /* SphericalMercator.cpp */; };
-		2B789FE1185BE3520028E027 /* SphericalMercator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FE0185BE3520028E027 /* SphericalMercator.h */; };
-		2B789FE3185BE3600028E027 /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FE2185BE3600028E027 /* GlobeViewState.cpp */; };
-		2B789FE5185BE36C0028E027 /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FE4185BE36C0028E027 /* ViewState.h */; };
-		2B789FE7185BE3710028E027 /* GlobeViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FE6185BE3710028E027 /* GlobeViewState.h */; };
-		2B789FE9185BE37A0028E027 /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FE8185BE37A0028E027 /* ViewState.cpp */; };
-		2B789FEB185BE4430028E027 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FEA185BE4430028E027 /* MaplyViewState.cpp */; };
-		2B789FED185BE4580028E027 /* MaplyViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FEC185BE4580028E027 /* MaplyViewState.h */; };
-		2B789FEF185BE4CB0028E027 /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FEE185BE4CB0028E027 /* MaplyView.cpp */; };
-		2B789FF3185BE56F0028E027 /* LayoutManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FF2185BE56F0028E027 /* LayoutManager.h */; };
-		2B789FF5185BE59F0028E027 /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B789FF4185BE59F0028E027 /* SceneRendererES2.h */; };
-		2B789FFB185BE7930028E027 /* SceneRendererES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FFA185BE7930028E027 /* SceneRendererES.cpp */; };
-		2B789FFD185BE8660028E027 /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B789FFC185BE8660028E027 /* SceneRendererES2.cpp */; };
-		2B78A001185BE9ED0028E027 /* MaplyFlatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B78A000185BE9ED0028E027 /* MaplyFlatView.cpp */; };
-		2B78A003185BE9F80028E027 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B78A002185BE9F80028E027 /* MaplyFlatView.h */; };
-		2B78A005185BEA150028E027 /* VectorData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B78A004185BEA150028E027 /* VectorData.cpp */; };
-		2B78A007185BEA300028E027 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B78A006185BEA300028E027 /* VectorData.h */; };
 		2B7EF42516025D8C00D4079F /* aasincos.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37A16025D8C00D4079F /* aasincos.c */; };
 		2B7EF42616025D8C00D4079F /* adjlon.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37B16025D8C00D4079F /* adjlon.c */; };
 		2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B7EF37C16025D8C00D4079F /* bch2bps.c */; };
@@ -331,41 +397,13 @@
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
 		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
-		2BBDFE741887480D00AE4CEB /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFE731887480D00AE4CEB /* RawData.h */; };
-		2BBDFE761887482800AE4CEB /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFE751887482800AE4CEB /* RawData.cpp */; };
-		2BBDFE7C1888717A00AE4CEB /* QuadDisplayController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBDFE7B1888717A00AE4CEB /* QuadDisplayController.h */; };
-		2BBDFE7E188871AF00AE4CEB /* QuadDisplayController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBDFE7D188871AF00AE4CEB /* QuadDisplayController.cpp */; };
 		2BDC4ABC133404BB00E25283 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 		2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9212F09EA0005003AE /* dbfopen.c */; };
 		2BDC4AC4133404C600E25283 /* shpopen.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951D9012F09E91005003AE /* shpopen.c */; };
 		2BDC4AC5133404CA00E25283 /* safileio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B951DF012F0AC50005003AE /* safileio.c */; };
-		2BF76A2C1886030800465603 /* MarkerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A271886030800465603 /* MarkerManager.h */; };
-		2BF76A2D1886030800465603 /* ScreenSpaceGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A281886030800465603 /* ScreenSpaceGenerator.h */; };
-		2BF76A2E1886030800465603 /* SelectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A291886030800465603 /* SelectionManager.h */; };
-		2BF76A2F1886030800465603 /* Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A2A1886030800465603 /* Texture.h */; };
-		2BF76A311886034B00465603 /* MarkerGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A301886034B00465603 /* MarkerGenerator.h */; };
-		2BF76A381886038700465603 /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A321886038700465603 /* LayoutManager.cpp */; };
-		2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A331886038700465603 /* MarkerGenerator.cpp */; };
-		2BF76A3A1886038700465603 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A341886038700465603 /* MarkerManager.cpp */; };
-		2BF76A3B1886038700465603 /* ScreenSpaceGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */; };
-		2BF76A3C1886038700465603 /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A361886038700465603 /* SelectionManager.cpp */; };
-		2BF76A3D1886038700465603 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A371886038700465603 /* Texture.cpp */; };
-		2BF76A3F1886F90400465603 /* TextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BF76A3E1886F90400465603 /* TextureAtlas.h */; };
-		2BF76A411886F91800465603 /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BF76A401886F91800465603 /* TextureAtlas.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2B009C77185F6F62001E2EE8 /* Dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dictionary.h; path = core/Dictionary.h; sourceTree = "<group>"; };
-		2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = core/Dictionary.cpp; sourceTree = "<group>"; };
-		2B009C7B185F7924001E2EE8 /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShapeReader.h; path = core/ShapeReader.h; sourceTree = "<group>"; };
-		2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeReader.cpp; path = core/ShapeReader.cpp; sourceTree = "<group>"; };
-		2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GridClipper.cpp; path = core/GridClipper.cpp; sourceTree = "<group>"; };
-		2B009C81185F7F9B001E2EE8 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GridClipper.h; path = core/GridClipper.h; sourceTree = "<group>"; };
-		2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorManager.cpp; path = core/VectorManager.cpp; sourceTree = "<group>"; };
-		2B009C89185F8001001E2EE8 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorManager.h; path = core/VectorManager.h; sourceTree = "<group>"; };
-		2B009C8B185F8130001E2EE8 /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = core/SharedAttributes.h; sourceTree = "<group>"; };
-		2B009C8F185F9065001E2EE8 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Tesselator.h; path = core/Tesselator.h; sourceTree = "<group>"; };
-		2B009C91185F906D001E2EE8 /* Tesselator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Tesselator.cpp; path = core/Tesselator.cpp; sourceTree = "<group>"; };
 		2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		2B009CC1186102E4001E2EE8 /* libbase64++.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "libbase64++.h"; sourceTree = "<group>"; };
 		2B009CC3186102E4001E2EE8 /* mempool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mempool.h; sourceTree = "<group>"; };
@@ -409,84 +447,161 @@
 		2B009CEB186102E4001E2EE8 /* libjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libjson.h; path = "../../third-party/libjson/libjson.h"; sourceTree = "<group>"; };
 		2B009D151861093A001E2EE8 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../../third-party/clipper/cpp/clipper.cpp"; sourceTree = "<group>"; };
 		2B009D161861093A001E2EE8 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../../third-party/clipper/cpp/clipper.hpp"; sourceTree = "<group>"; };
-		2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicTextureAtlas.h; path = core/DynamicTextureAtlas.h; sourceTree = "<group>"; };
-		2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicTextureAtlas.cpp; path = core/DynamicTextureAtlas.cpp; sourceTree = "<group>"; };
-		2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DynamicDrawableAtlas.h; path = core/DynamicDrawableAtlas.h; sourceTree = "<group>"; };
-		2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DynamicDrawableAtlas.cpp; path = core/DynamicDrawableAtlas.cpp; sourceTree = "<group>"; };
-		2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BigDrawable.h; path = core/BigDrawable.h; sourceTree = "<group>"; };
-		2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BigDrawable.cpp; path = core/BigDrawable.cpp; sourceTree = "<group>"; };
-		2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadedTile.h; path = core/LoadedTile.h; sourceTree = "<group>"; };
-		2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadedTile.cpp; path = core/LoadedTile.cpp; sourceTree = "<group>"; };
-		2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TileQuadLoader.h; path = core/TileQuadLoader.h; sourceTree = "<group>"; };
-		2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TileQuadLoader.cpp; path = core/TileQuadLoader.cpp; sourceTree = "<group>"; };
-		2B23C3B618903AF50059FF8F /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Quadtree.h; path = core/Quadtree.h; sourceTree = "<group>"; };
-		2B23C3B818903AFF0059FF8F /* Quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Quadtree.cpp; path = core/Quadtree.cpp; sourceTree = "<group>"; };
-		2B23C3BA189042A30059FF8F /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenImportance.h; path = core/ScreenImportance.h; sourceTree = "<group>"; };
-		2B23C3BC189042B10059FF8F /* ScreenImportance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenImportance.cpp; path = src/core/ScreenImportance.cpp; sourceTree = SOURCE_ROOT; };
+		2B35671118D762A700EF8DB1 /* BigDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigDrawable.cpp; sourceTree = "<group>"; };
+		2B35671218D762A700EF8DB1 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoordSystem.cpp; sourceTree = "<group>"; };
+		2B35671318D762A700EF8DB1 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cullable.cpp; sourceTree = "<group>"; };
+		2B35671418D762A700EF8DB1 /* DefaultShaderPrograms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DefaultShaderPrograms.cpp; sourceTree = "<group>"; };
+		2B35671518D762A700EF8DB1 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dictionary.cpp; sourceTree = "<group>"; };
+		2B35671618D762A700EF8DB1 /* Drawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Drawable.cpp; sourceTree = "<group>"; };
+		2B35671718D762A700EF8DB1 /* DynamicDrawableAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicDrawableAtlas.cpp; sourceTree = "<group>"; };
+		2B35671818D762A700EF8DB1 /* DynamicTextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynamicTextureAtlas.cpp; sourceTree = "<group>"; };
+		2B35671918D762A700EF8DB1 /* FlatMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlatMath.cpp; sourceTree = "<group>"; };
+		2B35671A18D762A700EF8DB1 /* Generator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Generator.cpp; sourceTree = "<group>"; };
+		2B35671B18D762A700EF8DB1 /* GlobeMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobeMath.cpp; sourceTree = "<group>"; };
+		2B35671C18D762A700EF8DB1 /* GlobeScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobeScene.cpp; sourceTree = "<group>"; };
+		2B35671D18D762A700EF8DB1 /* GlobeView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobeView.cpp; sourceTree = "<group>"; };
+		2B35671E18D762A700EF8DB1 /* GlobeViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GlobeViewState.cpp; sourceTree = "<group>"; };
+		2B35671F18D762A700EF8DB1 /* GLUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLUtils.cpp; sourceTree = "<group>"; };
+		2B35672018D762A700EF8DB1 /* GridClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GridClipper.cpp; sourceTree = "<group>"; };
+		2B35672118D762A700EF8DB1 /* Identifiable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Identifiable.cpp; sourceTree = "<group>"; };
+		2B35672218D762A700EF8DB1 /* LayoutManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LayoutManager.cpp; sourceTree = "<group>"; };
+		2B35672318D762A700EF8DB1 /* LoadedTile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoadedTile.cpp; sourceTree = "<group>"; };
+		2B35672418D762A700EF8DB1 /* MaplyFlatView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyFlatView.cpp; sourceTree = "<group>"; };
+		2B35672518D762A700EF8DB1 /* MaplyScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyScene.cpp; sourceTree = "<group>"; };
+		2B35672618D762A700EF8DB1 /* MaplyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyView.cpp; sourceTree = "<group>"; };
+		2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaplyViewState.cpp; sourceTree = "<group>"; };
+		2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerGenerator.cpp; sourceTree = "<group>"; };
+		2B35672918D762A700EF8DB1 /* MarkerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MarkerManager.cpp; sourceTree = "<group>"; };
+		2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGLES2Program.cpp; sourceTree = "<group>"; };
+		2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PerformanceTimer.cpp; sourceTree = "<group>"; };
+		2B35672C18D762A700EF8DB1 /* Platform.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Platform.mm; sourceTree = "<group>"; };
+		2B35672D18D762A700EF8DB1 /* QuadDisplayController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuadDisplayController.cpp; sourceTree = "<group>"; };
+		2B35672E18D762A700EF8DB1 /* Quadtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Quadtree.cpp; sourceTree = "<group>"; };
+		2B35672F18D762A700EF8DB1 /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RawData.cpp; sourceTree = "<group>"; };
+		2B35673018D762A700EF8DB1 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		2B35673118D762A700EF8DB1 /* SceneRendererES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneRendererES.cpp; sourceTree = "<group>"; };
+		2B35673218D762A700EF8DB1 /* SceneRendererES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SceneRendererES2.cpp; sourceTree = "<group>"; };
+		2B35673318D762A700EF8DB1 /* ScreenImportance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenImportance.cpp; sourceTree = "<group>"; };
+		2B35673418D762A700EF8DB1 /* ScreenSpaceGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ScreenSpaceGenerator.cpp; sourceTree = "<group>"; };
+		2B35673518D762A700EF8DB1 /* SelectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelectionManager.cpp; sourceTree = "<group>"; };
+		2B35673618D762A700EF8DB1 /* ShapeReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShapeReader.cpp; sourceTree = "<group>"; };
+		2B35673718D762A700EF8DB1 /* SphericalMercator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SphericalMercator.cpp; sourceTree = "<group>"; };
+		2B35673818D762A700EF8DB1 /* Tesselator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tesselator.cpp; sourceTree = "<group>"; };
+		2B35673918D762A700EF8DB1 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Texture.cpp; sourceTree = "<group>"; };
+		2B35673A18D762A700EF8DB1 /* TextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TextureAtlas.cpp; sourceTree = "<group>"; };
+		2B35673B18D762A700EF8DB1 /* TileQuadLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TileQuadLoader.cpp; sourceTree = "<group>"; };
+		2B35673C18D762A700EF8DB1 /* VectorData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorData.cpp; sourceTree = "<group>"; };
+		2B35673D18D762A700EF8DB1 /* VectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorManager.cpp; sourceTree = "<group>"; };
+		2B35673E18D762A700EF8DB1 /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VectorObject.cpp; sourceTree = "<group>"; };
+		2B35673F18D762A700EF8DB1 /* ViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ViewState.cpp; sourceTree = "<group>"; };
+		2B35674018D762A700EF8DB1 /* WhirlyGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhirlyGeometry.cpp; sourceTree = "<group>"; };
+		2B35674118D762A700EF8DB1 /* WhirlyKitView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhirlyKitView.cpp; sourceTree = "<group>"; };
+		2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WhirlyVector.cpp; sourceTree = "<group>"; };
+		2B35677518D762BF00EF8DB1 /* BigDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigDrawable.h; sourceTree = "<group>"; };
+		2B35677618D762BF00EF8DB1 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoordSystem.h; sourceTree = "<group>"; };
+		2B35677718D762BF00EF8DB1 /* Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cullable.h; sourceTree = "<group>"; };
+		2B35677818D762BF00EF8DB1 /* DefaultShaderPrograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefaultShaderPrograms.h; sourceTree = "<group>"; };
+		2B35677918D762BF00EF8DB1 /* Dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary.h; sourceTree = "<group>"; };
+		2B35677A18D762BF00EF8DB1 /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Drawable.h; sourceTree = "<group>"; };
+		2B35677B18D762BF00EF8DB1 /* DynamicDrawableAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicDrawableAtlas.h; sourceTree = "<group>"; };
+		2B35677C18D762BF00EF8DB1 /* DynamicTextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicTextureAtlas.h; sourceTree = "<group>"; };
+		2B35677D18D762BF00EF8DB1 /* FlatMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlatMath.h; sourceTree = "<group>"; };
+		2B35677E18D762BF00EF8DB1 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Generator.h; sourceTree = "<group>"; };
+		2B35677F18D762BF00EF8DB1 /* GlobeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeMath.h; sourceTree = "<group>"; };
+		2B35678018D762BF00EF8DB1 /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeScene.h; sourceTree = "<group>"; };
+		2B35678118D762BF00EF8DB1 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeView.h; sourceTree = "<group>"; };
+		2B35678218D762BF00EF8DB1 /* GlobeViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeViewState.h; sourceTree = "<group>"; };
+		2B35678318D762BF00EF8DB1 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLUtils.h; sourceTree = "<group>"; };
+		2B35678418D762BF00EF8DB1 /* GridClipper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridClipper.h; sourceTree = "<group>"; };
+		2B35678518D762BF00EF8DB1 /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Identifiable.h; sourceTree = "<group>"; };
+		2B35678618D762BF00EF8DB1 /* LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutManager.h; sourceTree = "<group>"; };
+		2B35678718D762BF00EF8DB1 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
+		2B35678918D762BF00EF8DB1 /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveModel.h; sourceTree = "<group>"; };
+		2B35678A18D762BF00EF8DB1 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateRotation.h; sourceTree = "<group>"; };
+		2B35678B18D762BF00EF8DB1 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimateViewMomentum.h; sourceTree = "<group>"; };
+		2B35678C18D762BF00EF8DB1 /* BillboardDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawable.h; sourceTree = "<group>"; };
+		2B35678D18D762BF00EF8DB1 /* BillboardLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardLayer.h; sourceTree = "<group>"; };
+		2B35678E18D762BF00EF8DB1 /* BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardManager.h; sourceTree = "<group>"; };
+		2B35678F18D762BF00EF8DB1 /* BufferBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferBuilder.h; sourceTree = "<group>"; };
+		2B35679018D762BF00EF8DB1 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
+		2B35679118D762BF00EF8DB1 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
+		2B35679218D762BF00EF8DB1 /* GeometryLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryLayer.h; sourceTree = "<group>"; };
+		2B35679318D762BF00EF8DB1 /* GridLines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridLines.h; sourceTree = "<group>"; };
+		2B35679418D762BF00EF8DB1 /* LabelLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelLayer.h; sourceTree = "<group>"; };
+		2B35679518D762BF00EF8DB1 /* LabelManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelManager.h; sourceTree = "<group>"; };
+		2B35679618D762BF00EF8DB1 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
+		2B35679718D762BF00EF8DB1 /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
+		2B35679818D762BF00EF8DB1 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
+		2B35679918D762BF00EF8DB1 /* LoftLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftLayer.h; sourceTree = "<group>"; };
+		2B35679A18D762BF00EF8DB1 /* LoftManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftManager.h; sourceTree = "<group>"; };
+		2B35679B18D762BF00EF8DB1 /* LongPressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LongPressDelegate.h; sourceTree = "<group>"; };
+		2B35679C18D762BF00EF8DB1 /* MaplyAnimateFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateFlat.h; sourceTree = "<group>"; };
+		2B35679D18D762BF00EF8DB1 /* MaplyAnimateTranslateMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateTranslateMomentum.h; sourceTree = "<group>"; };
+		2B35679E18D762BF00EF8DB1 /* MaplyAnimateTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateTranslation.h; sourceTree = "<group>"; };
+		2B35679F18D762BF00EF8DB1 /* MarkerLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerLayer.h; sourceTree = "<group>"; };
+		2B3567A018D762BF00EF8DB1 /* MBTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBTileQuadSource.h; sourceTree = "<group>"; };
+		2B3567A118D762BF00EF8DB1 /* NetworkTileQuadSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkTileQuadSource.h; sourceTree = "<group>"; };
+		2B3567A218D762BF00EF8DB1 /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
+		2B3567A318D762BF00EF8DB1 /* PanDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PanDelegate.h; sourceTree = "<group>"; };
+		2B3567A418D762BF00EF8DB1 /* ParticleGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleGenerator.h; sourceTree = "<group>"; };
+		2B3567A518D762BF00EF8DB1 /* ParticleSystemLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemLayer.h; sourceTree = "<group>"; };
+		2B3567A618D762BF00EF8DB1 /* ParticleSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemManager.h; sourceTree = "<group>"; };
+		2B3567A718D762BF00EF8DB1 /* PinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PinchDelegate.h; sourceTree = "<group>"; };
+		2B3567A818D762BF00EF8DB1 /* RotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RotateDelegate.h; sourceTree = "<group>"; };
+		2B3567A918D762BF00EF8DB1 /* SceneGraphManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneGraphManager.h; sourceTree = "<group>"; };
+		2B3567AA18D762BF00EF8DB1 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
+		2B3567AB18D762BF00EF8DB1 /* ShapeLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeLayer.h; sourceTree = "<group>"; };
+		2B3567AC18D762BF00EF8DB1 /* ShapeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeManager.h; sourceTree = "<group>"; };
+		2B3567AD18D762BF00EF8DB1 /* SphericalEarthChunkLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkLayer.h; sourceTree = "<group>"; };
+		2B3567AE18D762BF00EF8DB1 /* SphericalEarthChunkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthChunkManager.h; sourceTree = "<group>"; };
+		2B3567AF18D762BF00EF8DB1 /* SphericalEarthLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthLayer.h; sourceTree = "<group>"; };
+		2B3567B018D762BF00EF8DB1 /* SphericalEarthQuadLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalEarthQuadLayer.h; sourceTree = "<group>"; };
+		2B3567B118D762BF00EF8DB1 /* SwipeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwipeDelegate.h; sourceTree = "<group>"; };
+		2B3567B218D762BF00EF8DB1 /* TapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDelegate.h; sourceTree = "<group>"; };
+		2B3567B318D762BF00EF8DB1 /* TapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapMessage.h; sourceTree = "<group>"; };
+		2B3567B418D762BF00EF8DB1 /* TextureGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureGroup.h; sourceTree = "<group>"; };
+		2B3567B518D762BF00EF8DB1 /* TileQuadOfflineRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadOfflineRenderer.h; sourceTree = "<group>"; };
+		2B3567B618D762BF00EF8DB1 /* UpdateDisplayLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpdateDisplayLayer.h; sourceTree = "<group>"; };
+		2B3567B718D762BF00EF8DB1 /* VectorDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorDatabase.h; sourceTree = "<group>"; };
+		2B3567B818D762BF00EF8DB1 /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
+		2B3567B918D762BF00EF8DB1 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
+		2B3567BA18D762BF00EF8DB1 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyFlatView.h; sourceTree = "<group>"; };
+		2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
+		2B3567BC18D762BF00EF8DB1 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyView.h; sourceTree = "<group>"; };
+		2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyViewState.h; sourceTree = "<group>"; };
+		2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerGenerator.h; sourceTree = "<group>"; };
+		2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkerManager.h; sourceTree = "<group>"; };
+		2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLES2Program.h; sourceTree = "<group>"; };
+		2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
+		2B3567C218D762BF00EF8DB1 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
+		2B3567C318D762BF00EF8DB1 /* QuadDisplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadDisplayController.h; sourceTree = "<group>"; };
+		2B3567C418D762BF00EF8DB1 /* Quadtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quadtree.h; sourceTree = "<group>"; };
+		2B3567C518D762BF00EF8DB1 /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawData.h; sourceTree = "<group>"; };
+		2B3567C618D762BF00EF8DB1 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		2B3567C718D762BF00EF8DB1 /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES.h; sourceTree = "<group>"; };
+		2B3567C818D762BF00EF8DB1 /* SceneRendererES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES2.h; sourceTree = "<group>"; };
+		2B3567C918D762BF00EF8DB1 /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenImportance.h; sourceTree = "<group>"; };
+		2B3567CA18D762BF00EF8DB1 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceGenerator.h; sourceTree = "<group>"; };
+		2B3567CB18D762BF00EF8DB1 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectionManager.h; sourceTree = "<group>"; };
+		2B3567CC18D762BF00EF8DB1 /* ShapeReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeReader.h; sourceTree = "<group>"; };
+		2B3567CD18D762BF00EF8DB1 /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedAttributes.h; sourceTree = "<group>"; };
+		2B3567CE18D762BF00EF8DB1 /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
+		2B3567CF18D762BF00EF8DB1 /* Tesselator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tesselator.h; sourceTree = "<group>"; };
+		2B3567D018D762BF00EF8DB1 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture.h; sourceTree = "<group>"; };
+		2B3567D118D762BF00EF8DB1 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureAtlas.h; sourceTree = "<group>"; };
+		2B3567D218D762BF00EF8DB1 /* TileQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TileQuadLoader.h; sourceTree = "<group>"; };
+		2B3567D318D762BF00EF8DB1 /* VectorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorData.h; sourceTree = "<group>"; };
+		2B3567D418D762BF00EF8DB1 /* VectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorManager.h; sourceTree = "<group>"; };
+		2B3567D518D762BF00EF8DB1 /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorObject.h; sourceTree = "<group>"; };
+		2B3567D618D762BF00EF8DB1 /* ViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewState.h; sourceTree = "<group>"; };
+		2B3567D718D762BF00EF8DB1 /* WhirlyGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGeometry.h; sourceTree = "<group>"; };
+		2B3567D818D762BF00EF8DB1 /* WhirlyKitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyKitView.h; sourceTree = "<group>"; };
+		2B3567D918D762BF00EF8DB1 /* WhirlyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyTypes.h; sourceTree = "<group>"; };
+		2B3567DA18D762BF00EF8DB1 /* WhirlyVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyVector.h; sourceTree = "<group>"; };
 		2B3836A8186244DC00467ABD /* glwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = glwrapper.h; sourceTree = "<group>"; };
 		2B3836AA18625C9200467ABD /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = android/glwrapper.cpp; sourceTree = "<group>"; };
-		2B3836AC18635CB200467ABD /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorObject.h; path = core/VectorObject.h; sourceTree = "<group>"; };
-		2B3836AE18635CBC00467ABD /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject.cpp; path = core/VectorObject.cpp; sourceTree = "<group>"; };
 		2B3AF66D13EEDDA8004A781D /* framework_info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = framework_info.plist; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
-		2B789F84185BD3460028E027 /* CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CoordSystem.h; path = core/CoordSystem.h; sourceTree = "<group>"; };
-		2B789F85185BD3460028E027 /* FlatMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FlatMath.h; path = core/FlatMath.h; sourceTree = "<group>"; };
-		2B789F86185BD3460028E027 /* GlobeMath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeMath.h; path = core/GlobeMath.h; sourceTree = "<group>"; };
-		2B789F87185BD3460028E027 /* Identifiable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Identifiable.h; path = core/Identifiable.h; sourceTree = "<group>"; };
-		2B789F88185BD3460028E027 /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLES2Program.h; path = core/OpenGLES2Program.h; sourceTree = "<group>"; };
-		2B789F89185BD3460028E027 /* WhirlyGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGeometry.h; path = core/WhirlyGeometry.h; sourceTree = "<group>"; };
-		2B789F8A185BD3460028E027 /* WhirlyVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyVector.h; path = core/WhirlyVector.h; sourceTree = "<group>"; };
-		2B789F92185BD36A0028E027 /* CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CoordSystem.cpp; path = core/CoordSystem.cpp; sourceTree = "<group>"; };
-		2B789F94185BD37E0028E027 /* FlatMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FlatMath.cpp; path = core/FlatMath.cpp; sourceTree = "<group>"; };
-		2B789F96185BD3AC0028E027 /* GlobeMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeMath.cpp; path = core/GlobeMath.cpp; sourceTree = "<group>"; };
-		2B789F97185BD3AC0028E027 /* Identifiable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Identifiable.cpp; path = core/Identifiable.cpp; sourceTree = "<group>"; };
-		2B789F9A185BD3E10028E027 /* OpenGLES2Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLES2Program.cpp; path = core/OpenGLES2Program.cpp; sourceTree = "<group>"; };
-		2B789F9C185BD3EE0028E027 /* WhirlyGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WhirlyGeometry.cpp; path = core/WhirlyGeometry.cpp; sourceTree = "<group>"; };
-		2B789F9E185BD3FB0028E027 /* WhirlyVector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WhirlyVector.cpp; path = core/WhirlyVector.cpp; sourceTree = "<group>"; };
-		2B789FA0185BD4F70028E027 /* WhirlyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyTypes.h; path = core/WhirlyTypes.h; sourceTree = "<group>"; };
-		2B789FA2185BD5690028E027 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLUtils.h; path = core/GLUtils.h; sourceTree = "<group>"; };
-		2B789FA4185BD5780028E027 /* GLUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GLUtils.cpp; path = core/GLUtils.cpp; sourceTree = "<group>"; };
-		2B789FAA185BD7490028E027 /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Scene.h; path = core/Scene.h; sourceTree = "<group>"; };
-		2B789FAC185BD7950028E027 /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scene.cpp; path = core/Scene.cpp; sourceTree = "<group>"; };
-		2B789FAE185BD7E00028E027 /* Cullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cullable.h; path = core/Cullable.h; sourceTree = "<group>"; };
-		2B789FB0185BD7E50028E027 /* Drawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Drawable.h; path = core/Drawable.h; sourceTree = "<group>"; };
-		2B789FB2185BD9550028E027 /* Generator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Generator.h; path = core/Generator.h; sourceTree = "<group>"; };
-		2B789FB4185BDA220028E027 /* GlobeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeView.h; path = core/GlobeView.h; sourceTree = "<group>"; };
-		2B789FB6185BDA360028E027 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyView.h; path = core/MaplyView.h; sourceTree = "<group>"; };
-		2B789FB8185BDA420028E027 /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyScene.h; path = core/MaplyScene.h; sourceTree = "<group>"; };
-		2B789FBA185BDA4E0028E027 /* GlobeScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeScene.h; path = core/GlobeScene.h; sourceTree = "<group>"; };
-		2B789FBC185BDBC40028E027 /* Cullable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cullable.cpp; path = core/Cullable.cpp; sourceTree = "<group>"; };
-		2B789FBD185BDBC40028E027 /* Drawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drawable.cpp; path = core/Drawable.cpp; sourceTree = "<group>"; };
-		2B789FBE185BDBC40028E027 /* Generator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Generator.cpp; path = core/Generator.cpp; sourceTree = "<group>"; };
-		2B789FBF185BDBC40028E027 /* GlobeScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeScene.cpp; path = core/GlobeScene.cpp; sourceTree = "<group>"; };
-		2B789FC0185BDBC40028E027 /* GlobeView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeView.cpp; path = core/GlobeView.cpp; sourceTree = "<group>"; };
-		2B789FC1185BDBC40028E027 /* MaplyScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyScene.cpp; path = core/MaplyScene.cpp; sourceTree = "<group>"; };
-		2B789FC8185BDC480028E027 /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SceneRendererES.h; path = core/SceneRendererES.h; sourceTree = "<group>"; };
-		2B789FCA185BDD9C0028E027 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = core/PerformanceTimer.cpp; sourceTree = "<group>"; };
-		2B789FCC185BDDAF0028E027 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerformanceTimer.h; path = core/PerformanceTimer.h; sourceTree = "<group>"; };
-		2B789FCE185BDE8B0028E027 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Platform.h; path = core/Platform.h; sourceTree = "<group>"; };
-		2B789FD0185BE12B0028E027 /* DefaultShaderPrograms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DefaultShaderPrograms.cpp; path = core/DefaultShaderPrograms.cpp; sourceTree = "<group>"; };
-		2B789FD2185BE1380028E027 /* DefaultShaderPrograms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DefaultShaderPrograms.h; path = core/DefaultShaderPrograms.h; sourceTree = "<group>"; };
-		2B789FD8185BE1D80028E027 /* Platform.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Platform.mm; path = core/Platform.mm; sourceTree = "<group>"; };
-		2B789FD9185BE1D80028E027 /* WhirlyKitView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WhirlyKitView.cpp; path = core/WhirlyKitView.cpp; sourceTree = "<group>"; };
-		2B789FDC185BE2890028E027 /* WhirlyKitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyKitView.h; path = core/WhirlyKitView.h; sourceTree = "<group>"; };
-		2B789FDE185BE3420028E027 /* SphericalMercator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SphericalMercator.cpp; path = core/SphericalMercator.cpp; sourceTree = "<group>"; };
-		2B789FE0185BE3520028E027 /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SphericalMercator.h; path = core/SphericalMercator.h; sourceTree = "<group>"; };
-		2B789FE2185BE3600028E027 /* GlobeViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeViewState.cpp; path = core/GlobeViewState.cpp; sourceTree = "<group>"; };
-		2B789FE4185BE36C0028E027 /* ViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewState.h; path = core/ViewState.h; sourceTree = "<group>"; };
-		2B789FE6185BE3710028E027 /* GlobeViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeViewState.h; path = core/GlobeViewState.h; sourceTree = "<group>"; };
-		2B789FE8185BE37A0028E027 /* ViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ViewState.cpp; path = core/ViewState.cpp; sourceTree = "<group>"; };
-		2B789FEA185BE4430028E027 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyViewState.cpp; path = core/MaplyViewState.cpp; sourceTree = "<group>"; };
-		2B789FEC185BE4580028E027 /* MaplyViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewState.h; path = core/MaplyViewState.h; sourceTree = "<group>"; };
-		2B789FEE185BE4CB0028E027 /* MaplyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyView.cpp; path = core/MaplyView.cpp; sourceTree = "<group>"; };
-		2B789FF2185BE56F0028E027 /* LayoutManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LayoutManager.h; path = core/LayoutManager.h; sourceTree = "<group>"; };
-		2B789FF4185BE59F0028E027 /* SceneRendererES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SceneRendererES2.h; path = core/SceneRendererES2.h; sourceTree = "<group>"; };
-		2B789FFA185BE7930028E027 /* SceneRendererES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES.cpp; path = core/SceneRendererES.cpp; sourceTree = "<group>"; };
-		2B789FFC185BE8660028E027 /* SceneRendererES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES2.cpp; path = core/SceneRendererES2.cpp; sourceTree = "<group>"; };
-		2B78A000185BE9ED0028E027 /* MaplyFlatView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyFlatView.cpp; path = core/MaplyFlatView.cpp; sourceTree = "<group>"; };
-		2B78A002185BE9F80028E027 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyFlatView.h; path = core/MaplyFlatView.h; sourceTree = "<group>"; };
-		2B78A004185BEA150028E027 /* VectorData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorData.cpp; path = core/VectorData.cpp; sourceTree = "<group>"; };
-		2B78A006185BEA300028E027 /* VectorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorData.h; path = core/VectorData.h; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
 		2B7EF37C16025D8C00D4079F /* bch2bps.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = bch2bps.c; sourceTree = "<group>"; };
@@ -686,27 +801,10 @@
 		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
 		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
 		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
-		2BBDFE731887480D00AE4CEB /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawData.h; path = core/RawData.h; sourceTree = "<group>"; };
-		2BBDFE751887482800AE4CEB /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = core/RawData.cpp; sourceTree = "<group>"; };
-		2BBDFE7B1888717A00AE4CEB /* QuadDisplayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadDisplayController.h; path = core/QuadDisplayController.h; sourceTree = "<group>"; };
-		2BBDFE7D188871AF00AE4CEB /* QuadDisplayController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadDisplayController.cpp; path = core/QuadDisplayController.cpp; sourceTree = "<group>"; };
 		2BDC4A171333EFE000E25283 /* WhirlyGlobeLib-iphonesim-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesim-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4A621333F0E900E25283 /* WhirlyGlobeLib-iphoneos-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphoneos-Prefix.pch"; sourceTree = "<group>"; };
 		2BDC4ABB133404BB00E25283 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libWhirlyGlobeLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BDC4ABF133404BB00E25283 /* WhirlyGlobeLib-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-Prefix.pch"; sourceTree = "<group>"; };
-		2BF76A271886030800465603 /* MarkerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerManager.h; path = core/MarkerManager.h; sourceTree = "<group>"; };
-		2BF76A281886030800465603 /* ScreenSpaceGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenSpaceGenerator.h; path = core/ScreenSpaceGenerator.h; sourceTree = "<group>"; };
-		2BF76A291886030800465603 /* SelectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SelectionManager.h; path = core/SelectionManager.h; sourceTree = "<group>"; };
-		2BF76A2A1886030800465603 /* Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Texture.h; path = core/Texture.h; sourceTree = "<group>"; };
-		2BF76A301886034B00465603 /* MarkerGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MarkerGenerator.h; path = core/MarkerGenerator.h; sourceTree = "<group>"; };
-		2BF76A321886038700465603 /* LayoutManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LayoutManager.cpp; path = core/LayoutManager.cpp; sourceTree = "<group>"; };
-		2BF76A331886038700465603 /* MarkerGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerGenerator.cpp; path = core/MarkerGenerator.cpp; sourceTree = "<group>"; };
-		2BF76A341886038700465603 /* MarkerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerManager.cpp; path = core/MarkerManager.cpp; sourceTree = "<group>"; };
-		2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenSpaceGenerator.cpp; path = core/ScreenSpaceGenerator.cpp; sourceTree = "<group>"; };
-		2BF76A361886038700465603 /* SelectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SelectionManager.cpp; path = core/SelectionManager.cpp; sourceTree = "<group>"; };
-		2BF76A371886038700465603 /* Texture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Texture.cpp; path = core/Texture.cpp; sourceTree = "<group>"; };
-		2BF76A3E1886F90400465603 /* TextureAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TextureAtlas.h; path = core/TextureAtlas.h; sourceTree = "<group>"; };
-		2BF76A401886F91800465603 /* TextureAtlas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TextureAtlas.cpp; path = core/TextureAtlas.cpp; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -867,6 +965,62 @@
 			name = clipper;
 			sourceTree = "<group>";
 		};
+		2B35678818D762BF00EF8DB1 /* locker */ = {
+			isa = PBXGroup;
+			children = (
+				2B35678918D762BF00EF8DB1 /* ActiveModel.h */,
+				2B35678A18D762BF00EF8DB1 /* AnimateRotation.h */,
+				2B35678B18D762BF00EF8DB1 /* AnimateViewMomentum.h */,
+				2B35678C18D762BF00EF8DB1 /* BillboardDrawable.h */,
+				2B35678D18D762BF00EF8DB1 /* BillboardLayer.h */,
+				2B35678E18D762BF00EF8DB1 /* BillboardManager.h */,
+				2B35678F18D762BF00EF8DB1 /* BufferBuilder.h */,
+				2B35679018D762BF00EF8DB1 /* ElevationChunk.h */,
+				2B35679118D762BF00EF8DB1 /* FontTextureManager.h */,
+				2B35679218D762BF00EF8DB1 /* GeometryLayer.h */,
+				2B35679318D762BF00EF8DB1 /* GridLines.h */,
+				2B35679418D762BF00EF8DB1 /* LabelLayer.h */,
+				2B35679518D762BF00EF8DB1 /* LabelManager.h */,
+				2B35679618D762BF00EF8DB1 /* LabelRenderer.h */,
+				2B35679718D762BF00EF8DB1 /* LayoutLayer.h */,
+				2B35679818D762BF00EF8DB1 /* Lighting.h */,
+				2B35679918D762BF00EF8DB1 /* LoftLayer.h */,
+				2B35679A18D762BF00EF8DB1 /* LoftManager.h */,
+				2B35679B18D762BF00EF8DB1 /* LongPressDelegate.h */,
+				2B35679C18D762BF00EF8DB1 /* MaplyAnimateFlat.h */,
+				2B35679D18D762BF00EF8DB1 /* MaplyAnimateTranslateMomentum.h */,
+				2B35679E18D762BF00EF8DB1 /* MaplyAnimateTranslation.h */,
+				2B35679F18D762BF00EF8DB1 /* MarkerLayer.h */,
+				2B3567A018D762BF00EF8DB1 /* MBTileQuadSource.h */,
+				2B3567A118D762BF00EF8DB1 /* NetworkTileQuadSource.h */,
+				2B3567A218D762BF00EF8DB1 /* NSString+Stuff.h */,
+				2B3567A318D762BF00EF8DB1 /* PanDelegate.h */,
+				2B3567A418D762BF00EF8DB1 /* ParticleGenerator.h */,
+				2B3567A518D762BF00EF8DB1 /* ParticleSystemLayer.h */,
+				2B3567A618D762BF00EF8DB1 /* ParticleSystemManager.h */,
+				2B3567A718D762BF00EF8DB1 /* PinchDelegate.h */,
+				2B3567A818D762BF00EF8DB1 /* RotateDelegate.h */,
+				2B3567A918D762BF00EF8DB1 /* SceneGraphManager.h */,
+				2B3567AA18D762BF00EF8DB1 /* ShapeDrawableBuilder.h */,
+				2B3567AB18D762BF00EF8DB1 /* ShapeLayer.h */,
+				2B3567AC18D762BF00EF8DB1 /* ShapeManager.h */,
+				2B3567AD18D762BF00EF8DB1 /* SphericalEarthChunkLayer.h */,
+				2B3567AE18D762BF00EF8DB1 /* SphericalEarthChunkManager.h */,
+				2B3567AF18D762BF00EF8DB1 /* SphericalEarthLayer.h */,
+				2B3567B018D762BF00EF8DB1 /* SphericalEarthQuadLayer.h */,
+				2B3567B118D762BF00EF8DB1 /* SwipeDelegate.h */,
+				2B3567B218D762BF00EF8DB1 /* TapDelegate.h */,
+				2B3567B318D762BF00EF8DB1 /* TapMessage.h */,
+				2B3567B418D762BF00EF8DB1 /* TextureGroup.h */,
+				2B3567B518D762BF00EF8DB1 /* TileQuadOfflineRenderer.h */,
+				2B3567B618D762BF00EF8DB1 /* UpdateDisplayLayer.h */,
+				2B3567B718D762BF00EF8DB1 /* VectorDatabase.h */,
+				2B3567B818D762BF00EF8DB1 /* VectorLayer.h */,
+				2B3567B918D762BF00EF8DB1 /* ViewPlacementGenerator.h */,
+			);
+			path = locker;
+			sourceTree = "<group>";
+		};
 		2B3AF66C13EEDD7E004A781D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -889,122 +1043,6 @@
 				2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		2B789F82185BD2CB0028E027 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				2B13BA9718B525B5007DA1A3 /* TileQuadLoader.h */,
-				2B13BA8F18B42E6E007DA1A3 /* LoadedTile.h */,
-				2B13BA8B18B41E88007DA1A3 /* BigDrawable.h */,
-				2B13BA8718B41B52007DA1A3 /* DynamicDrawableAtlas.h */,
-				2B13BA8318B416F6007DA1A3 /* DynamicTextureAtlas.h */,
-				2B23C3BA189042A30059FF8F /* ScreenImportance.h */,
-				2B23C3BC189042B10059FF8F /* ScreenImportance.cpp */,
-				2B23C3B618903AF50059FF8F /* Quadtree.h */,
-				2BBDFE7B1888717A00AE4CEB /* QuadDisplayController.h */,
-				2BBDFE731887480D00AE4CEB /* RawData.h */,
-				2BF76A3E1886F90400465603 /* TextureAtlas.h */,
-				2BF76A271886030800465603 /* MarkerManager.h */,
-				2BF76A301886034B00465603 /* MarkerGenerator.h */,
-				2BF76A281886030800465603 /* ScreenSpaceGenerator.h */,
-				2BF76A291886030800465603 /* SelectionManager.h */,
-				2BF76A2A1886030800465603 /* Texture.h */,
-				2B3836AC18635CB200467ABD /* VectorObject.h */,
-				2B009C8F185F9065001E2EE8 /* Tesselator.h */,
-				2B009C8B185F8130001E2EE8 /* SharedAttributes.h */,
-				2B009C89185F8001001E2EE8 /* VectorManager.h */,
-				2B009C81185F7F9B001E2EE8 /* GridClipper.h */,
-				2B009C7B185F7924001E2EE8 /* ShapeReader.h */,
-				2B009C77185F6F62001E2EE8 /* Dictionary.h */,
-				2B78A006185BEA300028E027 /* VectorData.h */,
-				2B78A002185BE9F80028E027 /* MaplyFlatView.h */,
-				2B789FF4185BE59F0028E027 /* SceneRendererES2.h */,
-				2B789FF2185BE56F0028E027 /* LayoutManager.h */,
-				2B789FEC185BE4580028E027 /* MaplyViewState.h */,
-				2B789FE6185BE3710028E027 /* GlobeViewState.h */,
-				2B789FE4185BE36C0028E027 /* ViewState.h */,
-				2B789FE0185BE3520028E027 /* SphericalMercator.h */,
-				2B789FDC185BE2890028E027 /* WhirlyKitView.h */,
-				2B789FD2185BE1380028E027 /* DefaultShaderPrograms.h */,
-				2B789FCE185BDE8B0028E027 /* Platform.h */,
-				2B789FCC185BDDAF0028E027 /* PerformanceTimer.h */,
-				2B789FC8185BDC480028E027 /* SceneRendererES.h */,
-				2B789FBA185BDA4E0028E027 /* GlobeScene.h */,
-				2B789FB8185BDA420028E027 /* MaplyScene.h */,
-				2B789FB6185BDA360028E027 /* MaplyView.h */,
-				2B789FB4185BDA220028E027 /* GlobeView.h */,
-				2B789FB2185BD9550028E027 /* Generator.h */,
-				2B789FB0185BD7E50028E027 /* Drawable.h */,
-				2B789FAE185BD7E00028E027 /* Cullable.h */,
-				2B789FAA185BD7490028E027 /* Scene.h */,
-				2B789FA2185BD5690028E027 /* GLUtils.h */,
-				2B789FA0185BD4F70028E027 /* WhirlyTypes.h */,
-				2B789F84185BD3460028E027 /* CoordSystem.h */,
-				2B789F85185BD3460028E027 /* FlatMath.h */,
-				2B789F86185BD3460028E027 /* GlobeMath.h */,
-				2B789F87185BD3460028E027 /* Identifiable.h */,
-				2B789F88185BD3460028E027 /* OpenGLES2Program.h */,
-				2B789F89185BD3460028E027 /* WhirlyGeometry.h */,
-				2B789F8A185BD3460028E027 /* WhirlyVector.h */,
-			);
-			name = Core;
-			sourceTree = "<group>";
-		};
-		2B789F83185BD2D00028E027 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				2B13BA9918B525C0007DA1A3 /* TileQuadLoader.cpp */,
-				2B13BA9118B42E79007DA1A3 /* LoadedTile.cpp */,
-				2B13BA8D18B41E96007DA1A3 /* BigDrawable.cpp */,
-				2B13BA8918B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp */,
-				2B13BA8518B41704007DA1A3 /* DynamicTextureAtlas.cpp */,
-				2B23C3B818903AFF0059FF8F /* Quadtree.cpp */,
-				2BBDFE7D188871AF00AE4CEB /* QuadDisplayController.cpp */,
-				2BBDFE751887482800AE4CEB /* RawData.cpp */,
-				2BF76A401886F91800465603 /* TextureAtlas.cpp */,
-				2BF76A341886038700465603 /* MarkerManager.cpp */,
-				2BF76A371886038700465603 /* Texture.cpp */,
-				2BF76A331886038700465603 /* MarkerGenerator.cpp */,
-				2BF76A361886038700465603 /* SelectionManager.cpp */,
-				2BF76A351886038700465603 /* ScreenSpaceGenerator.cpp */,
-				2BF76A321886038700465603 /* LayoutManager.cpp */,
-				2B3836AE18635CBC00467ABD /* VectorObject.cpp */,
-				2B009C91185F906D001E2EE8 /* Tesselator.cpp */,
-				2B009C87185F7FFA001E2EE8 /* VectorManager.cpp */,
-				2B009C7F185F7F96001E2EE8 /* GridClipper.cpp */,
-				2B009C7D185F7933001E2EE8 /* ShapeReader.cpp */,
-				2B009C79185F6F6A001E2EE8 /* Dictionary.cpp */,
-				2B78A004185BEA150028E027 /* VectorData.cpp */,
-				2B78A000185BE9ED0028E027 /* MaplyFlatView.cpp */,
-				2B789FFC185BE8660028E027 /* SceneRendererES2.cpp */,
-				2B789FFA185BE7930028E027 /* SceneRendererES.cpp */,
-				2B789FEE185BE4CB0028E027 /* MaplyView.cpp */,
-				2B789FEA185BE4430028E027 /* MaplyViewState.cpp */,
-				2B789FE8185BE37A0028E027 /* ViewState.cpp */,
-				2B789FE2185BE3600028E027 /* GlobeViewState.cpp */,
-				2B789FDE185BE3420028E027 /* SphericalMercator.cpp */,
-				2B789FD8185BE1D80028E027 /* Platform.mm */,
-				2B789FD9185BE1D80028E027 /* WhirlyKitView.cpp */,
-				2B789FD0185BE12B0028E027 /* DefaultShaderPrograms.cpp */,
-				2B789FCA185BDD9C0028E027 /* PerformanceTimer.cpp */,
-				2B789FBC185BDBC40028E027 /* Cullable.cpp */,
-				2B789FBD185BDBC40028E027 /* Drawable.cpp */,
-				2B789FBE185BDBC40028E027 /* Generator.cpp */,
-				2B789FBF185BDBC40028E027 /* GlobeScene.cpp */,
-				2B789FC0185BDBC40028E027 /* GlobeView.cpp */,
-				2B789FC1185BDBC40028E027 /* MaplyScene.cpp */,
-				2B789FAC185BD7950028E027 /* Scene.cpp */,
-				2B789FA4185BD5780028E027 /* GLUtils.cpp */,
-				2B789F92185BD36A0028E027 /* CoordSystem.cpp */,
-				2B789F94185BD37E0028E027 /* FlatMath.cpp */,
-				2B789F96185BD3AC0028E027 /* GlobeMath.cpp */,
-				2B789F97185BD3AC0028E027 /* Identifiable.cpp */,
-				2B789F9A185BD3E10028E027 /* OpenGLES2Program.cpp */,
-				2B789F9C185BD3EE0028E027 /* WhirlyGeometry.cpp */,
-				2B789F9E185BD3FB0028E027 /* WhirlyVector.cpp */,
-			);
-			name = Core;
 			sourceTree = "<group>";
 		};
 		2B7EF37916025D3500D4079F /* proj4 */ = {
@@ -1241,9 +1279,61 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B35677518D762BF00EF8DB1 /* BigDrawable.h */,
+				2B35677618D762BF00EF8DB1 /* CoordSystem.h */,
+				2B35677718D762BF00EF8DB1 /* Cullable.h */,
+				2B35677818D762BF00EF8DB1 /* DefaultShaderPrograms.h */,
+				2B35677918D762BF00EF8DB1 /* Dictionary.h */,
+				2B35677A18D762BF00EF8DB1 /* Drawable.h */,
+				2B35677B18D762BF00EF8DB1 /* DynamicDrawableAtlas.h */,
+				2B35677C18D762BF00EF8DB1 /* DynamicTextureAtlas.h */,
+				2B35677D18D762BF00EF8DB1 /* FlatMath.h */,
+				2B35677E18D762BF00EF8DB1 /* Generator.h */,
+				2B35677F18D762BF00EF8DB1 /* GlobeMath.h */,
+				2B35678018D762BF00EF8DB1 /* GlobeScene.h */,
+				2B35678118D762BF00EF8DB1 /* GlobeView.h */,
+				2B35678218D762BF00EF8DB1 /* GlobeViewState.h */,
+				2B35678318D762BF00EF8DB1 /* GLUtils.h */,
+				2B35678418D762BF00EF8DB1 /* GridClipper.h */,
+				2B35678518D762BF00EF8DB1 /* Identifiable.h */,
+				2B35678618D762BF00EF8DB1 /* LayoutManager.h */,
+				2B35678718D762BF00EF8DB1 /* LoadedTile.h */,
+				2B35678818D762BF00EF8DB1 /* locker */,
+				2B3567BA18D762BF00EF8DB1 /* MaplyFlatView.h */,
+				2B3567BB18D762BF00EF8DB1 /* MaplyScene.h */,
+				2B3567BC18D762BF00EF8DB1 /* MaplyView.h */,
+				2B3567BD18D762BF00EF8DB1 /* MaplyViewState.h */,
+				2B3567BE18D762BF00EF8DB1 /* MarkerGenerator.h */,
+				2B3567BF18D762BF00EF8DB1 /* MarkerManager.h */,
+				2B3567C018D762BF00EF8DB1 /* OpenGLES2Program.h */,
+				2B3567C118D762BF00EF8DB1 /* PerformanceTimer.h */,
+				2B3567C218D762BF00EF8DB1 /* Platform.h */,
+				2B3567C318D762BF00EF8DB1 /* QuadDisplayController.h */,
+				2B3567C418D762BF00EF8DB1 /* Quadtree.h */,
+				2B3567C518D762BF00EF8DB1 /* RawData.h */,
+				2B3567C618D762BF00EF8DB1 /* Scene.h */,
+				2B3567C718D762BF00EF8DB1 /* SceneRendererES.h */,
+				2B3567C818D762BF00EF8DB1 /* SceneRendererES2.h */,
+				2B3567C918D762BF00EF8DB1 /* ScreenImportance.h */,
+				2B3567CA18D762BF00EF8DB1 /* ScreenSpaceGenerator.h */,
+				2B3567CB18D762BF00EF8DB1 /* SelectionManager.h */,
+				2B3567CC18D762BF00EF8DB1 /* ShapeReader.h */,
+				2B3567CD18D762BF00EF8DB1 /* SharedAttributes.h */,
+				2B3567CE18D762BF00EF8DB1 /* SphericalMercator.h */,
+				2B3567CF18D762BF00EF8DB1 /* Tesselator.h */,
+				2B3567D018D762BF00EF8DB1 /* Texture.h */,
+				2B3567D118D762BF00EF8DB1 /* TextureAtlas.h */,
+				2B3567D218D762BF00EF8DB1 /* TileQuadLoader.h */,
+				2B3567D318D762BF00EF8DB1 /* VectorData.h */,
+				2B3567D418D762BF00EF8DB1 /* VectorManager.h */,
+				2B3567D518D762BF00EF8DB1 /* VectorObject.h */,
+				2B3567D618D762BF00EF8DB1 /* ViewState.h */,
+				2B3567D718D762BF00EF8DB1 /* WhirlyGeometry.h */,
+				2B3567D818D762BF00EF8DB1 /* WhirlyKitView.h */,
+				2B3567D918D762BF00EF8DB1 /* WhirlyTypes.h */,
+				2B3567DA18D762BF00EF8DB1 /* WhirlyVector.h */,
 				2B009C97185FA2CD001E2EE8 /* WhirlyGlobe.h */,
 				2B3836A8186244DC00467ABD /* glwrapper.h */,
-				2B789F82185BD2CB0028E027 /* Core */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -1251,8 +1341,57 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B35671118D762A700EF8DB1 /* BigDrawable.cpp */,
+				2B35671218D762A700EF8DB1 /* CoordSystem.cpp */,
+				2B35671318D762A700EF8DB1 /* Cullable.cpp */,
+				2B35671418D762A700EF8DB1 /* DefaultShaderPrograms.cpp */,
+				2B35671518D762A700EF8DB1 /* Dictionary.cpp */,
+				2B35671618D762A700EF8DB1 /* Drawable.cpp */,
+				2B35671718D762A700EF8DB1 /* DynamicDrawableAtlas.cpp */,
+				2B35671818D762A700EF8DB1 /* DynamicTextureAtlas.cpp */,
+				2B35671918D762A700EF8DB1 /* FlatMath.cpp */,
+				2B35671A18D762A700EF8DB1 /* Generator.cpp */,
+				2B35671B18D762A700EF8DB1 /* GlobeMath.cpp */,
+				2B35671C18D762A700EF8DB1 /* GlobeScene.cpp */,
+				2B35671D18D762A700EF8DB1 /* GlobeView.cpp */,
+				2B35671E18D762A700EF8DB1 /* GlobeViewState.cpp */,
+				2B35671F18D762A700EF8DB1 /* GLUtils.cpp */,
+				2B35672018D762A700EF8DB1 /* GridClipper.cpp */,
+				2B35672118D762A700EF8DB1 /* Identifiable.cpp */,
+				2B35672218D762A700EF8DB1 /* LayoutManager.cpp */,
+				2B35672318D762A700EF8DB1 /* LoadedTile.cpp */,
+				2B35672418D762A700EF8DB1 /* MaplyFlatView.cpp */,
+				2B35672518D762A700EF8DB1 /* MaplyScene.cpp */,
+				2B35672618D762A700EF8DB1 /* MaplyView.cpp */,
+				2B35672718D762A700EF8DB1 /* MaplyViewState.cpp */,
+				2B35672818D762A700EF8DB1 /* MarkerGenerator.cpp */,
+				2B35672918D762A700EF8DB1 /* MarkerManager.cpp */,
+				2B35672A18D762A700EF8DB1 /* OpenGLES2Program.cpp */,
+				2B35672B18D762A700EF8DB1 /* PerformanceTimer.cpp */,
+				2B35672C18D762A700EF8DB1 /* Platform.mm */,
+				2B35672D18D762A700EF8DB1 /* QuadDisplayController.cpp */,
+				2B35672E18D762A700EF8DB1 /* Quadtree.cpp */,
+				2B35672F18D762A700EF8DB1 /* RawData.cpp */,
+				2B35673018D762A700EF8DB1 /* Scene.cpp */,
+				2B35673118D762A700EF8DB1 /* SceneRendererES.cpp */,
+				2B35673218D762A700EF8DB1 /* SceneRendererES2.cpp */,
+				2B35673318D762A700EF8DB1 /* ScreenImportance.cpp */,
+				2B35673418D762A700EF8DB1 /* ScreenSpaceGenerator.cpp */,
+				2B35673518D762A700EF8DB1 /* SelectionManager.cpp */,
+				2B35673618D762A700EF8DB1 /* ShapeReader.cpp */,
+				2B35673718D762A700EF8DB1 /* SphericalMercator.cpp */,
+				2B35673818D762A700EF8DB1 /* Tesselator.cpp */,
+				2B35673918D762A700EF8DB1 /* Texture.cpp */,
+				2B35673A18D762A700EF8DB1 /* TextureAtlas.cpp */,
+				2B35673B18D762A700EF8DB1 /* TileQuadLoader.cpp */,
+				2B35673C18D762A700EF8DB1 /* VectorData.cpp */,
+				2B35673D18D762A700EF8DB1 /* VectorManager.cpp */,
+				2B35673E18D762A700EF8DB1 /* VectorObject.cpp */,
+				2B35673F18D762A700EF8DB1 /* ViewState.cpp */,
+				2B35674018D762A700EF8DB1 /* WhirlyGeometry.cpp */,
+				2B35674118D762A700EF8DB1 /* WhirlyKitView.cpp */,
+				2B35674218D762A700EF8DB1 /* WhirlyVector.cpp */,
 				2B3836AA18625C9200467ABD /* glwrapper.cpp */,
-				2B789F83185BD2D00028E027 /* Core */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1320,115 +1459,164 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B3567F618D762BF00EF8DB1 /* FontTextureManager.h in Headers */,
+				2B3567E518D762BF00EF8DB1 /* GlobeMath.h in Headers */,
+				2B3567DD18D762BF00EF8DB1 /* Cullable.h in Headers */,
+				2B3567FE18D762BF00EF8DB1 /* LoftLayer.h in Headers */,
 				2B3836A9186244DC00467ABD /* glwrapper.h in Headers */,
-				2B789F8D185BD3460028E027 /* GlobeMath.h in Headers */,
-				2BF76A2C1886030800465603 /* MarkerManager.h in Headers */,
-				2B789FDD185BE2890028E027 /* WhirlyKitView.h in Headers */,
-				2B009C82185F7F9B001E2EE8 /* GridClipper.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
-				2B789FB7185BDA360028E027 /* MaplyView.h in Headers */,
+				2B3567F018D762BF00EF8DB1 /* AnimateViewMomentum.h in Headers */,
 				2B7EF42D16025D8C00D4079F /* emess.h in Headers */,
+				2B35683F18D762BF00EF8DB1 /* WhirlyVector.h in Headers */,
+				2B35681818D762BF00EF8DB1 /* TapMessage.h in Headers */,
+				2B35683B18D762BF00EF8DB1 /* ViewState.h in Headers */,
+				2B35682F18D762BF00EF8DB1 /* ScreenSpaceGenerator.h in Headers */,
 				2B009D0E186102E4001E2EE8 /* JSONWorker.h in Headers */,
-				2B3836AD18635CB200467ABD /* VectorObject.h in Headers */,
-				2B789FB5185BDA220028E027 /* GlobeView.h in Headers */,
-				2BF76A2D1886030800465603 /* ScreenSpaceGenerator.h in Headers */,
 				2B7EF43016025D8C00D4079F /* geocent.h in Headers */,
-				2B009C90185F9065001E2EE8 /* Tesselator.h in Headers */,
 				2B7EF43516025D8C00D4079F /* geodesic.h in Headers */,
+				2B3567FD18D762BF00EF8DB1 /* Lighting.h in Headers */,
+				2B35682618D762BF00EF8DB1 /* PerformanceTimer.h in Headers */,
+				2B3567FC18D762BF00EF8DB1 /* LayoutLayer.h in Headers */,
+				2B35683518D762BF00EF8DB1 /* Texture.h in Headers */,
 				2B009D0A186102E4001E2EE8 /* JSONStream.h in Headers */,
+				2B35683A18D762BF00EF8DB1 /* VectorObject.h in Headers */,
+				2B3567E618D762BF00EF8DB1 /* GlobeScene.h in Headers */,
+				2B35683918D762BF00EF8DB1 /* VectorManager.h in Headers */,
+				2B3567E118D762BF00EF8DB1 /* DynamicDrawableAtlas.h in Headers */,
 				2B7EF43D16025D8C00D4079F /* org_proj4_Projections.h in Headers */,
-				2B78A003185BE9F80028E027 /* MaplyFlatView.h in Headers */,
-				2B009C8C185F8130001E2EE8 /* SharedAttributes.h in Headers */,
+				2B35681718D762BF00EF8DB1 /* TapDelegate.h in Headers */,
 				2B7EF48216025D8C00D4079F /* pj_list.h in Headers */,
 				2B7EF4C316025D8C00D4079F /* proj_api.h in Headers */,
-				2B789F8C185BD3460028E027 /* FlatMath.h in Headers */,
 				2B7EF4C816025D8C00D4079F /* projects.h in Headers */,
-				2B13BA8418B416F6007DA1A3 /* DynamicTextureAtlas.h in Headers */,
+				2B35680A18D762BF00EF8DB1 /* ParticleSystemLayer.h in Headers */,
+				2B3567E218D762BF00EF8DB1 /* DynamicTextureAtlas.h in Headers */,
+				2B35680518D762BF00EF8DB1 /* MBTileQuadSource.h in Headers */,
 				2B009CED186102E4001E2EE8 /* mempool.h in Headers */,
-				2B789F8E185BD3460028E027 /* Identifiable.h in Headers */,
-				2BBDFE741887480D00AE4CEB /* RawData.h in Headers */,
-				2B009C7C185F7924001E2EE8 /* ShapeReader.h in Headers */,
-				2B789F8F185BD3460028E027 /* OpenGLES2Program.h in Headers */,
-				2B789F8B185BD3460028E027 /* CoordSystem.h in Headers */,
-				2B13BA8818B41B52007DA1A3 /* DynamicDrawableAtlas.h in Headers */,
-				2B789F91185BD3460028E027 /* WhirlyVector.h in Headers */,
-				2B789FF3185BE56F0028E027 /* LayoutManager.h in Headers */,
-				2B789F90185BD3460028E027 /* WhirlyGeometry.h in Headers */,
+				2B35680C18D762BF00EF8DB1 /* PinchDelegate.h in Headers */,
+				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
+				2B3567F518D762BF00EF8DB1 /* ElevationChunk.h in Headers */,
+				2B3567FF18D762BF00EF8DB1 /* LoftManager.h in Headers */,
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
+				2B35680018D762BF00EF8DB1 /* LongPressDelegate.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
+				2B35681618D762BF00EF8DB1 /* SwipeDelegate.h in Headers */,
+				2B35680F18D762BF00EF8DB1 /* ShapeDrawableBuilder.h in Headers */,
+				2B35683E18D762BF00EF8DB1 /* WhirlyTypes.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
-				2B789FD3185BE1380028E027 /* DefaultShaderPrograms.h in Headers */,
-				2B789FBB185BDA4E0028E027 /* GlobeScene.h in Headers */,
+				2B3567F918D762BF00EF8DB1 /* LabelLayer.h in Headers */,
+				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
 				2B009D05186102E4001E2EE8 /* JSONPreparse.h in Headers */,
+				2B3567ED18D762BF00EF8DB1 /* LoadedTile.h in Headers */,
 				2BA2325817984F510063CC84 /* glues_error.h in Headers */,
-				2B789FE5185BE36C0028E027 /* ViewState.h in Headers */,
-				2B78A007185BEA300028E027 /* VectorData.h in Headers */,
+				2B35682C18D762BF00EF8DB1 /* SceneRendererES.h in Headers */,
 				2BA2325A17984F510063CC84 /* glues_mipmap.h in Headers */,
-				2B789FCD185BDDAF0028E027 /* PerformanceTimer.h in Headers */,
+				2B35681318D762BF00EF8DB1 /* SphericalEarthChunkManager.h in Headers */,
+				2B35680B18D762BF00EF8DB1 /* ParticleSystemManager.h in Headers */,
+				2B35683C18D762BF00EF8DB1 /* WhirlyGeometry.h in Headers */,
 				2B009CFC186102E4001E2EE8 /* JSONGlobals.h in Headers */,
+				2B35682218D762BF00EF8DB1 /* MaplyViewState.h in Headers */,
+				2B35682018D762BF00EF8DB1 /* MaplyScene.h in Headers */,
+				2B3567DF18D762BF00EF8DB1 /* Dictionary.h in Headers */,
+				2B3567F818D762BF00EF8DB1 /* GridLines.h in Headers */,
+				2B35680E18D762BF00EF8DB1 /* SceneGraphManager.h in Headers */,
+				2B35683018D762BF00EF8DB1 /* SelectionManager.h in Headers */,
 				2BA2325C17984F510063CC84 /* glues_project.h in Headers */,
-				2B13BA9818B525B5007DA1A3 /* TileQuadLoader.h in Headers */,
 				2B009D07186102E4001E2EE8 /* JSONSingleton.h in Headers */,
-				2B789FC9185BDC480028E027 /* SceneRendererES.h in Headers */,
-				2B789FE1185BE3520028E027 /* SphericalMercator.h in Headers */,
 				2BA2325E17984F510063CC84 /* glues_quad.h in Headers */,
-				2B13BA8C18B41E88007DA1A3 /* BigDrawable.h in Headers */,
+				2B35681418D762BF00EF8DB1 /* SphericalEarthLayer.h in Headers */,
+				2B35680618D762BF00EF8DB1 /* NetworkTileQuadSource.h in Headers */,
+				2B3567E418D762BF00EF8DB1 /* Generator.h in Headers */,
 				2B009D02186102E4001E2EE8 /* JSONNode.h in Headers */,
 				2BA2326017984F510063CC84 /* glues_registry.h in Headers */,
-				2BF76A2F1886030800465603 /* Texture.h in Headers */,
+				2B35683318D762BF00EF8DB1 /* SphericalMercator.h in Headers */,
+				2B35680318D762BF00EF8DB1 /* MaplyAnimateTranslation.h in Headers */,
+				2B3567E718D762BF00EF8DB1 /* GlobeView.h in Headers */,
+				2B3567E018D762BF00EF8DB1 /* Drawable.h in Headers */,
+				2B35681218D762BF00EF8DB1 /* SphericalEarthChunkLayer.h in Headers */,
+				2B35680218D762BF00EF8DB1 /* MaplyAnimateTranslateMomentum.h in Headers */,
 				2BA2326217984F510063CC84 /* dict-list.h in Headers */,
-				2B23C3B718903AF50059FF8F /* Quadtree.h in Headers */,
-				2B789FA3185BD5690028E027 /* GLUtils.h in Headers */,
 				2B009D181861093A001E2EE8 /* clipper.hpp in Headers */,
-				2B789FA1185BD4F70028E027 /* WhirlyTypes.h in Headers */,
+				2B35681C18D762BF00EF8DB1 /* VectorDatabase.h in Headers */,
+				2B35682D18D762BF00EF8DB1 /* SceneRendererES2.h in Headers */,
+				2B35682118D762BF00EF8DB1 /* MaplyView.h in Headers */,
+				2B3567E318D762BF00EF8DB1 /* FlatMath.h in Headers */,
+				2B35680818D762BF00EF8DB1 /* PanDelegate.h in Headers */,
 				2B009CF6186102E4001E2EE8 /* JSONDebug.h in Headers */,
-				2B009C78185F6F62001E2EE8 /* Dictionary.h in Headers */,
 				2B009D06186102E4001E2EE8 /* JSONSharedString.h in Headers */,
+				2B35680118D762BF00EF8DB1 /* MaplyAnimateFlat.h in Headers */,
+				2B35681918D762BF00EF8DB1 /* TextureGroup.h in Headers */,
 				2BA2326417984F510063CC84 /* dict.h in Headers */,
+				2B3567EF18D762BF00EF8DB1 /* AnimateRotation.h in Headers */,
+				2B35680D18D762BF00EF8DB1 /* RotateDelegate.h in Headers */,
+				2B35682518D762BF00EF8DB1 /* OpenGLES2Program.h in Headers */,
+				2B35682318D762BF00EF8DB1 /* MarkerGenerator.h in Headers */,
+				2B3567F318D762BF00EF8DB1 /* BillboardManager.h in Headers */,
+				2B35681118D762BF00EF8DB1 /* ShapeManager.h in Headers */,
+				2B3567E818D762BF00EF8DB1 /* GlobeViewState.h in Headers */,
+				2B35682B18D762BF00EF8DB1 /* Scene.h in Headers */,
+				2B35680418D762BF00EF8DB1 /* MarkerLayer.h in Headers */,
 				2BA2326617984F510063CC84 /* geom.h in Headers */,
-				2B13BA9018B42E6E007DA1A3 /* LoadedTile.h in Headers */,
 				2BA2326817984F510063CC84 /* memalloc.h in Headers */,
+				2B3567EC18D762BF00EF8DB1 /* LayoutManager.h in Headers */,
 				2BA2326A17984F510063CC84 /* mesh.h in Headers */,
-				2B789FE7185BE3710028E027 /* GlobeViewState.h in Headers */,
-				2BF76A311886034B00465603 /* MarkerGenerator.h in Headers */,
+				2B3567FB18D762BF00EF8DB1 /* LabelRenderer.h in Headers */,
+				2B35683718D762BF00EF8DB1 /* TileQuadLoader.h in Headers */,
 				2B009D08186102E4001E2EE8 /* JSONStats.h in Headers */,
+				2B35682A18D762BF00EF8DB1 /* RawData.h in Headers */,
 				2B009D00186102E4001E2EE8 /* JSONMemoryPool.h in Headers */,
-				2BF76A3F1886F90400465603 /* TextureAtlas.h in Headers */,
 				2B009D11186102E4001E2EE8 /* NumberToString.h in Headers */,
-				2B789FF5185BE59F0028E027 /* SceneRendererES2.h in Headers */,
+				2B35681B18D762BF00EF8DB1 /* UpdateDisplayLayer.h in Headers */,
+				2B35680718D762BF00EF8DB1 /* NSString+Stuff.h in Headers */,
 				2B009D12186102E4001E2EE8 /* JSONOptions.h in Headers */,
 				2B009CF7186102E4001E2EE8 /* GNU_C.h in Headers */,
-				2B009C8A185F8001001E2EE8 /* VectorManager.h in Headers */,
+				2B35681D18D762BF00EF8DB1 /* VectorLayer.h in Headers */,
+				2B35683418D762BF00EF8DB1 /* Tesselator.h in Headers */,
 				2B009CEF186102E4001E2EE8 /* internalJSONNode.h in Headers */,
 				2B009CFA186102E4001E2EE8 /* Visual_C.h in Headers */,
+				2B35681F18D762BF00EF8DB1 /* MaplyFlatView.h in Headers */,
+				2B3567F118D762BF00EF8DB1 /* BillboardDrawable.h in Headers */,
+				2B35682918D762BF00EF8DB1 /* Quadtree.h in Headers */,
 				2BA2326C17984F510063CC84 /* normal.h in Headers */,
+				2B3567E918D762BF00EF8DB1 /* GLUtils.h in Headers */,
+				2B35682718D762BF00EF8DB1 /* Platform.h in Headers */,
 				2BA2326D17984F510063CC84 /* priorityq-heap.h in Headers */,
+				2B3567F418D762BF00EF8DB1 /* BufferBuilder.h in Headers */,
 				2B009CF9186102E4001E2EE8 /* Unknown_C.h in Headers */,
-				2BF76A2E1886030800465603 /* SelectionManager.h in Headers */,
 				2BA2326F17984F510063CC84 /* priorityq-sort.h in Headers */,
+				2B3567F718D762BF00EF8DB1 /* GeometryLayer.h in Headers */,
 				2BA2327117984F510063CC84 /* priorityq.h in Headers */,
-				2B789FED185BE4580028E027 /* MaplyViewState.h in Headers */,
 				2B009C98185FA2CD001E2EE8 /* WhirlyGlobe.h in Headers */,
 				2B009CF0186102E4001E2EE8 /* JSON_Base64.h in Headers */,
+				2B35681A18D762BF00EF8DB1 /* TileQuadOfflineRenderer.h in Headers */,
+				2B35683218D762BF00EF8DB1 /* SharedAttributes.h in Headers */,
+				2B3567DE18D762BF00EF8DB1 /* DefaultShaderPrograms.h in Headers */,
+				2B35681E18D762BF00EF8DB1 /* ViewPlacementGenerator.h in Headers */,
 				2BA2327317984F510063CC84 /* render.h in Headers */,
-				2B789FAF185BD7E00028E027 /* Cullable.h in Headers */,
-				2BBDFE7C1888717A00AE4CEB /* QuadDisplayController.h in Headers */,
-				2B789FB1185BD7E50028E027 /* Drawable.h in Headers */,
 				2B009CEC186102E4001E2EE8 /* libbase64++.h in Headers */,
+				2B35683618D762BF00EF8DB1 /* TextureAtlas.h in Headers */,
+				2B3567FA18D762BF00EF8DB1 /* LabelManager.h in Headers */,
+				2B35682818D762BF00EF8DB1 /* QuadDisplayController.h in Headers */,
+				2B35681518D762BF00EF8DB1 /* SphericalEarthQuadLayer.h in Headers */,
 				2B009D13186102E4001E2EE8 /* libjson.h in Headers */,
-				2B789FAB185BD7490028E027 /* Scene.h in Headers */,
+				2B3567DC18D762BF00EF8DB1 /* CoordSystem.h in Headers */,
 				2BA2327517984F510063CC84 /* sweep.h in Headers */,
-				2B789FB9185BDA420028E027 /* MaplyScene.h in Headers */,
-				2B789FCF185BDE8B0028E027 /* Platform.h in Headers */,
+				2B3567EE18D762BF00EF8DB1 /* ActiveModel.h in Headers */,
+				2B35680918D762BF00EF8DB1 /* ParticleGenerator.h in Headers */,
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
+				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
-				2B23C3BB189042A30059FF8F /* ScreenImportance.h in Headers */,
-				2B789FB3185BD9550028E027 /* Generator.h in Headers */,
+				2B3567F218D762BF00EF8DB1 /* BillboardLayer.h in Headers */,
+				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
+				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
 				2B009CFB186102E4001E2EE8 /* JSONDefs.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
+				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
+				2B35681018D762BF00EF8DB1 /* ShapeLayer.h in Headers */,
 				2B009CFF186102E4001E2EE8 /* JSONMemory.h in Headers */,
+				2B3567DB18D762BF00EF8DB1 /* BigDrawable.h in Headers */,
+				2B35683D18D762BF00EF8DB1 /* WhirlyKitView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1485,24 +1673,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B35676018D762A700EF8DB1 /* Quadtree.cpp in Sources */,
 				2BDC4AC5133404CA00E25283 /* safileio.c in Sources */,
-				2BF76A411886F91800465603 /* TextureAtlas.cpp in Sources */,
 				2BDC4AC3133404C600E25283 /* dbfopen.c in Sources */,
+				2B35675718D762A700EF8DB1 /* MaplyScene.cpp in Sources */,
+				2B35676818D762A700EF8DB1 /* ShapeReader.cpp in Sources */,
 				2BDC4AC4133404C600E25283 /* shpopen.c in Sources */,
 				2B7EF42516025D8C00D4079F /* aasincos.c in Sources */,
-				2B009C7E185F7933001E2EE8 /* ShapeReader.cpp in Sources */,
-				2B789F93185BD36A0028E027 /* CoordSystem.cpp in Sources */,
 				2B7EF42616025D8C00D4079F /* adjlon.c in Sources */,
 				2B7EF42716025D8C00D4079F /* bch2bps.c in Sources */,
-				2B789FE3185BE3600028E027 /* GlobeViewState.cpp in Sources */,
 				2B009D0B186102E4001E2EE8 /* JSONValidator.cpp in Sources */,
 				2B7EF42816025D8C00D4079F /* bchgen.c in Sources */,
+				2B35676C18D762A700EF8DB1 /* TextureAtlas.cpp in Sources */,
 				2B7EF42916025D8C00D4079F /* biveval.c in Sources */,
+				2B35676118D762A700EF8DB1 /* RawData.cpp in Sources */,
+				2B35676418D762A700EF8DB1 /* SceneRendererES2.cpp in Sources */,
 				2B7EF42B16025D8C00D4079F /* dmstor.c in Sources */,
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
-				2B78A001185BE9ED0028E027 /* MaplyFlatView.cpp in Sources */,
-				2B789FAD185BD7950028E027 /* Scene.cpp in Sources */,
+				2B35675D18D762A700EF8DB1 /* PerformanceTimer.cpp in Sources */,
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
@@ -1510,166 +1699,165 @@
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
+				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
 				2B7EF44116025D8C00D4079F /* PJ_airy.c in Sources */,
 				2B7EF44216025D8C00D4079F /* PJ_aitoff.c in Sources */,
-				2B78A005185BEA150028E027 /* VectorData.cpp in Sources */,
 				2B7EF44316025D8C00D4079F /* pj_apply_gridshift.c in Sources */,
 				2B7EF44416025D8C00D4079F /* pj_apply_vgridshift.c in Sources */,
-				2B789FC2185BDBC40028E027 /* Cullable.cpp in Sources */,
 				2B7EF44516025D8C00D4079F /* PJ_august.c in Sources */,
+				2B35675818D762A700EF8DB1 /* MaplyView.cpp in Sources */,
 				2B7EF44616025D8C00D4079F /* pj_auth.c in Sources */,
 				2B7EF44716025D8C00D4079F /* PJ_bacon.c in Sources */,
-				2B789FEF185BE4CB0028E027 /* MaplyView.cpp in Sources */,
 				2B009D171861093A001E2EE8 /* clipper.cpp in Sources */,
 				2B7EF44816025D8C00D4079F /* PJ_bipc.c in Sources */,
-				2BBDFE7E188871AF00AE4CEB /* QuadDisplayController.cpp in Sources */,
+				2B35677118D762A700EF8DB1 /* ViewState.cpp in Sources */,
 				2B7EF44916025D8C00D4079F /* PJ_boggs.c in Sources */,
 				2B7EF44A16025D8C00D4079F /* PJ_bonne.c in Sources */,
-				2B3836AF18635CBC00467ABD /* VectorObject.cpp in Sources */,
 				2B7EF44B16025D8C00D4079F /* PJ_cass.c in Sources */,
 				2B7EF44C16025D8C00D4079F /* PJ_cc.c in Sources */,
+				2B35677318D762A700EF8DB1 /* WhirlyKitView.cpp in Sources */,
 				2B7EF44D16025D8C00D4079F /* PJ_cea.c in Sources */,
 				2B7EF44E16025D8C00D4079F /* PJ_chamb.c in Sources */,
 				2B7EF44F16025D8C00D4079F /* PJ_collg.c in Sources */,
-				2B789FA5185BD5780028E027 /* GLUtils.cpp in Sources */,
 				2B7EF45016025D8C00D4079F /* PJ_crast.c in Sources */,
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
+				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
+				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
 				2B7EF45216025D8C00D4079F /* pj_datum_set.c in Sources */,
 				2B7EF45316025D8C00D4079F /* pj_datums.c in Sources */,
-				2BF76A381886038700465603 /* LayoutManager.cpp in Sources */,
 				2B7EF45416025D8C00D4079F /* PJ_denoy.c in Sources */,
-				2B789FDF185BE3420028E027 /* SphericalMercator.cpp in Sources */,
 				2B7EF45516025D8C00D4079F /* pj_deriv.c in Sources */,
-				2B23C3BD189042B10059FF8F /* ScreenImportance.cpp in Sources */,
 				2B7EF45616025D8C00D4079F /* PJ_eck1.c in Sources */,
-				2B13BA8E18B41E96007DA1A3 /* BigDrawable.cpp in Sources */,
+				2B35676918D762A700EF8DB1 /* SphericalMercator.cpp in Sources */,
 				2B7EF45716025D8C00D4079F /* PJ_eck2.c in Sources */,
+				2B35677218D762A700EF8DB1 /* WhirlyGeometry.cpp in Sources */,
 				2B009CF1186102E4001E2EE8 /* JSONAllocator.cpp in Sources */,
 				2B7EF45816025D8C00D4079F /* PJ_eck3.c in Sources */,
+				2B35675A18D762A700EF8DB1 /* MarkerGenerator.cpp in Sources */,
 				2B7EF45916025D8C00D4079F /* PJ_eck4.c in Sources */,
 				2B7EF45A16025D8C00D4079F /* PJ_eck5.c in Sources */,
 				2B7EF45B16025D8C00D4079F /* pj_ell_set.c in Sources */,
+				2B35675F18D762A700EF8DB1 /* QuadDisplayController.cpp in Sources */,
+				2B35675918D762A700EF8DB1 /* MaplyViewState.cpp in Sources */,
+				2B35674618D762A700EF8DB1 /* DefaultShaderPrograms.cpp in Sources */,
 				2B7EF45C16025D8C00D4079F /* pj_ellps.c in Sources */,
 				2B009D0F186102E4001E2EE8 /* JSONWriter.cpp in Sources */,
 				2B7EF45D16025D8C00D4079F /* PJ_eqc.c in Sources */,
-				2B789FD1185BE12B0028E027 /* DefaultShaderPrograms.cpp in Sources */,
-				2B789FDA185BE1D80028E027 /* Platform.mm in Sources */,
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
-				2B789FDB185BE1D80028E027 /* WhirlyKitView.cpp in Sources */,
 				2B009CFE186102E4001E2EE8 /* JSONMemory.cpp in Sources */,
-				2B789FFD185BE8660028E027 /* SceneRendererES2.cpp in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
-				2B789F95185BD37E0028E027 /* FlatMath.cpp in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
 				2B7EF46316025D8C00D4079F /* pj_fwd.c in Sources */,
-				2BF76A3A1886038700465603 /* MarkerManager.cpp in Sources */,
 				2B7EF46416025D8C00D4079F /* PJ_gall.c in Sources */,
+				2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
-				2B009C7A185F6F6A001E2EE8 /* Dictionary.cpp in Sources */,
+				2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */,
+				2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,
+				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
 				2B7EF46816025D8C00D4079F /* PJ_gins8.c in Sources */,
+				2B35674B18D762A700EF8DB1 /* FlatMath.cpp in Sources */,
 				2B7EF46916025D8C00D4079F /* PJ_gn_sinu.c in Sources */,
-				2B789F9F185BD3FB0028E027 /* WhirlyVector.cpp in Sources */,
+				2B35675E18D762A700EF8DB1 /* Platform.mm in Sources */,
 				2B7EF46A16025D8C00D4079F /* PJ_gnom.c in Sources */,
-				2B789FEB185BE4430028E027 /* MaplyViewState.cpp in Sources */,
-				2B13BA8618B41704007DA1A3 /* DynamicTextureAtlas.cpp in Sources */,
 				2B7EF46B16025D8C00D4079F /* PJ_goode.c in Sources */,
-				2BF76A391886038700465603 /* MarkerGenerator.cpp in Sources */,
-				2BBDFE761887482800AE4CEB /* RawData.cpp in Sources */,
 				2B7EF46C16025D8C00D4079F /* pj_gridinfo.c in Sources */,
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
+				2B35676318D762A700EF8DB1 /* SceneRendererES.cpp in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
 				2B7EF46F16025D8C00D4079F /* PJ_hammer.c in Sources */,
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
+				2B35676B18D762A700EF8DB1 /* Texture.cpp in Sources */,
+				2B35675518D762A700EF8DB1 /* LoadedTile.cpp in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
+				2B35675B18D762A700EF8DB1 /* MarkerManager.cpp in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
-				2B13BA9A18B525C0007DA1A3 /* TileQuadLoader.cpp in Sources */,
 				2B7EF47316025D8C00D4079F /* PJ_imw_p.c in Sources */,
+				2B35674C18D762A700EF8DB1 /* Generator.cpp in Sources */,
 				2B7EF47416025D8C00D4079F /* pj_init.c in Sources */,
 				2B7EF47516025D8C00D4079F /* pj_initcache.c in Sources */,
 				2B7EF47616025D8C00D4079F /* pj_inv.c in Sources */,
 				2B7EF47716025D8C00D4079F /* PJ_isea.c in Sources */,
 				2B7EF47816025D8C00D4079F /* PJ_krovak.c in Sources */,
-				2BF76A3B1886038700465603 /* ScreenSpaceGenerator.cpp in Sources */,
 				2B7EF47916025D8C00D4079F /* PJ_labrd.c in Sources */,
 				2B7EF47A16025D8C00D4079F /* PJ_laea.c in Sources */,
 				2B7EF47B16025D8C00D4079F /* PJ_lagrng.c in Sources */,
-				2B789FC3185BDBC40028E027 /* Drawable.cpp in Sources */,
-				2B789FC7185BDBC40028E027 /* MaplyScene.cpp in Sources */,
 				2B7EF47C16025D8C00D4079F /* PJ_larr.c in Sources */,
-				2B789FE9185BE37A0028E027 /* ViewState.cpp in Sources */,
 				2B7EF47D16025D8C00D4079F /* PJ_lask.c in Sources */,
 				2B7EF47E16025D8C00D4079F /* pj_latlong.c in Sources */,
 				2B7EF47F16025D8C00D4079F /* PJ_lcc.c in Sources */,
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
-				2B789FC5185BDBC40028E027 /* GlobeScene.cpp in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
+				2B35674718D762A700EF8DB1 /* Dictionary.cpp in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
 				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
+				2B35675118D762A700EF8DB1 /* GLUtils.cpp in Sources */,
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
-				2B789FC6185BDBC40028E027 /* GlobeView.cpp in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
-				2BF76A3C1886038700465603 /* SelectionManager.cpp in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
+				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
 				2B7EF48B16025D8C00D4079F /* PJ_mill.c in Sources */,
 				2B7EF48C16025D8C00D4079F /* pj_mlfn.c in Sources */,
 				2B7EF48D16025D8C00D4079F /* PJ_mod_ster.c in Sources */,
 				2B7EF48E16025D8C00D4079F /* PJ_moll.c in Sources */,
 				2B7EF48F16025D8C00D4079F /* pj_msfn.c in Sources */,
+				2B35675018D762A700EF8DB1 /* GlobeViewState.cpp in Sources */,
 				2B7EF49016025D8C00D4079F /* pj_mutex.c in Sources */,
 				2B7EF49116025D8C00D4079F /* PJ_natearth.c in Sources */,
 				2B7EF49216025D8C00D4079F /* PJ_nell_h.c in Sources */,
 				2B7EF49316025D8C00D4079F /* PJ_nell.c in Sources */,
-				2B789F9B185BD3E10028E027 /* OpenGLES2Program.cpp in Sources */,
+				2B35676518D762A700EF8DB1 /* ScreenImportance.cpp in Sources */,
 				2B7EF49416025D8C00D4079F /* PJ_nocol.c in Sources */,
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
-				2B789F98185BD3AC0028E027 /* GlobeMath.cpp in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
 				2B009D03186102E4001E2EE8 /* JSONNode_Mutex.cpp in Sources */,
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,
-				2B23C3B918903AFF0059FF8F /* Quadtree.cpp in Sources */,
 				2B7EF49A16025D8C00D4079F /* PJ_omerc.c in Sources */,
 				2B7EF49B16025D8C00D4079F /* pj_open_lib.c in Sources */,
 				2B7EF49C16025D8C00D4079F /* PJ_ortho.c in Sources */,
 				2B7EF49D16025D8C00D4079F /* pj_param.c in Sources */,
-				2B009C92185F906D001E2EE8 /* Tesselator.cpp in Sources */,
 				2B009D09186102E4001E2EE8 /* JSONStream.cpp in Sources */,
+				2B35674518D762A700EF8DB1 /* Cullable.cpp in Sources */,
 				2B7EF49E16025D8C00D4079F /* pj_phi2.c in Sources */,
-				2B789F99185BD3AC0028E027 /* Identifiable.cpp in Sources */,
 				2B7EF49F16025D8C00D4079F /* PJ_poly.c in Sources */,
 				2B7EF4A016025D8C00D4079F /* pj_pr_list.c in Sources */,
+				2B35675418D762A700EF8DB1 /* LayoutManager.cpp in Sources */,
+				2B35676218D762A700EF8DB1 /* Scene.cpp in Sources */,
 				2B7EF4A116025D8C00D4079F /* PJ_putp2.c in Sources */,
-				2B13BA9218B42E79007DA1A3 /* LoadedTile.cpp in Sources */,
+				2B35675218D762A700EF8DB1 /* GridClipper.cpp in Sources */,
 				2B7EF4A216025D8C00D4079F /* PJ_putp3.c in Sources */,
 				2B7EF4A316025D8C00D4079F /* PJ_putp4p.c in Sources */,
 				2B7EF4A416025D8C00D4079F /* PJ_putp5.c in Sources */,
 				2B7EF4A516025D8C00D4079F /* PJ_putp6.c in Sources */,
 				2B7EF4A616025D8C00D4079F /* pj_qsfn.c in Sources */,
+				2B35674A18D762A700EF8DB1 /* DynamicTextureAtlas.cpp in Sources */,
 				2B7EF4A716025D8C00D4079F /* pj_release.c in Sources */,
-				2B009C88185F7FFA001E2EE8 /* VectorManager.cpp in Sources */,
+				2B35676E18D762A700EF8DB1 /* VectorData.cpp in Sources */,
 				2B7EF4A816025D8C00D4079F /* PJ_robin.c in Sources */,
 				2B7EF4A916025D8C00D4079F /* PJ_rpoly.c in Sources */,
-				2B789FCB185BDD9C0028E027 /* PerformanceTimer.cpp in Sources */,
 				2B7EF4AA16025D8C00D4079F /* PJ_sconics.c in Sources */,
 				2B009D0D186102E4001E2EE8 /* JSONWorker.cpp in Sources */,
-				2B789FFB185BE7930028E027 /* SceneRendererES.cpp in Sources */,
 				2B7EF4AB16025D8C00D4079F /* PJ_somerc.c in Sources */,
 				2B7EF4AC16025D8C00D4079F /* PJ_stere.c in Sources */,
 				2B009D01186102E4001E2EE8 /* JSONNode.cpp in Sources */,
 				2B7EF4AD16025D8C00D4079F /* PJ_sterea.c in Sources */,
+				2B35674418D762A700EF8DB1 /* CoordSystem.cpp in Sources */,
+				2B35676618D762A700EF8DB1 /* ScreenSpaceGenerator.cpp in Sources */,
 				2B009CF5186102E4001E2EE8 /* JSONDebug.cpp in Sources */,
 				2B7EF4AE16025D8C00D4079F /* pj_strerrno.c in Sources */,
+				2B35675618D762A700EF8DB1 /* MaplyFlatView.cpp in Sources */,
+				2B35676D18D762A700EF8DB1 /* TileQuadLoader.cpp in Sources */,
 				2B009CEE186102E4001E2EE8 /* internalJSONNode.cpp in Sources */,
 				2B7EF4AF16025D8C00D4079F /* PJ_sts.c in Sources */,
 				2B7EF4B016025D8C00D4079F /* PJ_tcc.c in Sources */,
@@ -1679,29 +1867,27 @@
 				2B7EF4B416025D8C00D4079F /* pj_transform.c in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
-				2B009C80185F7F96001E2EE8 /* GridClipper.cpp in Sources */,
 				2B7EF4B716025D8C00D4079F /* PJ_urm5.c in Sources */,
 				2B7EF4B816025D8C00D4079F /* PJ_urmfps.c in Sources */,
 				2B7EF4B916025D8C00D4079F /* pj_utils.c in Sources */,
 				2B7EF4BA16025D8C00D4079F /* PJ_vandg.c in Sources */,
+				2B35674818D762A700EF8DB1 /* Drawable.cpp in Sources */,
 				2B7EF4BB16025D8C00D4079F /* PJ_vandg2.c in Sources */,
-				2B13BA8A18B41B5C007DA1A3 /* DynamicDrawableAtlas.cpp in Sources */,
 				2B7EF4BC16025D8C00D4079F /* PJ_vandg4.c in Sources */,
-				2B789FC4185BDBC40028E027 /* Generator.cpp in Sources */,
 				2B7EF4BD16025D8C00D4079F /* PJ_wag2.c in Sources */,
 				2B7EF4BE16025D8C00D4079F /* PJ_wag3.c in Sources */,
 				2B7EF4BF16025D8C00D4079F /* PJ_wag7.c in Sources */,
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
+				2B35677018D762A700EF8DB1 /* VectorObject.cpp in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
 				2B009CFD186102E4001E2EE8 /* JSONIterators.cpp in Sources */,
+				2B35674D18D762A700EF8DB1 /* GlobeMath.cpp in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
 				2B7EF4C916025D8C00D4079F /* rtodms.c in Sources */,
 				2B7EF4CA16025D8C00D4079F /* vector1.c in Sources */,
-				2B789F9D185BD3EE0028E027 /* WhirlyGeometry.cpp in Sources */,
-				2BF76A3D1886038700465603 /* Texture.cpp in Sources */,
 				2BA2325717984F510063CC84 /* glues_error.c in Sources */,
 				2BA2325917984F510063CC84 /* glues_mipmap.c in Sources */,
 				2BA2325B17984F510063CC84 /* glues_project.c in Sources */,
@@ -1709,6 +1895,8 @@
 				2BA2325F17984F510063CC84 /* glues_registry.c in Sources */,
 				2BA2326317984F510063CC84 /* dict.c in Sources */,
 				2B009CF3186102E4001E2EE8 /* JSONChildren.cpp in Sources */,
+				2B35676A18D762A700EF8DB1 /* Tesselator.cpp in Sources */,
+				2B35674E18D762A700EF8DB1 /* GlobeScene.cpp in Sources */,
 				2B009D10186102E4001E2EE8 /* libjson.cpp in Sources */,
 				2BA2326517984F510063CC84 /* geom.c in Sources */,
 				2BA2326717984F510063CC84 /* memalloc.c in Sources */,

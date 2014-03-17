@@ -127,7 +127,7 @@ using namespace WhirlyGlobe;
         return nil;
     ShapeReader shapeReader(cFileName);
     if (!shapeReader.isValid())
-        return false;
+        return NULL;
     
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
     int numObj = shapeReader.getNumObjects();

@@ -26,7 +26,7 @@
     CADisplayLink *displayLink;
     bool resizeFail;
     int resizeFailRetry;
-    int _frameInterval;
+    NSInteger _frameInterval;
 }
 
 @synthesize frameInterval=_frameInterval;

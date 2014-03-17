@@ -19,7 +19,7 @@
  */
 
 #import "UIImage+Stuff.h"
-#import <core/WhirlyGeometry.h>
+#import <WhirlyGeometry.h>
 
 using namespace WhirlyKit;
 
