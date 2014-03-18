@@ -41,6 +41,11 @@ public:
 	{
 		if (coordSys)
 			delete coordSys;
+		if (control)
+		{
+			delete control;
+			control = NULL;
+		}
 	}
 
 	QuadDisplayController *getController() { return control; }
@@ -248,13 +253,6 @@ public:
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
     virtual void shutdownLayer(ChangeSet &changes)
     {
-    	if (control)
-    	{
-    		control->shutdown(changes);
-
-    		delete control;
-    		control = NULL;
-    	}
     }
 
     // Call loadTile on the java side

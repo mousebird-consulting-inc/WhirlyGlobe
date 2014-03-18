@@ -19,6 +19,9 @@ import android.os.Looper;
  */
 public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
+	// Set when the layer is active.
+	boolean valid = false;
+	
 	private QuadImageTileLayer()
 	{
 	}
@@ -97,6 +100,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,0,tileSource.maxZoom());
+		valid = true;
 	}
 
 	/**
@@ -104,6 +108,7 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	public void shutdown()
 	{
+		valid = false;
 		cancelEvalStep();
 		ChangeSet changes = new ChangeSet();
 		nativeShutdown(changes);
@@ -117,6 +122,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	@Override
 	public void viewUpdated(ViewState viewState) 
 	{
+		if (!valid)
+			return;
+		
 		nativeViewUpdate(viewState);
 
 		scheduleEvalStep();
@@ -128,6 +136,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	// Cancel the current evalStep
 	void cancelEvalStep()
 	{
+		if (!valid)
+			return;
+
 		synchronized(this)
 		{
 			if (evalStepHandle != null)
@@ -142,6 +153,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	// Post an evalStep if there isn't one scheduled
 	void scheduleEvalStep()
 	{
+		if (!valid)
+			return;
 //		cancelEvalStep();
 
 		synchronized(this)
@@ -164,6 +177,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	// Do something small and then return
 	void evalStep()
 	{
+		if (!valid)
+			return;
+
 		synchronized(this)
 		{
 			evalStepHandle = null;
@@ -184,6 +200,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	public void refresh()
 	{
+		if (!valid)
+			return;
+
 		// Make sure this runs on the layer thread
 		if (Looper.myLooper() != layerThread.getLooper())
 		{
@@ -212,6 +231,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	void startFetch(int level,int x,int y)
 	{
+		if (!valid)
+			return;
+
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		tileSource.startFetchForTile(this, tileID);
 	}
@@ -229,6 +251,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	 */
 	public void loadedTile(final MaplyTileID tileID,final MaplyImageTile imageTile)
 	{
+		if (!valid)
+			return;
+
 		if (Looper.myLooper() != layerThread.getLooper())
 		{
 			layerThread.addTask(new Runnable()

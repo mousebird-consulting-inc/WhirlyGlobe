@@ -1,12 +1,21 @@
 package com.mousebird.maplytester;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mousebird.maply.MaplyController;
 import com.mousebird.maplytester.TestRemoteImageTiles;
 
 import android.os.*;
 import android.app.*;
-import android.view.Menu;
+import android.util.Log;
 //import android.widget.Toast;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 
 /**
  * The MainActivity is a test activity for the Maply library.
@@ -18,43 +27,100 @@ import android.view.Menu;
 public class MainActivity extends Activity 
 {
 	// Handles drawing, interaction, and so forth for Maply
-	MaplyController mapControl;
+	MaplyController mapControl = null;
 	
-    @Override
-    protected void onCreate(Bundle savedInstanceState) 
-    {    	
+	List<Map<String, String>> optionsList = new ArrayList<Map<String,String>>();
+
+	// Main constructor
+	public MainActivity()
+	{
 		System.loadLibrary("Maply");
-    	
-//		// Wait for the debugger to catch up
-//    	try {
-//			Thread.sleep(10000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-    	
+
+		optionsList.add(createEntry("entry", "OSM Paging"));
+		optionsList.add(createEntry("entry", "Satellite Basemap"));
+		optionsList.add(createEntry("entry", "Countries"));		
+	}
+	
+	// Create an entry for the list view
+	private HashMap<String,String> createEntry(String key,String name)
+	{
+		HashMap<String,String> entry = new HashMap<String, String>();
+		entry.put(key,name);
+		
+		return entry;
+	}
+	
+	// Demo types for the user to choose
+	public enum DemoType { OSMPaging, SatelliteBasemap, Countries };
+	
+	@Override
+	protected void onCreate(Bundle savedInstState)
+	{
+		super.onCreate(savedInstState);
+		
+		startListView();
+	}
+	
+	// Fire up the list view for user selection
+	void startListView()
+	{
+		setContentView(R.layout.activity_main);
+				
+		final MainActivity mainActivity = this;
+		
+		// Set up the list view
+		ListView lv = (ListView) findViewById(R.id.listView);
+		SimpleAdapter simpleAdpt = new SimpleAdapter(this, optionsList, android.R.layout.simple_list_item_1, new String[] {"entry"}, new int[] {android.R.id.text1});
+		lv.setAdapter(simpleAdpt);
+		lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parentAdapter, View view, int position,long id)
+			{
+				mainActivity.startDemo(DemoType.values()[position]);
+			}
+		});		
+	}
+	
+	void startDemo(DemoType type)
+	{
     	// Create the Maply Controller
     	mapControl = new MaplyController(this);
- 
-    	// Load all the country outlines on another thread as a test
-//    	TestCountries test = new TestCountries(this,mapControl);
-//    	test.start();
-    	    	
-    	// Display remote OSM vector tiles
-//    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
-//    	test.start();
-    	
-    	// A remote basemap
-    	TestRemoteImageTiles test = new TestRemoteImageTiles(this,mapControl);
-    	test.start();
-    	
-        super.onCreate(savedInstanceState);
-    }
-    
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    } 
+    	View renderView = mapControl.getContentView();
+    	if (renderView != null)
+    		this.setContentView(renderView);
+
+		switch (type)
+		{
+		case OSMPaging:
+		{
+	    	TestRemoteOSM test = new TestRemoteOSM(this,mapControl);
+	    	test.start();
+		}
+			break;
+		case SatelliteBasemap:
+		{
+	    	TestRemoteImageTiles test = new TestRemoteImageTiles(this,mapControl);
+	    	test.start();
+		}
+			break;
+		case Countries:
+		{
+	    	TestCountries test = new TestCountries(this,mapControl);
+	    	test.start();
+			break;
+		}
+		}				
+	}	
+	
+	@Override
+	public void onBackPressed()
+	{
+		// Tear down the display
+		if (mapControl != null)
+		{
+			mapControl.shutdown();
+			mapControl = null;
+		}
+		// Pop back to the list view
+		startListView();
+	}
 }

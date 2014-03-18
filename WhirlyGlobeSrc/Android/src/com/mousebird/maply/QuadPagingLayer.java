@@ -21,6 +21,9 @@ import android.os.Looper;
  */
 public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
+	// Set when the layer is operating
+	boolean valid = false;
+	
 	private QuadPagingLayer()
 	{
 	}
@@ -124,11 +127,13 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		Point2d ll = new Point2d(coordSys.ll.getX(),coordSys.ll.getY());
 		Point2d ur = new Point2d(coordSys.ur.getX(),coordSys.ur.getY());
 		nativeStartLayer(layerThread.scene,layerThread.renderer,ll,ur,0,pagingDelegate.maxZoom());
+		valid = true;
 	}
 	
 	// Called when the layer shuts down.  Won't be run again.
 	public void shutdown()
 	{
+		valid = false;
 		cancelEvalStep();
 		ChangeSet changes = new ChangeSet();
 		nativeShutdown(changes);
@@ -140,6 +145,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	@Override
 	public void viewUpdated(ViewState viewState) 
 	{
+		if (!valid)
+			return;
+		
 		nativeViewUpdate(viewState);
 
 		scheduleEvalStep();
@@ -148,6 +156,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Cancel the current evalStep
 	void cancelEvalStep()
 	{
+		if (!valid)
+			return;
+
 		if (evalStepHandle != null)
 		{
 			evalStepHandle.removeCallbacks(evalStepRun);
@@ -159,6 +170,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Cancel the current evalStep and post a new one
 	void scheduleEvalStep()
 	{
+		if (!valid)
+			return;
+
 		cancelEvalStep();
 		
 		evalStepRun = new Runnable()
@@ -176,6 +190,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Do something small and then return
 	void evalStep()
 	{
+		if (!valid)
+			return;
+
 		evalStepHandle = null;
 		evalStepRun = null;
 		
@@ -193,6 +210,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void refresh()
 	{
+		if (!valid)
+			return;
+
 		// Make sure this runs on the layer thread
 		if (Looper.myLooper() != layerThread.getLooper())
 		{
@@ -232,6 +252,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Called by the native side when it's time to load a tile
 	void loadTile(int x,int y,int level)
 	{
+		if (!valid)
+			return;
+
 //		Log.i("QuadPagingLayer","Load tile: " + level + "(" + x + "," + y + ")");
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		
@@ -256,6 +279,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Called by the native side when it's time to unload a tile
 	void unloadTile(int x,int y,int level)
 	{
+		if (!valid)
+			return;
+
 //		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
 		
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
@@ -330,6 +356,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Add a loaded tile.  We're assuming it's not already there
 	void addLoadedTile(LoadedTile tile)
 	{
+		if (!valid)
+			return;
+
 		synchronized(loadedTiles)
 		{
 			loadedTiles.put(tile.ident, tile);
@@ -339,6 +368,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Remove a loaded tile
 	void removeLoadedTile(MaplyTileID tileID)
 	{
+		if (!valid)
+			return;
+
 		synchronized(loadedTiles)
 		{
 			loadedTiles.remove(tileID);
@@ -353,6 +385,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void addData(ComponentObject compObj,MaplyTileID tileID)
 	{
+		if (!valid)
+			return;
+
 		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
 		compObjs.add(compObj);
 		addData(compObjs,tileID);
@@ -366,6 +401,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void addData(List<ComponentObject> compObjs,MaplyTileID tileID)
 	{
+		if (!valid)
+			return;
+
 		LoadedTile tile = findLoadedTile(tileID);
 		// We're no longer interested in the tile, so punt
 		if (tile == null)
@@ -396,6 +434,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void tileDidLoad(final MaplyTileID tileID)
 	{
+		if (!valid)
+			return;
+
 		LoadedTile tile = findLoadedTile(tileID);
 		if (tile != null)
 		{
@@ -425,6 +466,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	 */
 	public void tileFailedToLoad(final MaplyTileID tileID)
 	{
+		if (!valid)
+			return;
+
 		LoadedTile tile = findLoadedTile(tileID);
 		if (tile != null)
 		{
@@ -448,6 +492,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Assuming we have the the loadedTiles lock here
 	void evaluate(LoadedTile tile,boolean enable,ArrayList<ComponentObject> toEnable,ArrayList<ComponentObject> toDisable)
 	{
+		if (!valid)
+			return;
+
 		LoadedTile children[] = new LoadedTile[4];
 		
 		int numChild = 0;
@@ -504,6 +551,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// When a tile loads or unloads, we need to enable or disable parents and such
 	void runTileUpdate(MaplyTileID topTile)
 	{
+		if (!valid)
+			return;
+
 		// Note: Could improve this
 		topTile = new MaplyTileID(0,0,0);
 		ArrayList<ComponentObject> toEnable = new ArrayList<ComponentObject>();

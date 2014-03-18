@@ -95,6 +95,4 @@ LOCAL_SRC_FILES += $(MAPLY_PLATFORM_FILES:%=$(MAPLY_PLATFORM_SRC_DIR)/%)
 
 LOCAL_LDLIBS := -llog -lGLESv2 -lGLESv1_CM -landroid -lEGL -ljnigraphics
 
-//NDK_DEBUG=1
-
 include $(BUILD_SHARED_LIBRARY)

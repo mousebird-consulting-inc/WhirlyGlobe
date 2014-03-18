@@ -120,13 +120,34 @@ public class MaplyController implements View.OnTouchListener
         	}
         	
         	glSurfaceView.setEGLContextClientVersion(2);
-        	glSurfaceView.setRenderer(renderWrapper);
-        	mainActivity.setContentView(glSurfaceView);        
-        	        
+        	glSurfaceView.setRenderer(renderWrapper);        	        
         } else {
         	Toast.makeText(mainActivity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
         }        
+	}
+	
+	/**
+	 * Return the main content view used to represent the Maply Control.
+	 */
+	public View getContentView()
+	{
+		return glSurfaceView;
+	}
+	
+	// Tear down views
+	public void shutdown()
+	{
+		layerThread.shutdown();
+		
+		glSurfaceView = null;
+		renderWrapper = null;
+		coordAdapter = null;
+		mapScene = null;
+		mapView = null;
+		vecManager = null;
+		markerManager = null;
+		texManager = null;
 	}
 	
 	// Called by the render wrapper when the surface is created.
@@ -207,10 +228,10 @@ public class MaplyController implements View.OnTouchListener
 			maplyControl = inMaplyControl;
 		}
 		
-		Point2d startScreenPos;
-		Point3d startPos;
-		Point3d startOnPlane;
-		Matrix4d startTransform;
+		Point2d startScreenPos = null;
+		Point3d startPos = null;
+		Point3d startOnPlane = null;
+		Matrix4d startTransform = null;
 		@Override
 		public boolean onDown(MotionEvent e) 
 		{

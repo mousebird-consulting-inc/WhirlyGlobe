@@ -131,6 +131,23 @@ public class LayerThread extends HandlerThread implements MapView.ViewWatcher
 		});
 	}
 	
+	// Called on the main thread *after* the thread has quit safely
+	void shutdown()
+	{
+		for (Layer layer : layers)
+		{
+			layer.shutdown();
+		}
+		// Note: Is this blocking?
+		quitSafely();
+		layers = null;
+		view = null;
+		scene = null;
+		renderer = null;
+		context = null;
+		surface = null;
+	}
+	
 	// Add a layer.  These just run in our thread and do their own thing
 	public void addLayer(final Layer layer)
 	{

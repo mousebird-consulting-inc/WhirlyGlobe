@@ -38,15 +38,7 @@ public class TestCountries
 	
 	void start()
 	{
-		// Note: We're pausing for the control to set itself up.  Should fix that.
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-	   	mapControl.setPosition(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
+//	   	mapControl.setPosition(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
 	    	
     	// Go load vector files (on another thread, please)
     	Thread thread = new Thread()
@@ -76,7 +68,7 @@ public class TestCountries
 
     	        	// Style information for the vectors
     	        	VectorInfo vecInfo = new VectorInfo();
-    	        	vecInfo.setColor(1.f, 1.f, 1.f, 1.f);
+    	        	vecInfo.setColor(0.f, 0.f, 0.f, 1.f);
     	        	vecInfo.setFade(0.5f);
 
 					// Load each of the country files
@@ -115,7 +107,7 @@ public class TestCountries
         	        	MarkerInfo markerInfo = new MarkerInfo();
         	        	markerInfo.setFade(0.5f);
         	        	
-        	        	mapControl.addScreenMarkers(markers,markerInfo);
+//        	        	mapControl.addScreenMarkers(markers,markerInfo);
     	        	}    	        	
     	        	
     	        	// Draw some text
@@ -126,7 +118,7 @@ public class TestCountries
     	        	labels.add(testLabel);
     	        	LabelInfo labelInfo = new LabelInfo();
     	        	labelInfo.setFontSize(24.f);
-    	        	mapControl.addScreenLabels(labels,labelInfo);
+//    	        	mapControl.addScreenLabels(labels,labelInfo);
     	        	
     	        } catch (Exception e) 
     	        {
