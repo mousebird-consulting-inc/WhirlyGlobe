@@ -80,7 +80,10 @@ public:
         bcopy(&bytes[pos],simpleStr,strLen);
         simpleStr[strLen] = 0;
         
-        NSString *retStr = [NSString stringWithUTF8String:simpleStr];
+        NSString *retStr = [NSString stringWithCString:simpleStr encoding:NSUTF8StringEncoding];
+        NSString *testStr = @"São_Paulo";
+        NSLog(@"simpleStr = %s, retStr = %@, testStr = %@",simpleStr,retStr,testStr);
+        
         
         free(simpleStr);
         
