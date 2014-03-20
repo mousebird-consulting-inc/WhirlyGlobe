@@ -83,7 +83,7 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 - (Eigen::Matrix4d)calcProjectionMatrix:(WhirlyKit::Point2f)frameBufferSize margin:(float)margin;
 
 /// Put together one or more offset matrices to express wrapping
-- (void)getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices;
+- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize;
 
 /// If we're wrapping, we may need a non-wrapped coordinate
 - (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt;
