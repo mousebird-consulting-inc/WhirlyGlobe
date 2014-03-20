@@ -171,6 +171,11 @@
   */
 @property (nonatomic,assign) float height;
 
+/** @brief 2D visual views can do some simple wrapping.  This turns that on and off (off by default).
+    @details On some 2D visual views we're allowed to wrap across the edge of the world.  This will attempt to do that.
+  */
+@property (nonatomic,assign) bool viewWrap;
+
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
   */

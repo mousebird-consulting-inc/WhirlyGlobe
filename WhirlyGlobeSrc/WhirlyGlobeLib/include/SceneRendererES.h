@@ -127,6 +127,8 @@ public:
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
 /// Model, and view matrix but for normal transformation
 @property (nonatomic,assign) Eigen::Matrix4f &viewModelNormalMat;
+/// If the visual view supports wrapping, these are the available offset matrices
+@property (nonatomic,assign) std::vector<Eigen::Matrix4d> &offsetMatrices;
 /// Scene itself.  Don't mess with this
 @property (nonatomic,assign) WhirlyKit::Scene *scene;
 /// Expected length of the current frame
@@ -145,6 +147,9 @@ public:
 @property (nonatomic,strong) NSArray *lights;
 /// State optimizer.  Used when setting state for drawing
 @property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
+
+// Make a copy of the frame info
+- (id)initWithFrameInfo:(WhirlyKitRendererFrameInfo *)info;
 
 @end
 
