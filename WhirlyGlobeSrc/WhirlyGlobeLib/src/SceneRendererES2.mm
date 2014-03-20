@@ -323,7 +323,8 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Point2f frameSize(framebufferWidth,framebufferHeight);
+    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:frameSize margin:0.0];
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
@@ -382,7 +383,7 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         baseFrameInfo.sceneRenderer = self;
         baseFrameInfo.theView = super.theView;
-        baseFrameInfo.viewTrans = Matrix4f::Identity();
+        baseFrameInfo.viewTrans = viewTrans;
         baseFrameInfo.modelTrans = modelTrans;
         baseFrameInfo.scene = scene;
 //        baseFrameInfo.frameLen = duration;
@@ -391,7 +392,7 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.mvpMat = mvpMat;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
-        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices];
+        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
         baseFrameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
 		

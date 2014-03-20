@@ -83,6 +83,9 @@
     
     /// Set while we're trying to track foreground/background
     bool wasAnimating;
+    
+    /// When an annotation comes up we may want to reposition the view.  This works poorly in some cases.
+    bool allowRepositionForAnnnotations;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

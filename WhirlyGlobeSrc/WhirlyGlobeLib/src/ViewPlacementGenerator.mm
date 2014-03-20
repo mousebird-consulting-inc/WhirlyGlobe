@@ -126,7 +126,7 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     for (unsigned int offi=0;offi<frameInfo.offsetMatrices.size();offi++)
     {
         // Project the world location to the screen
-        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * Matrix4fToMatrix4d(frameInfo.modelTrans) * frameInfo.offsetMatrices[offi];
+        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * frameInfo.offsetMatrices[offi] * Matrix4fToMatrix4d(frameInfo.modelTrans);
 //        Eigen::Matrix4d modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
         modelAndViewMats.push_back(modelAndViewMat);
 //        modelAndViewNormalMats.push_back(modelAndViewNormalMat);

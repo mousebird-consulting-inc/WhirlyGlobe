@@ -124,7 +124,7 @@ using namespace Eigen;
     return projMat;
 }
 
-- (void)getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices
+- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize;
 {
     Eigen::Matrix4d ident;
     offsetMatrices.push_back(ident.Identity());

@@ -65,7 +65,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         // Project the world location to the screen
         CGPoint screenPt;
         Eigen::Matrix4d &offMatrix = frameInfo.offsetMatrices[offi];
-        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * Matrix4fToMatrix4d(frameInfo.modelTrans) * offMatrix;
+        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * offMatrix * Matrix4fToMatrix4d(frameInfo.modelTrans);
 
         WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
         MaplyView *mapView = (MaplyView *)frameInfo.theView;
