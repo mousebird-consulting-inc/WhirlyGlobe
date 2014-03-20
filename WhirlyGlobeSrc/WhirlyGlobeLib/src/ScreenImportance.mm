@@ -412,8 +412,6 @@ bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,W
         return false;
 
     return [dispSolid isOnScreenForViewState:viewState frameSize:frameSize];
-    
-    return false;
 }
 
 

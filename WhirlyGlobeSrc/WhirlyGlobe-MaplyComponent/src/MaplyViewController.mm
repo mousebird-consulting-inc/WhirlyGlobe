@@ -225,9 +225,8 @@ using namespace Maply;
     } else {
         mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
         mapView.continuousZoom = true;
-        // Note: Debugging
-        mapView.wrap = true;
-    }    
+        mapView.wrap = _viewWrap;
+    }
 
     return mapView;
 }
@@ -250,6 +249,8 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
+    
+    allowRepositionForAnnnotations = false;
 
     // The gl view won't spontaneously draw
     // Let's just do priority rendering
@@ -263,11 +264,13 @@ using namespace Maply;
     coordAdapter->getBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
-    
-    // Note: Debugging
-    _viewWrap = true;
-    boundLL.x = -MAXFLOAT;
-    boundUR.x = MAXFLOAT;
+
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
     
     if (!_tetheredMode)
     {
@@ -302,6 +305,27 @@ using namespace Maply;
         }
     }
 
+    [self setViewExtentsLL:boundLL ur:boundUR];
+}
+
+- (void)setViewWrap:(bool)viewWrap
+{
+    _viewWrap = viewWrap;
+    
+    if (!coordAdapter)
+        return;
+
+    Point3f ll,ur;
+    coordAdapter->getBounds(ll, ur);
+    boundLL.x = ll.x();  boundLL.y = ll.y();
+    boundUR.x = ur.x();  boundUR.y = ur.y();
+    
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
     [self setViewExtentsLL:boundLL ur:boundUR];
 }
 
