@@ -84,6 +84,45 @@ using namespace WhirlyKit;
     return (rot * trans).matrix();
 }
 
+- (void)getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices
+{
+    Eigen::Matrix4d ident;
+    offsetMatrices.push_back(ident.Identity());
+    if (_wrap)
+    {
+        Point3f ll,ur;
+        if (super.coordAdapter->getBounds(ll, ur))
+        {
+            Point3f dispLL = super.coordAdapter->localToDisplay(ll);
+            Point3f dispUR = super.coordAdapter->localToDisplay(ur);
+            
+            Eigen::Affine3d trans1(Eigen::Translation3d(-(dispUR.x()-dispLL.x()),0.0,0.0));
+            offsetMatrices.push_back(trans1.matrix());
+            Eigen::Affine3d trans2(Eigen::Translation3d((dispUR.x()-dispLL.x()),0.0,0.0));
+            offsetMatrices.push_back(trans2.matrix());
+        }
+    }
+}
+
+- (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt
+{
+    if (_wrap)
+    {
+        Point3f ll,ur;
+        if (super.coordAdapter->getBounds(ll, ur))
+        {
+            GeoCoord geoLL = super.coordAdapter->getCoordSystem()->localToGeographic(ll);
+            GeoCoord geoUR = super.coordAdapter->getCoordSystem()->localToGeographic(ur);
+            float spanX = geoUR.x()-geoLL.x();
+            float offX = pt.x()-geoLL.x();
+            int num = floorf(offX/spanX);
+            pt.x() += -num * spanX;
+        }
+    }
+    
+    return pt;
+}
+
 - (double)heightAboveSurface
 {
     return _loc.z();
