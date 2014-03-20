@@ -497,6 +497,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                     if (fread(&pts->pts[0],2*sizeof(float),numPts,fp) != numPts)
                         throw 1;
                     
+                    pts->initGeoMbr();
                     shapes.insert(pts);
                 }
                     break;
@@ -512,6 +513,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                     if (fread(&lin->pts[0],2*sizeof(float),numPts,fp) != numPts)
                         throw 1;
                     
+                    lin->initGeoMbr();
                     shapes.insert(lin);
                 }
                     break;
@@ -536,6 +538,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                             throw 1;
                     }
                     
+                    ar->initGeoMbr();
                     shapes.insert(ar);
                 }
                     break;
@@ -558,6 +561,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                     if (fread(&mesh->tris[0],3*sizeof(unsigned int),numTri,fp) != numTri)
                         throw 1;
                     
+                    mesh->initGeoMbr();
                     shapes.insert(mesh);
                 }
                     break;

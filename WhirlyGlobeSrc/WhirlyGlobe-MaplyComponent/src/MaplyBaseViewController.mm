@@ -167,6 +167,8 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+    allowRepositionForAnnnotations = true;
+    
     // Need this logic here to pull in the categories
     static bool dummyInit = false;
     if (!dummyInit)
@@ -670,7 +672,7 @@ static const float PerfOutputDelay = 15.0;
     // Need to find the annotation this belongs to
     for (MaplyAnnotation *annotation in annotations)
     {
-        if (annotation.calloutView == calloutView && annotation.repositionForVisibility)
+        if (annotation.calloutView == calloutView && annotation.repositionForVisibility && allowRepositionForAnnnotations)
         {
             CGPoint pt = [self screenPointFromGeo:annotation.loc];
             CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
