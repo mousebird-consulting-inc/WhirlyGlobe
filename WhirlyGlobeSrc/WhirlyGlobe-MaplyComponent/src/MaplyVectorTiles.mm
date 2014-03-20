@@ -303,7 +303,6 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         vecObj = [MaplyVectorObject VectorObjectFromShapeFile:fileName];
     }
 
-    // Note: Debugging
 //    if (vecObj)
 //    {
 //        int numPoints=0, numLinears=0, numAreals=0;

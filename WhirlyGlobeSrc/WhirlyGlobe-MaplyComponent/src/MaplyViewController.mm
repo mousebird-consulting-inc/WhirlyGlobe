@@ -213,8 +213,9 @@ using namespace Maply;
         Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
-    } else
+    } else {
         coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    }
     
     if (scrollView)
     {
@@ -224,6 +225,8 @@ using namespace Maply;
     } else {
         mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
         mapView.continuousZoom = true;
+        // Note: Debugging
+        mapView.wrap = true;
     }    
 
     return mapView;
@@ -260,6 +263,12 @@ using namespace Maply;
     coordAdapter->getBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
+    
+    // Note: Debugging
+    _viewWrap = true;
+    boundLL.x = -MAXFLOAT;
+    boundUR.x = MAXFLOAT;
+    
     if (!_tetheredMode)
     {
         // Wire up the gesture recognizers

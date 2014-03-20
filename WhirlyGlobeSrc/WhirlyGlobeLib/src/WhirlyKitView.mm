@@ -124,6 +124,17 @@ using namespace Eigen;
     return projMat;
 }
 
+- (void)getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices
+{
+    Eigen::Matrix4d ident;
+    offsetMatrices.push_back(ident.Identity());
+}
+
+- (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt
+{
+    return pt;
+}
+
 - (double)heightAboveSurface
 {
     return 0.0;

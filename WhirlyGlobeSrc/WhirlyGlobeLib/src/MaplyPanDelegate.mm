@@ -63,7 +63,7 @@ using namespace WhirlyKit;
   	panRecognizer.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecognizer;
 	[view addGestureRecognizer:panRecognizer];
-  panDelegate.gestureRecognizer = panRecognizer;
+    panDelegate.gestureRecognizer = panRecognizer;
 	return panDelegate;
 }
 
