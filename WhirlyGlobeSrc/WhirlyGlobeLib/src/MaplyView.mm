@@ -109,11 +109,11 @@ using namespace WhirlyKit;
         float localSpanX = ur.x()-ll.x();
         
         // See if the framebuffer lands in any of the potential matrices
-        Eigen::Matrix4d modelTrans = [self calcModelMatrix];
+        Eigen::Matrix4d modelTrans = [self calcViewMatrix] * [self calcModelMatrix];
         Mbr screenMbr;
         screenMbr.addPoint(Point2f(-1.0,-1.0));
         screenMbr.addPoint(Point2f(1.0,1.0));
-        Matrix4d projMat = [self calcProjectionMatrix:frameBufferSize margin:0.1];
+        Matrix4d projMat = [self calcProjectionMatrix:frameBufferSize margin:0.0];
         for (unsigned int ii=0;ii<nums.size();ii++)
         {
             int thisNum = nums[ii];
