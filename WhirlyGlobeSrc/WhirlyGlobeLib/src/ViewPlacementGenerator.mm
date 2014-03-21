@@ -182,11 +182,12 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
                     {
                         visible = true;
                         screenPt = thisScreenPt;
+                        break;
                     }
                 }
                 
                 if (!visible)
-                hidden = true;
+                    hidden = true;
             }
         }
         
