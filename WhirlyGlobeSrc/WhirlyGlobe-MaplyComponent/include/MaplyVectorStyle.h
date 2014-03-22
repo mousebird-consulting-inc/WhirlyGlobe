@@ -21,29 +21,49 @@
 #import <UIKit/UIKit.h>
 #import "MaplyQuadPagingLayer.h"
 
+/** @brief Settings that control how vector tiles look in relation to their styles.
+    @details These are set based on the sort of device we're on, particularly retina vs. non-retina.  They can be manipulated directly as well for your needs.
+  */
 @interface MaplyVectorTileStyleSettings : NSObject
 
+/// @brief Line widths will be scaled by this amount before display.
 @property (nonatomic) float lineScale;
+/// @brief Text sizes will be scaled by this amount before display.
 @property (nonatomic) float textScale;
+/// @brief Markers will be scaled by this amount before display.
 @property (nonatomic) float markerScale;
+/** @brief The overall map scale calculations will be scaled by this amount.
+    @details We use the map scale calculations to figure out what is dispalyed and when.  Not what to load in, mind you, that's a separate, but related calculation.  This controls the scaling of those calculations.  Scale it down to load things in later, up to load them in sooner.
+  */
 @property (nonatomic) float mapScaleScale;
 
 @end
 
+/** The Maply Vector Tile Style is an internal representation of the style JSON coming out
+    of a Maply Vector Tile database.
+  */
 @interface MaplyVectorTileStyle : NSObject
 
-@property (nonatomic) NSString *uuid;
-
+/** @brief Construct a style entry from an NSDictionary.
+  */
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
+/// @brief Unique Identifier for this style
+@property (nonatomic) NSString *uuid;
+
+/// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
+@property (nonatomic) bool geomAdditive;
+
+/// @brief Construct a style entry from an NSDictionary
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
 
-// Turn the min/maxscaledenom into height ranges for minVis/maxVis
+/// Turn the min/maxscaledenom into height ranges for minVis/maxVis
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
+/// @brief Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 
+/// @brief The view controller we're constructing objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
-@property (nonatomic) bool geomAdditive;
 
 @end

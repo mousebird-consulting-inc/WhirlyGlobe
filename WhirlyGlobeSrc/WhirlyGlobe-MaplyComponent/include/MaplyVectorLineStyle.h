@@ -21,6 +21,8 @@
 #import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
 
+/** @details Implementation of the line style symbolizer for Maply Vector Tiles.
+  */
 @interface MaplyVectorTileStyleLine : MaplyVectorTileStyle
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
