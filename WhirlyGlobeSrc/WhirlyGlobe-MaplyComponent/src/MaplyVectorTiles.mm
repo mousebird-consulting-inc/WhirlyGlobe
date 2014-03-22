@@ -37,6 +37,10 @@ using namespace Maply;
 
 typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 
+@interface MaplyVectorTiles()
+@property (nonatomic,readonly) NSString *tilesDir;
+@end
+
 @implementation MaplyVectorTiles
 {
     // If we're reading from a database, these are set
