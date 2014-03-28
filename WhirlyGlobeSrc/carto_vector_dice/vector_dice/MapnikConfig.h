@@ -248,7 +248,7 @@ public:
     class ShapefileDataSource : public DataSource
     {
     public:
-        ShapefileDataSource(const std::string &fileName);
+        ShapefileDataSource(const std::string &fileName,const std::vector<std::string> &paths);
         ~ShapefileDataSource() { }
         
         std::string getName();
@@ -328,10 +328,13 @@ public:
     };
 
     // Try parsing the XML document.  Return an error if we failed.
-    bool parseXML(tinyxml2::XMLDocument *doc,std::string &error);
+    bool parseXML(tinyxml2::XMLDocument *doc,const std::vector<std::string> &paths,std::string &error);
 
     // Look up a given style by name
     const MapnikConfig::Style *findStyle(const std::string &styleName);
+    
+    // Write the TileJSON-like format for vector tiles
+    bool writeTileJSON(std::string &json,const std::string &webDbName,const std::string &webDbURL);
     
     // Parameters (unparsed at present)
     tinyxml2::XMLElement *paramEl;
