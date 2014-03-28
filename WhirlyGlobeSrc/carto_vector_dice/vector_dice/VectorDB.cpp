@@ -567,6 +567,9 @@ bool VectorDatabase::addVectorTile(int x,int y,int level,int layerID,const char 
                 insertStmt->BindInt(5, quadIndex);
                 insertStmt->Execute();
                 insertStmt->Reset();
+
+                // Note: Eh?
+//                free(compressOut);
             } else {
                 // Insert the uncompressed data
                 insertStmt->BindBlob(1, (void *)data, dataLen);
@@ -594,7 +597,7 @@ bool VectorDatabase::addVectorTile(int x,int y,int level,int layerID,const char 
     
     return true;
 }
-
+    
 void VectorDatabase::flush()
 {
     try {
