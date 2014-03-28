@@ -41,7 +41,7 @@ public:
 @property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
 
 // Construct a vector object from the Vector DB raw format
-+ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data attrs:(std::vector<Maply::VectorAttribute> *)attrs;
++ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data;
 
 @end
 
