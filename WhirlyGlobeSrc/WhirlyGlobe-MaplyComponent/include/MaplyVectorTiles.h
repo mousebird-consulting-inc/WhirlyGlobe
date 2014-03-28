@@ -36,11 +36,11 @@
 /** @brief Kick off a maply vector tiles database from a remote URL.
     @details Creating a vector tiles database from a remote URL is a multi-stage process.  It requires a couple of network fetches first before we can safely start the db.  This runs through that process, creating the tile source and then calling the block when it's done.  It's up to the caller to provide a block that creates the paging layer and adds it to the view controller.
     @param jsonURL The URL for the top level JSON description of this whole mess.
-    @param tilesDB A path to the database where you'd like tiles cached.  Pass in nil if you want no caching.
+    @param cacheDir A path to the cache directory.
     @param viewC The view controller to create the objects in.
     @param callbackBlock The block that gets called (on the main thread) when the construction succeeds or fails.
   */
-+ (void)StartRemoteVectorTiles:(NSString *)jsonURL localTileDB:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock;
++ (void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock;
 
 /** @brief Initialize with a local tiles database and a view controller to display to.
     @details This will start up a maply vector tiles object reading from the given database and building objects in the given view controller.
@@ -75,9 +75,8 @@
 /// @details Style dictionaries are used internally to style the vector data.
 @property (nonatomic,readonly) NSArray *styles;
 
-/** @brief The local Vector Tiles database to use for caching if we're fetching remotely.
-    @details When we've set up a remote vector tiles database, this is the local db to use when caching vector tiles.  We'll check it first and store it
-  */
-- (void)setTilesDB:(NSString *)tilesDB;
+/// @brief Set the cache dir for network fetched tiles.
+/// @details If we're fetching tiles over the network we'll look here first.  Set it to nil to turn off caching.
+@property (nonatomic) NSString *cacheDir;
 
 @end
