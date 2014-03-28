@@ -303,7 +303,6 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         vecObj = [MaplyVectorObject VectorObjectFromShapeFile:fileName];
     }
 
-    // Note: Debugging
 //    if (vecObj)
 //    {
 //        int numPoints=0, numLinears=0, numAreals=0;
@@ -318,6 +317,8 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
 
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
+//    NSLog(@"Vector Fetching: %d: (%d, %d)",tileID.level,tileID.x,tileID.y);
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
        ^{
            VecsForStyles vecsForStyles;

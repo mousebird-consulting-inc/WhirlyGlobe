@@ -299,13 +299,25 @@ public:
     
     _modelMatrix = [view calcModelMatrix];
     _invModelMatrix = _modelMatrix.inverse();
-    _viewMatrix = [view calcViewMatrix];
-    _invViewMatrix = _viewMatrix.inverse();
-    _fullMatrix = [view calcFullMatrix];
-    _invFullMatrix = _fullMatrix.inverse();
+    std::vector<Eigen::Matrix4d> offMatrices;
+    Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
+    [view getOffsetMatrices:offMatrices frameBuffer:frameSize];
+    _viewMatrices.resize(offMatrices.size());
+    _invViewMatrices.resize(offMatrices.size());
+    _fullMatrices.resize(offMatrices.size());
+    _invFullMatrices.resize(offMatrices.size());
+    _fullNormalMatrices.resize(offMatrices.size());
     _projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
     _invProjMatrix = _projMatrix.inverse();
-    _fullNormalMatrix = _fullMatrix.inverse().transpose();
+    Eigen::Matrix4d baseViewMatrix = [view calcViewMatrix];
+    for (unsigned int ii=0;ii<offMatrices.size();ii++)
+    {
+        _viewMatrices[ii] = baseViewMatrix * offMatrices[ii];
+        _invViewMatrices[ii] = _viewMatrices[ii].inverse();
+        _fullMatrices[ii] = _viewMatrices[ii] * _modelMatrix;
+        _invFullMatrices[ii] = _fullMatrices[ii].inverse();
+        _fullNormalMatrices[ii] = _fullMatrices[ii].inverse().transpose();
+    }
     
     _fieldOfView = view.fieldOfView;
     _imagePlaneSize = view.imagePlaneSize;
@@ -313,13 +325,13 @@ public:
     _farPlane = view.farPlane;
     
     // Need the eye point for backface checking
-    Vector4d eyeVec4 = _invFullMatrix * Vector4d(0,0,1,0);
+    Vector4d eyeVec4 = _invFullMatrices[0] * Vector4d(0,0,1,0);
     _eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // Also a version for the model matrix (e.g. just location, not direction)
     eyeVec4 = _invModelMatrix * Vector4d(0,0,1,0);
     _eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     // And calculate where the eye actually is
-    Vector4d eyePos4 = _invFullMatrix * Vector4d(0,0,0,1);
+    Vector4d eyePos4 = _invFullMatrices[0] * Vector4d(0,0,0,1);
     _eyePos = Vector3d(eyePos4.x(),eyePos4.y(),eyePos4.z());
     
     _ll.x() = _ur.x() = 0.0;
@@ -399,8 +411,8 @@ public:
         return false;
     
     // Matrix comparison
-    double *floatsA = _fullMatrix.data();
-    double *floatsB = other->_fullMatrix.data();
+    double *floatsA = _fullMatrices[0].data();
+    double *floatsB = other->_fullMatrices[0].data();
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
             return false;
@@ -414,7 +426,7 @@ public:
     NSLog(@"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",_eyeVec.x(),_eyeVec.y(),_eyeVec.z(),_eyeVecModel.x(),_eyeVecModel.y(),_eyeVecModel.z());
     NSMutableString *matStr = [NSMutableString string];
     for (unsigned int ii=0;ii<16;ii++)
-        [matStr appendFormat:@" %f",_fullMatrix.data()[ii]];
+        [matStr appendFormat:@" %f",_fullMatrices[0].data()[ii]];
     NSLog(@"fullMatrix = %@",matStr);
     NSLog(@"---     ---   ---");
 }

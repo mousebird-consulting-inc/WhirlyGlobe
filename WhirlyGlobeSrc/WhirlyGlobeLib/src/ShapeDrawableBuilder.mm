@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 static const int ShapeDrawPriority=1;
 
 /// Maximum number of triangles we'll stick in a drawable
-static const int MaxShapeDrawableTris=1<<15/3;
+//static const int MaxShapeDrawableTris=1<<15/3;
 
 
 @implementation WhirlyKitShapeInfo
