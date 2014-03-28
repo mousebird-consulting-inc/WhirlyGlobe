@@ -56,7 +56,7 @@
             NSString *shortName = [name stringByDeletingPathExtension];
             if (shortName)
             {
-                fullName = [NSString stringWithFormat:@"%@-24@2x.png",shortName];
+                fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
                 iconImage = [UIImage imageNamed:fullName];
             }
             
