@@ -213,8 +213,9 @@ using namespace Maply;
         Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
-    } else
+    } else {
         coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    }
     
     if (scrollView)
     {
@@ -224,7 +225,8 @@ using namespace Maply;
     } else {
         mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
         mapView.continuousZoom = true;
-    }    
+        mapView.wrap = _viewWrap;
+    }
 
     return mapView;
 }
@@ -247,6 +249,8 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
+    
+    allowRepositionForAnnnotations = false;
 
     // The gl view won't spontaneously draw
     // Let's just do priority rendering
@@ -260,6 +264,14 @@ using namespace Maply;
     coordAdapter->getBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
+
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
+    
     if (!_tetheredMode)
     {
         // Wire up the gesture recognizers
@@ -293,6 +305,27 @@ using namespace Maply;
         }
     }
 
+    [self setViewExtentsLL:boundLL ur:boundUR];
+}
+
+- (void)setViewWrap:(bool)viewWrap
+{
+    _viewWrap = viewWrap;
+    
+    if (!coordAdapter)
+        return;
+
+    Point3f ll,ur;
+    coordAdapter->getBounds(ll, ur);
+    boundLL.x = ll.x();  boundLL.y = ll.y();
+    boundUR.x = ur.x();  boundUR.y = ur.y();
+    
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
     [self setViewExtentsLL:boundLL ur:boundUR];
 }
 

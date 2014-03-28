@@ -74,6 +74,9 @@ protected:
     std::vector<Kompex::SQLiteStatement *> insertStmts;
 };
     
+// Simple compression routine.  Release data when done.
+    bool CompressData(void *data,int dataLen,void **retData,int &retDataLen);
+    
 }
 
 #endif /* defined(__vector_dice__VectorDB__) */
