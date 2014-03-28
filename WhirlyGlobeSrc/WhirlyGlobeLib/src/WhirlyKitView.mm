@@ -124,6 +124,17 @@ using namespace Eigen;
     return projMat;
 }
 
+- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize;
+{
+    Eigen::Matrix4d ident;
+    offsetMatrices.push_back(ident.Identity());
+}
+
+- (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt
+{
+    return pt;
+}
+
 - (double)heightAboveSurface
 {
     return 0.0;
@@ -194,7 +205,7 @@ using namespace Eigen;
 
 - (double)heightForMapScale:(double)scale frame:(WhirlyKit::Point2f &)frameSize
 {
-    double height = (scale * frameSize.x() * 0.00096) / (2 * self.heightAboveSurface * tan(_fieldOfView/2.0) * EarthRadius);
+    double height = (scale * frameSize.x() * 0.00096) / (2 * tan(_fieldOfView/2.0) * EarthRadius);
     return height;
 }
 

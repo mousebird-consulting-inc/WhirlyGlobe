@@ -80,7 +80,11 @@ public:
         bcopy(&bytes[pos],simpleStr,strLen);
         simpleStr[strLen] = 0;
         
-        NSString *retStr = [NSString stringWithFormat:@"%s",simpleStr];
+        NSString *retStr = [NSString stringWithCString:simpleStr encoding:NSUTF8StringEncoding];
+        NSString *testStr = @"São_Paulo";
+        NSLog(@"simpleStr = %s, retStr = %@, testStr = %@",simpleStr,retStr,testStr);
+        
+        
         free(simpleStr);
         
         pos += strLen;
@@ -184,7 +188,7 @@ public:
     
     ShapeReader shapeReader(fileName);
     if (!shapeReader.isValid())
-        return false;
+        return NULL;
     
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
     int numObj = shapeReader.getNumObjects();

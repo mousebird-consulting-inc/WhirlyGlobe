@@ -32,6 +32,16 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
+// Keep track of a drawable and the MVP we're supposed to use with it
+class DrawableContainer
+{
+public:
+    DrawableContainer(Drawable *draw,Matrix4f *mat) : drawable(draw), mat(mat) { }
+    
+    Drawable *drawable;
+    Matrix4f *mat;
+};
+
 // Alpha stuff goes at the end
 // Otherwise sort by draw priority
 class DrawListSortStruct2
@@ -51,8 +61,10 @@ public:
         frameInfo = that.frameInfo;
         return *this;
     }
-    bool operator()(Drawable *a,Drawable *b)
+    bool operator()(const DrawableContainer &conA, const DrawableContainer &conB)
     {
+        Drawable *a = conA.drawable;
+        Drawable *b = conB.drawable;
         // We may or may not sort all alpha containing drawables to the end
         if (useAlpha)
             if (a->hasAlpha(frameInfo) != b->hasAlpha(frameInfo))
@@ -323,7 +335,8 @@ static const float ScreenOverlap = 0.1;
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:Point2f(framebufferWidth,framebufferHeight) margin:0.0];
+    Point2f frameSize(framebufferWidth,framebufferHeight);
+    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:frameSize margin:0.0];
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
@@ -378,20 +391,22 @@ static const float ScreenOverlap = 0.1;
             return;
         }
         
-        WhirlyKitRendererFrameInfo *frameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
-        frameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
-        frameInfo.sceneRenderer = self;
-        frameInfo.theView = super.theView;
-        frameInfo.modelTrans = modelTrans;
-        frameInfo.scene = scene;
-//        frameInfo.frameLen = duration;
-        frameInfo.currentTime = CFAbsoluteTimeGetCurrent();
-        frameInfo.projMat = projMat;
-        frameInfo.mvpMat = mvpMat;
-        frameInfo.viewModelNormalMat = modelAndViewNormalMat;
-        frameInfo.viewAndModelMat = modelAndViewMat;
-        frameInfo.lights = lights;
-        frameInfo.stateOpt = renderStateOptimizer;
+        WhirlyKitRendererFrameInfo *baseFrameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
+        baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
+        baseFrameInfo.sceneRenderer = self;
+        baseFrameInfo.theView = super.theView;
+        baseFrameInfo.viewTrans = viewTrans;
+        baseFrameInfo.modelTrans = modelTrans;
+        baseFrameInfo.scene = scene;
+//        baseFrameInfo.frameLen = duration;
+        baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
+        baseFrameInfo.projMat = projMat;
+        baseFrameInfo.mvpMat = mvpMat;
+        baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
+        baseFrameInfo.viewAndModelMat = modelAndViewMat;
+        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
+        baseFrameInfo.lights = lights;
+        baseFrameInfo.stateOpt = renderStateOptimizer;
 		
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
@@ -399,7 +414,7 @@ static const float ScreenOverlap = 0.1;
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
-            [activeModel updateForFrame:frameInfo];
+            [activeModel updateForFrame:baseFrameInfo];
         
         if (perfInterval > 0)
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
@@ -419,103 +434,124 @@ static const float ScreenOverlap = 0.1;
 		Eigen::Matrix4f modelTransInv = modelTrans.inverse();
 		Vector4f eyeVec4 = modelTransInv * Vector4f(0,0,1,0);
 		Vector3f eyeVec3(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-        frameInfo.eyeVec = eyeVec3;
+        baseFrameInfo.eyeVec = eyeVec3;
         Eigen::Matrix4f fullTransInv = modelAndViewMat.inverse();
         Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
         Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
-        frameInfo.fullEyeVec = -fullEyeVec3;
-        frameInfo.heightAboveSurface = 0.0;
+        baseFrameInfo.fullEyeVec = -fullEyeVec3;
+        baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            frameInfo.heightAboveSurface = globeView.heightAboveSurface;
-		
+            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+		      
+        // Work through the available offset matrices (only 1 if we're not wrapping)
+        std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
         // Turn these drawables in to a vector
-		std::vector<Drawable *> drawList;
-
-        // If we're looking at a globe, run the culling
-        int drawablesConsidered = 0;
-        int cullTreeCount = 0;
-        if (self.doCulling)
+        std::vector<DrawableContainer> drawList;
+        std::vector<DrawableRef> screenDrawables;
+        std::vector<DrawableRef> generatedDrawables;
+        std::vector<Matrix4f> mvpMats;
+        mvpMats.resize(offsetMats.size());
+        for (unsigned int off=0;off<offsetMats.size();off++)
         {
-            std::set<DrawableRef> toDraw;
-            CullTree *cullTree = scene->getCullTree();
-            // Recursively search for the drawables that overlap the screen
-            Mbr screenMbr;
-            // Stretch the screen MBR a little for safety
-            screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-            screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-            [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:frameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
-
-            //		drawList.reserve(toDraw.size());
-            for (std::set<DrawableRef>::iterator it = toDraw.begin();
-                 it != toDraw.end(); ++it)
+            WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
+            // Tweak with the appropriate offset matrix
+            modelAndViewMat = viewTrans * Matrix4dToMatrix4f(offsetMats[off]) * modelTrans;
+            mvpMats[off] = projMat * (modelAndViewMat);
+            modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+            Matrix4f *thisMvpMat = &mvpMats[off];
+            offFrameInfo.mvpMat = mvpMats[off];
+            offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
+            offFrameInfo.viewAndModelMat = modelAndViewMat;
+            
+            // If we're looking at a globe, run the culling
+            int drawablesConsidered = 0;
+            int cullTreeCount = 0;
+            if (self.doCulling)
             {
-                Drawable *theDrawable = it->get();
-                if (theDrawable)
-                    drawList.push_back(theDrawable);
-                else
-                    NSLog(@"Bad drawable coming from cull tree.");
+                std::set<DrawableRef> toDraw;
+                CullTree *cullTree = scene->getCullTree();
+                // Recursively search for the drawables that overlap the screen
+                Mbr screenMbr;
+                // Stretch the screen MBR a little for safety
+                screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
+                screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
+                [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:offFrameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
+                
+                //		drawList.reserve(toDraw.size());
+                for (std::set<DrawableRef>::iterator it = toDraw.begin();
+                     it != toDraw.end(); ++it)
+                {
+                    Drawable *theDrawable = it->get();
+                    if (theDrawable)
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                    else
+                        NSLog(@"Bad drawable coming from cull tree.");
+                }
+                cullTreeCount = cullTree->getCount();
+            } else {
+                DrawableRefSet rawDrawables = scene->getDrawables();
+                for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
+                {
+                    if ((*it)->isOn(offFrameInfo))
+                        drawList.push_back(DrawableContainer(it->get(),thisMvpMat));
+                }
             }
-            cullTreeCount = cullTree->getCount();
-        } else {
-            DrawableRefSet rawDrawables = scene->getDrawables();
-            for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
-            {
-                if ((*it)->isOn(frameInfo))
-                    drawList.push_back(it->get());
-            }
-        }
-        
-        
-        if (perfInterval > 0)
+            
+            
+            if (perfInterval > 0)
             perfTimer.stopTiming("Culling");
-        
-        if (perfInterval > 0)
+            
+            if (perfInterval > 0)
             perfTimer.startTiming("Generators - generate");
-        
-        // Now ask our generators to make their drawables
-        // Note: Not doing any culling here
-        //       And we should reuse these Drawables
-        std::vector<DrawableRef> generatedDrawables,screenDrawables;
-        const GeneratorSet *generators = scene->getGenerators();
-        for (GeneratorSet::iterator it = generators->begin();
-             it != generators->end(); ++it)
-            (*it)->generateDrawables(frameInfo, generatedDrawables, screenDrawables);
-        
-        // Add the generated drawables and sort them all together
-        for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
-        {
-            Drawable *theDrawable = generatedDrawables[ii].get();
-            if (theDrawable)
-                drawList.push_back(theDrawable);
+
+            // Run the generators only once, they have to be aware of multiple offset matrices
+            if (off == offsetMats.size()-1)
+            {
+                // Now ask our generators to make their drawables
+                // Note: Not doing any culling here
+                //       And we should reuse these Drawables
+                const GeneratorSet *generators = scene->getGenerators();
+                for (GeneratorSet::iterator it = generators->begin();
+                     it != generators->end(); ++it)
+                    (*it)->generateDrawables(baseFrameInfo, generatedDrawables, screenDrawables);
+                
+                // Add the generated drawables and sort them all together
+                for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
+                {
+                    Drawable *theDrawable = generatedDrawables[ii].get();
+                    if (theDrawable)
+                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat));
+                }
+                bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
+                std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
+            }
+            
+            if (perfInterval > 0)
+            {
+                perfTimer.addCount("Drawables considered", drawablesConsidered);
+                perfTimer.addCount("Cullables", cullTreeCount);
+            }
+            
+            if (perfInterval > 0)
+                perfTimer.stopTiming("Generators - generate");
         }
-        bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,frameInfo));
-        
+
         if (perfInterval > 0)
-        {
-            perfTimer.addCount("Drawables considered", drawablesConsidered);
-            perfTimer.addCount("Cullables", cullTreeCount);
-        }
-        
-        if (perfInterval > 0)
-            perfTimer.stopTiming("Generators - generate");
-        
-        if (perfInterval > 0)
-            perfTimer.startTiming("Draw Execution");
+        perfTimer.startTiming("Draw Execution");
         
         SimpleIdentity curProgramId = EmptyIdentity;
-		
+        
         bool depthMaskOn = (super.zBufferMode == zBufferOn);
-		for (unsigned int ii=0;ii<drawList.size();ii++)
-		{
-			Drawable *drawable = drawList[ii];
+        for (unsigned int ii=0;ii<drawList.size();ii++)
+        {
+            DrawableContainer &drawContain = drawList[ii];
             
             // The first time we hit an explicitly alpha drawable
             //  turn off the depth buffer
             if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
             {
-                if (depthMaskOn && super.depthBufferOffForAlpha && drawable->hasAlpha(frameInfo))
+                if (depthMaskOn && super.depthBufferOffForAlpha && drawContain.drawable->hasAlpha(baseFrameInfo))
                 {
                     depthMaskOn = false;
                     [renderStateOptimizer setEnableDepthTest:false];
@@ -525,7 +561,7 @@ static const float ScreenOverlap = 0.1;
             // For this mode we turn the z buffer off until we get a request to turn it on
             if (super.zBufferMode == zBufferOffDefault)
             {
-                if (drawable->getRequestZBuffer())
+                if (drawContain.drawable->getRequestZBuffer())
                 {
                     [renderStateOptimizer setDepthFunc:GL_LESS];
                     depthMaskOn = true;
@@ -533,78 +569,82 @@ static const float ScreenOverlap = 0.1;
                     [renderStateOptimizer setDepthFunc:GL_ALWAYS];
                 }
             }
-
+            
             // If we're drawing lines or points we don't want to update the z buffer
             if (super.zBufferMode != zBufferOff)
             {
-                if (drawable->getWriteZbuffer())
+                if (drawContain.drawable->getWriteZbuffer())
                     [renderStateOptimizer setDepthMask:GL_TRUE];
                 else
                     [renderStateOptimizer setDepthMask:GL_FALSE];
             }
             
+            // Transform to use
+            Matrix4f currentMvpMat = *drawContain.mat;
+            
             // If it has a local transform, apply that
-            const Matrix4d *localMat = drawable->getMatrix();
+            const Matrix4d *localMat = drawContain.drawable->getMatrix();
             if (localMat)
             {
                 Eigen::Matrix4d newMvpMat = projMat4d * (viewTrans4d * (modelTrans4d * (*localMat)));
                 Eigen::Matrix4f newMvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                frameInfo.mvpMat = newMvpMat4f;
+                currentMvpMat = newMvpMat4f;
             }
+            baseFrameInfo.mvpMat = currentMvpMat;
             
             // Figure out the program to use for drawing
-            SimpleIdentity drawProgramId = drawable->getProgram();
+            SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
             if (drawProgramId == EmptyIdentity)
-                drawProgramId = defaultTriShader;
+            drawProgramId = defaultTriShader;
             if (drawProgramId != curProgramId)
             {
                 curProgramId = drawProgramId;
                 OpenGLES2Program *program = scene->getProgram(drawProgramId);
                 if (program)
                 {
-//                    [renderStateOptimizer setUseProgram:program->getProgram()];
+                    //                    [renderStateOptimizer setUseProgram:program->getProgram()];
                     glUseProgram(program->getProgram());
                     // Assign the lights if we need to
                     if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated, defaultMat, frameInfo.mvpMat);
+                    program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
                     // Explicitly turn the lights on
                     program->setUniform(kWKOGLNumLights, (int)[lights count]);
-
-                    frameInfo.program = program;
+                    
+                    baseFrameInfo.program = program;
                 }
             }
             if (drawProgramId == EmptyIdentity)
                 continue;
             
             // Draw using the given program
-            drawable->draw(frameInfo,scene);
+            drawContain.drawable->draw(baseFrameInfo,scene);
             
             // If we had a local matrix, set the frame info back to the general one
-            if (localMat)
-                frameInfo.mvpMat = mvpMat;
+//            if (localMat)
+//                offFrameInfo.mvpMat = mvpMat;
             
             numDrawables++;
             if (perfInterval > 0)
             {
                 // Note: Need a better way to track buffer ID growth
-//                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
-//                if (basicDraw)
-//                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
+                //                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
+                //                if (basicDraw)
+                //                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
             }
-		}
+        }
         
         if (perfInterval > 0)
-            perfTimer.addCount("Drawables drawn", numDrawables);
+        perfTimer.addCount("Drawables drawn", numDrawables);
         
         if (perfInterval > 0)
-            perfTimer.stopTiming("Draw Execution");
+        perfTimer.stopTiming("Draw Execution");
         
         // Anything generated needs to be cleaned up
         generatedDrawables.clear();
         drawList.clear();
         
         if (perfInterval > 0)
-            perfTimer.startTiming("Generators - Draw 2D");
+        perfTimer.startTiming("Generators - Draw 2D");
         
         // Now for the 2D display
         if (!screenDrawables.empty())
@@ -617,12 +657,12 @@ static const float ScreenOverlap = 0.1;
             {
                 Drawable *theDrawable = screenDrawables[ii].get();
                 if (theDrawable)
-                    drawList.push_back(theDrawable);
+                    drawList.push_back(DrawableContainer(theDrawable,NULL));
                 else
                     NSLog(@"Bad drawable coming from generator.");
             }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,frameInfo));
-
+            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,baseFrameInfo));
+            
             // Build an orthographic projection
             // We flip the vertical axis and spread the window out (0,0)->(width,height)
             Eigen::Matrix4f orthoMat = Matrix4f::Identity();
@@ -633,35 +673,35 @@ static const float ScreenOverlap = 0.1;
             orthoMat(1,3) = -framebufferHeight / delta.y();
             orthoMat(2,2) = -2.0f / delta.z();
             orthoMat(2,3) = 0.0f;
-            frameInfo.mvpMat = orthoMat;
+            baseFrameInfo.mvpMat = orthoMat;
             // Turn off lights
-            frameInfo.lights = nil;
+            baseFrameInfo.lights = nil;
             
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
-                Drawable *drawable = drawList[ii];
+                DrawableContainer &drawContain = drawList[ii];
                 
-                if (drawable->isOn(frameInfo))
+                if (drawContain.drawable->isOn(baseFrameInfo))
                 {
                     // Figure out the program to use for drawing
-                    SimpleIdentity drawProgramId = drawable->getProgram();
+                    SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                     if (drawProgramId == EmptyIdentity)
-                        drawProgramId = defaultTriShader;
+                    drawProgramId = defaultTriShader;
                     if (drawProgramId != curProgramId)
                     {
                         curProgramId = drawProgramId;
                         OpenGLES2Program *program = scene->getProgram(drawProgramId);
                         if (program)
                         {
-//                            [renderStateOptimizer setUseProgram:program->getProgram()];
+                            //                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
                             program->setUniform(kWKOGLNumLights, 0);
-                            frameInfo.program = program;
+                            baseFrameInfo.program = program;
                         }
                     }
-
-                    drawable->draw(frameInfo,scene);
+                    
+                    drawContain.drawable->draw(baseFrameInfo,scene);
                     numDrawables++;
                 }
             }
@@ -669,23 +709,23 @@ static const float ScreenOverlap = 0.1;
             screenDrawables.clear();
             drawList.clear();
         }
-        
-        if (perfInterval > 0)
-            perfTimer.stopTiming("Generators - Draw 2D");
     }
-    
+
+    if (perfInterval > 0)
+        perfTimer.stopTiming("Generators - Draw 2D");
+
 //    if (perfInterval > 0)
 //        perfTimer.startTiming("glFinish");
-    
+
 //    glFlush();
 //    glFinish();
-    
+
 //    if (perfInterval > 0)
 //        perfTimer.stopTiming("glFinish");
-    
+
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
-    
+
     // Explicitly discard the depth buffer
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
     glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
@@ -756,7 +796,7 @@ static const float ScreenOverlap = 0.1;
         
         [_snapshotDelegate snapshot:image];
         
-        _snapshotDelegate = false;
+        _snapshotDelegate = nil;
     }
 
     [context presentRenderbuffer:GL_RENDERBUFFER];

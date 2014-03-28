@@ -201,6 +201,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
             break;
         case Maply2DMap:
             mapViewC = [[MaplyViewController alloc] initAsFlatMap];
+            mapViewC.viewWrap = true;
             mapViewC.doubleTapZoomGesture = true;
             mapViewC.twoFingerTapGesture = true;
             mapViewC.delegate = self;

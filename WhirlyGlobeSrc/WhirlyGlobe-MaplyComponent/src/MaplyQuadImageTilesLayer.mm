@@ -487,7 +487,7 @@ using namespace WhirlyKit;
             return;
         }
         // We happen to store tilt in the view matrix.
-        Eigen::Matrix4d &viewMat = viewState.viewMatrix;
+        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
         if (!viewMat.isIdentity())
         {
             canShortCircuitImportance = false;
