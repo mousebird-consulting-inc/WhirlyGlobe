@@ -49,7 +49,7 @@
     for (NSDictionary *styleEntry in stylesArray)
     {
         MaplyVectorTileSubStyleText *subStyle = [[MaplyVectorTileSubStyleText alloc] init];
-        UIColor *fillColor = [UIColor whiteColor];
+        UIColor *fillColor = [UIColor blackColor];
         if (styleEntry[@"fill"])
             fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
         subStyle->textSize = 12.0;

@@ -132,6 +132,11 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the pan gesture on and off
+    @details Pan gesture is on by default
+  */
+@property(nonatomic,assign) bool panGesture;
+
 /** @brief Turn the double tap to zoom gesture recognizer on and off
     @details On by default.
  */
@@ -165,6 +170,11 @@
     @details In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.
   */
 @property (nonatomic,assign) float height;
+
+/** @brief 2D visual views can do some simple wrapping.  This turns that on and off (off by default).
+    @details On some 2D visual views we're allowed to wrap across the edge of the world.  This will attempt to do that.
+  */
+@property (nonatomic,assign) bool viewWrap;
 
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
@@ -244,8 +254,5 @@
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
-
-- (BOOL)panGestureEnabled;
-- (void)setPanGestureEnabled:(BOOL)enabled;
 
 @end

@@ -1750,6 +1750,8 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     NSObject *selObj = nil;
     
+    pt = [visualView unwrapCoordinate:pt];
+    
     pthread_mutex_lock(&userLock);
     for (MaplyComponentObject *userObj in userObjects)
     {
