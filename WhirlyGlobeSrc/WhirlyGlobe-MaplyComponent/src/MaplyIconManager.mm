@@ -52,8 +52,19 @@
         iconImage = [UIImage imageNamed:fullName];
         if (!iconImage)
         {
-            imgDict[fakeName] = [NSNull null];
-            return nil;
+            // Try without the extension
+            NSString *shortName = [name stringByDeletingPathExtension];
+            if (shortName)
+            {
+                fullName = [NSString stringWithFormat:@"%@@2x.png",shortName];
+                iconImage = [UIImage imageNamed:fullName];
+            }
+            
+            if (!iconImage)
+            {
+                imgDict[fakeName] = [NSNull null];
+                return nil;
+            }
         }
     }
     
