@@ -56,7 +56,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     NSArray *tileURLs;
 }
 
-+ (void)StartRemoteVectorTiles:(NSString *)jsonURL localTileDB:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock
++ (void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock
 {
     // First we need the JSON describing the whole thing
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:jsonURL]];
@@ -86,9 +86,9 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
                   // This should be enough to start, so let's do that
                   NSDictionary *styleDict = JSON;
                   MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
+                  vecTiles.cacheDir = cacheDir;
                   if (vecTiles)
                   {
-                      [vecTiles setTilesDB:tilesDB];
                       // Up to the "caller" to do something with it
                       dispatch_async(dispatch_get_main_queue(),
                                      ^{
@@ -301,6 +301,15 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return _maxLevel;
 }
 
+- (void)setCacheDir:(NSString *)cacheDir
+{
+    _cacheDir = cacheDir;
+    // Make sure it exists
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:cacheDir])
+        [[NSFileManager defaultManager] createDirectoryAtPath:cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
+}
+
 // Return or create the object which will create the given style
 - (MaplyVectorTileStyle *)getStyle:(const std::string &)uuid
 {
@@ -498,54 +507,82 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
            // Need to do a network fetch
            if (tileURLs)
            {
-               // Decide here which URL we'll use
-               NSString *tileURL = [tileURLs objectAtIndex:tileID.x%[tileURLs count]];
+               // See if it's in the cache first
+               NSString *cacheFileName = nil;
+               NSData *cacheData = nil;
+               if (_cacheDir)
+               {
+                   cacheFileName = [NSString stringWithFormat:@"%@/tile%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+                   cacheData = [NSData dataWithContentsOfFile:cacheFileName];
+               }
                
-               // Use the JSON tile spec
-//               int y = ((int)(1<<tileID.level)-tileID.y)-1;
-               NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
-                                        stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
-                                       stringByReplacingOccurrencesOfString:@"{y}" withString:[@(tileID.y) stringValue]];
-               NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
-               urlReq.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
-               // Note: Should set the timeout
-               
-               AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
-               dispatch_queue_t runQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-               op.successCallbackQueue = runQueue;
-               op.failureCallbackQueue = runQueue;
-               [op setCompletionBlockWithSuccess:
-                ^(AFHTTPRequestOperation *operation, id responseObject)
-                {
-                    NSData *tileData = responseObject;
-                    if ([tileData isKindOfClass:[NSData class]])
+               if (cacheData)
+               {
+                   NSData *uncompressedData = [cacheData uncompressGZip];
+                   MaplyVectorObject *vecObj = nil;
+                   if ([uncompressedData length] > 0)
+                       vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
+                   if (vecObj)
+                       [self processLayers:tileID layerData:@[vecObj] layer:layer];
+                   
+//                   NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                   [layer tileDidLoad:tileID];
+               } else {
+                   // Decide here which URL we'll use
+                   NSString *tileURL = [tileURLs objectAtIndex:tileID.x%[tileURLs count]];
+                   
+                   // Use the JSON tile spec
+    //               int y = ((int)(1<<tileID.level)-tileID.y)-1;
+                   NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+                                            stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                                           stringByReplacingOccurrencesOfString:@"{y}" withString:[@(tileID.y) stringValue]];
+                   NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                   urlReq.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+                   // Note: Should set the timeout
+                   
+                   AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
+                   dispatch_queue_t runQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                   op.successCallbackQueue = runQueue;
+                   op.failureCallbackQueue = runQueue;
+                   [op setCompletionBlockWithSuccess:
+                    ^(AFHTTPRequestOperation *operation, id responseObject)
                     {
-                        // Uncompress the data
-                        NSData *uncompressedData = [tileData uncompressGZip];
-                        MaplyVectorObject *vecObj = nil;
-                        if ([uncompressedData length] > 0)
-                            vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
-                        if (vecObj)
-                            [self processLayers:tileID layerData:@[vecObj] layer:layer];
-                 
-                        NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-                        [layer tileDidLoad:tileID];
-                    } else {
-//                        NSLog(@"Got unexpected data back from vector tile request for %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-                        [layer tileFailedToLoad:tileID];
+                        NSData *tileData = responseObject;
+                        if ([tileData isKindOfClass:[NSData class]])
+                        {
+                            // Uncompress the data
+                            NSData *uncompressedData = [tileData uncompressGZip];
+                            MaplyVectorObject *vecObj = nil;
+                            if ([uncompressedData length] > 0)
+                                vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
+                            if (vecObj)
+                                [self processLayers:tileID layerData:@[vecObj] layer:layer];
+                     
+//                            NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            
+                            // Save out to the cache
+                            if (cacheFileName)
+                                if (![tileData writeToFile:cacheFileName atomically:YES])
+                                    NSLog(@"Failed to write tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            
+                            [layer tileDidLoad:tileID];
+                        } else {
+    //                        NSLog(@"Got unexpected data back from vector tile request for %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            [layer tileFailedToLoad:tileID];
+                        }
                     }
-                }
-                                         failure:
-                ^(AFHTTPRequestOperation *operation, NSError *error)
-                {
-//                    NSLog(@"Failed to fetch vector tile for %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
-                    // Note: We have to do this because we're missing tiles in the middle
-                    [layer tileDidLoad:tileID];
-//                    [layer tileFailedToLoad:tileID];
-                }];
-               // Note: Should track this so we can cancel it
-               //       Go look at the remote image tile logic
-               [op start];
+                                             failure:
+                    ^(AFHTTPRequestOperation *operation, NSError *error)
+                    {
+    //                    NSLog(@"Failed to fetch vector tile for %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
+                        // Note: We have to do this because we're missing tiles in the middle
+                        [layer tileDidLoad:tileID];
+    //                    [layer tileFailedToLoad:tileID];
+                    }];
+                   // Note: Should track this so we can cancel it
+                   //       Go look at the remote image tile logic
+                   [op start];
+               }
            } else {
                // Fetch locally all at once.  Makes the logic simpler
                NSArray *layerData = [self fetchLayers:tileID];
