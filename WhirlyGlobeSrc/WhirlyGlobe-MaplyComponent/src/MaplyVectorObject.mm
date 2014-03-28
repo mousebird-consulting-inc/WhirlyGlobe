@@ -785,7 +785,7 @@ public:
 // Read from the raw vector format in the Vector DB
 // Note: Put this somewhere else.
 // Note: Bullet proof this if we start getting these over the network
-+ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data attrs:(std::vector<Maply::VectorAttribute> *)attrs
++ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data
 {
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
     

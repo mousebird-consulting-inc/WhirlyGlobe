@@ -33,11 +33,28 @@
   */
 + (UIColor *)ParseColor:(NSString *)colorStr;
 
+/** @brief Kick off a maply vector tiles database from a remote URL.
+    @details Creating a vector tiles database from a remote URL is a multi-stage process.  It requires a couple of network fetches first before we can safely start the db.  This runs through that process, creating the tile source and then calling the block when it's done.  It's up to the caller to provide a block that creates the paging layer and adds it to the view controller.
+    @param jsonURL The URL for the top level JSON description of this whole mess.
+    @param tilesDB A path to the database where you'd like tiles cached.  Pass in nil if you want no caching.
+    @param viewC The view controller to create the objects in.
+    @param callbackBlock The block that gets called (on the main thread) when the construction succeeds or fails.
+  */
++ (void)StartRemoteVectorTiles:(NSString *)jsonURL localTileDB:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock;
+
 /** @brief Initialize with a local tiles database and a view controller to display to.
     @details This will start up a maply vector tiles object reading from the given database and building objects in the given view controller.
     @details The vector database will respond to the MaplyPagingDelegate and pull in tiles as needed for display.
   */
 - (id)initWithDatabase:(NSString *)tilesDB viewC:(MaplyBaseViewController *)viewC;
+
+/** @brief Initialize with a JSON tile spec, which specifies where the tiles come from and other values.
+    @details Initialize a tile database with a JSON tile spec, which gives us remote tile locations, min and max levels and other useful values.
+    @param jsonSpec The tile spec in NSDictionary form.  Presumably it was JSON.
+    @param styles The styles dictionary.  Presumably we just fetched this remotely.
+    @param viewC The view controller we'll use to create objects.
+  */
+- (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styles viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief The minimum level this database covers
 @property (nonatomic,readonly) int minLevel;
@@ -57,5 +74,10 @@
 /// @brief An array of the style dictionaries.
 /// @details Style dictionaries are used internally to style the vector data.
 @property (nonatomic,readonly) NSArray *styles;
+
+/** @brief The local Vector Tiles database to use for caching if we're fetching remotely.
+    @details When we've set up a remote vector tiles database, this is the local db to use when caching vector tiles.  We'll check it first and store it
+  */
+- (void)setTilesDB:(NSString *)tilesDB;
 
 @end
