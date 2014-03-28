@@ -29,6 +29,7 @@
 #import "MaplyVectorMarkerStyle.h"
 #import "MaplyVectorPolygonStyle.h"
 #import "MaplyVectorTextStyle.h"
+#import "AFJSONRequestOperation.h"
 #import <string>
 #import <map>
 #import <vector>
@@ -37,16 +38,92 @@ using namespace Maply;
 
 typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 
+@interface MaplyVectorTiles()
+@property (nonatomic,readonly) NSString *tilesDir;
+@end
+
 @implementation MaplyVectorTiles
 {
     // If we're reading from a database, these are set
     FMDatabase *db;
     FMDatabaseQueue *queue;
     bool compressed;
-    std::vector<VectorAttribute> vecAttrs;
     
     // The style info
     StyleMap styleObjects;
+    
+    // If we're fetching remotely, the tile URLs
+    NSArray *tileURLs;
+}
+
++ (void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock
+{
+    // First we need the JSON describing the whole thing
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:jsonURL]];
+    request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+    AFJSONRequestOperation *operation =
+    [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+     {
+         NSDictionary *jsonDict = JSON;
+         // We're expecting one or more tile URLs and the styles
+         NSString *styleURL = jsonDict[@"style"];
+         NSArray *tileURLs = jsonDict[@"tiles"];
+         if (![styleURL isKindOfClass:[NSString class]])
+         {
+             NSLog(@"Expecting style URL in vector tile spec from: %@",jsonURL);
+         } else if (![tileURLs isKindOfClass:[NSArray class]] || [tileURLs count] == 0)
+         {
+             NSLog(@"Expecting one or more tile URLs in vector tile spec from: %@",jsonURL);
+         } else {
+             // Success, go get the styles
+             NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
+             request.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+             AFJSONRequestOperation *operation =
+             [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+              success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+              {
+                  // This should be enough to start, so let's do that
+                  NSDictionary *styleDict = JSON;
+                  MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithTileSpec:jsonDict styles:styleDict viewC:viewC];
+                  vecTiles.cacheDir = cacheDir;
+                  if (vecTiles)
+                  {
+                      // Up to the "caller" to do something with it
+                      dispatch_async(dispatch_get_main_queue(),
+                                     ^{
+                                         callbackBlock(vecTiles);
+                                     });
+                  } else {
+                      NSLog(@"Unable to create MaplyVectorTiles from URL: %@",jsonURL);
+                      dispatch_async(dispatch_get_main_queue(),
+                                     ^{
+                                         callbackBlock(nil);
+                                     });
+                  }
+              }
+              failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+              {
+                  NSLog(@"Failed to reach vector styles at: %@",styleURL);
+                  dispatch_async(dispatch_get_main_queue(),
+                                 ^{
+                                     callbackBlock(nil);
+                                 });
+              }];
+             [operation start];
+         }
+     }
+    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+     {
+         NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);
+         dispatch_async(dispatch_get_main_queue(),
+                        ^{
+                            callbackBlock(nil);
+                        });
+     }
+     
+     ];
+    [operation start];
 }
 
 // Parse a UIColor from hex values
@@ -166,20 +243,6 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     }
     _styles = styles;
     
-    // Vector attribute names and types
-    res = [db executeQuery:@"SELECT name,type FROM attributes"];
-    while ([res next])
-    {
-        NSString *name = [res stringForColumn:@"name"];
-        int type = [res intForColumn:@"type"];
-        VectorAttribute attr;
-        attr.name = name;
-        attr.type = (VectorAttributeType)type;
-        if (type >= VectorAttrMax)
-            return nil;
-        vecAttrs.push_back(attr);
-    }
-    
     _settings = [[MaplyVectorTileStyleSettings alloc] init];
     _settings.lineScale = [UIScreen mainScreen].scale;
     _settings.textScale = [UIScreen mainScreen].scale;
@@ -187,6 +250,45 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     _settings.mapScaleScale = 1.0;
     
     return self;
+}
+
+- (id)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styleDict viewC:(MaplyBaseViewController *)viewC
+{
+    self = [super init];
+    _viewC = viewC;
+    
+    tileURLs = jsonSpec[@"tiles"];
+    if (![tileURLs isKindOfClass:[NSArray class]])
+        return nil;
+    
+    NSDictionary *paramDict = styleDict[@"parameters"];
+    if (![paramDict isKindOfClass:[NSDictionary class]])
+        return nil;
+    // Note: Pull these out of the tile JSON
+    _minLevel = (int)[paramDict[@"minLevel"] integerValue];
+    _maxLevel = (int)[paramDict[@"maxLevel"] integerValue];
+    
+    NSArray *layers = styleDict[@"layers"];
+    if (![layers isKindOfClass:[NSArray class]])
+        return nil;
+    _layerNames = layers;
+    
+    NSArray *styles = styleDict[@"styles"];
+    if (![styles isKindOfClass:[NSArray class]])
+        return nil;
+    _styles = styles;
+    
+    _settings = [[MaplyVectorTileStyleSettings alloc] init];
+    _settings.lineScale = [UIScreen mainScreen].scale;
+    _settings.textScale = [UIScreen mainScreen].scale;
+    _settings.markerScale = [UIScreen mainScreen].scale;
+    
+    return self;
+}
+
+- (void)setTilesDB:(NSString *)tilesDB
+{
+    // Note: fill this in
 }
 
 - (int)minZoom
@@ -197,6 +299,15 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 - (int)maxZoom
 {
     return _maxLevel;
+}
+
+- (void)setCacheDir:(NSString *)cacheDir
+{
+    _cacheDir = cacheDir;
+    // Make sure it exists
+    NSError *error = nil;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:cacheDir])
+        [[NSFileManager defaultManager] createDirectoryAtPath:cacheDir withIntermediateDirectories:YES attributes:nil error:&error];
 }
 
 // Return or create the object which will create the given style
@@ -296,7 +407,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         // Turn the raw data into vectors
         if (tilePresent && uncompressedData)
         {
-            vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData attrs:&vecAttrs];
+            vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
         }
     } else {
         NSString *fileName = [NSString stringWithFormat:@"%@/%d/%d/%d%@",_tilesDir,tileID.level,tileID.y,tileID.x,layerName];
@@ -315,69 +426,172 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
 
 typedef std::map<std::string,NSMutableArray *> VecsForStyles;
 
+// Fetch all the layers at once
+- (NSArray *)fetchLayers:(MaplyTileID)tileID
+{
+    NSMutableArray *layerData = [NSMutableArray array];
+    
+    for (NSString *layerName in _layerNames)
+    {
+        MaplyVectorObject *vecObj = [self readTile:tileID layer:layerName];
+        if (vecObj)
+            [layerData addObject:vecObj];
+    }
+    
+    return layerData;
+}
+
+// Turn the layer data into visuals
+- (void)processLayers:(MaplyTileID)tileID layerData:(NSArray *)layerData layer:(MaplyQuadPagingLayer *)layer
+{
+    VecsForStyles vecsForStyles;
+    
+    // Work through the layers we might expect to find
+    // We'll collect the vectors for each of the styles we encounter
+    for (MaplyVectorObject *vecObj in layerData)
+    {
+        if (vecObj)
+        {
+            NSArray *vecObjs = [vecObj splitVectors];
+            for (MaplyVectorObject *thisVecObj in vecObjs)
+            {
+                NSDictionary *vecDict = thisVecObj.attributes;
+                // Look through the styles
+                int foundStyles = 0;
+                for (unsigned int si=0;si<100;si++)
+                {
+                    NSString *styleName = [NSString stringWithFormat:@"style%d",si];
+                    NSString *styleUUID = vecDict[styleName];
+                    if (![styleUUID isKindOfClass:[NSString class]])
+                        break;
+                    
+                    // Add the vector to the appropriate spot for the style
+                    std::string uuid = [styleUUID cStringUsingEncoding:NSASCIIStringEncoding];
+                    VecsForStyles::iterator it = vecsForStyles.find(uuid);
+                    NSMutableArray *vecsForThisStyle = nil;
+                    if (it == vecsForStyles.end())
+                    {
+                        vecsForThisStyle = [NSMutableArray array];
+                        vecsForStyles[uuid] = vecsForThisStyle;
+                    } else
+                        vecsForThisStyle = it->second;
+                    [vecsForThisStyle addObject:thisVecObj];
+                    foundStyles++;
+                }
+                if (foundStyles == 0)
+                    NSLog(@"Found data without style.");
+            }
+        }
+    }
+    
+    // Work through the styles we found, adding everything together
+    for (VecsForStyles::iterator it = vecsForStyles.begin();it != vecsForStyles.end(); ++it)
+    {
+        // Get the style object and then add the data
+        MaplyVectorTileStyle *style = [self getStyle:it->first];
+        NSArray *compObjs = [style buildObjects:it->second viewC:layer.viewC];
+        if (compObjs)
+        {
+            [layer addData:compObjs forTile:tileID style:(style.geomAdditive ? MaplyDataStyleAdd : MaplyDataStyleReplace)];
+        }
+    }
+}
+
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
 //    NSLog(@"Vector Fetching: %d: (%d, %d)",tileID.level,tileID.x,tileID.y);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
        ^{
-           VecsForStyles vecsForStyles;
-           
-           // Work through the layers we might expect to find
-           // We'll collect the vectors for each of the styles we encounter
-           for (NSString *layerName in _layerNames)
+           // Need to do a network fetch
+           if (tileURLs)
            {
-               MaplyVectorObject *vecObj = [self readTile:tileID layer:layerName];
-               if (vecObj)
+               // See if it's in the cache first
+               NSString *cacheFileName = nil;
+               NSData *cacheData = nil;
+               if (_cacheDir)
                {
-                   NSArray *vecObjs = [vecObj splitVectors];
-                   for (MaplyVectorObject *thisVecObj in vecObjs)
-                   {
-                       NSDictionary *vecDict = thisVecObj.attributes;
-                       // Look through the styles
-                       int foundStyles = 0;
-                       for (unsigned int si=0;si<100;si++)
-                       {
-                           NSString *styleName = [NSString stringWithFormat:@"style%d",si];
-                           NSString *styleUUID = vecDict[styleName];
-                           if (![styleUUID isKindOfClass:[NSString class]])
-                               break;
-                           
-                           // Add the vector to the appropriate spot for the style
-                           std::string uuid = [styleUUID cStringUsingEncoding:NSASCIIStringEncoding];
-                           VecsForStyles::iterator it = vecsForStyles.find(uuid);
-                           NSMutableArray *vecsForThisStyle = nil;
-                           if (it == vecsForStyles.end())
-                           {
-                               vecsForThisStyle = [NSMutableArray array];
-                               vecsForStyles[uuid] = vecsForThisStyle;
-                           } else
-                               vecsForThisStyle = it->second;
-                           [vecsForThisStyle addObject:thisVecObj];
-                           foundStyles++;
-                       }
-                       if (foundStyles == 0)
-                           NSLog(@"Found data without style.");
-                   }
+                   cacheFileName = [NSString stringWithFormat:@"%@/tile%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+                   cacheData = [NSData dataWithContentsOfFile:cacheFileName];
                }
-           }
+               
+               if (cacheData)
+               {
+                   NSData *uncompressedData = [cacheData uncompressGZip];
+                   MaplyVectorObject *vecObj = nil;
+                   if ([uncompressedData length] > 0)
+                       vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
+                   if (vecObj)
+                       [self processLayers:tileID layerData:@[vecObj] layer:layer];
+                   
+//                   NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                   [layer tileDidLoad:tileID];
+               } else {
+                   // Decide here which URL we'll use
+                   NSString *tileURL = [tileURLs objectAtIndex:tileID.x%[tileURLs count]];
+                   
+                   // Use the JSON tile spec
+    //               int y = ((int)(1<<tileID.level)-tileID.y)-1;
+                   NSString *fullURLStr = [[[tileURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+                                            stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                                           stringByReplacingOccurrencesOfString:@"{y}" withString:[@(tileID.y) stringValue]];
+                   NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+                   urlReq.cachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+                   // Note: Should set the timeout
+                   
+                   AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:urlReq];
+                   dispatch_queue_t runQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+                   op.successCallbackQueue = runQueue;
+                   op.failureCallbackQueue = runQueue;
+                   [op setCompletionBlockWithSuccess:
+                    ^(AFHTTPRequestOperation *operation, id responseObject)
+                    {
+                        NSData *tileData = responseObject;
+                        if ([tileData isKindOfClass:[NSData class]])
+                        {
+                            // Uncompress the data
+                            NSData *uncompressedData = [tileData uncompressGZip];
+                            MaplyVectorObject *vecObj = nil;
+                            if ([uncompressedData length] > 0)
+                                vecObj = [MaplyVectorObject VectorObjectFromVectorDBRaw:uncompressedData];
+                            if (vecObj)
+                                [self processLayers:tileID layerData:@[vecObj] layer:layer];
+                     
+//                            NSLog(@"Loaded tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            
+                            // Save out to the cache
+                            if (cacheFileName)
+                                if (![tileData writeToFile:cacheFileName atomically:YES])
+                                    NSLog(@"Failed to write tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            
+                            [layer tileDidLoad:tileID];
+                        } else {
+    //                        NSLog(@"Got unexpected data back from vector tile request for %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+                            [layer tileFailedToLoad:tileID];
+                        }
+                    }
+                                             failure:
+                    ^(AFHTTPRequestOperation *operation, NSError *error)
+                    {
+    //                    NSLog(@"Failed to fetch vector tile for %d: (%d,%d)\n%@",tileID.level,tileID.x,tileID.y,error);
+                        // Note: We have to do this because we're missing tiles in the middle
+                        [layer tileDidLoad:tileID];
+    //                    [layer tileFailedToLoad:tileID];
+                    }];
+                   // Note: Should track this so we can cancel it
+                   //       Go look at the remote image tile logic
+                   [op start];
+               }
+           } else {
+               // Fetch locally all at once.  Makes the logic simpler
+               NSArray *layerData = [self fetchLayers:tileID];
+               
+               if ([layerData count] > 0)
+                   [self processLayers:tileID layerData:layerData layer:layer];
 
-           // Work through the styles we found, adding everything together
-           for (VecsForStyles::iterator it = vecsForStyles.begin();it != vecsForStyles.end(); ++it)
-           {
-               // Get the style object and then add the data
-               MaplyVectorTileStyle *style = [self getStyle:it->first];
-               NSArray *compObjs = [style buildObjects:it->second viewC:layer.viewC];
-               if (compObjs)
-               {
-                   [layer addData:compObjs forTile:tileID style:(style.geomAdditive ? MaplyDataStyleAdd : MaplyDataStyleReplace)];
-               }
-           }
-           
 //           NSLog(@"Loaded: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-
-           
-           [layer tileDidLoad:tileID];
+               [layer tileDidLoad:tileID];
+           }
        });
 }
 
