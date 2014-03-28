@@ -515,7 +515,8 @@ bool MergeIntoShapeFile(std::vector<OGRFeature *> &features,OGRLayer *srcLayer,O
         delete newFeature;
     }
     
-    OGRDataSource::DestroyDataSource(poCDS);
+    if (poCDS)
+        OGRDataSource::DestroyDataSource(poCDS);
     
     return true;
 }
@@ -669,9 +670,9 @@ void MergeDataIntoLayer(OGRLayer *destLayer,OGRLayer *srcLayer)
 int ScaleForLevel(int level)
 {
     int exp = 22-level;
-    // Note: We're scaling by 1/16 to get this into a level WG-Maply uses
+    // Note: We're scaling by 1/4 to get this into a level WG-Maply uses
     //       The problem here is that map "levels" don't correspond well to loading levels
-    return (1<<exp) * 150 / 8;
+    return (1<<exp) * 150 / 4;
 }
 
 int main(int argc, char * argv[])
@@ -1135,7 +1136,7 @@ int main(int argc, char * argv[])
         try {
             // Set up the vector DB
             Maply::VectorDatabase *vectorDb = new Maply::VectorDatabase();
-            vectorDb->setupDatabase(sqliteDb, destSRS, tileSRS, xmin, ymin, ymax, ymax, minLevel, maxLevel, true);
+            vectorDb->setupDatabase(sqliteDb, destSRS, tileSRS, xmin, ymin, ymax, ymax, minLevelSeen, maxLevelSeen, true);
             
             // Write out the styles
             for (unsigned int ii=0;ii<mapnikConfig->compiledSymTable.symGroups.size();ii++)
@@ -1186,18 +1187,18 @@ int main(int argc, char * argv[])
                 
                 for (unsigned int iy=sy;iy<=ey;iy++)
                 {
-                    // If there's nothing in the row we can skip that
-                    std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
-                    boost::filesystem::path yDirPath(yDir);
                     bool fileExists = true;
-                    try
-                    {
-                        fileExists = boost::filesystem::exists(yDirPath);
-                    }
-                    catch (...)
-                    {
-                        // This tells us nothing
-                    }
+//                    // If there's nothing in the row we can skip that
+//                    std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
+//                    boost::filesystem::path yDirPath(yDir);
+//                    try
+//                    {
+//                        fileExists = boost::filesystem::exists(yDirPath);
+//                    }
+//                    catch (...)
+//                    {
+//                        // This tells us nothing
+//                    }
                     if (!fileExists)
                     {
                         cellsProcessed += (ex-sx+1);
@@ -1209,24 +1210,24 @@ int main(int argc, char * argv[])
                     // Collect up all the filenames for the row, to save us from opening files one by one
                     bool fileNameCache = false;
                     std::set<std::string> yFileNames;
-                    try
-                    {
-                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
-                        {
-                            boost::filesystem::path p = dirIter->path();
-                            std::string ext = p.extension().string();
-                            if (!ext.compare(".shp"))
-                            {
-                                yFileNames.insert(p.string());
-                            }
-                        }
-                        fileNameCache = true;
-                    }
-                    catch (...)
-                    {
-                        fileNameCache = false;
-                    }
+//                    try
+//                    {
+//                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+//                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+//                        {
+//                            boost::filesystem::path p = dirIter->path();
+//                            std::string ext = p.extension().string();
+//                            if (!ext.compare(".shp"))
+//                            {
+//                                yFileNames.insert(p.string());
+//                            }
+//                        }
+//                        fileNameCache = true;
+//                    }
+//                    catch (...)
+//                    {
+//                        fileNameCache = false;
+//                    }
 
                     for (unsigned int ix=sx;ix<=ex;ix++)
                     {
@@ -1279,8 +1280,13 @@ int main(int argc, char * argv[])
                                         outLayerName = "";
                                     }
                                     // Also write it out to the web DB if needed
-                                    std::string cellDir = (std::string)webDbDir + "/" + std::to_string(level) + "/" + std::to_string(ix) + "/";
-                                    std::string cellFileName = cellDir + std::to_string(iy) + outLayerName + ".mvt";
+                                    std::string cellDir = "";
+                                    std::string cellFileName = "";
+                                    if (webDbDir)
+                                    {
+                                        cellDir = (std::string)webDbDir + "/" + std::to_string(level) + "/" + std::to_string(ix) + "/";
+                                        cellFileName = cellDir + std::to_string(iy) + outLayerName + ".mvt";
+                                    }
 
                                     if (!layerFeatures.empty())
                                     {
@@ -1340,10 +1346,16 @@ int main(int argc, char * argv[])
                                     fprintf(stderr,"Unable to write tile %d: (%d,%d)\nBecause: %s\n",level,ix,iy,errorStr.c_str());
                                     return -1;
                                 }
+                                
+                                // Clean up the layer features
+                                for (unsigned int lf=0;lf<layerFeatures.size();lf++)
+                                    delete layerFeatures[lf];
+                                layerFeatures.clear();
 
                                 // Clean up the data sources
                                 for (unsigned int si=0;si<dataSources.size();si++)
                                     OGRDataSource::DestroyDataSource(dataSources[si]);
+                                dataSources.clear();
                             }
                         }
                         
