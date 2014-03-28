@@ -21,6 +21,8 @@
 #import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
 
+/** @details Implementation of the polygon style symbolizer for Maply Vector Tiles.
+ */
 @interface MaplyVectorTileStylePolygon : MaplyVectorTileStyle
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
