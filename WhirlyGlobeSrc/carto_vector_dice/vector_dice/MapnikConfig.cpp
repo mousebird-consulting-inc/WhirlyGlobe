@@ -7,9 +7,11 @@
 //
 
 #import <map>
+#include <libgen.h>
 #include "MapnikConfig.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 using namespace tinyxml2;
 
@@ -201,9 +203,23 @@ bool MapnikConfig::CompiledSymbolizerTable::writeJSON(std::string &json)
     }
     json += "\t]\n";
     
-    
     json += "}\n";
     
+    return true;
+}
+
+bool MapnikConfig::writeTileJSON(std::string &json,const std::string &webDbName,const std::string &webDbURL)
+{
+    json += "{\n";
+
+    json += "\t\"style\": \"" + webDbURL + webDbName + "_styles.json\",\n";
+    
+    json += "\t\"tiles\":[\n";
+    json += "\t\t\"" + webDbURL + "{z}/{x}/{y}.mvt\"\n";
+    json += "\t]\n";
+    
+    json += "}\n";
+
     return true;
 }
 
@@ -356,9 +372,23 @@ MapnikConfig::Style::~Style()
     
 }
 
-MapnikConfig::ShapefileDataSource::ShapefileDataSource(const std::string &fileName)
+MapnikConfig::ShapefileDataSource::ShapefileDataSource(const std::string &fileName,const std::vector<std::string> &paths)
 : fileName(fileName)
 {
+    // Look for the file in one of the paths first
+    std::string baseName = boost::filesystem::basename(fileName) + boost::filesystem::extension(fileName);
+    if (!baseName.empty())
+    {
+        for (unsigned int ii=0;ii<paths.size();ii++)
+        {
+            std::string fullName = paths[ii] + "/" + baseName;
+            if (boost::filesystem::exists(fullName))
+            {
+                this->fileName = fullName;
+                break;
+            }
+        }
+    }
 }
 
 std::string MapnikConfig::ShapefileDataSource::getName()
@@ -501,7 +531,7 @@ MapnikConfig::~MapnikConfig()
 {
 }
 
-bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
+bool MapnikConfig::parseXML(XMLDocument *doc,const std::vector<std::string> &paths,std::string &error)
 {
     try
     {
@@ -720,7 +750,7 @@ bool MapnikConfig::parseXML(XMLDocument *doc,std::string &error)
                 DataSource *dataSource = NULL;
                 if (!dataType.compare("shape"))
                 {
-                    ShapefileDataSource *shapeDataSource = new ShapefileDataSource(fileName);
+                    ShapefileDataSource *shapeDataSource = new ShapefileDataSource(fileName,paths);
                     dataSource = shapeDataSource;
                 } else if (!dataType.compare("postgis"))
                 {
