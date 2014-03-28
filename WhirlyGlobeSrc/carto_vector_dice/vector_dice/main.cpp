@@ -51,7 +51,7 @@ public:
         for (unsigned int ii=0;ii<numFeatures;ii++)
         {
             features[ii] = layer->GetFeature(ii);
-            OGRFeature *feature = layer->GetFeature(ii);
+            OGRFeature *feature = features[ii];
             OGREnvelope env;
             feature->GetGeometryRef()->getEnvelope(&env);
             mbrs[ii] = env;
@@ -91,6 +91,9 @@ public:
 // Convert the given feature to the given data type
 void ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataType dataType,std::vector<OGRGeometry *> &retGeom)
 {
+    if (!inGeom)
+        return;
+    
     switch (inGeom->getGeometryType())
     {
         case wkbPoint:
@@ -293,6 +296,8 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
             for (unsigned int igeom=0;igeom<geoms.size();igeom++)
             {
                 OGRGeometry *geom = geoms[igeom];
+                OGREnvelope startEnv;
+                geom->getEnvelope(&startEnv);
                 OGRErr err = geom->transform(transform);
                 if (err != OGRERR_NONE)
                 {
@@ -343,6 +348,8 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
     //            OGRFeature *newFeature = outLayer->GetFeature(whichFeature);
                 OGRFeature *newFeature = new OGRFeature(outLayer->GetLayerDefn());
                 newFeature->SetGeometry(geom);
+                delete geoms[igeom];
+                geoms[igeom] = NULL;
 
                 // Now apply the symbolizers (they'll be styles in the final output)
     //            int numNewFields = newFeature->GetFieldCount();
@@ -505,6 +512,7 @@ bool MergeIntoShapeFile(std::vector<OGRFeature *> &features,OGRLayer *srcLayer,O
         OGRFeature *newFeature = OGRFeature::CreateFeature(destLayer->GetLayerDefn());
         newFeature->SetFrom(feature);
         destLayer->CreateFeature(newFeature);
+        delete newFeature;
     }
     
     OGRDataSource::DestroyDataSource(poCDS);
@@ -559,6 +567,10 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         
         // Transform and copy features
         OGRCoordinateTransformation *transform = OGRCreateCoordinateTransformation(this_srs,hTrgSRS);
+//        char *this_srs_out = NULL;
+//        this_srs->exportToWkt(&this_srs_out);
+//        char *trg_srs_out = NULL;
+//        hTrgSRS->exportToWkt(&trg_srs_out);
         if (!transform)
         {
             fprintf(stderr,"Can't transform from coordinate system to destination for: %s\n",inputFile);
@@ -572,7 +584,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         }
         
         OGRDataSource *memDS = memDriver->CreateDataSource("memory");
-        OGRLayer *layer = memDS->CreateLayer("layer",this_srs);
+        OGRLayer *layer = memDS->CreateLayer("layer",hTrgSRS);
         // We'll also apply any rules and attribute changes at this point
         TransformLayer(inLayer,layer,transform,symGroups,dataType,psExtent);
         LayerSpatialIndex layerIndex(layer);
@@ -605,10 +617,15 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                 if (clipEnv && !(clipEnv->Intersects(cellEnv) || clipEnv->Contains(cellEnv)))
                     continue;
                 
+                // Make sure we include the clipping box
+                OGREnvelope toClipEnv = cellEnv;
+                if (clipEnv)
+                    toClipEnv.Intersect(*clipEnv);
+                
                 totalEnv.Merge(cellEnv);
                 
                 std::vector<OGRFeature *> clippedFeatures;
-                ClipInputToBox(&layerIndex,cellEnv.MinX,cellEnv.MinY,cellEnv.MaxX,cellEnv.MaxY,hTrgSRS,clippedFeatures,tileTransform);
+                ClipInputToBox(&layerIndex,toClipEnv.MinX,toClipEnv.MinY,toClipEnv.MaxX,toClipEnv.MaxY,hTrgSRS,clippedFeatures,tileTransform);
                 
                 //                    fprintf(stdout, "            Cell (%d,%d):  %d features\n",ix,iy,cellLayer->GetFeatureCount());
                 
@@ -624,7 +641,7 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
                     mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
                     const char *typeName = (dataType == MapnikConfig::SymbolDataPoint ? "_p" : ((dataType == MapnikConfig::SymbolDataLinear) ? "_l" : ((dataType == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
                     std::string cellFileName = cellDir + std::to_string(ix) + layerName + typeName + ".shp";
-                    if (!MergeIntoShapeFile(clippedFeatures,layer,hTrgSRS,cellFileName.c_str()))
+                    if (!MergeIntoShapeFile(clippedFeatures,layer,hTileSRS,cellFileName.c_str()))
                         exit(-1);
                 }
                 
@@ -634,6 +651,8 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         }
         
         OGRDataSource::DestroyDataSource(memDS);
+        delete tileTransform;
+        delete transform;
     }
     
     delete poDS;
@@ -650,7 +669,9 @@ void MergeDataIntoLayer(OGRLayer *destLayer,OGRLayer *srcLayer)
 int ScaleForLevel(int level)
 {
     int exp = 22-level;
-    return (1<<exp) * 150;
+    // Note: We're scaling by 1/16 to get this into a level WG-Maply uses
+    //       The problem here is that map "levels" don't correspond well to loading levels
+    return (1<<exp) * 150 / 8;
 }
 
 int main(int argc, char * argv[])
@@ -662,9 +683,12 @@ int main(int argc, char * argv[])
     bool teSet = false;
     char *xmlConfig = NULL;
     double xmin=-20037508.34,ymin=-20037508.34,xmax=20037508.34,ymax=20037508.3;
-    bool clipBoundsSet = false;
+    bool clipBoundsSet = false, clipBoundsGeo = false;
     double clipXmin,clipYmin,clipXmax,clipYmax;
     int minLevel = -1,maxLevel = -1;
+    bool mergeLayers = false;
+    const char *webDbName = NULL,*webDbDir = NULL,*webDbURL = NULL;
+    std::vector<std::string> pathRedirect;
     
     GDALAllRegister();
     OGRRegisterAll();
@@ -760,14 +784,54 @@ int main(int argc, char * argv[])
             numArgs = 5;
             if (ii+numArgs > argc)
             {
-                fprintf(stderr,"Expecting one argument for -clip");
+                fprintf(stderr,"Expecting four arguments for -clip");
                 return -1;
             }
             clipBoundsSet = true;
+            clipBoundsGeo = false;
             clipXmin = atof(argv[ii+1]);
             clipYmin = atof(argv[ii+2]);
             clipXmax = atof(argv[ii+3]);
             clipYmax = atof(argv[ii+4]);
+        } else if (EQUAL(argv[ii],"-clipgeo"))
+        {
+            numArgs = 5;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting four arguments for -clipgeo");
+                return -1;
+            }
+            clipBoundsSet = true;
+            clipBoundsGeo = true;
+            clipXmin = atof(argv[ii+1]);
+            clipYmin = atof(argv[ii+2]);
+            clipXmax = atof(argv[ii+3]);
+            clipYmax = atof(argv[ii+4]);
+        } else if (EQUAL(argv[ii],"-mergelayers"))
+        {
+            numArgs = 1;
+            mergeLayers = true;
+        } else if (EQUAL(argv[ii],"-webdb"))
+        {
+            numArgs = 4;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting four arguments for -webdb");
+                return -1;
+            }
+            webDbName = argv[ii+1];
+            webDbDir = argv[ii+2];
+            webDbURL = argv[ii+3];
+        } else if (EQUAL(argv[ii],"-path"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting four arguments for -webdb");
+                return -1;
+            }
+            std::string path = argv[ii+1];
+            pathRedirect.push_back(path);
         }
     }
 
@@ -828,21 +892,11 @@ int main(int argc, char * argv[])
         }
         mapnikConfig = new MapnikConfig();
         std::string errorStr;
-        if (!mapnikConfig->parseXML(&doc, errorStr))
+        if (!mapnikConfig->parseXML(&doc, pathRedirect, errorStr))
         {
             fprintf(stderr,"Failed to parse Mapnik config file because:\n%s\n",errorStr.c_str());
             return -1;
         }
-    }
-    
-    // We won't bother with anything outside this boundary
-    OGREnvelope clipBounds;
-    if (clipBoundsSet)
-    {
-        clipBounds.MinX = clipXmin;
-        clipBounds.MinY = clipYmin;
-        clipBounds.MaxX = clipXmax;
-        clipBounds.MaxY = clipYmax;
     }
     
     // Clear out the target directory
@@ -853,15 +907,49 @@ int main(int argc, char * argv[])
     for (int level = minLevel;level<=maxLevel;level++)
         mkdir(((std::string)targetDir+"/"+std::to_string(level)).c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
+    if (webDbName)
+    {
+        system(((std::string) "rm -rf " + webDbDir).c_str() );
+        mkdir(webDbDir,S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+    
     // Set up a coordinate transformation
-    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:3857") );
+    OGRSpatialReference *hTrgSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:900913") );
+//    OGRSpatialReference *hTileSRS = new OGRSpatialReference ( destSRS ? destSRS : SanitizeSRS("EPSG:3857") );
     OGRSpatialReference *hTileSRS = new OGRSpatialReference ( tileSRS ? tileSRS : SanitizeSRS("EPSG:4326") );
     
+    // We won't bother with anything outside this boundary
+    OGREnvelope clipBounds;
+    if (clipBoundsSet)
+    {
+        // Reproject
+        if (clipBoundsGeo)
+        {
+            OGRCoordinateTransformation *transform = OGRCreateCoordinateTransformation(hTileSRS,hTrgSRS);
+            OGRPoint llPt(clipXmin,clipYmin);
+            llPt.transform(transform);
+            OGRPoint urPt(clipXmax,clipYmax);
+            urPt.transform(transform);
+            clipBounds.MinX = llPt.getX();
+            clipBounds.MinY = llPt.getY();
+            clipBounds.MaxX = urPt.getX();
+            clipBounds.MaxY = urPt.getY();
+            delete transform;
+        } else {
+            clipBounds.MinX = clipXmin;
+            clipBounds.MinY = clipYmin;
+            clipBounds.MaxX = clipXmax;
+            clipBounds.MaxY = clipYmax;
+        }
+    }
+
     // Keep track of what we've built
     BuildStats buildStats;
     std::set<std::string> layerNames;
     OGREnvelope fullExtents;
     
+    int minLevelSeen = 10000;
+    int maxLevelSeen = 0;
     if (mapnikConfig)
     {
         // Work through the layers
@@ -882,8 +970,8 @@ int main(int argc, char * argv[])
             // Work through the levels
             for (int li=minLevel;li<=maxLevel;li++)
             {
-                fprintf(stdout, "  Level %d\n",li);
                 int scale = ScaleForLevel(li);
+                fprintf(stdout, "  Level %d;  Scale = %d\n",li,scale);
                 
                 // Look through the sorted styles that might apply and aren't done
                 for (unsigned int ssi=0;ssi<layer.sortStyles.size();ssi++)
@@ -945,6 +1033,9 @@ int main(int argc, char * argv[])
 
                                 fprintf(stdout,"\t\tChopped %d %s features\n",copiedFeatures,symbolType);
                                 totalFeatures += copiedFeatures;
+                                
+                                minLevelSeen = std::min(minLevelSeen,li);
+                                maxLevelSeen = std::max(maxLevelSeen,li);
                             }
                         }
                         
@@ -962,8 +1053,8 @@ int main(int argc, char * argv[])
         
         // Write the symbolizers out as JSON
         std::string styleJson;
-        mapnikConfig->compiledSymTable.minLevel = minLevel;
-        mapnikConfig->compiledSymTable.maxLevel = maxLevel;
+        mapnikConfig->compiledSymTable.minLevel = minLevelSeen;
+        mapnikConfig->compiledSymTable.maxLevel = maxLevelSeen;
         if (!mapnikConfig->compiledSymTable.writeJSON(styleJson))
         {
             fprintf(stderr, "Failed to convert styles to JSON");
@@ -972,9 +1063,19 @@ int main(int argc, char * argv[])
         try {
             std::ofstream outStream((std::string)targetDir+"/styles.json");
             outStream << styleJson;
-            
+            // Also for the web DB
+            if (webDbDir)
+            {
+                std::ofstream webOutStream((std::string)webDbDir+"/"+webDbName+"_styles.json");
+                webOutStream << styleJson;
+                // And the top level JSON file
+                std::string tileJson;
+                mapnikConfig->writeTileJSON(tileJson,webDbName,webDbURL);
+                std::ofstream tileJsonStream((std::string)webDbDir+"/"+webDbName+".json");
+                tileJsonStream << tileJson;
+            }
         } catch (...) {
-            fprintf(stderr,"Could not write styles.json file");
+            fprintf(stderr,"Could not write styles or top level json file");
             return -1;
         }
     }
@@ -982,6 +1083,13 @@ int main(int argc, char * argv[])
     if (buildStats.numTiles > 0)
         fprintf(stdout,"Feature Count\n  Min = %d, Max = %d, Avg = %f\n",buildStats.minFeat,buildStats.maxFeat,buildStats.featAvg/buildStats.numTiles);
     
+    // Clear out the web DB and recreate it if we need it
+    if (webDbName)
+    {
+        for (int level = minLevelSeen;level<=maxLevelSeen;level++)
+            mkdir(((std::string)webDbDir+"/"+std::to_string(level)).c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    }
+
     // If there's a target DB we'll build a sqlite database from the shapefiles
     if (targetDb && mapnikConfig)
     {
@@ -992,7 +1100,7 @@ int main(int argc, char * argv[])
         
         // Total number of chunks to process
         int totalNumCells = 0;
-        for (unsigned int level = minLevel; level <= maxLevel; level++)
+        for (unsigned int level = minLevelSeen; level <= maxLevelSeen; level++)
         {
             // We don't do the whole span of each level
             int numCells = 1<<level;
@@ -1042,12 +1150,23 @@ int main(int argc, char * argv[])
             // Set up the layer tables
             std::vector<int> layerIDs;
             std::vector<std::string> localLayerNames;
-            for (std::set<std::string>::iterator it = layerNames.begin();it != layerNames.end(); ++it)
+            if (!mergeLayers)
             {
-                const std::string &layerName = *it;
-                int layerID = vectorDb->addVectorLayer(layerName.c_str());
-                localLayerNames.push_back(layerName);
+                for (std::set<std::string>::iterator it = layerNames.begin();it != layerNames.end(); ++it)
+                {
+                    const std::string &layerName = *it;
+                    int layerID = vectorDb->addVectorLayer(layerName.c_str());
+                    localLayerNames.push_back(layerName);
+                    layerIDs.push_back(layerID);
+                }
+            } else {
+                int layerID = vectorDb->addVectorLayer("all");
                 layerIDs.push_back(layerID);
+                for (std::set<std::string>::iterator it = layerNames.begin();it != layerNames.end(); ++it)
+                {
+                    const std::string &layerName = *it;
+                    localLayerNames.push_back(layerName);
+                }
             }
             
             // Work through the levels
@@ -1073,7 +1192,7 @@ int main(int argc, char * argv[])
                     bool fileExists = true;
                     try
                     {
-//                        fileExists = boost::filesystem::exists(yDirPath);
+                        fileExists = boost::filesystem::exists(yDirPath);
                     }
                     catch (...)
                     {
@@ -1092,16 +1211,17 @@ int main(int argc, char * argv[])
                     std::set<std::string> yFileNames;
                     try
                     {
-//                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-//                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
-//                        {
-//                            boost::filesystem::path p = dirIter->path();
-//                            std::string ext = p.extension().string();
-//                            if (!ext.compare(".shp"))
-//                            {
-//                                yFileNames.insert(p.string());
-//                            }
-//                        }
+                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+                        {
+                            boost::filesystem::path p = dirIter->path();
+                            std::string ext = p.extension().string();
+                            if (!ext.compare(".shp"))
+                            {
+                                yFileNames.insert(p.string());
+                            }
+                        }
+                        fileNameCache = true;
                     }
                     catch (...)
                     {
@@ -1115,14 +1235,14 @@ int main(int argc, char * argv[])
 //                        OGRLayer *memLayer = memDS->CreateLayer("layer",hTileSRS);
                         
                         // Work through the layers at this level
+                        std::vector<OGRDataSource *> dataSources;
+                        std::vector<OGRFeature *> layerFeatures;
                         for (unsigned int li=0;li<layerNames.size();li++)
                         {
                             // Load all the data types together into memory at once
-                            std::string &layerName = localLayerNames[li];
+                            std::string layerName = localLayerNames[li];
                             std::string cellDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy) + "/";
 
-                            std::vector<OGRDataSource *> dataSources;
-                            std::vector<OGRFeature *> layerFeatures;
                             for (int di=0;di<MapnikConfig::SymbolDataUnknown;di++)
                             {
                                 const char *typeName = (di == MapnikConfig::SymbolDataPoint ? "_p" : ((di == MapnikConfig::SymbolDataLinear) ? "_l" : ((di == MapnikConfig::SymbolDataAreal) ? "_a" : "_u")));
@@ -1145,24 +1265,86 @@ int main(int argc, char * argv[])
                             }
                             
                             // Write the data out in our custom format
-                            try {
-                                if (!layerFeatures.empty())
-                                {
-                                    std::vector<unsigned char> vecData;
-                                    vectorDb->vectorToDBFormat(layerFeatures, vecData);
-                                    if (!vecData.empty())
-                                        vectorDb->addVectorTile(ix, iy, level, layerIDs[li], (const char *)&vecData[0], (int)vecData.size());
-                                }
-                            }
-                            catch (std::string &errorStr)
+                            if (!mergeLayers || (li == layerNames.size()-1))
                             {
-                                fprintf(stderr,"Unable to write tile %d: (%d,%d)\nBecause: %s\n",level,ix,iy,errorStr.c_str());
-                                return -1;
+                                try {
+                                    int layerID = 0;
+                                    std::string outLayerName = "";
+                                    if (!mergeLayers)
+                                    {
+                                        layerID = layerIDs[li];
+                                        outLayerName = layerName;
+                                    } else {
+                                        layerID = layerIDs[0];
+                                        outLayerName = "";
+                                    }
+                                    // Also write it out to the web DB if needed
+                                    std::string cellDir = (std::string)webDbDir + "/" + std::to_string(level) + "/" + std::to_string(ix) + "/";
+                                    std::string cellFileName = cellDir + std::to_string(iy) + outLayerName + ".mvt";
+
+                                    if (!layerFeatures.empty())
+                                    {
+                                        std::vector<unsigned char> vecData;
+                                        vectorDb->vectorToDBFormat(layerFeatures, vecData);
+                                        if (!vecData.empty())
+                                        {
+                                            vectorDb->addVectorTile(ix, iy, level, layerID, (const char *)&vecData[0], (int)vecData.size());
+                                            
+                                            if (webDbName)
+                                            {
+                                                void *compressOut;
+                                                int compressSize=0;
+                                                // Need to compress the tiles first
+                                                if (Maply::CompressData((void *)&vecData[0], (int)vecData.size(), &compressOut, compressSize))
+                                                {
+                                                    mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                                                    FILE *fp = fopen(cellFileName.c_str(),"w");
+                                                    if (!fp)
+                                                    {
+                                                        fprintf(stderr,"Failed to open file for write: %s\n",cellFileName.c_str());
+                                                        exit(-1);
+                                                    }
+                                                    if (fwrite(compressOut,compressSize,1,fp) != 1)
+                                                    {
+                                                        fprintf(stderr,"Failed to write to file: %s\n",cellFileName.c_str());
+                                                        exit(-1);
+                                                    }
+                                                    fclose(fp);
+                                                } else {
+                                                    fprintf(stderr,"Tile compression failed for %d: (%d,%d)\n",level,ix,iy);
+                                                    exit(-1);
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // If it is empty and we're writing a web DB we need to create an empty file
+                                        // This is dumb, yes.
+                                        if (level < maxLevelSeen-1)
+                                        {
+                                            if (webDbName)
+                                            {
+                                                mkdir(cellDir.c_str(),S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+                                                FILE *fp = fopen(cellFileName.c_str(),"w");
+                                                if (!fp)
+                                                {
+                                                    fprintf(stderr,"Failed to open file for write: %s\n",cellFileName.c_str());
+                                                    exit(-1);
+                                                }
+                                                fclose(fp);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (std::string &errorStr)
+                                {
+                                    fprintf(stderr,"Unable to write tile %d: (%d,%d)\nBecause: %s\n",level,ix,iy,errorStr.c_str());
+                                    return -1;
+                                }
+
+                                // Clean up the data sources
+                                for (unsigned int si=0;si<dataSources.size();si++)
+                                    OGRDataSource::DestroyDataSource(dataSources[si]);
                             }
-                            
-                            // Clean up the data sources
-                            for (unsigned int si=0;si<dataSources.size();si++)
-                                OGRDataSource::DestroyDataSource(dataSources[si]);
                         }
                         
                         cellsProcessed++;

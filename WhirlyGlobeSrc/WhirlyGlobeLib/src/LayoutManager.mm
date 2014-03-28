@@ -251,9 +251,9 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
     OverlapManager overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
-    Matrix4d modelTrans = viewState.fullMatrix;
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrix);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrix);
+    Matrix4d modelTrans = viewState.fullMatrices[0];
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrices[0]);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrices[0]);
     int numSoFar = 0;
     for (LayoutSortingSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
@@ -278,8 +278,19 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
         if (isActive)
         {
             // Figure out where this will land
-            CGPoint objPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->obj.dispLoc) transform:&modelTrans frameSize:frameBufferSize];
-            isActive = screenMbr.inside(Point2f(objPt.x,objPt.y));
+            bool isInside = false;
+            CGPoint objPt;
+            for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
+            {
+                Eigen::Matrix4d modelTrans = viewState.fullMatrices[offi];
+                CGPoint thisObjPt = [viewState pointOnScreenFromDisplay:Vector3fToVector3d(layoutObj->obj.dispLoc) transform:&modelTrans frameSize:frameBufferSize];
+                if (screenMbr.inside(Point2f(thisObjPt.x,thisObjPt.y)))
+                {
+                    isInside = true;
+                    objPt = thisObjPt;
+                }
+            }
+            isActive &= isInside;
             
             // Deal with the rotation
             if (layoutObj->obj.rotation != 0.0)
