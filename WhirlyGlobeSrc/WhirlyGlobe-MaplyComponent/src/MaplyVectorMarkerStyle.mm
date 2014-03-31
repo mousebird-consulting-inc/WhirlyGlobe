@@ -65,11 +65,14 @@
         if (styleEntry[@"allow-overlap"])
             subStyle->allowOverlap = [styleEntry[@"allow-overlap"] boolValue];
         float strokeWidth = 2.0;
+        NSString *fileName = nil;;
+        if (styleEntry[@"file"])
+            fileName = styleEntry[@"file"];
         
         subStyle->desc = [NSMutableDictionary dictionary];
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
-        subStyle->markerImage = [MaplyIconManager iconForName:nil size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
+        subStyle->markerImage = [MaplyIconManager iconForName:fileName size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
         
         [subStyles addObject:subStyle];
     }
