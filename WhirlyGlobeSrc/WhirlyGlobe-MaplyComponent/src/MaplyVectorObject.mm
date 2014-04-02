@@ -985,6 +985,12 @@ public:
     return vecObj;
 }
 
+
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape {
+  self.shapes.insert(shape);
+}
+
+
 @end
 
 @implementation MaplyVectorDatabase
