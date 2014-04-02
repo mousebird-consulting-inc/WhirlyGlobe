@@ -317,13 +317,13 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     WhirlyKit::LayoutObject layoutObj(shape->getId());
                     layoutObj.dispLoc = shape->worldLoc;
                     // Note: This means they won't take up space
-                    layoutObj.size = Point2f(0.0,0.0);
+                    layoutObj.size = Point2f(2*width2,2*height2);
                     layoutObj.iconSize = Point2f(0.0,0.0);
                     layoutObj.importance = marker.layoutImportance;
                     layoutObj.minVis = markerInfo.minVis;
                     layoutObj.maxVis = markerInfo.maxVis;
                     // No moving it around
-                    layoutObj.acceptablePlacement = 0;
+                    layoutObj.acceptablePlacement = 1;
                     layoutObj.enable = markerInfo.enable;
                     layoutObjects.push_back(layoutObj);
                     

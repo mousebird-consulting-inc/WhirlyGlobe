@@ -325,7 +325,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             // Now for the overlap checks
             if (isActive)
             {
-                // Try the four diffierent orientations
+                // Try the four different orientations
                 if (layoutObj->obj.size.x() != 0.0 && layoutObj->obj.size.y() != 0.0)
                 {
                     bool validOrient = false;
