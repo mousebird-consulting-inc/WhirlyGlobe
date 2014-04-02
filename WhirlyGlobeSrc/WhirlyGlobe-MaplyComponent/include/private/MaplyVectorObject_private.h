@@ -42,6 +42,7 @@ public:
 
 // Construct a vector object from the Vector DB raw format
 + (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data;
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape;
 
 @end
 
