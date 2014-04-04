@@ -96,6 +96,7 @@
         [subStyles addObject:subStyle];
     }
     
+    self.textField = @"name";
     return self;
 }
 
@@ -109,18 +110,18 @@
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            // Note: HACK!
-            label.text = vec.attributes[@"NAME"];
-            if (!label.text)
-                label.text = vec.attributes[@"name"];
-            MaplyCoordinate center = [vec center];
-            label.loc = center;
+            label.text = vec.attributes[self.textField];
+            
             if (label.text)
+            {
+                MaplyCoordinate center = [vec center];
+                label.loc = center;
                 [labels addObject:label];
-            label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
-            label.offset = CGPointMake(subStyle->dx, subStyle->dy);
-            label.layoutImportance = 1.0;
-            label.selectable = false;
+                label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
+                label.offset = CGPointMake(subStyle->dx, subStyle->dy);
+                label.layoutImportance = 1.0;
+                label.selectable = false;
+            }
         }
         
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];
