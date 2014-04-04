@@ -28,6 +28,7 @@
     UIImage *markerImage;
     float width;
     bool allowOverlap;
+    NSString *markerImageTemplate;
 }
 
 @end
@@ -68,11 +69,14 @@
         NSString *fileName = nil;;
         if (styleEntry[@"file"])
             fileName = styleEntry[@"file"];
-        
+      
         subStyle->desc = [NSMutableDictionary dictionary];
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
         
-        subStyle->markerImage = [MaplyIconManager iconForName:fileName size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
+        if([fileName rangeOfString:@"["].location == NSNotFound)
+            subStyle->markerImage = [MaplyIconManager iconForName:fileName size:CGSizeMake(4*settings.markerScale*subStyle->width, 4*settings.markerScale*subStyle->width) color:fillColor strokeSize:2*settings.markerScale*strokeWidth strokeColor:strokeColor];
+        else
+            subStyle->markerImageTemplate = fileName;
         
         [subStyles addObject:subStyle];
     }
@@ -90,14 +94,18 @@
         {
             MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
             marker.selectable = false;
-            marker.image = subStyle->markerImage;
-            marker.loc = [vec center];
-//            if (subStyle->allowOverlap)
-//                marker.layoutImportance = MAXFLOAT;
-//            else
+            if(subStyle->markerImage)
+                marker.image = subStyle->markerImage;
+            else
+                marker.image = [UIImage imageNamed:[self formatText:subStyle->markerImageTemplate
+                                                          forObject:vec]];
+            
+            if (marker.image) {
+                marker.loc = [vec center];
                 marker.layoutImportance = 2.0;
-            marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
-            [markers addObject:marker];
+                marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
+                [markers addObject:marker];
+            }
         }
     }
     
