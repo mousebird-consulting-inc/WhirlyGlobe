@@ -96,7 +96,7 @@
         [subStyles addObject:subStyle];
     }
     
-    self.textField = @"name";
+    self.textField = @"[name]";
     return self;
 }
 
@@ -110,8 +110,8 @@
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.text = vec.attributes[self.textField];
-            
+            label.text = [self formatText:self.textField forObject:vec];
+          
             if (label.text)
             {
                 MaplyCoordinate center = [vec center];
