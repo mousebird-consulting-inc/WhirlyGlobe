@@ -114,4 +114,32 @@ using namespace WhirlyKit;
     return nil;
 }
 
+
+- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
+{
+    NSError *error;
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
+                                                                      options:0
+                                                                        error:&error];
+    NSArray* matches = [regex matchesInString:formatString
+                                     options:0
+                                       range:NSMakeRange(0, formatString.length)];
+    
+    if(!matches.count) {
+        return formatString;
+    }
+    
+    NSDictionary *attributes = vec.attributes;
+    NSMutableString *result = [NSMutableString stringWithString:formatString];
+    for (int i=(int)matches.count-1; i>= 0; i--) {
+        NSTextCheckingResult* match = matches[i];
+        NSString *matchedStr = [formatString substringWithRange:NSMakeRange(match.range.location + 1,
+                                                                            match.range.length - 2)];
+        NSString *replacement = attributes[matchedStr]?:@"";
+        [result replaceCharactersInRange:match.range withString:replacement];
+    }
+    
+    return result;
+}
+
 @end
