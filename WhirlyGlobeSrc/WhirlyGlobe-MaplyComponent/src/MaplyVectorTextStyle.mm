@@ -123,7 +123,7 @@
                 label.selectable = false;
             }
         }
-        
+
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];
         if (compObj)
             [compObjs addObject:compObj];

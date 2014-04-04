@@ -102,10 +102,10 @@
             
             if (marker.image) {
                 marker.loc = [vec center];
-                if (subStyle->allowOverlap)
-                    marker.layoutImportance = MAXFLOAT;
-                else
-                    marker.layoutImportance = 1.0;
+//                if (subStyle->allowOverlap)
+//                    marker.layoutImportance = MAXFLOAT;
+//                else
+                marker.layoutImportance = 2.0;
                 marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
                 [markers addObject:marker];
             }
