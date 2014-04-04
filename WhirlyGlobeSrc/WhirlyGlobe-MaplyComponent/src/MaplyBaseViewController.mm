@@ -947,6 +947,15 @@ static const float PerfOutputDelay = 15.0;
     return (float)[visualView heightForMapScale:scale frame:frameSize];
 }
 
+
+- (float)currentMapZoom:(MaplyCoordinate)coordinate
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
+}
+
 - (UIImage *)snapshot
 {
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
@@ -957,5 +966,7 @@ static const float PerfOutputDelay = 15.0;
     
     return target.image;
 }
+
+
 
 @end

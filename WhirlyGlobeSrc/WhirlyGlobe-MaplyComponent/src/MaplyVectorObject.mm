@@ -24,6 +24,8 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
+#import "MaplyBaseViewController.mm"
+#import "MaplyViewController.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -456,6 +458,60 @@ public:
         }
     }
                 
+    return false;
+}
+
+//Fuzzy matching for selecting Linear features
+- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController*)vc
+{
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
+    {
+        VectorLinearRef linear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (linear)
+        {
+            GeoMbr geoMbr = linear->calcGeoMbr();
+            if(geoMbr.inside(GeoCoord(coord.x,coord.y)))
+            {
+                CGPoint p = [vc screenPointFromGeo:coord];
+                VectorRing pts = linear->pts;
+                float distance;
+                for (int ii=0;ii<pts.size()-1;ii++)
+                {
+                    distance = MAXFLOAT;
+                    Point2f p0 = pts[ii];
+                    MaplyCoordinate pc;
+                    pc.x = p0.x();
+                    pc.y = p0.y();
+                    CGPoint a = [vc screenPointFromGeo:pc];
+
+                    Point2f p1 = pts[ii + 1];
+                    pc.x = p1.x();
+                    pc.y = p1.y();
+                    CGPoint b = [vc screenPointFromGeo:pc];
+                    
+                    CGPoint aToP = CGPointMake(a.x - p.x, a.y - p.y);
+                    CGPoint aToB = CGPointMake(a.x - b.x, a.y - b.y);
+                    double aToBMagitude = pow(hypot(aToB.x, aToB.y), 2);
+                    double dot = aToP.x * aToB.x + aToP.y * aToB.y;
+                    double d = dot/aToBMagitude;
+                    
+                    if(d < 0)
+                    {
+                        distance = hypot(p.x - a.x, p.y - a.y);
+                    } else if(d > 1) {
+                        distance = hypot(p.x - b.x, p.y - b.y);
+                    } else {
+                        distance = hypot(p.x - a.x + (aToB.x * d),
+                                         p.y - a.y + (aToB.y * d));
+                    }
+                    
+                    if (distance < maxDistance)
+                        return true;
+                }
+            }
+        }
+    }
+    
     return false;
 }
 
@@ -928,6 +984,12 @@ public:
     
     return vecObj;
 }
+
+
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape {
+  self.shapes.insert(shape);
+}
+
 
 @end
 

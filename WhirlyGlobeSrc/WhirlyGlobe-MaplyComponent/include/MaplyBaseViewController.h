@@ -593,8 +593,15 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
   */
 - (float)heightForMapScale:(float)scale;
 
+/** @brief Return the current map zoom from the viewpoint.
+ @details Calculate the map zoom (TMS) based on the current screen size and the 3D viewport.
+*/
+- (float)currentMapZoom:(MaplyCoordinate)coordinate;
+ 
 /** @brief Takes a snapshot of the current OpenGL view and returns it.
-  */
+ @param coordinate the location to calculate for. This is needed because zoom is dependant on latitude.
+ @return Returns the map zoom or MAXFLOAT if the system is not yet initialized.
+*/
 - (UIImage *)snapshot;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
