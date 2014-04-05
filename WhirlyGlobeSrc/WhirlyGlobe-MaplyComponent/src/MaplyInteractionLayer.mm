@@ -54,7 +54,7 @@ using namespace WhirlyGlobe;
     
     layerThread = inLayerThread;
     scene = (Maply::MapScene *)inScene;
-    userObjects = [NSMutableArray array];
+    userObjects = [NSMutableSet set];
 }
 
 - (void)dealloc

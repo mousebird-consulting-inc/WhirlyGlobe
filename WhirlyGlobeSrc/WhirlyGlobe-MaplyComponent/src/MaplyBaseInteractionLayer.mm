@@ -146,7 +146,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 {
     layerThread = inLayerThread;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
-    userObjects = [NSMutableArray array];    
+    userObjects = [NSMutableSet set];
 }
 
 - (void)shutdown
