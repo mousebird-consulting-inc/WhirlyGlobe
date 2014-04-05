@@ -100,36 +100,45 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     for (MaplyVectorTileSubStyleText *subStyle in subStyles)
     {
         // One label per object
         NSMutableArray *labels = [NSMutableArray array];
-        for (MaplyVectorObject *vec in vecObjs)
+        MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+        label.text = [self formatText:self.textField forAttributes:attributes];
+        
+        if (label.text)
         {
-            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.text = [self formatText:self.textField forObject:vec];
-          
-            if (label.text)
-            {
-                MaplyCoordinate center = [vec center];
-                label.loc = center;
-                [labels addObject:label];
-                label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
-                label.offset = CGPointMake(subStyle->dx, subStyle->dy);
-                label.layoutImportance = 1.0;
-                label.selectable = false;
-            }
+            MaplyCoordinate center = [vecObj center];
+            label.loc = center;
+            [labels addObject:label];
+            label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
+            label.offset = CGPointMake(subStyle->dx, subStyle->dy);
+            label.layoutImportance = 1.0;
+            label.selectable = false;
         }
-
+        
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc];
         if (compObj)
             [compObjs addObject:compObj];
     }
-
+    
     return compObjs;
+}
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+{
+  NSMutableArray *compObjs = [NSMutableArray array];
+  for(MaplyVectorObject *vecObj in vecObjs)
+  {
+    NSArray *vecObjComps = [self buildObject:vecObj attributes:vecObj.attributes viewC:viewC];
+    if(vecObjComps.count)
+      [compObjs addObjectsFromArray:vecObjComps];
+  }
+  return compObjs;
 }
 
 @end

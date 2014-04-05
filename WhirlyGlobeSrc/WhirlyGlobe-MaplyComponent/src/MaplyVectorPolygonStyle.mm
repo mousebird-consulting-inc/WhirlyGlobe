@@ -101,4 +101,30 @@
     return compObjs;
 }
 
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC
+{
+//Yes, this is repeated, but it seems worthwhile to avoid the performace hit of calling one version from the other
+    MaplyComponentObject *baseObj = nil;
+    NSMutableArray *compObjs = [NSMutableArray array];
+    for (NSDictionary *desc in subStyles)
+    {
+        MaplyComponentObject *compObj = nil;
+        if (!baseObj)
+        {
+            // Tesselate everything here, rather than tying up the layer thread
+            NSMutableArray *tessObjs = [NSMutableArray array];
+            MaplyVectorObject *tessVec = [vecObj tesselate];
+            if (tessVec)
+                [tessObjs addObject:tessVec];
+            
+            baseObj = compObj = [viewC addVectors:tessObjs desc:desc];
+        } else {
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
+        }
+        if (compObj)
+            [compObjs addObject:compObj];
+    }
+    
+    return compObjs;}
+
 @end

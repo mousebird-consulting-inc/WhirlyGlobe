@@ -84,31 +84,28 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC
 {
     // One marker per object
     NSMutableArray *markers = [NSMutableArray array];
     for (MaplyVectorTileSubStyleMarker *subStyle in subStyles)
     {
-        for (MaplyVectorObject *vec in vecObjs)
-        {
-            MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-            marker.selectable = false;
-            if(subStyle->markerImage)
-                marker.image = subStyle->markerImage;
-            else
-                marker.image = [UIImage imageNamed:[self formatText:subStyle->markerImageTemplate
-                                                          forObject:vec]];
-            
-            if (marker.image) {
-                marker.loc = [vec center];
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.selectable = false;
+        if(subStyle->markerImage)
+            marker.image = subStyle->markerImage;
+        else
+            marker.image = [UIImage imageNamed:[self formatText:subStyle->markerImageTemplate
+                                                      forAttributes:attributes]];
+        
+        if (marker.image) {
+            marker.loc = [vecObj center];
 //                if (subStyle->allowOverlap)
 //                    marker.layoutImportance = MAXFLOAT;
 //                else
-                marker.layoutImportance = 2.0;
-                marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
-                [markers addObject:marker];
-            }
+            marker.layoutImportance = 2.0;
+            marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->width);
+            [markers addObject:marker];
         }
     }
     
@@ -116,7 +113,19 @@
     if (compObj)
         return @[compObj];
     
-    return nil;
+    return @[];
+}
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+{
+    NSMutableArray *compObjs = [NSMutableArray array];
+    for(MaplyVectorObject *vecObj in vecObjs)
+    {
+        NSArray *vecObjComps = [self buildObject:vecObj attributes:vecObj.attributes viewC:viewC];
+        if(vecObjComps.count)
+            [compObjs addObjectsFromArray:vecObjComps];
+    }
+    return compObjs;
 }
 
 @end

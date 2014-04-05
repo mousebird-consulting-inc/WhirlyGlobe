@@ -63,8 +63,11 @@
 /// @brief Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 
+/// @brief Construct an object related to this style based on the input data.
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC;
+
 /// @brief parse a mapnik style template string
-- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
+- (NSString*)formatText:(NSString*)formatString forAttributes:(NSDictionary*)attributes;
 
 /// @brief The view controller we're constructing objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;

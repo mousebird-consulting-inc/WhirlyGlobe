@@ -78,6 +78,11 @@
     return self;
 }
 
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC
+{
+    return [self buildObjects:@[vecObj] viewC:viewC];
+}
+
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
     MaplyComponentObject *baseObj = nil;

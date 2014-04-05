@@ -109,13 +109,17 @@ using namespace WhirlyKit;
     }
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC
 {
     return nil;
 }
 
+- (NSArray*)buildObject:(MaplyVectorObject*)vecObj attributes:(NSDictionary*)attributes viewC:(MaplyBaseViewController *)viewC
+{
+    return nil;
+}
 
-- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
+- (NSString*)formatText:(NSString*)formatString forAttributes:(NSDictionary*)attributes
 {
     NSError *error;
     NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
@@ -129,7 +133,6 @@ using namespace WhirlyKit;
         return formatString;
     }
     
-    NSDictionary *attributes = vec.attributes;
     NSMutableString *result = [NSMutableString stringWithString:formatString];
     for (int i=(int)matches.count-1; i>= 0; i--) {
         NSTextCheckingResult* match = matches[i];
