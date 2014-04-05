@@ -39,7 +39,6 @@ public:
 @interface MaplyVectorObject()
 
 @property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
-@property (nonatomic,readwrite) NSDictionary *attributes;
 
 // Construct a vector object from the Vector DB raw format
 + (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data;
