@@ -67,8 +67,7 @@
                  kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                  kMaplyEnable: @(NO),
-                  kMaplyFade: @(0.0),
-                  kMaplySelectable: @(NO)
+                  kMaplyFade: @(0.0)
                  }];
         [self resolveVisibility:styleEntry settings:settings desc:desc];
 

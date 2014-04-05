@@ -847,7 +847,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
     
     // If the vectors are selectable we want to keep them around
     id selVal = inDesc[@"selectable"];
-    if (!selVal || [selVal boolValue])
+    if (selVal && [selVal boolValue])
         compObj.vectors = vectors;
     
     pthread_mutex_lock(&userLock);

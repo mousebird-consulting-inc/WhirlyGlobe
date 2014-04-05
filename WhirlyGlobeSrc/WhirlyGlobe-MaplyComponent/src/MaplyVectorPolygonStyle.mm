@@ -62,8 +62,7 @@
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
                  kMaplyFilled: @(YES),
-                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
-                  kMaplySelectable: @(NO)
+                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault)
                  }];
         [self resolveVisibility:styleEntry settings:settings desc:desc];
         [subStyles addObject:desc];
