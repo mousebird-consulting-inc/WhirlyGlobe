@@ -260,6 +260,16 @@
 		881F66D118F20A8F00D17110 /* wire_format_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F668018F20A8F00D17110 /* wire_format_lite.cc */; };
 		881F66D218F20A8F00D17110 /* wire_format_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F668118F20A8F00D17110 /* wire_format_lite.h */; };
 		881F66D318F20A8F00D17110 /* wire_format_lite_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F668218F20A8F00D17110 /* wire_format_lite_inl.h */; };
+		8894574318F20D2800FE60E7 /* MaplyMapnikVectorTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8894573E18F20D2800FE60E7 /* MaplyMapnikVectorTiles.mm */; };
+		8894574418F20D2800FE60E7 /* MapnikStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894573F18F20D2800FE60E7 /* MapnikStyle.m */; };
+		8894574518F20D2800FE60E7 /* MapnikStyleRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894574018F20D2800FE60E7 /* MapnikStyleRule.m */; };
+		8894574618F20D2800FE60E7 /* MapnikXmlStyle.m in Sources */ = {isa = PBXBuildFile; fileRef = 8894574118F20D2800FE60E7 /* MapnikXmlStyle.m */; };
+		8894574718F20D2800FE60E7 /* vector_tile.pb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */; };
+		8894574D18F20D4200FE60E7 /* MaplyMapnikVectorTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574818F20D4200FE60E7 /* MaplyMapnikVectorTiles.h */; };
+		8894574E18F20D4200FE60E7 /* MapnikStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574918F20D4200FE60E7 /* MapnikStyle.h */; };
+		8894574F18F20D4200FE60E7 /* MapnikStyleRule.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */; };
+		8894575018F20D4200FE60E7 /* MapnikXmlStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574B18F20D4200FE60E7 /* MapnikXmlStyle.h */; };
+		8894575118F20D4200FE60E7 /* vector_tile.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574C18F20D4200FE60E7 /* vector_tile.pb.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -528,6 +538,16 @@
 		881F668018F20A8F00D17110 /* wire_format_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wire_format_lite.cc; sourceTree = "<group>"; };
 		881F668118F20A8F00D17110 /* wire_format_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wire_format_lite.h; sourceTree = "<group>"; };
 		881F668218F20A8F00D17110 /* wire_format_lite_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wire_format_lite_inl.h; sourceTree = "<group>"; };
+		8894573E18F20D2800FE60E7 /* MaplyMapnikVectorTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyMapnikVectorTiles.mm; path = src/MaplyMapnikVectorTiles.mm; sourceTree = "<group>"; };
+		8894573F18F20D2800FE60E7 /* MapnikStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapnikStyle.m; path = src/MapnikStyle.m; sourceTree = "<group>"; };
+		8894574018F20D2800FE60E7 /* MapnikStyleRule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapnikStyleRule.m; path = src/MapnikStyleRule.m; sourceTree = "<group>"; };
+		8894574118F20D2800FE60E7 /* MapnikXmlStyle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MapnikXmlStyle.m; path = src/MapnikXmlStyle.m; sourceTree = "<group>"; };
+		8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vector_tile.pb.cpp; path = src/vector_tile.pb.cpp; sourceTree = "<group>"; };
+		8894574818F20D4200FE60E7 /* MaplyMapnikVectorTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyMapnikVectorTiles.h; path = include/MaplyMapnikVectorTiles.h; sourceTree = "<group>"; };
+		8894574918F20D4200FE60E7 /* MapnikStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyle.h; path = include/MapnikStyle.h; sourceTree = "<group>"; };
+		8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleRule.h; path = include/MapnikStyleRule.h; sourceTree = "<group>"; };
+		8894574B18F20D4200FE60E7 /* MapnikXmlStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikXmlStyle.h; path = include/MapnikXmlStyle.h; sourceTree = "<group>"; };
+		8894574C18F20D4200FE60E7 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector_tile.pb.h; path = include/vector_tile.pb.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -750,20 +770,30 @@
 		2B3836BF1877876A00467ABD /* Vector Tiles */ = {
 			isa = PBXGroup;
 			children = (
-				2B3836C11877877D00467ABD /* MaplyVectorTiles.h */,
-				2B3836C31877878400467ABD /* MaplyVectorTiles.mm */,
 				2B760C9D1881D68C006FE98B /* MaplyIconManager.h */,
 				2B760CA01881D696006FE98B /* MaplyIconManager.mm */,
-				2B96D36518AAE81F00999E24 /* MaplyVectorStyle.h */,
-				2B96D36718AAE82700999E24 /* MaplyVectorStyle.mm */,
+				8894574818F20D4200FE60E7 /* MaplyMapnikVectorTiles.h */,
+				8894573E18F20D2800FE60E7 /* MaplyMapnikVectorTiles.mm */,
 				2B96D35318A9AC1600999E24 /* MaplyVectorLineStyle.h */,
 				2B96D35C18A9AC2600999E24 /* MaplyVectorLineStyle.mm */,
 				2B96D35418A9AC1600999E24 /* MaplyVectorMarkerStyle.h */,
 				2B96D35D18A9AC2600999E24 /* MaplyVectorMarkerStyle.mm */,
 				2B96D35518A9AC1600999E24 /* MaplyVectorPolygonStyle.h */,
 				2B96D35E18A9AC2600999E24 /* MaplyVectorPolygonStyle.mm */,
+				2B96D36518AAE81F00999E24 /* MaplyVectorStyle.h */,
+				2B96D36718AAE82700999E24 /* MaplyVectorStyle.mm */,
 				2B96D35618A9AC1600999E24 /* MaplyVectorTextStyle.h */,
 				2B96D35F18A9AC2600999E24 /* MaplyVectorTextStyle.mm */,
+				2B3836C11877877D00467ABD /* MaplyVectorTiles.h */,
+				2B3836C31877878400467ABD /* MaplyVectorTiles.mm */,
+				8894574918F20D4200FE60E7 /* MapnikStyle.h */,
+				8894573F18F20D2800FE60E7 /* MapnikStyle.m */,
+				8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */,
+				8894574018F20D2800FE60E7 /* MapnikStyleRule.m */,
+				8894574B18F20D4200FE60E7 /* MapnikXmlStyle.h */,
+				8894574118F20D2800FE60E7 /* MapnikXmlStyle.m */,
+				8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */,
+				8894574C18F20D4200FE60E7 /* vector_tile.pb.h */,
 			);
 			name = "Vector Tiles";
 			sourceTree = "<group>";
@@ -1064,6 +1094,7 @@
 				881F66C018F20A8F00D17110 /* platform_macros.h in Headers */,
 				2B897A6E15BB59F300250F23 /* WhirlyGlobeComponent.h in Headers */,
 				2B897A6F15BB59F300250F23 /* WhirlyGlobeViewController.h in Headers */,
+				8894575118F20D4200FE60E7 /* vector_tile.pb.h in Headers */,
 				881F668F18F20A8F00D17110 /* generated_enum_reflection.h in Headers */,
 				881F668718F20A8F00D17110 /* descriptor.pb.h in Headers */,
 				881F66D318F20A8F00D17110 /* wire_format_lite_inl.h in Headers */,
@@ -1097,6 +1128,7 @@
 				881F66B218F20A8F00D17110 /* atomicops_internals_atomicword_compat.h in Headers */,
 				881F66B718F20A8F00D17110 /* atomicops_internals_x86_gcc.h in Headers */,
 				881F669518F20A8F00D17110 /* coded_stream.h in Headers */,
+				8894574E18F20D4200FE60E7 /* MapnikStyle.h in Headers */,
 				881F669918F20A8F00D17110 /* package_info.h in Headers */,
 				2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */,
 				881F669618F20A8F00D17110 /* coded_stream_inl.h in Headers */,
@@ -1141,6 +1173,7 @@
 				2B37059A16B1E6040096C970 /* MaplySphericalQuadEarthWithTexGroup_private.h in Headers */,
 				2B760C9E1881D68C006FE98B /* MaplyIconManager.h in Headers */,
 				2B789F75185B8C950028E027 /* SMCalloutView.h in Headers */,
+				8894574F18F20D4200FE60E7 /* MapnikStyleRule.h in Headers */,
 				2BB7FB4F16B9AD050017EB2F /* MaplyLight.h in Headers */,
 				2B2E2FF816C4885800CAD143 /* MaplyShader.h in Headers */,
 				2BACF3F416C4B94A00C7A4AC /* MaplyShader_private.h in Headers */,
@@ -1173,6 +1206,7 @@
 				2B0D630117A2EDA300C3298D /* DDXMLElementAdditions.h in Headers */,
 				2BBDFED9188EFD5B00AE4CEB /* AFPropertyListRequestOperation.h in Headers */,
 				2BBDFECE188EFD5B00AE4CEB /* AFHTTPClient.h in Headers */,
+				8894574D18F20D4200FE60E7 /* MaplyMapnikVectorTiles.h in Headers */,
 				2B0D630317A2EDA300C3298D /* NSString+DDXML.h in Headers */,
 				2B0D630517A2EDA300C3298D /* DDXML.h in Headers */,
 				2B0D630617A2EDA300C3298D /* DDXMLDocument.h in Headers */,
@@ -1186,6 +1220,7 @@
 				2BC988E617D793F30071DA9E /* MaplyAnimationTestTileSource.h in Headers */,
 				2BC988E717D793F30071DA9E /* MaplyRemoteTileSource.h in Headers */,
 				2BC988E817D793F30071DA9E /* MaplyMBTileSource.h in Headers */,
+				8894575018F20D4200FE60E7 /* MapnikXmlStyle.h in Headers */,
 				2BC9896E17D93EA60071DA9E /* MaplyMultiplexTileSource.h in Headers */,
 				2BC989C117DC1F130071DA9E /* NSData+Zlib.h in Headers */,
 				2BC989C517DC214E0071DA9E /* MaplyElevationDatabase.h in Headers */,
@@ -1284,6 +1319,7 @@
 				2B897A8D15BC6BF000250F23 /* MaplyComponentObject.mm in Sources */,
 				2BAC290E184D571B00FD14FD /* MaplyGDALRetileSource.mm in Sources */,
 				2BBAA90A181EEE3F00BE1277 /* MaplyBillboard.mm in Sources */,
+				8894574318F20D2800FE60E7 /* MaplyMapnikVectorTiles.mm in Sources */,
 				881F669C18F20A8F00D17110 /* tokenizer.cc in Sources */,
 				2B4AFB8F18031C2B00C3F948 /* MaplyQuadImageOfflineLayer.mm in Sources */,
 				2B897A8F15BC6C7B00250F23 /* PanDelegateFixed.mm in Sources */,
@@ -1296,6 +1332,7 @@
 				2B97AFF117E3D6D700D4B33D /* FMResultSet.m in Sources */,
 				2BB9E01F15BF9EF200F1DDD8 /* MaplyLabel.m in Sources */,
 				881F668818F20A8F00D17110 /* descriptor_database.cc in Sources */,
+				8894574518F20D2800FE60E7 /* MapnikStyleRule.m in Sources */,
 				2BBDFEDE188EFD5B00AE4CEB /* AFXMLRequestOperation.m in Sources */,
 				2BB9E02015BF9EF200F1DDD8 /* MaplyMarker.m in Sources */,
 				2BEBABAB1811F65700A9419C /* MaplyTileSource.mm in Sources */,
@@ -1322,6 +1359,7 @@
 				881F669E18F20A8F00D17110 /* zero_copy_stream.cc in Sources */,
 				2BBDFEE0188EFD5B00AE4CEB /* UIImageView+AFNetworking.m in Sources */,
 				2BBDFED1188EFD5B00AE4CEB /* AFHTTPRequestOperation.m in Sources */,
+				8894574418F20D2800FE60E7 /* MapnikStyle.m in Sources */,
 				881F66A018F20A8F00D17110 /* zero_copy_stream_impl.cc in Sources */,
 				2BD115961615E16900A4BF5D /* MaplyShape.mm in Sources */,
 				881F669018F20A8F00D17110 /* generated_message_reflection.cc in Sources */,
@@ -1352,6 +1390,7 @@
 				2B97AFF017E3D6D400D4B33D /* FMDatabaseQueue.m in Sources */,
 				881F669A18F20A8F00D17110 /* printer.cc in Sources */,
 				2BBDFED5188EFD5B00AE4CEB /* AFJSONRequestOperation.m in Sources */,
+				8894574618F20D2800FE60E7 /* MapnikXmlStyle.m in Sources */,
 				881F66AD18F20A8F00D17110 /* service.cc in Sources */,
 				2B789F76185B8C950028E027 /* SMCalloutView.m in Sources */,
 				2B0D630717A2EDA300C3298D /* DDXMLDocument.m in Sources */,
@@ -1359,6 +1398,7 @@
 				2B0D630B17A2EDA300C3298D /* DDXMLNode.m in Sources */,
 				2BB54EED17CFABEA0065451F /* MaplyElevationSource.mm in Sources */,
 				2BC988EC17D794010071DA9E /* MaplyAnimationTestTileSource.m in Sources */,
+				8894574718F20D2800FE60E7 /* vector_tile.pb.cpp in Sources */,
 				2BC988ED17D794010071DA9E /* MaplyRemoteTileSource.mm in Sources */,
 				2BC988EE17D794010071DA9E /* MaplyMBTileSource.mm in Sources */,
 				2B760CA11881D696006FE98B /* MaplyIconManager.mm in Sources */,
