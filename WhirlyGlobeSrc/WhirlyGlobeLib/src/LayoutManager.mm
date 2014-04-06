@@ -255,13 +255,19 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
     Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrices[0]);
     Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrices[0]);
     int numSoFar = 0;
+    bool isActive;
+    Point2f objOffset(0.0,0.0);
+    float screenRot;
+    LayoutObjectEntry *layoutObj;
+    std::vector<Point2f> objPts(4);
+
     for (LayoutSortingSet::iterator it = layoutObjs.begin();
          it != layoutObjs.end(); ++it)
     {
-        LayoutObjectEntry *layoutObj = *it;
+        layoutObj = *it;
         
         // Start with a max objects check
-        bool isActive = true;
+        isActive = true;
         if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
             isActive = false;
         // Start with a back face check
@@ -270,10 +276,9 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
             // Make sure this one is facing toward the viewer
             isActive = CheckPointAndNormFacing(layoutObj->obj.dispLoc,layoutObj->obj.dispLoc.normalized(),fullMatrix4f,fullNormalMatrix4f) > 0.0;
         }
-        Point2f objOffset(0.0,0.0);
         
         // Figure out the rotation situation
-        float screenRot = 0.0;
+        screenRot = 0.0;
         Matrix2f screenRotMat;
         if (isActive)
         {
@@ -357,7 +362,6 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         }
                         
                         // Rotate the rectangle
-                        std::vector<Point2f> objPts(4);
                         if (screenRot == 0.0)
                         {
                             objPts[0] = Point2f(objPt.x,objPt.y) + objOffset*resScale;
