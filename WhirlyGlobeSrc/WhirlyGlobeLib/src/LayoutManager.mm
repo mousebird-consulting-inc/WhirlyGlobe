@@ -334,7 +334,7 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                 if (layoutObj->obj.size.x() != 0.0 && layoutObj->obj.size.y() != 0.0)
                 {
                     bool validOrient = false;
-                    for (unsigned int orient=0;orient<4;orient++)
+                    for (unsigned int orient=0;orient<5;orient++)
                     {
                         // May only want to be placed certain ways.  Fair enough.
                         if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
@@ -343,20 +343,24 @@ void LayoutManager::runLayoutRules(WhirlyKitViewState *viewState)
                         // Set up the offset for this orientation
                         switch (orient)
                         {
-                                // Right
+                                //center
                             case 0:
+                                objOffset = Point2f(-layoutObj->obj.size.x()/2.0,0.0);
+                                break;
+                                // Right
+                            case 1:
                                 objOffset = Point2f(layoutObj->obj.iconSize.x(),0.0);
                                 break;
                                 // Left
-                            case 1:
+                            case 2:
                                 objOffset = Point2f(-(layoutObj->obj.size.x()+layoutObj->obj.iconSize.x()/2.0),0.0);
                                 break;
                                 // Above
-                            case 2:
+                            case 3:
                                 objOffset = Point2f(-layoutObj->obj.size.x()/2.0,-(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
                                 break;
                                 // Below
-                            case 3:
+                            case 4:
                                 objOffset = Point2f(-layoutObj->obj.size.x()/2.0,(layoutObj->obj.size.y()+layoutObj->obj.iconSize.y())/2.0);
                                 break;
                         }
