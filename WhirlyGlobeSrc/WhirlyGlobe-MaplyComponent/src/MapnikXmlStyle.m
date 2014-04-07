@@ -158,6 +158,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     if(currentRule.maxScaleDenomitator != 0) {
       mutableAttributes[@"maxscaledenom"] = @(currentRule.maxScaleDenomitator);
     }
+    mutableAttributes[@"drawpriority"] = @(symbolizerId);
     attributeDict = mutableAttributes;
   }
   
