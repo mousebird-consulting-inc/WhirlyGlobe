@@ -611,13 +611,7 @@ using namespace WhirlyKit;
     if (it != tileSet.end())
     {
         LoadedTile *theTile = *it;
-        
-        // Note: Debugging check
-        std::vector<Quadtree::Identifier> childIDs;
-        layer.quadtree->childrenForNode(theTile->nodeInfo.ident, childIDs);
-        if (childIDs.size() > 0)
-            NSLog(@" *** Deleting node with children *** ");
-        
+                
         theTile->clearContents(tileBuilder,changeRequests);
         tileSet.erase(it);
         delete theTile;
