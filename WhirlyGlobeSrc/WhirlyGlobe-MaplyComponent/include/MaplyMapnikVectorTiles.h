@@ -61,6 +61,5 @@ typedef enum {
 
 - (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource;
 - (instancetype) initWithTileSources:(NSArray*)tileSources;
-- (void)setMaxConcurrentOperationCount:(NSUInteger)count;
 
 @end

@@ -41,7 +41,6 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
 @interface MaplyMapnikVectorTiles ()
-@property (nonatomic, strong) NSOperationQueue *queue;
 @property (nonatomic, strong, readwrite) NSArray *tileSources;
 
 @end
@@ -54,9 +53,6 @@ static double MAX_EXTENT = 20037508.342789244;
   self = [super init];
   if(self) {
     self.tileSources = tileSources;
-    self.queue = [[NSOperationQueue alloc] init];
-    self.queue.maxConcurrentOperationCount = 2;
-    self.queue.name = @"MaplyMapnikVectorTiles parsing queue";
   }
   return self;
 }
@@ -67,15 +63,10 @@ static double MAX_EXTENT = 20037508.342789244;
 }
 
 
-- (void)setMaxConcurrentOperationCount:(NSUInteger)count {
-  self.queue.maxConcurrentOperationCount = count;
-}
-
-
 #pragma mark - MaplyPagingDelegate
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer {
   //NSLog(@"MVTTiles startFetchForTile: %d/%d/%d",tileID.level,tileID.x,tileID.y);
-  [self.queue addOperationWithBlock:^{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
     MaplyTileID flippedTile = tileWithFlippedY(tileID);
@@ -431,7 +422,7 @@ static double MAX_EXTENT = 20037508.342789244;
           (unsigned long)components.count, featureCount,
           flippedTile.level, flippedTile.x, flippedTile.y,
           duration);
-  }];
+  });
 }
 
 
