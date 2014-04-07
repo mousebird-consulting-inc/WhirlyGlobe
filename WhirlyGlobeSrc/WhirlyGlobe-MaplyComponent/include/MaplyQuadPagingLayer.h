@@ -89,6 +89,25 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys delegate:(NSObject<MaplyPagingDelegate> *)tileSource;
 
+/** @brief Use the target zoom level shortcut when possible.
+    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
+    @details It's on by default and will activate only when this layer's coordinate system is the same as the display system and there's no view matrix (e.g. tilt) set.
+ */
+@property (nonatomic) bool useTargetZoomLevel;
+
+/** @brief Only load a single level at a time.
+    @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.
+ */
+@property (nonatomic) bool singleLevelLoading;
+
+/** @brief The target zoom level for this layer given the current view settings.
+    @details Calculates the target zoom level for the middle of the screen.
+    @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
+    @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
+ */
+- (int)targetZoomLevel;
+
 /** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
     @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
     @details The call is thread safe.
