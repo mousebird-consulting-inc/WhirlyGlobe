@@ -29,7 +29,7 @@
         return nil;
     
     _selectable = true;
-    _justify = MaplyLabelJustiyMiddle;
+    _justify = MaplyLabelJustifyMiddle;
     
     return self;
 }

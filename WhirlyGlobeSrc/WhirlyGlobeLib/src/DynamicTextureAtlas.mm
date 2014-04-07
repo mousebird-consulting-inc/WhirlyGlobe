@@ -402,15 +402,27 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             DynamicTextureVec *texVec = *it;
             DynamicTexture *tex = texVec->at(0);
             tex->getNumRegions()--;
-            if (tex->getNumRegions() == 0)
-            {
-                for (unsigned int ii=0;ii<texVec->size();ii++)
-                    changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
-                delete texVec;
-                textures.erase(it);
-                // Note: Debugging
-//                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
-            }
+        }
+    }
+}
+    
+void DynamicTextureAtlas::cleanup(ChangeSet &changes)
+{
+    DynamicTextureSet::iterator itNext;
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
+    {
+        itNext = it;
+        ++itNext;
+        DynamicTextureVec *texVec = *it;
+        DynamicTexture *tex = texVec->at(0);
+        if (tex->getNumRegions() == 0)
+        {
+            for (unsigned int ii=0;ii<texVec->size();ii++)
+                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+            delete texVec;
+            textures.erase(it);
+            // Note: Debugging
+            //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
 }

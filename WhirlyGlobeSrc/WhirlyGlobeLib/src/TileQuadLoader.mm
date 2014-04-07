@@ -259,6 +259,10 @@ using namespace WhirlyKit;
 // Make all the various parents update their child geometry
 - (void)refreshParents:(WhirlyKitQuadDisplayLayer *)layer
 {
+    // If we're in single level mode we don't bother with this
+    if (_quadLayer.targetLevel != -1)
+        return;
+    
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
          it != parents.end(); ++it)
@@ -296,6 +300,7 @@ using namespace WhirlyKit;
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
             tileBuilder->drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
+            tileBuilder->texAtlas->cleanup(changeRequests);
         }
     }
 
@@ -377,6 +382,10 @@ using namespace WhirlyKit;
 // Check if we're in the process of loading the given tile
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    // For single level mode, you can always do this
+    if (layer.targetLevel != -1)
+        return true;
+    
     LoadedTile *tile = [self getTile:tileInfo.ident];
     if (!tile)
         return false;
@@ -452,6 +461,7 @@ using namespace WhirlyKit;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
+        tileBuilder->singleLevel = _quadLayer.targetLevel;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -562,7 +572,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0)
+    if (level > 0 && _quadLayer.targetLevel == -1)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
@@ -617,7 +627,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
-    if (tileInfo.ident.level > 0)
+    if (tileInfo.ident.level > 0 && layer.targetLevel == -1)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
     
     [self updateTexAtlasMapping];
