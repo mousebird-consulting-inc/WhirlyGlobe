@@ -185,7 +185,11 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         const BasicDrawable::TexInfo &thisTexInfo = texInfo[ii];
         GLuint glTexID = 0;
         if (thisTexInfo.texId != EmptyIdentity)
+        {
             glTexID = scene->getGLTexture(thisTexInfo.texId);
+//            if (!glTexID)
+//                NSLog(@"Missing texture");
+        }
         glTexIDs.push_back(glTexID);
     }
     

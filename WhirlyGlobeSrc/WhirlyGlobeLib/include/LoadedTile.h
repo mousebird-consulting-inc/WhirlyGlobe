@@ -219,6 +219,9 @@ public:
     
     // Set when we create new drawables
     bool newDrawables;
+    
+    // Set if we're in single level mode.  That is, we're only trying to display a single level.
+    int singleLevel;
 };
     
 /** The Loaded Tile is used to track tiles that have been
@@ -258,6 +261,8 @@ public:
     bool placeholder;
     /// Set if this tile is in the process of loading
     bool isLoading;
+    /// Set if we skipped this tile (in flat mode)
+    bool isUnknown;
     // DrawID for this parent tile
     WhirlyKit::SimpleIdentity drawId;
     // Optional ID for the skirts
