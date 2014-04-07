@@ -119,6 +119,7 @@ using namespace WhirlyKit;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
+    _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
     _animationWrap = true;
@@ -487,12 +488,13 @@ using namespace WhirlyKit;
             return;
         }
         // We happen to store tilt in the view matrix.
-        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
-        if (!viewMat.isIdentity())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
+        // Note: Fix this.  This won't detect tilt
+//        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
+//        if (!viewMat.isIdentity())
+//        {
+//            canShortCircuitImportance = false;
+//            return;
+//        }
         // The tile source coordinate system must be the same as the display's system
         if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
         {
@@ -502,6 +504,8 @@ using namespace WhirlyKit;
         
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = [self targetZoomLevel];
+        if (_singleLevelLoading)
+            quadLayer.targetLevel = maxShortCircuitLevel;
     } else {
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;
