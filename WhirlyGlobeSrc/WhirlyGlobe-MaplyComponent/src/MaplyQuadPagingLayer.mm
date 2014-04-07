@@ -141,6 +141,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Tiles we've loaded or are loading
     pthread_mutex_t tileSetLock;
     QuadPagingLoadedTileSet tileSet;
+    bool canShortCircuitImportance;
+    int maxShortCircuitLevel;
+    WhirlyKitViewState *lastViewState;
+    WhirlyKitSceneRendererES *_renderer;
 }
 
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
@@ -152,6 +156,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
     _importance = 512*512;
+    canShortCircuitImportance = true;
+    maxShortCircuitLevel = -1;
+    _useTargetZoomLevel = true;
+    _singleLevelLoading = false;
     
     return self;
 }
@@ -269,6 +277,82 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return maxZoom;
 }
 
+- (int)targetZoomLevel
+{
+    if (!lastViewState || !_renderer || !scene)
+        return minZoom;
+    
+    int zoomLevel = 0;
+    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    while (zoomLevel < maxZoom)
+    {
+        WhirlyKit::Quadtree::Identifier ident;
+        ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
+        // Make an MBR right in the middle of where we're looking
+        Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
+        Point2f span = mbr.ur()-mbr.ll();
+        mbr.ll() = center - span/2.0;
+        mbr.ur() = center + span/2.0;
+        float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
+        if (import <= quadLayer.minImportance)
+        {
+            zoomLevel--;
+            break;
+        }
+        zoomLevel++;
+    }
+    
+    return zoomLevel;
+}
+
+/// Called when we get a new view state
+/// We need to decide if we can short circuit the screen space calculations
+- (void)newViewState:(WhirlyKitViewState *)viewState
+{
+    lastViewState = viewState;
+    
+    if (!_useTargetZoomLevel)
+    {
+        canShortCircuitImportance = false;
+        maxShortCircuitLevel = -1;
+        return;
+    }
+    
+    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
+    Point3d center = coordAdapter->getCenter();
+    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+    {
+        canShortCircuitImportance = true;
+        if (!coordAdapter->isFlat())
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+        // We happen to store tilt in the view matrix.
+        // Note: Fix this.  This won't detect tilt
+        //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
+        //        if (!viewMat.isIdentity())
+        //        {
+        //            canShortCircuitImportance = false;
+        //            return;
+        //        }
+        // The tile source coordinate system must be the same as the display's system
+        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
+        {
+            canShortCircuitImportance = false;
+            return;
+        }
+        
+        // We need to feel our way down to the appropriate level
+        maxShortCircuitLevel = [self targetZoomLevel];
+        if (_singleLevelLoading)
+            quadLayer.targetLevel = maxShortCircuitLevel;
+    } else {
+        // Note: Can't short circuit in this case.  Something wrong with the math
+        canShortCircuitImportance = false;
+    }
+}
+
 /// Return an importance value for the given tile
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
@@ -283,8 +367,20 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     
     Mbr parentMbr = quadLayer.quadtree->generateMbrForNode(parentIdent);
 
-    // This is how much screen real estate we're covering for this tile
-    double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+    double import = 0.0;
+    if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+    {
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), parentMbr, ident, attrs))
+        {
+            import = 1.0/(ident.level+10);
+            if (ident.level <= maxShortCircuitLevel)
+                import += 1.0;
+        }
+        import *= self.importance;
+    } else {
+        // This is how much screen real estate we're covering for this tile
+        import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+    }
     
     // Just the importance of this tile.
 //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
@@ -360,13 +456,18 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self tileDidLoad:tileID];
     }
     
-//    NSLog(@"Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    NSLog(@"Loaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called on the layer thread
 // Clean out the data created for the tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer unloadTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    MaplyTileID tileID;
+    tileID.x = tileInfo.ident.x;
+    tileID.y = tileInfo.ident.y;
+    tileID.level = tileInfo.ident.level;
+    
     QuadPagingLoadedTile *tile = NULL;
     NSArray *addCompObjs = nil,*replaceCompObjs = nil;
     
@@ -395,6 +496,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         parentID.level = tileInfo.ident.level-1;
         [self runTileUpdate];
     }
+
+    NSLog(@"unLoaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called by the delegate.  We'll track the data they added.
