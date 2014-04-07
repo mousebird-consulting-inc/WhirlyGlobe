@@ -226,6 +226,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool useTargetZoomLevel;
 
+/** @brief Only load a single level at a time.
+    @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.
+  */
+@property (nonatomic) bool singleLevelLoading;
+
 /** @brief Force a full reload of all tiles.
     @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
     @details This is good for tile sources, like weather, that need to be refreshed every so often.
