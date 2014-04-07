@@ -133,7 +133,7 @@ typedef enum {
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
             label.text = [self formatText:self.textField forObject:vec];
-          
+            label.layoutPlacement = kMaplyLayoutCenter | kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
             if (label.text)
             {
                 if(subStyle->placement == TextPlacementPoint ||
@@ -150,7 +150,7 @@ typedef enum {
                         //TODO: text-max-char-angle-delta
                         //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
                         label.loc = middle;
-                        label.layoutPlacement = kMaplyLayoutRight;
+                        label.layoutPlacement = kMaplyLayoutCenter;
                         label.rotation = rot+M_PI/2.0;
                         // Keep the labels upright
                         if (label.rotation > M_PI/2 && label.rotation < 3*M_PI/2)
