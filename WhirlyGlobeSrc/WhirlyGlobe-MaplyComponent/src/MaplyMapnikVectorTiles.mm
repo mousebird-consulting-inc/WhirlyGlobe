@@ -377,7 +377,9 @@ static double MAX_EXTENT = 20037508.342789244;
       }
     }//end of iterating tile sources
     
-    for(id key in featureStyles.allKeys) {
+    NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self"
+                                                                                                                 ascending:YES]]];
+    for(id key in symbolizerKeys) {
       MaplyVectorTileStyle *symbolizer = [self.styleDelegate styleForUUID:key];
       NSArray *features = featureStyles[key];
       [components addObjectsFromArray:[symbolizer buildObjects:features viewC:layer.viewC]];

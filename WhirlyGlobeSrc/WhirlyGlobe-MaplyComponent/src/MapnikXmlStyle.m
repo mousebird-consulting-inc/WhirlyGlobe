@@ -306,8 +306,8 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 }
 
 
-- (NSString*)getSymbolizerUUID {
-  return [NSString stringWithFormat:@"%d", symbolizerId++];
+- (NSNumber*)getSymbolizerUUID {
+  return @(symbolizerId++);
 }
 
 @end
