@@ -109,7 +109,7 @@
         }
     }
     
-    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:nil];
+    MaplyComponentObject *compObj = [viewC addScreenMarkers:markers desc:nil mode:MaplyThreadCurrent];
     if (compObj)
         return @[compObj];
     
