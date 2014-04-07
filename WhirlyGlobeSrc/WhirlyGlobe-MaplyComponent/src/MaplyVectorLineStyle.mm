@@ -85,10 +85,10 @@
     {
         MaplyComponentObject *compObj = nil;
         if (!baseObj)
-            baseObj = compObj = [viewC addVectors:vecObjs desc:desc];
+            baseObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
         else
             // Note: Should do current thread here
-            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }
