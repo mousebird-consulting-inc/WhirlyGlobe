@@ -457,7 +457,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self tileDidLoad:tileID];
     }
     
-    NSLog(@"Loaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//    NSLog(@"Loaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called on the layer thread
@@ -498,7 +498,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self runTileUpdate];
     }
 
-    NSLog(@"unLoaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//    NSLog(@"unLoaded Tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 // Called by the delegate.  We'll track the data they added.
