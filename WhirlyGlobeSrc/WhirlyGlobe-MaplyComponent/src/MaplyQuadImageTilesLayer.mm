@@ -510,8 +510,6 @@ using namespace WhirlyKit;
         // Note: Can't short circuit in this case.  Something wrong with the math
         canShortCircuitImportance = false;
     }
-    
-    canShortCircuitImportance = false;
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
@@ -573,9 +571,11 @@ using namespace WhirlyKit;
     if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
         if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), mbr, ident, attrs))
+        {
             import = 1.0/(ident.level+10);
-        if (ident.level <= maxShortCircuitLevel)
-            import += 1.0;
+            if (ident.level <= maxShortCircuitLevel)
+                import += 1.0;
+        }
     } else {
         if (elevDelegate)
         {

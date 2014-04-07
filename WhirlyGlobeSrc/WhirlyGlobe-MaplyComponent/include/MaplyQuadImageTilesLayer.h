@@ -232,18 +232,18 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool singleLevelLoading;
 
-/** @brief Force a full reload of all tiles.
-    @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
-    @details This is good for tile sources, like weather, that need to be refreshed every so often.
-  */
-- (void)reload;
-
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
     @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
     @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
   */
 - (int)targetZoomLevel;
+
+/** @brief Force a full reload of all tiles.
+ @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
+ @details This is good for tile sources, like weather, that need to be refreshed every so often.
+ */
+- (void)reload;
 
 /** @brief Pass back the loaded image(s) for a given tile.
     @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
