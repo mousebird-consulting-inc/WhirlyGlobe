@@ -21,12 +21,20 @@
 #import "MaplyVectorTextStyle.h"
 #import "MaplyScreenLabel.h"
 
+typedef enum {
+  TextPlacementPoint,
+  TextPlacementLine,
+  TextPlacementVertex,
+  TextPlacementInterior
+} TextSymbolizerPlacement;
+
 @interface MaplyVectorTileSubStyleText : NSObject
 {
 @public
     NSMutableDictionary *desc;
     float dx,dy;
     float textSize;
+    TextSymbolizerPlacement placement;
 }
 
 @end
@@ -79,6 +87,20 @@
         if (styleEntry[@"dy"])
             subStyle->dy = [styleEntry[@"dy"] floatValue] * settings.textScale;
         
+        subStyle->placement = TextPlacementPoint;
+        if(styleEntry[@"placement"])
+        {
+            NSString *placement = styleEntry[@"placement"];
+            if([placement isEqualToString:@"line"])
+                subStyle->placement = TextPlacementLine;
+            else if([placement isEqualToString:@"point"])
+                subStyle->placement = TextPlacementPoint;
+            else if([placement isEqualToString:@"interior"])
+                subStyle->placement = TextPlacementInterior;
+            else if([placement isEqualToString:@"vertext"])
+                subStyle->placement = TextPlacementVertex;
+        }
+        
         if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
             self.geomAdditive = true;
         
@@ -114,13 +136,46 @@
           
             if (label.text)
             {
-                MaplyCoordinate center = [vec center];
-                label.loc = center;
-                [labels addObject:label];
-                label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
-                label.offset = CGPointMake(subStyle->dx, subStyle->dy);
-                label.layoutImportance = 1.0;
-                label.selectable = false;
+                if(subStyle->placement == TextPlacementPoint ||
+                   subStyle->placement == TextPlacementInterior)
+                {
+                    MaplyCoordinate center = [vec center];
+                    label.loc = center;
+                } else if (subStyle->placement == TextPlacementLine)
+                {
+                    MaplyCoordinate middle;
+                    float rot;
+                    if ([vec linearMiddle:&middle rot:&rot])
+                    {
+                        //TODO: text-max-char-angle-delta
+                        //TODO: rotation calculation is not ideal, it is between 2 points, but it needs to be avergared over a longer distance
+                        label.loc = middle;
+                        label.layoutPlacement = kMaplyLayoutRight;
+                        label.rotation = rot+M_PI/2.0;
+                        // Keep the labels upright
+                        if (label.rotation > M_PI/2 && label.rotation < 3*M_PI/2)
+                            label.rotation = label.rotation + M_PI;
+                    } else {
+                        label = nil;
+                    }
+                } else if(subStyle->placement == TextPlacementVertex)
+                {
+                    MaplyCoordinate vertex;
+                    if([vec middleCoordinate:&vertex]) {
+                        label.loc = vertex;
+                    } else {
+                        label = nil;
+                    }
+                }
+
+                if(label)
+                {
+                    [labels addObject:label];
+                    label.size = CGSizeMake(subStyle->textSize,subStyle->textSize);
+                    label.offset = CGPointMake(subStyle->dx, subStyle->dy);
+                    label.layoutImportance = 1.0;
+                    label.selectable = false;
+                }
             }
         }
 
