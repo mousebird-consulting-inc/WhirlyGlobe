@@ -156,6 +156,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot;
 
+/** @brief return the middle coordinate in a line feature.
+ */
+- (bool)middleCoordinate:(MaplyCoordinate *)middle;
+
 /** @brief Calculate the center and extents of the largest loop in an areal feature.
     @details The vector object contains a number of half baked geometric queries, this being one of them.
     @details If this vector contains at least one areal feature, we'll determine which loop is the largest and return the center of that loop, as well as its bounding box.

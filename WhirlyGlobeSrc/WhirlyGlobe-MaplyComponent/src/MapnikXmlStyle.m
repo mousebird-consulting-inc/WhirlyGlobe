@@ -63,6 +63,7 @@ static NSString *STYLENAME_ELEMENT = @"StyleName";
 static NSString *FILTER_ELEMENT = @"Filter";
 static NSString *LINESYMBOLIZER_ELEMENT = @"LineSymbolizer";
 static NSString *POLYGONSYMBOLIZER_ELEMENT = @"PolygonSymbolizer";
+static NSString *POLYGONPATTERNSYMBOLIZER_ELEMENT = @"PolygonPatternSymbolizer";
 static NSString *TEXTSYMBOLIZER_ELEMENT = @"TextSymbolizer";
 static NSString *MARKERSSYMBOLIZER_ELEMENT = @"MarkersSymbolizer";
 static NSString *MINSCALEDENOMINATOR_ELEMENT = @"MinScaleDenominator";
@@ -150,6 +151,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   if([elementName isEqualToString:LINESYMBOLIZER_ELEMENT] ||
      [elementName isEqualToString:MARKERSSYMBOLIZER_ELEMENT] ||
      [elementName isEqualToString:POLYGONSYMBOLIZER_ELEMENT] ||
+     [elementName isEqualToString:POLYGONPATTERNSYMBOLIZER_ELEMENT] ||
      [elementName isEqualToString:TEXTSYMBOLIZER_ELEMENT]) {
     NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionaryWithDictionary:attributeDict];
     if(currentRule.minScaleDenominator != 0) {
@@ -185,7 +187,8 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     style.uuid = [self getSymbolizerUUID];
     self.symbolizers[style.uuid] = style;
     [currentRule.symbolizers addObject:style];
-  } else if([elementName isEqualToString:POLYGONSYMBOLIZER_ELEMENT]) {
+  } else if([elementName isEqualToString:POLYGONSYMBOLIZER_ELEMENT] ||
+            [elementName isEqualToString:POLYGONPATTERNSYMBOLIZER_ELEMENT]) {
     MaplyVectorTileStyle *style = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:@{@"substyles":@[attributeDict]}
                                                                                  settings:self.tileStyleSettings
                                                                                     viewC:self.viewC];

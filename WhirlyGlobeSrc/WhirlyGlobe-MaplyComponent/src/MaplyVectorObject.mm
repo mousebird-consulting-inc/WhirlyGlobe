@@ -522,6 +522,20 @@ public:
     return true;
 }
 
+- (bool)middleCoordinate:(MaplyCoordinate *)middle {
+  if (_shapes.empty())
+    return false;
+  
+  VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+  if (!lin)
+    return false;
+
+  int index = lin->pts.size() / 2;
+  middle->x = lin->pts[index].x();
+  middle->y = lin->pts[index].y();
+  
+  return true;
+}
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
