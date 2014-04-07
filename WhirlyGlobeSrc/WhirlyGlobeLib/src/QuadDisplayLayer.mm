@@ -437,13 +437,23 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     
     // Clear out the phantoms we've collected up
-    if (!didSomething && _targetLevel != -1 && [_loader isReady])
+    if (!didSomething && _targetLevel != -1)
     {
-        for (std::set<Quadtree::NodeInfo>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
+        // Is the loader doing anything?
+        int activityLevel = 0;
+        if ([_loader respondsToSelector:@selector(localFetches)])
+             activityLevel += [_loader localFetches];
+        if ([_loader respondsToSelector:@selector(networkFetches)])
+            activityLevel += [_loader networkFetches];
+        
+        if (activityLevel == 0)
         {
-            Quadtree::NodeInfo nodeInfo = *it;
-            [_loader quadDisplayLayer:self unloadTile:nodeInfo];
-            _quadtree->setPhantom(nodeInfo.ident, true);
+            for (std::set<Quadtree::NodeInfo>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
+            {
+                Quadtree::NodeInfo nodeInfo = *it;
+                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
+                _quadtree->setPhantom(nodeInfo.ident, true);
+            }
         }
     }
     
