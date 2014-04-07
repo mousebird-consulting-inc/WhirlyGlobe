@@ -410,6 +410,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return (numFetches < _numSimultaneousFetches);
 }
 
+- (int)localFetches
+{
+    return 0;
+}
+
+- (int)networkFetches
+{
+    return numFetches;
+}
+
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
 {
 }
