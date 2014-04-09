@@ -502,7 +502,12 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     {
         // Make sure we still want this one
         if (!_quadtree->isTileLoaded(tileIdent))
+        {
+            bool phantom = _quadtree->isPhantom(tileIdent);
+            if (phantom)
+                NSLog(@"Loaded phantom tile");
             return;
+        }
         
         // Now try the children
         std::vector<Quadtree::NodeInfo> childNodes;
