@@ -371,7 +371,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     double import = 0.0;
     if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
-        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), parentMbr, ident, attrs))
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), (_singleLevelLoading ? mbr : parentMbr), ident, attrs))
         {
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
