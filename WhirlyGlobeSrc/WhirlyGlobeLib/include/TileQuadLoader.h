@@ -138,7 +138,7 @@
 - (id)initWithName:(NSString *)name dataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;
 
 /// If you're passing in elevation (even some of the time), set this to the maximum
-///  sampling you're going to pass in.  If you don't set ths, you may lose tiles.
+///  sampling you're going to pass in.  If you don't set this, you may lose tiles.
 - (void)setTesselationSizeX:(int)x y:(int)y;
 
 /// Called when the layer shuts down

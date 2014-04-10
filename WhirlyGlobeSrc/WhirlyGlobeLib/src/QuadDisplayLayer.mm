@@ -38,6 +38,9 @@ using namespace WhirlyKit;
     /// Nodes being evaluated for loading
     WhirlyKit::QuadNodeInfoSet nodesForEval;
     
+    // Nodes to turn into phantoms.  We like to wait a bit
+    WhirlyKit::QuadNodeInfoSet toPhantom;
+
     /// If set the eval step gets very aggressive about loading tiles.
     /// This will slow down the layer thread, but makes the quad layer appear faster
     bool greedyMode;
@@ -71,6 +74,7 @@ using namespace WhirlyKit;
         maxZoom = [_dataStructure maxZoom];
         _maxTiles = 128;
         _minImportance = 1.0;
+        _targetLevel = -1;
         _viewUpdatePeriod = 0.1;
         _quadtree = new Quadtree([_dataStructure totalExtents],minZoom,maxZoom,_maxTiles,_minImportance,self);
         _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
@@ -212,6 +216,7 @@ using namespace WhirlyKit;
         
     viewState = inViewState;
     nodesForEval.clear();
+    toPhantom.clear();
     _quadtree->reevaluateNodes();
     
     // Add everything at the minLevel back in
@@ -292,13 +297,23 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         [_loader quadDisplayLayerStartUpdates:self];
 
     // Look for nodes to remove
-    Quadtree::NodeInfo remNodeInfo;
-    while (_quadtree->leastImportantNode(remNodeInfo))
+    if (_targetLevel == -1)
     {
-        _quadtree->removeTile(remNodeInfo.ident);
-        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
-        
-        didSomething = true;
+        Quadtree::NodeInfo remNodeInfo;
+        while (_quadtree->leastImportantNode(remNodeInfo,false,-1))
+        {
+    //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+            _quadtree->removeTile(remNodeInfo.ident);
+            if (!remNodeInfo.phantom)
+                [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
+            
+            // Take it out of the phantom list
+            QuadNodeInfoSet::iterator it = toPhantom.find(remNodeInfo);
+            if (it != toPhantom.end())
+                toPhantom.erase(it);
+
+            didSomething = true;
+        }
     }
     
     if (!nodesForEval.empty())
@@ -318,25 +333,71 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             {
                 if (!isLoaded)
                 {
-                    // Tell the quad tree what we're up to
                     std::vector<Quadtree::Identifier> tilesToRemove;
-                    _quadtree->addTile(nodeInfo, tilesToRemove);
-                                
-                    [_loader quadDisplayLayer:self loadTile:nodeInfo ];
+                    // This is a phantom node, so just fake the loading
+                    if (_targetLevel != -1 && nodeInfo.ident.level < _targetLevel)
+                    {
+                        nodeInfo.phantom = true;
+//                        NSLog(@"Loading phantom tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+                        _quadtree->addTile(nodeInfo, tilesToRemove);
+
+                        // It's not "loaded" so go look at the children
+                        if (nodeInfo.ident.level < maxZoom)
+                        {
+                            std::vector<Quadtree::NodeInfo> childNodes;
+                            _quadtree->generateChildren(nodeInfo.ident, childNodes);
+                            nodesForEval.insert(childNodes.begin(),childNodes.end());
+                        }
+                    } else {
+//                        NSLog(@"Loading real tile: %d: (%d,%d) import = %f",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.importance);
+                        // Tell the quad tree what we're up to
+                        nodeInfo.phantom = false;
+                        _quadtree->addTile(nodeInfo, tilesToRemove);
                                     
+                        [_loader quadDisplayLayer:self loadTile:nodeInfo ];
+                    }
+                    
                     // Remove the old tiles
                     for (unsigned int ii=0;ii<tilesToRemove.size();ii++)
                     {
                         Quadtree::Identifier &thisIdent = tilesToRemove[ii];
-//                    NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
+//                        NSLog(@"Quad tree removed (%d,%d,%d)",thisIdent.x,thisIdent.y,thisIdent.level);
                         
                         Quadtree::NodeInfo remNodeInfo = _quadtree->generateNode(thisIdent);
-                        [_loader quadDisplayLayer:self unloadTile:remNodeInfo];           
+                        if (!remNodeInfo.phantom)
+                            [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
+                        
+                        // Take it out of the phantom list
+                        QuadNodeInfoSet::iterator it = toPhantom.find(nodeInfo);
+                        if (it != toPhantom.end())
+                            toPhantom.erase(it);
                     }
-//            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);            
+//            NSLog(@"Quad loaded node (%d,%d,%d) = %.4f",nodeInfo.ident.x,nodeInfo.ident.y,nodeInfo.ident.level,nodeInfo.importance);
                 } else {
+                    bool isPhantom = _quadtree->isPhantom(nodeInfo.ident);
+                    if (_targetLevel != -1)
+                    {
+                        // This is a phantom node that now must be loaded
+                        if (isPhantom && nodeInfo.ident.level == _targetLevel)
+                        {
+//                            NSLog(@"Reloading phantom tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+                            [_loader quadDisplayLayer:self loadTile:nodeInfo ];
+                            _quadtree->setPhantom(nodeInfo.ident, false);
+
+                            // Take it out of the phantom list
+                            QuadNodeInfoSet::iterator it = toPhantom.find(nodeInfo);
+                            if (it != toPhantom.end())
+                                toPhantom.erase(it);
+                        } else if (!isPhantom && nodeInfo.ident.level < _targetLevel)
+                        {
+                            // This one needs to *be* a phantom tile
+//                            NSLog(@"Unloading phantom tile: %d: (%d,%d)",nodeInfo.ident.level,nodeInfo.ident.x,nodeInfo.ident.y);
+                            toPhantom.insert(nodeInfo);
+                        }
+                    }
+                    
                     // It is loaded (as far as we're concerned), so we need to know if we can traverse below that
-                    if (nodeInfo.ident.level < maxZoom && [_loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo])
+                    if (nodeInfo.ident.level < maxZoom && (isPhantom || [_loader quadDisplayLayer:self canLoadChildrenOfTile:nodeInfo]))
                     {
                         std::vector<Quadtree::NodeInfo> childNodes;
                         _quadtree->generateChildren(nodeInfo.ident, childNodes);
@@ -359,7 +420,43 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         
         didSomething = true;
     }
+    
+    // Look for nodes to remove
+    if (!didSomething && _targetLevel != -1)
+    {
+        Quadtree::NodeInfo remNodeInfo;
+        while (_quadtree->leastImportantNode(remNodeInfo,false,-1))
+        {
+    //        NSLog(@"Unload tile: %d: (%d,%d) phantom = %@, import = %f",remNodeInfo.ident.level,remNodeInfo.ident.x,remNodeInfo.ident.y,(remNodeInfo.phantom ? @"YES" : @"NO"), remNodeInfo.importance);
+            _quadtree->removeTile(remNodeInfo.ident);
+            if (!remNodeInfo.phantom)
+                [_loader quadDisplayLayer:self unloadTile:remNodeInfo];
 
+            didSomething = true;
+        }
+    }
+    
+    // Clear out the phantoms we've collected up
+    if (!didSomething && _targetLevel != -1)
+    {
+        // Is the loader doing anything?
+        int activityLevel = 0;
+        if ([_loader respondsToSelector:@selector(localFetches)])
+             activityLevel += [_loader localFetches];
+        if ([_loader respondsToSelector:@selector(networkFetches)])
+            activityLevel += [_loader networkFetches];
+        
+        if (activityLevel == 0)
+        {
+            for (std::set<Quadtree::NodeInfo>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
+            {
+                Quadtree::NodeInfo nodeInfo = *it;
+                [_loader quadDisplayLayer:self unloadTile:nodeInfo];
+                _quadtree->setPhantom(nodeInfo.ident, true);
+            }
+        }
+    }
+    
     // Let the loader know we're done with this eval step
     if (_meteredMode || [self waitingForLocalLoads] || didSomething)
     {
@@ -401,13 +498,16 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 // Once loaded we can try the children
 - (void)loader:(NSObject<WhirlyKitQuadLoader> *)loader tileDidLoad:(WhirlyKit::Quadtree::Identifier)tileIdent
 {
-    // Note: Need to check that we still care about this load
-    
     if (tileIdent.level < maxZoom)
     {
         // Make sure we still want this one
         if (!_quadtree->isTileLoaded(tileIdent))
+        {
+            bool phantom = _quadtree->isPhantom(tileIdent);
+            if (phantom)
+                NSLog(@"Loaded phantom tile");
             return;
+        }
         
         // Now try the children
         std::vector<Quadtree::NodeInfo> childNodes;
