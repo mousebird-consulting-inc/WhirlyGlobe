@@ -27,14 +27,16 @@
 #import "MaplyVectorTextStyle.h"
 #import "MapnikStyle.h"
 #import "MapnikStyleRule.h"
+#import "NSDictionary+StyleRules.h"
 
 @interface MapnikXmlStyle() {
   //temporary storage during parsing
   NSString *currentString;
-  MapnikStyle *currentStyle;
-  MapnikStyleRule *currentRule;
-  MaplyVectorTileStyle *currentSymbolizer;
-  NSInteger symbolizerId;
+  NSMutableDictionary *currentStyle;
+  NSMutableDictionary *currentRule;
+  NSMutableDictionary *currentSymbolizer;
+  NSMutableDictionary *currentLayer;
+  
   NSString *currentName;
   CFAbsoluteTime startTime;
 }
@@ -50,7 +52,6 @@
 @property (nonatomic, assign) BOOL success;
 
 @property (nonatomic, weak) MaplyBaseViewController *viewC;
-@property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
 
 @end
 
@@ -83,11 +84,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
     self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
     
-    self.styles = [NSMutableDictionary new];
-    self.layers = [NSMutableDictionary new];
-    self.parameters = [NSMutableDictionary new];
-    self.symbolizers = [NSMutableDictionary new];
-    symbolizerId = 0;
+    self.parameters = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -95,12 +92,110 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)loadXmlFile:(NSString*)filePath {
   startTime = CFAbsoluteTimeGetCurrent();
+  self.styleDictionary = [NSMutableDictionary dictionary];
   NSData *docData = [[NSData alloc] initWithContentsOfFile:filePath];
   NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
   docData = nil;
   parser.delegate = self;
   self.parsing = YES;
   [parser parse];
+}
+
+
+- (void)loadJsonFile:(NSString*)filePath {
+  if(filePath) {
+    NSData *data = [NSData dataWithContentsOfFile:filePath];
+    if(data.length) {
+      NSError *error;
+      NSMutableDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:data
+                                                               options:NSJSONReadingMutableContainers
+                                                                 error:&error];
+      self.styleDictionary = jsonDict;
+    }
+  }
+}
+
+
+- (void)generateStyles {
+  self.styles = [NSMutableDictionary dictionary];
+  self.layers = [NSMutableDictionary dictionary];
+  self.symbolizers = [NSMutableDictionary dictionary];
+  
+  NSInteger symbolizerId = 0;
+  
+  for(NSMutableDictionary *styleDict in self.styleDictionary.styles) {
+    MapnikStyle *style = [MapnikStyle new];
+    style.name = styleDict.name;
+    if([styleDict[@"filter-mode"] isEqualToString:@"first"]) {
+      style.filterModeFirst = YES;
+    }
+    NSArray *rules = styleDict[@"rules"];
+    for(NSMutableDictionary *ruleDict in rules) {
+      MapnikStyleRule *rule = [[MapnikStyleRule alloc] init];
+      if(ruleDict.filter) {
+        [rule setFilter:ruleDict.filter];
+      } else {
+        rule.filterPredicate = [NSPredicate predicateWithValue:YES];
+      }
+      
+      if(ruleDict.minScaleDenom) {
+        rule.minScaleDenominator = ruleDict.minScaleDenom.integerValue;
+      } else {
+        rule.minZoom = 0;
+      }
+      
+      if(ruleDict.maxScaleDenom) {
+        rule.maxScaleDenomitator = ruleDict.maxScaleDenom.integerValue;
+      } else {
+        rule.maxZoom = 30;
+      }
+      
+      for(NSDictionary *symbolizerDict in ruleDict[@"symbolizers"]) {
+        if(!symbolizerDict[@"type"]) {
+          continue;
+        }
+        
+        NSMutableDictionary *mutableSymbolizerDict = [NSMutableDictionary dictionaryWithDictionary:symbolizerDict];
+        mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId);
+        if(rule.minScaleDenominator != 0) {
+          mutableSymbolizerDict[@"minscaledenom"] = @(rule.minScaleDenominator);
+        }
+        if(rule.maxScaleDenomitator != 0) {
+          mutableSymbolizerDict[@"maxscaledenom"] = @(rule.maxScaleDenomitator);
+        }
+        MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
+                                                                   settings:self.tileStyleSettings
+                                                                      viewC:self.viewC];
+        s.uuid = @(symbolizerId++);
+        if(s) {
+          [rule.symbolizers addObject:s];
+          self.symbolizers[s.uuid] = s;
+        }
+      }
+      
+      if(rule.symbolizers.count) {
+        [style.rules addObject:rule];
+      }
+    }
+    
+    if(style.rules.count) {
+      self.styles[style.name] = style;
+    }
+  }
+  
+  for(NSMutableDictionary *layer in self.styleDictionary.layers) {
+    NSMutableArray *layerStyles = [NSMutableArray array];
+    for(NSString *styleName in layer.styles) {
+      MapnikStyle *style = self.styles[styleName];
+      if(style) {
+        [layerStyles addObject:style];
+      }
+    }
+    
+    if(layerStyles.count) {
+      self.layers[layer.name] = layerStyles;
+    }
+  }
 }
 
 
@@ -154,62 +249,21 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
      [elementName isEqualToString:POLYGONPATTERNSYMBOLIZER_ELEMENT] ||
      [elementName isEqualToString:TEXTSYMBOLIZER_ELEMENT]) {
     NSMutableDictionary *mutableAttributes = [NSMutableDictionary dictionaryWithDictionary:attributeDict];
-    if(currentRule.minScaleDenominator != 0) {
-      mutableAttributes[@"minscaledenom"] = @(currentRule.minScaleDenominator);
+    if([elementName isEqualToString:POLYGONPATTERNSYMBOLIZER_ELEMENT]) {
+      mutableAttributes[@"type"] = POLYGONSYMBOLIZER_ELEMENT;
+    } else {
+      mutableAttributes[@"type"] = elementName;
     }
-    if(currentRule.maxScaleDenomitator != 0) {
-      mutableAttributes[@"maxscaledenom"] = @(currentRule.maxScaleDenomitator);
-    }
-    mutableAttributes[@"drawpriority"] = @(symbolizerId);
-    attributeDict = mutableAttributes;
-  }
-  
-  if([elementName isEqualToString:STYLE_ELEMENT]) {
+    [currentRule.symbolizers addObject:mutableAttributes];
+  } else if([elementName isEqualToString:STYLE_ELEMENT]) {
     if(attributeDict[NAME_ATTRIBUTE]) {
-      currentStyle = [MapnikStyle new];
-      currentStyle.name = attributeDict[NAME_ATTRIBUTE];
-      if([attributeDict[FILTERMODE_ATTRIBUTE] isEqualToString:@"first"]) {
-        currentStyle.filterModeFirst = YES;
-      }
-      if(attributeDict[OPACITY_ATTRIBUTE]) {
-        currentStyle.opacity = [attributeDict[OPACITY_ATTRIBUTE] floatValue];
-      }
-      self.styles[attributeDict[NAME_ATTRIBUTE]] = currentStyle;
+      currentStyle = [attributeDict mutableCopy];
     }
   } else if([elementName isEqualToString:RULE_ELEMENT]) {
-    currentRule = [MapnikStyleRule new];
+    currentRule = [NSMutableDictionary dictionary];
   } else if([elementName isEqualToString:LAYER_ELEMENT]) {
-    currentName = attributeDict[NAME_ATTRIBUTE];
-  } else if([elementName isEqualToString:LINESYMBOLIZER_ELEMENT]) {
-    MaplyVectorTileStyle *style = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:@{@"substyles":@[attributeDict]}
-                                                                              settings:self.tileStyleSettings
-                                                                                 viewC:self.viewC];
-    style.uuid = [self getSymbolizerUUID];
-    self.symbolizers[style.uuid] = style;
-    [currentRule.symbolizers addObject:style];
-  } else if([elementName isEqualToString:POLYGONSYMBOLIZER_ELEMENT] ||
-            [elementName isEqualToString:POLYGONPATTERNSYMBOLIZER_ELEMENT]) {
-    MaplyVectorTileStyle *style = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:@{@"substyles":@[attributeDict]}
-                                                                                 settings:self.tileStyleSettings
-                                                                                    viewC:self.viewC];
-    style.uuid = [self getSymbolizerUUID];
-    self.symbolizers[style.uuid] = style;
-    [currentRule.symbolizers addObject:style];
-  } else if([elementName isEqualToString:TEXTSYMBOLIZER_ELEMENT]) {
-    MaplyVectorTileStyle *style = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:@{@"substyles":@[attributeDict]}
-                                                                              settings:self.tileStyleSettings
-                                                                                 viewC:self.viewC];
-    style.uuid = [self getSymbolizerUUID];
-    currentSymbolizer = style;
-    self.symbolizers[style.uuid] = style;
-    [currentRule.symbolizers addObject:style];
-  } else if([elementName isEqualToString:MARKERSSYMBOLIZER_ELEMENT]) {
-    MaplyVectorTileStyle *style = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:@{@"substyles":@[attributeDict]}
-                                                                                settings:self.tileStyleSettings
-                                                                                   viewC:self.viewC];
-    style.uuid = [self getSymbolizerUUID];
-    self.symbolizers[style.uuid] = style;
-    [currentRule.symbolizers addObject:style];
+    currentLayer = [attributeDict mutableCopy];
+    [self.styleDictionary.layers addObject:currentLayer];
   } else if([elementName isEqualToString:PARAMETER_ELEMENT]) {
     currentName = attributeDict[NAME_ATTRIBUTE];
   }
@@ -230,44 +284,31 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
   if([elementName isEqualToString:STYLE_ELEMENT]) {
     //Discard styles with no rules
-    if(!currentStyle.rules.count) {
-      [self.styles removeObjectForKey:currentStyle.name];
+    if(currentStyle.rules.count) {
+      [self.styleDictionary.styles addObject:currentStyle];
     }
     currentStyle = nil;
   } else if([elementName isEqualToString:RULE_ELEMENT]) {
-    if(!currentRule.filterPredicate) {
-      //rules with no filter always match
-      currentRule.filterPredicate = [NSPredicate predicateWithValue:YES];
-    }
-    if(currentRule.maxZoom == 0) {
-      currentRule.maxZoom = 30;
-    }
     if(currentRule.symbolizers.count) { //only commit rules with symbolizers
-      [currentStyle addRule:currentRule];
+      [currentStyle.rules addObject:currentRule];
     }
     
     currentRule = nil;
   } else if([elementName isEqualToString:LAYER_ELEMENT]) {
     currentName = nil;
+    currentLayer = nil;
   } else if([elementName isEqualToString:STYLENAME_ELEMENT]) {
     if(currentString) {
-      if(self.styles[currentString]) {
-        NSMutableArray *layerStyles = self.layers[currentName];
-        if(!layerStyles) {
-          layerStyles = [NSMutableArray array];
-          self.layers[currentName] = layerStyles;
-        }
-        [layerStyles addObject:self.styles[currentString]];
-      }
+      [currentLayer.styles addObject:currentString];
     }
   } else if([elementName isEqualToString:FILTER_ELEMENT]) {
     [currentRule setFilter:currentString];
   } else if([elementName isEqualToString:TEXTSYMBOLIZER_ELEMENT]) {
-    ((MaplyVectorTileStyleText*)currentSymbolizer).textField = currentString;
+    currentSymbolizer[@"value"] = currentString;
   } else if([elementName isEqualToString:MAXSCALEDENOMINATOR_ELEMENT]) {
-    currentRule.maxScaleDenomitator = [currentString intValue];
+    currentRule.maxScaleDenom = @([currentString intValue]);
   } else if([elementName isEqualToString:MINSCALEDENOMINATOR_ELEMENT]) {
-    currentRule.minScaleDenominator = [currentString intValue];
+    currentRule.minScaleDenom = @([currentString intValue]);
   } else if([elementName isEqualToString:PARAMETER_ELEMENT]) {
     if(currentString && currentName) {
       self.parameters[currentName] = currentString;
@@ -282,6 +323,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
   //NSLog(@"Parse time:%f, %d styles", CFAbsoluteTimeGetCurrent() - startTime, self.styles.count);
+  [self generateStyles];
   self.success = YES;
   [self cleanup];
 }
@@ -307,11 +349,8 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   currentRule = nil;
   currentStyle = nil;
   currentString = nil;
+  currentLayer = nil;
 }
 
-
-- (NSNumber*)getSymbolizerUUID {
-  return @(symbolizerId++);
-}
 
 @end

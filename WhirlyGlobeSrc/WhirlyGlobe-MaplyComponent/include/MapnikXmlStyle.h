@@ -22,9 +22,16 @@
 #import <Foundation/Foundation.h>
 #import "MaplyMapnikVectorTiles.h"
 
+@class MaplyVectorTileStyleSettings;
+
 @interface MapnikXmlStyle : NSObject <NSXMLParserDelegate, VectorStyleDelegate>
+
+@property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
+@property (nonatomic, strong) NSMutableDictionary *styleDictionary;
 
 - (instancetype)initForTileSource:(MaplyRemoteTileInfo *)tileSource viewC:(MaplyBaseViewController *)viewC;
 - (void)loadXmlFile:(NSString*)filePath;
+- (void)loadJsonFile:(NSString*)filePath;
+- (void)generateStyles;
 
 @end
