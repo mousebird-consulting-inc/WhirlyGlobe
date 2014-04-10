@@ -156,14 +156,14 @@ void ConvertGeometryType(OGRGeometry *inGeom,MapnikConfig::SymbolDataType dataTy
 }
 
 // Transform all the geometry in the given layer into the new coordinate system
-void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups,MapnikConfig::SymbolDataType dataType,OGREnvelope &mbr)
+void TransformLayer(OGRLayer *inLayer,std::vector<OGRFeature *> &inFeatures,OGRLayer *outLayer,OGRCoordinateTransformation *transform,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups,MapnikConfig::SymbolDataType dataType,OGREnvelope *clipEnv,OGREnvelope &mbr)
 {
     OGREnvelope blank;
     mbr = blank;
     
-    for (unsigned int ii=0;ii<inLayer->GetFeatureCount();ii++)
+    for (unsigned int ii=0;ii<inFeatures.size();ii++)
     {
-        OGRFeature *feature = inLayer->GetFeature(ii);
+        OGRFeature *feature = inFeatures[ii];
         
         // As we go through the styles and rules, these are the symbolizers that apply
         std::vector<int> symbolizers;
@@ -343,45 +343,56 @@ void TransformLayer(OGRLayer *inLayer,OGRLayer *outLayer,OGRCoordinateTransforma
             {
                 OGRGeometry *geom = geoms[igeom];
                 
-    //            int whichFeature = outLayer->GetFeatureCount();
-    //            outLayer->CreateFeature(feature);
-    //            OGRFeature *newFeature = outLayer->GetFeature(whichFeature);
-                OGRFeature *newFeature = new OGRFeature(outLayer->GetLayerDefn());
-                newFeature->SetGeometry(geom);
+                // If there's a clip envelope, do an overlap test first
+                bool withinBounds = true;
+                if (clipEnv)
+                {
+                    OGREnvelope geomEnv;
+                    geom->getEnvelope(&geomEnv);
+                    if (!clipEnv->Contains(geomEnv) && !clipEnv->Intersects(geomEnv))
+                        withinBounds = false;
+                }
+                if (withinBounds)
+                {
+                    
+        //            int whichFeature = outLayer->GetFeatureCount();
+        //            outLayer->CreateFeature(feature);
+        //            OGRFeature *newFeature = outLayer->GetFeature(whichFeature);
+                    OGRFeature *newFeature = new OGRFeature(outLayer->GetLayerDefn());
+                    newFeature->SetGeometry(geom);
+
+                    // Now apply the symbolizers (they'll be styles in the final output)
+        //            int numNewFields = newFeature->GetFieldCount();
+        //                std::string styleIndex = (std::string)"style" + std::to_string(si);
+                    for (unsigned int ig=0;ig<symGroups.size();ig++)
+                    {
+                        std::string styleIndex = (std::string)"style" + std::to_string(ig);
+                        std::string uuid = boost::uuids::to_string(symGroups[ig].uuid);
+                        newFeature->SetField(styleIndex.c_str(), uuid.c_str());
+                    }
+                    
+                    // And don't forget the attributes they care about
+                    for (std::set<std::string>::iterator it = attrsToKeep.begin();
+                         it != attrsToKeep.end(); ++it)
+                    {
+                        std::string fieldName = *it;
+                        int idx = feature->GetFieldIndex(fieldName.c_str());
+                        if (idx != -1)
+                        {
+                            // Note: Should deal with other types
+                            const char *fieldVal = feature->GetFieldAsString(idx);
+                            if (fieldVal)
+                                newFeature->SetField(fieldName.c_str(), fieldVal);
+                        }
+                    }
+                    
+                    outLayer->CreateFeature(newFeature);
+                    OGRFeature::DestroyFeature(newFeature);
+                }
                 delete geoms[igeom];
                 geoms[igeom] = NULL;
-
-                // Now apply the symbolizers (they'll be styles in the final output)
-    //            int numNewFields = newFeature->GetFieldCount();
-    //                std::string styleIndex = (std::string)"style" + std::to_string(si);
-                for (unsigned int ig=0;ig<symGroups.size();ig++)
-                {
-                    std::string styleIndex = (std::string)"style" + std::to_string(ig);
-                    std::string uuid = boost::uuids::to_string(symGroups[ig].uuid);
-                    newFeature->SetField(styleIndex.c_str(), uuid.c_str());
-                }
-                
-                // And don't forget the attributes they care about
-                for (std::set<std::string>::iterator it = attrsToKeep.begin();
-                     it != attrsToKeep.end(); ++it)
-                {
-                    std::string fieldName = *it;
-                    int idx = feature->GetFieldIndex(fieldName.c_str());
-                    if (idx != -1)
-                    {
-                        // Note: Should deal with other types
-                        const char *fieldVal = feature->GetFieldAsString(idx);
-                        if (fieldVal)
-                            newFeature->SetField(fieldName.c_str(), fieldVal);
-                    }
-                }
-                
-                outLayer->CreateFeature(newFeature);
-                OGRFeature::DestroyFeature(newFeature);
             }
         }
-        
-        OGRFeature::DestroyFeature(feature);
     }
 }
 
@@ -537,14 +548,20 @@ public:
     int numTiles;
 };
 
-// Chop up a shapefile into little bits
-void ChopShapefile(const char *layerName,const char *inputFile,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv,OGREnvelope *clipEnv,int &copiedFeatures)
-{
-    // Number of cells at this level
-    int numCells = 1<<level;
-    double cellSizeX = (xmax-xmin)/numCells;
-    double cellSizeY = (ymax-ymin)/numCells;
 
+class ShapefileWrapper
+{
+public:
+    ShapefileWrapper(const char *inputFile,OGRSpatialReference *hTrgSRS)
+    {
+        
+    }
+};
+
+// Load the data and test it against the bounding box.
+// Return a copy that's just within the bounding box
+OGRDataSource *LoadAndCheck(const char *inputFile,OGREnvelope *clipEnv,OGRSpatialReference *hTrgSRS,std::vector<OGRFeature *> &validFeatures)
+{
     OGRDataSource *poDS = shpDriver->Open(inputFile);
     if( poDS == NULL )
     {
@@ -552,42 +569,110 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         exit( 1 );
     }
     
-//    fprintf(stdout,"Input File: %s\n",inputFile);
-//    fprintf(stdout,"            %d layers\n",poDS->GetLayerCount());
-    
-    // Work through the layers
+    OGRSpatialReference *this_srs = poDS->GetLayer(0)->GetSpatialRef();
     for (unsigned int jj=0;jj<poDS->GetLayerCount();jj++)
     {
         // Copy the input layer into memory and reproject it
         OGRLayer *inLayer = poDS->GetLayer(jj);
-        OGRSpatialReference *this_srs = inLayer->GetSpatialRef();
-//        fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
+        //        fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
         
         OGREnvelope psExtent;
         inLayer->GetExtent(&psExtent);
         
         // Transform and copy features
         OGRCoordinateTransformation *transform = OGRCreateCoordinateTransformation(this_srs,hTrgSRS);
-//        char *this_srs_out = NULL;
-//        this_srs->exportToWkt(&this_srs_out);
-//        char *trg_srs_out = NULL;
-//        hTrgSRS->exportToWkt(&trg_srs_out);
+        //        char *this_srs_out = NULL;
+        //        this_srs->exportToWkt(&this_srs_out);
+        //        char *trg_srs_out = NULL;
+        //        hTrgSRS->exportToWkt(&trg_srs_out);
         if (!transform)
         {
             fprintf(stderr,"Can't transform from coordinate system to destination for: %s\n",inputFile);
             exit(-1);
         }
+
+        // Work through the features
+        for (unsigned int fi=0;fi<inLayer->GetFeatureCount();fi++)
+        {
+            OGRFeature *feature = inLayer->GetFeature(fi);
+            
+            // Transform the MBR
+            OGREnvelope mbr;
+            feature->GetGeometryRef()->getEnvelope(&mbr);
+            OGRLinearRing *geom = new OGRLinearRing();
+            geom->addPoint(mbr.MinX, mbr.MinY);
+            geom->addPoint(mbr.MaxX, mbr.MinY);
+            geom->addPoint(mbr.MaxX, mbr.MaxY);
+            geom->addPoint(mbr.MinX, mbr.MaxY);
+            geom->transform(transform);
+            OGREnvelope finalMbr;
+            geom->getEnvelope(&finalMbr);
+
+            // See if it's within the bounds we're building
+            bool withinBounds = true;
+            if (clipEnv)
+            {
+                if (!clipEnv->Contains(finalMbr) && !clipEnv->Intersects(finalMbr))
+                    withinBounds = false;
+            }
+            
+            if (withinBounds)
+                validFeatures.push_back(feature);
+            else
+                delete feature;
+        }
+        
+        delete transform;
+    }
+    
+    return poDS;
+}
+
+// Chop up a shapefile into little bits
+void ChopShapefile(const char *layerName,OGRDataSource *poDS,std::vector<OGRFeature *> &inFeatures,std::vector<MapnikConfig::CompiledSymbolizerTable::SymbolizerGroup> &symGroups, MapnikConfig::SymbolDataType dataType,const char *targetDir,double xmin,double ymin,double xmax,double ymax,int level,OGRSpatialReference *hTrgSRS,OGRSpatialReference *hTileSRS,BuildStats &stats,OGREnvelope &totalEnv,OGREnvelope *clipEnv,int &copiedFeatures)
+{
+    // Number of cells at this level
+    int numCells = 1<<level;
+    double cellSizeX = (xmax-xmin)/numCells;
+    double cellSizeY = (ymax-ymin)/numCells;
+    
+//    fprintf(stdout,"Input File: %s\n",inputFile);
+//    fprintf(stdout,"            %d layers\n",poDS->GetLayerCount());
+    
+    // Work through the layers
+//    for (unsigned int jj=0;jj<poDS->GetLayerCount();jj++)
+    {
+        // Copy the input layer into memory and reproject it
+        OGRLayer *inLayer = poDS->GetLayer(0);
+        OGRSpatialReference *this_srs = inLayer->GetSpatialRef();
+        //        fprintf(stdout,"            Layer: %s, %d features\n",inLayer->GetName(),inLayer->GetFeatureCount());
+        
+        OGREnvelope psExtent;
+        inLayer->GetExtent(&psExtent);
+        
+        // Transform and copy features
+        OGRCoordinateTransformation *transform = OGRCreateCoordinateTransformation(this_srs,hTrgSRS);
+        //        char *this_srs_out = NULL;
+        //        this_srs->exportToWkt(&this_srs_out);
+        //        char *trg_srs_out = NULL;
+        //        hTrgSRS->exportToWkt(&trg_srs_out);
+        if (!transform)
+        {
+            fprintf(stderr,"Can't transform from coordinate system to destination for input\n");
+            exit(-1);
+        }
         OGRCoordinateTransformation *tileTransform = OGRCreateCoordinateTransformation(hTrgSRS,hTileSRS);
         if (!tileTransform)
         {
-            fprintf(stderr,"Can't transform from coordinate system to tile for: %s\n",inputFile);
+            fprintf(stderr,"Can't transform from coordinate system to tile for input file\n");
             exit(-1);
         }
-        
+
         OGRDataSource *memDS = memDriver->CreateDataSource("memory");
         OGRLayer *layer = memDS->CreateLayer("layer",hTrgSRS);
+
         // We'll also apply any rules and attribute changes at this point
-        TransformLayer(inLayer,layer,transform,symGroups,dataType,psExtent);
+        TransformLayer(inLayer,inFeatures,layer,transform,symGroups,dataType,clipEnv,psExtent);
         LayerSpatialIndex layerIndex(layer);
         copiedFeatures += layer->GetFeatureCount();
         
@@ -655,8 +740,6 @@ void ChopShapefile(const char *layerName,const char *inputFile,std::vector<Mapni
         delete tileTransform;
         delete transform;
     }
-    
-    delete poDS;
 }
 
 // Merge vectors from the source into the dest
@@ -667,12 +750,12 @@ void MergeDataIntoLayer(OGRLayer *destLayer,OGRLayer *srcLayer)
 
 // This is the map scale for the given level.
 // These are sort of made up to match what TileMill is producing
-int ScaleForLevel(int level)
+int ScaleForLevel(int level,float levelScale)
 {
     int exp = 22-level;
     // Note: We're scaling by 1/4 to get this into a level WG-Maply uses
     //       The problem here is that map "levels" don't correspond well to loading levels
-    return (1<<exp) * 150 / 4;
+    return (1<<exp) * 150 / levelScale;
 }
 
 int main(int argc, char * argv[])
@@ -690,6 +773,7 @@ int main(int argc, char * argv[])
     bool mergeLayers = false;
     const char *webDbName = NULL,*webDbDir = NULL,*webDbURL = NULL;
     std::vector<std::string> pathRedirect;
+    float levelScale = 4;
     
     GDALAllRegister();
     OGRRegisterAll();
@@ -833,6 +917,20 @@ int main(int argc, char * argv[])
             }
             std::string path = argv[ii+1];
             pathRedirect.push_back(path);
+        } else if (EQUAL(argv[ii],"-levelscale"))
+        {
+            numArgs = 2;
+            if (ii+numArgs > argc)
+            {
+                fprintf(stderr,"Expecting one argument for -levelscale");
+                return -1;
+            }
+            levelScale = atof(argv[ii+1]);
+            if (levelScale <= 0.0)
+            {
+                fprintf(stderr,"Expecting non-zero number for -levelscale");
+                return -1;
+            }
         }
     }
 
@@ -957,6 +1055,14 @@ int main(int argc, char * argv[])
         for (unsigned int ii=0;ii<mapnikConfig->layers.size();ii++)
         {
             MapnikConfig::Layer &inLayer = mapnikConfig->layers[ii];
+            
+            fprintf(stdout,"Data Source: %s\n",inLayer.name.c_str());
+            fflush(stdout);
+
+            // Load the data into memory reprojected and bounds checked
+            std::vector<OGRFeature *> inFeatures;
+            OGRDataSource *inDataSource = LoadAndCheck(inLayer.dataSources[0]->getShapefileName(&inLayer,(shapeCacheDir ? shapeCacheDir : targetDir)).c_str(),(clipBoundsSet ? &clipBounds : NULL),hTrgSRS,inFeatures);
+            
             MapnikConfig::SortedLayer layer(mapnikConfig,inLayer);
             if (!layer.isValid())
             {
@@ -965,13 +1071,10 @@ int main(int argc, char * argv[])
             }
             std::vector<bool> sortedStylesDone(layer.sortStyles.size(),false);
             
-            fprintf(stdout,"Data Source: %s\n",inLayer.name.c_str());
-            fflush(stdout);
-            
             // Work through the levels
             for (int li=minLevel;li<=maxLevel;li++)
             {
-                int scale = ScaleForLevel(li);
+                int scale = ScaleForLevel(li,levelScale);
                 fprintf(stdout, "  Level %d;  Scale = %d\n",li,scale);
                 
                 // Look through the sorted styles that might apply and aren't done
@@ -1026,7 +1129,7 @@ int main(int argc, char * argv[])
                             
                             int copiedFeatures = 0;
                             std::string thisLayerName = inLayer.name;
-                            ChopShapefile(thisLayerName.c_str(), inLayer.dataSources[0]->getShapefileName(&inLayer,(shapeCacheDir ? shapeCacheDir : targetDir)).c_str(), symGroups, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents, (clipBoundsSet ? &clipBounds : NULL),copiedFeatures);
+                            ChopShapefile(thisLayerName.c_str(), inDataSource, inFeatures, symGroups, (MapnikConfig::SymbolDataType)di, targetDir, xmin, ymin, xmax, ymax, li, hTrgSRS, hTileSRS, buildStats,fullExtents, (clipBoundsSet ? &clipBounds : NULL),copiedFeatures);
                             
                             if (copiedFeatures > 0)
                             {
@@ -1050,6 +1153,10 @@ int main(int argc, char * argv[])
                     layerNames.insert(inLayer.name);
                 }
             }
+            
+            for (unsigned int fi=0;fi<inFeatures.size();fi++)
+                delete inFeatures[fi];
+            delete inDataSource;
         }
         
         // Write the symbolizers out as JSON
@@ -1188,17 +1295,17 @@ int main(int argc, char * argv[])
                 for (unsigned int iy=sy;iy<=ey;iy++)
                 {
                     bool fileExists = true;
-//                    // If there's nothing in the row we can skip that
-//                    std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
-//                    boost::filesystem::path yDirPath(yDir);
-//                    try
-//                    {
-//                        fileExists = boost::filesystem::exists(yDirPath);
-//                    }
-//                    catch (...)
-//                    {
-//                        // This tells us nothing
-//                    }
+                    // If there's nothing in the row we can skip that
+                    std::string yDir = (std::string)targetDir + "/" + std::to_string(level) + "/" + std::to_string(iy);
+                    boost::filesystem::path yDirPath(yDir);
+                    try
+                    {
+                        fileExists = boost::filesystem::exists(yDirPath);
+                    }
+                    catch (...)
+                    {
+                        // This tells us nothing
+                    }
                     if (!fileExists)
                     {
                         cellsProcessed += (ex-sx+1);
@@ -1210,24 +1317,24 @@ int main(int argc, char * argv[])
                     // Collect up all the filenames for the row, to save us from opening files one by one
                     bool fileNameCache = false;
                     std::set<std::string> yFileNames;
-//                    try
-//                    {
-//                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
-//                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
-//                        {
-//                            boost::filesystem::path p = dirIter->path();
-//                            std::string ext = p.extension().string();
-//                            if (!ext.compare(".shp"))
-//                            {
-//                                yFileNames.insert(p.string());
-//                            }
-//                        }
-//                        fileNameCache = true;
-//                    }
-//                    catch (...)
-//                    {
-//                        fileNameCache = false;
-//                    }
+                    try
+                    {
+                        for (boost::filesystem::directory_iterator dirIter = boost::filesystem::directory_iterator(yDir);
+                             dirIter != boost::filesystem::directory_iterator(); ++dirIter)
+                        {
+                            boost::filesystem::path p = dirIter->path();
+                            std::string ext = p.extension().string();
+                            if (!ext.compare(".shp"))
+                            {
+                                yFileNames.insert(p.string());
+                            }
+                        }
+                        fileNameCache = true;
+                    }
+                    catch (...)
+                    {
+                        fileNameCache = false;
+                    }
 
                     for (unsigned int ix=sx;ix<=ex;ix++)
                     {
