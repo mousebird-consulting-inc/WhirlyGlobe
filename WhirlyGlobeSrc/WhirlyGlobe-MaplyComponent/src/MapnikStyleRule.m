@@ -20,6 +20,7 @@
 
 
 #import "MapnikStyleRule.h"
+#import "MaplyVectorStyle.h"
 
 @interface MapnikStyleRule ()
 @property (nonatomic, strong, readwrite) NSMutableArray *symbolizers;
@@ -87,8 +88,8 @@
 
 
 - (NSString*)description {
-  return [NSString stringWithFormat:@"%lu - %lu(%lu - %lu): %@", (unsigned long)self.minScaleDenominator,
-          (unsigned long)self.maxScaleDenomitator, (unsigned long)self.minZoom, (unsigned long)self.maxZoom, self.filterPredicate];
+  return [NSString stringWithFormat:@"%lu - %lu(%lu - %lu): %@, %d symbolizers", (unsigned long)self.minScaleDenominator,
+          (unsigned long)self.maxScaleDenomitator, (unsigned long)self.minZoom, (unsigned long)self.maxZoom, self.filterPredicate, self.symbolizers.count];
 }
 
 

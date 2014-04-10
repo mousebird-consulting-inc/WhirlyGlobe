@@ -40,6 +40,12 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (NSString*)description
+{
+  return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
+          [[self class] description], _lineScale, _textScale, _markerScale, _mapScaleScale];
+}
+
 @end
 
 @implementation MaplyVectorTileStyle
@@ -52,7 +58,7 @@ using namespace WhirlyKit;
     if ([typeStr isEqualToString:@"LineSymbolizer"])
     {
         tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"])
+    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"] || [typeStr isEqualToString:@"PolygonPatternSymbolizer"])
     {
         tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
     } else if ([typeStr isEqualToString:@"TextSymbolizer"])
@@ -146,6 +152,13 @@ using namespace WhirlyKit;
     }
     
     return result;
+}
+
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ uuid:%@ additive:%d",
+          [[self class] description], self.uuid, self.geomAdditive];
 }
 
 @end
