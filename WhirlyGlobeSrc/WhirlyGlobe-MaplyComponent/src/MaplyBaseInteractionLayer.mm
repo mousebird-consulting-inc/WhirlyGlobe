@@ -716,7 +716,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             case MaplyLabelJustifyLeft:
                 [desc setObject:@"left" forKey:@"justify"];
                 break;
-            case MaplyLabelJustiyMiddle:
+            case MaplyLabelJustifyMiddle:
                 [desc setObject:@"middle" forKey:@"justify"];
                 break;
             case MaplyLabelJustifyRight:

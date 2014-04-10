@@ -226,11 +226,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool useTargetZoomLevel;
 
-/** @brief Force a full reload of all tiles.
-    @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
-    @details This is good for tile sources, like weather, that need to be refreshed every so often.
+/** @brief Only load a single level at a time.
+    @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.
   */
-- (void)reload;
+@property (nonatomic) bool singleLevelLoading;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
@@ -238,6 +238,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
     @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
   */
 - (int)targetZoomLevel;
+
+/** @brief Force a full reload of all tiles.
+ @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
+ @details This is good for tile sources, like weather, that need to be refreshed every so often.
+ */
+- (void)reload;
 
 /** @brief Pass back the loaded image(s) for a given tile.
     @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
