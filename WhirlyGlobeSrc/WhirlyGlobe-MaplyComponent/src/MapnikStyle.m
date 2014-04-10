@@ -19,6 +19,7 @@
  */
 
 #import "MapnikStyle.h"
+#import "MaplyVectorStyle.h"
 
 @interface MapnikStyle ()
 
