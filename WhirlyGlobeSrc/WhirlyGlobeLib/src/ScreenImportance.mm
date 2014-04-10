@@ -192,24 +192,30 @@ static float const BoundsEps = 10.0 / EarthRadius;
         topCorners.push_back(Point3d(dispPt1.x(),dispPt1.y(),dispPt1.z()));
     }
     
-    // Now let's go ahead and form the polygons for the planes
-    // First the ones around the outside
-    dispSolid.polys.reserve(planeMbrPts.size()+2);
-    for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
+    // If we've got a flat coord adapter and no height, one poly will do
+    if (coordAdapter->isFlat() && minZ == maxZ)
     {
-        int thisPt = ii;
-        int nextPt = (ii+1)%planeMbrPts.size();
-        std::vector<Point3d> poly;  poly.reserve(4);
-        poly.push_back(botCorners[thisPt]);
-        poly.push_back(botCorners[nextPt]);
-        poly.push_back(topCorners[nextPt]);
-        poly.push_back(topCorners[thisPt]);
-        dispSolid.polys.push_back(poly);
+        dispSolid.polys.push_back(topCorners);
+    } else {
+        // Now let's go ahead and form the polygons for the planes
+        // First the ones around the outside
+        dispSolid.polys.reserve(planeMbrPts.size()+2);
+        for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
+        {
+            int thisPt = ii;
+            int nextPt = (ii+1)%planeMbrPts.size();
+            std::vector<Point3d> poly;  poly.reserve(4);
+            poly.push_back(botCorners[thisPt]);
+            poly.push_back(botCorners[nextPt]);
+            poly.push_back(topCorners[nextPt]);
+            poly.push_back(topCorners[thisPt]);
+            dispSolid.polys.push_back(poly);
+        }
+        // Then top and bottom
+        dispSolid.polys.push_back(topCorners);
+        std::reverse(botCorners.begin(),botCorners.end());
+        dispSolid.polys.push_back(botCorners);
     }
-    // Then top and bottom
-    dispSolid.polys.push_back(topCorners);
-    std::reverse(botCorners.begin(),botCorners.end());
-    dispSolid.polys.push_back(botCorners);
     
     // Now calculate normals for each of those
     dispSolid.normals.reserve(dispSolid.polys.size());
