@@ -22,5 +22,6 @@
 - (void)setMinScaleDenom:(NSNumber*)num;
 - (NSNumber*)maxScaleDenom;
 - (void)setMaxScaleDenom:(NSNumber*)num;
+- (NSMutableDictionary*)parameters;
 
 @end

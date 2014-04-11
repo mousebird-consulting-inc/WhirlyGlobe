@@ -28,6 +28,8 @@
 
 @property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
 @property (nonatomic, strong) NSMutableDictionary *styleDictionary;
+@property (nonatomic, weak) MaplyBaseViewController *viewC;
+@property (nonatomic, readonly) BOOL parsing;
 
 - (instancetype)initForTileSource:(MaplyRemoteTileInfo *)tileSource viewC:(MaplyBaseViewController *)viewC;
 - (void)loadXmlFile:(NSString*)filePath;
