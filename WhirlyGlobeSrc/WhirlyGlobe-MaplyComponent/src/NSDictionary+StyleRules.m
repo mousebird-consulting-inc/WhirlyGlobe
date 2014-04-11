@@ -74,5 +74,13 @@
   self[@"maxscaledenom"] = num;
 }
 
+- (NSMutableDictionary*)parameters {
+  NSMutableDictionary *params = self[@"parameters"];
+  if(!params) {
+    params = [NSMutableDictionary dictionary];
+    self[@"parameters"] = params;
+  }
+  return params;
+}
 
 @end

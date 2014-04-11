@@ -427,12 +427,20 @@ static double MAX_EXTENT = 20037508.342789244;
 
 
 - (int)minZoom {
-  return [(MaplyRemoteTileInfo*)self.tileSources[0] minZoom];
+  if(self.tileSources.count) {
+    return [(MaplyRemoteTileInfo*)self.tileSources[0] minZoom];
+  } else {
+    return 3;
+  }
 }
 
 
 - (int)maxZoom {
-  return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+  if(self.tileSources.count) {
+    return [(MaplyRemoteTileInfo*)self.tileSources[0] maxZoom];
+  } else {
+    return 14;
+  }
 }
 
 
