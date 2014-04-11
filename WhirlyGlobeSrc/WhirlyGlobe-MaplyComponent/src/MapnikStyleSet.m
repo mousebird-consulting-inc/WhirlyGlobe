@@ -43,15 +43,13 @@
 
 @property (nonatomic, strong) MaplyRemoteTileInfo *tileSource;
 
-@property (nonatomic, strong) NSMutableDictionary *parameters;
 @property (nonatomic, strong) NSMutableDictionary *styles;
 @property (nonatomic, strong) NSMutableDictionary *layers;
 @property (nonatomic, strong) NSMutableDictionary *symbolizers;
 
-@property (nonatomic, assign) BOOL parsing;
+@property (nonatomic, assign, readwrite) BOOL parsing;
 @property (nonatomic, assign) BOOL success;
 
-@property (nonatomic, weak) MaplyBaseViewController *viewC;
 
 @end
 
@@ -95,14 +93,14 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 
 - (void)loadXmlFile:(NSString*)filePath {
+  self.parsing = YES;
+  
   startTime = CFAbsoluteTimeGetCurrent();
-  self.parameters = [NSMutableDictionary dictionary];
   self.styleDictionary = [NSMutableDictionary dictionary];
   NSData *docData = [[NSData alloc] initWithContentsOfFile:filePath];
   NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
   docData = nil;
   parser.delegate = self;
-  self.parsing = YES;
   [parser parse];
 }
 
@@ -316,7 +314,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     currentRule.minScaleDenom = @([currentString intValue]);
   } else if([elementName isEqualToString:PARAMETER_ELEMENT]) {
     if(currentString && currentName) {
-      self.parameters[currentName] = currentString;
+      self.styleDictionary.parameters[currentName] = currentString;
     }
     currentName = nil;
   }
