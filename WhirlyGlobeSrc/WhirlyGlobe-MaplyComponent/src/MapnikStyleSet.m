@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapnikXmlStyle.h"
+#import "MapnikStyleSet.h"
 
 #import "MaplyRemoteTileSource.h"
 #import "MaplyVectorLineStyle.h"
@@ -29,7 +29,7 @@
 #import "MapnikStyleRule.h"
 #import "NSDictionary+StyleRules.h"
 
-@interface MapnikXmlStyle() {
+@interface MapnikStyleSet() {
   //temporary storage during parsing
   NSString *currentString;
   NSMutableDictionary *currentStyle;
@@ -55,7 +55,7 @@
 
 @end
 
-@implementation MapnikXmlStyle
+@implementation MapnikStyleSet
 
 static NSString *RULE_ELEMENT = @"Rule";
 static NSString *STYLE_ELEMENT = @"Style";
@@ -75,16 +75,20 @@ static NSString *NAME_ATTRIBUTE = @"name";
 static NSString *OPACITY_ATTRIBUTE = @"opacity";
 static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
+- (instancetype)init {
+  self = [super init];
+  if(self) {
+    self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
+    self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
+  }
+  return self;
+}
 
 - (instancetype)initForTileSource:(MaplyRemoteTileInfo *)tileSource
                             viewC:(MaplyBaseViewController *)viewC {
-  self = [super init];
+  self = [self init];
   if(self) {
     self.viewC = viewC;
-    self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
-    self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
-    
-    self.parameters = [NSMutableDictionary dictionary];
   }
   return self;
 }
@@ -92,6 +96,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)loadXmlFile:(NSString*)filePath {
   startTime = CFAbsoluteTimeGetCurrent();
+  self.parameters = [NSMutableDictionary dictionary];
   self.styleDictionary = [NSMutableDictionary dictionary];
   NSData *docData = [[NSData alloc] initWithContentsOfFile:filePath];
   NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
