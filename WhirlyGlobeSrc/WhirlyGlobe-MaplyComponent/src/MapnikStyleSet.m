@@ -144,13 +144,13 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
       if(ruleDict.minScaleDenom) {
         rule.minScaleDenominator = ruleDict.minScaleDenom.integerValue;
       } else {
-        rule.minZoom = 0;
+        rule.maxZoom = 30;
       }
       
       if(ruleDict.maxScaleDenom) {
         rule.maxScaleDenomitator = ruleDict.maxScaleDenom.integerValue;
       } else {
-        rule.maxZoom = 30;
+        rule.minZoom = 1;
       }
       
       for(NSDictionary *symbolizerDict in ruleDict[@"symbolizers"]) {
