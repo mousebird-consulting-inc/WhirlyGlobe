@@ -8,6 +8,7 @@
 
 #import <map>
 #include <libgen.h>
+#include "ogrsf_frmts.h"
 #include "MapnikConfig.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -306,28 +307,44 @@ void MapnikConfig::Filter::setFilter(const std::string &filterText)
     filter = filterText;
     
     try {
-        // Let's try an AND
-        exp = RegExRef(new boost::regex("(\\(.+\\))\\s(?:and)\\s(\\(.+\\))"));
+        // Let's try two ANDs (yes, this is stupid)
+        exp = RegExRef(new boost::regex("(\\(.+\\))\\s(?:and)\\s(\\(.+\\))\\s(?:and)\\s(\\(.+\\))"));
         boost::smatch what;
         if (boost::regex_match(filterText, what, *exp, boost::match_default))
         {
-            if (what.size() != 3)
+            if (what.size() != 4)
                 throw 1;
-
+            
             logicalOp = OperatorAND;
-            for (unsigned int ii=0;ii<2;ii++)
+            for (unsigned int ii=0;ii<3;ii++)
             {
                 Comparison comp;
                 comp.setFilter(what[ii+1]);
                 comparisons.push_back(comp);
             }
         } else {
-            // Okay, how about a single operation
-            Comparison comp;
-            comp.setFilter(filterText);
-            logicalOp = OperatorAND;
-            if (comp.isValid())
-                comparisons.push_back(comp);
+            // Let's try an AND
+            exp = RegExRef(new boost::regex("(\\(.+\\))\\s(?:and)\\s(\\(.+\\))"));
+            if (boost::regex_match(filterText, what, *exp, boost::match_default))
+            {
+                if (what.size() != 3)
+                    throw 1;
+
+                logicalOp = OperatorAND;
+                for (unsigned int ii=0;ii<2;ii++)
+                {
+                    Comparison comp;
+                    comp.setFilter(what[ii+1]);
+                    comparisons.push_back(comp);
+                }
+            } else {
+                // Okay, how about a single operation
+                Comparison comp;
+                comp.setFilter(filterText);
+                logicalOp = OperatorAND;
+                if (comp.isValid())
+                    comparisons.push_back(comp);
+            }
         }
     }
     catch (...)
@@ -399,6 +416,39 @@ std::string MapnikConfig::ShapefileDataSource::getName()
 std::string MapnikConfig::ShapefileDataSource::getShapefileName(Layer *layer,const char *outDir)
 {
     return fileName;
+}
+
+MapnikConfig::DataSourceOGR::DataSourceOGR(const std::string &fileName)
+: fileName(fileName)
+{
+}
+
+std::string MapnikConfig::DataSourceOGR::getName()
+{
+    return fileName;
+}
+
+std::string MapnikConfig::DataSourceOGR::getShapefileName(Layer *layer, const char *outdir)
+{
+    if (shapeFileName.empty())
+    {
+        // Look for the file in one of the paths first
+        std::string baseName = boost::filesystem::basename(fileName) + boost::filesystem::extension(fileName);
+        if (baseName.empty())
+        return "";
+
+        shapeFileName = (std::string)outdir + "/" + baseName + ".shp";
+        
+        // Run ogr2ogr to generate a shapefile.  This is sort of stupid.
+        std::string execStr = ((std::string)"/usr/local/bin/ogr2ogr " + "\"" + shapeFileName + "\" " + "\"" + fileName + "\"");
+        if (system(execStr.c_str()))
+        {
+            fprintf(stderr, "Failed to execute postgis request:\n%s\n",execStr.c_str());
+            throw execStr;
+        }
+    }
+    
+    return shapeFileName;
 }
 
 std::string MapnikConfig::PostGISDataSource::getName()
@@ -759,7 +809,12 @@ bool MapnikConfig::parseXML(XMLDocument *doc,const std::vector<std::string> &pat
                     pgDataSource->table = table;
                     pgDataSource->idStr = idStr;
                     dataSource = pgDataSource;
-                } else {
+                } else if (!dataType.compare("ogr"))
+                {
+                    DataSourceOGR *ogrDataSource = new DataSourceOGR(fileName);
+                    dataSource = ogrDataSource;
+                } else
+                {
                     error = "Data type: " + dataType + " is unsupported for data sources in layer " + layer.name;
                     return false;
                 }
