@@ -97,7 +97,7 @@ typedef enum {
                 subStyle->placement = TextPlacementPoint;
             else if([placement isEqualToString:@"interior"])
                 subStyle->placement = TextPlacementInterior;
-            else if([placement isEqualToString:@"vertext"])
+            else if([placement isEqualToString:@"vertex"])
                 subStyle->placement = TextPlacementVertex;
         }
         
