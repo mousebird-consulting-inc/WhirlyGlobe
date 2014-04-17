@@ -124,12 +124,21 @@
 
 /** @brief The cache directory for image tiles.
     @details In general, we want to cache.  The globe, in particular,
-    is going to fetch the same times over and over, quite a lot.
+    is going to fetch the same tiles over and over, quite a lot.
     The cacheing behavior is a little dumb.  It will just write
     files to the given directory forever.  If you're interacting
     with a giant image pyramid, that could be problematic.
   */
 @property (nonatomic) NSString *cacheDir;
+
+/** @brief The maximum age of a cached file in seconds.
+    @details If set, tiles in the cache older than this number of
+    seconds will not be used; rather, a new copy of the tile will be
+    retrieved from the remote source, and the locally cached tile
+    will be updated. This is useful for tiles that represent
+    impermanent data, such as weather information.
+ */
+@property (nonatomic) int cachedFileLifetime;
 
 /** @brief A delegate for tile loads and failures.
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
