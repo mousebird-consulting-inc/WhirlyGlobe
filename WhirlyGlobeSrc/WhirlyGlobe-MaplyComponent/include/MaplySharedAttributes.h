@@ -151,6 +151,8 @@
 #define kMaplySubdivType @"subdivisiontype"
 /// Subdivide the vector edges along a great circle
 #define kMaplySubdivGreatCircle @"greatcircle"
+/// Subdivide into a fixed number of segmenets
+#define kMaplySubdivStatic @"static"
 /// Subdivide the vectors edges along lat/lon
 #define kMaplySubdivSimple @"simple"
 /// Clip features along a grid of the given size

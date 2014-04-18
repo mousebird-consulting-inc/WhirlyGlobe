@@ -180,6 +180,11 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (NSArray *)asCLLocationArrays;
 
+/** @brief Return the data as an NSArray of NSNumbers.
+    @details If this is a linear, we'll return the points as an NSArray of NSNumbers.
+  */
+- (NSArray *)asNumbers;
+
 /** @brief Split up ths feature into individual features and return an array of them.
     @details A vector object can represent multiple features with no real rhyme or reason to it.  This method will make one vector object per feature, allowing you to operate on those individually.
     @return An NSArray of MaplyVectorObject.
