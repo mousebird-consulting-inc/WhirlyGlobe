@@ -269,7 +269,22 @@ public:
         std::string table;
         std::string idStr;
     protected:
+        std::string fileName;
         std::string shapefileName;
+    };
+    
+    // OGR data source
+    class DataSourceOGR : public DataSource
+    {
+    public:
+        DataSourceOGR(const std::string &fileName);
+        
+        std::string getName();
+        std::string getShapefileName(Layer *layer,const char *outDir);
+        
+    protected:
+        std::string fileName;
+        std::string shapeFileName;
     };
     
     // Mapnik layer definition.  This is where we link up data
