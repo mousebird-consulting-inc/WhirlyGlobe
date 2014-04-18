@@ -56,6 +56,12 @@ typedef struct
 #if __cplusplus
 extern "C" {
 #endif
+
+/** @brief Construct a MaplyCoordiante with longitude and latitude values in radians.
+    @details MaplyCoordinate's are in radians when they represent lon/lat values.  This constructs one with radians as input.
+    @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
+  */
+MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat);
     
 /** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
     @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.

@@ -37,7 +37,7 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
 {
     bool isFlat = coordAdapter->isFlat();
 
@@ -51,7 +51,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         VectorRing inPts;
         inPts.push_back(Point2f(startPt.x,startPt.y));
         inPts.push_back(Point2f(endPt.x,endPt.y));
-        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, 0.001);
+        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, eps);
 
         // To apply the height, we'll need the total length
         float totLen = 0;
@@ -79,6 +79,53 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
                 pt.z() = thisHeight;
             else
                 pt *= 1.0+thisHeight;        
+        }
+    }
+}
+
+// Sample a great circle and throw in an interpolated height at each point
+void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
+{
+    bool isFlat = coordAdapter->isFlat();
+    
+    // We can subdivide the great circle with this routine
+    if (isFlat)
+    {
+        pts.resize(2);
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
+    } else {
+        VectorRing inPts;
+        inPts.push_back(Point2f(startPt.x,startPt.y));
+        inPts.push_back(Point2f(endPt.x,endPt.y));
+        SubdivideEdgesToSurfaceGC(inPts, pts, false, coordAdapter, 1.0, 0.0, samples);
+        
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3f &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+            pt.z() = thisHeight;
+            else
+            pt *= 1.0+thisHeight;
         }
     }
 }
@@ -815,6 +862,7 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             NSString *subdivType = inDesc[kMaplySubdivType];
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
             bool grid = ![subdivType compare:kMaplySubdivGrid];
+            bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy];
             if (greatCircle)
                 [newVecObj subdivideToGlobeGreatCircle:eps];
@@ -822,7 +870,10 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
             {
                 // The manager has to handle this one
             }
-            else
+            else if (staticSubdiv)
+            {
+                // Note: Fill this in
+            } else
                 [newVecObj subdivideToGlobe:eps];
 
             shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
@@ -1104,7 +1155,14 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         {
             MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
             WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
-            SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter);
+            float eps = 0.001;
+            if ([inDesc[kMaplySubdivEpsilon] isKindOfClass:[NSNumber class]])
+                eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
+            if (isStatic)
+                SampleGreatCircleStatic(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter,eps);
+            else
+                SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter,eps);
             lin.lineWidth = gc.lineWidth;
             if (gc.color)
             {

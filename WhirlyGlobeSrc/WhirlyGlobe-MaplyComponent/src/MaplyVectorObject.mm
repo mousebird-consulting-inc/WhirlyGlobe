@@ -653,9 +653,46 @@ public:
             }
             [loops addObject:pts];
         }
+    } else {
+        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            const VectorRing &loop = lin->pts;
+            NSMutableArray *pts = [NSMutableArray array];
+            for (unsigned int ii=0;ii<loop.size();ii++)
+            {
+                const Point2f &coord = loop[ii];
+                CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
+                [pts addObject:loc];
+            }
+            [loops addObject:pts];
+        }
     }
     
     return loops;
+}
+
+- (NSArray *)asNumbers
+{
+    if (_shapes.size() < 1)
+        return nil;
+    
+    NSMutableArray *outPts = [NSMutableArray array];
+    
+    ShapeSet::iterator it = _shapes.begin();
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+    if (lin)
+    {
+        const VectorRing &loop = lin->pts;
+        for (unsigned int ii=0;ii<loop.size();ii++)
+        {
+            const Point2f &coord = loop[ii];
+            [outPts addObject:@(coord.x())];
+            [outPts addObject:@(coord.y())];
+        }
+    }
+    
+    return outPts;
 }
 
 - (NSArray *)splitVectors
