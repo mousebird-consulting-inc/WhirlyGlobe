@@ -181,6 +181,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     super.layerThread = inLayerThread;
     scene = inScene;
     _viewC = inViewC;
+    _renderer = renderer;
     
     // Cache min and max zoom.  Tile sources might do a lookup for these
     minZoom = [tileSource minZoom];
@@ -370,7 +371,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     double import = 0.0;
     if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
-        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), parentMbr, ident, attrs))
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), (_singleLevelLoading ? mbr : parentMbr), ident, attrs))
         {
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
@@ -407,6 +408,16 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (bool)isReady
 {
     return (numFetches < _numSimultaneousFetches);
+}
+
+- (int)localFetches
+{
+    return 0;
+}
+
+- (int)networkFetches
+{
+    return numFetches;
 }
 
 - (void)quadDisplayLayerStartUpdates:(WhirlyKitQuadDisplayLayer *)layer
@@ -488,7 +499,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     [_viewC removeObjects:replaceCompObjs];
     
     // Check the parent
-    if (tileInfo.ident.level >= minZoom)
+    if (tileInfo.ident.level >= minZoom && !_singleLevelLoading)
     {
         MaplyTileID parentID;
         parentID.x = tileInfo.ident.x/2;
@@ -565,7 +576,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     // Check the parent
-    if (tileID.level > 0)
+    if (tileID.level > 0 && !_singleLevelLoading)
     {
         MaplyTileID parentID;
         parentID.x = tileID.x/2;
@@ -661,6 +672,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)tileDidLoad:(MaplyTileID)tileID
 {
     NSArray *addCompObjs = nil;
+    NSArray *replaceCompObjs = nil;
     
     Quadtree::Identifier tileIdent(tileID.x,tileID.y,tileID.level);
     pthread_mutex_lock(&tileSetLock);
@@ -672,6 +684,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         tile->isLoading = false;
         tile->didLoad = true;
         addCompObjs = tile->addCompObjs;
+        replaceCompObjs = tile->replaceCompObjs;
     }
     numFetches--;
     pthread_mutex_unlock(&tileSetLock);
@@ -680,7 +693,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     if ([addCompObjs count] > 0)
         [_viewC enableObjects:addCompObjs mode:MaplyThreadAny];
     
-    [self runTileUpdate];
+    if (_singleLevelLoading)
+    {
+        if ([replaceCompObjs count] > 0)
+            [_viewC enableObjects:replaceCompObjs mode:MaplyThreadAny];
+    } else
+        [self runTileUpdate];
     
     [self performSelector:@selector(loadNotify:) onThread:super.layerThread withObject:[MaplyTileIDObject tileWithTileID:tileID] waitUntilDone:NO];
 }
@@ -722,6 +740,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 // As long as we're not loading the tile, we can load the children
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    if (_singleLevelLoading)
+        return true;
+    
     bool ret = false;
     
     pthread_mutex_lock(&tileSetLock);
