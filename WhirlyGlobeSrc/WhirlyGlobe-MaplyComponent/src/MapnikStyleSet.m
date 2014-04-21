@@ -287,6 +287,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
       mutableAttributes[@"type"] = elementName;
     }
     [currentRule.symbolizers addObject:mutableAttributes];
+    currentSymbolizer = mutableAttributes;
   } else if([elementName isEqualToString:STYLE_ELEMENT]) {
     if(attributeDict[NAME_ATTRIBUTE]) {
       currentStyle = [attributeDict mutableCopy];
