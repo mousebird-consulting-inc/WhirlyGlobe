@@ -102,12 +102,21 @@
 
 /** @brief The cache directory for image tiles.
  @details In general, we want to cache.  The globe, in particular,
- is going to fetch the same times over and over, quite a lot.
+    is going to fetch the same tiles over and over, quite a lot.
  The cacheing behavior is a little dumb.  It will just write
  files to the given directory forever.  If you're interacting
  with a giant image pyramid, that could be problematic.
  */
 @property (nonatomic, strong) NSString *cacheDir;
+
+/** @brief The maximum age of a cached file in seconds.
+      @details If set, tiles in the cache older than this number of
+      seconds will not be used; rather, a new copy of the tile will be
+      retrieved from the remote source, and the locally cached tile
+      will be updated. This is useful for tiles that represent
+      impermanent data, such as weather information.
+  */
+@property (nonatomic) int cachedFileLifetime;
 
 /** @brief Add a bounding box tiles are valid within.
  @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
