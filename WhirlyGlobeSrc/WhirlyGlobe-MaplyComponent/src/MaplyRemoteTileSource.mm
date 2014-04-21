@@ -158,7 +158,7 @@ using namespace WhirlyKit;
     NSString *fileName = [self cacheFileForTile:tileID];
     if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
         return true;
-    
+
     return false;
 }
 
@@ -173,7 +173,9 @@ using namespace WhirlyKit;
     if (_cacheDir)
     {
         fileName = [self cacheFileForTile:tileID];
+        
         imgData = [NSData dataWithContentsOfFile:fileName];
+        
         if (imgData)
         {
 //            NSLog(@"Tile was cached: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
