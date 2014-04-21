@@ -11,6 +11,7 @@ import com.mousebird.maply.MaplyController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.NamedBitmap;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.Point3d;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorInfo;
@@ -39,7 +40,9 @@ public class TestCountries
 	void start()
 	{
 //	   	mapControl.setPosition(-122.416667 / 180.0 * 3.1415, 37.783333 / 180.0 * 3.1415, 4.0) ;
-	    	
+
+		Point3d testPt = new Point3d(0.f,0.f,0.f);
+
     	// Go load vector files (on another thread, please)
     	Thread thread = new Thread()
     	{
@@ -59,7 +62,7 @@ public class TestCountries
        	         "SVK", "SVN", "SWE", "SWZ", "SXM", "SYC", "SYR", "TCA", "TCD", "TGO", "THA", "TJK", "TKL", "TKM", "TLS", "TON",
        	         "TTO", "TUN", "TUR", "TUV", "TWN", "TZA", "UGA", "UKR", "UMI", "URY", "USA", "UZB", "VAT", "VCT", "VEN", "VGB",
        	         "VIR", "VNM", "VUT", "WLF", "WSM", "YEM", "ZAF", "ZMB", "ZWE"};
-
+        	 
         	@Override
     	    public void run() 
         	{

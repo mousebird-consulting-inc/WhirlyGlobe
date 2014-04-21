@@ -13,7 +13,7 @@ public class Point3d
 	/**
 	 * Initialize empty.
 	 */
-	Point3d()
+	public Point3d()
 	{
 		initialise();
 	}
@@ -21,7 +21,7 @@ public class Point3d
 	/**
 	 * Make a copy from the given Point3d
 	 */
-	Point3d(Point3d that)
+	public Point3d(Point3d that)
 	{
 		initialise();		
 		setValue(that.getX(),that.getY(),that.getZ());
@@ -30,7 +30,7 @@ public class Point3d
 	/**
 	 * Initialize with 3 doubles.
 	 */
-	Point3d(double x,double y,double z)
+	public Point3d(double x,double y,double z)
 	{
 		initialise();
 		setValue(x,y,z);
