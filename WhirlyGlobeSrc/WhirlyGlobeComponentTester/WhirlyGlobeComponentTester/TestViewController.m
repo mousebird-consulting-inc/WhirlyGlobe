@@ -231,7 +231,10 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     }
     
     // Set the background color for the globe
-    baseViewC.clearColor = [UIColor blackColor];
+    if (globeViewC)
+        baseViewC.clearColor = [UIColor blackColor];
+    else
+        baseViewC.clearColor = [UIColor whiteColor];
     
     // We'll let the toolkit create a thread per image layer.
     baseViewC.threadPerLayer = true;
@@ -1497,6 +1500,16 @@ static const int NumMegaMarkers = 40000;
     NSLog(@"Spherical Earth Layer loaded.");
 }
 
+- (void)globeViewControllerDidStartMoving:(WhirlyGlobeViewController *)viewC userMotion:(bool)userMotion
+{
+//    NSLog(@"Started moving");
+}
+
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
+{
+//    NSLog(@"Stopped moving");
+}
+
 #pragma mark - Maply delegate
 
 - (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj
@@ -1513,6 +1526,16 @@ static const int NumMegaMarkers = 40000;
 //        [baseViewC removeViewTrackForView:selectedViewTrack.view];
 //        selectedViewTrack = nil;
 //    }    
+}
+
+- (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion
+{
+//    NSLog(@"Started moving");
+}
+
+- (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion
+{
+//    NSLog(@"Stopped moving");
 }
 
 #pragma mark - Popover Delegate

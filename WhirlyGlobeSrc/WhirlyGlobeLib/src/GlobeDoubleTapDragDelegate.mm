@@ -65,6 +65,10 @@ using namespace WhirlyKit;
             screenPt = [press locationInView:glView];
             startZ = globeView.heightAboveGlobe;
             [globeView cancelAnimation];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidStart object:globeView];
+            break;
+        case UIGestureRecognizerStateCancelled:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView];
             break;
         case UIGestureRecognizerStateChanged:
         {
@@ -79,6 +83,9 @@ using namespace WhirlyKit;
             }
         }
             break;
+        case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView];
+        break;
         default:
             break;
     }

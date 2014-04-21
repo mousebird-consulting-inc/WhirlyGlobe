@@ -22,6 +22,11 @@
 #import "MaplyView.h"
 #import "MaplyZoomGestureDelegate.h"
 
+// Sent out when the double tap delegate takes control
+#define kMaplyDoubleTapDragDidStart @"WKMaplyDoubleTapDragStarted"
+// Sent out when the double tap delegate finished (but hands off to momentum)
+#define kMaplyDoubleTapDragDidEnd @"WKMaplyDoubleTapDragEnded"
+
 @interface MaplyDoubleTapDragDelegate : MaplyZoomGestureDelegate
 
 /// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
