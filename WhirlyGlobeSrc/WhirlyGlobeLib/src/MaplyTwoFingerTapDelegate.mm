@@ -49,21 +49,21 @@ using namespace WhirlyKit;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
     WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
 	
-    Point3d curLoc = mapView.loc;
+    Point3d curLoc = self.mapView.loc;
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
+    Eigen::Matrix4d theTransform = [self.mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    if ([self.mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         double newZ = curLoc.z() + (curLoc.z() - self.minZoom)/2.0;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
             Point3f newLoc(hit.x(),hit.y(),newZ);
-            animation = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:_animTime];
-            mapView.delegate = animation;
+            animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc howLong:_animTime];
+            self.mapView.delegate = animation;
         }
-        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView];
     } else {
         // Not expecting this case
     }

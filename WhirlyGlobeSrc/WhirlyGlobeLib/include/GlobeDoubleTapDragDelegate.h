@@ -21,6 +21,11 @@
 #import <Foundation/Foundation.h>
 #import "GlobeView.h"
 
+// Sent out when the double tap delegate takes control
+#define kGlobeDoubleTapDragDidStart @"WKGlobeDoubleTapDragStarted"
+// Sent out when the double tap delegate finished (but hands off to momentum)
+#define kGlobeDoubleTapDragDidEnd @"WKGlobeDoubleTapDragEnded"
+
 @interface WhirlyGlobeDoubleTapDragDelegate : NSObject<UIGestureRecognizerDelegate>
 
 /// Create a double tap gesture and a delegate and wire them up to the given UIView
