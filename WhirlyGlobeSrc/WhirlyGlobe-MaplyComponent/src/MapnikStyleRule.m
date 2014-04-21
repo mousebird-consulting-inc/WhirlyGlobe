@@ -88,8 +88,10 @@
 
 
 - (NSString*)description {
-  return [NSString stringWithFormat:@"%lu - %lu(%lu - %lu): %@, %d symbolizers", (unsigned long)self.minScaleDenominator,
-          (unsigned long)self.maxScaleDenomitator, (unsigned long)self.minZoom, (unsigned long)self.maxZoom, self.filterPredicate, self.symbolizers.count];
+  return [NSString stringWithFormat:@"%lu - %lu(%lu - %lu): %@, %lu symbolizers",
+          (unsigned long)self.minScaleDenominator, (unsigned long)self.maxScaleDenomitator,
+          (unsigned long)self.minZoom, (unsigned long)self.maxZoom, self.filterPredicate,
+          (unsigned long)self.symbolizers.count];
 }
 
 

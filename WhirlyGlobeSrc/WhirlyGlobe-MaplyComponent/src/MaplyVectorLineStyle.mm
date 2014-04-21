@@ -44,6 +44,8 @@
         if (styleEntry[@"stroke-opacity"])
         {
             alpha = [styleEntry[@"stroke-opacity"] floatValue];
+        } else if(styleEntry[@"opacity"]) {
+            alpha = [styleEntry[@"opacity"] floatValue];
         }
         if (styleEntry[@"stroke"])
         {
