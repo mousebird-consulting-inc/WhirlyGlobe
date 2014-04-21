@@ -238,11 +238,6 @@
  */
 - (void)setZoomLimitsMin:(float)minHeight max:(float)maxHeight;
 
-/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
-    @return Returns the screen point corresponding to a given geo coordinate.
- */
-- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
-
 /** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
     @return Returns the geo coordinate corresponding to a given screen point in radians.
  */

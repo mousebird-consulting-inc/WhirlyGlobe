@@ -86,7 +86,7 @@ using namespace WhirlyGlobe;
         }
     } else {
         // Next, try the vectors
-        selObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y())];
+        selObj = [self findVectorInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController];
     }
     
     // Tell the view controller about it
