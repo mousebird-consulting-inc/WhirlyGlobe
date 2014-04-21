@@ -124,7 +124,7 @@
 
 /** @brief The cache directory for image tiles.
     @details In general, we want to cache.  The globe, in particular,
-    is going to fetch the same times over and over, quite a lot.
+    is going to fetch the same tiles over and over, quite a lot.
     The cacheing behavior is a little dumb.  It will just write
     files to the given directory forever.  If you're interacting
     with a giant image pyramid, that could be problematic.
