@@ -647,10 +647,6 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
         if (tex)
             wgLabel.iconTexture = tex.texID;
         wgLabel.iconSize = label.iconSize;
-        if (label.size.width > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
-        if (label.size.height > 0.0)
-            [desc setObject:[NSNumber numberWithFloat:label.size.height] forKey:@"height"];
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
         if (label.layoutImportance != MAXFLOAT)

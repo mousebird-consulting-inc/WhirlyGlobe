@@ -45,11 +45,6 @@
   */
 @property (nonatomic,assign) float rotation;
 
-/** @brief The size of the label on the screen, in points.
-    @details This is the label size the user will see.  If you leave a value set to 0.0, we'll calculate it.  So the best strategy is to set the height to something (e.g. 20.0), but leave the width 0.0.  That way we'll calculate the right width for your text and base it on your height.
-  */
-@property (nonatomic,assign) CGSize size;
-
 /** @brief The actual text to display.
     @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
   */

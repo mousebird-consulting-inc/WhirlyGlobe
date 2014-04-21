@@ -315,7 +315,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     for (int i=0; i<50; i++) {
          label = [[MaplyScreenLabel alloc] init];
 
-         label.size = CGSizeMake(0.0, 20.0);
          label.loc = MaplyCoordinateMakeWithDegrees(
              -100.0 + 0.25 * ((float)arc4random()/0x100000000),
              40.0 + 0.25 * ((float)arc4random()/0x100000000));
@@ -491,7 +490,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
         LocationInfo *location = &locations[ii];
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-        label.size = size;
         label.text = [NSString stringWithFormat:@"%s",location->name];
         label.layoutImportance = 2.0;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
@@ -659,7 +657,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                              if ([wgVecObj centroid:&center])
                              {
                                  screenLabel.loc = center;
-                                 screenLabel.size = CGSizeMake(0, 20);
                                  screenLabel.layoutImportance = 1.0;
                                  screenLabel.text = vecName;
                                  screenLabel.userObject = screenLabel.text;
@@ -686,7 +683,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                          kMaplyTextOutlineColor: [UIColor blackColor],
                                                                           kMaplyTextOutlineSize: @(1.0)
 //                                                                               kMaplyShadowSize: @(1.0)
-                                                                      }];
+                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
                                 autoLabels = autoLabelObj;
