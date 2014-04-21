@@ -785,8 +785,14 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
             else
                 return false;
         }
-    } 
-        
+    } else if (![type compare:@"Feature"]) {
+        ShapeSet featShapes;
+        if (VectorParseFeature(featShapes,jsonDict))
+            shapes.insert(featShapes.begin(),featShapes.end());
+        else
+            return false;
+    }
+    
     return true;
 }
     
