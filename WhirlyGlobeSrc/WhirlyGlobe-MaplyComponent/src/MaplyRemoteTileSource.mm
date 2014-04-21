@@ -157,8 +157,27 @@ using namespace WhirlyKit;
     
     NSString *fileName = [self cacheFileForTile:tileID];
     if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
-        return true;
-    
+    {
+        // If the file is out of date, treat it as if it were not local, as it will have to be fetched.
+        if (self.cachedFileLifetime != 0)
+        {
+            NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:nil];
+            NSDate *fileTimestamp = [fileAttributes fileModificationDate];
+            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:fileTimestamp];
+            if (ageOfFile <= self.cachedFileLifetime)
+            {
+                return true;
+            }
+//            else
+//            {
+//                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//            }
+        }
+        else // no lifetime set for cached files
+        {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -173,7 +192,31 @@ using namespace WhirlyKit;
     if (_cacheDir)
     {
         fileName = [self cacheFileForTile:tileID];
-        imgData = [NSData dataWithContentsOfFile:fileName];
+        
+        // due to a possible cache lifetime, we've got to check the timestamp
+        if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
+        {
+            // If the file is out of date, don't use it
+            if (self.cachedFileLifetime != 0)
+            {
+                NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:nil];
+                NSDate *fileTimestamp = [fileAttributes fileModificationDate];
+                int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:fileTimestamp];
+                if (ageOfFile <= self.cachedFileLifetime)
+                {
+                    imgData = [NSData dataWithContentsOfFile:fileName];
+                }
+//                else
+//                {
+//                    NSLog(@"Tile was invalidated due to age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//                }
+            }
+            else // no lifetime set for cached files
+            {
+                imgData = [NSData dataWithContentsOfFile:fileName];
+            }
+        }
+        
         if (imgData)
         {
 //            NSLog(@"Tile was cached: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
