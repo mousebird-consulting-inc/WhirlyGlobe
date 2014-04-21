@@ -52,24 +52,24 @@ using namespace WhirlyKit;
 	{
 		case UIGestureRecognizerStateBegan:
 			// Store the starting Z for comparison
-			startZ = mapView.loc.z();
-            [mapView cancelAnimation];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:mapView];
+			startZ = self.mapView.loc.z();
+            [self.mapView cancelAnimation];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView];
 			break;
 		case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = mapView.loc;
+            Point3d curLoc = self.mapView.loc;
             double newZ = startZ/pinch.scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
-                if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
-                    [mapView setLoc:curLoc];
+                [self.mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
+                if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
+                    [self.mapView setLoc:curLoc];
             }
         }
 			break;
         case UIGestureRecognizerStateEnded:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:mapView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView];
             break;
         default:
             break;
