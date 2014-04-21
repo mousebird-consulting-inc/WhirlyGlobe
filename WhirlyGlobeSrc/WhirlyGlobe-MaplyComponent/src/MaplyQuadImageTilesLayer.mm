@@ -442,6 +442,10 @@ using namespace WhirlyKit;
     
     int zoomLevel = 0;
     WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    // The coordinate adapter might have its own center
+    Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
+    center.x() += adaptCenter.x();
+    center.y() += adaptCenter.y();
     while (zoomLevel < maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
