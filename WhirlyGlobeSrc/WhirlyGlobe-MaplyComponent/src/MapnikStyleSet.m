@@ -41,8 +41,6 @@
   CFAbsoluteTime startTime;
 }
 
-@property (nonatomic, strong) MaplyRemoteTileInfo *tileSource;
-
 @property (nonatomic, strong) NSMutableDictionary *styles;
 @property (nonatomic, strong) NSMutableDictionary *layers;
 @property (nonatomic, strong) NSMutableDictionary *symbolizers;
@@ -55,6 +53,7 @@
 
 @implementation MapnikStyleSet
 
+static NSString *MAP_ELEMENT = @"Map";
 static NSString *RULE_ELEMENT = @"Rule";
 static NSString *STYLE_ELEMENT = @"Style";
 static NSString *LAYER_ELEMENT = @"Layer";
@@ -78,12 +77,12 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   if(self) {
     self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
     self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
+    self.tileMaxZoom = 14;
   }
   return self;
 }
 
-- (instancetype)initForTileSource:(MaplyRemoteTileInfo *)tileSource
-                            viewC:(MaplyBaseViewController *)viewC {
+- (instancetype)initForViewC:(MaplyBaseViewController *)viewC {
   self = [self init];
   if(self) {
     self.viewC = viewC;
@@ -125,8 +124,23 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   self.symbolizers = [NSMutableDictionary dictionary];
   
   NSInteger symbolizerId = 0;
+
+  /* Originally we parsed styles in the order they appeared in the file, and set symbolizer
+   priority(which set stacking order), based on that, but to match mapnik rendering we need to parse
+   them in the order they are listed in layer elements */
+  NSMutableArray *stylesToParse = [NSMutableArray array];
+  for(NSMutableDictionary *layer in self.styleDictionary.layers) {
+    for(NSString *styleName in layer.styles) {
+      for(NSMutableDictionary *styleDict in self.styleDictionary.styles) {
+        if([styleDict.name isEqualToString:styleName]) {
+          [stylesToParse addObject:styleDict];
+          break;
+        }
+      }
+    }
+  }
   
-  for(NSMutableDictionary *styleDict in self.styleDictionary.styles) {
+  for(NSMutableDictionary *styleDict in stylesToParse) {
     MapnikStyle *style = [MapnikStyle new];
     style.name = styleDict.name;
     if([styleDict[@"filter-mode"] isEqualToString:@"first"]) {
@@ -141,35 +155,46 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
         rule.filterPredicate = [NSPredicate predicateWithValue:YES];
       }
       
+      //Rule matching happens based on zoom level, set a zoom from scaleDenominator, or a large/small value that will always match
       if(ruleDict.minScaleDenom) {
         rule.minScaleDenominator = ruleDict.minScaleDenom.integerValue;
       } else {
-        rule.maxZoom = 30;
+        rule.maxZoom = 100;
       }
       
       if(ruleDict.maxScaleDenom) {
         rule.maxScaleDenomitator = ruleDict.maxScaleDenom.integerValue;
       } else {
-        rule.minZoom = 1;
+        rule.minZoom = 0;
       }
       
       for(NSDictionary *symbolizerDict in ruleDict[@"symbolizers"]) {
         if(!symbolizerDict[@"type"]) {
           continue;
         }
+        symbolizerId++;
         
         NSMutableDictionary *mutableSymbolizerDict = [NSMutableDictionary dictionaryWithDictionary:symbolizerDict];
+        //draw priority increments as we go through the rule sets, so objects are stack based on symbolizer order in the file
         mutableSymbolizerDict[@"drawpriority"] = @(symbolizerId);
-        if(rule.minScaleDenominator != 0) {
-          mutableSymbolizerDict[@"minscaledenom"] = @(rule.minScaleDenominator);
+        if(rule.minZoom >= self.tileMaxZoom) {
+          //only set min/max vis when we are at max zoom to make things appear when overzooming
+          if(rule.minScaleDenominator != 0) {
+            mutableSymbolizerDict[@"minscaledenom"] = @(rule.minScaleDenominator);
+          }
+          if(rule.maxScaleDenomitator != 0) {
+            mutableSymbolizerDict[@"maxscaledenom"] = @(rule.maxScaleDenomitator);
+          }
         }
-        if(rule.maxScaleDenomitator != 0) {
-          mutableSymbolizerDict[@"maxscaledenom"] = @(rule.maxScaleDenomitator);
+        
+        if(styleDict[OPACITY_ATTRIBUTE]) {
+          mutableSymbolizerDict[OPACITY_ATTRIBUTE] = styleDict[OPACITY_ATTRIBUTE];
         }
+        
         MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": mutableSymbolizerDict[@"type"], @"substyles": @[mutableSymbolizerDict]}
                                                                    settings:self.tileStyleSettings
                                                                       viewC:self.viewC];
-        s.uuid = @(symbolizerId++);
+        s.uuid = @(symbolizerId);
         if(s) {
           [rule.symbolizers addObject:s];
           self.symbolizers[s.uuid] = s;
@@ -199,21 +224,25 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
       self.layers[layer.name] = layerStyles;
     }
   }
+  
+  NSString *backgroundColorString = self.styleDictionary[@"map"][@"background-color"];
+  if(backgroundColorString) {
+    self.backgroundColor = [MaplyVectorTiles ParseColor:backgroundColorString];
+  }
 }
 
 
 #pragma mark - VectorStyleDelegate
-- (NSArray*)stylesForFeature:(MaplyVectorObject*)feature
-                  attributes:(NSDictionary*)attributes
-                      onTile:(MaplyTileID)tileID
-                     inLayer:(NSString*)layer {
+- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
+                                    onTile:(MaplyTileID)tileID
+                                   inLayer:(NSString*)layer {
   NSMutableArray *symbolizers = [NSMutableArray new];
   NSArray *styles = self.layers[layer];
 
   for(MapnikStyle *style in styles) {
     for(MapnikStyleRule *rule in style.rules) {
       if(tileID.level <= rule.maxZoom && (tileID.level >= rule.minZoom ||
-                                          (tileID.level == self.tileSource.maxZoom && rule.minZoom >= self.tileSource.maxZoom))) {
+                                          (tileID.level == _tileMaxZoom && rule.minZoom >= _tileMaxZoom))) {
         //some rules dont take effect until after max zoom, so we need to apply them at maxZoom
         if([rule.filterPredicate evaluateWithObject:attributes]) {
           [symbolizers addObjectsFromArray:rule.symbolizers];
@@ -269,6 +298,8 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
     [self.styleDictionary.layers addObject:currentLayer];
   } else if([elementName isEqualToString:PARAMETER_ELEMENT]) {
     currentName = attributeDict[NAME_ATTRIBUTE];
+  } else if([elementName isEqualToString:MAP_ELEMENT]) {
+    self.styleDictionary[@"map"] = attributeDict;
   }
   currentString = nil;
 }

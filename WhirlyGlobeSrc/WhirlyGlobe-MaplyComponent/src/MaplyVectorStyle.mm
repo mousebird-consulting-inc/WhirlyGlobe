@@ -123,6 +123,10 @@ using namespace WhirlyKit;
 
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
 {
+    if (!formatString) {
+        return nil;
+    }
+
     NSError *error;
     NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
                                                                       options:0

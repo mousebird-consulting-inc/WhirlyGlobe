@@ -183,11 +183,9 @@ static double MAX_EXTENT = 20037508.342789244;
                 }
               }
               
-              NSArray *styles = [self.styleDelegate stylesForFeature:nil
-                                 //this works with mapnik styles, beause it doesnt actually look at the feature
-                                                          attributes:attributes
-                                                              onTile:tileID
-                                                             inLayer:layerName];
+              NSArray *styles = [self.styleDelegate stylesForFeatureWithAttributes:attributes
+                                                                            onTile:tileID
+                                                                           inLayer:layerName];
               if(!styles.count) {
                 continue; //no point parsing the geometry if we arent going to render
               }
