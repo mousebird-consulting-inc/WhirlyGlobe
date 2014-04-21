@@ -530,7 +530,7 @@ public:
   if (!lin)
     return false;
 
-  int index = lin->pts.size() / 2;
+  unsigned long index = lin->pts.size() / 2;
   middle->x = lin->pts[index].x();
   middle->y = lin->pts[index].y();
   

@@ -132,7 +132,7 @@ static double MAX_EXTENT = 20037508.342789244;
         
         //now attempt to open protobuf
         mapnik::vector::tile tile;
-        if(tile.ParseFromArray(tileData.bytes, tileData.length)) {
+        if(tile.ParseFromArray(tileData.bytes, (int)tileData.length)) {
           tileData = nil;
           //Itterate layers
           for (unsigned i=0;i<tile.layers_size();++i) {
@@ -155,8 +155,8 @@ static double MAX_EXTENT = 20037508.342789244;
               attributes[@"geometry_type"] = @(g_type); //this seems wastefull, but is needed for the rule matcher
               
               for (int m = 0; m < f.tags_size(); m += 2) {
-                std::size_t key_name = f.tags(m);
-                std::size_t key_value = f.tags(m + 1);
+                UInt32 key_name = f.tags(m);
+                UInt32 key_value = f.tags(m + 1);
                 if (key_name < static_cast<std::size_t>(tileLayer.keys_size())
                     && key_value < static_cast<std::size_t>(tileLayer.values_size())) {
                   NSString *key = [NSString stringWithUTF8String:tileLayer.keys(key_name).c_str()];

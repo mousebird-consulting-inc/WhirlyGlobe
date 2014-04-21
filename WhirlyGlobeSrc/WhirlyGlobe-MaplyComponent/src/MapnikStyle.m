@@ -48,14 +48,14 @@
 
 
 - (NSString*)description {
-  return [NSString stringWithFormat:@"name:%@ filterMode:%@ opacity:%f rules:%d", self.name,
-          self.filterModeFirst?@"first":@"all", self.opacity, self.rules.count];
+  return [NSString stringWithFormat:@"name:%@ filterMode:%@ opacity:%f rules:%lu", self.name,
+          self.filterModeFirst?@"first":@"all", self.opacity, (unsigned long)self.rules.count];
 }
 
 
 - (NSString*)debugDescription {
-  NSMutableString *string = [NSMutableString stringWithFormat:@"MapnikStyle name:%@ filterMode:%@ opacity:%f rules:%d", self.name,
-                             self.filterModeFirst?@"first":@"all", self.opacity, self.rules.count];
+  NSMutableString *string = [NSMutableString stringWithFormat:@"MapnikStyle name:%@ filterMode:%@ opacity:%f rules:%lu", self.name,
+                             self.filterModeFirst?@"first":@"all", self.opacity, (unsigned long)self.rules.count];
   for(MapnikStyleRule *rule in self.rules) {
     [string appendFormat:@"\n    %@", rule.description];
   }
