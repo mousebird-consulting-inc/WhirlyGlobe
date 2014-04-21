@@ -156,7 +156,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
     _importance = 512*512;
-    canShortCircuitImportance = true;
+    canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
     _singleLevelLoading = false;
@@ -285,6 +285,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     
     int zoomLevel = 0;
     WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    // The coordinate adapter might have its own center
+    Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
+    center.x() += adaptCenter.x();
+    center.y() += adaptCenter.y();
+
     while (zoomLevel < maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
