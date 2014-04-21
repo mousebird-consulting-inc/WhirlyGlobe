@@ -41,8 +41,7 @@ typedef enum {
 
 @protocol VectorStyleDelegate <NSObject>
 
-- (NSArray*)stylesForFeature:(MaplyVectorObject*)feature
-                  attributes:(NSDictionary*)attributes
+- (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                       onTile:(MaplyTileID)tileID
                      inLayer:(NSString*)layer;
 - (BOOL)layerShouldDisplay:(NSString*)layer;

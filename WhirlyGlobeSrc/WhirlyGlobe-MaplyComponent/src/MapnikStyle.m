@@ -54,10 +54,10 @@
 
 
 - (NSString*)debugDescription {
-  NSMutableString *string = [NSMutableString stringWithFormat:@"name:%@ filterMode:%@ opacity:%f rules:%d", self.name,
+  NSMutableString *string = [NSMutableString stringWithFormat:@"MapnikStyle name:%@ filterMode:%@ opacity:%f rules:%d", self.name,
                              self.filterModeFirst?@"first":@"all", self.opacity, self.rules.count];
   for(MapnikStyleRule *rule in self.rules) {
-    [string appendFormat:@"\n%@", rule.description];
+    [string appendFormat:@"\n    %@", rule.description];
   }
   return string;
 }

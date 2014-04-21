@@ -30,8 +30,10 @@
 @property (nonatomic, strong) NSMutableDictionary *styleDictionary;
 @property (nonatomic, weak) MaplyBaseViewController *viewC;
 @property (nonatomic, readonly) BOOL parsing;
+@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, assign) NSInteger tileMaxZoom;
 
-- (instancetype)initForTileSource:(MaplyRemoteTileInfo *)tileSource viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initForViewC:(MaplyBaseViewController *)viewC;
 - (void)loadXmlFile:(NSString*)filePath;
 - (void)loadJsonFile:(NSString*)filePath;
 - (void)generateStyles;

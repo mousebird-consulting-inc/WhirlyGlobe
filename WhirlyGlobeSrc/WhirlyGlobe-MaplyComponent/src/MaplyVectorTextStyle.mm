@@ -28,6 +28,13 @@ typedef enum {
   TextPlacementInterior
 } TextSymbolizerPlacement;
 
+typedef enum {
+    TextTransformNone,
+    TextTransformUppercase,
+    TextTransformLowercase,
+    TextTransformCapitalize
+} TextSymbolizerTextTransform;
+
 @interface MaplyVectorTileSubStyleText : NSObject
 {
 @public
@@ -35,6 +42,7 @@ typedef enum {
     float dx,dy;
     float textSize;
     TextSymbolizerPlacement placement;
+    TextSymbolizerTextTransform textTransform;
 }
 
 @end
@@ -74,6 +82,7 @@ typedef enum {
             if (thisFont)
                 font = thisFont;
         }
+        
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
             outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"]];
@@ -99,6 +108,17 @@ typedef enum {
                 subStyle->placement = TextPlacementInterior;
             else if([placement isEqualToString:@"vertex"])
                 subStyle->placement = TextPlacementVertex;
+        }
+        
+        subStyle->textTransform = TextTransformNone;
+        if(styleEntry[@"text-transform"])
+        {
+            if([styleEntry[@"text-transform"] isEqualToString:@"uppercase"])
+                subStyle->textTransform = TextTransformUppercase;
+            else if([styleEntry[@"text-transform"] isEqualToString:@"lowercase"])
+                subStyle->textTransform = TextTransformLowercase;
+            else if([styleEntry[@"text-transform"] isEqualToString:@"capitalize"])
+                subStyle->textTransform = TextTransformCapitalize;
         }
         
         if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
@@ -133,6 +153,20 @@ typedef enum {
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
             label.text = [self formatText:self.textField forObject:vec];
+            switch (subStyle->textTransform)
+            {
+                case TextTransformCapitalize:
+                    label.text = [label.text capitalizedString];
+                    break;
+                case TextTransformLowercase:
+                    label.text = [label.text lowercaseString];
+                    break;
+                case TextTransformUppercase:
+                    label.text = [label.text uppercaseString];
+                    break;
+                default:
+                    break;
+            }
             label.layoutPlacement = kMaplyLayoutCenter | kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
             if (label.text)
             {

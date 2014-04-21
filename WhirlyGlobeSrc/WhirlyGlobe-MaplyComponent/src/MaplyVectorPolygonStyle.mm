@@ -41,6 +41,8 @@
         if (styleEntry[@"fill-opacity"])
         {
             alpha = [styleEntry[@"fill-opacity"] floatValue];
+        } else if(styleEntry[@"opacity"]) {
+            alpha = [styleEntry[@"opacity"] floatValue];
         }
 
         int drawPriority = 0;
