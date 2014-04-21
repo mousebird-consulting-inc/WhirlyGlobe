@@ -62,12 +62,16 @@ using namespace WhirlyKit;
     {
         case UIGestureRecognizerStateBegan:
             screenPt = [press locationInView:glView];
-            startZ = mapView.loc.z();
-            [mapView cancelAnimation];
+            startZ = self.mapView.loc.z();
+            [self.mapView cancelAnimation];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidStart object:self.mapView];
+            break;
+        case UIGestureRecognizerStateFailed:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView];
             break;
         case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = mapView.loc;
+            Point3d curLoc = self.mapView.loc;
             CGPoint curPt = [press locationInView:glView];
             float diffY = screenPt.y-curPt.y;
             float height = sceneRenderer.framebufferHeight / glView.contentScaleFactor;
@@ -75,9 +79,12 @@ using namespace WhirlyKit;
             float newZ = startZ * scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
+                [self.mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
             }
         }
+            break;
+        case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView];
             break;
         default:
             break;

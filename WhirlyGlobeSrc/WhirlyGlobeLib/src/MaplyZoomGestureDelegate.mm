@@ -20,7 +20,6 @@
 
 #import "MaplyZoomGestureDelegate.h"
 
-
 #import "EAGLView.h"
 #import "SceneRendererES.h"
 
@@ -32,7 +31,7 @@ using namespace WhirlyKit;
 {
 	if ((self = [super init]))
 	{
-		mapView = inView;
+		_mapView = inView;
         _minZoom = _maxZoom = -1.0;
 	}
 	
@@ -58,7 +57,7 @@ using namespace WhirlyKit;
     if (bounds.empty())
         return true;
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = [_mapView calcFullMatrix];
     
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -70,7 +69,7 @@ using namespace WhirlyKit;
     bool isValid = true;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+        [_mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
                               frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
@@ -87,20 +86,20 @@ using namespace WhirlyKit;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
     WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
 	
-    Point3d curLoc = mapView.loc;
-    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());
+    Point3d curLoc = _mapView.loc;
+//    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
+    Eigen::Matrix4d theTransform = [_mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    if ([_mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
         if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
         {
-            [mapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
-            if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
-                [mapView setLoc:curLoc];
+            [_mapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
+            if (![self withinBounds:_mapView.loc view:glView renderer:sceneRenderer])
+                [_mapView setLoc:curLoc];
         }
     } else {
         // Not expecting this case

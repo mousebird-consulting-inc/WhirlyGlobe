@@ -27,7 +27,6 @@
 
 @interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
 {
-  MaplyView * __weak mapView;
   /// Boundary quad that we're to stay within
   std::vector<WhirlyKit::Point2f> bounds;
 }
@@ -38,6 +37,7 @@
 @property (nonatomic,assign) float maxZoom;
 //The gesture recognizer
 @property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
+@property (nonatomic,weak) MaplyView *mapView;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2f *)bounds;
