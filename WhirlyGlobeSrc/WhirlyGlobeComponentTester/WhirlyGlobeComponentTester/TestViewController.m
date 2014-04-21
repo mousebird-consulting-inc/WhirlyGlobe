@@ -482,8 +482,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 // Add screen (2D) labels
 - (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    CGSize size = CGSizeMake(0, 20);
-    
     NSMutableArray *labels = [NSMutableArray array];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
@@ -1031,6 +1029,8 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestOWM])
             {
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
+                tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
                 MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
                 weatherLayer.coverPoles = false;
                 layer = weatherLayer;
@@ -1051,7 +1051,7 @@ static const int NumMegaMarkers = 40000;
                 MaplyMultiplexTileSource *precipTileSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
                 // Create a precipitation layer that animates
                 MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
-                precipLayer.imageDepth = [tileSources count];
+                precipLayer.imageDepth = (int)[tileSources count];
                 precipLayer.animationPeriod = 6.0;
                 precipLayer.imageFormat = MaplyImageUByteRed;
 //                precipLayer.texturAtlasSize = 512;
