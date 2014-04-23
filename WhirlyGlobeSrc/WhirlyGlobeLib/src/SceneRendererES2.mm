@@ -25,6 +25,7 @@
 #import "UIImage+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "NSString+Stuff.h"
+#import "MaplyView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -315,8 +316,11 @@ static const float ScreenOverlap = 0.1;
 
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
+    MaplyView *mapView = nil;
     if ([super.theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)super.theView;
+    if ([super.theView isKindOfClass:[MaplyView class]])
+        mapView = (MaplyView *)super.theView;
 
     GLint framebufferWidth = super.framebufferWidth;
     GLint framebufferHeight = super.framebufferHeight;
@@ -340,6 +344,7 @@ static const float ScreenOverlap = 0.1;
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
+    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
 
@@ -396,7 +401,9 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.sceneRenderer = self;
         baseFrameInfo.theView = super.theView;
         baseFrameInfo.viewTrans = viewTrans;
+        baseFrameInfo.viewTrans4d = viewTrans4d;
         baseFrameInfo.modelTrans = modelTrans;
+        baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
 //        baseFrameInfo.frameLen = duration;
         baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
@@ -404,6 +411,7 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.mvpMat = mvpMat;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
+        baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
         [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
         baseFrameInfo.lights = lights;
         baseFrameInfo.stateOpt = renderStateOptimizer;
@@ -443,6 +451,23 @@ static const float ScreenOverlap = 0.1;
         // Note: Should deal with map view as well
         if (globeView)
             baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+        
+        // Calculate a good center point for the generated drawables
+        CGPoint screenPt = CGPointMake(frameSize.x(), frameSize.y());
+        if (globeView)
+        {
+            Point3d hit;
+            if ([globeView pointOnSphereFromScreen:screenPt transform:&modelAndViewMat4d frameSize:frameSize hit:&hit normalized:true])
+                baseFrameInfo.dispCenter = hit;
+            else
+                baseFrameInfo.dispCenter = Point3d(0,0,0);
+        } else {
+            Point3d hit;
+            if ([mapView pointOnPlaneFromScreen:screenPt transform:&modelAndViewMat4d frameSize:frameSize hit:&hit clip:false])
+                baseFrameInfo.dispCenter = hit;
+            else
+                baseFrameInfo.dispCenter = Point3d(0,0,0);
+        }
 		      
         // Work through the available offset matrices (only 1 if we're not wrapping)
         std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
@@ -456,12 +481,14 @@ static const float ScreenOverlap = 0.1;
         {
             WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
             // Tweak with the appropriate offset matrix
-            modelAndViewMat = viewTrans * Matrix4dToMatrix4f(offsetMats[off]) * modelTrans;
+            modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
+            modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat * (modelAndViewMat);
             modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
             Matrix4f *thisMvpMat = &mvpMats[off];
             offFrameInfo.mvpMat = mvpMats[off];
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
+            offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
             
             // If we're looking at a globe, run the culling

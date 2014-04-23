@@ -44,6 +44,8 @@
         if (styleEntry[@"stroke-opacity"])
         {
             alpha = [styleEntry[@"stroke-opacity"] floatValue];
+        } else if(styleEntry[@"opacity"]) {
+            alpha = [styleEntry[@"opacity"] floatValue];
         }
         if (styleEntry[@"stroke"])
         {
@@ -67,8 +69,7 @@
                  kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
                  kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
                  kMaplyEnable: @(NO),
-                  kMaplyFade: @(0.0),
-                  kMaplySelectable: @(NO)
+                  kMaplyFade: @(0.0)
                  }];
         [self resolveVisibility:styleEntry settings:settings desc:desc];
 
@@ -86,10 +87,10 @@
     {
         MaplyComponentObject *compObj = nil;
         if (!baseObj)
-            baseObj = compObj = [viewC addVectors:vecObjs desc:desc];
+            baseObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
         else
             // Note: Should do current thread here
-            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];
     }

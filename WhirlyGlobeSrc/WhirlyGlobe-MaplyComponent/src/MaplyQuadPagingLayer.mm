@@ -156,6 +156,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
     _importance = 512*512;
+    _flipY = true;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
     _useTargetZoomLevel = true;
@@ -440,6 +441,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     tileID.x = tileInfo.ident.x;
     tileID.y = tileInfo.ident.y;
     tileID.level = tileInfo.ident.level;
+    
+//    if (!_flipY)
+//    {
+//        int y = (1<<tileID.level)-tileID.y-1;
+//        tileID.y = y;
+//    }
     
     bool isThere = false;
     

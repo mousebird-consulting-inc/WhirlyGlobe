@@ -41,9 +41,22 @@
         if (styleEntry[@"fill-opacity"])
         {
             alpha = [styleEntry[@"fill-opacity"] floatValue];
+        } else if(styleEntry[@"opacity"]) {
+            alpha = [styleEntry[@"opacity"] floatValue];
         }
-        if (styleEntry[@"fill"])
+
+        int drawPriority = 0;
+        if (styleEntry[@"drawpriority"])
         {
+            drawPriority = (int)[styleEntry[@"drawpriority"] integerValue];
+        }
+        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
+                @{kMaplyFilled: @(YES),
+                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault)
+                 }];
+        
+        if (styleEntry[@"fill"])
+        { //Not using MaplyVectorTiles ParseColor: because alpha is a seperate property
             NSString *colorStr = styleEntry[@"fill"];
             // parse the hex
             NSScanner *scanner = [NSScanner scannerWithString:colorStr];
@@ -53,18 +66,17 @@
             blue = colorVal & 0xFF;
             green = (colorVal >> 8) & 0xFF;
             red = (colorVal >> 16) & 0xFF;
+            desc[kMaplyColor] = [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
         }
-        int drawPriority = 0;
-        if (styleEntry[@"drawpriority"])
+        /*
+        if(styleEntry[@"file"])
         {
-            drawPriority = (int)[styleEntry[@"drawpriority"] integerValue];
+            UIImage *imageFill = [UIImage imageNamed:styleEntry[@"file"]];
+            desc[kMaplyVecTexture] = imageFill;
+            desc[kMaplyVecTexScaleX] = @(100);
+            desc[kMaplyVecTexScaleY] = @(100);
         }
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:
-                @{kMaplyColor: [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha],
-                 kMaplyFilled: @(YES),
-                 kMaplyDrawPriority: @(drawPriority+kMaplyVectorDrawPriorityDefault),
-                  kMaplySelectable: @(NO)
-                 }];
+        */
         [self resolveVisibility:styleEntry settings:settings desc:desc];
         [subStyles addObject:desc];
     }
@@ -90,9 +102,9 @@
                     [tessObjs addObject:tessVec];
             }
             
-            baseObj = compObj = [viewC addVectors:tessObjs desc:desc];
+            baseObj = compObj = [viewC addVectors:tessObjs desc:desc mode:MaplyThreadCurrent];
         } else {
-            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadAny];
+            compObj = [viewC instanceVectors:baseObj desc:desc mode:MaplyThreadCurrent];
         }
         if (compObj)
             [compObjs addObject:compObj];

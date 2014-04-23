@@ -209,6 +209,19 @@ using namespace Eigen;
     return height;
 }
 
+/*
+ S = C*cos(y)/2^(z+8)
+ z = log2(C * cos(y) / S) - 8
+*/
+- (double)currentMapZoom:(WhirlyKit::Point2f &)frameSize latitude:(double)latitude
+{
+  double mapWidthInMeters = (2 * self.heightAboveSurface *  tan(_fieldOfView/2.0) * EarthRadius);
+  double metersPerPizel = mapWidthInMeters/frameSize.x();
+  double zoom = log2(EarthRadius * RadToDeg(cos(latitude))/ metersPerPizel) - 8;
+  
+  return zoom;
+}
+
 /// Add a watcher delegate
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate
 {
