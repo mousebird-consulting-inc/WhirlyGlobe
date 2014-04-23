@@ -95,15 +95,6 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         
         float resScale = frameInfo.sceneRenderer.scale;
 
-        screenPt.x += shape->offset.x()*resScale;
-        screenPt.y += shape->offset.y()*resScale;
-        
-        // It survived, so add it to the list if someone else needs to know where they wound up
-        ProjectedPoint projPt;
-        projPt.shapeID = shape->getId();
-        projPt.screenLoc = Point2d(screenPt.x,screenPt.y);
-        projPts.push_back(projPt);
-
         // If we need to do a rotation, throw out a point along the vector and see where it goes
         float screenRot = 0.0;
         Matrix2d screenRotMat;
@@ -138,6 +129,12 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
             screenRot = M_PI/2.0-atan2(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
             screenRotMat = Eigen::Rotation2Dd(screenRot);
         }
+        
+        // It survived, so add it to the list if someone else needs to know where they wound up
+        ProjectedPoint projPt;
+        projPt.shapeID = shape->getId();
+        projPt.screenLoc = Point2d(screenPt.x+shape->offset.x()*resScale,screenPt.y+shape->offset.y()*resScale);
+        projPts.push_back(projPt);
 
         // Set up the alpha scaling
         bool hasAlpha = false;
@@ -201,7 +198,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
             Point2f org(MAXFLOAT,MAXFLOAT);
             for (unsigned int ii=0;ii<geom.coords.size();ii++)
             {
-                Point2d coord = geom.coords[ii];
+                Point2d coord = geom.coords[ii] + shape->offset;
                 if (screenRot != 0.0)
                     coord = screenRotMat * coord;
                 pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
