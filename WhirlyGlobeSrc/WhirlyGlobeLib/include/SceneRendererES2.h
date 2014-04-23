@@ -95,4 +95,7 @@
 /// Set if we want a screenshot on the next draw
 @property (nonatomic,weak) NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 
+// Used by a subclass
+- (id) initWithVersion:(EAGLRenderingAPI)apiVersion;
+
 @end

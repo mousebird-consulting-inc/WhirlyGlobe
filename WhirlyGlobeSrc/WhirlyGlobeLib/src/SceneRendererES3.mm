@@ -1,9 +1,9 @@
 /*
- *  GLUtils.h
+ *  SceneRendererES3.mm
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/21/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Created by Steve Gifford on 4/23/13.
+ *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,13 @@
  *
  */
 
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
+#import "SceneRendererES3.h"
 
-/// Check for a GL error and print (NSLog) a message
-bool CheckGLError(const char *msg);
+@implementation WhirlyKitSceneRendererES3
+
+- (id)init
+{
+    return [super initWithVersion:kEAGLRenderingAPIOpenGLES3];
+}
+
+@end
