@@ -76,6 +76,13 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 @property (nonatomic,assign) float importance;
 
+/** @brief Control how tiles are indexed, either from the lower left or the upper left.
+ @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ @details Default value is false.
+ */
+@property (nonatomic) bool flipY;
+
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
