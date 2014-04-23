@@ -154,7 +154,7 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details This finds the middle (as measured by distance) of a linear feature and then calculations an angle corresponding to the line segment that middle sits in.
     @details Why?  Think label road placement.
   */
-- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot;
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot;
 
 /** @brief return the middle coordinate in a line feature.
  */

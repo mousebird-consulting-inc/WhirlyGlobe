@@ -477,7 +477,7 @@ public:
     return ctr;
 }
 
-- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot
 {
     if (_shapes.empty())
         return false;
@@ -507,7 +507,7 @@ public:
             Point2f thePt = (pt1-pt0)*t + pt0;
             middle->x = thePt.x();
             middle->y = thePt.y();
-            *rot = M_PI/2.0-atan2f(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
             return true;
         }
 

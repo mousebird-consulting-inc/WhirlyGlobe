@@ -117,10 +117,10 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
                 up = Point3d(0,1,0);
             }
             // Note: Check if the axes made any sense.  We might be at a pole.
-            Point3d rightDir = right * sinf(shape->rotation);
-            Point3d upDir = up * cosf(shape->rotation);
+            Point3d rightDir = right * sin(shape->rotation);
+            Point3d upDir = up * cos(shape->rotation);
             
-            Point3d outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
+            Point3d outPt = rightDir * 0.00001 + upDir * 0.00001 + shape->worldLoc;
             CGPoint outScreenPt;
             if (globeView)
                 outScreenPt = [globeView pointOnScreenFromSphere:outPt transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];

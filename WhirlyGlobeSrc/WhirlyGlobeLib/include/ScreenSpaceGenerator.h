@@ -90,7 +90,7 @@ public:
         /// If true we'll use the rotation.  If not, we won't.
         bool useRotation;
         /// Rotation clockwise from north
-        float rotation;
+        double rotation;
         /// If we're fading in or out, these are used
         NSTimeInterval fadeUp,fadeDown;
         /// Sort by draw priority
