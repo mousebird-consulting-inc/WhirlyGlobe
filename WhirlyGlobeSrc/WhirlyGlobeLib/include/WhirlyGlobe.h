@@ -35,6 +35,7 @@
 #import "TextureGroup.h"
 #import "SceneRendererES.h"
 #import "SceneRendererES2.h"
+#import "SceneRendererES3.h"
 #import "EAGLView.h"
 #import "PinchDelegate.h"
 #import "SwipeDelegate.h"

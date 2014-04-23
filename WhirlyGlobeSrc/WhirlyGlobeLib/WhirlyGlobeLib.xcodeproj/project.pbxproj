@@ -355,6 +355,8 @@
 		2BA2BB8A153E106000DAB382 /* GlobeLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */; };
 		2BA2BB8B153E106000DAB382 /* LayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */; };
 		2BA2BB8D153E107100DAB382 /* Quadtree.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2BB8C153E107100DAB382 /* Quadtree.mm */; };
+		2BA539391908601000A2540C /* SceneRendererES3.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA539381908601000A2540C /* SceneRendererES3.h */; };
+		2BA5393D1908603E00A2540C /* SceneRendererES3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA5393B1908603E00A2540C /* SceneRendererES3.mm */; };
 		2BA726DB1778EB11006C710B /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */; };
 		2BA726DD1778EB20006C710B /* MaplyAnimateFlat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */; };
 		2BA8FFE01540E60800AEA53C /* SphericalMercator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BA8FFDF1540E60800AEA53C /* SphericalMercator.mm */; };
@@ -810,6 +812,8 @@
 		2BA2BB88153E105E00DAB382 /* GlobeLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeLayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB89153E105F00DAB382 /* LayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LayerViewWatcher.mm; sourceTree = "<group>"; };
 		2BA2BB8C153E107100DAB382 /* Quadtree.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Quadtree.mm; sourceTree = "<group>"; };
+		2BA539381908601000A2540C /* SceneRendererES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES3.h; sourceTree = "<group>"; };
+		2BA5393B1908603E00A2540C /* SceneRendererES3.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES3.mm; sourceTree = "<group>"; };
 		2BA726DA1778EB11006C710B /* MaplyAnimateFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyAnimateFlat.h; sourceTree = "<group>"; };
 		2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyAnimateFlat.mm; sourceTree = "<group>"; };
 		2BA8FFDC1540E21500AEA53C /* SphericalMercator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SphericalMercator.h; sourceTree = "<group>"; };
@@ -1000,6 +1004,7 @@
 				2B92EF6616370B2700C5165F /* SceneRendererES.h */,
 				2B92EF901637530C00C5165F /* SceneRendererES2.h */,
 				2BC53FDB12DE23BA00778431 /* EAGLView.h */,
+				2BA539381908601000A2540C /* SceneRendererES3.h */,
 			);
 			name = rendering;
 			sourceTree = "<group>";
@@ -1014,6 +1019,7 @@
 				2B92EF6216370B0600C5165F /* SceneRendererES.mm */,
 				2B92EF931637531700C5165F /* SceneRendererES2.mm */,
 				2BC53FE912DE23D400778431 /* EAGLView.mm */,
+				2BA5393B1908603E00A2540C /* SceneRendererES3.mm */,
 			);
 			name = rendering;
 			sourceTree = "<group>";
@@ -1993,6 +1999,7 @@
 				2B4AE3F51766610900850F3F /* JSONSharedString.h in Headers */,
 				2B4AE3F61766610900850F3F /* JSONSingleton.h in Headers */,
 				2B4AE3F71766610900850F3F /* JSONStats.h in Headers */,
+				2BA539391908601000A2540C /* SceneRendererES3.h in Headers */,
 				2B4AE3F91766610900850F3F /* JSONStream.h in Headers */,
 				2B4AE3FB1766610900850F3F /* JSONValidator.h in Headers */,
 				2B4AE3FD1766610900850F3F /* JSONWorker.h in Headers */,
@@ -2124,6 +2131,7 @@
 				2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */,
 				2B66298413418D9B00A78F16 /* TextureAtlas.mm in Sources */,
 				2B65F8FB137DA864004326A9 /* VectorDatabase.mm in Sources */,
+				2BA5393D1908603E00A2540C /* SceneRendererES3.mm in Sources */,
 				2B65F90E137DBEF3004326A9 /* sqlhelpers.mm in Sources */,
 				2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */,
 				2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */,
