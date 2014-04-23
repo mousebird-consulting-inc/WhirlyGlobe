@@ -185,7 +185,9 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
 
 	// Set up the OpenGL ES renderer
-    sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
+    sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
+    if (!sceneRenderer)
+        sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
