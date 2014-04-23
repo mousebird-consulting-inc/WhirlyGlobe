@@ -178,7 +178,7 @@ typedef enum {
                 } else if (subStyle->placement == TextPlacementLine)
                 {
                     MaplyCoordinate middle;
-                    float rot;
+                    double rot;
                     if ([vec linearMiddle:&middle rot:&rot])
                     {
                         //TODO: text-max-char-angle-delta
