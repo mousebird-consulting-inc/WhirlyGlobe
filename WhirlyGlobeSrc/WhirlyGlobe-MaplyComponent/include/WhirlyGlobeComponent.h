@@ -47,4 +47,5 @@
 #import <MaplyElevationDatabase.h>
 #import <MaplyVectorTiles.h>
 #import <MaplyIconManager.h>
-
+#import <MaplyMapnikVectorTiles.h>
+#import <MapnikStyleSet.h>

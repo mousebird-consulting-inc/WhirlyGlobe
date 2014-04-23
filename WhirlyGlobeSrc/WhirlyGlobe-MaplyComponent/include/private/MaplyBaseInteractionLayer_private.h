@@ -48,7 +48,7 @@
 
     pthread_mutex_t userLock;
     // Component objects created for the user
-    NSMutableArray *userObjects;
+    NSMutableSet *userObjects;
 }
 
 // Note: Not a great idea to be passing this in

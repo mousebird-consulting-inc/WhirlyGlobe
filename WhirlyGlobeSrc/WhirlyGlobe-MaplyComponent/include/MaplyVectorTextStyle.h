@@ -27,4 +27,6 @@
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
+@property (nonatomic, strong) NSString *textField;
+
 @end

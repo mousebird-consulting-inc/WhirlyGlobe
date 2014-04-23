@@ -522,6 +522,20 @@ public:
     return true;
 }
 
+- (bool)middleCoordinate:(MaplyCoordinate *)middle {
+  if (_shapes.empty())
+    return false;
+  
+  VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+  if (!lin)
+    return false;
+
+  unsigned long index = lin->pts.size() / 2;
+  middle->x = lin->pts[index].x();
+  middle->y = lin->pts[index].y();
+  
+  return true;
+}
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
@@ -785,6 +799,7 @@ public:
             VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
             TesselateLoops(ar->loops, trisRef);
             trisRef->setAttrDict(ar->getAttrDict());
+            trisRef->initGeoMbr();
             newVec->_shapes.insert(trisRef);
         }
     }
@@ -965,6 +980,12 @@ public:
     
     return vecObj;
 }
+
+
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape {
+  self.shapes.insert(shape);
+}
+
 
 @end
 

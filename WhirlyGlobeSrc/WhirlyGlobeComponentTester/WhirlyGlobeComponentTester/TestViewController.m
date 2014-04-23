@@ -776,6 +776,10 @@ static const int NumMegaMarkers = 40000;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
 #endif
     
+    if (![baseLayerName compare:kMaplyTestBlank])
+    {
+        // Nothing to see here
+    }
     if (![baseLayerName compare:kMaplyTestGeographyClass])
     {
         self.title = @"Geography Class - MBTiles Local";
@@ -1061,22 +1065,55 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
-            } else if (![layerName compare:kMaplyTestSauPaolo])
+            } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-                // Toss on a Maply Vector Database
-                // Note: Turned off for a while
-//                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
-//                if (vecTiles)
-//                {
-//                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-//                    [baseViewC addLayer:pageLayer];
-//                    layer = pageLayer;
-//                }
+                // Fetch the tilespec for the vector tiles
+                NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json";
+                NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+                
+                AFJSONRequestOperation *operation =
+                [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+                 {
+                     // Got the tile spec, parse out the basics
+                     // Note: This should be a vector specific version
+                     MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:JSON];
+                     if (!tileInfo)
+                     {
+                         NSLog(@"Failed to parse tile info from: %@",jsonTileSpec);
+                     } else {
+                         // Now for the Mapnik XML
+                         NSString *stylePath = [[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"];
+                         if (stylePath)
+                         {
+                             // This deals with the Mapnik styles themselves
+                             MapnikStyleSet *styleSet = [[MapnikStyleSet alloc] initForViewC:baseViewC];
+                             [styleSet loadXmlFile:stylePath];
+                             
+                             // Now build the Mapnik vector tiles object
+                             MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileInfo];
+                             vecTiles.styleDelegate = styleSet;
+
+                             // Now for the paging layer itself
+                             MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                             pageLayer.flipY = false;
+                             pageLayer.importance = 1024*1024;
+                             pageLayer.useTargetZoomLevel = true;
+                             pageLayer.singleLevelLoading = true;
+                             [baseViewC addLayer:pageLayer];
+                             ovlLayers[layerName] = pageLayer;
+                         } else
+                            NSLog(@"Failed to load style file osm-bright.xml");
+                     }
+                 }
+                                                                failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+                 {
+                     NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+                 }
+                 ];
+                
+                [operation start];
             }
-            
-            // And keep track of it
-            if (layer)
-                ovlLayers[layerName] = layer;
         } else if (!isOn && layer)
         {
             // Get rid of the layer

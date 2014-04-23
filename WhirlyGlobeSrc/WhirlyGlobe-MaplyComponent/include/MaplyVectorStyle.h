@@ -49,7 +49,7 @@
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
 /// @brief Unique Identifier for this style
-@property (nonatomic) NSString *uuid;
+@property (nonatomic) id<NSCopying> uuid;
 
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;
@@ -62,6 +62,9 @@
 
 /// @brief Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
+
+/// @brief parse a mapnik style template string
+- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
 
 /// @brief The view controller we're constructing objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
