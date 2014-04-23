@@ -531,7 +531,8 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     Point3d center(0,0,0);
     bool centerValid = false;
-    if (desc[@"centered"] && [desc[@"centered"] boolValue])
+    // Note: Should work for the globe, but doesn't
+    if (desc[@"centered"] && [desc[@"centered"] boolValue] && coordAdapter->isFlat())
     {
         // Calculate the center
         GeoMbr geoMbr;
