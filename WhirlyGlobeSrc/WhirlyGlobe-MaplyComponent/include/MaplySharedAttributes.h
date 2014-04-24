@@ -141,6 +141,10 @@
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
 
+/// If set to true we'll centered any drawables we create for features
+/// This fixes the jittering problem when zoomed in close
+#define kMaplyVecCentered @"centered"
+
 /// Center of the feature, to use for texture calculations
 #define kMaplyVecCenterX @"veccenterx"
 #define kMaplyVecCenterY @"veccentery"
