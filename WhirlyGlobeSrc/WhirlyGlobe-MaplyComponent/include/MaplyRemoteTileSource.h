@@ -235,25 +235,7 @@
 
 /** @brief Description of where we fetch the tiles from and where to cache them.
   */
-@property (nonatomic) int pixelsPerSide;
-
-/** @brief The coordinate system the image pyramid is in.
-    @details This is typically going to be MaplySphericalMercator
-     with the web mercator extents.  That's what you'll get from
-     OpenStreetMap and, often, MapBox.  In other cases it might
-     be MaplyPlateCarree, which covers the whole earth.  Sometimes
-     it might even be something unique of your own.
-  */
-@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
-
-/** @brief The cache directory for image tiles.
-    @details In general, we want to cache.  The globe, in particular,
-    is going to fetch the same tiles over and over, quite a lot.
-    The cacheing behavior is a little dumb.  It will just write
-    files to the given directory forever.  If you're interacting
-    with a giant image pyramid, that could be problematic.
-  */
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic,readonly) MaplyRemoteTileInfo *tileInfo;
 
 /** @brief A delegate for tile loads and failures.
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.

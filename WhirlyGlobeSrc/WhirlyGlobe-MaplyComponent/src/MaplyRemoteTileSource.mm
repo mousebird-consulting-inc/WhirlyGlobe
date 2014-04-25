@@ -177,7 +177,7 @@ using namespace WhirlyKit;
             return true;
         }
     }
-
+    
     return false;
 }
 
