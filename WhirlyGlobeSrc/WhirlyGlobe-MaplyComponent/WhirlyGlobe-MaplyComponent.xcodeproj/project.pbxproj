@@ -179,7 +179,6 @@
 		2BEBABAB1811F65700A9419C /* MaplyTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BEBABA91811F65700A9419C /* MaplyTileSource.mm */; };
 		2BECC1BD15E548EF00FBD805 /* PinchDelegateFixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BECC1BC15E548EF00FBD805 /* PinchDelegateFixed.h */; };
 		2BECC1BF15E5490000FBD805 /* PinchDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */; };
-		880E70A718F76ED200D32A54 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = 880E70A518F76ED200D32A54 /* NSDictionary+StyleRules.h */; };
 		880E70A818F76ED200D32A54 /* NSDictionary+StyleRules.m in Sources */ = {isa = PBXBuildFile; fileRef = 880E70A618F76ED200D32A54 /* NSDictionary+StyleRules.m */; };
 		881F668318F20A8F00D17110 /* config.h in Headers */ = {isa = PBXBuildFile; fileRef = 881F662E18F20A8F00D17110 /* config.h */; };
 		881F668418F20A8F00D17110 /* descriptor.cc in Sources */ = {isa = PBXBuildFile; fileRef = 881F663018F20A8F00D17110 /* descriptor.cc */; };
@@ -272,6 +271,7 @@
 		8894574F18F20D4200FE60E7 /* MapnikStyleRule.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */; };
 		8894575018F20D4200FE60E7 /* MapnikStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574B18F20D4200FE60E7 /* MapnikStyleSet.h */; };
 		8894575118F20D4200FE60E7 /* vector_tile.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 8894574C18F20D4200FE60E7 /* vector_tile.pb.h */; };
+		C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */ = {isa = PBXBuildFile; fileRef = C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -458,7 +458,6 @@
 		2BEBABA91811F65700A9419C /* MaplyTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MaplyTileSource.mm; path = src/MaplyTileSource.mm; sourceTree = "<group>"; };
 		2BECC1BC15E548EF00FBD805 /* PinchDelegateFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PinchDelegateFixed.h; path = include/private/PinchDelegateFixed.h; sourceTree = SOURCE_ROOT; };
 		2BECC1BE15E5490000FBD805 /* PinchDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PinchDelegateFixed.mm; path = src/PinchDelegateFixed.mm; sourceTree = SOURCE_ROOT; };
-		880E70A518F76ED200D32A54 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "src/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 		880E70A618F76ED200D32A54 /* NSDictionary+StyleRules.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSDictionary+StyleRules.m"; path = "src/NSDictionary+StyleRules.m"; sourceTree = "<group>"; };
 		881F662E18F20A8F00D17110 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		881F663018F20A8F00D17110 /* descriptor.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = descriptor.cc; sourceTree = "<group>"; };
@@ -552,6 +551,7 @@
 		8894574A18F20D4200FE60E7 /* MapnikStyleRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleRule.h; path = include/MapnikStyleRule.h; sourceTree = "<group>"; };
 		8894574B18F20D4200FE60E7 /* MapnikStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MapnikStyleSet.h; path = include/MapnikStyleSet.h; sourceTree = "<group>"; };
 		8894574C18F20D4200FE60E7 /* vector_tile.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vector_tile.pb.h; path = include/vector_tile.pb.h; sourceTree = "<group>"; };
+		C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+StyleRules.h"; path = "include/NSDictionary+StyleRules.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -798,7 +798,7 @@
 				8894574118F20D2800FE60E7 /* MapnikStyleSet.m */,
 				8894574218F20D2800FE60E7 /* vector_tile.pb.cpp */,
 				8894574C18F20D4200FE60E7 /* vector_tile.pb.h */,
-				880E70A518F76ED200D32A54 /* NSDictionary+StyleRules.h */,
+				C765E3B3190ACA2900931775 /* NSDictionary+StyleRules.h */,
 				880E70A618F76ED200D32A54 /* NSDictionary+StyleRules.m */,
 			);
 			name = "Vector Tiles";
@@ -1134,7 +1134,7 @@
 				881F66B218F20A8F00D17110 /* atomicops_internals_atomicword_compat.h in Headers */,
 				881F66B718F20A8F00D17110 /* atomicops_internals_x86_gcc.h in Headers */,
 				881F669518F20A8F00D17110 /* coded_stream.h in Headers */,
-				880E70A718F76ED200D32A54 /* NSDictionary+StyleRules.h in Headers */,
+				C765E3B4190ACA2900931775 /* NSDictionary+StyleRules.h in Headers */,
 				8894574E18F20D4200FE60E7 /* MapnikStyle.h in Headers */,
 				881F669918F20A8F00D17110 /* package_info.h in Headers */,
 				2BBEB83515CB2A2D00E363E7 /* MaplyVectorObject_private.h in Headers */,
