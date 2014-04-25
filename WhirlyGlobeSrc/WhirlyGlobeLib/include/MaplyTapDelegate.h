@@ -31,4 +31,7 @@
 /// Create a tap gesture recognizer and a delegate, then wire them up to the given UIView
 + (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
 
+/// Gesture recognizer created for the delegate
+@property (nonatomic,weak) UITapGestureRecognizer *gestureRecognizer;
+
 @end

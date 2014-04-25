@@ -29,8 +29,6 @@
 @class WhirlyKitSceneRendererES2;
 /// @endcond
 
-#define kWKFrameMessage @"WhirlyKitFrameMessage"
-
 /** This message is sent out by the renderer right
     before it does its thing.  We use it to loosely
     sync other threads to the render.
@@ -46,6 +44,21 @@
 /// The message is coming from this renderer
 @property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 
+@end
+
+/// Protocol for frame boundary observers
+@protocol WhirlyKitFrameBoundaryObserver
+
+/// Fill this in to get a call on the rendering (probably main) thread as the frame starts.
+/// Don't do anything expensive
+- (void)frameStart:(WhirlyKitFrameMessage *)msg;
+
+@end
+
+/// Fill this in to get a view snapshot on the next draw
+@protocol WhirlyKitSnapshot
+/// Called when the snapshot is take.  Use the UIImage.
+- (void)snapshot:(UIImage *)image;
 @end
 
 /** Scene Renderer for OpenGL ES2.
@@ -68,9 +81,18 @@
 /// We might need this if the view has switched away and then back.
 - (void)forceRenderSetup;
 
+/// Add a frame boundary observer
+- (void)addFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer;
+
+/// Remove a frame boundary observer
+- (void)removeFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer;
+
 /// If set, we'll let the render run on a dispatch queue.
 /// This lets the UI run in the main thread without interference,
 ///  but it does mean you can't mess with the rendering context.
 @property (nonatomic,assign) bool dispatchRendering;
+
+/// Set if we want a screenshot on the next draw
+@property (nonatomic,weak) NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 
 @end

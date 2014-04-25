@@ -13,6 +13,7 @@
 		2B076B35133952C6009D931D /* LongPressDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B076B33133952C5009D931D /* LongPressDelegate.mm */; };
 		2B08059617EB955C0016C813 /* LoadedTile.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B08059517EB955C0016C813 /* LoadedTile.h */; };
 		2B08059817EB95A40016C813 /* LoadedTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B08059717EB95A40016C813 /* LoadedTile.mm */; };
+		2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */; };
 		2B194428138B0CD000E8FA42 /* AnimateRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194426138B0CD000E8FA42 /* AnimateRotation.mm */; };
 		2B194432138C718700E8FA42 /* AnimateViewMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B194431138C718700E8FA42 /* AnimateViewMomentum.mm */; };
 		2B2A258E1559B40800137807 /* ScreenSpaceGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A258D1559B40800137807 /* ScreenSpaceGenerator.mm */; };
@@ -294,6 +295,16 @@
 		2B92EF9D163760C300C5165F /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B92EF9C163760C300C5165F /* OpenGLES2Program.h */; };
 		2B92EF9F1637633F00C5165F /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B92EF9E1637633F00C5165F /* OpenGLES2Program.mm */; };
 		2B93C818145232C800D768BA /* MarkerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B93C817145232C800D768BA /* MarkerLayer.mm */; };
+		2B95F90F18A594D800D72645 /* MaplyDoubleTapDragDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B95F90E18A594D800D72645 /* MaplyDoubleTapDragDelegate.h */; };
+		2B95F91118A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95F91018A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm */; };
+		2B95F91518A5AB1F00D72645 /* GlobeDoubleTapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B95F91218A5AB1F00D72645 /* GlobeDoubleTapDelegate.h */; };
+		2B95F91618A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B95F91318A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h */; };
+		2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B95F91418A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h */; };
+		2B95F91B18A5AB2B00D72645 /* GlobeDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95F91818A5AB2B00D72645 /* GlobeDoubleTapDelegate.mm */; };
+		2B95F91C18A5AB2B00D72645 /* GlobeDoubleTapDragDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95F91918A5AB2B00D72645 /* GlobeDoubleTapDragDelegate.mm */; };
+		2B95F91D18A5AB2B00D72645 /* GlobeTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95F91A18A5AB2B00D72645 /* GlobeTwoFingerTapDelegate.mm */; };
+		2B95F91F18A5B5E500D72645 /* GlobeAnimateHeight.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B95F91E18A5B5E500D72645 /* GlobeAnimateHeight.mm */; };
+		2B95F92118A5B5EE00D72645 /* GlobeAnimateHeight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B95F92018A5B5EE00D72645 /* GlobeAnimateHeight.h */; };
 		2B9BE6AD180872A0001D9454 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B9BE6AC180872A0001D9454 /* ScreenImportance.h */; };
 		2B9BE6AF180872AA001D9454 /* ScreenImportance.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */; };
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
@@ -418,6 +429,9 @@
 		2BF401BB15C0B47C00B5BFD9 /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401B915C0B47C00B5BFD9 /* UpdateDisplayLayer.mm */; };
 		2BF401BC15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF401BA15C0B47C00B5BFD9 /* ViewPlacementGenerator.mm */; };
 		2BF7435C155D7CCE000499DD /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */; };
+		88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */; };
+		88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */; };
+		88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */; };
 		E594E38C17E81434008D5741 /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E594E38B17E81434008D5741 /* MaplyRotateDelegate.mm */; };
 /* End PBXBuildFile section */
 
@@ -432,6 +446,7 @@
 		2B076B33133952C5009D931D /* LongPressDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = LongPressDelegate.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B08059517EB955C0016C813 /* LoadedTile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTile.h; sourceTree = "<group>"; };
 		2B08059717EB95A40016C813 /* LoadedTile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTile.mm; sourceTree = "<group>"; };
+		2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceManager.h; sourceTree = "<group>"; };
 		2B194424138B0BC100E8FA42 /* AnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateRotation.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B194426138B0CD000E8FA42 /* AnimateRotation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = AnimateRotation.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = AnimateViewMomentum.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -466,7 +481,7 @@
 		2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitView.mm; sourceTree = "<group>"; };
 		2B4504B814BCC29D00C99306 /* FlatMath.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FlatMath.mm; sourceTree = "<group>"; };
 		2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyPinchDelegate.h; sourceTree = "<group>"; };
-		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; };
+		2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		2B4730161732DEF9000507E9 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyFlatView.h; sourceTree = "<group>"; };
 		2B4730181732DF0E000507E9 /* MaplyFlatView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyFlatView.mm; sourceTree = "<group>"; };
 		2B4AE3B217662D6800850F3F /* JSONOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONOptions.h; path = "../../third-party/libjson/JSONOptions.h"; sourceTree = "<group>"; };
@@ -531,7 +546,7 @@
 		2B7AD8B21649DF80006C9E75 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
 		2B7EF31715FF95CF00D4079F /* MaplyScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyScene.h; sourceTree = "<group>"; };
 		2B7EF31A15FF95E900D4079F /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
-		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; };
+		2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPanDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
 		2B7EF31E15FF96D100D4079F /* MaplyView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyView.mm; sourceTree = "<group>"; };
 		2B7EF37A16025D8C00D4079F /* aasincos.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aasincos.c; sourceTree = "<group>"; };
 		2B7EF37B16025D8C00D4079F /* adjlon.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adjlon.c; sourceTree = "<group>"; };
@@ -730,6 +745,16 @@
 		2B951D9812F09F31005003AE /* VectorLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorLayer.h; sourceTree = "<group>"; };
 		2B951D9A12F0A087005003AE /* VectorLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorLayer.mm; sourceTree = "<group>"; };
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
+		2B95F90E18A594D800D72645 /* MaplyDoubleTapDragDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDragDelegate.h; sourceTree = "<group>"; };
+		2B95F91018A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDragDelegate.mm; sourceTree = "<group>"; };
+		2B95F91218A5AB1F00D72645 /* GlobeDoubleTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeDoubleTapDelegate.h; sourceTree = "<group>"; };
+		2B95F91318A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeDoubleTapDragDelegate.h; sourceTree = "<group>"; };
+		2B95F91418A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeTwoFingerTapDelegate.h; sourceTree = "<group>"; };
+		2B95F91818A5AB2B00D72645 /* GlobeDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeDoubleTapDelegate.mm; sourceTree = "<group>"; };
+		2B95F91918A5AB2B00D72645 /* GlobeDoubleTapDragDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeDoubleTapDragDelegate.mm; sourceTree = "<group>"; };
+		2B95F91A18A5AB2B00D72645 /* GlobeTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeTwoFingerTapDelegate.mm; sourceTree = "<group>"; };
+		2B95F91E18A5B5E500D72645 /* GlobeAnimateHeight.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeAnimateHeight.mm; sourceTree = "<group>"; };
+		2B95F92018A5B5EE00D72645 /* GlobeAnimateHeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeAnimateHeight.h; sourceTree = "<group>"; };
 		2B9BE6AC180872A0001D9454 /* ScreenImportance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenImportance.h; sourceTree = "<group>"; };
 		2B9BE6AE180872AA001D9454 /* ScreenImportance.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenImportance.mm; sourceTree = "<group>"; };
 		2BA2322F17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
@@ -879,6 +904,13 @@
 		2BF401BF15C0B49500B5BFD9 /* ViewPlacementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementGenerator.h; sourceTree = "<group>"; };
 		2BF74358155D7C4C000499DD /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2BF7435B155D7CCE000499DD /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
+		88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyDoubleTapDelegate.h; sourceTree = "<group>"; };
+		88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B7C18A14DE7008D702C /* MaplyTwoFingerTapDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTwoFingerTapDelegate.h; sourceTree = "<group>"; };
+		88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate.h; sourceTree = "<group>"; };
+		88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyZoomGestureDelegate.mm; sourceTree = "<group>"; tabWidth = 4; };
+		88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate_private.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* WhirlyGlobeLib_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeLib_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRotateDelegate.h; sourceTree = "<group>"; };
@@ -1336,7 +1368,12 @@
 				2B4504DE14BD119300C99306 /* MaplyPinchDelegate.h */,
 				2BE886CE160A855F00E92A0A /* MaplyTapMessage.h */,
 				2B03702114CA02A900A51AC4 /* MaplyTapDelegate.h */,
+				88115B7218A06865008D702C /* MaplyDoubleTapDelegate.h */,
 				E594E38917E8133D008D5741 /* MaplyRotateDelegate.h */,
+				88115B7C18A14DE7008D702C /* MaplyTwoFingerTapDelegate.h */,
+				88115B7D18A14E6A008D702C /* MaplyZoomGestureDelegate.h */,
+				88115B8018A153DC008D702C /* MaplyZoomGestureDelegate_private.h */,
+				2B95F90E18A594D800D72645 /* MaplyDoubleTapDragDelegate.h */,
 			);
 			name = interaction;
 			sourceTree = "<group>";
@@ -1503,6 +1540,7 @@
 		2BA2328517986A9F0063CC84 /* managers */ = {
 			isa = PBXGroup;
 			children = (
+				2B13BAA318B7E192007DA1A3 /* ScreenSpaceManager.h */,
 				2BA2328617986ACA0063CC84 /* LabelManager.h */,
 				2BA2328717986ACA0063CC84 /* LayoutManager.h */,
 				2BA2328817986ACA0063CC84 /* MarkerManager.h */,
@@ -1632,6 +1670,7 @@
 		2BCABA6712F8DA280049D73C /* scene & view */ = {
 			isa = PBXGroup;
 			children = (
+				2B95F91E18A5B5E500D72645 /* GlobeAnimateHeight.mm */,
 				2B4504B614BCB7EA00C99306 /* WhirlyKitView.mm */,
 				2BB1F08013009935001F33CD /* Identifiable.mm */,
 				2BB1F08813009B17001F33CD /* Texture.mm */,
@@ -1658,6 +1697,7 @@
 		2BCF39DE14BB814F006B0FC0 /* view */ = {
 			isa = PBXGroup;
 			children = (
+				2B95F92018A5B5EE00D72645 /* GlobeAnimateHeight.h */,
 				2B389AA112E112D9006FC3A1 /* GlobeView.h */,
 				2B194424138B0BC100E8FA42 /* AnimateRotation.h */,
 				2B19442F138C717500E8FA42 /* AnimateViewMomentum.h */,
@@ -1809,6 +1849,9 @@
 		2BE6EE5212E4F3BE00415490 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
+				2B95F91218A5AB1F00D72645 /* GlobeDoubleTapDelegate.h */,
+				2B95F91318A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h */,
+				2B95F91418A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h */,
 				2BE6EE5412E4F44900415490 /* PinchDelegate.h */,
 				2BE6EE7612E4F95C00415490 /* SwipeDelegate.h */,
 				2B3A341E12E605C800698DA1 /* PanDelegate.h */,
@@ -1823,7 +1866,11 @@
 		2BE6EE5312E4F3D100415490 /* interaction */ = {
 			isa = PBXGroup;
 			children = (
+				2B95F91818A5AB2B00D72645 /* GlobeDoubleTapDelegate.mm */,
+				2B95F91918A5AB2B00D72645 /* GlobeDoubleTapDragDelegate.mm */,
+				2B95F91A18A5AB2B00D72645 /* GlobeTwoFingerTapDelegate.mm */,
 				2BA726DC1778EB20006C710B /* MaplyAnimateFlat.mm */,
+				88115B7E18A14EAF008D702C /* MaplyZoomGestureDelegate.mm */,
 				2BE6EE5612E4F48800415490 /* PinchDelegate.mm */,
 				2BE6EE7712E4F95C00415490 /* SwipeDelegate.mm */,
 				2B3A341F12E605C800698DA1 /* PanDelegate.mm */,
@@ -1834,6 +1881,9 @@
 				2BE886D0160A863700E92A0A /* MaplyTapMessage.mm */,
 				2B03701F14CA01C600A51AC4 /* MaplyTapDelegate.mm */,
 				2B4504E014BD126400C99306 /* MaplyPinchDelegate.mm */,
+				88115B7418A068F6008D702C /* MaplyDoubleTapDelegate.mm */,
+				88115B7818A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm */,
+				2B95F91018A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm */,
 				2B7EF31C15FF965400D4079F /* MaplyPanDelegate.mm */,
 				2B03701714C9FDDE00A51AC4 /* MaplyAnimateTranslateMomentum.mm */,
 				2B03701814C9FDDE00A51AC4 /* MaplyAnimateTranslation.mm */,
@@ -1863,6 +1913,7 @@
 				2B3A0D45133405780085EF43 /* GlobeMath.h in Headers */,
 				2B3A0D46133405780085EF43 /* UIImage+Stuff.h in Headers */,
 				2B3A0D47133405780085EF43 /* NSDictionary+Stuff.h in Headers */,
+				2B95F91518A5AB1F00D72645 /* GlobeDoubleTapDelegate.h in Headers */,
 				2B3A0D48133405780085EF43 /* UIColor+Stuff.h in Headers */,
 				2B3A0D4B133405780085EF43 /* EAGLView.h in Headers */,
 				2B3A0D4C133405780085EF43 /* PinchDelegate.h in Headers */,
@@ -1878,12 +1929,14 @@
 				2B3A0D56133405780085EF43 /* Cullable.h in Headers */,
 				2B3A0D57133405780085EF43 /* Scene.h in Headers */,
 				2B3A0D58133405780085EF43 /* GlobeView.h in Headers */,
+				2B95F90F18A594D800D72645 /* MaplyDoubleTapDragDelegate.h in Headers */,
 				2B3A0D59133405780085EF43 /* TextureGroup.h in Headers */,
 				2B3A0D5A133405780085EF43 /* LayerThread.h in Headers */,
 				2B3A0D5B133405780085EF43 /* DataLayer.h in Headers */,
 				2B3A0D5C133405780085EF43 /* SphericalEarthLayer.h in Headers */,
 				2B3A0D5D133405780085EF43 /* GridLines.h in Headers */,
 				2B3A0D5F133405780085EF43 /* VectorLayer.h in Headers */,
+				2B95F91718A5AB1F00D72645 /* GlobeTwoFingerTapDelegate.h in Headers */,
 				2B3A0D60133405780085EF43 /* LabelLayer.h in Headers */,
 				2B3A0D41133405700085EF43 /* shapefil.h in Headers */,
 				2B44187913A2D9BA00514EDE /* RotateDelegate.h in Headers */,
@@ -1903,6 +1956,7 @@
 				2B7EF5191603E01500D4079F /* MBTileQuadSource.h in Headers */,
 				2B7EF51A1603E01500D4079F /* NetworkTileQuadSource.h in Headers */,
 				2B7EF51B1603E01500D4079F /* SphericalEarthQuadLayer.h in Headers */,
+				2B13BAA418B7E192007DA1A3 /* ScreenSpaceManager.h in Headers */,
 				2B7EF5231603EEFB00D4079F /* MaplyLayerViewWatcher.h in Headers */,
 				2BE886CF160A855F00E92A0A /* MaplyTapMessage.h in Headers */,
 				2BD1158D1615979300A4BF5D /* ShapeLayer.h in Headers */,
@@ -1934,6 +1988,7 @@
 				2B4AE3EE1766610900850F3F /* JSONMemory.h in Headers */,
 				2B4AE3EF1766610900850F3F /* JSONMemoryPool.h in Headers */,
 				2B4AE3F11766610900850F3F /* JSONNode.h in Headers */,
+				2B95F92118A5B5EE00D72645 /* GlobeAnimateHeight.h in Headers */,
 				2B4AE3F41766610900850F3F /* JSONPreparse.h in Headers */,
 				2B4AE3F51766610900850F3F /* JSONSharedString.h in Headers */,
 				2B4AE3F61766610900850F3F /* JSONSingleton.h in Headers */,
@@ -1973,6 +2028,7 @@
 				2BA2328C17986ACA0063CC84 /* LayoutManager.h in Headers */,
 				2BA2328D17986ACA0063CC84 /* MarkerManager.h in Headers */,
 				2BA2328E17986ACA0063CC84 /* ShapeManager.h in Headers */,
+				2B95F91618A5AB1F00D72645 /* GlobeDoubleTapDragDelegate.h in Headers */,
 				2BA2328F17986ACA0063CC84 /* VectorManager.h in Headers */,
 				2B665469179F271200FB4427 /* SphericalEarthChunkManager.h in Headers */,
 				2BB1786C17A6C6C400AD0614 /* DefaultShaderPrograms.h in Headers */,
@@ -2008,7 +2064,7 @@
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "WhirlyGlobeLib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2110,11 +2166,13 @@
 				2B7EF42C16025D8C00D4079F /* emess.c in Sources */,
 				2B7EF42F16025D8C00D4079F /* geocent.c in Sources */,
 				2B7EF43116025D8C00D4079F /* geod_for.c in Sources */,
+				88115B7618A068F6008D702C /* MaplyDoubleTapDelegate.mm in Sources */,
 				2B7EF43216025D8C00D4079F /* geod_inv.c in Sources */,
 				2B7EF43316025D8C00D4079F /* geod_set.c in Sources */,
 				2B7EF43716025D8C00D4079F /* mk_cheby.c in Sources */,
 				2B7EF43916025D8C00D4079F /* nad_cvt.c in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
+				2B95F91B18A5AB2B00D72645 /* GlobeDoubleTapDelegate.mm in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
 				2B7EF43F16025D8C00D4079F /* PJ_aea.c in Sources */,
 				2B7EF44016025D8C00D4079F /* PJ_aeqd.c in Sources */,
@@ -2150,6 +2208,7 @@
 				2B7EF45E16025D8C00D4079F /* PJ_eqdc.c in Sources */,
 				2B7EF45F16025D8C00D4079F /* pj_errno.c in Sources */,
 				2B7EF46016025D8C00D4079F /* pj_factors.c in Sources */,
+				2B95F91F18A5B5E500D72645 /* GlobeAnimateHeight.mm in Sources */,
 				2B7EF46116025D8C00D4079F /* PJ_fahey.c in Sources */,
 				2B7EF46216025D8C00D4079F /* PJ_fouc_s.c in Sources */,
 				2B4AFB8A1803153600C3F948 /* TileQuadOfflineRenderer.mm in Sources */,
@@ -2166,6 +2225,7 @@
 				2B7EF46D16025D8C00D4079F /* pj_gridlist.c in Sources */,
 				2B7EF46E16025D8C00D4079F /* PJ_gstmerc.c in Sources */,
 				2B7EF46F16025D8C00D4079F /* PJ_hammer.c in Sources */,
+				2B95F91C18A5AB2B00D72645 /* GlobeDoubleTapDragDelegate.mm in Sources */,
 				2B7EF47016025D8C00D4079F /* PJ_hatano.c in Sources */,
 				2B7EF47116025D8C00D4079F /* PJ_healpix.c in Sources */,
 				2B7EF47216025D8C00D4079F /* PJ_igh.c in Sources */,
@@ -2186,6 +2246,7 @@
 				2B7EF48016025D8C00D4079F /* PJ_lcca.c in Sources */,
 				2B7EF48116025D8C00D4079F /* pj_list.c in Sources */,
 				2B7EF48316025D8C00D4079F /* pj_log.c in Sources */,
+				2B95F91D18A5AB2B00D72645 /* GlobeTwoFingerTapDelegate.mm in Sources */,
 				2B7EF48416025D8C00D4079F /* PJ_loxim.c in Sources */,
 				2B7EF48516025D8C00D4079F /* PJ_lsat.c in Sources */,
 				2B7EF48616025D8C00D4079F /* pj_malloc.c in Sources */,
@@ -2249,6 +2310,7 @@
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,
 				2B7EF4C216025D8C00D4079F /* pj_zpoly1.c in Sources */,
+				88115B7A18A14DB1008D702C /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2B7EF4C416025D8C00D4079F /* proj_etmerc.c in Sources */,
 				2B7EF4C516025D8C00D4079F /* proj_mdist.c in Sources */,
 				2B7EF4C616025D8C00D4079F /* proj_rouss.c in Sources */,
@@ -2257,6 +2319,7 @@
 				2B7EF5121603D77E00D4079F /* QuadDisplayLayer.mm in Sources */,
 				2B7EF5131603D77E00D4079F /* TileQuadLoader.mm in Sources */,
 				2B7EF5151603DCC500D4079F /* CoordSystem.mm in Sources */,
+				2B95F91118A594EF00D72645 /* MaplyDoubleTapDragDelegate.mm in Sources */,
 				2B7EF51F1603E0AF00D4079F /* MBTileQuadSource.mm in Sources */,
 				2B7EF5201603E0AF00D4079F /* NetworkTileQuadSource.mm in Sources */,
 				2B7EF5211603E0AF00D4079F /* SphericalEarthQuadLayer.mm in Sources */,
@@ -2286,6 +2349,7 @@
 				2B4AE3EC1766610900850F3F /* JSONIterators.cpp in Sources */,
 				2B4AE3ED1766610900850F3F /* JSONMemory.cpp in Sources */,
 				2B4AE3F01766610900850F3F /* JSONNode.cpp in Sources */,
+				88115B7F18A14EAF008D702C /* MaplyZoomGestureDelegate.mm in Sources */,
 				2B4AE3F21766610900850F3F /* JSONNode_Mutex.cpp in Sources */,
 				2B4AE3F31766610900850F3F /* JSONPreparse.cpp in Sources */,
 				2B4AE3F81766610900850F3F /* JSONStream.cpp in Sources */,

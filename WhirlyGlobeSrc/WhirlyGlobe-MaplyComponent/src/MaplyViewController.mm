@@ -46,7 +46,11 @@ using namespace Maply;
         return nil;
     
     _autoMoveToTap = true;
-    
+    _rotateGesture = true;
+    _doubleTapDragGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapZoomGesture = true;
+
     return self;
 }
 
@@ -59,7 +63,11 @@ using namespace Maply;
     // Turn off lighting
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     _flatMode = true;
-    
+    _rotateGesture = true;
+    _doubleTapDragGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapZoomGesture = true;
+
     return self;
 }
 
@@ -124,7 +132,10 @@ using namespace Maply;
     panDelegate = nil;
     pinchDelegate = nil;
     rotateDelegate = nil;
-
+    doubleTapDelegate = nil;
+    twoFingerTapDelegate = nil;
+    doubleTapDragDelegate = nil;
+    
     coordAdapter = NULL;
     _tetherView = NULL;
 }
@@ -202,8 +213,9 @@ using namespace Maply;
         Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         coordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d);
-    } else
+    } else {
         coordAdapter = new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    }
     
     if (scrollView)
     {
@@ -213,7 +225,8 @@ using namespace Maply;
     } else {
         mapView = [[MaplyView alloc] initWithCoordAdapter:coordAdapter];
         mapView.continuousZoom = true;
-    }    
+        mapView.wrap = _viewWrap;
+    }
 
     return mapView;
 }
@@ -236,6 +249,8 @@ using namespace Maply;
 - (void) loadSetup
 {
     [super loadSetup];
+    
+    allowRepositionForAnnnotations = false;
 
     // The gl view won't spontaneously draw
     // Let's just do priority rendering
@@ -249,6 +264,14 @@ using namespace Maply;
     coordAdapter->getBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
+
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
+    
     if (!_tetheredMode)
     {
         // Wire up the gesture recognizers
@@ -257,9 +280,52 @@ using namespace Maply;
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
         pinchDelegate.minZoom = [mapView minHeightAboveSurface];
         pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
-        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        if(_rotateGesture)
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        if(_doubleTapZoomGesture)
+        {
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
+            doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
+        if(_twoFingerTapGesture)
+        {
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
+            twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+        if (_doubleTapDragGesture)
+        {
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView];
+            doubleTapDragDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDragDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
     }
 
+    [self setViewExtentsLL:boundLL ur:boundUR];
+}
+
+- (void)setViewWrap:(bool)viewWrap
+{
+    _viewWrap = viewWrap;
+    
+    if (!coordAdapter)
+        return;
+
+    Point3f ll,ur;
+    coordAdapter->getBounds(ll, ur);
+    boundLL.x = ll.x();  boundLL.y = ll.y();
+    boundUR.x = ur.x();  boundUR.y = ur.y();
+    
+    // Let them move E/W infinitely
+    if (_viewWrap)
+    {
+        boundLL.x = -MAXFLOAT;
+        boundUR.x = MAXFLOAT;
+    }
     [self setViewExtentsLL:boundLL ur:boundUR];
 }
 
@@ -286,7 +352,7 @@ using namespace Maply;
         [super viewWillDisappear:animated];
     
 	// Stop tracking notifications
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [self unregisterForEvents];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -296,6 +362,123 @@ using namespace Maply;
 - (void)registerForEvents
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidStart:) name:kMaplyDoubleTapDragDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(zoomGestureDidEnd:) name:kMaplyDoubleTapDragDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
+}
+
+- (void)unregisterForEvents
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:MaplyTapMsg object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kZoomGestureDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kMaplyDoubleTapDragDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kMaplyDoubleTapDragDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
+}
+
+- (bool)panGesture
+{
+    return panDelegate.gestureRecognizer.enabled;
+}
+
+
+- (void)setPanGesture:(bool)enabled
+{
+    panDelegate.gestureRecognizer.enabled = enabled;
+}
+
+- (void)setRotateGesture:(bool)rotateGesture
+{
+    _rotateGesture = rotateGesture;
+    if (rotateGesture)
+    {
+        if (!rotateDelegate)
+        {
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
+        }
+    } else {
+        if (rotateDelegate)
+        {
+            UIRotationGestureRecognizer *rotRecog = nil;
+            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
+                if ([recog isKindOfClass:[UIRotationGestureRecognizer class]])
+                    rotRecog = (UIRotationGestureRecognizer *)recog;
+           [glView removeGestureRecognizer:rotRecog];
+           rotateDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
+{
+    _doubleTapZoomGesture = doubleTapZoomGesture;
+    if (doubleTapZoomGesture)
+    {
+        if (!doubleTapDelegate)
+        {
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:glView mapView:mapView];
+            doubleTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
+    } else {
+        if (doubleTapDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            doubleTapDelegate.gestureRecognizer = nil;
+            doubleTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
+{
+    _twoFingerTapGesture = twoFingerTapGesture;
+    if (twoFingerTapGesture)
+    {
+        if (!twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:glView mapView:mapView];
+            twoFingerTapDelegate.minZoom = [mapView minHeightAboveSurface];
+            twoFingerTapDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+    } else {
+        if (twoFingerTapDelegate)
+        {
+            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            twoFingerTapDelegate.gestureRecognizer = nil;
+            twoFingerTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
+{
+    _doubleTapZoomGesture = doubleTapDragGesture;
+    if (doubleTapDragGesture)
+    {
+        if (!doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:glView mapView:mapView];
+            doubleTapDragDelegate.minZoom = [mapView minHeightAboveSurface];
+            doubleTapDragDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (doubleTapDragDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            doubleTapDragDelegate.gestureRecognizer = nil;
+            doubleTapDragDelegate = nil;
+        }
+    }
 }
 
 #pragma mark - Interaction
@@ -305,6 +488,11 @@ using namespace Maply;
 {
     *ll = boundLL;
     *ur = boundUR;
+}
+
+- (float)height
+{
+    return mapView.loc.z();
 }
 
 - (void)setHeight:(float)height
@@ -338,6 +526,8 @@ using namespace Maply;
         [panDelegate setBounds:bounds];
     if (pinchDelegate)
         [pinchDelegate setBounds:bounds];
+    if (doubleTapDelegate)
+        [doubleTapDelegate setBounds:bounds];
 }
 
 // Internal animation handler
@@ -371,10 +561,10 @@ using namespace Maply;
 }
 
 // Note: This may not work with a tilt
-- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     if (_tetheredMode)
-        return;
+        return false;
     
     // Figure out where the point lands on the map
     Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
@@ -387,7 +577,9 @@ using namespace Maply;
         loc.y() -= diffLoc.y();
         loc.z() = mapView.loc.z();
         [self animateToPoint:loc time:howLong];
-    }
+        return true;
+    } else
+        return false;
 }
 
 // This version takes a height as well
@@ -444,6 +636,8 @@ using namespace Maply;
     if (scrollView)
         return;
 
+    [self handleStartMoving:NO];
+    
     [mapView cancelAnimation];
     
     if (pinchDelegate)
@@ -463,12 +657,13 @@ using namespace Maply;
     Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
     mapView.loc = loc;
+    [self handleStopMoving:NO];
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView.loc;
-    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(loc);
+    GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(loc));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
@@ -523,31 +718,27 @@ using namespace Maply;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
     [mapView setLoc:testLoc runUpdates:false];
     
-    std::vector<Point2f> pts;
-    mbr.asPoints(pts);
     CGRect frame = self.view.frame;
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        Point2f pt = pts[ii];
-        MaplyCoordinate geoCoord;
-        geoCoord.x = pt.x();  geoCoord.y = pt.y();
-        CGPoint screenPt = [self screenPointFromGeo:geoCoord];
-        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
-            return false;
-    }
     
-    return true;
+    MaplyCoordinate ul;
+    ul.x = mbr.ul().x();
+    ul.y = mbr.ul().y();
+    
+    MaplyCoordinate lr;
+    lr.x = mbr.lr().x();
+    lr.y = mbr.lr().y();
+    
+    CGPoint ulScreen = [self screenPointFromGeo:ul];
+    CGPoint lrScreen = [self screenPointFromGeo:lr];
+    
+    return lrScreen.x - ulScreen.x < frame.size.width && lrScreen.y - ulScreen.y < frame.size.height;
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos
 {
-    
     Point3d oldLoc = mapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     [mapView setLoc:newLoc runUpdates:false];
-
-    // Note: Test
-    CGPoint testPt = [self screenPointFromGeo:pos];
     
     Mbr mbr(Point2f(bbox->ll.x,bbox->ll.y),Point2f(bbox->ur.x,bbox->ur.y));
     
@@ -579,20 +770,18 @@ using namespace Maply;
         if (!minOnScreen && midOnScreen)
         {
             maxHeight = midHeight;
-            maxOnScreen = midOnScreen;
-        } else if (!midOnScreen && maxOnScreen)
-        {
+            maxOnScreen = YES;
+        } else if (!midOnScreen && maxOnScreen) {
             minHeight = midHeight;
-            minOnScreen = midOnScreen;
+            minOnScreen = NO;
         } else {
             // Not expecting this
             break;
         }
         
-        if (maxHeight-minHeight < minRange)
-            break;
-    } while (true);
+    } while (maxHeight-minHeight > minRange);
     
+    //set map back to pre-search state
     [mapView setLoc:oldLoc runUpdates:false];
 
     return maxHeight;
@@ -636,5 +825,93 @@ using namespace Maply;
     // If there is no selection, it will call us back in the main thread
     [mapInteractLayer userDidTap:msg];
 }
+
+// Called when the pan delegate starts moving
+- (void) panDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    //    NSLog(@"Pan started");
+    
+    [self handleStartMoving:true];
+}
+
+- (void) zoomGestureDidStart:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStartMoving:true];
+}
+
+- (void) zoomGestureDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+    
+    [self handleStopMoving:true];
+}
+
+- (void) animationDidEnd:(NSNotification *)note
+{
+    if (note.object != mapView)
+        return;
+
+    [self handleStopMoving:NO];
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStartMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+    {
+        [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
+    }
+}
+
+// Convenience routine to handle the end of moving
+- (void)handleStopMoving:(bool)userMotion
+{
+    if([self.delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners];
+        [self.delegate maplyViewController:self didStopMoving:corners userMotion:userMotion];
+    }
+}
+
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
+  	Point3d hit;
+    WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
+    if ([mapView pointOnPlaneFromScreen:point transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    {
+        Point3d localPt = coordAdapter->displayToLocal(hit);
+		GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
+        MaplyCoordinate maplyCoord;
+        maplyCoord.x = coord.x();
+        maplyCoord.y  = coord.y();
+        return maplyCoord;
+    } else {
+        return MaplyCoordinateMakeWithDegrees(0, 0);
+    }
+}
+
+
+- (void)corners:(MaplyCoordinate *)corners
+{
+    CGPoint screenCorners[4];
+    screenCorners[0] = CGPointMake(0.0, 0.0);
+    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        corners[ii] = [self geoFromScreenPoint:screenCorners[ii]];
+    }
+}
+
 
 @end

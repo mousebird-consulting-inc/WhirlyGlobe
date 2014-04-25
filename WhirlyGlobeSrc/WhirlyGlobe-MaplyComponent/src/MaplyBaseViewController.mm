@@ -21,9 +21,26 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "NSData+Zlib.h"
+#import "MaplyTexture_private.h"
+#import "MaplyAnnotation_private.h"
+#import "NSDictionary+StyleRules.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+// Target for screen snapshot
+@interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
+@property (nonatomic) UIImage *image;
+@end
+
+@implementation SnapshotTarget
+
+- (void)snapshot:(UIImage *)image
+{
+    _image = image;
+}
+
+@end
 
 @implementation MaplyBaseViewController
 {
@@ -33,6 +50,8 @@ using namespace WhirlyKit;
 {
     if (!scene)
         return;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
@@ -84,6 +103,7 @@ using namespace WhirlyKit;
     userLayers = nil;
 
     viewTrackers = nil;
+    annotations = nil;
     
     theClearColor = nil;
 }
@@ -148,11 +168,14 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+    allowRepositionForAnnnotations = true;
+    
     // Need this logic here to pull in the categories
     static bool dummyInit = false;
     if (!dummyInit)
     {
         NSDataDummyFunc();
+        NSDictionaryStyleDummyFunc();
         dummyInit = true;
     }
     
@@ -210,6 +233,7 @@ using namespace WhirlyKit;
 	sceneRenderer.theView = visualView;
 	    
     viewTrackers = [NSMutableArray array];
+    annotations = [NSMutableArray array];
 	
 	// Kick off the layer thread
 	// This will start loading things
@@ -221,6 +245,15 @@ using namespace WhirlyKit;
     [self setHints:newHints];
         
     _selection = true;
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appBackground:)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appForeground:)
+                                                 name:UIApplicationWillEnterForegroundNotification
+                                               object:nil];
 }
 
 - (void) useGLContext
@@ -252,6 +285,22 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
+- (void)appBackground:(NSNotification *)note
+{
+    wasAnimating = glView.animating;
+    if (wasAnimating)
+        [self stopAnimation];
+}
+
+- (void)appForeground:(NSNotification *)note
+{
+    if (wasAnimating)
+    {
+        [self startAnimation];
+        wasAnimating = false;
+    }
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
 	[self startAnimation];
@@ -269,6 +318,15 @@ using namespace WhirlyKit;
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return YES;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    
+    // We may retain a bit of memory here.  Clear it up.
+    scene->getMemManager()->clearBufferIDs();
+    scene->getMemManager()->clearTextureIDs();
 }
 
 - (void)setFrameInterval:(int)frameInterval
@@ -405,7 +463,7 @@ static const float PerfOutputDelay = 15.0;
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
     sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
-    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:true];
+    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:false];
     sceneRenderer.doCulling = culling;
 }
 
@@ -459,6 +517,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc
 {
     return [self addVectors:vectors desc:desc mode:MaplyThreadAny];
+}
+
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -525,7 +588,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,DrawVisibleInvalid,DrawVisibleInvalid);
+    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
@@ -556,14 +619,129 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+// Overridden by the subclasses
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    [interactLayer addImage:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    return CGPointZero;
 }
 
-- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode
+// Overridden by the subclasses
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
-    [interactLayer removeImage:image];
+    return false;
+}
+
+- (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset
+{
+    // See if we're already representing the annotation
+    bool alreadyHere = [annotations containsObject:annotate];
+    
+    // Let's put it in the right place so the callout can do its layout logic
+    CGPoint pt = [self screenPointFromGeo:coord];
+    CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
+    annotate.loc = coord;
+    if (!alreadyHere)
+    {
+        annotate.calloutView.delegate = self;
+        [annotations addObject:annotate];
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:YES];
+    } else {
+        annotate.calloutView.delegate = nil;
+        [annotate.calloutView presentCalloutFromRect:rect inView:glView constrainedToView:glView permittedArrowDirections:SMCalloutArrowDirectionAny animated:NO];
+    }
+    
+    // But then we move it back because we're controlling its positioning
+    CGRect frame = annotate.calloutView.frame;
+    annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
+
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    if (alreadyHere)
+    {
+        vpGen->moveView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    } else
+    {
+        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    }
+    sceneRenderer.triggerDraw = true;
+}
+
+// Delegate callback for annotation placement
+// Note: Not doing anything with this yet
+- (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
+{
+    NSTimeInterval delay = 0.0;
+    
+    // Need to find the annotation this belongs to
+    for (MaplyAnnotation *annotation in annotations)
+    {
+        if (annotation.calloutView == calloutView && annotation.repositionForVisibility && allowRepositionForAnnnotations)
+        {
+            CGPoint pt = [self screenPointFromGeo:annotation.loc];
+            CGPoint newPt = CGPointMake(pt.x+offset.width, pt.y+offset.height);
+            delay = 0.25;
+            if (![self animateToPosition:annotation.loc onScreen:newPt time:delay])
+                delay = 0.0;
+            break;
+        }
+    }
+    
+    return 0.0;
+}
+
+- (void)removeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    vpGen->removeView(annotate.calloutView);
+    
+    [annotations removeObject:annotate];
+    
+    [annotate.calloutView dismissCalloutAnimated:YES];
+}
+
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->freezeView(annotate.calloutView);
+        }
+}
+
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate
+{
+    ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
+    for (MaplyAnnotation *annotation in annotations)
+        if (annotate == annotation)
+        {
+            vpGen->unfreezeView(annotate.calloutView);
+        }
+    sceneRenderer.triggerDraw = true;
+}
+
+- (NSArray *)annotations
+{
+    return annotations;
+}
+
+- (void)clearAnnotations
+{
+    NSArray *allAnnotations = [NSArray arrayWithArray:annotations];
+    for (MaplyAnnotation *annotation in allAnnotations)
+        [self removeAnnotation:annotation];
+}
+
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
+{
+    MaplyTexture *maplyTex = [interactLayer addTexture:image imageFormat:imageFormat wrapFlags:wrapFlags mode:threadMode];
+    maplyTex.viewC = self;
+    
+    return maplyTex;
+}
+
+- (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
+{
+    [interactLayer removeTexture:texture];
 }
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
@@ -596,6 +774,16 @@ static const float PerfOutputDelay = 15.0;
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode
 {
     [interactLayer enableObjects:theObjs mode:threadMode];
+}
+
+- (void)startChanges
+{
+    [interactLayer startChanges];
+}
+
+- (void)endChanges
+{
+    [interactLayer endChanges];
 }
 
 - (void)addActiveObject:(MaplyActiveObject *)theObj
@@ -658,7 +846,10 @@ static const float PerfOutputDelay = 15.0;
         
         if ([newLayer startLayer:layerThread scene:scene renderer:sceneRenderer viewC:self])
         {
-            newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+            if (!newLayer.drawPriorityWasSet)
+            {
+                newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
+            }
             [userLayers addObject:newLayer];
             return true;
         }
@@ -740,6 +931,41 @@ static const float PerfOutputDelay = 15.0;
     
     displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
     return displayCoord;
+}
+
+- (float)currentMapScale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapScale:frameSize];
+}
+
+- (float)heightForMapScale:(float)scale
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return -1.0;
+    return (float)[visualView heightForMapScale:scale frame:frameSize];
+}
+
+- (UIImage *)snapshot
+{
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    sceneRenderer.snapshotDelegate = target;
+    
+    [sceneRenderer forceDrawNextFrame];
+    [sceneRenderer render:0.0];
+    
+    return target.image;
+}
+
+- (float)currentMapZoom:(MaplyCoordinate)coordinate
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
 }
 
 @end

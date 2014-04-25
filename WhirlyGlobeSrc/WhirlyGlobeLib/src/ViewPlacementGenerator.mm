@@ -46,7 +46,50 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     ViewInstance viewInst(loc,view);
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
+    CGRect frame = view.frame;
+    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
     viewInstanceSet.insert(viewInst);
+}
+
+void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,float maxVis)
+{
+    // Make sure it isn't already there
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
+    if (it != viewInstanceSet.end())
+        viewInstanceSet.erase(it);
+    
+    ViewInstance viewInst(loc,view);
+    viewInst.minVis = minVis;
+    viewInst.maxVis = maxVis;
+    CGRect frame = view.frame;
+    viewInst.offset = Point2f(frame.origin.x,frame.origin.y);
+    viewInstanceSet.insert(viewInst);
+}
+    
+void ViewPlacementGenerator::freezeView(UIView *view)
+{
+    ViewInstance newVI(view);
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
+    if (it != viewInstanceSet.end())
+    {
+        newVI = *it;
+        viewInstanceSet.erase(it);
+        newVI.active = false;
+        viewInstanceSet.insert(newVI);
+    }
+}
+
+void ViewPlacementGenerator::unfreezeView(UIView *view)
+{
+    ViewInstance newVI(view);
+    std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
+    if (it != viewInstanceSet.end())
+    {
+        newVI = *it;
+        viewInstanceSet.erase(it);
+        newVI.active = true;
+        viewInstanceSet.insert(newVI);
+    }
 }
     
 void ViewPlacementGenerator::removeView(UIView *view)
@@ -79,12 +122,25 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
     
+    std::vector<Eigen::Matrix4d> modelAndViewMats; // modelAndViewNormalMats;
+    for (unsigned int offi=0;offi<frameInfo.offsetMatrices.size();offi++)
+    {
+        // Project the world location to the screen
+        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * frameInfo.offsetMatrices[offi] * Matrix4fToMatrix4d(frameInfo.modelTrans);
+//        Eigen::Matrix4d modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+        modelAndViewMats.push_back(modelAndViewMat);
+//        modelAndViewNormalMats.push_back(modelAndViewNormalMat);
+    }
+        
     for (std::set<ViewInstance>::iterator it = viewInstanceSet.begin();
          it != viewInstanceSet.end(); ++it)
     {
         const ViewInstance &viewInst = *it;
         bool hidden = NO;
         CGPoint screenPt;
+        
+        if (!it->active)
+            continue;
         
         // Height above globe test
         float visVal = [frameInfo.theView heightAboveSurface];
@@ -109,18 +165,29 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
 
             if (!hidden)
             {
-                // Project the world location to the screen
-                Eigen::Matrix4d modelTrans = Matrix4fToMatrix4d(frameInfo.viewAndModelMat);
-                if (globeView)
-                    screenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
-                else
-                    screenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                bool visible = false;
+                for (unsigned int offi=0;offi<modelAndViewMats.size();offi++)
+                {
+                    // Project the world location to the screen
+                    Eigen::Matrix4d &modelTrans = modelAndViewMats[offi];
+                    CGPoint thisScreenPt;
+                    if (globeView)
+                        thisScreenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                    else
+                        thisScreenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                    
+                    // Note: This check is too simple
+                    if ((thisScreenPt.x >= frameMbr.ll().x() && thisScreenPt.y >= frameMbr.ll().y() &&
+                         thisScreenPt.x <= frameMbr.ur().x() && thisScreenPt.y <= frameMbr.ur().y()))
+                    {
+                        visible = true;
+                        screenPt = thisScreenPt;
+                        break;
+                    }
+                }
                 
-                // Note: This check is too simple
-                if (!hidden &&
-                    (screenPt.x < frameMbr.ll().x() || screenPt.y < frameMbr.ll().y() || 
-                     screenPt.x > frameMbr.ur().x() || screenPt.y > frameMbr.ur().y()))
-                    hidden = YES;
+                if (!visible)
+                    hidden = true;
             }
         }
         

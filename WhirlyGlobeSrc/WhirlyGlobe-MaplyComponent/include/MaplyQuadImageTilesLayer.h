@@ -49,6 +49,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/** @brief Set the active tile source.
+    @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
+  */
+@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.
   */
@@ -171,6 +176,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) int maxTiles;
 
+/** @brief Tinker with the importance for tiles.  This will cause more or fewer tiles to load
+    @details The system calculates an importance for each tile based on its size and location on the screen.  You can mess with those values here.
+    @details Any value less than 1.0 will make the tiles less important.  Any value greater than 1.0 will make tiles more important.
+  */
+@property (nonatomic) float importanceScale;
+
 /** @brief Set the shader name to use for generated tiles.
     @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you'll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
     @details Be sure to set this immediately after layer creation.  It can't be changed in the middle.
@@ -205,6 +216,7 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
     @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
     @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+    @details Default value is true.
   */
 @property (nonatomic) bool flipY;
 
@@ -214,11 +226,11 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 @property (nonatomic) bool useTargetZoomLevel;
 
-/** @brief Force a full reload of all tiles.
-    @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
-    @details This is good for tile sources, like weather, that need to be refreshed every so often.
+/** @brief Only load a single level at a time.
+    @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.
   */
-- (void)reload;
+@property (nonatomic) bool singleLevelLoading;
 
 /** @brief The target zoom level for this layer given the current view settings.
     @details Calculates the target zoom level for the middle of the screen.
@@ -227,6 +239,12 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
   */
 - (int)targetZoomLevel;
 
+/** @brief Force a full reload of all tiles.
+ @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it's taking too long, you'll see these page in from the low to the high level.
+ @details This is good for tile sources, like weather, that need to be refreshed every so often.
+ */
+- (void)reload;
+
 /** @brief Pass back the loaded image(s) for a given tile.
     @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
     @details When we're loading just one image per tile, call this with a UIImage or MaplyImageTile. If we're expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that's been set up appropriately.
@@ -234,5 +252,17 @@ typedef enum {MaplyImageIntRGBA,MaplyImageUShort565,MaplyImageUShort4444,MaplyIm
     @param tileID The tile we've loaded.
   */
 - (void)loadedImages:(id)images forTile:(MaplyTileID)tileID;
+
+/** @brief Pass back an error for a given tile.
+    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
+    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.
+  */
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID;
+
+/** @brief Do a hard reset of the layer.
+    @details This will clean out all the layers resources and force it to start loading again.
+    @details Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.
+  */
+- (void)reset;
 
 @end

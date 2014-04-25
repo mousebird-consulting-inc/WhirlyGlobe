@@ -23,6 +23,9 @@
 #import "WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "WGSphericalEarthWithTexGroup_private.h"
+#import "GlobeDoubleTapDelegate.h"
+#import "GlobeTwoFingerTapDelegate.h"
+#import "GlobeDoubleTapDragDelegate.h"
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
@@ -41,11 +44,20 @@
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
     AnimateViewRotation *animateRotation;    
+    WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
+    WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
+    WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;
     // The quaternion animation end point
     Eigen::Quaterniond animateEndRot;
+    
+    // Used for the outside animation interface
+    NSObject<WhirlyGlobeViewControllerAnimationDelegate> *animationDelegate;
+    NSTimeInterval animationDelegateEnd;
+    Eigen::Quaterniond startQuat;
+    Eigen::Vector3d startUp;
 }
 
 @end

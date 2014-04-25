@@ -22,10 +22,17 @@
 #import <vector>
 #import "MaplyView.h"
 
+// Sent out when the pan delegate takes control
+#define kPanDelegateDidStart @"WKPanDelegateStarted"
+// Sent out when the pan delegate finished (but hands off to momentum)
+#define kPanDelegateDidEnd @"WKPanDelegateEnded"
+
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 + (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
+
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2f *)bounds;

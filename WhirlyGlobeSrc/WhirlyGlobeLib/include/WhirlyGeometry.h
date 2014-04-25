@@ -36,7 +36,10 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring);
 
 /// Run a convex polygon intersection check.  Returns true if they overlap
 bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1);
-	
+
+/// Run a convex polygon intersection check.  Returns true if they overlap
+bool ConvexPolyIntersect(const std::vector<Point2d> &pts0,const std::vector<Point2d> &pts1);
+
 /// Return the next higher power of 2 unless the input is a power of 2.  Doesn't work for 0.
 unsigned int NextPowOf2(unsigned int val);
     

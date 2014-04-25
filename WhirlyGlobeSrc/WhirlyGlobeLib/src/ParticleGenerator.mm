@@ -65,7 +65,7 @@ ParticleGenerator::Particle ParticleGenerator::ParticleSystem::generateParticle(
     if (colors.empty())
         newParticle.color = RGBAColor(255,255,255,255);
     else {
-        int which = random()%colors.size();
+        int which = (int)(random()%colors.size());
         newParticle.color = colors[which];
     }
     

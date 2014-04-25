@@ -123,7 +123,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    TestViewController *viewC = [[TestViewController alloc] initWithMapType:indexPath.row];
+    TestViewController *viewC = [[TestViewController alloc] initWithMapType:(int)indexPath.row];
     [self.navigationController pushViewController:viewC animated:YES];
 }
 

@@ -68,7 +68,8 @@
     NSMutableArray *newValues = [NSMutableArray array];
     [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
                                                          rows:
-                          @{kMaplyTestGeographyClass: @(YES),
+                          @{kMaplyTestBlank: @(NO),
+                                    kMaplyTestGeographyClass: @(YES),
                                          kMaplyTestBlueMarble: @(NO),
                                    kMaplyTestStamenWatercolor: @(NO),
                                                 kMaplyTestOSM: @(NO),
@@ -89,7 +90,8 @@
                                                rows:
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
-                  kMaplyTestForecastIO: @(NO)}
+                  kMaplyTestForecastIO: @(NO),
+                  kMaplyTestMapboxStreets: @(NO)}
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -119,7 +121,8 @@
                                            rows:
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
-              kMaplyTestForecastIO: @(NO)}
+              kMaplyTestForecastIO: @(NO),
+              kMaplyTestMapboxStreets: @(NO)}
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:
@@ -181,7 +184,7 @@
     return cs.sectionName;
 }
 
-- (int)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     if (section >= [_values count])
         return 0;

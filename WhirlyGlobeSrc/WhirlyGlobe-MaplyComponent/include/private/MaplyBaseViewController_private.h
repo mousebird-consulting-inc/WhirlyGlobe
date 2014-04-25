@@ -30,8 +30,9 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "SMCalloutView.h"
 
-@interface MaplyBaseViewController()
+@interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
 @public
     WhirlyKitEAGLView *glView;
@@ -49,6 +50,9 @@
     
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
+    
+    // List of annotations we're tracking for location
+    NSMutableArray *annotations;
         
     // General rendering and other display hints
     NSDictionary *hints;
@@ -76,6 +80,12 @@
     
     /// Set if we're dumping out performance output
     bool _performanceOutput;
+    
+    /// Set while we're trying to track foreground/background
+    bool wasAnimating;
+    
+    /// When an annotation comes up we may want to reposition the view.  This works poorly in some cases.
+    bool allowRepositionForAnnnotations;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

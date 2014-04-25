@@ -54,8 +54,9 @@
  */
 @interface WhirlyKitViewState : NSObject
 
-@property(nonatomic,assign) Eigen::Matrix4d &modelMatrix,&viewMatrix,&fullMatrix,&projMatrix,&fullNormalMatrix;
-@property(nonatomic,assign) Eigen::Matrix4d &invModelMatrix,&invViewMatrix,&invFullMatrix,&invProjMatrix;
+@property(nonatomic,assign) Eigen::Matrix4d &modelMatrix,&projMatrix;
+@property(nonatomic,assign) std::vector<Eigen::Matrix4d> &viewMatrices,&invViewMatrices,&fullMatrices,&fullNormalMatrices,&invFullMatrices;
+@property(nonatomic,assign) Eigen::Matrix4d &invModelMatrix,&invProjMatrix;
 @property(nonatomic,assign) double fieldOfView;
 @property(nonatomic,assign) double imagePlaneSize;
 @property(nonatomic,assign) double nearPlane;

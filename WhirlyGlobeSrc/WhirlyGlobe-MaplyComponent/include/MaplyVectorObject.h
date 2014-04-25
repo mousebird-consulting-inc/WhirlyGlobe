@@ -67,6 +67,20 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
  */
 + (MaplyVectorObject *)VectorObjectFromGeoJSONDictionary:(NSDictionary *)geoJSON;
 
+/** @brief Read vector objects from the given cache file.
+    @details MaplyVectorObject's can be written and read from a binary file.  We use this for caching data locally on the device.
+    @param fileName Name of the binary vector file.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName;
+
+/** @brief Read vector objects from the given shapefile.
+    @details This will read all the shapes in the given shapefile into memory and return them as one MaplyVectorObject.
+    @param fileName The basename of the shape file.  Don't include the extension.
+    @return The vector object(s) read from the file or nil on failure.
+  */
++ (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName;
+
 /** @brief Parse vector objects from a JSON assembly.
     @details This version can deal with non-compliant assemblies returned by the experimental OSM server
   */
@@ -86,6 +100,13 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
   */
 - (id)initWithAreal:(MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr;
+
+/** @brief Write the vector object to the given file on the device.
+    @details We support a binary format for caching vector data.  Typically you write these files on the device or in the simulator and then put them in a place you can easily find them when needed.
+    @param fileName The file to read the vector data from.
+    @return Returns true on succes, false on failure.
+  */
+- (bool)writeToFile:(NSString *)fileName;
 
 /** @brief Make a deep copy of the vector object and return it.
     @details This makes a complete copy of the vector object, with all features and nothing shared.
@@ -124,12 +145,20 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
   */
 - (MaplyCoordinate)center;
 
+/** @brief Copy the vectors in the given vector object into this one.
+  */
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec;
+
 /** @brief For a linear feature, calculate the mid oint and rotation at that point.
     @details The vector object contains a number of half baked geometric queries, this being one of them.
     @details This finds the middle (as measured by distance) of a linear feature and then calculations an angle corresponding to the line segment that middle sits in.
     @details Why?  Think label road placement.
   */
-- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot;
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot;
+
+/** @brief return the middle coordinate in a line feature.
+ */
+- (bool)middleCoordinate:(MaplyCoordinate *)middle;
 
 /** @brief Calculate the center and extents of the largest loop in an areal feature.
     @details The vector object contains a number of half baked geometric queries, this being one of them.
@@ -154,6 +183,11 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @return Returns an NSArray of NSArray's which then contain CLLocation points.
   */
 - (NSArray *)asCLLocationArrays;
+
+/** @brief Return the data as an NSArray of NSNumbers.
+    @details If this is a linear, we'll return the points as an NSArray of NSNumbers.
+  */
+- (NSArray *)asNumbers;
 
 /** @brief Split up ths feature into individual features and return an array of them.
     @details A vector object can represent multiple features with no real rhyme or reason to it.  This method will make one vector object per feature, allowing you to operate on those individually.

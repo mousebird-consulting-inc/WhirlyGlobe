@@ -47,6 +47,37 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 
 @implementation WhirlyKitRendererFrameInfo
 
+- (id)initWithFrameInfo:(WhirlyKitRendererFrameInfo *)info
+{
+    self = [super init];
+    
+    _oglVersion = info.oglVersion;
+    _sceneRenderer = info.sceneRenderer;
+    _theView = info.theView;
+    _modelTrans = info.modelTrans;
+    _modelTrans4d = info.modelTrans4d;
+    _viewTrans = info.viewTrans;
+    _viewTrans4d = info.viewTrans4d;
+    _projMat = info.projMat;
+    _viewAndModelMat = info.viewAndModelMat;
+    _viewAndModelMat4d = info.viewAndModelMat4d;
+    _mvpMat = info.mvpMat;
+    _viewModelNormalMat = info.viewModelNormalMat;
+    _offsetMatrices = info.offsetMatrices;
+    _scene = info.scene;
+    _frameLen = info.frameLen;
+    _currentTime = info.currentTime;
+    _eyeVec = info.eyeVec;
+    _fullEyeVec = info.fullEyeVec;
+    _dispCenter = info.dispCenter;
+    _heightAboveSurface = info.heightAboveSurface;
+    _program = info.program;
+    _lights = info.lights;
+    _stateOpt = info.stateOpt;
+    
+    return self;
+}
+
 @end
 
 @implementation WhirlyKitOpenGLStateOptimizer
@@ -291,6 +322,11 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 	
     if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
+    
+    // If we've resized, we're looking at different content
+    if (_theView)
+        [_theView runViewUpdates];
+    
 	return YES;
 }
 

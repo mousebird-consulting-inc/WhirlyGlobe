@@ -28,7 +28,7 @@
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
 #import "Quadtree.h"
-#import "SceneRendererES.h"
+#import "SceneRendererES2.h"
 #import "ScreenImportance.h"
 
 /// @cond
@@ -117,6 +117,10 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /// isInitial is set if this is the first time through
 - (bool)shouldUpdate:(WhirlyKitViewState *)viewState initial:(bool)isInitial;
 
+/// If this is filled in, we can do a hard reset while the layer is running.
+/// This is pretty much identical to shutdownLayer:scene: but we expect to run again afterwards.
+- (void)reset:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene;
+
 /// Normally we'd call an endUpdates, but if we're holding that open for a while
 /// (e.g. matching frame boundaries), let's at least get all the work done.
 - (void)updateWithoutFlush;
@@ -136,7 +140,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
  */
-@interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate>
+@interface WhirlyKitQuadDisplayLayer : NSObject<WhirlyKitLayer,WhirlyKitQuadTreeImportanceDelegate,WhirlyKitFrameBoundaryObserver>
 
 /// Layer thread we're attached to
 @property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
@@ -152,6 +156,8 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 @property (nonatomic,assign) int maxTiles;
 /// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
+/// If set, we're trying to only display the target level
+@property (nonatomic,assign) int targetLevel;
 /// Draw lines instead of polygons, for demonstration.
 @property (nonatomic,assign) bool lineMode;
 /// If set, we print out way too much debugging info.
@@ -170,7 +176,7 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 ///  and unload.
 @property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
-@property (nonatomic,weak) WhirlyKitSceneRendererES *renderer;
+@property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 /// If set we'll try to match the frame boundaries for our update
 @property (nonatomic,assign) bool meteredMode;
 /// If set, we'll try to completely load everything (local, at least) before switching
@@ -191,6 +197,13 @@ typedef std::set<WhirlyKit::Quadtree::NodeInfo> QuadNodeInfoSet;
 
 /// Call this to force a reload for all existing tiles
 - (void)refresh;
+
+/// This cleans out existing resources and allows you to change tile sources.
+/// It only works if the tile loader supports reload
+- (void)reset;
+
+/// Call this to have the layer re-evaluate its currently displayed data
+- (void)poke;
 
 /// Call this to nudge the quad display layer awake.
 - (void)wakeUp;

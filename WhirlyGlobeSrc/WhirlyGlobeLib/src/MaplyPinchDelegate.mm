@@ -21,6 +21,7 @@
 #import "EAGLView.h"
 #import "MaplyPinchDelegate.h"
 #import "SceneRendererES.h"
+#import "MaplyZoomGestureDelegate_private.h"
 
 using namespace WhirlyKit;
 
@@ -28,71 +29,15 @@ using namespace WhirlyKit;
 {
     /// If we're zooming, where we started
     float startZ;
-    MaplyView *mapView;
-    /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2f> bounds;
-}
-
-- (id)initWithMapView:(MaplyView *)inView
-{
-	if ((self = [super init]))
-	{
-		mapView = inView;
-		startZ = 0.0;
-        _minZoom = _maxZoom = -1.0;
-	}
-	
-	return self;
 }
 
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
 {
     MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
-    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
-    pinchRecog.delegate = pinchDelegate;
-	[view addGestureRecognizer:pinchRecog];
+    pinchDelegate.gestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
+    pinchDelegate.gestureRecognizer.delegate = pinchDelegate;
+	[view addGestureRecognizer:pinchDelegate.gestureRecognizer];
 	return pinchDelegate;
-}
-
-// We'll let other gestures run
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-    return TRUE;
-}
-
-- (void)setBounds:(WhirlyKit::Point2f *)inBounds
-{
-    bounds.clear();
-    for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(inBounds[ii]);
-}
-
-// Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
-{
-    if (bounds.empty())
-        return true;
-    
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
-    
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-//        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    
-    return isValid;
 }
 
 // Called for pinch actions
@@ -102,26 +47,30 @@ using namespace WhirlyKit;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
 	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
-	
+    
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
 			// Store the starting Z for comparison
-			startZ = mapView.loc.z();
-            [mapView cancelAnimation];
+			startZ = self.mapView.loc.z();
+            [self.mapView cancelAnimation];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView];
 			break;
 		case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = mapView.loc;
+            Point3d curLoc = self.mapView.loc;
             double newZ = startZ/pinch.scale;
-            if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
+            if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                [mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
-                if (![self withinBounds:mapView.loc view:glView renderer:sceneRenderer])
-                    [mapView setLoc:curLoc];
+                [self.mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
+                if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
+                    [self.mapView setLoc:curLoc];
             }
         }
 			break;
+        case UIGestureRecognizerStateEnded:
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView];
+            break;
         default:
             break;
 	}

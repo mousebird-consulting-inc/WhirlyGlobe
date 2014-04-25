@@ -67,7 +67,8 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 {
 	PanDelegateFixed *panDelegate = [[PanDelegateFixed alloc] initWithGlobeView:globeView];
     UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
-    panRecog.delegate = self;
+    panRecog.delegate = panDelegate;
+    panDelegate.gestureRecognizer = panRecog;
 	[view addGestureRecognizer:panRecog];
 	return panDelegate;
 }
@@ -209,8 +210,7 @@ static const float MomentumAnimLen = 1.0;
             break;
 		case UIGestureRecognizerStateEnded:
         {
-            if (panType != PanNone)
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+            bool doNotifyEnd = (panType != PanNone);
 
             if (panType == PanFree && runEndMomentum)
             {
@@ -244,21 +244,27 @@ static const float MomentumAnimLen = 1.0;
                     Vector3f upVector = cross.normalized();
 
                     // If we're doing north up, just rotate around the Z axis
-                    if (_northUp) {
-                        Vector3f oldUpVector = upVector;
-                        upVector = Vector3f(0,0,(oldUpVector.z() > 0.0 ? 1 : -1));
-                        angVel *= upVector.dot(oldUpVector);
-                    }
+//                    if (_northUp) {
+//                        Vector3f oldUpVector = upVector;
+//                        upVector = Vector3f(0,0,(oldUpVector.z() > 0.0 ? 1 : -1));
+//                        angVel *= upVector.dot(oldUpVector);
+//                    }
 
                     // Calculate the acceleration based on how far we'd like it to go
                     float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
                     
                     // Keep going in that direction for a while
-                    viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector];
-                    view.delegate = viewAnimation;
+                    if (angVel > 0.0)
+                    {
+                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector northUp:_northUp];
+                        view.delegate = viewAnimation;
+                    }
                 }
                
             }
+            
+            if (doNotifyEnd)
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
         }
 			break;
         default:

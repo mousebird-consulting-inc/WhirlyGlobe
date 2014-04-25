@@ -18,6 +18,7 @@
 		2B0D632A17A2EEAB00C3298D /* UIImageView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D632117A2EEAB00C3298D /* UIImageView+AFNetworking.m */; };
 		2B0D633117A2EEE900C3298D /* AFKissXMLRequestOperation.h in Resources */ = {isa = PBXBuildFile; fileRef = 2B0D632B17A2EEE900C3298D /* AFKissXMLRequestOperation.h */; };
 		2B0D633817A2F2BB00C3298D /* AFKissXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0D633717A2F2BB00C3298D /* AFKissXMLRequestOperation.m */; };
+		2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DDB516E7F505001F52FC /* OpenGLES.framework */; };
 		2B62DD6816E7F0BC001F52FC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD6616E7F0BC001F52FC /* InfoPlist.strings */; };
 		2B62DD6A16E7F0BC001F52FC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD6916E7F0BC001F52FC /* main.m */; };
 		2B62DD8616E7F3A2001F52FC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD7B16E7F3A2001F52FC /* AppDelegate.m */; };
@@ -25,6 +26,7 @@
 		2B62DD8816E7F3A2001F52FC /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B62DD7E16E7F3A2001F52FC /* ConfigViewController.xib */; };
 		2B62DD8A16E7F3A2001F52FC /* StartupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8316E7F3A2001F52FC /* StartupViewController.m */; };
 		2B62DD8B16E7F3A2001F52FC /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B62DD8516E7F3A2001F52FC /* TestViewController.m */; };
+		2B86DA721905D628007B7A20 /* osm-bright.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2B86DA711905D628007B7A20 /* osm-bright.xml */; };
 		2BA13BFF17F10D9A000C43B7 /* libWhirlyGlobe-MaplyComponent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B62DD9216E7F3D3001F52FC /* libWhirlyGlobe-MaplyComponent.a */; };
 		2BA13C0117F10E49000C43B7 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BA13C0017F10E49000C43B7 /* CFNetwork.framework */; };
 		2BA13C0317F10E64000C43B7 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B0D630D17A2EE0400C3298D /* libxml2.dylib */; };
@@ -372,6 +374,7 @@
 		2B62DDBB16E7F51B001F52FC /* libstdc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libstdc++.dylib"; path = "usr/lib/libstdc++.dylib"; sourceTree = SDKROOT; };
 		2B62DDBD16E7F54B001F52FC /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		2B8218CC176FCB7C0012322A /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		2B86DA711905D628007B7A20 /* osm-bright.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "osm-bright.xml"; path = "../../../resources/mapbox vectors/osm-bright.xml"; sourceTree = "<group>"; };
 		2BA13BF117EE1875000C43B7 /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		2BA13BF317EE1884000C43B7 /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		2BA13C0017F10E49000C43B7 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -664,6 +667,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B2EB66518C901AD008C5320 /* OpenGLES.framework in Frameworks */,
 				2BA13C0917F11068000C43B7 /* libc++.dylib in Frameworks */,
 				2BA13C0817F10EEA000C43B7 /* libz.dylib in Frameworks */,
 				2BA13C0717F10ECA000C43B7 /* CoreLocation.framework in Frameworks */,
@@ -810,9 +814,18 @@
 			name = AFNetworking;
 			sourceTree = "<group>";
 		};
+		2BBDFE881889F91500AE4CEB /* vector tiles */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "vector tiles";
+			sourceTree = "<group>";
+		};
 		2BFD25D8170B929E00127EF5 /* resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B86DA711905D628007B7A20 /* osm-bright.xml */,
+				2BBDFE881889F91500AE4CEB /* vector tiles */,
 				2BC989E417DC289B0071DA9E /* world_web_mercator.sqlite */,
 				2BFD25F9170B933B00127EF5 /* country_json_50m */,
 				2BFD25E0170B932000127EF5 /* geography-class.mbtiles */,
@@ -1127,7 +1140,7 @@
 		2B62DD5216E7F0BC001F52FC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "mousebird consulting";
 			};
 			buildConfigurationList = 2B62DD5516E7F0BC001F52FC /* Build configuration list for PBXProject "WhirlyGlobeComponentTester" */;
@@ -1297,6 +1310,7 @@
 				2BFD2760170B933C00127EF5 /* ISL.geojson in Resources */,
 				2BFD2761170B933C00127EF5 /* ISR.geojson in Resources */,
 				2BFD2762170B933C00127EF5 /* ITA.geojson in Resources */,
+				2B86DA721905D628007B7A20 /* osm-bright.xml in Resources */,
 				2BFD2763170B933C00127EF5 /* JAM.geojson in Resources */,
 				2BFD2764170B933C00127EF5 /* JEY.geojson in Resources */,
 				2BFD2765170B933C00127EF5 /* JOR.geojson in Resources */,

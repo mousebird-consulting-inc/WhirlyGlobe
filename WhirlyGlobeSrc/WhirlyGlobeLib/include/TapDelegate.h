@@ -30,4 +30,6 @@
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
 + (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
 
+@property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
+
 @end

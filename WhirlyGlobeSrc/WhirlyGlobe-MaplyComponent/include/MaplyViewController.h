@@ -56,6 +56,21 @@
   */
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord;
 
+/** @brief Called when the map starts moving.
+ @param viewC The map view controller.
+ @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
+ @details This is called when something (probably the user) starts moving the map.
+ */
+- (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion;
+
+/** @brief Called when the map stops moving.
+ @details This is called when the map stops moving.  It passes in the corners of the current viewspace.
+ @param viewC The globe view controller.
+ @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
+ @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+
 @end
 
 /** @brief This view controller implements a map.
@@ -117,6 +132,26 @@
  */
 @property(nonatomic,assign) bool rotateGesture;
 
+/** @brief Turn the pan gesture on and off
+    @details Pan gesture is on by default
+  */
+@property(nonatomic,assign) bool panGesture;
+
+/** @brief Turn the double tap to zoom gesture recognizer on and off
+    @details On by default.
+ */
+@property(nonatomic,assign) bool doubleTapZoomGesture;
+
+/** @brief Turn the 2 finger tap to zoom out gesture recognizer on and off
+    @details On by default.
+ */
+@property(nonatomic,assign) bool twoFingerTapGesture;
+
+/** @brief Turn on the double tap and drag gesture to zoom in and out.
+    @details On by default.
+  */
+@property(nonatomic,assign) bool doubleTapDragGesture;
+
 /** @brief The current rotation away from north.
  */
 @property(nonatomic,assign) float heading;
@@ -135,6 +170,11 @@
     @details In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.
   */
 @property (nonatomic,assign) float height;
+
+/** @brief 2D visual views can do some simple wrapping.  This turns that on and off (off by default).
+    @details On some 2D visual views we're allowed to wrap across the edge of the world.  This will attempt to do that.
+  */
+@property (nonatomic,assign) bool viewWrap;
 
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
@@ -167,7 +207,7 @@
     @param loc The location on the screen where we'd like it to go.
     @param howLong How long in seconds to take getting there.
   */
-- (void)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
 
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
@@ -176,7 +216,7 @@
 
 /** @brief Set the center of the screen and the height offset immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
-    @param height Height the view point above the map.  Doesn't work in 2D mode.
+    @param height Height the view point above the map.
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
@@ -202,6 +242,11 @@
     @return Returns the screen point corresponding to a given geo coordinate.
  */
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Return the geographic (lon/lat radians) coordinate in radians for a given screen point.
+    @return Returns the geo coordinate corresponding to a given screen point in radians.
+ */
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point;
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
