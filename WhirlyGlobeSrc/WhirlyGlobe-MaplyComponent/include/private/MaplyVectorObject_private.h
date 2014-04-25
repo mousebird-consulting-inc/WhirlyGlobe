@@ -21,9 +21,29 @@
 #import "MaplyVectorObject.h"
 #import <WhirlyGlobe.h>
 
+namespace Maply
+{
+
+typedef enum {VectorAttrInt=0,VectorAttrString,VectorAttrReal,VectorAttrMax} VectorAttributeType;
+
+// Vector attributes in a vector DB
+class VectorAttribute
+{
+public:
+    NSString *name;
+    VectorAttributeType type;
+};
+
+}
+
 @interface MaplyVectorObject()
 
 @property (nonatomic,readonly) WhirlyKit::ShapeSet &shapes;
+@property (nonatomic,readwrite) NSDictionary *attributes;
+
+// Construct a vector object from the Vector DB raw format
++ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data;
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape;
 
 @end
 

@@ -141,16 +141,28 @@
 /// Tangent plane projection for texture coordinates
 #define kMaplyProjectionTangentPlane @"texprojectiontanplane"
 
+/// If set to true we'll centered any drawables we create for features
+/// This fixes the jittering problem when zoomed in close
+#define kMaplyVecCentered @"centered"
+
+/// Center of the feature, to use for texture calculations
+#define kMaplyVecCenterX @"veccenterx"
+#define kMaplyVecCenterY @"veccentery"
+
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define kMaplySubdivEpsilon @"subdivisionepsilon"
 /// If subdiv epsilon is set we'll look for a subdivision type. Default is simple.
 #define kMaplySubdivType @"subdivisiontype"
 /// Subdivide the vector edges along a great circle
 #define kMaplySubdivGreatCircle @"greatcircle"
+/// Subdivide into a fixed number of segmenets
+#define kMaplySubdivStatic @"static"
 /// Subdivide the vectors edges along lat/lon
 #define kMaplySubdivSimple @"simple"
 /// Clip features along a grid of the given size
 #define kMaplySubdivGrid @"grid"
+/// Used to turn off selection in vectors
+#define kMaplySelectable @"selectable"
 
 /// These are used for stickers
 

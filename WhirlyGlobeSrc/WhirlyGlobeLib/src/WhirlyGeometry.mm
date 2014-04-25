@@ -70,7 +70,7 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit)
 
 bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 {
-	int ii, jj;
+	size_t ii, jj;
 	bool c = false;
 	for (ii = 0, jj = ring.size()-1; ii < ring.size(); jj = ii++) {
 		if ( ((ring[ii].y()>pt.y()) != (ring[jj].y()>pt.y())) &&
@@ -81,6 +81,16 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 }
     
 bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1)
+{
+    // Simple bounding box check
+    Mbr mbr0;
+    mbr0.addPoints(pts0);
+    Mbr mbr1;
+    mbr1.addPoints(pts1);
+    return mbr0.overlaps(mbr1);
+}
+
+bool ConvexPolyIntersect(const std::vector<Point2d> &pts0,const std::vector<Point2d> &pts1)
 {
     // Simple bounding box check
     Mbr mbr0;

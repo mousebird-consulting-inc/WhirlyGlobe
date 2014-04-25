@@ -51,11 +51,11 @@
                                         nil];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		
-	_animating = FALSE;
-	_frameInterval = 1;
+        _animating = FALSE;
+        _frameInterval = 1;
         self.useRetina = TRUE;
         resizeFail = false;
-        resizeFailRetry = 0;
+        resizeFailRetry = 0;        
     }
     
     return self;
@@ -163,7 +163,7 @@
     resizeFail = false;
     resizeFailRetry = 0;
 
-	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
+//	[_renderer resizeFromLayer:(CAEAGLLayer*)self.layer];
     [self drawView:nil];
 }
 

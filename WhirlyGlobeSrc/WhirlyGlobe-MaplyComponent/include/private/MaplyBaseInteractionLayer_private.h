@@ -48,7 +48,7 @@
 
     pthread_mutex_t userLock;
     // Component objects created for the user
-    NSMutableArray *userObjects;
+    NSMutableSet *userObjects;
 }
 
 // Note: Not a great idea to be passing this in
@@ -71,6 +71,9 @@
 
 // Add vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+// Instance vectors
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add vectors that we'll only use for selection
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc;
@@ -102,13 +105,25 @@
 // Disable objects
 - (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
+// Explicitly add a texture
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+
+// Explicitly remove a texture
+- (void)removeTexture:(MaplyTexture *)texture;
+
+// Start collecting changes for this thread
+- (void)startChanges;
+
+// Flush out outstanding changes for this thread
+- (void)endChanges;
+
 ///// Internal routines.  Don't ever call these outside of the layer thread.
 
 // An internal routine to add an image to our local UIImage/ID cache
-- (WhirlyKit::SimpleIdentity)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
 // Remove the texture associated with an image  or just decrement its reference count
-- (void)removeImage:(UIImage *)image;
+- (void)removeImageTexture:(MaplyTexture *)tex;
 
 // Do a point in poly check for vectors we're representing
 - (NSObject *)findVectorInPoint:(WhirlyKit::Point2f)pt;

@@ -50,7 +50,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     cullTree = new CullTree(adapter,localMbr,depth);
     
     // Also toss in a screen space generator to share amongst the layers
-    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
+    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2d(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
     generators.insert(ssGen);
     // And put in a UIView placement generator for use in the main thread
@@ -344,6 +344,11 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     
     return retTex;
 }
+    
+const DrawableRefSet &Scene::getDrawables()
+{
+    return drawables;
+}
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
@@ -430,7 +435,7 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
 void Scene::dumpStats()
 {
     NSLog(@"Scene: %ld drawables",drawables.size());
-    NSLog(@"Scene: %d active models",[activeModels count]);
+    NSLog(@"Scene: %d active models",(int)[activeModels count]);
     NSLog(@"Scene: %ld generators",generators.size());
     NSLog(@"Scene: %ld textures",textures.size());
     NSLog(@"Scene: %ld sub textures",subTextureMap.size());
@@ -592,9 +597,24 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
+    // If this is an instance, deal with that madness
+    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawable);
+    if (drawInst)
+    {
+        DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
+        BasicDrawableRef baseDraw = boost::dynamic_pointer_cast<BasicDrawable>(theDraw);
+        if (baseDraw)
+            drawInst->setMaster(baseDraw);
+        else {
+            // Uh oh, dangling reference, just kill it
+            delete drawable;
+            return;
+        }
+    }
+
     DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
-        
+    
     // Initialize any OpenGL foo
     WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
     setupInfo->minZres = [view calcZbufferRes];

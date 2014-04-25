@@ -38,10 +38,10 @@
   */
 @property (nonatomic,assign) CGSize size;
 
-/** @brief Image to use for the marker.
+/** @brief Image or MaplyTexture to use for the marker.
     @details If set, we'll display a UIImage at the given location of the given size.  If not set, it's just a color rectangle which is not very exciting.  The view controller tracks the UIImage and will reuse it as necessary and release it when finished.
   */
-@property (nonatomic,strong) UIImage *image;
+@property (nonatomic,strong) id image;
 
 /** @brief Marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this marker will never appear in selection results.

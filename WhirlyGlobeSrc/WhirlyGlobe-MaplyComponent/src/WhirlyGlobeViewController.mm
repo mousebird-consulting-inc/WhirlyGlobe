@@ -26,7 +26,22 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
-@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate>
+@implementation WhirlyGlobeViewControllerAnimationState
+
+- (id)init
+{
+    self = [super init];
+    _heading = MAXFLOAT;
+    _height = 1.0;
+    _tilt = MAXFLOAT;
+    _pos.x = _pos.y = 0.0;
+    
+    return self;
+}
+
+@end
+
+@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate,WhirlyGlobeAnimationDelegate>
 @end
 
 @implementation WhirlyGlobeViewController
@@ -41,6 +56,11 @@ using namespace WhirlyGlobe;
         return nil;
     
     _autoMoveToTap = true;
+    _doubleTapZoomGesture = true;
+    _twoFingerTapGesture = true;
+    _doubleTapDragGesture = true;
+    _zoomTapFactor = 2.0;
+    _zoomTapAnimationDuration = 0.1;
     
     return self;
 }
@@ -58,6 +78,10 @@ using namespace WhirlyGlobe;
     tapDelegate = nil;
     rotateDelegate = nil;
     animateRotation = nil;    
+
+    doubleTapDelegate = nil;
+    twoFingerTapDelegate = nil;
+    doubleTapDragDelegate = nil;
 }
 
 - (void) dealloc
@@ -103,6 +127,35 @@ using namespace WhirlyGlobe;
     self.rotateGesture = true;
         
     self.selection = true;
+    
+    if(_doubleTapZoomGesture)
+    {
+        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+    }
+    if(_twoFingerTapGesture)
+    {
+        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+        twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+        twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        if (pinchDelegate)
+            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+    }
+    if (_doubleTapDragGesture)
+    {
+        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+        doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+        doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -140,6 +193,8 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kPinchDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidEnd:) name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidStart:) name:kGlobeDoubleTapDragDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pinchDidEnd:) name:kGlobeDoubleTapDragDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidStart:) name:kRotateDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidEnd:) name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
@@ -156,6 +211,8 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPinchDelegateDidEnd object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kGlobeDoubleTapDragDidStart object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kGlobeDoubleTapDragDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
@@ -202,6 +259,12 @@ using namespace WhirlyGlobe;
 - (void)setKeepNorthUp:(bool)keepNorthUp
 {
     panDelegate.northUp = keepNorthUp;
+    pinchDelegate.northUp = keepNorthUp;
+
+    if (keepNorthUp)
+        self.rotateGesture = false;
+    else
+        self.rotateGesture = true;
 }
 
 - (bool)keepNorthUp
@@ -214,15 +277,17 @@ using namespace WhirlyGlobe;
     if (pinchGesture)
     {
         if (!pinchDelegate)
+        {
             pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate.zoomAroundPinch = true;
+            pinchDelegate.doRotation = false;
+            pinchDelegate.northUp = panDelegate.northUp;
+            pinchDelegate.rotateDelegate = rotateDelegate;
+        }
     } else {
         if (pinchDelegate)
         {
-            UIPinchGestureRecognizer *pinchRecog = nil;
-            for (UIGestureRecognizer *recog in glView.gestureRecognizers)
-                if ([recog isKindOfClass:[UIPinchGestureRecognizer class]])
-                    pinchRecog = (UIPinchGestureRecognizer *)recog;
-            [glView removeGestureRecognizer:pinchRecog];
+            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
             pinchDelegate = nil;
         }
     }
@@ -238,8 +303,12 @@ using namespace WhirlyGlobe;
     if (rotateGesture)
     {
         if (!rotateDelegate)
+        {
             rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
-    } else {        
+            rotateDelegate.rotateAroundCenter = true;
+            pinchDelegate.rotateDelegate = rotateDelegate;
+        }
+    } else {
         if (rotateDelegate)
         {
             UIRotationGestureRecognizer *rotRecog = nil;
@@ -248,6 +317,8 @@ using namespace WhirlyGlobe;
                     rotRecog = (UIRotationGestureRecognizer *)recog;
             [glView removeGestureRecognizer:rotRecog];
             rotateDelegate = nil;
+            pinchDelegate.rotateDelegate = nil;
+            pinchDelegate.doRotation = false;
         }
     }
 }
@@ -292,7 +363,43 @@ using namespace WhirlyGlobe;
             globeView.heightAboveGlobe = minHeight;
         if (globeView.heightAboveGlobe > maxHeight)
             globeView.heightAboveGlobe = maxHeight;
+
+        if (doubleTapDelegate)
+        {
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
+        if (twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+        }
     }
+}
+
+- (void)setZoomTapFactor:(float)zoomTapFactor
+{
+    _zoomTapFactor = zoomTapFactor;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+}
+
+- (void)setZoomTapAnimationDuration:(float)zoomAnimationDuration
+{
+    _zoomTapAnimationDuration = zoomAnimationDuration;
+    
+    if (doubleTapDelegate)
+        doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+    if (twoFingerTapDelegate)
+        twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
 }
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
@@ -318,6 +425,77 @@ using namespace WhirlyGlobe;
     globeView.tilt = newTilt;
 }
 
+- (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
+{
+    _doubleTapZoomGesture = doubleTapZoomGesture;
+    if (doubleTapZoomGesture)
+    {
+        if (!doubleTapDelegate)
+        {
+            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+            doubleTapDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
+            doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        }
+    } else {
+        if (doubleTapDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDelegate.gestureRecognizer];
+            doubleTapDelegate.gestureRecognizer = nil;
+            doubleTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setTwoFingerTapGesture:(bool)twoFingerTapGesture
+{
+    _twoFingerTapGesture = twoFingerTapGesture;
+    if (twoFingerTapGesture)
+    {
+        if (!twoFingerTapDelegate)
+        {
+            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+            twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
+            twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
+            twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
+            twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+            if (pinchDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+    } else {
+        if (twoFingerTapDelegate)
+        {
+            [glView removeGestureRecognizer:twoFingerTapDelegate.gestureRecognizer];
+            twoFingerTapDelegate.gestureRecognizer = nil;
+            twoFingerTapDelegate = nil;
+        }
+    }
+}
+
+- (void)setDoubleTapDragGesture:(bool)doubleTapDragGesture
+{
+    _doubleTapZoomGesture = doubleTapDragGesture;
+    if (doubleTapDragGesture)
+    {
+        if (!doubleTapDragDelegate)
+        {
+            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+            doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
+            doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+            [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+    } else {
+        if (doubleTapDragDelegate)
+        {
+            [glView removeGestureRecognizer:doubleTapDragDelegate.gestureRecognizer];
+            doubleTapDragDelegate.gestureRecognizer = nil;
+            doubleTapDragDelegate = nil;
+        }
+    }
+}
+
 #pragma mark - Interaction
 
 // Rotate to the given location over time
@@ -328,7 +506,7 @@ using namespace WhirlyGlobe;
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:YES];
+    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:panDelegate.northUp];
     
     // Rotate to the given position over time
     animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
@@ -342,7 +520,7 @@ using namespace WhirlyGlobe;
 }
 
 // Figure out how to get the geolocation to the given point on the screen
-- (void)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
 {
     [globeView cancelAnimation];
     
@@ -380,7 +558,10 @@ using namespace WhirlyGlobe;
         // Rotate to the given position over time
         animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
         globeView.delegate = animateRotation;
-    }
+        
+        return true;
+    } else
+        return false;
 }
 
 // External facing set position
@@ -403,9 +584,25 @@ using namespace WhirlyGlobe;
 
 - (void)setHeading:(float)heading
 {
+    // Undo the current heading
     Point3d localPt = [globeView currentUp];
+    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    Quaterniond posQuat = globeView.rotQuat;
+    if (northPole.y() != 0.0)
+    {
+        // Then rotate it back on to the YZ axis
+        // This will keep it upward
+        float ang = atan(northPole.x()/northPole.y());
+        // However, the pole might be down now
+        // If so, rotate it back up
+        if (northPole.y() < 0.0)
+            ang += M_PI;
+        Eigen::AngleAxisd upRot(ang,localPt);
+        posQuat = posQuat * upRot;
+    }
+
     Eigen::AngleAxisd rot(heading,localPt);
-    Quaterniond newRotQuat = globeView.rotQuat * rot;
+    Quaterniond newRotQuat = posQuat * rot;
     
     globeView.rotQuat = newRotQuat;
 }
@@ -473,12 +670,12 @@ using namespace WhirlyGlobe;
         [_delegate globeViewControllerDidTapOutside:self];
 }
 
-- (void) handleStartMoving
+- (void) handleStartMoving:(bool)userMotion
 {
     if (!isPanning && !isRotating && !isZooming && !isAnimating)
     {
-        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:)])
-            [_delegate globeViewControllerDidStartMoving:self];
+        if ([_delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
+            [_delegate globeViewControllerDidStartMoving:self userMotion:userMotion];
     }
 }
 
@@ -513,18 +710,18 @@ using namespace WhirlyGlobe;
 }
 
 // Convenience routine to handle the end of moving
-- (void)handleStopMoving
+- (void)handleStopMoving:(bool)userMotion
 {
     if (isPanning || isRotating || isZooming || isAnimating)
         return;
     
-    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:)])
+    if (![_delegate respondsToSelector:@selector(globeViewController:didStopMoving:userMotion:)])
         return;
     
     MaplyCoordinate corners[4];
     [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
 
-    [_delegate globeViewController:self didStopMoving:corners];
+    [_delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
 }
 
 // Called when the pan delegate starts moving
@@ -535,7 +732,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Pan started");
 
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isPanning = true;
 }
 
@@ -548,7 +745,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Pan ended");
     
     isPanning = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) pinchDidStart:(NSNotification *)note
@@ -558,7 +755,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Pinch started");
     
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isZooming = true;
 }
 
@@ -570,7 +767,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Pinch ended");
 
     isZooming = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) rotateDidStart:(NSNotification *)note
@@ -580,7 +777,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Rotate started");
     
-    [self handleStartMoving];
+    [self handleStartMoving:true];
     isRotating = true;
 }
 
@@ -592,7 +789,7 @@ using namespace WhirlyGlobe;
 //    NSLog(@"Rotate ended");
     
     isRotating = false;
-    [self handleStopMoving];
+    [self handleStopMoving:true];
 }
 
 - (void) animationDidStart:(NSNotification *)note
@@ -602,7 +799,7 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Animation started");
 
-    [self handleStartMoving];
+    [self handleStartMoving:false];
     isAnimating = true;
 }
 
@@ -613,9 +810,14 @@ using namespace WhirlyGlobe;
     
 //    NSLog(@"Animation ended");
     
+    // Momentum animation is only kicked off by the pan delegate.
+    bool userMotion = false;
+    if ([globeView.delegate isKindOfClass:[AnimateViewMomentum class]])
+        userMotion = true;
+    
     isAnimating = false;
     knownAnimateEndRot = false;
-    [self handleStopMoving];
+    [self handleStopMoving:userMotion];
 }
 
 - (void) animationWillEnd:(NSNotification *)note
@@ -624,18 +826,20 @@ using namespace WhirlyGlobe;
     if (![info isKindOfClass:[AnimateViewMomentumMessage class]])
         return;
 
+//    NSLog(@"Animation will end");
+
     knownAnimateEndRot = true;
     animateEndRot = info.rot;
 
-    if (!isPanning && !isRotating && !isZooming)
+    if (!isRotating && !isZooming)
     {
-        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:)])
+        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:userMotion:)])
         {
             MaplyCoordinate corners[4];
             if (knownAnimateEndRot)
             {
                 [self corners:corners forRot:animateEndRot viewMat:[globeView calcViewMatrix]];
-                [_delegate globeViewController:self willStopMoving:corners];
+                [_delegate globeViewController:self willStopMoving:corners userMotion:true];
             }
         }
     }
@@ -727,6 +931,43 @@ using namespace WhirlyGlobe;
     return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
+- (bool)screenPointFromGeo:(MaplyCoordinate)geoCoord screenPt:(CGPoint *)screenPt
+{
+    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3f pt3f(pt.x(),pt.y(),pt.z());
+    
+    Eigen::Matrix4d modelTrans4d = [visualView calcModelMatrix];
+    Eigen::Matrix4d viewTrans4d = [visualView calcViewMatrix];
+    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+
+    if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
+        return false;
+    
+    *screenPt =  [globeView pointOnScreenFromSphere:pt transform:&modelAndViewMat4d frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    
+    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > sceneRenderer.framebufferWidth || screenPt->y > sceneRenderer.framebufferHeight)
+        return false;
+    
+    return true;
+}
+
+- (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)retCoord
+{
+	Point3d hit;
+	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    {
+        GeoCoord geoCoord = visualView.coordAdapter->getCoordSystem()->localToGeographic(visualView.coordAdapter->displayToLocal(hit));
+        retCoord->x = geoCoord.x();
+        retCoord->y = geoCoord.y();
+        
+        return true;
+	} else
+        return false;
+}
+
 // Note: Finish writing this
 - (id)findObjectAtLocation:(CGPoint)screenPt
 {
@@ -743,14 +984,99 @@ using namespace WhirlyGlobe;
     return nil;
 }
 
-- (void)setSunDirection:(MaplyCoordinate3d)sunDir
+#pragma mark - WhirlyGlobeAnimationDelegate
+
+// Called every frame from within the globe view
+- (void)updateView:(WhirlyGlobeView *)inGlobeView
 {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (!animationDelegate)
+    {
+        [globeView cancelAnimation];
+        return;
+    }
     
+    bool lastOne = false;
+    if (now > animationDelegateEnd)
+        lastOne = true;
+    
+    // Ask the delegate where we're supposed to be
+    WhirlyGlobeViewControllerAnimationState *animState = [animationDelegate globeViewController:self stateForTime:now];
+    
+    // Start with a rotation from the clean start state to the location
+    Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, Vector3d(0,0,1));
+    
+    // Orient with north up.  Either because we want that or we're about do do a heading
+    Eigen::Quaterniond posRotNorth = posRot;
+    if (panDelegate.northUp || animState.heading != MAXFLOAT)
+    {
+        // We'd like to keep the north pole pointed up
+        // So we look at where the north pole is going
+        Vector3d northPole = (posRot * Vector3d(0,0,1)).normalized();
+        if (northPole.y() != 0.0)
+        {
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            float ang = atan(northPole.x()/northPole.y());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.y() < 0.0)
+                ang += M_PI;
+            Eigen::AngleAxisd upRot(ang,worldLoc);
+            posRotNorth = posRot * upRot;
+        }
+    }
+    
+    // We can't have both northUp and a heading
+    Eigen::Quaterniond finalQuat = posRotNorth;
+    if (!panDelegate.northUp && animState.heading != MAXFLOAT)
+    {
+        Eigen::AngleAxisd headingRot(animState.heading,worldLoc);
+        finalQuat = posRotNorth * headingRot;
+    }
+    
+    // Set the height (easy)
+    [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
+    
+    // Set the tilt either directly or as a consequence of the height
+    if (animState.tilt == MAXFLOAT)
+        globeView.tilt = [pinchDelegate calcTilt];
+    else
+        globeView.tilt = animState.tilt;
+    
+    globeView.rotQuat = finalQuat;
+    
+    if (lastOne)
+    {
+        [globeView cancelAnimation];
+        animationDelegate = nil;
+    }
 }
 
-- (void)clearSunDirection
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
 {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    animationDelegate = inAnimationDelegate;
+    animationDelegateEnd = now+howLong;
+
+    // Figure out the current state
+    WhirlyGlobeViewControllerAnimationState *stateStart = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    startQuat = globeView.rotQuat;
+    startUp = [globeView currentUp];
+    stateStart.heading = self.heading;
+    stateStart.tilt = self.tilt;
+    MaplyCoordinate pos;
+    float height;
+    [self getPosition:&pos height:&height];
+    stateStart.pos = pos;
+    stateStart.height = height;
     
+    // Tell the delegate what we're up to
+    [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
+    
+    globeView.delegate = self;
 }
+
 
 @end

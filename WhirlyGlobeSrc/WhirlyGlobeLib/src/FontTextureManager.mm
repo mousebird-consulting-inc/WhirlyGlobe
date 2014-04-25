@@ -399,7 +399,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (unsigned int ii=0;ii<CFArrayGetCount(runs);ii++)
     {
         CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs,ii);
-        int num = CTRunGetGlyphCount(run);
+        CFIndex num = CTRunGetGlyphCount(run);
         if (num > 0)
         {
             CGGlyph *glyphs = (CGGlyph *)malloc(sizeof(CGGlyph)*num);

@@ -192,24 +192,30 @@ static float const BoundsEps = 10.0 / EarthRadius;
         topCorners.push_back(Point3d(dispPt1.x(),dispPt1.y(),dispPt1.z()));
     }
     
-    // Now let's go ahead and form the polygons for the planes
-    // First the ones around the outside
-    dispSolid.polys.reserve(planeMbrPts.size()+2);
-    for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
+    // If we've got a flat coord adapter and no height, one poly will do
+    if (coordAdapter->isFlat() && minZ == maxZ)
     {
-        int thisPt = ii;
-        int nextPt = (ii+1)%planeMbrPts.size();
-        std::vector<Point3d> poly;  poly.reserve(4);
-        poly.push_back(botCorners[thisPt]);
-        poly.push_back(botCorners[nextPt]);
-        poly.push_back(topCorners[nextPt]);
-        poly.push_back(topCorners[thisPt]);
-        dispSolid.polys.push_back(poly);
+        dispSolid.polys.push_back(topCorners);
+    } else {
+        // Now let's go ahead and form the polygons for the planes
+        // First the ones around the outside
+        dispSolid.polys.reserve(planeMbrPts.size()+2);
+        for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
+        {
+            int thisPt = ii;
+            int nextPt = (ii+1)%planeMbrPts.size();
+            std::vector<Point3d> poly;  poly.reserve(4);
+            poly.push_back(botCorners[thisPt]);
+            poly.push_back(botCorners[nextPt]);
+            poly.push_back(topCorners[nextPt]);
+            poly.push_back(topCorners[thisPt]);
+            dispSolid.polys.push_back(poly);
+        }
+        // Then top and bottom
+        dispSolid.polys.push_back(topCorners);
+        std::reverse(botCorners.begin(),botCorners.end());
+        dispSolid.polys.push_back(botCorners);
     }
-    // Then top and bottom
-    dispSolid.polys.push_back(topCorners);
-    std::reverse(botCorners.begin(),botCorners.end());
-    dispSolid.polys.push_back(botCorners);
     
     // Now calculate normals for each of those
     dispSolid.normals.reserve(dispSolid.polys.size());
@@ -234,66 +240,75 @@ static float const BoundsEps = 10.0 / EarthRadius;
 
 double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
 {
-    double origArea = PolygonArea(poly,norm);
-    origArea = std::abs(origArea);
+    double import = 0.0;
     
-    std::vector<Eigen::Vector4d> pts;
-    pts.reserve(poly.size());
-    for (unsigned int ii=0;ii<poly.size();ii++)
+    for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
     {
-        const Point3d &pt = poly[ii];
-        // Run through the model transform
-        Vector4d modPt = viewState.fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-        // And then the projection matrix.  Now we're in clip space
-        Vector4d projPt = viewState.projMatrix * modPt;
-        pts.push_back(projPt);
+        double origArea = PolygonArea(poly,norm);
+        origArea = std::abs(origArea);
+        
+        std::vector<Eigen::Vector4d> pts;
+        pts.reserve(poly.size());
+        for (unsigned int ii=0;ii<poly.size();ii++)
+        {
+            const Point3d &pt = poly[ii];
+            // Run through the model transform
+            Vector4d modPt = viewState.fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            // And then the projection matrix.  Now we're in clip space
+            Vector4d projPt = viewState.projMatrix * modPt;
+            pts.push_back(projPt);
+        }
+        
+        // The points are in clip space, so clip!
+        std::vector<Eigen::Vector4d> clipSpacePts;
+        clipSpacePts.reserve(2*pts.size());
+        ClipHomogeneousPolygon(pts,clipSpacePts);
+        
+        // Outside the viewing frustum, so ignore it
+        if (clipSpacePts.empty())
+            continue;
+        
+        // Project to the screen
+        std::vector<Point2d> screenPts;
+        screenPts.reserve(clipSpacePts.size());
+        Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
+        for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
+        {
+            Vector4d &outPt = clipSpacePts[ii];
+            Point2d screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
+            screenPts.push_back(screenPt);
+        }
+        
+        double screenArea = CalcLoopArea(screenPts);
+        screenArea = std::abs(screenArea);
+        if (boost::math::isnan(screenArea))
+            screenArea = 0.0;
+        
+        // Now project the screen points back into model space
+        std::vector<Point3d> backPts;
+        backPts.reserve(screenPts.size());
+        for (unsigned int ii=0;ii<screenPts.size();ii++)
+        {
+            Vector4d modelPt = viewState.invProjMatrix * clipSpacePts[ii];
+            Vector4d backPt = viewState.invFullMatrices[offi] * modelPt;
+            backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
+        }
+        // Then calculate the area
+        double backArea = PolygonArea(backPts,norm);
+        backArea = std::abs(backArea);
+        
+        // Now we know how much of the original polygon made it out to the screen
+        // We can scale its importance accordingly.
+        // This gets rid of small slices of big tiles not getting loaded
+        double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
+
+        // Note: Turned off for the moment
+        double newImport =  std::abs(screenArea) * scale;
+        if (newImport > import)
+        import = newImport;
     }
     
-    // The points are in clip space, so clip!
-    std::vector<Eigen::Vector4d> clipSpacePts;
-    clipSpacePts.reserve(2*pts.size());
-    ClipHomogeneousPolygon(pts,clipSpacePts);
-    
-    // Outside the viewing frustum, so ignore it
-    if (clipSpacePts.empty())
-        return 0.0;
-    
-    // Project to the screen
-    std::vector<Point2d> screenPts;
-    screenPts.reserve(clipSpacePts.size());
-    Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
-    for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
-    {
-        Vector4d &outPt = clipSpacePts[ii];
-        Point2d screenPt(outPt.x()/outPt.w() * halfFrameSize.x()+halfFrameSize.x(),outPt.y()/outPt.w() * halfFrameSize.y()+halfFrameSize.y());
-        screenPts.push_back(screenPt);
-    }
-    
-    double screenArea = CalcLoopArea(screenPts);
-    screenArea = std::abs(screenArea);
-    if (boost::math::isnan(screenArea))
-        screenArea = 0.0;
-    
-    // Now project the screen points back into model space
-    std::vector<Point3d> backPts;
-    backPts.reserve(screenPts.size());
-    for (unsigned int ii=0;ii<screenPts.size();ii++)
-    {
-        Vector4d modelPt = viewState.invProjMatrix * clipSpacePts[ii];
-        Vector4d backPt = viewState.invFullMatrix * modelPt;
-        backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
-    }
-    // Then calculate the area
-    double backArea = PolygonArea(backPts,norm);
-    backArea = std::abs(backArea);
-    
-    // Now we know how much of the original polygon made it out to the screen
-    // We can scale its importance accordingly.
-    // This gets rid of small slices of big tiles not getting loaded
-    double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
-    
-    // Note: Turned off for the moment
-    return std::abs(screenArea) * scale;
+    return import;
 }
 
 - (bool)isInside:(WhirlyKit::Point3d)pt
@@ -347,32 +362,35 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 
 - (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
-    for (unsigned int ii=0;ii<_polys.size();ii++)
+    for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
     {
-        const std::vector<Point3d> &poly = _polys[ii];
-        double origArea = PolygonArea(poly,_normals[ii]);
-        origArea = std::abs(origArea);
-        
-        std::vector<Eigen::Vector4d> pts;
-        pts.reserve(poly.size());
-        for (unsigned int ii=0;ii<poly.size();ii++)
+        for (unsigned int ii=0;ii<_polys.size();ii++)
         {
-            const Point3d &pt = poly[ii];
-            // Run through the model transform
-            Vector4d modPt = viewState.fullMatrix * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
-            // And then the projection matrix.  Now we're in clip space
-            Vector4d projPt = viewState.projMatrix * modPt;
-            pts.push_back(projPt);
-        }
-        
-        // The points are in clip space, so clip!
-        std::vector<Eigen::Vector4d> clipSpacePts;
-        clipSpacePts.reserve(2*pts.size());
-        ClipHomogeneousPolygon(pts,clipSpacePts);
+            const std::vector<Point3d> &poly = _polys[ii];
+            double origArea = PolygonArea(poly,_normals[ii]);
+            origArea = std::abs(origArea);
+            
+            std::vector<Eigen::Vector4d> pts;
+            pts.reserve(poly.size());
+            for (unsigned int ii=0;ii<poly.size();ii++)
+            {
+                const Point3d &pt = poly[ii];
+                // Run through the model transform
+                Vector4d modPt = viewState.fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+                // And then the projection matrix.  Now we're in clip space
+                Vector4d projPt = viewState.projMatrix * modPt;
+                pts.push_back(projPt);
+            }
+            
+            // The points are in clip space, so clip!
+            std::vector<Eigen::Vector4d> clipSpacePts;
+            clipSpacePts.reserve(2*pts.size());
+            ClipHomogeneousPolygon(pts,clipSpacePts);
 
-        // Got something inside the viewing frustum.  Good enough.
-        if (!clipSpacePts.empty())
-            return true;
+            // Got something inside the viewing frustum.  Good enough.
+            if (!clipSpacePts.empty())
+                return true;
+        }
     }
     
     return false;
@@ -390,9 +408,9 @@ bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,W
     {
         dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
         if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
+        attrs[@"DisplaySolid"] = dispSolid;
         else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        attrs[@"DisplaySolid"] = [NSNull null];
     }
     
     // This means the tile is degenerate (as far as we're concerned)

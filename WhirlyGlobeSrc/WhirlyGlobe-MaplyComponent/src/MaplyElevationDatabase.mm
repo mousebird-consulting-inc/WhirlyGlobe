@@ -140,6 +140,7 @@
             return nil;
     }
     
+//    NSLog(@"Loading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     float *floats = (float *)malloc(sizeof(float)*_tileSizeX*_tileSizeY);
     for (unsigned int ii=0;ii<_tileSizeX*_tileSizeY;ii++)
         floats[ii] = ((short *)[uncompressedData bytes])[ii];

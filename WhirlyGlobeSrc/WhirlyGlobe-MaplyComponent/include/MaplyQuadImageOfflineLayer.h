@@ -21,6 +21,7 @@
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
+#import "MaplyTexture.h"
 
 @class MaplyQuadImageOfflineLayer;
 
@@ -35,8 +36,8 @@
 /// Bounding box for the rendered area
 @property (nonatomic) MaplyBoundingBox bbox;
 
-/// Images produced by the renderer
-@property (nonatomic) NSArray *images;
+/// Images produced by the renderer represented as MaplyTexture objects
+@property (nonatomic) NSArray *textures;
 
 /// Size of the center pixel in meters
 @property (nonatomic) CGSize centerSize;
@@ -72,6 +73,11 @@
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys tileSource:(NSObject<MaplyTileSource> *)tileSource;
 
+/** @brief Set the active tile source.
+    @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.
+ */
+@property (nonatomic) NSObject<MaplyTileSource> *tileSource;
+
 /** @brief Enable/Disable the whole layer.
     @details By default this is on.  When off, the layer will stop working and calling its delegate.
  */
@@ -104,6 +110,11 @@
     @details Number less than 1.0 will make tiles less important to load in.
   */
 @property (nonatomic) float importanceScale;
+
+/** @brief Number of levels to consider in tiles when previewing.
+    @details When we chnage the bounds we'll run off a quick preview render if this is set.  If so, we'll consider an tile above or at this level.
+  */
+@property (nonatomic) int previewLevels;
 
 /** @brief Size of the image to produce or maximum size if autoRes is on.
     @details This is the size of each of the images passed to the delegate.  If autoRes is on this is the maximum size.

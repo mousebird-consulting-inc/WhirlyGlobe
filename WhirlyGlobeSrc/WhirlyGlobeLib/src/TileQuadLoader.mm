@@ -25,6 +25,7 @@
 #import "TileQuadLoader.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
+#import "UIColor+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -138,7 +139,7 @@ using namespace WhirlyKit;
     _quadLayer = layer;
 }
 
-- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+- (void)reset:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
     // Flush out any existing change requests
     if (!changeRequests.empty())
@@ -148,7 +149,7 @@ using namespace WhirlyKit;
     }
     
     ChangeSet theChangeRequests;
-
+    
     pthread_mutex_lock(&tileLock);
     for (LoadedTileSet::iterator it = tileSet.begin();
          it != tileSet.end(); ++it)
@@ -157,13 +158,21 @@ using namespace WhirlyKit;
         tile->clearContents(tileBuilder,theChangeRequests);
     }
     pthread_mutex_unlock(&tileLock);
-
-    if (tileBuilder)
-       tileBuilder->clearAtlases(theChangeRequests);
     
-    [layer.layerThread addChangeRequests:(theChangeRequests)];
+    networkFetches.clear();
+    localFetches.clear();
+    
+    if (tileBuilder)
+        tileBuilder->clearAtlases(theChangeRequests);
+    
+    [layer.layerThread addChangeRequests:theChangeRequests];
     
     [self clear];
+}
+
+- (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
+{
+    [self reset:layer scene:scene];
 }
 
 - (void)setTesselationSizeX:(int)x y:(int)y
@@ -250,6 +259,10 @@ using namespace WhirlyKit;
 // Make all the various parents update their child geometry
 - (void)refreshParents:(WhirlyKitQuadDisplayLayer *)layer
 {
+    // If we're in single level mode we don't bother with this
+    if (_quadLayer.targetLevel != -1)
+        return;
+    
     // Update just the parents that have changed recently
     for (std::set<Quadtree::Identifier>::iterator it = parents.begin();
          it != parents.end(); ++it)
@@ -287,13 +300,15 @@ using namespace WhirlyKit;
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
             tileBuilder->drawAtlas->swap(changeRequests,_quadLayer,@selector(wakeUp));
+            tileBuilder->texAtlas->cleanup(changeRequests);
         }
     }
 
     // If we added geometry or textures, we may need to reset this
-    if (tileBuilder)
+    if (tileBuilder && tileBuilder->newDrawables)
     {
         [self runSetCurrentImage:changeRequests];
+        tileBuilder->newDrawables = false;
     }
     
     if (!changeRequests.empty())
@@ -335,12 +350,12 @@ using namespace WhirlyKit;
 
 - (int)networkFetches
 {
-    return networkFetches.size();
+    return (int)networkFetches.size();
 }
 
 - (int)localFetches
 {
-    return localFetches.size();
+    return (int)localFetches.size();
 }
 
 // Ask the data source to start loading the image for this tile
@@ -367,6 +382,10 @@ using namespace WhirlyKit;
 // Check if we're in the process of loading the given tile
 - (bool)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer canLoadChildrenOfTile:(WhirlyKit::Quadtree::NodeInfo)tileInfo
 {
+    // For single level mode, you can always do this
+    if (layer.targetLevel != -1)
+        return true;
+    
     LoadedTile *tile = [self getTile:tileInfo.ident];
     if (!tile)
         return false;
@@ -442,6 +461,7 @@ using namespace WhirlyKit;
         tileBuilder->scene = _quadLayer.scene;
         tileBuilder->lineMode = false;
         tileBuilder->borderTexel = _borderTexel;
+        tileBuilder->singleLevel = _quadLayer.targetLevel;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
@@ -552,7 +572,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Loaded image for tile (%d,%d,%d)",col,row,level);
     
     // Various child state changed so let's update the parents
-    if (level > 0)
+    if (level > 0 && _quadLayer.targetLevel == -1)
         parents.insert(Quadtree::Identifier(col/2,row/2,level-1));
     
     if (!doingUpdate)
@@ -591,13 +611,7 @@ using namespace WhirlyKit;
     if (it != tileSet.end())
     {
         LoadedTile *theTile = *it;
-        
-        // Note: Debugging check
-        std::vector<Quadtree::Identifier> childIDs;
-        layer.quadtree->childrenForNode(theTile->nodeInfo.ident, childIDs);
-        if (childIDs.size() > 0)
-            NSLog(@" *** Deleting node with children *** ");
-        
+                
         theTile->clearContents(tileBuilder,changeRequests);
         tileSet.erase(it);
         delete theTile;
@@ -607,7 +621,7 @@ using namespace WhirlyKit;
 //    NSLog(@"Unloaded tile (%d,%d,%d)",tileInfo.ident.x,tileInfo.ident.y,tileInfo.ident.level);
 
     // We'll put this on the list of parents to update, but it'll actually happen in EndUpdates
-    if (tileInfo.ident.level > 0)
+    if (tileInfo.ident.level > 0 && layer.targetLevel == -1)
         parents.insert(Quadtree::Identifier(tileInfo.ident.x/2,tileInfo.ident.y/2,tileInfo.ident.level-1));
     
     [self updateTexAtlasMapping];
@@ -718,7 +732,7 @@ using namespace WhirlyKit;
                 if (drawInfo.baseTexId == baseTexIDs[jj])
                 {
                     theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 ? EmptyIdentity : startTexIDs[jj])));
-                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity :endTexIDs[jj])));
+                    theChanges.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity : endTexIDs[jj])));
                 }
         }
     }
@@ -803,6 +817,127 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runSetEnable:) onThread:_quadLayer.layerThread withObject:@(enable) waitUntilDone:NO];
     } else {
         [self runSetEnable:@(enable)];
+    }
+}
+
+- (void)runSetDrawPriority:(NSNumber *)newDrawPriorityObj
+{
+    int newDrawPriority = (int)[newDrawPriorityObj integerValue];
+    if (newDrawPriority == _drawPriority)
+        return;
+    
+    _drawPriority = newDrawPriority;
+
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->drawPriority = _drawPriority;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
+        }
+    }
+
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setDrawPriority:(int)drawPriority
+{
+    if (!_quadLayer)
+    {
+        _drawPriority = drawPriority;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetDrawPriority:) onThread:_quadLayer.layerThread withObject:@(drawPriority) waitUntilDone:NO];
+    } else {
+        [self runSetDrawPriority:@(drawPriority)];
+    }
+}
+
+- (void)runSetColor:(UIColor *)newColorObj
+{
+    RGBAColor newColor = [newColorObj asRGBAColor];
+    if (newColor == _color)
+        return;
+    
+    _color = newColor;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->color = _color;
+            // Note: We can't change the color of existing drawables.  The color is in the data itself.
+        }
+    }
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setColor:(WhirlyKit::RGBAColor)color
+{
+    if (!_quadLayer)
+    {
+        _color = color;
+        return;
+    }
+    
+    UIColor *newColor = [UIColor colorWithRed:color.r/255.0 green:color.g/255.0 blue:color.b/255.0 alpha:color.a/255.0];
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetColor:) onThread:_quadLayer.layerThread withObject:newColor waitUntilDone:NO];
+    } else {
+        [self runSetColor:newColor];
+    }
+}
+
+- (void)runSetProgramId:(NSNumber *)programIDObj
+{
+    int newProgramID = (int)[programIDObj integerValue];
+    if (newProgramID == _programId)
+        return;
+    
+    _programId = newProgramID;
+    
+    if (!_quadLayer)
+        return;
+    
+    ChangeSet theChanges;
+    if (_useDynamicAtlas)
+    {
+        if (tileBuilder)
+        {
+            tileBuilder->programId = _programId;
+            if (tileBuilder->drawAtlas)
+                tileBuilder->drawAtlas->setProgramIDAllDrawables(_programId, theChanges);
+        }
+    }
+    [_quadLayer.layerThread addChangeRequests:theChanges];
+}
+
+- (void)setProgramId:(WhirlyKit::SimpleIdentity)programId
+{
+    if (!_quadLayer)
+    {
+        _programId = programId;
+        return;
+    }
+    
+    if ([NSThread currentThread] != _quadLayer.layerThread)
+    {
+        [self performSelector:@selector(runSetProgramId:) onThread:_quadLayer.layerThread withObject:@(programId) waitUntilDone:NO];
+    } else {
+        [self runSetProgramId:@(programId)];
     }
 }
 

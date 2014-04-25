@@ -23,6 +23,16 @@
 
 using namespace WhirlyKit;
 
+MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat)
+{
+    MaplyCoordinate coord;
+    coord.x = radLon;
+    coord.y = radLat;
+    
+    return coord;
+}
+
+
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat)
 {
     MaplyCoordinate coord;

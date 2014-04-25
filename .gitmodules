@@ -34,3 +34,12 @@
 [submodule "third-party/fmdb"]
 	path = third-party/fmdb
 	url = https://github.com/ccgus/fmdb.git
+[submodule "third-party/SMCalloutView"]
+	path = third-party/SMCalloutView
+	url = https://github.com/nfarina/calloutview.git
+[submodule "libs/tinyxml2"]
+	path = libs/tinyxml2
+	url = https://github.com/leethomason/tinyxml2
+[submodule "third-party/tinyxml2"]
+	path = third-party/tinyxml2
+	url = https://github.com/leethomason/tinyxml2

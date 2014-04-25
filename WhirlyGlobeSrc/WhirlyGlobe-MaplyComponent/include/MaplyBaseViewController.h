@@ -31,6 +31,8 @@
 #import "MaplyActiveObject.h"
 #import "MaplyElevationSource.h"
 #import "MaplyQuadImageTilesLayer.h"
+#import "MaplyTexture.h"
+#import "MaplyAnnotation.h"
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -120,6 +122,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The marker will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a marker in when it appears and out when it disappears.|
+ |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the screen markers.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
@@ -231,6 +234,10 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyFilled|NSNumber boolean|If set, the areal geometry will be tesselated, taking holes into account.  The resulting triangles will be displayed instead of the vectors.|
  |kMaplySubdivType|NSString|When present, this requests that the geometry be broken up to follow the globe (really only makes sense there).  It can be set to kMaplySubdivGreatCircle or kMaplySubdivSimple which do a great circle subdivision and a simple 3-space subdivision respectively.  If the key is missing, we do no subdivision at all.|
  |kMaplySubdivEpsilon|NSNumber|If there's a kMaplySubdivType set this is the epsilon we'll pass into the subdivision routine.  The value is in display coordinates. 0.01 is a reasonable value.  Smaller results in more subdivision.|
+ |kMaplyVecTexture|UIImage|If set and the kMaplyFilled attribute is set, we will apply the given texture across any areal features.  How the texture is applied can be controlled by kMaplyVecTexScaleX, kMaplyVecTexScaleY, kMaplyVecCenterX, kMaplyVecCenterY, and kMaplyVecTextureProjection|
+ |kMaplyVecTexScaleX,kMaplyVecTexScaleY|NSNumber|These control the scale of the texture application.  We'll multiply by these numbers before generating texture coordinates from the vertices.|
+ |kMaplyVecCenterX,kMaplyVecCenterY|NSNumber|These control the center of a texture application.  If not set we'll use the areal's centroid.  If set, we'll use these instead.  They should be in local coordinates (probably geographic radians).|
+ |kMaplyVecTextureProjection|NSString|This controls how a texture is projected onto an areal feature.  By default we just use the geographic coordinates and stretch them out.  This look odd for very large features.  If you set this to kMaplyProjectionTangentPlane then we'll take the center of the feature, make a tangent plane and then project the coordinates onto that tangent plane to get texture coordinates.  This looks nice at the poles.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
  |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
  |kMaplyFade|NSNumber|The number of seconds to fade a vector in when it appears and out when it disappears.|
@@ -244,6 +251,28 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
+
+/** @brief Make a copy of the base object and apply the attributes given for the new version.
+ @details This call makes a cheap copy of the vectors in the given MaplyComponentObject and applies the given description to them.  You can use this to make a wider or thinner version of a set of vectors, or change their color, while continuing to draw the originals.  Or not, as the case may be.
+ @details This is useful for vector maps where we tend to reuse the same geometry at multiple levels and with different colors and line widths.
+ @details Instancing only works with a handful of visual changes.  For instance, you can't make a filled and non-filled version.
+ @param baseObj The MaplyComponentObject returned by an addVectors: call.  This only works for vectors.
+ @param desc The description dictionary with controls how vectors will be displayed.  It takes the following entries.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyColor|UIColor|Color we'll use for the vector features.|
+ |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the GL lines.|
+ |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is above this height.  Off by default.|
+ |kMaplyMaxVis|NSNumber|This is viewer height above the globe or map.  The vectors will only be visible if the user is below this height.  Off by default.|
+ |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
+ |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+
+ @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
+ 
+ @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
+ */
+- (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 /// @brief This calls addShapes:desc:mode: with mode set to MaplyThreadAny
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
@@ -290,6 +319,7 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that it will draw on top of things before it..|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the sticker(s).|
  
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -366,11 +396,56 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
 /// @brief Add a view tracker to move a UIView around based on a geographic location.
 - (void)addViewTracker:(MaplyViewTracker *)viewTrack;
 
+/** @brief Add a single annotation which will track the given point.
+    @details This adds a MaplyAnnotation that will follow the given geo coordinate, applying the screen offset as given.
+    @param annotate The annotation we want to track a given point.
+    @param coord The location on the map (or globe) we'd like to track.
+    @param offset The screen offset for the annotation UIView.  You use this to put the annotation above or below objects.
+  */
+- (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset;
+
+/** @brief Remove the given annotation from the UIView.
+    @details This will dismiss the given annotation with its animation.
+  */
+- (void)removeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Make the annotation stop moving.
+    @details If you have controls in your annotation you may need to make the annotation stop moving while the user manipulates them.  Call this method to freeze the annotation while this happens.
+  */
+- (void)freezeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Call this to start an annotation following its location again after being frozen.
+  */
+- (void)unfreezeAnnotation:(MaplyAnnotation *)annotate;
+
+/** @brief Calls removeAnnotation: on all outstanding annotations.
+  */
+- (void)clearAnnotations;
+
+/** @brief Return an array of active annotations.  Don't modify these.
+  */
+- (NSArray *)annotations;
+
 /// @brief Remove an existing view tracker.
 - (void)removeViewTrackForView:(UIView *)view;
 
-/** @brief Add an image as a texture and keep track of it.
-    @details We reference count UIImages and turn them into internal textures.  If you know you're going to be using the same image and adding and removing the object its attached to, this is a good way to lock the image down.  Otherwise we'll be constantly recreating the texture.
+/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
+    @return Returns the screen point corresponding to a given geo coordinate.
+ */
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/** @brief Animate the given position to the screen position over time.
+ @details This is similar to animateToPosition:time: except that it will attempt to match up the screen position and the geographic position.  This is how you offset the location you're looking at.
+ @details If it's impossible to move newPos to loc, then nothing happens.
+ @param newPos The geographic position (lon/lat in radians) to move to.
+ @param loc The location on the screen where we'd like it to go.
+ @param howLong How long in seconds to take getting there.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+
+/** @brief Add an image as a texture and return a MaplyTexture to track it.
+    @details We reference count UIImages attached to Maply objects, but that has a couple of drawbacks.  First, it retains the UIImage and if that's large, that's a waste of memory.  Second, if you're adding and removing Maply objects you may repeatedly create and delete the same UIImage, which is a waste of CPU.
+    @details This method solves the problem by letting you create the texture associated with the UIImage and use it where you like.  You can assign these in any place a UIImage is accepted on Maply objects.
     @details You don't have call this before using a UIImage in a MaplyScreenMarker or other object.  The system takes care of it for you.  This is purely for optimization.
     @param image The image we wish to retain the texture for.
     @param imageFormat If we create this image, this is the texture format we want it to use.
@@ -389,13 +464,16 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
 
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
-  */
-- (void)addImage:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
+ 
+    @return A MaplyTexture you'll want to keep track of.  It goes out of scope, the OpenGL ES texture will be deleted.
+ */
+- (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode;
 
-/** @brief Decrement the reference count on an image and possibly remove its associated texture.
-    @details See addImage:mode: for details on why this is here.  It's the corresponding decrement method for UIImage textures.
+/** @brief Remove the OpenGL ES texture associated with the given MaplyTexture.
+    @details MaplyTexture's will remove their associated OpenGL textures when they go out of scope.  This method does it expicitly and clears out the internals of the MaplyTexture.
+    @details Only call this if you're managing the texture explicitly and know you're finished with them.
   */
-- (void)removeImage:(UIImage *)image mode:(MaplyThreadMode)threadMode;
+- (void)removeTexture:(MaplyTexture *)image mode:(MaplyThreadMode)threadMode;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.
@@ -428,6 +506,17 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
  */
 - (void)enableObjects:(NSArray *)theObjs mode:(MaplyThreadMode)threadMode;
+
+/** @brief Call this to start journaling changes for this thread.
+    @details Your can collect up your add/remove/enable changes on the current thread.  Call startChanges to start collecting and endChanges to flush the changes.
+    @details This has no real meaning on the main thread and don't collect too many changes.  They take memory.
+  */
+- (void)startChanges;
+
+/** @brief Call this to flush your journal changes out ot the scene.
+    @details This is the other end of startChanges.
+  */
+- (void)endChanges;
 
 /** @brief Add the given active object to the scene.
     @details Active objects are used for immediate, frame based updates.  They're fairly expensive, so be careful.  After you create one, you add it to the scene here.
@@ -490,6 +579,30 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
     @return Returns the registered shader if it found one.
   */
 - (MaplyShader *)getShaderByName:(NSString *)name;
+
+/** @brief Return the current map scale from the viewpoint.
+    @details Calculate the map scale denominator (ala Mapnik) based on the current screen size and the 3D viewport.
+    @return Returns the map scale denominator or MAXFLOAT if the system is not yet initialized.
+  */
+- (float)currentMapScale;
+
+/** @brief Calculate the height that corresponds to a given Mapnik-style map scale.
+    @details Figure out the viewer height that corresponds to a given scale denominator (ala Mapnik).
+    @details This height will probably be use for visibility ranges on geometry.  This works as a mechanism for making geometry appear at certain map scales and disappear at others.
+    @return Returns the height or 0.0 if the system isn't initialized yet.
+  */
+- (float)heightForMapScale:(float)scale;
+
+/** @brief Takes a snapshot of the current OpenGL view and returns it.
+  */
+- (UIImage *)snapshot;
+
+/** @brief Return the current map zoom from the viewpoint.
+ @details Calculate the map zoom (TMS) based on the current screen size and the 3D viewport.
+ @param coordinate the location to calculate for. This is needed because zoom is dependant on latitude.
+ @return Returns the map zoom or MAXFLOAT if the system is not yet initialized.
+ */
+- (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

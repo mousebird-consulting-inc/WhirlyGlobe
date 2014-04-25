@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "GlobeView.h"
 
+@class WhirlyKitEAGLView;
+
 namespace WhirlyGlobe
 {
 
@@ -42,5 +44,11 @@ typedef enum {RotNone,RotFree} RotationType;
 
 /// Create a rotation gesture and a delegate and write them up to the given UIView
 + (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
+
+/// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
+@property (nonatomic) bool rotateAroundCenter;
+
+/// Can be called by a cooperating delegate (which is also messing with rotation) (HACK!)
+- (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView;
 
 @end
