@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustiyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
+typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustifyMiddle,MaplyLabelJustifyRight} MaplyLabelJustify;
 
 /** @brief This is a 3D label.
     @details The Maply Label is a 3D object that sits on top of the globe (or map) at a specified location.  If you want a 2D label that sits on top of everything else, you want the MaplyScreenLabel.  Seriously, you probably want that.
@@ -43,9 +43,9 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustiyMiddle,MaplyLabelJustifyRigh
 @property (nonatomic,strong) NSString *text;
 
 /** @brief Text can be accompanied by an optional icon image.
-    @details If set, we'll put this image to the left of the text in the label.  The UIImage will be tracked by the view controller and reused as needed or disposed of when no longer needed.
+    @details If set, we'll put this image to the left of the text in the label.  The UIImage (or MaplyTexture) will be tracked by the view controller and reused as needed or disposed of when no longer needed.
  */
-@property (nonatomic,strong) UIImage *iconImage;
+@property (nonatomic,strong) id iconImage;
 
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
@@ -63,7 +63,7 @@ typedef enum {MaplyLabelJustifyLeft,MaplyLabelJustiyMiddle,MaplyLabelJustifyRigh
 |Justify Value|Description|
 |:------------|:----------|
 |MaplyLabelJustifyLeft|The label will be placed with its left side on the location.|
-|MaplyLabelJustiyMiddle|The label will be centered on the location.|
+|MaplyLabelJustifyMiddle|The label will be centered on the location.|
 |MaplyLabelJustifyRight|The label will be placed with its right side on the location.|
   */
 @property (nonatomic,assign) MaplyLabelJustify justify;

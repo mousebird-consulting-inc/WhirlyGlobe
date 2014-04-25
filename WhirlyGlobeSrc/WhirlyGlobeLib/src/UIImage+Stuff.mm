@@ -63,8 +63,8 @@ using namespace WhirlyKit;
 -(NSData *)rawDataRetWidth:(unsigned int *)width height:(unsigned int *)height roundUp:(bool)roundUp
 {
 	CGImageRef cgImage = self.CGImage;
-	*width = CGImageGetWidth(cgImage);
-	*height = CGImageGetHeight(cgImage);
+	*width = (unsigned int)CGImageGetWidth(cgImage);
+	*height = (unsigned int)CGImageGetHeight(cgImage);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 	
     // If we're not rounding up, round down

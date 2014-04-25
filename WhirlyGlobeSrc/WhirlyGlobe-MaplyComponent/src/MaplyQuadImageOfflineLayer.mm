@@ -26,6 +26,7 @@
 #import "MaplyActiveObject_private.h"
 #import "WhirlyGlobe.h"
 #import "MaplyImageTile_private.h"
+#import "MaplyTexture_private.h"
 
 using namespace WhirlyKit;
 
@@ -41,9 +42,9 @@ using namespace WhirlyKit;
     MaplyCoordinateSystem *coordSys;
     WhirlyKitQuadTileOfflineLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
-    NSObject<MaplyTileSource> *tileSource;
     Scene *scene;
     bool sourceSupportsMulti;
+    bool sourceWantsAsync;
     int minZoom,maxZoom;
     int tileSize;
     bool canDoValidTiles;
@@ -54,7 +55,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     coordSys = inCoordSys;
-    tileSource = inTileSource;
+    _tileSource = inTileSource;
     _maxTiles = 256;
     _numSimultaneousFetches = 8;
     _flipY = true;
@@ -67,14 +68,37 @@ using namespace WhirlyKit;
     _textureSize = CGSizeMake(1024, 1024);
     _autoRes = true;
     _importanceScale = 1.0;
-    
+
+    // See if we're letting the source do the async calls r what
+    sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
+
     // Check if the source can handle multiple images
-    sourceSupportsMulti = [tileSource respondsToSelector:@selector(imageForTile:numImages:)];
+    sourceSupportsMulti = [_tileSource respondsToSelector:@selector(imageForTile:numImages:)];
 
     // Can answer questions about tiles
-    canDoValidTiles = [tileSource respondsToSelector:@selector(validTile:bbox:)];
+    canDoValidTiles = [_tileSource respondsToSelector:@selector(validTile:bbox:)];
     
     return self;
+}
+
+- (void)setTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(setTileSource:) onThread:super.layerThread withObject:tileSource waitUntilDone:NO];
+        return;
+    }
+    
+    _tileSource = tileSource;
+    
+    [self setupTileLoader];
+    [quadLayer refresh];
+}
+
+- (void)setImportanceScale:(float)importanceScale
+{
+    _importanceScale = importanceScale;
+    [quadLayer poke];
 }
 
 - (void)setBbox:(MaplyBoundingBox)bbox
@@ -122,12 +146,24 @@ using namespace WhirlyKit;
     super.layerThread = inLayerThread;
     scene = inScene;
     
-    minZoom = [tileSource minZoom];
-    maxZoom = [tileSource maxZoom];
-    tileSize = [tileSource tileSize];
+    minZoom = [_tileSource minZoom];
+    maxZoom = [_tileSource maxZoom];
+    tileSize = [_tileSource tileSize];
 
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileOfflineLoader alloc] initWithName:@"Offline" dataSource:self];
+    [self setupTileLoader];
+    
+    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
+    quadLayer.maxTiles = _maxTiles;
+    
+    [super.layerThread addLayer:quadLayer];
+    
+    return true;
+}
+
+- (void)setupTileLoader
+{
     tileLoader.outputDelegate = self;
     tileLoader.period = _period;
     Mbr mbr = Mbr(Point2f(_bbox.ll.x,_bbox.ll.y),Point2f(_bbox.ur.x,_bbox.ur.y));
@@ -137,13 +173,7 @@ using namespace WhirlyKit;
     tileLoader.sizeX = _textureSize.width;
     tileLoader.sizeY = _textureSize.height;
     tileLoader.autoRes = _autoRes;
-    
-    quadLayer = [[WhirlyKitQuadDisplayLayer alloc] initWithDataSource:self loader:tileLoader renderer:renderer];
-    quadLayer.maxTiles = _maxTiles;
-    
-    [super.layerThread addLayer:quadLayer];
-    
-    return true;
+    tileLoader.previewLevels = _previewLevels;
 }
 
 /// Return the coordinate system we're working in
@@ -197,7 +227,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:&bbox])
             return 0.0;
     }
     
@@ -214,18 +244,35 @@ using namespace WhirlyKit;
     MaplyTileID tileID;
     tileID.x = col;  tileID.y = row;  tileID.level = level;
     
-    // If we're not going OSM style addressing, we need to flip the Y back to TMS
+    // If we're not doing OSM style addressing, we need to flip the Y back to TMS
     if (!_flipY)
     {
         int y = (1<<level)-tileID.y-1;
         tileID.y = y;
     }
     
+    // The tile source wants to do all the async management
+    if (sourceWantsAsync)
+    {
+        // Tile sources often do work in the startFetch so let's spin that off
+        if (_asyncFetching)
+        {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                           ^{
+                               [_tileSource startFetchLayer:self tile:tileID];
+                           }
+                           );
+        } else {
+            [_tileSource startFetchLayer:self tile:tileID];
+        }
+        return;
+    }
+
     // This is the fetching block.  We'll invoke it a couple of different ways below.
     void (^workBlock)() =
     ^{
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [tileSource imageForTile:tileID];
+        id tileReturn = [_tileSource imageForTile:tileID];
         
         if ([tileReturn isKindOfClass:[NSError class]])
         {
@@ -236,7 +283,7 @@ using namespace WhirlyKit;
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level)];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)
@@ -257,6 +304,33 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+{
+    // Adjust the y back to what the system is expecting
+    int y = tileID.y;
+    if (!_flipY)
+    {
+        y = (1<<tileID.level)-tileID.y-1;
+    }
+
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
+    
+    NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(tileID.x),@(y),@(tileID.level),_tileSource];
+    if (super.layerThread)
+    {
+        if ([NSThread currentThread] == super.layerThread)
+            [self performSelector:@selector(mergeTile:) withObject:args];
+        else
+            [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
+    }
+}
+
+- (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
+{
+    // Note doing with the error right now
+}
+
 // Merge the tile result back on the layer thread
 - (void)mergeTile:(NSArray *)args
 {
@@ -269,6 +343,11 @@ using namespace WhirlyKit;
     int col = [args[1] intValue];
     int row = [args[2] intValue];
     int level = [args[3] intValue];
+    id oldTileSource = args[4];
+    
+    // This might happen if we change tile sources while we're waiting for a network call
+    if (_tileSource != oldTileSource)
+        return;
     
     [tileLoader dataSource: self loadedImage:loadTile forLevel: level col: col row: row];
 }
@@ -291,7 +370,7 @@ using namespace WhirlyKit;
 // We're not on the main thread, Dorothy.
 - (void)loader:(WhirlyKitQuadTileOfflineLoader *)loader image:(WhirlyKitQuadTileOfflineImage *)inImage
 {
-    if (_delegate && inImage && [inImage.images count])
+    if (_delegate && inImage && !inImage.textures.empty())
     {
         MaplyBoundingBox bbox;
         Mbr mbr = inImage.mbr;
@@ -299,7 +378,18 @@ using namespace WhirlyKit;
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
         MaplyOfflineImage *offlineImage = [[MaplyOfflineImage alloc] init];
         offlineImage.bbox = bbox;
-        offlineImage.images = inImage.images;
+        
+        // Convert the textures into MaplyTextures
+        NSMutableArray *maplyTextures = [NSMutableArray array];
+        for (unsigned int ii=0;ii<inImage.textures.size();ii++)
+        {
+            MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
+            maplyTex.texID = inImage.textures[ii];
+            maplyTex.viewC = _viewC;
+            [maplyTextures addObject:maplyTex];
+        }
+        
+        offlineImage.textures = maplyTextures;
         offlineImage.centerSize = inImage.centerSize;
         for (unsigned int ii=0;ii<4;ii++)
             offlineImage->cornerSizes[ii] = inImage->cornerSizes[ii];

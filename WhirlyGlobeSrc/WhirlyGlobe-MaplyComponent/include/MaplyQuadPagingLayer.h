@@ -54,6 +54,8 @@
 
 @end
 
+typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
+
 /** @brief The Quad Paging Layer is for loading things like vector tile sets.
     @details The Maply Quad Paging Layer implements a general purpose paging interface for quad tree based data sources.  This is different from the MaplyQuadImageTilesLayer in that it's meant for paging things like vector tiles, or really any other features that are not images.
     @details You set up an object that implements the MaplyPagingDelegate protocol, create the MaplyQuadPagingLayer and respond to the startFetchForTile:forLayer: method.
@@ -74,6 +76,13 @@
   */
 @property (nonatomic,assign) float importance;
 
+/** @brief Control how tiles are indexed, either from the lower left or the upper left.
+ @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ @details Default value is false.
+ */
+@property (nonatomic) bool flipY;
+
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
@@ -87,6 +96,25 @@
   */
 - (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys delegate:(NSObject<MaplyPagingDelegate> *)tileSource;
 
+/** @brief Use the target zoom level shortcut when possible.
+    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
+    @details It's on by default and will activate only when this layer's coordinate system is the same as the display system and there's no view matrix (e.g. tilt) set.
+ */
+@property (nonatomic) bool useTargetZoomLevel;
+
+/** @brief Only load a single level at a time.
+    @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.
+ */
+@property (nonatomic) bool singleLevelLoading;
+
+/** @brief The target zoom level for this layer given the current view settings.
+    @details Calculates the target zoom level for the middle of the screen.
+    @details This only makes sense for flat maps that use the same coordinate system we're using in this tile source.  In addition, the viewer can't have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it'll return a number anyway.
+    @details If all those conditions are met then we can say we're only displaying a single zoom level and this is that.
+ */
+- (int)targetZoomLevel;
+
 /** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
     @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
     @details The call is thread safe.
@@ -94,6 +122,15 @@
     @param tileID The tile ID for the data we're handing over.
   */
 - (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID;
+
+/** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
+    @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
+    @details The call is thread safe.
+    @param dataObjects An NSArray of MaplyComponentObject objects.
+    @param tileID The tile ID for the data we're handing over.
+    @param style If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.
+ */
+- (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle;
 
 /** @brief Called from your MaplyPagingDelegate when a tile fails to load.
     @details If you fail to load your tile data in your MaplyPagingDelegate, you need to let the paging layer know with this call.  Otherwise the paging layer assumes the tile is still loading.
@@ -104,6 +141,16 @@
     @details When you've finished loading the data for a tile in your MaplyPagingDelegate, but before you've called addData:forTile: call this method to let the paging layer know you succeeded in loading the tile.
  */
 - (void)tileDidLoad:(MaplyTileID)tileID;
+
+/** @brief If you're loading a number of parts of a tile from different sources, tell the layer about it.
+    @details Rather than a single tileDidLoad: call, you can break it up into the number of parts you're actually loading.  This is convenient if you're fetching data from multiple sources.
+  */
+- (void)tile:(MaplyTileID)tileID hasNumParts:(int)numParts;
+
+/** @brief If you're loading your tile in parts, let the layer know which part just got loaded.
+    @details If you've set the number of parts with tile:hasNumParts: this is how you let the layer know which parts you've loaded.
+  */
+- (void)tileDidLoad:(MaplyTileID)tileID part:(int)whichPart;
 
 /** @brief Calculate the bounding box for a single tile in geographic.
     @details This is a utility method for calculating the extents of a given tile in the local coordinate system (e.g. the one paging layer is using).

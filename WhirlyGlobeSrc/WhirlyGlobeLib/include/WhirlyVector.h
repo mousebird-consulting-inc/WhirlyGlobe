@@ -77,8 +77,8 @@ public:
     /// Returns an an array of 4 floats
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
-    bool operator == (RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
-    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    bool operator == (const RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+//    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
     RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }
 	
 	unsigned char r,g,b,a;
@@ -120,9 +120,15 @@ public:
 
 	/// Extend the MBR by the given point
 	void addPoint(Point2f pt);
-    
+
+    /// Extend the MBR by the given point
+	void addPoint(Point2d pt);
+
     /// Extend the MBR by the givenpoints
     void addPoints(const std::vector<Point2f> &coords);
+
+    /// Extend the MBR by the givenpoints
+    void addPoints(const std::vector<Point2d> &coords);
 
 	/// See if this Mbr overlaps the other one
 	bool overlaps(const Mbr &that) const;
@@ -203,6 +209,9 @@ public:
 
 	/// See if a single geo coordinate is inside the MBR
 	bool inside(GeoCoord coord) const;
+    
+    /// Expand this MBR by the bounds of the other one
+    void expand(const GeoMbr &mbr);
     
     operator Mbr() { return Mbr(pt_ll,pt_ur); }
 

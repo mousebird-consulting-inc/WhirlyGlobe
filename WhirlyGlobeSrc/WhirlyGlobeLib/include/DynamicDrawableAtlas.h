@@ -36,7 +36,7 @@ public:
     
     /// Add the given drawable to the drawable atlas.
     /// Returns true on success.  Reference the drawable by its ID.
-    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity);
+    bool addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled=true,SimpleIdentity destTexId=EmptyIdentity,bool *addedBigDrawable=NULL);
     
     /// Remove the data for a drawable by ID
     bool removeDrawable(SimpleIdentity drawId,ChangeSet &changes);
@@ -47,6 +47,12 @@ public:
     /// Enable/disable all the big drawables we're using
     void setEnableAllDrawables(bool enabled,ChangeSet &changes);
     
+    /// Change the draw priority of all the drawables we're using
+    void setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes);
+    
+    /// Change the program ID for all the drawables we're using
+    void setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes);
+        
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
     {

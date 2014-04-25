@@ -41,14 +41,14 @@
   */
 @property (nonatomic) MaplyCoordinateSystem *coordSys;
 
-/** @brief Image to stretch over the sticker.
-    @details The UIImage is cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with it.
+/** @brief Image (or MaplyTexture) to stretch over the sticker.
+    @details The UIImage (or MaplyTexture) is cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with it.
   */
-@property (nonatomic) UIImage *image;
+@property (nonatomic,strong) id image;
 
 /** @brief Images to stretch over the sticker.
-    @details This is an NSArray of UIImages.  The images will be cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with them.
-    @details All the images passed in here will be presented to the shader program, if it has variables for them.  It' sup to you to do something with them in the shader.
+    @details This is an NSArray of UIImages (or MaplyTextures).  The images will be cached in the view controller, so multiple references will result in the same texture being used.  The view controller also cleans up the images when it's done with them.
+    @details All the images passed in here will be presented to the shader program, if it has variables for them.  It's up to you to do something with them in the shader.
   */
 @property (nonatomic) NSArray *images;
 

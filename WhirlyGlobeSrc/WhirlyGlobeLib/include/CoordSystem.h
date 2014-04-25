@@ -90,6 +90,9 @@ public:
     ///  and the bounds.  Z values are ignored for now.
     /// If the subclass can't support bounds (e.g. a globe), you get false back.
     virtual bool getBounds(Point3f &ll,Point3f &ur) = 0;
+    
+    /// Return the current center
+    Point3d getCenter() { return center; }
 
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
@@ -106,9 +109,6 @@ public:
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;
     
-    /// Return the current center
-    Point3d getCenter() { return center; }
-
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
     virtual bool isFlat() = 0;
@@ -150,7 +150,7 @@ public:
     bool isFlat() { return true; }
     
 protected:
-    Point3d ll,ur,center;
+    Point3d ll,ur;
     CoordSystem *coordSys;
 };
 

@@ -21,14 +21,16 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
+/// Okay to place centered on point
+#define kMaplyLayoutCenter  (1<<0)
 /// Okay to place to the right of a point
-#define kMaplyLayoutRight  (1<<0)
+#define kMaplyLayoutRight  (1<<1)
 /// Okay to place it to the left of a point
-#define kMaplyLayoutLeft   (1<<1)
+#define kMaplyLayoutLeft   (1<<2)
 /// Okay to place on top of a point
-#define kMaplyLayoutAbove  (1<<2)
+#define kMaplyLayoutAbove  (1<<3)
 /// Okay to place below a point
-#define kMaplyLayoutBelow  (1<<3)
+#define kMaplyLayoutBelow  (1<<4)
 
 /** @brief The Screen Label is a 2D label that tracks a given geographic location.
     @details This screen label will track the given geographic position.  If it's behind the globe it will disappear.  The label is rendered in a fixed size and will always appear on top of other geometry.
@@ -44,11 +46,6 @@
     @details This is a rotation we'll apply after the screen position has been calculated.  You can use this to do things like track the orientation of roads.
   */
 @property (nonatomic,assign) float rotation;
-
-/** @brief The size of the label on the screen, in points.
-    @details This is the label size the user will see.  If you leave a value set to 0.0, we'll calculate it.  So the best strategy is to set the height to something (e.g. 20.0), but leave the width 0.0.  That way we'll calculate the right width for your text and base it on your height.
-  */
-@property (nonatomic,assign) CGSize size;
 
 /** @brief The actual text to display.
     @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
@@ -68,7 +65,7 @@
 /** @brief An optional offset for the whole screen label.
     @details If set, we'll move the screen label around by this amount before rendering it.  These are screen coordinates, not geographic.
   */
-@property (nonatomic,assign) CGSize offset;
+@property (nonatomic,assign) CGPoint offset;
 
 /** @brief An option color override.
     @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.

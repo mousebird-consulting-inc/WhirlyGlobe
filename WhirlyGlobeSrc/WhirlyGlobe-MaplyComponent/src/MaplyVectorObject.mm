@@ -29,6 +29,71 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 
+namespace Maply
+{
+class DataReader
+{
+public:
+    DataReader(NSData *data)
+    : pos(0)
+    {
+        len = (int)[data length];
+        bytes = (unsigned char *)[data bytes];
+    }
+    
+    int getInt()
+    {
+        int size = sizeof(int);
+        if (pos+size > len)
+            throw 1;
+        int iVal = *((int *)&bytes[pos]);
+        pos += size;
+        
+        return iVal;
+    }
+    
+    void rangeCheck(int iVal,int minVal,int maxVal)
+    {
+        if (iVal < minVal || iVal >= maxVal)
+            throw 1;
+    }
+    
+    float getFloat()
+    {
+        int size = sizeof(float);
+        if (pos+size > len)
+            throw 1;
+        float fVal = *((float *)&bytes[pos]);
+        pos += size;
+        return fVal;
+    }
+    
+    NSString *getString()
+    {
+        int strLen = getInt();
+        if (strLen == 0)
+            return @"";
+        const char *str = (const char *)str;
+        if (pos+strLen > len)
+            throw 1;
+        char *simpleStr = (char *)malloc(strLen+1);
+        bcopy(&bytes[pos],simpleStr,strLen);
+        simpleStr[strLen] = 0;
+        
+        NSString *retStr = [NSString stringWithCString:simpleStr encoding:NSUTF8StringEncoding];
+        free(simpleStr);
+        
+        pos += strLen;
+        return retStr;
+    }
+    
+    unsigned char *bytes;
+    int pos;
+    int len;
+};
+            
+}
+
 @implementation MaplyVectorObject
 
 + (WGVectorObject *)VectorObjectFromGeoJSON:(NSData *)geoJSON
@@ -106,6 +171,45 @@ using namespace WhirlyGlobe;
         return nil;
     
     return vecObj;
+}
+
++ (MaplyVectorObject *)VectorObjectFromShapeFile:(NSString *)fileName
+{
+    if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]])
+    {
+        fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
+    }
+    if (!fileName)
+        return nil;
+    
+    ShapeReader shapeReader(fileName);
+    if (!shapeReader.isValid())
+        return NULL;
+    
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    int numObj = shapeReader.getNumObjects();
+    for (unsigned int ii=0;ii<numObj;ii++)
+    {
+        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, nil);
+        vecObj.shapes.insert(shape);
+    }
+    
+    return vecObj;
+}
+
++ (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    if (!VectorReadFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], vecObj.shapes))
+        return nil;
+    
+    return vecObj;
+}
+
+- (bool)writeToFile:(NSString *)fileName
+{
+    return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
 
 - (NSDictionary *)attributes
@@ -194,6 +298,11 @@ using namespace WhirlyGlobe;
     }
     
     return self;
+}
+
+- (void)mergeVectorsFrom:(MaplyVectorObject *)otherVec
+{
+    _shapes.insert(otherVec.shapes.begin(),otherVec.shapes.end());
 }
 
 /// Add a hole to an existing areal feature
@@ -368,7 +477,7 @@ using namespace WhirlyGlobe;
     return ctr;
 }
 
-- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(float *)rot
+- (bool)linearMiddle:(MaplyCoordinate *)middle rot:(double *)rot
 {
     if (_shapes.empty())
         return false;
@@ -398,7 +507,7 @@ using namespace WhirlyGlobe;
             Point2f thePt = (pt1-pt0)*t + pt0;
             middle->x = thePt.x();
             middle->y = thePt.y();
-            *rot = M_PI/2.0-atan2f(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+            *rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
             return true;
         }
 
@@ -413,6 +522,20 @@ using namespace WhirlyGlobe;
     return true;
 }
 
+- (bool)middleCoordinate:(MaplyCoordinate *)middle {
+  if (_shapes.empty())
+    return false;
+  
+  VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*(_shapes.begin()));
+  if (!lin)
+    return false;
+
+  unsigned long index = lin->pts.size() / 2;
+  middle->x = lin->pts[index].x();
+  middle->y = lin->pts[index].y();
+  
+  return true;
+}
 
 - (bool)largestLoopCenter:(MaplyCoordinate *)center mbrLL:(MaplyCoordinate *)ll mbrUR:(MaplyCoordinate *)ur;
 {
@@ -544,9 +667,46 @@ using namespace WhirlyGlobe;
             }
             [loops addObject:pts];
         }
+    } else {
+        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            const VectorRing &loop = lin->pts;
+            NSMutableArray *pts = [NSMutableArray array];
+            for (unsigned int ii=0;ii<loop.size();ii++)
+            {
+                const Point2f &coord = loop[ii];
+                CLLocation *loc = [[CLLocation alloc] initWithLatitude:RadToDeg(coord.y()) longitude:RadToDeg(coord.x())];
+                [pts addObject:loc];
+            }
+            [loops addObject:pts];
+        }
     }
     
     return loops;
+}
+
+- (NSArray *)asNumbers
+{
+    if (_shapes.size() < 1)
+        return nil;
+    
+    NSMutableArray *outPts = [NSMutableArray array];
+    
+    ShapeSet::iterator it = _shapes.begin();
+    VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+    if (lin)
+    {
+        const VectorRing &loop = lin->pts;
+        for (unsigned int ii=0;ii<loop.size();ii++)
+        {
+            const Point2f &coord = loop[ii];
+            [outPts addObject:@(coord.x())];
+            [outPts addObject:@(coord.y())];
+        }
+    }
+    
+    return outPts;
 }
 
 - (NSArray *)splitVectors
@@ -636,15 +796,11 @@ using namespace WhirlyGlobe;
         VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            std::vector<WhirlyKit::VectorRing> tris;
-            TesselateLoops(ar->loops, tris);
-            for (unsigned int jj=0;jj<tris.size();jj++)
-            {
-                VectorRing &tri = tris[jj];
-                VectorArealRef newAr = VectorAreal::createAreal();
-                newAr->loops.push_back(tri);
-                newVec->_shapes.insert(newAr);
-            }
+            VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+            TesselateLoops(ar->loops, trisRef);
+            trisRef->setAttrDict(ar->getAttrDict());
+            trisRef->initGeoMbr();
+            newVec->_shapes.insert(trisRef);
         }
     }
     
@@ -667,6 +823,7 @@ using namespace WhirlyGlobe;
                 for (unsigned int jj=0;jj<newLoops.size();jj++)
                 {
                     VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->setAttrDict(ar->getAttrDict());
                     newAr->loops.push_back(newLoops[jj]);
                     newVec->_shapes.insert(newAr);
                 }
@@ -676,6 +833,159 @@ using namespace WhirlyGlobe;
     
     return newVec;
 }
+
+// Read from the raw vector format in the Vector DB
+// Note: Put this somewhere else.
+// Note: Bullet proof this if we start getting these over the network
++ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data
+{
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
+    
+    try
+    {
+        // Wrap a reader around the NSData
+        Maply::DataReader dataReader(data);
+        
+        // String table first
+        std::vector<NSString *> strings;
+        int numStrings = dataReader.getInt();
+        dataReader.rangeCheck(numStrings, 0, 1000000);
+        strings.resize(numStrings,nil);
+        for (unsigned int ii=0;ii<numStrings;ii++)
+            strings[ii] = dataReader.getString();
+        
+        // Each chunk has a group of shared attributes
+        int numChunks = dataReader.getInt();
+        dataReader.rangeCheck(numChunks, 0, 1000000);
+        for (int ii=0;ii<numChunks;ii++)
+        {
+            // All the attributes are shared within the chunk
+            NSMutableDictionary *attrDict = [NSMutableDictionary dictionary];
+            int numAttrs = dataReader.getInt();
+            dataReader.rangeCheck(numAttrs, 0, 10000);
+            for (unsigned int jj=0;jj<numAttrs;jj++)
+            {
+                // Name is index into the string table
+                int nameIdx = dataReader.getInt();
+                dataReader.rangeCheck(nameIdx, 0, (int)strings.size());
+                NSString *name = strings[nameIdx];
+                
+                // Type
+                int type = dataReader.getInt();
+                switch (type)
+                {
+                    case 0:
+                        attrDict[name] = @(dataReader.getInt());
+                        break;
+                    case 1:
+                        attrDict[name] = @(dataReader.getFloat());
+                        break;
+                    case 2:
+                    {
+                        int valIdx = dataReader.getInt();
+                        dataReader.rangeCheck(valIdx, 0, (int)strings.size());
+                        attrDict[name] = strings[valIdx];
+                    }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            // Geometry type and number of features in chunk
+            int geomType = dataReader.getInt();
+            int numFeat = dataReader.getInt();
+            dataReader.rangeCheck(numFeat, 0, 1000000);
+            
+            // Work through the features
+            for (int jj=0;jj<numFeat;jj++)
+            {
+                VectorShapeRef shape;
+                switch (geomType)
+                {
+                        // Point
+                    case 1:
+                    {
+                        VectorPointsRef pts = VectorPoints::createPoints();
+                        shape = pts;
+                        Point2f pt;
+                        pt.x() = dataReader.getFloat();
+                        pt.y() = dataReader.getFloat();
+                        pts->pts.push_back(pt);
+                        pts->initGeoMbr();
+                    }
+                        break;
+                        // Line string
+                    case 2:
+                    {
+                        int numPts = dataReader.getInt();
+                        dataReader.rangeCheck(numPts, 0, 100000);
+                        VectorLinearRef lin = VectorLinear::createLinear();
+                        shape = lin;
+                        lin->pts.reserve(numPts);
+                        for (int pi=0;pi<numPts;pi++)
+                        {
+                            Point2f pt;
+                            pt.x() = dataReader.getFloat();
+                            pt.y() = dataReader.getFloat();
+                            lin->pts.push_back(pt);
+                        }
+                        lin->initGeoMbr();
+                    }
+                        break;
+                        // Polygon
+                    case 3:
+                    {
+                        int numLoops = dataReader.getInt();
+                        dataReader.rangeCheck(numLoops, 0, 100000);
+                        VectorArealRef ar = VectorAreal::createAreal();
+                        shape = ar;
+                        ar->loops.resize(numLoops);
+                        for (int li=0;li<numLoops;li++)
+                        {
+                            VectorRing &ring = ar->loops[li];
+                            int numPts = dataReader.getInt();
+                            dataReader.rangeCheck(numPts, 0, 100000);
+                            ring.reserve(numPts);
+                            for (int pi=0;pi<numPts;pi++)
+                            {
+                                Point2f pt;
+                                pt.x() = dataReader.getFloat();
+                                pt.y() = dataReader.getFloat();
+                                ring.push_back(pt);
+                            }
+                        }
+                        ar->initGeoMbr();
+                    }
+                        break;
+                    default:
+                        throw 1;
+                        break;
+                }
+                
+                // Note: Might want to copy this if we're going to mess with it later
+                shape->setAttrDict(attrDict);
+                vecObj.shapes.insert(shape);
+            }
+        }
+
+        if (dataReader.pos < dataReader.len-1)
+            NSLog(@"Failed to read full tile.");
+    }
+    catch (...)
+    {
+        NSLog(@"Failed to read VectorDB tile.");
+        return nil;
+    }
+    
+    return vecObj;
+}
+
+
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape {
+  self.shapes.insert(shape);
+}
+
 
 @end
 

@@ -37,8 +37,11 @@ DynamicDrawableAtlas::~DynamicDrawableAtlas()
     swapChanges.clear();
 }
     
-bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId)
+bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bool enabled,SimpleIdentity destTexId,bool *addedNewBigDrawable)
 {
+    if (addedNewBigDrawable)
+        *addedNewBigDrawable = false;
+
     // See if we're already representing it
     {
         DrawRepresent represent(draw->getId());
@@ -94,7 +97,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         {
             if ((represent.elementChunkId = bigDrawInfo.bigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
             {
-                represent.vertexSize = [vertData length];
+                represent.vertexSize = (int)[vertData length];
                 represent.bigDrawId = bigDrawInfo.bigDraw->getId();
                 foundBigDraw = bigDrawInfo.bigDraw;
                 break;
@@ -110,6 +113,8 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
             newBigDraw = (*newBigDrawable)(draw,singleElementSize,numVertexBytes,numElementBytes);
         else
             newBigDraw = new BigDrawable(name,singleVertexSize,vertexAttributes,singleElementSize,numVertexBytes,numElementBytes);
+        if (addedNewBigDrawable)
+            *addedNewBigDrawable = true;
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
 
@@ -124,7 +129,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         represent.bigDrawId = newBigDraw->getId();
         if ((represent.elementChunkId = newBigDraw->addRegion(vertData, represent.vertexPos, elementData,enabled)) != EmptyIdentity)
         {
-            represent.vertexSize = [vertData length];
+            represent.vertexSize = (int)[vertData length];
             represent.bigDrawId = newBigDraw->getId();
             foundBigDraw = newBigDraw;
         }
@@ -176,7 +181,19 @@ void DynamicDrawableAtlas::setEnableAllDrawables(bool newEnable,ChangeSet &chang
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new BigDrawableOnOffChangeRequest(it->bigDraw->getId(),enable));
 }
-
+    
+void DynamicDrawableAtlas::setDrawPriorityAllDrawables(int drawPriority,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableDrawPriorityChangeRequest(it->bigDraw->getId(),drawPriority));
+}
+    
+void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes)
+{
+    for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
+        changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
+}
+    
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation

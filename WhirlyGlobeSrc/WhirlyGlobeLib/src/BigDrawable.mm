@@ -185,7 +185,11 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         const BasicDrawable::TexInfo &thisTexInfo = texInfo[ii];
         GLuint glTexID = 0;
         if (thisTexInfo.texId != EmptyIdentity)
+        {
             glTexID = scene->getGLTexture(thisTexInfo.texId);
+//            if (!glTexID)
+//                NSLog(@"Missing texture");
+        }
         glTexIDs.push_back(glTexID);
     }
     
@@ -357,7 +361,7 @@ SimpleIdentity BigDrawable::addRegion(NSMutableData *vertData,int &vertPos,NSMut
         vertPos = theRegion.pos;
         
         // Split up the remaining space, if there is any
-        Region newRegion(theRegion.pos + vertexSize,theRegion.len - vertexSize);
+        Region newRegion((int)(theRegion.pos + vertexSize),(int)(theRegion.len - vertexSize));
         if (newRegion.len > 0)
             vertexRegions.insert(newRegion);
     }
@@ -566,7 +570,7 @@ void BigDrawable::executeFlush(int whichBuffer)
 }
     
 // If set, we'll do the flushes on the main thread
-static const bool MainThreadFlush = false;
+//static const bool MainThreadFlush = false;
     
 void BigDrawable::swap(ChangeSet &changes,BigDrawableSwap *swapRequest)
 {
@@ -692,4 +696,20 @@ void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererE
         bigDraw->setOnOff(enable);
 }
 
+void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setDrawPriority(drawPriority);
+}
+
+void BigDrawableProgramIDChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    DrawableRef draw = scene->getDrawable(drawId);
+    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    if (bigDraw)
+        bigDraw->setProgram(programID);
+}
+    
 }

@@ -82,6 +82,12 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Calculate the projection matrix, given the size of the frame buffer
 - (Eigen::Matrix4d)calcProjectionMatrix:(WhirlyKit::Point2f)frameBufferSize margin:(float)margin;
 
+/// Put together one or more offset matrices to express wrapping
+- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize;
+
+/// If we're wrapping, we may need a non-wrapped coordinate
+- (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt;
+
 /// Return the nominal height above the surface of the data
 - (double)heightAboveSurface;
 
@@ -90,6 +96,15 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 
 /// Return the ray running from eye through the given screen point in display space
 //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
+
+/// Calculate a map scale
+- (double)currentMapScale:(WhirlyKit::Point2f &)frameSize;
+
+/// Calculate the height for a given scale.  Probably for minVis/maxVis
+- (double)heightForMapScale:(double)scale frame:(WhirlyKit::Point2f &)frameSize;
+
+/// Calculate map zoom
+- (double)currentMapZoom:(WhirlyKit::Point2f &)frameSize latitude:(double)latitude;
 
 /// Add a watcher delegate.  Call this on the main thread.
 - (void)addWatcherDelegate:(NSObject<WhirlyKitViewWatcherDelegate> *)delegate;

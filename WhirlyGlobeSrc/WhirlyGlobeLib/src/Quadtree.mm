@@ -109,7 +109,7 @@ void Quadtree::Node::Print()
 }
 
 Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
-    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance)
+    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance), numPhantomNodes(0)
 {
     this->importDelegate = importDelegate;
 }
@@ -132,7 +132,7 @@ bool Quadtree::isTileLoaded(Identifier ident)
     return it != nodesByIdent.end();
 }
     
-bool Quadtree::willAcceptTile(NodeInfo nodeInfo)
+bool Quadtree::willAcceptTile(const NodeInfo &nodeInfo)
 {
     // Reject it out of hand if it's too small
     if (nodeInfo.importance < minImportance)
@@ -146,7 +146,7 @@ bool Quadtree::willAcceptTile(NodeInfo nodeInfo)
     }    
     
     // If we're not at the limit, then sure
-    if (nodesByIdent.size() < maxNodes)
+    if (nodesByIdent.size()-numPhantomNodes < maxNodes)
         return true;
     
     // Otherwise, this one needs to be more important
@@ -158,6 +158,37 @@ bool Quadtree::willAcceptTile(NodeInfo nodeInfo)
     
     return compNode->nodeInfo.importance < nodeInfo.importance;
 }
+    
+bool Quadtree::isPhantom(const Identifier &ident)
+{
+    Node dummyNode(this);
+    dummyNode.nodeInfo.ident = ident;
+    
+    NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
+    if (it == nodesByIdent.end())
+        return false;
+
+    bool phantom = (*it)->nodeInfo.phantom;
+    return phantom;
+}
+    
+void Quadtree::setPhantom(const Identifier &ident,bool newPhantom)
+{
+    Node dummyNode(this);
+    dummyNode.nodeInfo.ident = ident;
+    
+    NodesByIdentType::iterator it = nodesByIdent.find(&dummyNode);
+    if (it != nodesByIdent.end())
+    {
+        bool wasPhantom = (*it)->nodeInfo.phantom;
+        (*it)->nodeInfo.phantom = newPhantom;
+        if (wasPhantom)
+            numPhantomNodes--;
+        if (newPhantom)
+            numPhantomNodes++;
+    }
+}
+
     
 void Quadtree::reevaluateNodes()
 {
@@ -191,7 +222,7 @@ void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
         node->parent->addChild(this,node);
 
     // Need to remove a node
-    int numNodes = nodesByIdent.size();
+    int numNodes = (int)nodesByIdent.size();
     if (numNodes > maxNodes)
     {
         NodesBySizeType::iterator it = nodesBySize.begin();
@@ -205,13 +236,20 @@ void Quadtree::addTile(NodeInfo nodeInfo, std::vector<Identifier> &tilesRemoved)
     // Add the new node into the lists here, so we don't remove it immediately
     node->identPos = nodesByIdent.insert(node).first;
     node->sizePos = nodesBySize.insert(node).first;
+
+    if (nodeInfo.phantom)
+        numPhantomNodes++;
 }
     
 void Quadtree::removeTile(Identifier ident)
 {
     Node *node = getNode(ident);
     if (node)
+    {
+        if (node->nodeInfo.phantom)
+            numPhantomNodes--;
         removeNode(node);
+    }
 }
     
 Quadtree::NodeInfo Quadtree::generateNode(Identifier ident)
@@ -236,10 +274,12 @@ Mbr Quadtree::generateMbrForNode(Identifier ident)
     
     return outMbr;
 }
-    
-bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance)
+
+bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool ignoreImportance,int targetLevel)
 {
     // Look for the first unimportant node without children
+    // If the targetLevel is set, we'll avoid unloading things that have parents
+    //  that are currently at the right level and phantom
     for (NodesBySizeType::iterator it = nodesBySize.begin();
          it != nodesBySize.end(); ++it)
     {

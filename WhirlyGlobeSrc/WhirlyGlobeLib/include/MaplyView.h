@@ -43,6 +43,8 @@
 @property(nonatomic,readonly) double &rotAngle;
 /// Used to update position based on time (or whatever)
 @property(nonatomic,weak) NSObject<MaplyAnimationDelegate> *delegate;
+/// If set, we'll try to wrap E/W around one side (but not more than one)
+@property(nonatomic) bool wrap;
 
 /// Initialize with the coordinate system we'll use
 - (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;

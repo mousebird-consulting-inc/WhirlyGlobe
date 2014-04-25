@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 static const int ShapeDrawPriority=1;
 
 /// Maximum number of triangles we'll stick in a drawable
-static const int MaxShapeDrawableTris=1<<15/3;
+//static const int MaxShapeDrawableTris=1<<15/3;
 
 
 @implementation WhirlyKitShapeInfo
@@ -90,7 +90,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
 {
     // Decide if we'll appending to an existing drawable or
     //  create a new one
-    int ptCount = 2*(pts.size()+1);
+    int ptCount = (int)(2*(pts.size()+1));
     if (!drawable || (drawable->getNumPoints()+ptCount > MaxDrawablePoints) || (drawable->getLineWidth() != lineWidth))
     {
         // We're done with it, toss it to the scene

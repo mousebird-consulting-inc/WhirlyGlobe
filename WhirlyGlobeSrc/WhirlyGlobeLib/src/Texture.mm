@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
 NSData *ConvertRGBATo565(NSData *inData)
 {
-    uint32_t pixelCount = [inData length]/4;
+    uint32_t pixelCount = (uint32_t)[inData length]/4;
     void *temp = malloc(pixelCount * 2);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
     uint16_t *outPixel16 = (uint16_t *)temp;
@@ -49,7 +49,7 @@ NSData *ConvertRGBATo565(NSData *inData)
 // Convert a buffer in RGBA to 2-byte 4444
 NSData *ConvertRGBATo4444(NSData *inData)
 {
-    uint32_t pixelCount = [inData length]/4;
+    uint32_t pixelCount = (uint32_t)[inData length]/4;
     void *temp = malloc(pixelCount * 2);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
     uint16_t *outPixel16 = (uint16_t *)temp;
@@ -70,7 +70,7 @@ NSData *ConvertRGBATo4444(NSData *inData)
 // Convert a buffer in RGBA to 2-byte 5551
 NSData *ConvertRGBATo5551(NSData *inData)
 {
-    uint32_t pixelCount = [inData length]/4;
+    uint32_t pixelCount = (uint32_t)[inData length]/4;
     void *temp = malloc(pixelCount * 2);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
     uint16_t *outPixel16 = (uint16_t *)temp;
@@ -91,7 +91,7 @@ NSData *ConvertRGBATo5551(NSData *inData)
 // Convert a buffer in RGBA to 1-byte alpha
 NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
 {
-    uint32_t pixelCount = [inData length]/4;
+    uint32_t pixelCount = (uint32_t)[inData length]/4;
     void *temp = malloc(pixelCount);
     uint32_t *inPixel32  = (uint32_t *)[inData bytes];
     uint8_t *outPixel8 = (uint8_t *)temp;
@@ -256,7 +256,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 	if (isPVRTC)
 	{
 		// Will always be 4 bits per pixel and RGB
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, [convertedData length], [convertedData bytes]);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);
         CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
 	} else {
         // Depending on the format, we may need to mess around with the bytes

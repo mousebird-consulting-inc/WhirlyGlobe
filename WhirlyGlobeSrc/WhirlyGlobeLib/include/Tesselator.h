@@ -27,12 +27,12 @@ namespace WhirlyKit
 
 /** Tesselate the given ring, returning a list of triangles.
     This is a fairly simple tesselator. */
-void TesselateRing(const WhirlyKit::VectorRing &ring,std::vector<WhirlyKit::VectorRing> &rets);
+void TesselateRing(const WhirlyKit::VectorRing &ring,VectorTrianglesRef tris);
 
 /** Tesselate the given areal feature.  The first ring is the outer,
     all others are meant to be holes.
   */
-void TesselateLoops(const std::vector<VectorRing> &loops,std::vector<VectorRing> &rets);
+void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris);
 
 
 }

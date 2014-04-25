@@ -155,6 +155,7 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
     _height = [desc floatForKey:@"height" default:(_screenObject ? 16.0 : 0.001)];
     _fade = [desc floatForKey:@"fade" default:0.0];
     _enable = [desc boolForKey:@"enable" default:true];
+    _programId = [desc intForKey:@"shader" default:EmptyIdentity];
 }
 
 @end
@@ -203,11 +204,11 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
     {
         // Build the rectangle for this one
         Point3f pts[4];
-        Vector3f norm;
+        Vector3d norm;
         float width2 = (marker.width == 0.0 ? markerInfo.width : marker.width)/2.0;
         float height2 = (marker.height == 0.0 ? markerInfo.height : marker.height)/2.0;
         
-        Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
+        Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(marker.loc);
         norm = coordAdapter->normalForLocal(localPt);
         
         if (markerInfo.screenObject)
@@ -217,23 +218,23 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             pts[2] = Point3f(width2,height2,0.0);
             pts[3] = Point3f(-width2,height2,0.0);
         } else {
-            Point3f center = coordAdapter->localToDisplay(localPt);
-            Vector3f up(0,0,1);
-            Point3f horiz,vert;
+            Point3d center = coordAdapter->localToDisplay(localPt);
+            Vector3d up(0,0,1);
+            Point3d horiz,vert;
             if (coordAdapter->isFlat())
             {
-                horiz = Point3f(1,0,0);
-                vert = Point3f(0,1,0);
+                horiz = Point3d(1,0,0);
+                vert = Point3d(0,1,0);
             } else {
                 horiz = up.cross(norm).normalized();
                 vert = norm.cross(horiz).normalized();;
             }
             
-            Point3f ll = center - width2*horiz - height2*vert;
-            pts[0] = ll;
-            pts[1] = ll + 2 * width2 * horiz;
-            pts[2] = ll + 2 * width2 * horiz + 2 * height2 * vert;
-            pts[3] = ll + 2 * height2 * vert;
+            Point3d ll = center - width2*horiz - height2*vert;
+            pts[0] = Vector3dToVector3f(ll);
+            pts[1] = Vector3dToVector3f(ll + 2 * width2 * horiz);
+            pts[2] = Vector3dToVector3f(ll + 2 * width2 * horiz + 2 * height2 * vert);
+            pts[3] = Vector3dToVector3f(ll + 2 * height2 * vert);
         }
         
         // While we're at it, let's add this to the selection layer
@@ -279,12 +280,13 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             {
                 ScreenSpaceGenerator::SimpleGeometry smGeom;
                 smGeom.texID = subTex.texId;
+                smGeom.programID = markerInfo.programId;
                 smGeom.color = [markerInfo.color asRGBAColor];
                 if (marker.color)
                     smGeom.color = [marker.color asRGBAColor];
                 for (unsigned int ii=0;ii<4;ii++)
                 {
-                    smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
+                    smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));
                     smGeom.texCoords.push_back(texCoord[ii]);
                 }
                 ScreenSpaceGenerator::ConvexShape *shape = new ScreenSpaceGenerator::ConvexShape();
@@ -315,21 +317,21 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     WhirlyKit::LayoutObject layoutObj(shape->getId());
                     layoutObj.dispLoc = shape->worldLoc;
                     // Note: This means they won't take up space
-                    layoutObj.size = Point2f(0.0,0.0);
+                    layoutObj.size = Point2f(2*width2,2*height2);
                     layoutObj.iconSize = Point2f(0.0,0.0);
                     layoutObj.importance = marker.layoutImportance;
                     layoutObj.minVis = markerInfo.minVis;
                     layoutObj.maxVis = markerInfo.maxVis;
                     // No moving it around
-                    layoutObj.acceptablePlacement = 0;
+                    layoutObj.acceptablePlacement = 1;
                     layoutObj.enable = markerInfo.enable;
                     layoutObjects.push_back(layoutObj);
-                    shape->offset = Point2f(MAXFLOAT,MAXFLOAT);
                     
                     // Start out off, let the layout layer handle the rest
                     shape->enable = markerInfo.enable;
-                    shape->offset = Point2f(MAXFLOAT,MAXFLOAT);
-                }
+                    shape->offset = Point2d(MAXFLOAT,MAXFLOAT);
+                } else
+                    shape->offset = marker.offset;
                 
             } else {
                 // We're sorting the static drawables by texture, so look for that
@@ -356,7 +358,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 {
                     Point3f &pt = pts[ii];
                     draw->addPoint(pt);
-                    draw->addNormal(norm);
+                    draw->addNormal(Vector3dToVector3f(norm));
                     draw->addTexCoord(0,texCoord[ii]);
                     Mbr localMbr = draw->getLocalMbr();
                     Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
@@ -376,7 +378,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             newMarker->enable = markerInfo.enable;
             for (unsigned int ii=0;ii<4;ii++)
                 newMarker->pts[ii] = pts[ii];
-                newMarker->norm = norm;
+                newMarker->norm = Vector3dToVector3f(norm);
                 newMarker->period = marker.period;
                 newMarker->start = marker.timeOffset;
                 newMarker->drawOffset = markerInfo.drawOffset;

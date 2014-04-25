@@ -93,6 +93,9 @@
  */
 - (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldLoc keepNorthUp:(BOOL)northUp;
 
+// Construct a rotation to given location and heading
+- (Eigen::Quaterniond) makeRotationToGeoCoord:(const WhirlyKit::GeoCoord &)worldCoord heading:(double)heading;
+
 /// Cancel any outstanding animation
 - (void)cancelAnimation;
 

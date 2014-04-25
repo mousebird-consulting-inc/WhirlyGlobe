@@ -40,12 +40,12 @@
 /** @brief An optional rotation to apply to the screen marker.
     @details This is a rotation we'll apply after the screen position has been calculated.
  */
-@property (nonatomic,assign) float rotation;
+@property (nonatomic,assign) double rotation;
 
-/** @brief Image to use for the marker.
-    @details If set we'll stretch this UIImage out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this UIImage and will reuse its texture and dispose of it as needed.
+/** @brief Image or texture to use for the marker.
+    @details If set we'll stretch this UIImage (or MaplyTexture) out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this object and will reuse its texture and dispose of it as needed.
   */
-@property (nonatomic,strong) UIImage *image;
+@property (nonatomic,strong) id image;
 
 /** @brief Color for this particular marker.
     @details If set, this the color we'll use for the marker or how we'll tint the image.
@@ -57,6 +57,11 @@
     @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular marker.  By default that importance is infinite (MAXFLOAT) and so the label will always appearing.  Setting this value to 1.0, for example, will mean that this marker competes with other screen objects for space.
  */
 @property (nonatomic,assign) float layoutImportance;
+
+/** @brief Offset in screen coordinates.
+    @details Set to zero by default, this is the offset we'll apply to a given screen marker before it's drawn.  The values are screen points.
+  */
+@property (nonatomic,assign) CGPoint offset;
 
 /** @brief Screen marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this screen marker will never appear in selection results.
