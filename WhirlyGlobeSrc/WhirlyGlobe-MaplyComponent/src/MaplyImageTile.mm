@@ -109,7 +109,7 @@
     _type = MaplyImgTypeData;
     stuff = @[data];
     _width = _height = -1;
-    
+        
     return self;
 }
 
