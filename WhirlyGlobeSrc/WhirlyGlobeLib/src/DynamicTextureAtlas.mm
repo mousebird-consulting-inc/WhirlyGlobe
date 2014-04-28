@@ -54,6 +54,41 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
             format = GL_RGBA;
             type = inFormat;
             break;
+        case GL_COMPRESSED_RGB8_ETC2:
+            compressed = true;
+            format = GL_RGB;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RGBA8_ETC2_EAC:
+            compressed = true;
+            format = GL_RGBA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+            compressed = true;
+            format = GL_RGBA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_R11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_SIGNED_R11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_RG11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
+        case GL_COMPRESSED_SIGNED_RG11_EAC:
+            compressed = true;
+            format = GL_ALPHA;
+            type = inFormat;
+            break;
         default:
             return;
             break;
@@ -100,7 +135,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     if (compressed)
     {
         size_t size = texSize * texSize / 2;
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, texSize, texSize, 0, (GLsizei)size, NULL);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
 //        size_t size = texSize*texSize*4;
@@ -146,8 +181,13 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
         CheckGLError("DynamicTexture::createInGL() glBindTexture()");
         if (compressed)
         {
-            size_t size = width * height / 2;
-            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, (GLsizei)size, [data bytes]);
+            int pkmType;
+            int size,thisWidth,thisHeight;
+            unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
+            if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
+                NSLog(@"Compressed texture doesn't match atlas.");
+            else
+                glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else
             glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, [data bytes]);
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");

@@ -270,6 +270,27 @@ using namespace WhirlyKit;
         case MaplyImageUByteRGB:
             tileLoader.imageType = WKTileUByteRGB;
             break;
+        case MaplyImageETC2RGB8:
+            tileLoader.imageType = WKTileETC2_RGB8;
+            break;
+        case MaplyImageETC2RGBA8:
+            tileLoader.imageType = WKTileETC2_RGBA8;
+            break;
+        case MaplyImageETC2RGBPA8:
+            tileLoader.imageType = WKTileETC2_RGB8_PunchAlpha;
+            break;
+        case MaplyImageEACR11:
+            tileLoader.imageType = WKTileEAC_R11;
+            break;
+        case MaplyImageEACR11S:
+            tileLoader.imageType = WKTileEAC_R11_Signed;
+            break;
+        case MaplyImageEACRG11:
+            tileLoader.imageType = WKTileEAC_RG11;
+            break;
+        case MaplyImageEACRG11S:
+            tileLoader.imageType = WKTileEAC_RG11_Signed;
+            break;
     }
     if (_color)
         tileLoader.color = [_color asRGBAColor];

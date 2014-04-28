@@ -40,13 +40,23 @@
  NSDataAsImage - An NSData object containing PNG or JPEG data.
  WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
  PVRTC4 - Compressed PVRTC, 4 bit, no alpha
+ PKM - ETC2 and EAC textures
  Placeholder - This is an empty image (so no visual representation)
  that is nonetheless "valid" so its children will be paged.
  */
-typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
 
 /// Used to specify the image type for the textures we create
-typedef enum {WKTileIntRGBA,WKTileUShort565,WKTileUShort4444,WKTileUShort5551,WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,WKTileUByteRGB,WKTilePVRTC4} WhirlyKitTileImageType;
+typedef enum {WKTileIntRGBA,
+    WKTileUShort565,
+    WKTileUShort4444,
+    WKTileUShort5551,
+    WKTileUByteRed,WKTileUByteGreen,WKTileUByteBlue,WKTileUByteAlpha,
+    WKTileUByteRGB,
+    WKTilePVRTC4,
+    WKTileETC2_RGB8,WKTileETC2_RGBA8,WKTileETC2_RGB8_PunchAlpha,
+    WKTileEAC_R11,WKTileEAC_R11_Signed,WKTileEAC_RG11,WKTileEAC_RG11_Signed,
+} WhirlyKitTileImageType;
 
 /// How we'll scale the tiles up or down to the nearest power of 2 (square) or not at all
 typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} WhirlyKitTileScaleType;
