@@ -315,7 +315,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
     for (int i=0; i<50; i++) {
          label = [[MaplyScreenLabel alloc] init];
 
-         label.size = CGSizeMake(0.0, 20.0);
          label.loc = MaplyCoordinateMakeWithDegrees(
              -100.0 + 0.25 * ((float)arc4random()/0x100000000),
              40.0 + 0.25 * ((float)arc4random()/0x100000000));
@@ -483,15 +482,12 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
 // Add screen (2D) labels
 - (void)addScreenLabels:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset
 {
-    CGSize size = CGSizeMake(0, 20);
-    
     NSMutableArray *labels = [NSMutableArray array];
     for (unsigned int ii=offset;ii<len;ii+=stride)
     {
         LocationInfo *location = &locations[ii];
         MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
         label.loc = MaplyCoordinateMakeWithDegrees(location->lon,location->lat);
-        label.size = size;
         label.text = [NSString stringWithFormat:@"%s",location->name];
         label.layoutImportance = 2.0;
         label.userObject = [NSString stringWithFormat:@"%s",location->name];
@@ -659,7 +655,6 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                              if ([wgVecObj centroid:&center])
                              {
                                  screenLabel.loc = center;
-                                 screenLabel.size = CGSizeMake(0, 20);
                                  screenLabel.layoutImportance = 1.0;
                                  screenLabel.text = vecName;
                                  screenLabel.userObject = screenLabel.text;
@@ -686,7 +681,7 @@ typedef enum {HighPerformance,LowPerformance} PerformanceMode;
                                                                          kMaplyTextOutlineColor: [UIColor blackColor],
                                                                           kMaplyTextOutlineSize: @(1.0)
 //                                                                               kMaplyShadowSize: @(1.0)
-                                                                      }];
+                                                                      } mode:MaplyThreadAny];
 
                                 vecObjects = locVecObjects;
                                 autoLabels = autoLabelObj;
@@ -781,6 +776,10 @@ static const int NumMegaMarkers = 40000;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(reloadLayer:) object:nil];
 #endif
     
+    if (![baseLayerName compare:kMaplyTestBlank])
+    {
+        // Nothing to see here
+    }
     if (![baseLayerName compare:kMaplyTestGeographyClass])
     {
         self.title = @"Geography Class - MBTiles Local";
@@ -1034,6 +1033,8 @@ static const int NumMegaMarkers = 40000;
             } else if (![layerName compare:kMaplyTestOWM])
             {
                 MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.openweathermap.org/map/precipitation/" ext:@"png" minZoom:0 maxZoom:6];
+                tileSource.cacheDir = [NSString stringWithFormat:@"%@/openweathermap_precipitation/",cacheDir];
+                tileSource.tileInfo.cachedFileLifetime = 3 * 60 * 60; // invalidate OWM data after three hours
                 MaplyQuadImageTilesLayer *weatherLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
                 weatherLayer.coverPoles = false;
                 layer = weatherLayer;
@@ -1054,7 +1055,7 @@ static const int NumMegaMarkers = 40000;
                 MaplyMultiplexTileSource *precipTileSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
                 // Create a precipitation layer that animates
                 MaplyQuadImageTilesLayer *precipLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:precipTileSource.coordSys tileSource:precipTileSource];
-                precipLayer.imageDepth = [tileSources count];
+                precipLayer.imageDepth = (int)[tileSources count];
                 precipLayer.animationPeriod = 6.0;
                 precipLayer.imageFormat = MaplyImageUByteRed;
 //                precipLayer.texturAtlasSize = 512;
@@ -1064,22 +1065,55 @@ static const int NumMegaMarkers = 40000;
                 precipLayer.shaderProgramName = [WeatherShader setupWeatherShader:baseViewC];
                 [baseViewC addLayer:precipLayer];
                 layer = precipLayer;
-            } else if (![layerName compare:kMaplyTestSauPaolo])
+            } else if (![layerName compare:kMaplyTestMapboxStreets])
             {
-                // Toss on a Maply Vector Database
-                // Note: Turned off for a while
-//                MaplyVectorTiles *vecTiles = [[MaplyVectorTiles alloc] initWithDatabase:@"sau_paulo"];
-//                if (vecTiles)
-//                {
-//                    MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
-//                    [baseViewC addLayer:pageLayer];
-//                    layer = pageLayer;
-//                }
+                // Fetch the tilespec for the vector tiles
+                NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/mapbox.mapbox-streets-v4.json";
+                NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
+                
+                AFJSONRequestOperation *operation =
+                [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON)
+                 {
+                     // Got the tile spec, parse out the basics
+                     // Note: This should be a vector specific version
+                     MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithTilespec:JSON];
+                     if (!tileInfo)
+                     {
+                         NSLog(@"Failed to parse tile info from: %@",jsonTileSpec);
+                     } else {
+                         // Now for the Mapnik XML
+                         NSString *stylePath = [[NSBundle mainBundle] pathForResource:@"osm-bright" ofType:@"xml"];
+                         if (stylePath)
+                         {
+                             // This deals with the Mapnik styles themselves
+                             MapnikStyleSet *styleSet = [[MapnikStyleSet alloc] initForViewC:baseViewC];
+                             [styleSet loadXmlFile:stylePath];
+                             
+                             // Now build the Mapnik vector tiles object
+                             MaplyMapnikVectorTiles *vecTiles = [[MaplyMapnikVectorTiles alloc] initWithTileSource:tileInfo];
+                             vecTiles.styleDelegate = styleSet;
+
+                             // Now for the paging layer itself
+                             MaplyQuadPagingLayer *pageLayer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:[[MaplySphericalMercator alloc] initWebStandard] delegate:vecTiles];
+                             pageLayer.flipY = false;
+                             pageLayer.importance = 1024*1024;
+                             pageLayer.useTargetZoomLevel = true;
+                             pageLayer.singleLevelLoading = true;
+                             [baseViewC addLayer:pageLayer];
+                             ovlLayers[layerName] = pageLayer;
+                         } else
+                            NSLog(@"Failed to load style file osm-bright.xml");
+                     }
+                 }
+                                                                failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON)
+                 {
+                     NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
+                 }
+                 ];
+                
+                [operation start];
             }
-            
-            // And keep track of it
-            if (layer)
-                ovlLayers[layerName] = layer;
         } else if (!isOn && layer)
         {
             // Get rid of the layer

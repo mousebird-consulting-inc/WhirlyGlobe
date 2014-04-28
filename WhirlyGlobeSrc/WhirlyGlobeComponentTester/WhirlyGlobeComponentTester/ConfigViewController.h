@@ -23,6 +23,7 @@
 // Base image layers
 #define kMaplyTestCategoryBaseLayers @"Base Layers"
 
+#define kMaplyTestBlank @"Blank"
 #define kMaplyTestGeographyClass @"Geography Class - Local"
 #define kMaplyTestBlueMarble @"NASA Blue Marble - Local"
 #define kMaplyTestStamenWatercolor @"Stamen Watercolor - Remote"
@@ -39,7 +40,7 @@
 #define kMaplyTestUSGSOrtho @"USGS Ortho (WMS) - Remote"
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
-#define kMaplyTestSauPaolo @"VectorTiles - Local"
+#define kMaplyTestMapboxStreets @"MapBox Streets Vectors - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"

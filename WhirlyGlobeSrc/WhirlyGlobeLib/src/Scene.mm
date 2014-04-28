@@ -50,7 +50,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     cullTree = new CullTree(adapter,localMbr,depth);
     
     // Also toss in a screen space generator to share amongst the layers
-    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2f(0.1,0.1));
+    ssGen = new ScreenSpaceGenerator(kScreenSpaceGeneratorShared,Point2d(0.1,0.1));
     screenSpaceGeneratorID = ssGen->getId();
     generators.insert(ssGen);
     // And put in a UIView placement generator for use in the main thread

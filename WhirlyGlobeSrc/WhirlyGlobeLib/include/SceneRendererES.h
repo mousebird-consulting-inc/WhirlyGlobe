@@ -118,11 +118,13 @@ public:
 @property (nonatomic,weak) WhirlyKitView *theView;
 /// Current model matrix from the view
 @property (nonatomic,assign) Eigen::Matrix4f modelTrans,viewTrans;
+@property (nonatomic,assign) Eigen::Matrix4d modelTrans4d,viewTrans4d;
 /// Current projection matrix
 @property (nonatomic,assign) Eigen::Matrix4f &projMat;
 /// What's currently in the GL model matrix.
 /// We combine view and model together
 @property (nonatomic,assign) Eigen::Matrix4f &viewAndModelMat;
+@property (nonatomic,assign) Eigen::Matrix4d &viewAndModelMat4d;
 /// The model, view, and projection matrix all rolled into one
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
 /// Model, and view matrix but for normal transformation
@@ -139,6 +141,8 @@ public:
 @property (nonatomic,assign) Eigen::Vector3f eyeVec;
 /// Vector out from the eye point, including tilt
 @property (nonatomic,assign) Eigen::Vector3f fullEyeVec;
+/// Location of the middle of the screen in display coordinates
+@property (nonatomic,assign) Eigen::Vector3d dispCenter;
 /// Height above surface, if that makes sense
 @property (nonatomic,assign) float heightAboveSurface;
 /// If using OpenGL ES 2.x, this is the shader

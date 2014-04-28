@@ -23,6 +23,7 @@
 #import "NSData+Zlib.h"
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
+#import "NSDictionary+StyleRules.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -174,6 +175,7 @@ using namespace WhirlyKit;
     if (!dummyInit)
     {
         NSDataDummyFunc();
+        NSDictionaryStyleDummyFunc();
         dummyInit = true;
     }
     
@@ -956,6 +958,14 @@ static const float PerfOutputDelay = 15.0;
     [sceneRenderer render:0.0];
     
     return target.image;
+}
+
+- (float)currentMapZoom:(MaplyCoordinate)coordinate
+{
+    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    if (frameSize.x() == 0)
+        return MAXFLOAT;
+    return (float)[visualView currentMapZoom:frameSize latitude:coordinate.y];
 }
 
 @end

@@ -284,7 +284,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             [attrStr addAttribute:kOutlineAttributeColor value:theOutlineColor range:NSMakeRange(0, strLen)];
             [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
         }
-        Point2f iconOff(0,0);
+        Point2d iconOff(0,0);
         ScreenSpaceGenerator::ConvexShape *screenShape = NULL;
         if (attrStr && strLen > 0)
         {
@@ -293,17 +293,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             {
                 _labelRep->drawStrIDs.insert(drawStr->getId());
 
-                Point2f justifyOff(0,0);
+                Point2d justifyOff(0,0);
                 switch (_labelInfo.justify)
                 {
                     case WhirlyKitLabelLeft:
-                        justifyOff = Point2f(0,0);
+                        justifyOff = Point2d(0,0);
                         break;
                     case WhirlyKitLabelMiddle:
-                        justifyOff = Point2f(-(drawStr->mbr.ur().x()-drawStr->mbr.ll().x())/2.0,0.0);
+                        justifyOff = Point2d(-(drawStr->mbr.ur().x()-drawStr->mbr.ll().x())/2.0,0.0);
                         break;
                     case WhirlyKitLabelRight:
-                        justifyOff = Point2f(-(drawStr->mbr.ur().x()-drawStr->mbr.ll().x()),0.0);
+                        justifyOff = Point2d(-(drawStr->mbr.ur().x()-drawStr->mbr.ll().x()),0.0);
                         break;
                 }
                 
@@ -314,7 +314,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     
                     // If we're doing layout, don't justify it
                     if (layoutEngine)
-                        justifyOff = Point2f(0,0);
+                        justifyOff = Point2d(0,0);
                     
                     screenShape = new ScreenSpaceGenerator::ConvexShape();
                     screenShape->drawPriority = _labelInfo.drawPriority;
@@ -335,11 +335,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     if (label.isSelectable && label.selectID != EmptyIdentity)
                         screenShape->setId(label.selectID);
                     _labelRep->screenIDs.insert(screenShape->getId());
-                    screenShape->worldLoc = _coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
+                    screenShape->worldLoc = _coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc));
 
                     // If there's an icon, we need to offset
                     float height = drawStr->mbr.ur().y()-drawStr->mbr.ll().y();
-                    Point2f iconSize = (label.iconTexture==EmptyIdentity ? Point2f(0,0) : (label.iconSize.width == 0.0 ? Point2f(height,height) : Point2f(label.iconSize.width,label.iconSize.height)));
+                    Point2d iconSize = (label.iconTexture==EmptyIdentity ? Point2d(0,0) : (label.iconSize.width == 0.0 ? Point2d(height,height) : Point2d(label.iconSize.width,label.iconSize.height)));
                     iconOff = iconSize;
                     
                     // Throw a rectangle in the background
@@ -349,17 +349,17 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         // Note: This is an arbitrary border around the text
                         float backBorder = 4.0;
                         ScreenSpaceGenerator::SimpleGeometry smGeom;
-                        Point2f ll = drawStr->mbr.ll()+iconOff+Point2f(-backBorder,-backBorder), ur = drawStr->mbr.ur()+iconOff+Point2f(backBorder,backBorder);
-                        smGeom.coords.push_back(Point2f(ll.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
+                        Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
+                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
                         smGeom.texCoords.push_back(TexCoord(0,0));
                        
-                        smGeom.coords.push_back(Point2f(ll.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
+                        smGeom.coords.push_back(Point2d(ll.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
                         smGeom.texCoords.push_back(TexCoord(1,0));
 
-                        smGeom.coords.push_back(Point2f(ur.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
+                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ur.y()+label.screenOffset.height)+justifyOff);
                         smGeom.texCoords.push_back(TexCoord(1,1));
 
-                        smGeom.coords.push_back(Point2f(ur.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
+                        smGeom.coords.push_back(Point2d(ur.x()+label.screenOffset.width,-ll.y()+label.screenOffset.height)+justifyOff);
                         smGeom.texCoords.push_back(TexCoord(0,1));
 
                         smGeom.color = backColor;
@@ -371,14 +371,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                     // We do this in a weird order to stick the shadow underneath
                     for (int ss=((theShadowSize > 0.0) ? 0: 1);ss<2;ss++)
                     {
-                        Point2f soff;
+                        Point2d soff;
                         RGBAColor color;
                         if (ss == 1)
                         {
-                            soff = Point2f(0,0);
+                            soff = Point2d(0,0);
                             color = embeddedColor ? [[UIColor whiteColor] asRGBAColor] : [theTextColor asRGBAColor];
                         } else {
-                            soff = Point2f(theShadowSize,theShadowSize);
+                            soff = Point2d(theShadowSize,theShadowSize);
                             color = [theShadowColor asRGBAColor];
                         }
                         for (unsigned int ii=0;ii<drawStr->glyphPolys.size();ii++)
@@ -386,16 +386,16 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                             DrawableString::Rect &poly = drawStr->glyphPolys[ii];
                             // Note: Ignoring the desired size in favor of the font size
                             ScreenSpaceGenerator::SimpleGeometry smGeom;
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(poly.texCoords[0]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[0].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[0].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].v()));
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,-poly.pts[1].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(poly.texCoords[1]);
 
-                            smGeom.coords.push_back(Point2f(poly.pts[1].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
+                            smGeom.coords.push_back(Point2d(poly.pts[1].x()+label.screenOffset.width,-poly.pts[0].y()+label.screenOffset.height) + soff + iconOff + justifyOff);
                             smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
                             
                             smGeom.texID = poly.subTex.texId;
@@ -428,7 +428,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                         
                         // The shape starts out disabled
                         screenShape->enable = _labelInfo.enable;
-                        screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
+                        screenShape->offset = Point2d(MAXFLOAT,MAXFLOAT);
                     } else
                         screenShape->enable = _labelInfo.enable;
                     
@@ -475,14 +475,14 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             // Note: We're not registering icons correctly with the selection layer
             ScreenSpaceGenerator::SimpleGeometry iconGeom;
             iconGeom.texID = subTex.texId;
-            Point2f iconPts[4];
-            iconPts[0] = Point2f(0,0);
-            iconPts[1] = Point2f(iconOff.x(),0);
+            Point2d iconPts[4];
+            iconPts[0] = Point2d(0,0);
+            iconPts[1] = Point2d(iconOff.x(),0);
             iconPts[2] = iconOff;
-            iconPts[3] = Point2f(0,iconOff.y());
+            iconPts[3] = Point2d(0,iconOff.y());
             for (unsigned int ii=0;ii<4;ii++)
             {
-                iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y())+Point2f(label.screenOffset.width,label.screenOffset.height));
+                iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y())+Point2d(label.screenOffset.width,label.screenOffset.height));
                 iconGeom.texCoords.push_back(texCoord[ii]);
             }
             // For layout objects, we'll put the icons on their own
@@ -690,11 +690,11 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             if (label.isSelectable && label.selectID != EmptyIdentity)
                 screenShape->setId(label.selectID);
             _labelRep->screenIDs.insert(screenShape->getId());
-            screenShape->worldLoc = _coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal(label.loc));
+            screenShape->worldLoc = _coordAdapter->localToDisplay(_coordAdapter->getCoordSystem()->geographicToLocal3d(label.loc));
             ScreenSpaceGenerator::SimpleGeometry smGeom;
             for (unsigned int ii=0;ii<4;ii++)
             {
-                smGeom.coords.push_back(Point2f(pts[ii].x(),pts[ii].y()));
+                smGeom.coords.push_back(Point2d(pts[ii].x(),pts[ii].y()));
                 smGeom.texCoords.push_back(texCoord[ii]);
             }
             //            smGeom.color = labelInfo.color;
@@ -732,7 +732,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 
                 // The shape starts out disabled
                 screenShape->enable = _labelInfo.enable;
-                screenShape->offset = Point2f(MAXFLOAT,MAXFLOAT);
+                screenShape->offset = Point2d(MAXFLOAT,MAXFLOAT);
             } else
                 screenShape->enable = _labelInfo.enable;
             
@@ -834,7 +834,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 iconGeom.texID = subTex.texId;
                 for (unsigned int ii=0;ii<4;ii++)
                 {
-                    iconGeom.coords.push_back(Point2f(iconPts[ii].x(),iconPts[ii].y()));
+                    iconGeom.coords.push_back(Point2d(iconPts[ii].x(),iconPts[ii].y()));
                     iconGeom.texCoords.push_back(texCoord[ii]);
                 }
                 // For layout objects, we'll put the icons on their own

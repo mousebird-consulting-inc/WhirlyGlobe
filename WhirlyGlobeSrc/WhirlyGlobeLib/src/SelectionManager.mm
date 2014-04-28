@@ -370,7 +370,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
                 {
                     std::vector<Point2f> screenPts;
                     for (unsigned int jj=0;jj<4;jj++)
-                        screenPts.push_back(sel.pts[jj]+projPt.screenLoc);
+                        screenPts.push_back(Point2f(sel.pts[jj].x(),sel.pts[jj].y())+Point2f(projPt.screenLoc.x(),projPt.screenLoc.y()));
 
                     // See if we fall within that polygon
                     if (PointInPolygon(touchPt, screenPts))
