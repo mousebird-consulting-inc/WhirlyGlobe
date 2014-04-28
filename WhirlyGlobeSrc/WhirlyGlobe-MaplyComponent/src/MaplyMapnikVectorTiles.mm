@@ -455,14 +455,4 @@ static double MAX_EXTENT = 20037508.342789244;
 }
 
 
-MaplyTileID tileWithFlippedY(MaplyTileID tileId) {
-    // Note: Debugging
-//  MaplyTileID flippedYTile;
-//  flippedYTile.level = tileId.level;
-//  flippedYTile.x = tileId.x;
-//  flippedYTile.y = ((int)(1<<tileId.level)-tileId.y)-1;
-//  return flippedYTile;
-    return tileId;
-}
-
 @end
