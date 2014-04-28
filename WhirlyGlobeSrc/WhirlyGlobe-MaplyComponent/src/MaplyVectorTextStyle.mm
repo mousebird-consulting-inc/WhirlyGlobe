@@ -43,6 +43,7 @@ typedef enum {
     float textSize;
     TextSymbolizerPlacement placement;
     TextSymbolizerTextTransform textTransform;
+    NSString *textField;
 }
 
 @end
@@ -135,10 +136,14 @@ typedef enum {
 
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
 
+        if(styleEntry[@"value"])
+            subStyle->textField = styleEntry[@"value"];
+        else
+            subStyle->textField = @"[name]";
+        
         [subStyles addObject:subStyle];
     }
     
-    self.textField = @"[name]";
     return self;
 }
 
@@ -152,7 +157,7 @@ typedef enum {
         for (MaplyVectorObject *vec in vecObjs)
         {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.text = [self formatText:self.textField forObject:vec];
+            label.text = [self formatText:subStyle->textField forObject:vec];
             switch (subStyle->textTransform)
             {
                 case TextTransformCapitalize:
