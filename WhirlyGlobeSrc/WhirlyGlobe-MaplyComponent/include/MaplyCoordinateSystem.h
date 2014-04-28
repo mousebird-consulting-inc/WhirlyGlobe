@@ -38,6 +38,16 @@
   */
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
 
+/** @brief Set the bounding box in the external coordinate system.
+ @details This is the bounding box in external coordinates. So lat/lon degrees for EPSG:4326 and mercator meter for EPSG:3857.
+ */
+- (void)setBoundsExternalLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ll;
+
+/** @brief Return the bounding box in external coordinates.
+ @details This is the bounding box in external coordinates. So lat/lon degrees for EPSG:4326 and mercator meter for EPSG:3857.
+ */
+- (void)getBoundsExternalLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur;
+
 /** @brief Convert a coordinate from geographic to the local coordinate system.
     @details Take a geo coordinate (lon/lat in radians) and convert to the local space.
   */
