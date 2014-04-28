@@ -604,11 +604,6 @@ typedef enum {MaplyThreadCurrent,MaplyThreadAny} MaplyThreadMode;
  */
 - (float)currentMapZoom:(MaplyCoordinate)coordinate;
 
-/** @brief Return the location on screen for a given geographic (lon/lat radians) coordinate.
- @return Returns the screen point corresponding to a given geo coordinate.
- */
-- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord;
-
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
 
