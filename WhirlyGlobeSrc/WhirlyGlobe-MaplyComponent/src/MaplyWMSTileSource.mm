@@ -330,7 +330,7 @@
 }
 
 /// Return the image for a given tile
-- (NSData *)imageForTile:(MaplyTileID)tileID
+- (id)imageForTile:(MaplyTileID)tileID
 {
     NSData *imgData = nil;
     bool wasCached = false;
@@ -350,41 +350,42 @@
 
         // Coordinates of the tile we're asking for
         MaplyCoordinate ll,ur;
-        [_coordSys getBoundsLL:&ll ur:&ur];
+        [_coordSys getBoundsExternalLL:&ll ur:&ur];
         MaplyCoordinate tileLL,tileUR;
         int numSide = 1<<tileID.level;
-        tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;;
+        tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;
         tileLL.y = tileID.y * (ur.y-ll.y)/numSide + ll.y;
         tileUR.x = (tileID.x+1) * (ur.x-ll.x)/numSide + ll.x;
         tileUR.y = (tileID.y+1) * (ur.y-ll.y)/numSide + ll.y;
-
-        if ([_coordSys canBeDegrees])
-        {
-            tileLL.x = tileLL.x * 180 / M_PI;
-            tileLL.y = tileLL.y * 180 / M_PI;
-            tileUR.x = tileUR.x * 180 / M_PI;
-            tileUR.y = tileUR.y * 180 / M_PI;
-        }
         
         // Put the layer request together
         NSMutableString *layerStr = [NSMutableString string];
         [layerStr appendString:_layer.name];
         
-        NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?service=WMS&version=1.1.1&request=GetMap&layers=%@&styles=&srs=%@&bbox=%f,%f,%f,%f&width=%d&height=%d&format=%@&transparent=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
+        NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=%@&STYLES=&SRS=%@&BBOX=%f,%f,%f,%f&WIDTH=%d&HEIGHT=%d&FORMAT=%@&TRANSPARENT=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
         if (_style)
-            [reqStr appendFormat:@"&style=%@",_style.name];
+            [reqStr appendFormat:@"&STYLES=%@",_style.name];
         NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
         
         // Fetch the image synchronously
         NSURLResponse *resp = nil;
         NSError *error = nil;
-        NSData *imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
+        imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
         if (error || !imgData)
         {
             NSLog(@"Failed to fetch image at: %@",reqStr);
             return nil;
         }
+        
+        // some wms servers will response with 200 OK, but with text error.
+        if (![[resp MIMEType] hasPrefix:@"image/"])
+        {
+            NSLog(@"Failed to fetch image at: %@. Got mime type %@ - expected %@",
+                  reqStr, [resp MIMEType], _imageType);
+            return nil;
+        }
+        
     }
     
     // Let's also write it back out for the cache
