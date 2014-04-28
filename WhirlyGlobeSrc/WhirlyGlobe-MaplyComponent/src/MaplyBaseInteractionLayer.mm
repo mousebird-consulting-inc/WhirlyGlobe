@@ -1800,7 +1800,12 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
 
 // Search for a point inside any of our vector objects
 // Runs in layer thread
-- (NSObject *)findVectorInPoint:(Point2f)pt
+- (NSObject *)findVectorInPoint:(Point2f)pt {
+  return [self findVectorInPoint:pt inView:nil];
+}
+
+
+- (NSObject *)findVectorInPoint:(Point2f)pt inView:(MaplyBaseViewController*)vc
 {
     NSObject *selObj = nil;
     
@@ -1821,6 +1826,9 @@ typedef std::set<ThreadChanges> ThreadChangeSet;
                     coord.y = pt.y();
                     if ([vecObj pointInAreal:coord])
                     {
+                        selObj = vecObj;
+                        break;
+                    } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
                         selObj = vecObj;
                         break;
                     }
