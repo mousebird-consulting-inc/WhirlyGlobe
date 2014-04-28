@@ -40,7 +40,7 @@
 /** @brief An optional rotation to apply to the screen marker.
     @details This is a rotation we'll apply after the screen position has been calculated.
  */
-@property (nonatomic,assign) float rotation;
+@property (nonatomic,assign) double rotation;
 
 /** @brief Image or texture to use for the marker.
     @details If set we'll stretch this UIImage (or MaplyTexture) out over the marker rectangle.  If not set, the marker will just be a colored rectange.  The view controller tracks this object and will reuse its texture and dispose of it as needed.

@@ -40,6 +40,12 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (NSString*)description
+{
+  return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
+          [[self class] description], _lineScale, _textScale, _markerScale, _mapScaleScale];
+}
+
 @end
 
 @implementation MaplyVectorTileStyle
@@ -52,7 +58,7 @@ using namespace WhirlyKit;
     if ([typeStr isEqualToString:@"LineSymbolizer"])
     {
         tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"])
+    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"] || [typeStr isEqualToString:@"PolygonPatternSymbolizer"])
     {
         tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
     } else if ([typeStr isEqualToString:@"TextSymbolizer"])
@@ -112,6 +118,51 @@ using namespace WhirlyKit;
 - (NSArray *)buildObjects:(NSArray *)vecObjs viewC:(MaplyBaseViewController *)viewC;
 {
     return nil;
+}
+
+
+- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
+{
+    if (!formatString) {
+        return nil;
+    }
+
+    NSError *error;
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
+                                                                      options:0
+                                                                        error:&error];
+    NSArray* matches = [regex matchesInString:formatString
+                                     options:0
+                                       range:NSMakeRange(0, formatString.length)];
+    
+    if(!matches.count)
+    {
+        return formatString;
+    }
+    
+    NSDictionary *attributes = vec.attributes;
+    NSMutableString *result = [NSMutableString stringWithString:formatString];
+    for (int i=(int)matches.count-1; i>= 0; i--)
+    {
+        NSTextCheckingResult* match = matches[i];
+        NSString *matchedStr = [formatString substringWithRange:NSMakeRange(match.range.location + 1,
+                                                                            match.range.length - 2)];
+        id replacement = attributes[matchedStr]?:@"";
+        if([replacement isKindOfClass:[NSNumber class]])
+        {
+            replacement = [replacement stringValue];
+        }
+        [result replaceCharactersInRange:match.range withString:replacement];
+    }
+    
+    return result;
+}
+
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ uuid:%@ additive:%d",
+          [[self class] description], self.uuid, self.geomAdditive];
 }
 
 @end

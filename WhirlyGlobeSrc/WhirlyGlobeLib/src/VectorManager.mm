@@ -127,7 +127,7 @@ class VectorDrawableBuilder
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                           VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -135,6 +135,12 @@ public:
     ~VectorDrawableBuilder()
     {
         flush();
+    }
+    
+    void setCenter(const Point3d &newCenter)
+    {
+        centerValid = true;
+        center = newCenter;
     }
     
     void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
@@ -173,9 +179,11 @@ public:
             // Convert to real world coordinates and offset from the globe
             Point2f &geoPt = pts[jj];
             GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-            Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
-            Point3f norm = coordAdapter->normalForLocal(localPt);
-            Point3f pt = coordAdapter->localToDisplay(localPt);
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+            Point3d norm3d = coordAdapter->normalForLocal(localPt);
+            Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+            Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+            Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
             
             // Add to drawable
             // Depending on the type, we do this differently
@@ -229,6 +237,12 @@ public:
             {
                 drawable->setLocalMbr(drawMbr);
                 sceneRep->drawIDs.insert(drawable->getId());
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
                 
                 if (vecInfo.fade > 0.0)
                 {
@@ -250,6 +264,8 @@ protected:
     Mbr drawMbr;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
+    Point3d center;
+    bool centerValid;
     GLenum primType;
 };
 
@@ -262,13 +278,19 @@ class VectorDrawableBuilderTri
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
                              VectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0)
     {
     }
     
     ~VectorDrawableBuilderTri()
     {
         flush();
+    }
+    
+    void setCenter(const Point3d &newCenter)
+    {
+        centerValid = true;
+        center = newCenter;
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
@@ -336,13 +358,13 @@ public:
             drawMbr.addPoints(pts);
             
             // Need an origin for this type of texture coordinate projection
-            Point3f planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
+            Point3d planeOrg(0,0,0),planeUp(0,0,1),planeX(1,0,0),planeY(0,1,0);
             if (vecInfo->texProj == TextureProjectionTanPlane)
             {
-                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(centroid.x(),centroid.y()));
+                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(centroid.x(),centroid.y()));
                 planeOrg = coordAdapter->localToDisplay(localPt);
                 planeUp = coordAdapter->normalForLocal(localPt);
-                planeX = Point3f(0,0,1).cross(planeUp);
+                planeX = Point3d(0,0,1).cross(planeUp);
                 planeY = planeUp.cross(planeX);
                 planeX.normalize();
                 planeY.normalize();
@@ -363,9 +385,9 @@ public:
                     {
                         case TextureProjectionTanPlane:
                         {
-                            Point3f dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoPt.x(),geoPt.y())));
-                            Point3f dir = dispPt - planeOrg;
-                            Point3f comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
+                            Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoPt.x(),geoPt.y())))-center;
+                            Point3d dir = dispPt - planeOrg;
+                            Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
                             texCoord.x() = comp.x();
                             texCoord.y() = comp.y();
                         }
@@ -398,9 +420,11 @@ public:
                 // Convert to real world coordinates and offset from the globe
                 Point2f &geoPt = pts[jj];
                 GeoCoord geoCoord = GeoCoord(geoPt.x(),geoPt.y());
-                Point3f localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoord);
-                Point3f norm = coordAdapter->normalForLocal(localPt);
-                Point3f pt = coordAdapter->localToDisplay(localPt);
+                Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(geoCoord);
+                Point3d norm3d = coordAdapter->normalForLocal(localPt);
+                Point3f norm(norm3d.x(),norm3d.y(),norm3d.z());
+                Point3d pt3d = coordAdapter->localToDisplay(localPt) - center;
+                Point3f pt(pt3d.x(),pt3d.y(),pt3d.z());
                 
                 drawable->addPoint(pt);
                 if (doColor)
@@ -426,6 +450,12 @@ public:
             if (drawable->getNumPoints() > 0)
             {
                 drawable->setLocalMbr(drawMbr);
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
                 sceneRep->drawIDs.insert(drawable->getId());
                 
                 if (vecInfo.fade > 0.0)
@@ -447,6 +477,8 @@ protected:
     ChangeSet &changeRequests;
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
+    Point3d center;
+    bool centerValid;
     BasicDrawable *drawable;
     VectorInfo *vecInfo;
 };
@@ -493,12 +525,38 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             break;
         }
     }
+
+    // Look for a geometry center.  We'll offset everything if there is one
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Point3d center(0,0,0);
+    bool centerValid = false;
+    // Note: Should work for the globe, but doesn't
+    if (desc[@"centered"] && [desc[@"centered"] boolValue] && coordAdapter->isFlat())
+    {
+        // Calculate the center
+        GeoMbr geoMbr;
+        for (ShapeSet::iterator it = vecInfo->shapes.begin();
+             it != vecInfo->shapes.end(); ++it)
+            geoMbr.expand((*it)->calcGeoMbr());
+        if (geoMbr.valid())
+        {
+            Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+            Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+            center = (p0+p1)/2.0;
+            centerValid = true;
+        }
+    }
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
     VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true,doColors);
+    if (centerValid)
+        drawBuild.setCenter(center);
     VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo,doColors);
-        
+    if (centerValid)
+        drawBuildTri.setCenter(center);
+    
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
     {

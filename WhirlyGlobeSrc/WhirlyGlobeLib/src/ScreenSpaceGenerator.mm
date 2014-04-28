@@ -34,7 +34,7 @@ ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry()
 {
 }
 
-ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2f> &coords,const std::vector<TexCoord> &texCoords)
+ScreenSpaceGenerator::SimpleGeometry::SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const std::vector<Point2d> &coords,const std::vector<TexCoord> &texCoords)
     : texID(texID), programID(programID), color(color), coords(coords), texCoords(texCoords)
 {    
 }
@@ -65,7 +65,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         // Project the world location to the screen
         CGPoint screenPt;
         Eigen::Matrix4d &offMatrix = frameInfo.offsetMatrices[offi];
-        Eigen::Matrix4d modelAndViewMat = Matrix4fToMatrix4d(frameInfo.viewTrans) * offMatrix * Matrix4fToMatrix4d(frameInfo.modelTrans);
+        Eigen::Matrix4d modelAndViewMat = frameInfo.viewTrans4d * offMatrix * frameInfo.modelTrans4d;
 
         WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
         MaplyView *mapView = (MaplyView *)frameInfo.theView;
@@ -73,15 +73,16 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         {
             mapView = nil;
             // Make sure this one is facing toward the viewer
-            if (CheckPointAndNormFacing(shape->worldLoc,shape->worldLoc.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
+            Point3f worldLoc3f(shape->worldLoc.x(),shape->worldLoc.y(),shape->worldLoc.z());
+            if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
                 return;
 
             // Note: Need to move to the view frustum logic
-            screenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(shape->worldLoc) transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            screenPt = [globeView pointOnScreenFromSphere:shape->worldLoc transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
         } else {
             globeView = nil;
             if ([mapView isKindOfClass:[MaplyView class]])
-                screenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(shape->worldLoc) transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                screenPt = [mapView pointOnScreenFromPlane:shape->worldLoc transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
             else
                 // No idea what this could be
                 return;
@@ -94,25 +95,16 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
         
         float resScale = frameInfo.sceneRenderer.scale;
 
-        screenPt.x += shape->offset.x()*resScale;
-        screenPt.y += shape->offset.y()*resScale;
-        
-        // It survived, so add it to the list if someone else needs to know where they wound up
-        ProjectedPoint projPt;
-        projPt.shapeID = shape->getId();
-        projPt.screenLoc = Point2f(screenPt.x,screenPt.y);
-        projPts.push_back(projPt);
-
         // If we need to do a rotation, throw out a point along the vector and see where it goes
         float screenRot = 0.0;
-        Matrix2f screenRotMat;
+        Matrix2d screenRotMat;
         if (shape->useRotation)
         {
-            Point3f norm,right,up;
+            Point3d norm,right,up;
             
             if (globeView)
             {
-                Point3f simpleUp(0,0,1);
+                Point3d simpleUp(0,0,1);
                 norm = shape->worldLoc;
                 norm.normalize();
                 right = simpleUp.cross(norm);
@@ -120,23 +112,29 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
                 right.normalize();
                 up.normalize();
             } else {
-                right = Point3f(1,0,0);
-                norm = Point3f(0,0,1);
-                up = Point3f(0,1,0);
+                right = Point3d(1,0,0);
+                norm = Point3d(0,0,1);
+                up = Point3d(0,1,0);
             }
             // Note: Check if the axes made any sense.  We might be at a pole.
-            Point3f rightDir = right * sinf(shape->rotation);
-            Point3f upDir = up * cosf(shape->rotation);
+            Point3d rightDir = right * sin(shape->rotation);
+            Point3d upDir = up * cos(shape->rotation);
             
-            Point3f outPt = rightDir * 1.0 + upDir * 1.0 + shape->worldLoc;
+            Point3d outPt = rightDir * 0.00001 + upDir * 0.00001 + shape->worldLoc;
             CGPoint outScreenPt;
             if (globeView)
-                outScreenPt = [globeView pointOnScreenFromSphere:Vector3fToVector3d(outPt) transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                outScreenPt = [globeView pointOnScreenFromSphere:outPt transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
             else
-                outScreenPt = [mapView pointOnScreenFromPlane:Vector3fToVector3d(outPt) transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
-            screenRot = M_PI/2.0-atan2f(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
-            screenRotMat = Eigen::Rotation2Df(screenRot);
+                outScreenPt = [mapView pointOnScreenFromPlane:outPt transform:&modelAndViewMat frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+            screenRot = M_PI/2.0-atan2(screenPt.y-outScreenPt.y,outScreenPt.x-screenPt.x);
+            screenRotMat = Eigen::Rotation2Dd(screenRot);
         }
+        
+        // It survived, so add it to the list if someone else needs to know where they wound up
+        ProjectedPoint projPt;
+        projPt.shapeID = shape->getId();
+        projPt.screenLoc = Point2d(screenPt.x+shape->offset.x()*resScale,screenPt.y+shape->offset.y()*resScale);
+        projPts.push_back(projPt);
 
         // Set up the alpha scaling
         bool hasAlpha = false;
@@ -200,7 +198,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
             Point2f org(MAXFLOAT,MAXFLOAT);
             for (unsigned int ii=0;ii<geom.coords.size();ii++)
             {
-                Point2f coord = geom.coords[ii];
+                Point2d coord = geom.coords[ii] + shape->offset;
                 if (screenRot != 0.0)
                     coord = screenRotMat * coord;
                 pts[ii] = Point2f(coord.x()*resScale,coord.y()*resScale)+center;
@@ -247,7 +245,7 @@ void ScreenSpaceGenerator::addToDrawables(ConvexShape *shape,WhirlyKitRendererFr
     }
 }
     
-ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2f margin)
+ScreenSpaceGenerator::ScreenSpaceGenerator(const std::string &name,Point2d margin)
     : Generator(name), margin(margin)
 {
     pthread_mutex_init(&projectedPtsLock,NULL);    

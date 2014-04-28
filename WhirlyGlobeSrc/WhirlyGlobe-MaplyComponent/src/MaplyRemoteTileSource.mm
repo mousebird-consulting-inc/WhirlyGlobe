@@ -157,9 +157,36 @@ using namespace WhirlyKit;
     
     NSString *fileName = [self fileNameForTile:tileID];
     if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
-        return true;
+    {
+        // If the file is out of date, treat it as if it were not local, as it will have to be fetched.
+        if (self.cachedFileLifetime != 0)
+        {
+            NSDate *fileTimestamp = [MaplyRemoteTileInfo dateForFile:fileName];
+            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:fileTimestamp];
+            if (ageOfFile <= self.cachedFileLifetime)
+            {
+                return true;
+            }
+//            else
+//            {
+//                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//            }
+        }
+        else // no lifetime set for cached files
+        {
+            return true;
+        }
+    }
     
     return false;
+}
+
++ (NSDate *)dateForFile:(NSString *)fileName
+{
+    NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fileName error:nil];
+    NSDate *fileTimestamp = [fileAttributes fileModificationDate];
+    
+    return fileTimestamp;
 }
 
 - (NSURLRequest *)requestForTile:(MaplyTileID)tileID
@@ -309,10 +336,23 @@ using namespace WhirlyKit;
 // For a remote tile source, this one only works if it's local
 - (id)imageForTile:(MaplyTileID)tileID
 {
+    bool doLoad = true;
     NSString *fileName = [_tileInfo fileNameForTile:tileID];
-    NSData *imgData = [NSData dataWithContentsOfFile:fileName];
+    if (_tileInfo.cachedFileLifetime > 0)
+    {
+        NSDate *timeStamp = [MaplyRemoteTileInfo dateForFile:fileName];
+        if (timeStamp)
+        {
+            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:timeStamp];
+            if (ageOfFile > _tileInfo.cachedFileLifetime)
+                doLoad = false;
+        }
+    }
     
-    return imgData;
+    if (doLoad)
+        return [NSData dataWithContentsOfFile:fileName];
+    
+    return nil;
 }
 
 - (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
@@ -323,7 +363,7 @@ using namespace WhirlyKit;
     if (_tileInfo.cacheDir)
     {
         fileName = [_tileInfo fileNameForTile:tileID];
-        imgData = [NSData dataWithContentsOfFile:fileName];
+        imgData = [self imageForTile:tileID];
     }
     
     if (imgData)

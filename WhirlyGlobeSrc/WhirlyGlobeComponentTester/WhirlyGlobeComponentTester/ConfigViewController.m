@@ -68,7 +68,8 @@
     NSMutableArray *newValues = [NSMutableArray array];
     [newValues addObject:[ConfigSection ConfigSectionWithName:kMaplyTestCategoryBaseLayers
                                                          rows:
-                          @{kMaplyTestGeographyClass: @(YES),
+                          @{kMaplyTestBlank: @(NO),
+                                    kMaplyTestGeographyClass: @(YES),
                                          kMaplyTestBlueMarble: @(NO),
                                    kMaplyTestStamenWatercolor: @(NO),
                                                 kMaplyTestOSM: @(NO),
@@ -90,7 +91,7 @@
                 @{kMaplyTestUSGSOrtho: @(NO),
                   kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyTestSauPaolo: @(NO)}
+                  kMaplyTestMapboxStreets: @(NO)}
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                                rows:
@@ -121,7 +122,7 @@
             @{kMaplyTestUSGSOrtho: @(NO),
               kMaplyTestOWM: @(NO),
               kMaplyTestForecastIO: @(NO),
-              kMaplyTestSauPaolo: @(NO)}
+              kMaplyTestMapboxStreets: @(NO)}
                                    singleSelect:false],
            [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
                                            rows:
