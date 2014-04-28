@@ -22,6 +22,8 @@
 #import <UIKit/UIKit.h>
 #import <MaplyCoordinate.h>
 
+@class MaplyBaseViewController;
+
 /// Data type for the vector.  Multi means it contains multiple types
 typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,MaplyVectorArealType,MaplyVectorMultiType} MaplyVectorObjectType;
 
@@ -140,6 +142,10 @@ typedef enum {MaplyVectorNoneType,MaplyVectorPointType,MaplyVectorLinearType,Map
     @details We'll run a point in polygon test on all the areal features within the vector object.  If the point is within one of them, we return true, otherwise false.
   */
 - (bool)pointInAreal:(MaplyCoordinate)coord;
+
+/** @brief Test if any linear feature is within distance of coord
+ */
+- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController*)vc;
 
 /** @brief Calculate the center of the entire set of vectors in this object.
   */
